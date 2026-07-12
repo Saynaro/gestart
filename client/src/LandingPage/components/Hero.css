@@ -1,0 +1,282 @@
+.hero-container {
+    margin: 130px 0 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.hero-content {
+    width: 70%;
+    margin: auto;
+    padding: 0 5%;
+    text-align: center;
+}
+
+.hero-image {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+
+}
+
+.text-primary {
+    font-size: 3.8rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+
+}
+
+.text-secondary {
+    color: rgb(0, 83, 113);
+}
+
+.hero-content p {
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #3a3a3a;
+    margin-top: 1rem;
+    width: 95%;
+}
+
+.hero-buttons {
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.primary-button {
+    background-color: rgb(0, 83, 113);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    background-color: rgb(1, 113, 153);
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.mobile-text {
+    display: none;
+}
+
+.desktop-text {
+    display: inline;
+}
+
+.secondary-button {
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    color: rgb(0, 83, 113);
+    border: 1px solid rgb(0, 83, 113);
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.secondary-button:hover {
+    opacity: 0.75;
+    background-color: rgba(0, 83, 113, 0.04) !important;
+    cursor: pointer;
+}
+
+.hero-footer {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+}
+
+.footer-item {
+    font-size: 0.8rem;
+    color: #3b3b3b;
+}
+
+.hero-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .hero-container {
+        margin: 90px 0 20px 0;
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .hero-content {
+        width: 100%;
+        margin-top: 20px;
+        padding: 0 15px;
+    }
+
+    .text-primary {
+        font-size: 2.1rem;
+        line-height: 1.3;
+    }
+
+    .hero-content p {
+        width: 100%;
+        margin-top: 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+        margin: 1.5rem 0;
+    }
+
+    .mobile-text {
+        display: inline;
+    }
+
+    .desktop-text {
+        display: none;
+    }
+
+    .primary-button,
+    .secondary-button {
+        margin: auto;
+        width: 70%;
+        justify-content: center;
+        padding: 12px 20px;
+    }
+
+    .hero-image {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .hero-footer {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px 16px;
+        margin-top: 1.5rem;
+        padding: 0 15px;
+    }
+
+    .footer-item {
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+}
+
+/* Animated Beam Flow Pipeline */
+.hero-flow-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 340px;
+    margin: 0 auto 35px auto;
+    padding: 10px 0;
+}
+
+.flow-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+.flow-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card, #ffffff);
+    border: 2px solid rgba(0, 83, 113, 0.12);
+    box-shadow: 0 4px 10px rgba(0, 83, 113, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.flow-node:hover .flow-icon-wrapper {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 83, 113, 0.12);
+}
+
+.flow-icon-wrapper.left {
+    color: rgb(0, 83, 113);
+}
+
+.flow-node:hover .flow-icon-wrapper.left {
+    border-color: rgb(0, 83, 113);
+}
+
+.flow-icon-wrapper.middle {
+    color: rgb(1, 113, 153);
+}
+
+.flow-node:hover .flow-icon-wrapper.middle {
+    border-color: rgb(1, 113, 153);
+}
+
+.flow-icon-wrapper.right {
+    color: #16a34a;
+}
+
+.flow-node:hover .flow-icon-wrapper.right {
+    border-color: #16a34a;
+    box-shadow: 0 6px 15px rgba(22, 163, 74, 0.15);
+}
+
+.flow-icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2px;
+}
+
+.flow-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748B;
+    transition: color 0.2s ease;
+}
+
+.flow-node:hover .flow-label {
+    color: #0F172A;
+}
+
+@media (max-width: 768px) {
+    .hero-flow-container {
+        width: 290px;
+        margin-bottom: 25px;
+    }
+
+    .flow-icon-wrapper {
+        width: 42px;
+        height: 42px;
+    }
+
+    .flow-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .flow-label {
+        font-size: 0.7rem;
+    }
+}

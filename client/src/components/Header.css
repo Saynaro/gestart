@@ -1,0 +1,218 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    height: 64px;
+    background-color: var(--sidebar);
+    border-bottom: 1px solid var(--sidebar-border);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.greeting {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--foreground);
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.notification-wrapper:hover {
+    opacity: 1;
+}
+
+.bell-icon {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.8;
+}
+
+.notification-dot {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 7px;
+    height: 7px;
+    background-color: var(--destructive);
+    border-radius: 50%;
+    border: 1.5px solid var(--sidebar);
+}
+
+.avatar-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.header-avatar {
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground);
+    font-weight: 600;
+    font-size: 13px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.05em;
+    transition: transform 0.15s ease;
+}
+
+.header-avatar:hover {
+    transform: scale(1.04);
+}
+
+/* Mobile Dropdown styles (visible on click) */
+.mobile-dropdown {
+    position: absolute;
+    top: 46px;
+    right: 0;
+    background-color: var(--sidebar);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    width: 220px;
+    z-index: 2000;
+    padding: 12px 8px;
+    animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 4px 12px 6px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.dropdown-user-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.dropdown-user-plan {
+    font-size: 11px;
+    color: var(--muted-foreground);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: var(--sidebar-border);
+    margin: 8px 0;
+}
+
+.dropdown-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dropdown-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    color: var(--sidebar-foreground);
+    opacity: 0.8;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    gap: 10px;
+    transition: all 0.15s ease-in-out;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(95, 75, 219, 0.04);
+}
+
+.dropdown-item:hover .dropdown-link {
+    opacity: 1;
+}
+
+.dropdown-item.danger .dropdown-link {
+    color: var(--destructive);
+}
+
+.dropdown-item.danger:hover {
+    background-color: rgba(192, 57, 43, 0.08);
+}
+
+.dropdown-item.active {
+    background-color: var(--sidebar-accent);
+}
+
+.dropdown-item.active .dropdown-link {
+    color: var(--sidebar-primary);
+    font-weight: 600;
+    opacity: 1;
+}
+
+.dropdown-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.8;
+}
+
+.dropdown-badge {
+    margin-left: auto;
+    background-color: rgba(95, 75, 219, 0.12);
+    color: var(--sidebar-primary);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1.5px 5px;
+    border-radius: 5px;
+}
+
+/* Media query for mobile headers */
+@media (max-width: 768px) {
+    .header {
+        padding: 0 16px;
+        background-color: var(--sidebar);
+    }
+    
+    .greeting {
+        font-size: 18px;
+    }
+}

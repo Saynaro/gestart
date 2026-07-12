@@ -1,0 +1,409 @@
+* {
+    box-sizing: border-box;
+}
+
+
+
+.sidebar {
+    width: 240px;
+    height: 100dvh;
+    position: sticky;
+    top: 0;
+    left: 0;
+    background-color: var(--sidebar);
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 14px;
+
+}
+
+.sidebar-top {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px 14px 6px;
+    border-bottom: 1px solid var(--sidebar-border);
+    margin-bottom: 4px;
+}
+
+.logo-icon-bg {
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-snowflake {
+    width: 20px;
+    height: 20px;
+}
+
+.logo-text {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--sidebar-foreground);
+    letter-spacing: -0.03em;
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted-foreground);
+    letter-spacing: 0.1em;
+    margin: 0 0 6px 10px;
+    text-transform: uppercase;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.menu-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 7px 10px 7px 14px;
+    color: var(--sidebar-foreground);
+    opacity: 0.8;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: var(--font-weight-medium);
+    border-radius: 10px;
+    gap: 10px;
+    transition: all 0.15s ease-in-out;
+}
+
+/* Hover State */
+.menu-item:not(.active):hover {
+    background-color: rgba(95, 75, 219, 0.04);
+}
+
+.menu-item:not(.active):hover .menu-link {
+    opacity: 1;
+}
+
+/* Active State */
+.menu-item.active {
+    background-color: var(--sidebar-accent);
+}
+
+.menu-item.active .menu-link {
+    color: var(--sidebar-primary);
+    font-weight: 600;
+    opacity: 1;
+}
+
+.menu-item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    background-color: var(--sidebar-primary);
+    border-radius: 4px;
+}
+
+/* Icons */
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+}
+
+.menu-icon {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.8;
+}
+
+/* Badges */
+.badge {
+    margin-left: auto;
+    font-family: inherit;
+}
+
+.badge-numeric {
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground);
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-text {
+    background-color: rgba(95, 75, 219, 0.12);
+    color: var(--sidebar-primary);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1.5px 5px;
+    border-radius: 5px;
+    letter-spacing: 0.05em;
+}
+
+/* Bottom / User Section */
+.sidebar-bottom {
+    margin-top: auto;
+    border-top: 1px solid var(--sidebar-border);
+    padding-top: 12px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground);
+    font-weight: 600;
+    font-size: 12.5px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.05em;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.username {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sidebar-foreground);
+}
+
+.user-plan {
+    font-size: 11px;
+    color: var(--muted-foreground);
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    margin-left: auto;
+    cursor: pointer;
+    padding: 6px;
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.logout-btn:hover {
+    color: var(--destructive);
+}
+
+.logout-icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* Mobile Bottom Navigation & overlay defaults (hidden on desktop) */
+.mobile-bottom-nav,
+.mobile-fab {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 64px;
+        /* Ensure content is not hidden behind the fixed bar */
+    }
+
+    .sidebar {
+        display: none !important;
+    }
+
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background-color: var(--sidebar);
+        border-top: 1px solid var(--sidebar-border);
+        justify-content: space-around;
+        align-items: center;
+        z-index: 1000;
+        padding: 0 10px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        text-decoration: none;
+        color: var(--sidebar-foreground);
+        opacity: 0.6;
+        flex: 1;
+        height: 100%;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .mobile-nav-item.active {
+        color: var(--sidebar-primary);
+        opacity: 1;
+    }
+
+    .mobile-nav-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-nav-icon svg {
+        width: 22px;
+        height: 22px;
+        stroke-width: 1.8;
+    }
+
+    .mobile-nav-title {
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    /* Mobile FAB */
+    .mobile-fab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        position: fixed;
+        bottom: 80px;
+        right: 16px;
+        background-color: var(--sidebar-primary);
+        color: var(--sidebar-primary-foreground);
+        border: none;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(95, 75, 219, 0.3);
+        cursor: pointer;
+        z-index: 999;
+        overflow: hidden;
+        white-space: nowrap;
+        transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            gap 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            border-radius 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            transform 0.1s ease;
+    }
+
+    .mobile-fab:active {
+        transform: scale(0.95);
+    }
+
+    /* Pixel-precise widths for expand animations to prevent 'auto' snapping */
+    .mobile-fab:not(.collapsed).type-clients {
+        width: 132px;
+        border-radius: 24px;
+        gap: 6px;
+    }
+
+    .mobile-fab:not(.collapsed).type-planning {
+        width: 172px;
+        border-radius: 24px;
+        gap: 6px;
+    }
+
+    .mobile-fab:not(.collapsed).type-factures {
+        width: 142px;
+        border-radius: 24px;
+        gap: 6px;
+    }
+
+    .fab-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .fab-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke-width: 3;
+    }
+
+    .fab-text {
+        display: inline-block;
+        opacity: 1;
+        max-width: 150px;
+        transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+            max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    /* Collapsed FAB State */
+    .mobile-fab.collapsed {
+        width: 42px !important;
+        border-radius: 50% !important;
+        gap: 0 !important;
+    }
+
+    .mobile-fab.collapsed .fab-text {
+        opacity: 0;
+        max-width: 0 !important;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

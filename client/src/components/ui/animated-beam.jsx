@@ -23,7 +23,8 @@ export const AnimatedBeam = ({
   endXOffset = 0,
   endYOffset = 0,
 }) => {
-  const id = useId();
+  const rawId = useId();
+  const id = rawId.replace(/:/g, "");
   const [pathD, setPathD] = useState("");
   const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 });
 
@@ -135,10 +136,10 @@ export const AnimatedBeam = ({
             ease: "linear",
           }}
         >
-          <stop stopColor={gradientStartColor} stopOpacity="0" />
-          <stop stopColor={gradientStartColor} />
-          <stop stopColor={gradientStopColor} />
-          <stop stopColor={gradientStopColor} stopOpacity="0" />
+          <stop offset="0%" stopColor={gradientStartColor} stopOpacity="0" />
+          <stop offset="32.5%" stopColor={gradientStartColor} />
+          <stop offset="67.5%" stopColor={gradientStopColor} />
+          <stop offset="100%" stopColor={gradientStopColor} stopOpacity="0" />
         </motion.linearGradient>
       </defs>
     </svg>

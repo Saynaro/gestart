@@ -34,6 +34,7 @@ function Hero() {
                             <span className="flow-label">Payé</span>
                         </div>
 
+
                         <AnimatedBeam
                             containerRef={containerRef}
                             fromRef={leftRef}

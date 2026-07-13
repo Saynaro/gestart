@@ -1,0 +1,223 @@
+.footer-section {
+    position: relative;
+    width: 100%;
+    background-color: #f4f4f2;
+    color: #4b5563;
+    font-family: sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    border-top: 1px solid #e5e5e5;
+}
+
+.footer-content-wrapper {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 80px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Grid Layout */
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 60px;
+    margin-bottom: 40px;
+    align-items: start;
+}
+
+/* Left Brand Column */
+.footer-brand-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer-logo-wrapper {
+    margin-bottom: 16px;
+}
+
+.footer-brand-logo {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+}
+
+.footer-brand-desc {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #535c69;
+    max-width: 320px;
+    margin: 0 0 20px 0;
+    text-align: left;
+}
+
+.footer-email-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    margin-top: 8px;
+}
+
+.footer-email-link:hover {
+    color: rgb(0, 83, 113);
+}
+
+.email-arrow-icon {
+    transition: transform 0.2s ease;
+}
+
+.footer-email-link:hover .email-arrow-icon {
+    transform: translate(2px, -2px);
+}
+
+/* Right Links Columns */
+.footer-links-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+.links-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.links-col-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #0f172a;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+}
+
+.links-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-nav-link {
+    font-size: 0.95rem;
+    color: #535c69;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: inline-block;
+    text-align: left;
+}
+
+.footer-nav-link:hover {
+    color: rgb(0, 83, 113);
+}
+
+/* Watermark SVG styling */
+.footer-watermark-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    pointer-events: none;
+}
+
+.footer-watermark-svg {
+    width: 100%;
+    height: auto;
+    user-select: none;
+}
+
+.gradient-stop-1 {
+    stop-color: rgba(0, 83, 113, 0.08);
+}
+
+.gradient-stop-2 {
+    stop-color: rgba(0, 83, 113, 0.01);
+}
+
+.watermark-text {
+    font-weight: 900;
+    font-family: sans-serif;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+}
+
+/* Bottom copyright bar */
+.footer-copyright-bar {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.copyright-text {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Responsiveness */
+@media (max-width: 992px) {
+
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .footer-brand-column {
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-brand-desc {
+        max-width: 450px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .footer-content-wrapper {
+        height: auto;
+        padding: 50px 20px 20px 20px;
+
+    }
+
+    .footer-links-columns {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .links-col {
+        align-items: center;
+    }
+
+    .links-list {
+        align-items: center;
+    }
+
+    .footer-nav-link {
+        text-align: center;
+    }
+
+    .footer-watermark-wrapper {
+        margin-top: 0;
+        margin-left: 50px;
+    }
+}

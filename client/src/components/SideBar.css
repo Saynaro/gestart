@@ -250,7 +250,7 @@
 
 @media (max-width: 768px) {
     body {
-        padding-bottom: 64px;
+        /* padding-bottom: 64px; */
         /* Ensure content is not hidden behind the fixed bar */
     }
 

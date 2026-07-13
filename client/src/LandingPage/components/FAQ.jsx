@@ -59,7 +59,7 @@ function FAQ() {
                 </div>
 
                 {/* Accordion */}
-                <Accordion type="single" collapsible className="faq-accordion-list">
+                <Accordion type="single" collapsible="true" className="faq-accordion-list">
                     {faqs.map((faq) => (
                         <AccordionItem
                             key={faq.id}

@@ -7,6 +7,8 @@ import Solution from "./components/Solution"
 import Comments from "./components/Comments"
 import Tarifs from "./components/Tarifs"
 import FAQ from "./components/FAQ"
+import FinalCTA from "./components/FinalCTA"
+import Footer from "./components/Footer"
 import { Particles } from "@/components/ui/particles";
 
 function LandingPage() {
@@ -29,7 +31,7 @@ function LandingPage() {
                     />
                 </div>
 
-                <div >
+                <div id="hero">
                     <Hero />
 
                 </div>
@@ -42,11 +44,11 @@ function LandingPage() {
                     <Problem />
                 </div>
 
-                <div className="solution-container">
+                <div className="solution-container" id="about">
                     <Solution />
                 </div>
 
-                <div className="functions">
+                <div className="functions" id="features">
                     <Functions />
                 </div>
 
@@ -60,6 +62,14 @@ function LandingPage() {
 
                 <div className="faq-wrapper-section">
                     <FAQ />
+                </div>
+
+                <div className="final-cta-wrapper">
+                    <FinalCTA />
+                </div>
+
+                <div className="footer-wrapper">
+                    <Footer />
                 </div>
             </section>
         </>

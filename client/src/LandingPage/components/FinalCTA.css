@@ -1,0 +1,166 @@
+.final-cta-section {
+    position: relative;
+    padding: 80px 24px;
+    background-color: #ffffff;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.final-cta-container {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.final-cta-title {
+    font-size: 2.8rem;
+    font-weight: 850;
+    color: #000000;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.final-cta-subtitle {
+    font-size: 1.3rem;
+    color: #535c69;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+
+/* Button Layout & Styling (same as Hero buttons) */
+.hero-buttons {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+}
+
+.primary-button {
+    background-color: rgb(0, 83, 113);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.primary-button:hover {
+    background-color: rgb(1, 113, 153);
+}
+
+.secondary-button {
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    color: rgb(0, 83, 113);
+    border: 1px solid rgb(0, 83, 113);
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.secondary-button:hover {
+    opacity: 0.75;
+    background-color: rgba(0, 83, 113, 0.04) !important;
+}
+
+.mobile-text {
+    display: none;
+}
+
+.desktop-text {
+    display: inline;
+}
+
+/* Benefits list */
+.final-cta-benefits {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.benefit-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.benefit-check {
+    color: #10b981;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .final-cta-section {
+        padding: 40px 20px;
+    }
+
+    .final-cta-title {
+        font-size: 1.8rem;
+    }
+
+    .final-cta-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+        margin: 0.8rem 0;
+    }
+
+    .mobile-text {
+        display: inline;
+    }
+
+    .desktop-text {
+        display: none;
+    }
+
+    .primary-button,
+    .secondary-button {
+        margin: auto;
+        width: 70%;
+        justify-content: center;
+        padding: 12px 20px;
+    }
+
+    .final-cta-benefits {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        margin-top: 4px;
+    }
+}

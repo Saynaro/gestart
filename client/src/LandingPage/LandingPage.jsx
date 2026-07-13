@@ -4,6 +4,7 @@ import Functions from "./components/Functions"
 import LogoTrust from "./components/LogoTrust"
 import Problem from "./components/Problem"
 import Solution from "./components/Solution"
+import Comments from "./components/Comments"
 import { Particles } from "@/components/ui/particles";
 
 function LandingPage() {
@@ -45,10 +46,11 @@ function LandingPage() {
 
                 <div className="functions">
                     <Functions />
-
                 </div>
 
-
+                <div className="comments-container">
+                    <Comments />
+                </div>
             </section>
         </>
 

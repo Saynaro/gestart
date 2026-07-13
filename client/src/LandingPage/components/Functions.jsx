@@ -1,5 +1,6 @@
 import { BentoCard, BentoGrid } from "@/components/ui/bento-grid.jsx";
 import { AnimatedList } from "@/components/ui/animated-list";
+import { AuroraText } from "@/components/ui/aurora-text";
 import "./Functions.css";
 import {
     MessageCircle,
@@ -22,7 +23,9 @@ export default function Functions() {
     return (
         <section className="functions-section">
             <div className="functions-header">
-                <span className="functions-badge">Fonctionnalités Clés</span>
+                <span className="functions-badge">
+                    <AuroraText>Fonctionnalités Clés</AuroraText>
+                </span>
                 <h2 className="functions-title">Tout ce dont vous avez besoin pour piloter votre activité</h2>
                 <p className="functions-subtitle">
                     Gagnez des heures de gestion administrative et offrez une expérience moderne à vos clients.

@@ -6,6 +6,7 @@ import Problem from "./components/Problem"
 import Solution from "./components/Solution"
 import Comments from "./components/Comments"
 import Tarifs from "./components/Tarifs"
+import FAQ from "./components/FAQ"
 import { Particles } from "@/components/ui/particles";
 
 function LandingPage() {
@@ -55,6 +56,10 @@ function LandingPage() {
 
                 <div className="tarifs-container">
                     <Tarifs />
+                </div>
+
+                <div className="faq-wrapper-section">
+                    <FAQ />
                 </div>
             </section>
         </>

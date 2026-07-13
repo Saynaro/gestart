@@ -1,16 +1,32 @@
 .comments-section {
-    padding: 100px 24px;
-    max-width: 1200px;
+    padding: 100px 50px;
+    background-color: #f5f8fb;
+    width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.comments-header {
-    text-align: center;
-    margin-bottom: 60px;
-    max-width: 700px;
+.comments-container-wrapper {
+    max-width: 1200px;
+    width: 100%;
+}
+
+.comments-two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    width: 100%;
+}
+
+/* Left Column: Info */
+.comments-info-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
 }
 
 .comments-badge {
@@ -32,6 +48,7 @@
     color: #0f172a;
     margin-top: 16px;
     letter-spacing: -0.025em;
+    line-height: 1.15;
 }
 
 .comments-title .highlight-text {
@@ -47,117 +64,168 @@
     line-height: 1.6;
 }
 
-.comments-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    width: 100%;
-}
-
-.comment-card {
-    background: #ffffff;
-    border: 1px solid rgba(0, 83, 113, 0.08);
-    border-radius: 20px;
-    padding: 36px 32px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
-    display: flex;
-    flex-direction: column;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+/* Right Column: Carousel */
+.comments-carousel-side {
     position: relative;
+    height: 480px;
+    width: 100%;
     overflow: hidden;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-.comment-card::before {
-    content: "“";
+.carousel-fade-top {
     position: absolute;
-    top: 10px;
-    right: 24px;
-    font-size: 6rem;
-    font-family: serif;
-    color: rgba(0, 83, 113, 0.05);
-    line-height: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, #f5f8fb 20%, rgba(245, 248, 251, 0) 100%);
+    z-index: 10;
     pointer-events: none;
 }
 
-.comment-card:hover {
-
-    box-shadow: 0 20px 40px rgba(0, 83, 113, 0.06);
-    border-color: rgba(0, 83, 113, 0.2);
+.carousel-fade-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to top, #f5f8fb 20%, rgba(245, 248, 251, 0) 100%);
+    z-index: 10;
+    pointer-events: none;
 }
 
-.card-stars {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 22px;
-}
-
-.card-quote {
-    font-size: 0.98rem;
-    color: #334155;
-    line-height: 1.65;
-    font-style: normal;
-    font-weight: 500;
-    flex-grow: 1;
-    margin: 0 0 26px 0;
-    z-index: 1;
-}
-
-.card-divider {
-    height: 1px;
-    background: rgba(0, 83, 113, 0.08);
+.comments-vertical-carousel {
+    height: 100%;
     width: 100%;
-    margin-bottom: 22px;
 }
 
-.card-author {
+/* Embla Carousel structural overrides for vertical alignment */
+.comments-vertical-carousel [data-slot="carousel-content"] {
+    height: 460px !important;
+}
+
+.carousel-content-vertical-track {
+    height: 100%;
+}
+
+.carousel-vertical-item {
+    width: 100%;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    flex-basis: auto !important;
+}
+
+/* Testimonial card styles - LIGHT THEME CARDS */
+.testimonial-watermelon-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 83, 113, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.testimonial-watermelon-card:hover {
+    border-color: rgba(0, 83, 113, 0.18) !important;
+    box-shadow: 0 15px 35px rgba(0, 83, 113, 0.05) !important;
+
+}
+
+.testimonial-watermelon-content {
+    padding: 20px 24px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.testimonial-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.testimonial-card-author-info {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
-.author-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+.testimonial-avatar-circle {
+    width: 44px !important;
+    height: 44px !important;
+    flex-shrink: 0;
+}
+
+.testimonial-avatar-fallback {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-.author-info {
+.author-text-details {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    align-items: flex-start;
+    gap: 1px;
 }
 
-.author-name {
+.testimonial-author-name {
     font-size: 0.95rem;
     font-weight: 700;
     color: #0f172a;
 }
 
-.author-meta {
-    font-size: 0.8rem;
+.testimonial-author-meta {
+    font-size: 0.78rem;
     color: #64748b;
     font-weight: 500;
 }
 
 .meta-bullet {
     color: #cbd5e1;
-    margin: 0 4px;
+    margin: 0 3px;
 }
 
-/* Mobile responsive styles */
+.testimonial-card-top-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.testimonial-quote-icon {
+    color: #0ea5e9 !important;
+    fill: #0ea5e9 !important;
+    width: 22px;
+    height: 22px;
+}
+
+.testimonial-quote-text {
+    font-size: 0.92rem;
+    color: #334155;
+    line-height: 1.55;
+    font-style: normal;
+    font-weight: 500;
+    margin: 0 !important;
+    text-align: left;
+}
+
+/* Responsiveness */
 @media (max-width: 1024px) {
-    .comments-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+    .comments-two-col-grid {
+        gap: 40px;
+    }
+
+    .comments-title {
+        font-size: 2.5rem;
     }
 }
 
@@ -166,20 +234,21 @@
         padding: 60px 20px;
     }
 
-    .comments-header {
-        margin-bottom: 40px;
+    .comments-two-col-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .comments-info-side {
+        align-items: center;
+        text-align: center;
     }
 
     .comments-title {
         font-size: 2rem;
     }
 
-    .comments-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .comment-card {
-        padding: 24px;
+    .comments-carousel-side {
+        height: 380px;
     }
 }

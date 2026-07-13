@@ -23,8 +23,16 @@
 }
 
 .brand {
-    font-size: 25px;
-    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.brand-logo {
+    height: 180px;
+    padding-top: 5px;
+    width: auto;
+    object-fit: contain;
+    display: block;
 }
 
 .menu {
@@ -157,6 +165,14 @@
         cursor: pointer;
         z-index: 1006;
         background: transparent;
+    }
+
+    .brand-logo {
+        height: 120px;
+        /* Smaller logo for mobile */
+        width: auto;
+        object-fit: contain;
+        display: block;
     }
 
     .menu::before,

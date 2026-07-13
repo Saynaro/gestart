@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +37,7 @@ function Navbar() {
     return (
         <nav className={`navbar ${isOpen ? 'menu-open' : ''}`}>
             <div className="brand">
-                <p>GestArt</p>
+                <img src={logo} alt="GestArt" className="brand-logo" />
             </div>
             
             {isOpen && <div className="menu-backdrop" onClick={closeMenu} />}

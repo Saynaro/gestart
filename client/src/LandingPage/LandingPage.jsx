@@ -3,6 +3,7 @@ import Hero from "./components/Hero"
 import Functions from "./components/Functions"
 import LogoTrust from "./components/LogoTrust"
 import Problem from "./components/Problem"
+import Solution from "./components/Solution"
 import { Particles } from "@/components/ui/particles";
 
 function LandingPage() {
@@ -30,12 +31,16 @@ function LandingPage() {
 
                 </div>
 
-                <div className="flex justify-center align-center mt-30 mb-10">
+                <div className="flex justify-center align-center mt-30">
                     <LogoTrust />
                 </div>
 
                 <div className="problem-container">
                     <Problem />
+                </div>
+
+                <div className="solution-container">
+                    <Solution />
                 </div>
 
                 {/* <div className="functions">

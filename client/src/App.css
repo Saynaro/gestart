@@ -3,11 +3,19 @@
 *::before,
 *::after {
     box-sizing: border-box;
+
 }
 
 html,
 body {
     overscroll-behavior-y: none;
+}
+
+/* Safari overscroll rubber-band fix:
+   Safari uses html background-color when bouncing at page bottom.
+   Set it to match the footer so no white gap appears. */
+html {
+    background-color: #f4f4f2 !important;
 }
 
 body {

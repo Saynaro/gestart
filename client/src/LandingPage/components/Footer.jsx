@@ -145,7 +145,7 @@ function Footer() {
                 <motion.div variants={giantTextVariant} className="footer-watermark-wrapper">
                     <svg
                         className="footer-watermark-svg"
-                        viewBox="0 30 500 80"
+                        viewBox="0 40 1000 120"
                         preserveAspectRatio="xMidYMid meet"
                         aria-label={brandName}
                     >
@@ -156,15 +156,13 @@ function Footer() {
                             </linearGradient>
                         </defs>
                         <text
-                            x="0"
+                            x="50%"
                             y="130"
-                            dominantBaseline="alphabetic"
-                            textAnchor="start"
-                            textLength="100%"
-                            lengthAdjust="spacing"
+                            dominantBaseline="middle"
+                            textAnchor="middle"
                             fill="url(#watermark-gradient)"
                             className="watermark-text"
-                            fontSize="110"
+                            fontSize="130"
                         >
                             {brandName}
                         </text>

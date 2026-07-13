@@ -1,3 +1,11 @@
+html {
+    background-color: #f4f4f2 !important;
+}
+
+body {
+    background-color: #ffffff !important;
+}
+
 .footer-section {
     position: relative;
     width: 100%;
@@ -195,21 +203,58 @@
 
     .footer-content-wrapper {
         height: auto;
-        padding: 50px 20px 20px 20px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        padding: 30px 20px 10px 20px;
+    }
 
+    .footer-grid {
+        gap: 24px;
+    }
+
+    .footer-brand-desc {
+        margin-bottom: 10px;
+    }
+
+    .footer-email-link {
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(0, 83, 113, 0.06);
     }
 
     .footer-links-columns {
-        grid-template-columns: 1fr;
-        gap: 30px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-areas:
+            "col-about col-tarifs"
+            "col-legal col-legal";
+
+        gap: 24px 16px;
+        width: 100%;
+    }
+
+    .footer-links-columns .links-col:nth-child(1) {
+        grid-area: col-about;
+    }
+
+    .footer-links-columns .links-col:nth-child(2) {
+        grid-area: col-tarifs;
+    }
+
+    .footer-links-columns .links-col:nth-child(3) {
+        grid-area: col-legal;
     }
 
     .links-col {
         align-items: center;
     }
 
+    .links-col-title {
+        margin-bottom: 10px;
+    }
+
     .links-list {
         align-items: center;
+        gap: 8px;
     }
 
     .footer-nav-link {
@@ -217,7 +262,6 @@
     }
 
     .footer-watermark-wrapper {
-        margin-top: 0;
-        margin-left: 50px;
+        display: none;
     }
 }

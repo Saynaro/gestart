@@ -43,10 +43,10 @@ function LandingPage() {
                     <Solution />
                 </div>
 
-                {/* <div className="functions">
+                <div className="functions">
                     <Functions />
 
-                </div> */}
+                </div>
 
 
             </section>

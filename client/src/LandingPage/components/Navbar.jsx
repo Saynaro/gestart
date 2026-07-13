@@ -42,8 +42,13 @@ function Navbar() {
             
             {isOpen && <div className="menu-backdrop" onClick={closeMenu} />}
 
-            <div className={`menu ${isOpen ? 'open' : ''}`} onClick={toggleMenu}>
-            </div>
+            <button 
+                className={`menu ${isOpen ? 'open' : ''}`} 
+                onClick={toggleMenu}
+                aria-label="Ouvrir le menu de navigation"
+                aria-expanded={isOpen}
+            >
+            </button>
 
             <ul className={`menu-links ${isOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
                 <div className="nav-links-row">

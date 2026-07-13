@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import "./Hero.css";
+import heroDashboard from "../../assets/hero-dashboard.jpg";
 import { CirclePlay, Calendar, MessageSquare, FileSignature, FileText, CreditCard, BarChart3 } from "lucide-react";
 import { Highlighter } from "@/components/ui/highlighter";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
@@ -135,7 +136,14 @@ function Hero() {
                 </div>
             </div>
             <div className="hero-image">
-                <img src="https://wp.sfdcdigital.com/en-us/wp-content/uploads/sites/4/2024/09/marquee-crm-examples_AdobeStock_653380739_COMPRESSED-2.jpg" alt="" />
+                <img 
+                    src={heroDashboard} 
+                    alt="Tableau de bord de gestion de maintenance GestArt" 
+                    width={700} 
+                    height={467} 
+                    fetchPriority="high" 
+                    loading="eager" 
+                />
             </div>
         </>
     )

@@ -62,20 +62,22 @@
 
 .solution-card {
     position: relative;
-    border: 1px solid rgba(0, 83, 113, 0.08);
     border-radius: 16px;
-    padding: 36px 32px;
     background: #ffffff;
     box-shadow: 0 10px 30px -15px rgba(0, 83, 113, 0.05);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.solution-card>div.z-40 {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    height: 100%;
+    padding: 36px 32px;
 }
 
 .solution-card:hover {
     transform: scale(1.01);
-    border-color: rgba(0, 83, 113, 0.2);
     box-shadow: 0 20px 40px -20px rgba(0, 83, 113, 0.12);
 }
 
@@ -186,46 +188,84 @@
 }
 
 .card-highlight-box {
-    background: rgb(248, 250, 252);
-    padding: 14px 16px;
-    border-radius: 8px;
+    padding: 16px 18px;
+    border-radius: 12px;
     margin-bottom: 24px;
     font-size: 0.9rem;
-    color: rgb(55, 65, 81);
+    color: rgb(31, 41, 55);
+    font-weight: 500;
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: flex-start;
     line-height: 1.5;
     text-align: left;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.solution-card:nth-child(1) .card-highlight-box {
-    border-left: 3px solid rgb(0, 83, 113);
-}
-
-.solution-card:nth-child(2) .card-highlight-box {
-    border-left: 3px solid rgb(109, 40, 217);
-}
-
-.solution-card:nth-child(3) .card-highlight-box {
-    border-left: 3px solid rgb(21, 128, 61);
-}
-
-.highlight-icon {
+.highlight-icon-container {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    margin-top: 2px;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.solution-card:hover .highlight-icon-container {
+    transform: scale(1.1) rotate(15deg);
+}
+
+/* Step 1 Colors (Blue/Teal) */
+.solution-card:nth-child(1) .card-highlight-box {
+    background: linear-gradient(135deg, rgba(0, 83, 113, 0.02) 0%, rgba(0, 83, 113, 0.06) 100%);
+    border: 1px solid rgba(0, 83, 113, 0.12);
+
+}
+
+.solution-card:nth-child(1) .highlight-icon-container {
+    border: 1px solid rgba(0, 83, 113, 0.15);
 }
 
 .solution-card:nth-child(1) .highlight-icon {
     color: rgb(0, 83, 113);
 }
 
+/* Step 2 Colors (Purple) */
+.solution-card:nth-child(2) .card-highlight-box {
+    background: linear-gradient(135deg, rgba(109, 40, 217, 0.02) 0%, rgba(109, 40, 217, 0.06) 100%);
+    border: 1px solid rgba(109, 40, 217, 0.12);
+
+}
+
+.solution-card:nth-child(2) .highlight-icon-container {
+    border: 1px solid rgba(109, 40, 217, 0.15);
+}
+
 .solution-card:nth-child(2) .highlight-icon {
     color: rgb(109, 40, 217);
 }
 
+/* Step 3 Colors (Green) */
+.solution-card:nth-child(3) .card-highlight-box {
+    background: linear-gradient(135deg, rgba(21, 128, 61, 0.02) 0%, rgba(21, 128, 61, 0.06) 100%);
+    border: 1px solid rgba(21, 128, 61, 0.12);
+
+}
+
+.solution-card:nth-child(3) .highlight-icon-container {
+    border: 1px solid rgba(21, 128, 61, 0.15);
+}
+
 .solution-card:nth-child(3) .highlight-icon {
     color: rgb(21, 128, 61);
+}
+
+.highlight-icon {
+    flex-shrink: 0;
 }
 
 .card-tags {
@@ -262,25 +302,56 @@
 
 @media (max-width: 768px) {
     .solution-section {
-        padding: 60px 20px;
+        padding: 0 20px;
     }
 
     .solution-title {
-        font-size: 2.2rem;
+        font-size: 2.3rem;
         width: 100%;
+    }
+
+    .solution-card:hover {
+        transform: scale(1);
     }
 
     .solution-subtitle {
         font-size: 1rem;
+        margin-top: 10px;
     }
 
     .solution-grid {
         grid-template-columns: 1fr;
-        margin-top: 30px;
+        margin-top: 24px;
         gap: 20px;
     }
 
-    .solution-card {
-        padding: 28px 24px;
+    .solution-card>div.z-40 {
+        padding: 30px 25px;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+    }
+
+    .card-text {
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+    }
+
+    .card-highlight-box {
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        font-size: 0.85rem;
+    }
+
+    .card-header-row {
+        margin-bottom: 16px;
+    }
+
+    .card-number-bg {
+        font-size: 5.5rem;
+        top: 10px;
+        right: 15px;
     }
 }

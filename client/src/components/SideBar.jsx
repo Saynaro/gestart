@@ -73,9 +73,11 @@ function SideBar() {
     const [isFabCollapsed, setIsFabCollapsed] = useState(false);
 
     useEffect(() => {
-        let lastScrollY = window.scrollY;
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
+        let lastScrollY = 0;
+        const handleScroll = (e) => {
+            const target = e.target;
+            // Support both window scroll and container-level scroll (like in /clients)
+            const currentScrollY = (target === document || target === window) ? window.scrollY : target.scrollTop;
             if (currentScrollY > lastScrollY && currentScrollY > 20) {
                 setIsFabCollapsed(true);
             } else if (currentScrollY < lastScrollY) {
@@ -83,8 +85,8 @@ function SideBar() {
             }
             lastScrollY = currentScrollY;
         };
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        return () => window.removeEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { capture: true, passive: true });
+        return () => window.removeEventListener("scroll", handleScroll, { capture: true });
     }, []);
 
     return (

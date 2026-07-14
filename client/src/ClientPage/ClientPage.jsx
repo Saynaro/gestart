@@ -26,7 +26,9 @@ const initialContacts = [
 const initialOrganisations = [
     { id: 10, name: "LexCorp", contact: "Jane Doe", email: "info@lexcorp.com", phone: "01 02 03 04 05", address: "15 Rue de Paris", zip: "75001", city: "PARIS" },
     { id: 11, name: "AluTech SAS", contact: "Jean Dupont", email: "contact@alutech.fr", phone: "04 92 11 22 33", address: "150 Route de Grenoble", zip: "06200", city: "NICE" },
-    { id: 12, name: "BatiConstruct", contact: "Sophie Martin", email: "s.martin@baticonstruct.fr", phone: "04 93 12 34 56", address: "8 Rue de la Préfecture", zip: "06300", city: "NICE" }
+    { id: 12, name: "BatiConstruct", contact: "Sophie Martin", email: "s.martin@baticonstruct.fr", phone: "04 93 12 34 56", address: "8 Rue de la Préfecture", zip: "06300", city: "NICE" },
+    { id: 13, name: "BatiConstruct", contact: "Sophie Martin", email: "s.martin@baticonstruct.fr", phone: "04 93 12 34 56", address: "8 Rue de la Préfecture", zip: "06300", city: "NICE" },
+    { id: 14, name: "BatiConstruct", contact: "Sophie Martin", email: "s.martin@baticonstruct.fr", phone: "04 93 12 34 56", address: "8 Rue de la Préfecture", zip: "06300", city: "NICE" },
 ];
 
 function ClientPage() {
@@ -36,7 +38,15 @@ function ClientPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isMobile, setIsMobile] = useState(false);
     const [activeTabType, setActiveTabType] = useState("particulier"); // "particulier" or "organisation"
-    
+    const scrollContainerRef = useRef(null);
+
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = 0;
+        }
+        setPullDistance(0);
+    }, [activeTabType]);
+
     // Framer motion drag controls to isolate drag on the handle-bar/header
     const dragControlsMain = useDragControls();
     const dragControlsSub = useDragControls();
@@ -85,7 +95,7 @@ function ClientPage() {
     // Bottom Sheets state
     const [editingClient, setEditingClient] = useState(null);
     const [activeSubSheet, setActiveSubSheet] = useState(null); // null, "phone", "email", "address"
-    
+
     // Form temporary states
     const [editFirstName, setEditFirstName] = useState("");
     const [editLastName, setEditLastName] = useState("");
@@ -109,7 +119,7 @@ function ClientPage() {
 
     // Filter contacts based on search and type
     const filteredContacts = contacts.filter(contact => {
-        const matchesSearch = 
+        const matchesSearch =
             `${contact.firstName} ${contact.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
             contact.email.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesSearch;
@@ -216,18 +226,19 @@ function ClientPage() {
                 </div>
 
                 {/* Scrollable container with pull-to-refresh overscroll */}
-                <div 
+                <div
+                    ref={scrollContainerRef}
                     className="mobile-contacts-scrollable-content"
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                 >
                     {/* Pull to Refresh Spinner under the navbar */}
-                    <div 
-                        className="pull-to-refresh-indicator" 
-                        style={{ 
-                            height: pullDistance > 0 ? `${pullDistance}px` : '0px', 
-                            opacity: pullDistance > 10 ? 1 : 0 
+                    <div
+                        className="pull-to-refresh-indicator"
+                        style={{
+                            height: pullDistance > 0 ? `${pullDistance}px` : '0px',
+                            opacity: pullDistance > 10 ? 1 : 0
                         }}
                     >
                         <div className="pull-to-refresh-spinner-circle">
@@ -240,13 +251,13 @@ function ClientPage() {
                     {/* Tab Pill Selector */}
                     <div className="mobile-contacts-tab-container">
                         <div className="mobile-contacts-tab-bar">
-                            <button 
+                            <button
                                 className={`mobile-tab-btn ${isParticulier ? "active" : ""}`}
                                 onClick={() => setActiveTabType("particulier")}
                             >
                                 Particulier
                             </button>
-                            <button 
+                            <button
                                 className={`mobile-tab-btn ${!isParticulier ? "active" : ""}`}
                                 onClick={() => setActiveTabType("organisation")}
                             >
@@ -259,7 +270,7 @@ function ClientPage() {
                     <div className="mobile-search-box">
                         <div className="mobile-search-input-wrapper">
                             <Search size={18} className="mobile-search-icon-left" />
-                            <input 
+                            <input
                                 type="text"
                                 placeholder="Rechercher un contact..."
                                 value={searchTerm}
@@ -276,8 +287,8 @@ function ClientPage() {
                                 <span className="mobile-letter-header">{letter}</span>
                                 <div className="mobile-letter-card">
                                     {currentGrouped[letter].map((client, idx) => (
-                                        <div 
-                                            key={client.id} 
+                                        <div
+                                            key={client.id}
                                             className="mobile-contact-list-row"
                                             onClick={() => handleOpenEdit(client, !isParticulier)}
                                         >
@@ -340,7 +351,7 @@ function ClientPage() {
                                 }}
                             >
                                 {/* Draggable Header Zone */}
-                                <div 
+                                <div
                                     className="mobile-sheet-header-drag-zone"
                                     onPointerDown={(e) => dragControlsMain.start(e)}
                                     style={{ touchAction: "none" }}
@@ -360,9 +371,9 @@ function ClientPage() {
                                     {editingClient.isOrg ? (
                                         <div className="mobile-form-card">
                                             <span className="mobile-form-card-label">Nom de l'organisation*</span>
-                                            <input 
-                                                type="text" 
-                                                value={editFirstName} 
+                                            <input
+                                                type="text"
+                                                value={editFirstName}
                                                 onChange={(e) => setEditFirstName(e.target.value)}
                                                 className="mobile-form-card-input"
                                             />
@@ -371,9 +382,9 @@ function ClientPage() {
                                         <>
                                             <div className="mobile-form-card">
                                                 <span className="mobile-form-card-label">Prénom*</span>
-                                                <input 
-                                                    type="text" 
-                                                    value={editFirstName} 
+                                                <input
+                                                    type="text"
+                                                    value={editFirstName}
                                                     onChange={(e) => setEditFirstName(e.target.value)}
                                                     className="mobile-form-card-input"
                                                 />
@@ -381,9 +392,9 @@ function ClientPage() {
 
                                             <div className="mobile-form-card">
                                                 <span className="mobile-form-card-label">Nom*</span>
-                                                <input 
-                                                    type="text" 
-                                                    value={editLastName} 
+                                                <input
+                                                    type="text"
+                                                    value={editLastName}
                                                     onChange={(e) => setEditLastName(e.target.value)}
                                                     className="mobile-form-card-input"
                                                 />
@@ -426,8 +437,8 @@ function ClientPage() {
                                         <div className="mobile-toggle-row">
                                             <span className="mobile-toggle-label">Préciser une adresse de livraison différente</span>
                                             <label className="mobile-toggle-switch">
-                                                <input 
-                                                    type="checkbox" 
+                                                <input
+                                                    type="checkbox"
                                                     checked={editDiffDelivery}
                                                     onChange={(e) => setEditDiffDelivery(e.target.checked)}
                                                 />
@@ -487,7 +498,7 @@ function ClientPage() {
                                 }}
                             >
                                 {/* Draggable Header Zone for Sub-Sheet */}
-                                <div 
+                                <div
                                     className="mobile-sheet-header-drag-zone"
                                     onPointerDown={(e) => dragControlsSub.start(e)}
                                     style={{ touchAction: "none", backgroundColor: 'white' }}
@@ -516,9 +527,9 @@ function ClientPage() {
                                                     </button>
                                                 )}
                                             </div>
-                                            
+
                                             <div className="mobile-email-add-row">
-                                                <input 
+                                                <input
                                                     type="email"
                                                     placeholder="Saisissez votre email"
                                                     value={editEmail}
@@ -551,7 +562,7 @@ function ClientPage() {
                                                     <span className="mobile-phone-code">+33</span>
                                                 </div>
                                                 <div className="mobile-phone-number-field">
-                                                    <input 
+                                                    <input
                                                         type="tel"
                                                         value={editPhone}
                                                         onChange={(e) => setEditPhone(e.target.value)}
@@ -579,7 +590,7 @@ function ClientPage() {
                                         <div className="mobile-sheet-body-stack" style={{ padding: '0 16px 20px 16px' }}>
                                             <div className="mobile-address-search-card">
                                                 <Search size={18} className="mobile-search-icon-left" />
-                                                <input 
+                                                <input
                                                     type="text"
                                                     placeholder="Chercher une adresse"
                                                     className="mobile-address-search-input"
@@ -597,7 +608,7 @@ function ClientPage() {
 
                                             <div className="mobile-form-card">
                                                 <span className="mobile-form-card-label">Adresse</span>
-                                                <input 
+                                                <input
                                                     type="text"
                                                     placeholder="Adresse"
                                                     value={editAddress}
@@ -608,7 +619,7 @@ function ClientPage() {
 
                                             <div className="mobile-form-card">
                                                 <span className="mobile-form-card-label">Complément d'adresse</span>
-                                                <input 
+                                                <input
                                                     type="text"
                                                     placeholder="Complément d'adresse"
                                                     value={editComplAddress}
@@ -619,7 +630,7 @@ function ClientPage() {
 
                                             <div className="mobile-form-card">
                                                 <span className="mobile-form-card-label">Code postal</span>
-                                                <input 
+                                                <input
                                                     type="text"
                                                     placeholder="Code postal"
                                                     value={editZip}
@@ -630,7 +641,7 @@ function ClientPage() {
 
                                             <div className="mobile-form-card">
                                                 <span className="mobile-form-card-label">Ville</span>
-                                                <input 
+                                                <input
                                                     type="text"
                                                     placeholder="Ville"
                                                     value={editCity}
@@ -666,7 +677,7 @@ function ClientPage() {
                     <SideBar />
                     <div className="main-content">
                         <Header />
-                        <motion.div 
+                        <motion.div
                             className="page-content"
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -689,9 +700,9 @@ function ClientPage() {
                                         <circle cx="11" cy="11" r="8"></circle>
                                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                     </svg>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Rechercher un client..." 
+                                    <input
+                                        type="text"
+                                        placeholder="Rechercher un client..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         className="search-input"

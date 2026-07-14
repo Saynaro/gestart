@@ -10,15 +10,22 @@ function SideBar() {
     const location = useLocation();
     const activePath = location.pathname || "/home";
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+    
+    // Close bottom sheet on route changes (including back navigation)
+    useEffect(() => {
+        setBottomSheetOpen(false);
+    }, [location.pathname]);
+
     const [isCollapsed, setIsCollapsed] = useState(() => {
-        return localStorage.getItem("sidebar-collapsed") === "true";
+        const stored = localStorage.getItem("sidebar-expanded");
+        return stored === null ? false : stored === "false";
     });
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
     const toggleCollapse = () => {
         const nextState = !isCollapsed;
         setIsCollapsed(nextState);
-        localStorage.setItem("sidebar-collapsed", String(nextState));
+        localStorage.setItem("sidebar-expanded", nextState ? "false" : "true");
     };
 
     const toggleUserMenu = (e) => {
@@ -35,7 +42,14 @@ function SideBar() {
 
     const navigateTo = (e, path) => {
         e.preventDefault();
-        navigate(path);
+        if (bottomSheetOpen) {
+            setBottomSheetOpen(false);
+            setTimeout(() => {
+                navigate(path);
+            }, 300);
+        } else {
+            navigate(path);
+        }
     };
 
     // FAB Button Configuration

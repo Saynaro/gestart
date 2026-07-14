@@ -47,7 +47,13 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
-            if (previousActiveElement) previousActiveElement.focus();
+            if (previousActiveElement && document.body.contains(previousActiveElement)) {
+                try {
+                    previousActiveElement.focus();
+                } catch (e) {
+                    // Ignore errors if focus fails during unmounting
+                }
+            }
         };
     }, [isOpen, onClose]);
 
@@ -108,25 +114,25 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                                 }}
                                                 whileTap={{ scale: 0.96 }}
                                                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                                                className={`relative min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
+                                                className={`relative min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
                                                     isActive 
                                                         ? "bg-sidebar-accent text-sidebar-primary font-semibold" 
                                                         : "text-[#0F172A] hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
                                                 }`}
                                             >
                                                 <IconComponent
-                                                    className={`w-[22px] h-[22px] stroke-[1.8] ${
+                                                    className={`w-[25px] h-[25px] stroke-[1.8] ${
                                                         isActive ? "text-sidebar-primary" : "text-[#64748B]"
                                                     }`}
                                                 />
-                                                <span className="text-[14.5px] font-medium">{item.title}</span>
+                                                <span className="text-[17px] font-medium">{item.title}</span>
                                                 {item.isPremium && (
-                                                    <span className="ml-auto bg-sidebar-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                    <span className="ml-auto bg-sidebar-primary text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
                                                         PRO
                                                     </span>
                                                 )}
                                                 {isActive && (
-                                                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[16px] bg-sidebar-primary rounded-r-md" />
+                                                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-sidebar-primary rounded-r-md" />
                                                 )}
                                             </motion.a>
                                         </li>
@@ -148,16 +154,16 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                         }}
                                         whileTap={{ scale: 0.96 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                                        className={`relative min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
+                                        className={`relative min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
                                             activePath === "/settings"
                                                 ? "bg-sidebar-accent text-sidebar-primary font-semibold"
                                                 : "text-[#0F172A] hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
                                         }`}
                                     >
-                                        <Settings className={`w-[22px] h-[22px] stroke-[1.8] ${activePath === "/settings" ? "text-sidebar-primary" : "text-[#64748B]"}`} />
-                                        <span className="text-[14.5px] font-medium">Paramètres</span>
+                                        <Settings className={`w-[25px] h-[25px] stroke-[1.8] ${activePath === "/settings" ? "text-sidebar-primary" : "text-[#64748B]"}`} />
+                                        <span className="text-[17px] font-medium">Paramètres</span>
                                         {activePath === "/settings" && (
-                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[16px] bg-sidebar-primary rounded-r-md" />
+                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-sidebar-primary rounded-r-md" />
                                         )}
                                     </motion.a>
                                 </li>
@@ -169,10 +175,10 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                         }}
                                         whileTap={{ scale: 0.96 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                                        className="w-full min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100 select-none text-[#DC2626]"
+                                        className="w-full min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100 select-none text-[#DC2626]"
                                     >
-                                        <LogOut className="w-[22px] h-[22px] stroke-[1.8] text-[#DC2626]" />
-                                        <span className="text-[14.5px] font-medium">Déconnexion</span>
+                                        <LogOut className="w-[25px] h-[25px] stroke-[1.8] text-[#DC2626]" />
+                                        <span className="text-[17px] font-medium">Déconnexion</span>
                                     </motion.button>
                                 </li>
                             </ul>

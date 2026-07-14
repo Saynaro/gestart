@@ -7,6 +7,7 @@ import PlanningPage from './PlanningPage/PlanningPage'
 import MessagesPage from './MessagesPage/MessagesPage'
 import SideBar from './components/SideBar'
 import Header from './components/Header'
+import SettingsPage from './SettingsPage/SettingsPage'
 import './App.css'
 
 import { Routes, Route, useLocation } from 'react-router-dom'
@@ -28,7 +29,7 @@ function PlaceholderPage({ title, subtitle }) {
       <SideBar />
       <div className="main-content">
         <Header />
-        <motion.div 
+        <motion.div
           className="page-content"
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -57,7 +58,7 @@ function App() {
         <Route path="/client" element={<ClientPage />} />
         <Route path="/planning" element={<PlanningPage />} />
         <Route path="/messages" element={<MessagesPage />} />
-        
+
         {/* Placeholders for secondary routes to show styling and active states */}
         <Route path="/factures" element={<PlaceholderPage title="Factures" subtitle="Gérez vos factures et règlements clients." />} />
         <Route path="/devis" element={<PlaceholderPage title="Devis" subtitle="Créez et envoyez vos propositions commerciales." />} />
@@ -65,7 +66,7 @@ function App() {
         <Route path="/comptabilite" element={<PlaceholderPage title="Comptabilité" subtitle="Suivi des écritures comptables et bilan." />} />
         <Route path="/catalogue" element={<PlaceholderPage title="Catalogue" subtitle="Gérez vos produits, prestations et tarifs." />} />
         <Route path="/premium" element={<PlaceholderPage title="Premium" subtitle="Découvrez les fonctionnalités ClimPro Pro." />} />
-        <Route path="/settings" element={<PlaceholderPage title="Paramètres" subtitle="Configurez vos préférences de compte." />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </>
   )

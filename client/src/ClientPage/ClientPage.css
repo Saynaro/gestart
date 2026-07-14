@@ -1,3 +1,4 @@
+/* Desktop CSS Styles */
 .content-header-row {
     display: flex;
     justify-content: space-between;
@@ -97,30 +98,825 @@
     font-size: 14px;
 }
 
+.clients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.client-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.client-avatar-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--sidebar-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.client-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.client-info h3 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.client-company {
+    font-size: 12px;
+    color: var(--muted-foreground);
+}
+
+.client-email {
+    font-size: 11.5px;
+    color: var(--muted-foreground);
+}
+
+
+/* ==========================================================================
+   MOBILE NATIVE LAYOUT STYLES (NEW ACCORDION / GROUPED CONTACTS DESIGN)
+   ========================================================================== */
+
+/* Lock viewport overscroll to keep navbar fixed */
+html, body {
+    overscroll-behavior-y: none !important;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-contacts-view {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f8fafc; /* Slate 50 */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.mobile-contacts-scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 100px; /* Space for bottom navigation tab bar */
+}
+
+/* Tab Bar Pill Selector */
+.mobile-contacts-tab-container {
+    padding: 16px 16px 8px 16px;
+}
+
+.mobile-contacts-tab-bar {
+    background-color: #f1f5f9; /* Soft purple-grey */
+    border-radius: 12px;
+    display: flex;
+    padding: 4px;
+}
+
+.mobile-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 0;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    outline: none;
+}
+
+.mobile-tab-btn.active {
+    background-color: white;
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Search Box styling */
+.mobile-search-box {
+    padding: 8px 16px 16px 16px;
+}
+
+.mobile-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-search-icon-left {
+    position: absolute;
+    left: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.mobile-search-input-field {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 14px 10px 42px;
+    font-size: 16px;
+    color: #1e293b;
+    width: 100%;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.005);
+    transition: border-color 0.2s ease;
+}
+
+.mobile-search-input-field:focus {
+    border-color: #cbd5e1;
+}
+
+/* Grouped List styling */
+.mobile-grouped-list-container {
+    padding: 0 16px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mobile-letter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mobile-letter-header {
+    font-size: 15px;
+    font-weight: 700;
+    color: #64748b;
+    margin-left: 8px;
+}
+
+.mobile-letter-card {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+}
+
+.mobile-contact-list-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-contact-list-row:last-child {
+    border-bottom: none;
+}
+
+.mobile-contact-list-row:active {
+    background-color: #f8fafc;
+}
+
+/* Top Navbar */
+.mobile-contacts-top-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 16px 12px 16px;
+    background-color: rgba(248, 250, 252, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.mobile-navbar-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.mobile-navbar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #1e293b;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 2px solid white;
+}
+
+.mobile-contact-row-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mobile-contact-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mobile-contact-name {
+    font-size: 16.5px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.mobile-contact-badge-green {
+    background-color: #dcfce7;
+    color: #16a34a;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 50px;
+}
+
+.mobile-contact-email {
+    font-size: 14.5px;
+    color: #64748b;
+}
+
+.mobile-row-chevron-right {
+    color: #94a3b8;
+}
+
+/* Nouveau client Button FAB */
+.mobile-contact-fab {
+    position: fixed;
+    bottom: 95px;
+    right: 16px;
+    background-color: #0066FF; /* Native blue */
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-size: 15.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 16px rgba(0, 102, 255, 0.35);
+    z-index: 99;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-contact-fab:active {
+    background-color: #0052cc;
+}
+
+
+/* ==========================================================================
+   MOBILE BOTTOM SHEET & SUB-SHEETS STYLE RULES
+   ========================================================================== */
+
+/* Draggable Header Zone for Bottom Sheets */
+.mobile-sheet-header-drag-zone {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: transparent;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.mobile-sheet-header-drag-zone:active {
+    cursor: grabbing;
+}
+
+.mobile-drag-handle-bar {
+    width: 36px;
+    height: 4px;
+    background-color: #cbd5e1;
+    border-radius: 2px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
+.mobile-sheet-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-sizing: border-box;
+}
+
+.mobile-sheet-close-btn {
+    position: absolute;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-sheet-close-btn:active {
+    background-color: #e2e8f0;
+}
+
+.mobile-sheet-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    margin: 0;
+}
+
+.mobile-sheet-body-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+}
+
+/* Card Style Form Fields */
+.mobile-form-card {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.005);
+}
+
+.mobile-form-card.select {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-form-card.select:active {
+    background-color: #f8fafc;
+}
+
+.mobile-form-card-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.mobile-form-card-input {
+    border: none;
+    padding: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    background: transparent;
+    width: 100%;
+}
+
+.mobile-form-card-input:focus {
+    outline: none;
+}
+
+.mobile-form-card-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+}
+
+.mobile-form-card-val {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.mobile-card-chevron {
+    margin-left: auto;
+    color: #64748b;
+}
+
+/* Toggle Switch row */
+.mobile-toggle-card {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mobile-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-toggle-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    flex: 1;
+    padding-right: 12px;
+}
+
+.mobile-toggle-desc {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.mobile-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.mobile-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .3s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #0066FF;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* Primary buttons inside Sheets */
+.mobile-sheet-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.mobile-sheet-save-btn {
+    width: 100%;
+    background-color: #0066FF;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
+    transition: background-color 0.2s ease;
+}
+
+.mobile-sheet-save-btn:active {
+    background-color: #0052cc;
+}
+
+.mobile-sheet-archive-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Sub-sheet components */
+.mobile-sub-sheet-confirm-btn {
+    width: 100%;
+    background-color: #0066FF;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
+    margin-top: 16px;
+}
+
+.mobile-sub-sheet-confirm-btn:active {
+    background-color: #0052cc;
+}
+
+.mobile-sub-sheet-desc {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.45;
+    margin: 12px 0 0 4px;
+}
+
+/* Email Pill block */
+.mobile-email-input-pill {
+    border: 1px solid #0066FF;
+    background-color: rgba(0, 102, 255, 0.03);
+    padding: 8px 14px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.mobile-email-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0066FF;
+}
+
+.mobile-email-clear-btn {
+    background-color: #0066FF;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+.mobile-email-add-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.mobile-email-add-input {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 16px;
+    outline: none;
+}
+
+.mobile-email-add-btn {
+    background-color: #f1f5f9;
+    border: none;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0066FF;
+    cursor: pointer;
+}
+
+/* Phone edit block */
+.mobile-phone-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.mobile-phone-country {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    background-color: white;
+}
+
+.mobile-phone-number-field {
+    flex: 1;
+    border: 1px solid #0066FF;
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+}
+
+.mobile-phone-number-input {
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    width: 80%;
+    background: transparent;
+}
+
+.mobile-phone-clear-btn {
+    background-color: #cbd5e1;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+/* Keyboard mockup */
+.mobile-keyboard-mockup {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background-color: #e2e8f0;
+    padding: 16px;
+    margin: 20px -16px 0 -16px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+}
+
+.mobile-keyboard-key {
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1e293b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.mobile-keyboard-key:active {
+    background-color: #f1f5f9;
+}
+
+/* Address search and forms */
+.mobile-address-search-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 14px 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 12px;
+    background-color: white;
+}
+
+.mobile-address-search-input {
+    border: none;
+    outline: none;
+    font-size: 16px;
+    width: 100%;
+    color: #1e293b;
+    padding: 0;
+}
+
+
+/* Enable momentum smooth scrolling on bottom sheets */
+.fixed.bottom-0.left-0.right-0 {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Pull to Refresh Indicator Styles */
+.pull-to-refresh-indicator {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: height 0.1s ease, opacity 0.15s ease;
+    background-color: transparent;
+}
+
+.pull-to-refresh-spinner-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.spinner-icon {
+    width: 18px;
+    height: 18px;
+    stroke: #0066FF;
+}
+
+.spinner-icon.spinning {
+    animation: rotatePullRefresh 1s linear infinite;
+}
+
+.spinner-path {
+    stroke: #0066FF;
+    stroke-linecap: round;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 20;
+}
+
+@keyframes rotatePullRefresh {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   DESKTOP MEDIA QUERIES & RESPONSIVENESS OVERRIDES
+   ========================================================================== */
+
 @media (max-width: 768px) {
-    .content-header-row {
+    .home-page {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    
-    .new-client-btn {
-        width: 100%;
-        text-align: center;
+        background-color: #f8fafc;
     }
 
-    .filters-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
+    .settings-sidebar,
+    .main-content {
+        display: none !important;
     }
+}
 
-    .search-input-wrapper {
-        max-width: none;
-    }
-
-    .filter-options {
-        justify-content: flex-start;
-        overflow-x: auto;
+@media (min-width: 769px) {
+    .mobile-contacts-view {
+        display: none !important;
     }
 }

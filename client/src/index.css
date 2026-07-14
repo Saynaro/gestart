@@ -198,3 +198,10 @@
     scroll-margin-top: 100px;
   }
 }
+
+/* Disable auto-zoom on inputs in iOS Safari */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}

@@ -10,6 +10,28 @@ function SideBar() {
     const location = useLocation();
     const activePath = location.pathname || "/home";
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(() => {
+        return localStorage.getItem("sidebar-collapsed") === "true";
+    });
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+    const toggleCollapse = () => {
+        const nextState = !isCollapsed;
+        setIsCollapsed(nextState);
+        localStorage.setItem("sidebar-collapsed", String(nextState));
+    };
+
+    const toggleUserMenu = (e) => {
+        e.stopPropagation();
+        setUserMenuOpen(!userMenuOpen);
+    };
+
+    useEffect(() => {
+        if (!userMenuOpen) return;
+        const closeMenu = () => setUserMenuOpen(false);
+        window.addEventListener("click", closeMenu);
+        return () => window.removeEventListener("click", closeMenu);
+    }, [userMenuOpen]);
 
     const navigateTo = (e, path) => {
         e.preventDefault();
@@ -54,7 +76,7 @@ function SideBar() {
     return (
         <>
             {/* Desktop Sidebar Layout */}
-            <div className="sidebar">
+            <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
                 <div className="sidebar-top">
                     <div className="logo-container">
                         <div className="logo-icon-bg">
@@ -68,6 +90,25 @@ function SideBar() {
                             </svg>
                         </div>
                         <span className="logo-text">ClimPro</span>
+                        <button 
+                            className="sidebar-toggle-btn"
+                            onClick={toggleCollapse}
+                            title={isCollapsed ? "Agrandir le menu" : "Réduire le menu"}
+                        >
+                            {isCollapsed ? (
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                                    <polyline points="12 8 16 12 12 16"></polyline>
+                                </svg>
+                            ) : (
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                                    <polyline points="16 16 12 12 16 8"></polyline>
+                                </svg>
+                            )}
+                        </button>
                     </div>
                     {menuSections.map((section, sIndex) => (
                         <div key={sIndex} className="sidebar-section">
@@ -77,7 +118,12 @@ function SideBar() {
                                     const isActive = item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home"));
                                     return (
                                         <li key={iIndex} className={`menu-item ${isActive ? "active" : ""}`}>
-                                            <a href={item.path} onClick={(e) => navigateTo(e, item.path)} className="menu-link">
+                                            <a 
+                                                href={item.path} 
+                                                onClick={(e) => navigateTo(e, item.path)} 
+                                                className="menu-link"
+                                                data-tooltip={item.title}
+                                            >
                                                 <span className="icon-wrapper">{Icons[item.iconKey]}</span>
                                                 <span className="item-title">{item.title}</span>
                                                 {item.badge !== undefined && (
@@ -94,15 +140,89 @@ function SideBar() {
                     ))}
                 </div>
                 <div className="sidebar-bottom">
-                    <div className="user-profile">
-                        <div className="avatar">SK</div>
+                    <div className="user-profile" onClick={toggleUserMenu}>
+                        <div className="avatar" data-tooltip={isCollapsed ? "Khalid Sainaro (Version gratuite)" : undefined}>KS</div>
                         <div className="user-details">
-                            <span className="username">Sainaro Khalid</span>
-                            <span className="user-plan">Plan Pro</span>
+                            <span className="username">Khalid Sainaro</span>
+                            <span className="user-plan">Version gratuite</span>
                         </div>
-                        <button className="logout-btn" title="Déconnexion">
-                            {Icons.logout}
-                        </button>
+                        {!isCollapsed && (
+                            <button 
+                                className="logout-btn" 
+                                title="Déconnexion" 
+                                data-tooltip="Déconnexion"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    alert("Déconnexion");
+                                }}
+                            >
+                                {Icons.logout}
+                            </button>
+                        )}
+                        
+                        {userMenuOpen && (
+                            <div className="user-popover-menu" onClick={(e) => e.stopPropagation()}>
+                                <div className="user-popover-header">
+                                    <div className="popover-avatar">KS</div>
+                                    <div className="popover-user-info">
+                                        <span className="popover-username">Khalid Sainaro</span>
+                                        <span className="popover-email">khalid.cizdoev777@gmail.com</span>
+                                        <span className="popover-plan">Version gratuite</span>
+                                    </div>
+                                </div>
+                                <button className="popover-upgrade-btn" onClick={() => alert("Passer au niveau supérieur")}>
+                                    Passer au niveau supérieur
+                                </button>
+                                <div className="popover-divider"></div>
+                                <ul className="popover-list">
+                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings")}>
+                                        <span className="popover-item-icon">{Icons.settings}</span>
+                                        <span className="popover-item-text">Paramètres</span>
+                                    </li>
+                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/profile")}>
+                                        <span className="popover-item-icon">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                        </span>
+                                        <span className="popover-item-text">Profil</span>
+                                    </li>
+                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/company")}>
+                                        <span className="popover-item-icon">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                                                <line x1="9" y1="22" x2="9" y2="16"></line>
+                                                <line x1="8" y1="6" x2="16" y2="6"></line>
+                                                <line x1="8" y1="10" x2="16" y2="10"></line>
+                                                <line x1="12" y1="14" x2="16" y2="14"></line>
+                                            </svg>
+                                        </span>
+                                        <span className="popover-item-text">Mon entreprise</span>
+                                    </li>
+                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/billing")}>
+                                        <span className="popover-item-icon">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                                            </svg>
+                                        </span>
+                                        <span className="popover-item-text">Paiements / abonnement</span>
+                                    </li>
+                                </ul>
+                                <div className="popover-divider"></div>
+                                <div className="popover-item danger" onClick={() => { setUserMenuOpen(false); alert("Déconnexion"); }}>
+                                    <span className="popover-item-icon">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                            <polyline points="16 17 21 12 16 7"></polyline>
+                                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                                        </svg>
+                                    </span>
+                                    <span className="popover-item-text">Déconnexion</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -292,6 +292,7 @@
 
     .mobile-nav-item.active {
         color: var(--sidebar-primary);
+        transform: scale(1.02);
         opacity: 1;
     }
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import "./SideBar.css";
 import BottomSheet from "./BottomSheet";
 import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
@@ -122,7 +123,7 @@ function SideBar() {
                 {mobileTabBarItems.map((item, index) => {
                     const isTabActive = item.isPlus ? bottomSheetOpen : (item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home")));
                     return (
-                        <a
+                        <motion.a
                             key={index}
                             href={item.path}
                             onClick={(e) => {
@@ -133,11 +134,14 @@ function SideBar() {
                                     navigateTo(e, item.path);
                                 }
                             }}
+                            whileTap={{ scale: 0.92 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 15 }}
                             className={`mobile-nav-item ${isTabActive ? "active" : ""}`}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
                         >
                             <span className="mobile-nav-icon">{Icons[item.iconKey]}</span>
                             <span className="mobile-nav-title">{item.title}</span>
-                        </a>
+                        </motion.a>
                     );
                 })}
             </nav>

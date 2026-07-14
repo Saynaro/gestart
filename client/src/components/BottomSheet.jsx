@@ -100,12 +100,14 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                     const isActive = activePath === item.path;
                                     return (
                                         <li key={index}>
-                                            <a
+                                            <motion.a
                                                 href={item.path}
                                                 onClick={(e) => {
                                                     navigateTo(e, item.path);
                                                     onClose();
                                                 }}
+                                                whileTap={{ scale: 0.96 }}
+                                                transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                                 className={`relative min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
                                                     isActive 
                                                         ? "bg-sidebar-accent text-sidebar-primary font-semibold" 
@@ -126,7 +128,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                                 {isActive && (
                                                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[16px] bg-sidebar-primary rounded-r-md" />
                                                 )}
-                                            </a>
+                                            </motion.a>
                                         </li>
                                     );
                                 })}
@@ -138,12 +140,14 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                             {/* Section 2 (Account / Tools) */}
                             <ul className="flex flex-col gap-1">
                                 <li>
-                                    <a
+                                    <motion.a
                                         href="/settings"
                                         onClick={(e) => {
                                             navigateTo(e, "/settings");
                                             onClose();
                                         }}
+                                        whileTap={{ scale: 0.96 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                         className={`relative min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
                                             activePath === "/settings"
                                                 ? "bg-sidebar-accent text-sidebar-primary font-semibold"
@@ -155,19 +159,21 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                         {activePath === "/settings" && (
                                             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[16px] bg-sidebar-primary rounded-r-md" />
                                         )}
-                                    </a>
+                                    </motion.a>
                                 </li>
                                 <li>
-                                    <button
+                                    <motion.button
                                         onClick={() => {
                                             alert("Déconnexion");
                                             onClose();
                                         }}
+                                        whileTap={{ scale: 0.96 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                         className="w-full min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100 select-none text-[#DC2626]"
                                     >
                                         <LogOut className="w-[22px] h-[22px] stroke-[1.8] text-[#DC2626]" />
                                         <span className="text-[14.5px] font-medium">Déconnexion</span>
-                                    </button>
+                                    </motion.button>
                                 </li>
                             </ul>
                         </nav>

@@ -221,7 +221,7 @@ function ClientPage() {
                 <div className="mobile-contacts-top-navbar">
                     <h1 className="mobile-navbar-title">Clients</h1>
                     <div className="mobile-navbar-avatar" onClick={() => navigate("/settings")}>
-                        <span>MD</span>
+                        <span>KS</span>
                     </div>
                 </div>
 

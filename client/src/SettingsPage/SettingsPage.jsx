@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import "./SettingsPage.css";
@@ -26,6 +26,7 @@ import {
     Settings,
     Camera,
     ChevronRight,
+    ChevronLeft,
     ArrowLeft,
     Search,
     Folder,
@@ -39,14 +40,14 @@ function SettingsPage() {
     // Ref to store scroll position for mobile back navigation
     const scrollYRef = useRef(0);
     
-    // Form and user state
-    const [firstName, setFirstName] = useState("Marc");
-    const [lastName, setLastName] = useState("Dubois");
-    const [email, setEmail] = useState("marc@dupont-clim.fr");
-    const [phone, setPhone] = useState("06 12 34 56 78");
+    // Form and user state (aligned with Khalid Sainaro initial user demo data)
+    const [firstName, setFirstName] = useState("Khalid");
+    const [lastName, setLastName] = useState("Sainaro");
+    const [email, setEmail] = useState("khalid.cizdoev777@gmail.com");
+    const [phone, setPhone] = useState("0651604316");
     const [avatarUrl, setAvatarUrl] = useState(null);
-    const [civility, setCivility] = useState("Homme");
-    const [dob, setDob] = useState("20/05/1990");
+    const [civility, setCivility] = useState("");
+    const [dob, setDob] = useState("");
     
     // Layout and Navigation State
     const [activeTab, setActiveTab] = useState("profil");
@@ -54,6 +55,14 @@ function SettingsPage() {
     const [toastMessage, setToastMessage] = useState("");
     const [isMobile, setIsMobile] = useState(false);
     
+    // Scroll tracking for iOS-style header title transition
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // Profile Sub-Sheets states
+    const [activeProfileSubSheet, setActiveProfileSubSheet] = useState(null); // null, "phone", "civility", "calendar"
+    const [selectedCalDay, setSelectedCalDay] = useState(1);
+    const dragControlsProfileSub = useDragControls();
+
     // mobileScreenState can be "list" (show categories menu) or "detail" (show selected settings tab)
     const [mobileScreenState, setMobileScreenState] = useState("list");
     const [showUpgradeBanner, setShowUpgradeBanner] = useState(true);
@@ -66,6 +75,19 @@ function SettingsPage() {
         "À propos": false
     });
 
+    // Scroll tracking for header transition
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 40) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     // Detect screen size on resize
     useEffect(() => {
         setIsMobile(window.innerWidth <= 768);
@@ -76,13 +98,23 @@ function SettingsPage() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Sync state with URL query parameters for back gesture support
+    // Sync active settings tab with search param '?tab=id'
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const tab = params.get("tab");
         if (tab) {
             setActiveTab(tab);
             setMobileScreenState("detail");
+
+            // Scroll to top immediately when entering a detail screen on mobile
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'instant'
+                    });
+                }, 30);
+            }
         } else {
             setMobileScreenState("list");
             setActiveTab("profil"); // default tab for desktop view
@@ -186,7 +218,6 @@ function SettingsPage() {
         navigate(`/settings?tab=${itemId}`);
     };
 
-    // Go back to the page we came from (e.g. /home, /client, etc.)
     const handleMainListBack = () => {
         if (window.history.length > 1) {
             navigate(-1);
@@ -255,40 +286,31 @@ function SettingsPage() {
                                     />
                                 </div>
 
-                                <div className="mobile-input-card">
+                                {/* Phone selector card */}
+                                <div className="mobile-input-card select" onClick={() => setActiveProfileSubSheet("phone")}>
                                     <span className="mobile-input-card-label">Téléphone</span>
                                     <div className="mobile-input-card-row">
                                         <span className="mobile-flag">🇫🇷</span>
-                                        <input
-                                            type="tel"
-                                            className="mobile-input-card-field"
-                                            value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
-                                            placeholder="06 12 34 56 78"
-                                        />
-                                        <span className="mobile-chevron-down">▼</span>
+                                        <span className="mobile-input-card-val">{phone || "Saisir un numéro"}</span>
+                                        <ChevronRight size={16} style={{ color: '#94a3b8', marginLeft: 'auto' }} />
                                     </div>
                                 </div>
 
-                                <div className="mobile-input-card" style={{ cursor: 'pointer' }}>
+                                {/* Civility selector card */}
+                                <div className="mobile-input-card select" onClick={() => setActiveProfileSubSheet("civility")}>
                                     <span className="mobile-input-card-label">Civilité</span>
                                     <div className="mobile-input-card-row">
-                                        <span>{civility}</span>
-                                        <span className="mobile-chevron-down" onClick={() => setCivility(civility === "Homme" ? "Femme" : "Homme")}>▼</span>
+                                        <span className="mobile-input-card-val">{civility || "Saisir votre civilité"}</span>
+                                        <ChevronRight size={16} style={{ color: '#94a3b8', marginLeft: 'auto' }} />
                                     </div>
                                 </div>
 
-                                <div className="mobile-input-card">
+                                {/* Date of birth selector card */}
+                                <div className="mobile-input-card select" onClick={() => setActiveProfileSubSheet("calendar")}>
                                     <span className="mobile-input-card-label">Date de naissance</span>
                                     <div className="mobile-input-card-row">
-                                        <input
-                                            type="text"
-                                            className="mobile-input-card-field"
-                                            value={dob}
-                                            onChange={(e) => setDob(e.target.value)}
-                                            placeholder="JJ/MM/AAAA"
-                                        />
-                                        <span className="mobile-chevron-down">▼</span>
+                                        <span className="mobile-input-card-val">{dob || "Saisir une date"}</span>
+                                        <ChevronRight size={16} style={{ color: '#94a3b8', marginLeft: 'auto' }} />
                                     </div>
                                 </div>
 
@@ -336,7 +358,7 @@ function SettingsPage() {
                                         required
                                     />
                                 </div>
-                                <div className="form-field form-group-full">
+                                <div className="form-field">
                                     <label className="form-label">Téléphone</label>
                                     <input
                                         type="tel"
@@ -346,48 +368,35 @@ function SettingsPage() {
                                         placeholder="06 12 34 56 78"
                                     />
                                 </div>
-                                <div className="form-field form-group-full">
-                                    <label className="form-label">Avatar</label>
-                                    <div className="avatar-edit-field">
-                                        <div className="avatar-preview">
-                                            {avatarUrl ? (
-                                                <img src={avatarUrl} alt="Avatar" />
-                                            ) : (
-                                                <span>{firstName[0]}{lastName[0]}</span>
-                                            )}
-                                        </div>
-                                        <label className="change-avatar-btn">
-                                            <Camera size={14} />
-                                            <span>Changer</span>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleAvatarChange}
-                                            />
-                                        </label>
-                                    </div>
+                                <div className="form-field">
+                                    <label className="form-label">Civilité</label>
+                                    <select 
+                                        className="form-input" 
+                                        value={civility}
+                                        onChange={(e) => setCivility(e.target.value)}
+                                    >
+                                        <option value="">Sélectionner</option>
+                                        <option value="Madame">Madame</option>
+                                        <option value="Monsieur">Monsieur</option>
+                                    </select>
                                 </div>
                                 <div className="form-field form-group-full">
-                                    <label className="form-label">Sécurité</label>
-                                    <div className="password-change-row">
-                                        <div className="password-info">
-                                            <span className="password-title">Mot de passe</span>
-                                            <span className="password-desc">Modifiez votre mot de passe d'accès.</span>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            className="change-password-btn"
-                                            onClick={handlePasswordChange}
-                                        >
-                                            Changer →
-                                        </button>
-                                    </div>
+                                    <label className="form-label">Date de naissance</label>
+                                    <input
+                                        type="date"
+                                        className="form-input"
+                                        value={dob ? dob.split("/").reverse().join("-") : ""}
+                                        onChange={(e) => {
+                                            if (e.target.value) {
+                                                const parts = e.target.value.split("-");
+                                                setDob(`${parts[2]}/${parts[1]}/${parts[0]}`);
+                                            } else {
+                                                setDob("");
+                                            }
+                                        }}
+                                    />
                                 </div>
-                                <div className="form-actions form-group-full">
-                                    <button type="submit" className="save-profile-btn">
-                                        Enregistrer
-                                    </button>
-                                </div>
+                                <button type="submit" className="save-profile-btn form-group-full">Enregistrer</button>
                             </form>
                         )}
                     </motion.div>
@@ -412,7 +421,7 @@ function SettingsPage() {
                         )}
                         
                         {isMobileView ? (
-                            // Mobile Company layout (Image 1 style)
+                            // Mobile Company layout
                             <div>
                                 <div className="mobile-entreprise-search-card">
                                     <div className="mobile-search-icon-bg">
@@ -498,7 +507,7 @@ function SettingsPage() {
                     </motion.div>
                 );
                 
-            case "facturation":
+            case "securite":
                 return (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -509,102 +518,39 @@ function SettingsPage() {
                         {!isMobileView && (
                             <>
                                 <div className="panel-title-row">
-                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Receipt size={18} /></span>
-                                    <h2 className="panel-title">Réglages facturation</h2>
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Lock size={18} /></span>
+                                    <h2 className="panel-title">Sécurité</h2>
                                 </div>
                                 <div className="panel-divider"></div>
                             </>
                         )}
                         
                         {isMobileView ? (
-                            // Mobile Facturation layout (Image 2 style)
-                            <div>
-                                <h3 className="mobile-detail-section-title" style={{ marginTop: '8px' }}>Documents</h3>
-                                <div className="mobile-group-container">
-                                    <div className="mobile-items-card">
-                                        <button className="mobile-settings-row-btn" type="button">
-                                            <span className="mobile-row-icon-bg"><Star size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Personnalisation de document</span>
-                                                <span className="mobile-row-subtitle">Logo, couleurs et mise en page</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
-                                        <button className="mobile-settings-row-btn" type="button">
-                                            <span className="mobile-row-icon-bg"><Info size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Informations</span>
-                                                <span className="mobile-row-subtitle">Mentions affichées sur vos documents</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
-                                        <button className="mobile-settings-row-btn" type="button">
-                                            <span className="mobile-row-icon-bg"><Hash size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Numérotation</span>
-                                                <span className="mobile-row-subtitle">Format des numéros de facture</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
-                                        <button className="mobile-settings-row-btn" type="button">
-                                            <span className="mobile-row-icon-bg"><Tag size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Articles</span>
-                                                <span className="mobile-row-subtitle">Vos produits et prestations</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
+                            <div className="mobile-fields-stack">
+                                <div className="mobile-input-card">
+                                    <span className="mobile-input-card-label">Adresse email</span>
+                                    <input type="email" className="mobile-input-card-field" value={email} readOnly />
+                                </div>
+                                <div className="mobile-input-card select" onClick={handlePasswordChange}>
+                                    <span className="mobile-input-card-label">Mot de passe</span>
+                                    <div className="mobile-input-card-row">
+                                        <span className="mobile-input-card-val">••••••••</span>
+                                        <ChevronRight size={16} style={{ color: '#94a3b8', marginLeft: 'auto' }} />
                                     </div>
                                 </div>
-
-                                <h3 className="mobile-detail-section-title">Paiement</h3>
-                                <div className="mobile-group-container">
-                                    <div className="mobile-items-card">
-                                        <button className="mobile-settings-row-btn" type="button">
-                                            <span className="mobile-row-icon-bg"><CreditCard size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Paiement</span>
-                                                <span className="mobile-row-subtitle">Moyens et conditions de paiement</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
-                                        <button className="mobile-settings-row-btn" type="button">
-                                            <span className="mobile-row-icon-bg"><Zap size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Avance immédiate</span>
-                                                <span className="mobile-row-subtitle">Avance immédiate URSSAF</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <h3 className="mobile-detail-section-title">Envoi & format</h3>
-                                <div className="mobile-group-container">
-                                    <div className="mobile-items-card">
-                                        <button className="mobile-settings-row-btn" type="button">
-                                            <span className="mobile-row-icon-bg"><Bell size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Relances automatiques</span>
-                                                <span className="mobile-row-subtitle">Rappels de paiement automatiques</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div style={{ height: '20px' }} />
                             </div>
                         ) : (
-                            // Desktop Mockup for invoice settings
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <h3 style={{ margin: 0, fontSize: '15px' }}>Options de facturation</h3>
-                                <p style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Configurez ici vos templates de devis et factures.</p>
+                            <div className="profile-form-grid">
+                                <div className="form-field form-group-full">
+                                    <label className="form-label">Modifier le mot de passe</label>
+                                    <button onClick={handlePasswordChange} className="save-profile-btn">Envoyer un email de réinitialisation</button>
+                                </div>
                             </div>
                         )}
                     </motion.div>
                 );
-                
-            case "abonnement":
+
+            case "notifications":
                 return (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -612,87 +558,88 @@ function SettingsPage() {
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25 }}
                     >
-                        <div className="panel-title-row">
-                            <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><CreditCard size={18} /></span>
-                            <h2 className="panel-title">Abonnement</h2>
-                        </div>
-                        <div className="panel-divider"></div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div style={{ background: 'rgba(95, 75, 219, 0.03)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                    <h3 style={{ margin: 0, fontWeight: 700, fontSize: '15px', color: 'var(--sidebar-primary)' }}>ClimPro Pro</h3>
-                                    <span style={{ background: '#10b981', color: 'white', fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '50px' }}>ACTIF</span>
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Bell size={18} /></span>
+                                    <h2 className="panel-title">Notifications</h2>
                                 </div>
-                                <p style={{ fontSize: '13px', color: 'var(--muted-foreground)', margin: '0 0 12px 0' }}>Votre abonnement Pro vous donne un accès total.</p>
-                                <div style={{ display: 'flex', gap: '14px', fontSize: '12.5px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-                                    <div><strong>Fréquence:</strong> Mensuel</div>
-                                    <div><strong>Expiration:</strong> 21/08/2026</div>
-                                </div>
-                            </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '16px', fontSize: '14px', color: '#64748b' }}>
+                            Configurez vos notifications de devis et interventions.
                         </div>
                     </motion.div>
                 );
-            default:
-                const currentItem = menuCategories
-                    .flatMap(cat => cat.items)
-                    .find(item => item.id === activeTab);
-                const SelectedIcon = currentItem?.icon || Settings;
+
+            case "premium":
                 return (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25 }}
-                        className="tab-placeholder"
                     >
-                        <div className="placeholder-icon">
-                            <SelectedIcon size={38} />
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Sparkles size={18} /></span>
+                                    <h2 className="panel-title">Premium</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '16px', fontSize: '14px', color: '#64748b' }}>
+                            Débloquez les fonctionnalités Pro avancées.
                         </div>
-                        <h3 className="placeholder-title">{currentItem?.label || "Paramètres"}</h3>
-                        <p className="placeholder-desc">
-                            La section <strong>{currentItem?.label}</strong> est configurée et sera disponible prochainement.
-                        </p>
                     </motion.div>
+                );
+
+            default:
+                return (
+                    <div style={{ padding: "20px", color: "var(--muted-foreground)" }}>
+                        Sélectionnez une option dans le menu de gauche.
+                    </div>
                 );
         }
     };
 
-    // Render mobile-specific UI (Image 3 / Image 4 / Image 1 drill-down layout)
     const renderMobileLayout = () => {
         if (mobileScreenState === "list") {
             return (
                 <div className="mobile-settings-view">
                     {/* Header */}
-                    <div className="mobile-nav-header">
+                    <div className="mobile-nav-header" style={{ borderBottom: 'none', backgroundColor: 'transparent', padding: '16px 16px 8px 16px' }}>
                         <button className="mobile-back-circle" onClick={handleMainListBack}>
                             <ArrowLeft size={16} />
                         </button>
                     </div>
 
-                    {/* Profile Header */}
-                    <div className="mobile-profile-header-sec">
-                        <div className="mobile-profile-avatar-circle">
+                    {/* Centered User Profile info */}
+                    <div className="mobile-settings-profile-header">
+                        <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
                             {avatarUrl ? (
                                 <img src={avatarUrl} alt="Avatar" />
                             ) : (
                                 <span>{firstName[0]}{lastName[0]}</span>
                             )}
                         </div>
-                        <span className="mobile-profile-name">{firstName} {lastName}</span>
-                        <span className="mobile-profile-email">{email}</span>
+                        <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
+                        <p className="mobile-settings-profile-email">{email}</p>
                     </div>
 
-                    {/* Banner Upgrade Card */}
+                    {/* Abby-style Pro Upgrade Banner */}
                     {showUpgradeBanner && (
-                        <div className="mobile-upgrade-card">
-                            <button className="mobile-upgrade-close" onClick={() => setShowUpgradeBanner(false)}>
-                                <X size={14} />
+                        <div className="mobile-abby-banner">
+                            <button className="mobile-abby-banner-close" onClick={() => setShowUpgradeBanner(false)}>
+                                <X size={18} />
                             </button>
-                            <h4 className="mobile-upgrade-title">Allez plus loin avec ClimPro !</h4>
-                            <p className="mobile-upgrade-text">
+                            <h3 className="mobile-abby-banner-title">Allez plus loin avec Abby !</h3>
+                            <p className="mobile-abby-banner-text">
                                 Votre offre actuelle est limitée. Passez à un niveau supérieur pour accéder à plus de fonctionnalités.
                             </p>
-                            <button className="mobile-upgrade-action-btn" onClick={() => triggerToast("Redirection Pro...")}>
+                            <button className="mobile-abby-banner-btn" onClick={() => triggerToast("Version Pro bientôt disponible !")}>
                                 Passer au niveau supérieur
                             </button>
                         </div>
@@ -770,16 +717,190 @@ function SettingsPage() {
             return (
                 <div className="mobile-settings-view" style={{ backgroundColor: '#f8fafc' }}>
                     {/* Header */}
-                    <div className="mobile-nav-header" style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: 'white' }}>
+                    <div className="mobile-nav-header" style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 100 }}>
                         <button className="mobile-back-circle" onClick={() => navigate(-1)}>
                             <ArrowLeft size={16} />
                         </button>
+                        <span className={`mobile-nav-header-title ${isScrolled ? 'visible' : ''}`}>
+                            {currentItem.label}
+                        </span>
+                        <div style={{ width: '36px' }} />
                     </div>
                     
                     <h1 className="mobile-header-title">{currentItem.label}</h1>
                     
                     {/* Render active form detail */}
                     {renderTabContent(true)}
+
+                    {/* Profile Sub-Sheets (z-index 2200) */}
+                    <AnimatePresence>
+                        {activeProfileSubSheet && (
+                            <>
+                                {/* Nested Backdrop overlay */}
+                                <motion.div
+                                    className="fixed inset-0 z-[2200] bg-black/45 backdrop-blur-[2px]"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setActiveProfileSubSheet(null)}
+                                />
+
+                                {/* Sub-Sheet Container */}
+                                <motion.div
+                                    className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-white rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
+                                    style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
+                                    initial={{ y: "100%" }}
+                                    animate={{ y: 0 }}
+                                    exit={{ y: "100%" }}
+                                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
+                                    drag="y"
+                                    dragControls={dragControlsProfileSub}
+                                    dragListener={false}
+                                    dragConstraints={{ top: 0 }}
+                                    dragElastic={{ top: 0, bottom: 0.8 }}
+                                    onDragEnd={(event, info) => {
+                                        if (info.offset.y > 100) {
+                                            setActiveProfileSubSheet(null);
+                                        }
+                                    }}
+                                >
+                                    {/* Draggable Header Zone for Sub-Sheet */}
+                                    <div 
+                                        className="mobile-sheet-header-drag-zone"
+                                        onPointerDown={(e) => dragControlsProfileSub.start(e)}
+                                        style={{ touchAction: "none", backgroundColor: 'white' }}
+                                    >
+                                        <div className="mobile-drag-handle-bar" />
+                                    </div>
+
+                                    {/* SUB-SHEET 1: CIVILITY */}
+                                    {activeProfileSubSheet === "civility" && (
+                                        <div>
+                                            <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent', padding: '10px 16px' }}>
+                                                <h2 className="mobile-sheet-title" style={{ margin: 0, fontSize: '24px', fontWeight: 800, textAlign: 'left', flex: 1 }}>Civilité</h2>
+                                                <button className="mobile-sheet-close-btn" style={{ position: 'static' }} onClick={() => setActiveProfileSubSheet(null)}>
+                                                    <X size={18} />
+                                                </button>
+                                            </div>
+                                            <div className="mobile-sheet-body-stack" style={{ padding: '16px' }}>
+                                                <div 
+                                                    className={`mobile-select-row ${civility === "Madame" ? "active" : ""}`}
+                                                    onClick={() => { setCivility("Madame"); setActiveProfileSubSheet(null); }}
+                                                >
+                                                    <span className="mobile-select-row-label">Madame</span>
+                                                    <div className="mobile-radio-circle">
+                                                        {civility === "Madame" && <div className="mobile-radio-circle-inner" />}
+                                                    </div>
+                                                </div>
+                                                <div 
+                                                    className={`mobile-select-row ${civility === "Monsieur" ? "active" : ""}`}
+                                                    onClick={() => { setCivility("Monsieur"); setActiveProfileSubSheet(null); }}
+                                                >
+                                                    <span className="mobile-select-row-label">Monsieur</span>
+                                                    <div className="mobile-radio-circle">
+                                                        {civility === "Monsieur" && <div className="mobile-radio-circle-inner" />}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* SUB-SHEET 2: PHONE */}
+                                    {activeProfileSubSheet === "phone" && (
+                                        <div>
+                                            <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent' }}>
+                                                <button className="mobile-sheet-close-btn" onClick={() => setActiveProfileSubSheet(null)}>
+                                                    <X size={18} />
+                                                </button>
+                                                <h2 className="mobile-sheet-title">Numéro de téléphone</h2>
+                                                <div style={{ width: '36px' }} />
+                                            </div>
+                                            <div className="mobile-sheet-body-stack" style={{ padding: '0 16px 20px 16px' }}>
+                                                <div className="mobile-phone-input-row" style={{ marginTop: '10px' }}>
+                                                    <div className="mobile-phone-country">
+                                                        <span className="mobile-flag" style={{ fontSize: '18px' }}>🇫🇷</span>
+                                                        <span className="mobile-phone-code">+33</span>
+                                                    </div>
+                                                    <div className="mobile-phone-number-field">
+                                                        <input 
+                                                            type="tel"
+                                                            value={phone}
+                                                            onChange={(e) => setPhone(e.target.value)}
+                                                            placeholder="06 12 34 56 78"
+                                                            className="mobile-phone-number-input"
+                                                        />
+                                                        {phone && (
+                                                            <button className="mobile-phone-clear-btn" onClick={() => setPhone("")}>
+                                                                <X size={14} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <button className="mobile-sub-sheet-confirm-btn" onClick={() => setActiveProfileSubSheet(null)}>
+                                                    Ajouter ce numéro
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* SUB-SHEET 3: CALENDAR */}
+                                    {activeProfileSubSheet === "calendar" && (
+                                        <div>
+                                            <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent', padding: '10px 16px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                                                    <h2 className="mobile-sheet-title" style={{ margin: 0, fontSize: '20px', fontWeight: 800, textAlign: 'left' }}>Janvier 1990</h2>
+                                                    <ChevronRight size={18} style={{ color: '#2563eb' }} />
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '16px' }}>
+                                                    <ChevronLeft size={20} style={{ color: '#2563eb', cursor: 'pointer' }} />
+                                                    <ChevronRight size={20} style={{ color: '#2563eb', cursor: 'pointer' }} />
+                                                </div>
+                                            </div>
+
+                                            <div className="mobile-calendar-body" style={{ padding: '0 16px' }}>
+                                                {/* Weekday headers */}
+                                                <div className="mobile-calendar-weekdays">
+                                                    {["LUN.", "MAR.", "MER.", "JEU.", "VEN.", "SAM.", "DIM."].map((w) => (
+                                                        <span key={w}>{w}</span>
+                                                    ))}
+                                                </div>
+
+                                                {/* Days grid */}
+                                                <div className="mobile-calendar-days-grid">
+                                                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                                                        <button 
+                                                            key={d} 
+                                                            className={`mobile-calendar-day-btn ${selectedCalDay === d ? "active" : ""}`}
+                                                            onClick={() => setSelectedCalDay(d)}
+                                                        >
+                                                            {d}
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                <div className="mobile-calendar-actions">
+                                                    <button 
+                                                        className="mobile-calendar-val-btn"
+                                                        onClick={() => {
+                                                            const formattedDay = selectedCalDay < 10 ? `0${selectedCalDay}` : selectedCalDay;
+                                                            setDob(`${formattedDay}/01/1990`);
+                                                            setActiveProfileSubSheet(null);
+                                                        }}
+                                                    >
+                                                        Valider
+                                                    </button>
+                                                    <button className="mobile-calendar-cancel-btn" onClick={() => setActiveProfileSubSheet(null)}>
+                                                        Annuler
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
                 </div>
             );
         }
@@ -862,51 +983,30 @@ function SettingsPage() {
                         </div>
                     </aside>
 
-                    {/* Main Content Pane */}
+                    {/* Settings Content Area */}
                     <div className="main-content">
                         <Header />
-                        <div className="page-content">
-                            <div className="settings-layout-container">
-                                {/* Top Profile Summary Card */}
-                                <div className="settings-user-card">
-                                    <div className="card-avatar">
-                                        {avatarUrl ? (
-                                            <img src={avatarUrl} className="card-avatar-image" alt="User Profile" />
-                                        ) : (
-                                            <span>{firstName[0]}{lastName[0]}</span>
-                                        )}
-                                    </div>
-                                    <div className="card-info">
-                                        <span className="card-name">{firstName} {lastName}</span>
-                                        <span className="card-email">{email}</span>
-                                        <div className="card-plan-row">
-                                            <span className="card-plan-badge">Plan Pro</span>
-                                            <span className="card-plan-expiry">· Expire le 21/08</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Content Panel */}
-                                <div className="settings-content-panel">
-                                    <AnimatePresence mode="wait">
-                                        {renderTabContent(false)}
-                                    </AnimatePresence>
-                                </div>
+                        
+                        <div className="settings-main-container">
+                            <div className="settings-panel">
+                                <AnimatePresence mode="wait">
+                                    {renderTabContent(false)}
+                                </AnimatePresence>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
-
-            {/* Success Toast */}
+            
+            {/* Custom confirmation toast */}
             <AnimatePresence>
                 {showToast && (
-                    <motion.div
-                        className="toast-notification"
+                    <motion.div 
+                        className="custom-toast"
                         initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
                         <CheckCircle2 size={16} />
                         <span>{toastMessage}</span>

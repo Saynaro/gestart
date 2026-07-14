@@ -39,7 +39,7 @@ function Header() {
     return (
         <div className="header">
             <div className="header-left">
-                <span className="greeting">Bonjour Sainaro 👋</span>
+                <span className="greeting">Bonjour Khalid 👋</span>
             </div>
             <div className="header-right">
                 <div className="notification-wrapper">
@@ -51,12 +51,12 @@ function Header() {
                 </div>
                 
                 <div className="avatar-wrapper" onClick={toggleMenu}>
-                    <div className="header-avatar">SK</div>
+                    <div className="header-avatar">KS</div>
                     
                     {menuOpen && (
                         <div className="mobile-dropdown" onClick={(e) => e.stopPropagation()}>
                             <div className="dropdown-header">
-                                <span className="dropdown-user-name">Sainaro Khalid</span>
+                                <span className="dropdown-user-name">Khalid Sainaro</span>
                                 <span className="dropdown-user-plan">Plan Pro</span>
                             </div>
                             <div className="dropdown-divider"></div>

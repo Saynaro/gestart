@@ -911,6 +911,399 @@
 }
 
 
+/* Center Navbar small title styling */
+.mobile-nav-header-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    text-align: center;
+    flex: 1;
+}
+
+.mobile-nav-header-title.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Shared Bottom Sheets & Sub-sheets */
+.mobile-sheet-header-drag-zone {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: transparent;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.mobile-sheet-header-drag-zone:active {
+    cursor: grabbing;
+}
+
+.mobile-drag-handle-bar {
+    width: 36px;
+    height: 4px;
+    background-color: #cbd5e1;
+    border-radius: 2px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
+.mobile-sheet-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-sizing: border-box;
+}
+
+.mobile-sheet-close-btn {
+    position: absolute;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-sheet-close-btn:active {
+    background-color: #e2e8f0;
+}
+
+.mobile-sheet-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    margin: 0;
+}
+
+.mobile-sheet-body-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+}
+
+/* Phone edits inside settings profile */
+.mobile-phone-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.mobile-phone-country {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    background-color: white;
+}
+
+.mobile-phone-number-field {
+    flex: 1;
+    border: 1px solid #0066FF;
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+}
+
+.mobile-phone-number-input {
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    width: 80%;
+    background: transparent;
+}
+
+.mobile-phone-clear-btn {
+    background-color: #cbd5e1;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+.mobile-sub-sheet-confirm-btn {
+    width: 100%;
+    background-color: #0066FF;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
+    margin-top: 16px;
+}
+
+.mobile-sub-sheet-confirm-btn:active {
+    background-color: #0052cc;
+}
+
+/* Civility selection row options */
+.mobile-select-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.mobile-select-row:active {
+    background-color: #f8fafc;
+}
+
+.mobile-select-row-label {
+    font-size: 16.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.mobile-radio-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease;
+}
+
+.mobile-select-row.active .mobile-radio-circle {
+    border-color: #0066FF;
+}
+
+.mobile-radio-circle-inner {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #0066FF;
+}
+
+/* Calendar Month picker styling */
+.mobile-calendar-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    padding: 10px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.mobile-calendar-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 10px 0;
+}
+
+.mobile-calendar-day-btn {
+    aspect-ratio: 1;
+    width: 100%;
+    max-width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    transition: all 0.2s ease;
+}
+
+.mobile-calendar-day-btn:active {
+    background-color: #f1f5f9;
+}
+
+.mobile-calendar-day-btn.active {
+    background-color: #0066FF !important;
+    color: white !important;
+    box-shadow: 0 4px 10px rgba(0, 102, 255, 0.25);
+}
+
+.mobile-calendar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+.mobile-calendar-val-btn {
+    width: 100%;
+    background-color: #0066FF;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
+}
+
+.mobile-calendar-val-btn:active {
+    background-color: #0052cc;
+}
+
+.mobile-calendar-cancel-btn {
+    width: 100%;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.mobile-calendar-cancel-btn:active {
+    background-color: #f8fafc;
+}
+
+/* Mobile Profile Header (Avatar, Name, Email) */
+.mobile-settings-profile-header {
+    text-align: center;
+    padding: 10px 16px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mobile-settings-profile-name {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+}
+
+.mobile-settings-profile-email {
+    font-size: 15px;
+    font-weight: 500;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Abby-style Pro Upgrade Banner */
+.mobile-abby-banner {
+    position: relative;
+    background-color: #eff6ff; /* sky-50/blue-50 tint */
+    border: 1.5px solid #0066FF; /* abby border blue */
+    border-radius: 16px;
+    padding: 20px;
+    margin: 16px;
+    box-shadow: 0 4px 18px rgba(0, 102, 255, 0.04);
+}
+
+.mobile-abby-banner-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.mobile-abby-banner-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    text-align: left;
+    letter-spacing: -0.01em;
+}
+
+.mobile-abby-banner-text {
+    font-size: 14px;
+    line-height: 1.45;
+    color: #475569;
+    margin: 0 0 16px 0;
+    text-align: left;
+}
+
+.mobile-abby-banner-btn {
+    width: 100%;
+    background-color: #0066FF;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.mobile-abby-banner-btn:active {
+    background-color: #0052cc;
+    transform: scale(0.98);
+}
+
 /* ==========================================================================
    DESKTOP MEDIA QUERIES & RESPONSIVENESS OVERRIDES
    ========================================================================== */

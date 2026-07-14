@@ -99,13 +99,12 @@ export const Icons = {
         </svg>
     )
 };
-
 export const menuSections = [
     {
         category: "PRINCIPAL",
         items: [
-            { title: "Tableau de bord", path: "/dashboard", iconKey: "dashboard" },
-            { title: "Clients", path: "/clients", iconKey: "clients" },
+            { title: "Tableau de bord", path: "/home", iconKey: "dashboard" },
+            { title: "Clients", path: "/client", iconKey: "clients" },
             { title: "Planning", path: "/planning", iconKey: "planning" },
         ]
     },
@@ -130,8 +129,8 @@ export const menuSections = [
 ];
 
 export const mobileTabBarItems = [
-    { title: "Dashboard", path: "/dashboard", iconKey: "dashboard" },
-    { title: "Clients", path: "/clients", iconKey: "clients" },
+    { title: "Dashboard", path: "/home", iconKey: "dashboard" },
+    { title: "Clients", path: "/client", iconKey: "clients" },
     { title: "Planning", path: "/planning", iconKey: "planning" },
     { title: "Messages", path: "/messages", iconKey: "messages" },
     { title: "Plus", path: "#plus", iconKey: "more", isPlus: true }

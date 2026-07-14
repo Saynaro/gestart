@@ -14,45 +14,45 @@
     border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 20px 14px;
-
+    padding: 16px 12px;
+    overflow: hidden;
 }
 
 .sidebar-top {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
+    flex: 1;
 }
 
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0 6px 14px 6px;
+    gap: 8px;
+    padding: 0 4px 10px 4px;
     border-bottom: 1px solid var(--sidebar-border);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .logo-icon-bg {
     background-color: var(--sidebar-primary);
     color: var(--sidebar-primary-foreground);
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .logo-snowflake {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 .logo-text {
     font-family: var(--font-heading);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     color: var(--sidebar-foreground);
     letter-spacing: -0.03em;
@@ -64,11 +64,11 @@
 }
 
 .section-title {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
     color: var(--muted-foreground);
     letter-spacing: 0.1em;
-    margin: 0 0 6px 10px;
+    margin: 8px 0 2px 8px;
     text-transform: uppercase;
 }
 
@@ -78,26 +78,27 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 .menu-item {
     position: relative;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
 }
 
 .menu-link {
     display: flex;
     align-items: center;
-    padding: 7px 10px 7px 14px;
+    padding: 4px 8px 4px 10px;
+    height: 35px;
     color: var(--sidebar-foreground);
     opacity: 0.8;
     text-decoration: none;
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: var(--font-weight-medium);
-    border-radius: 10px;
-    gap: 10px;
+    border-radius: 8px;
+    gap: 8px;
     transition: all 0.15s ease-in-out;
 }
 
@@ -128,7 +129,7 @@
     top: 50%;
     transform: translateY(-50%);
     width: 3px;
-    height: 16px;
+    height: 14px;
     background-color: var(--sidebar-primary);
     border-radius: 4px;
 }
@@ -142,8 +143,8 @@
 }
 
 .menu-icon {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     stroke-width: 1.8;
 }
 
@@ -156,9 +157,9 @@
 .badge-numeric {
     background-color: var(--sidebar-primary);
     color: var(--sidebar-primary-foreground);
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
     font-weight: 700;
     border-radius: 50%;
     display: flex;
@@ -178,24 +179,25 @@
 
 /* Bottom / User Section */
 .sidebar-bottom {
-    margin-top: auto;
+    margin-top: 8px;
     border-top: 1px solid var(--sidebar-border);
-    padding-top: 12px;
+    padding-top: 8px;
+    flex-shrink: 0;
 }
 
 .user-profile {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .avatar {
     background-color: var(--sidebar-primary);
     color: var(--sidebar-primary-foreground);
     font-weight: 600;
-    font-size: 12.5px;
-    width: 34px;
-    height: 34px;
+    font-size: 11.5px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -206,17 +208,17 @@
 .user-details {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 0px;
 }
 
 .username {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--sidebar-foreground);
 }
 
 .user-plan {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted-foreground);
 }
 
@@ -225,7 +227,7 @@
     border: none;
     margin-left: auto;
     cursor: pointer;
-    padding: 6px;
+    padding: 4px;
     color: var(--muted-foreground);
     display: flex;
     align-items: center;
@@ -238,8 +240,8 @@
 }
 
 .logout-icon {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 /* Mobile Bottom Navigation & overlay defaults (hidden on desktop) */
@@ -270,7 +272,7 @@
         justify-content: space-around;
         align-items: center;
         z-index: 1000;
-        padding: 0 10px;
+        padding: 5px 10px 10px 10px;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
     }
 

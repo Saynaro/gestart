@@ -1,0 +1,234 @@
+.new-intervention-btn {
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.new-intervention-btn:hover {
+    opacity: 0.9;
+}
+
+.day-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px;
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.day-btn {
+    flex: 1;
+    min-width: 80px;
+    border: none;
+    background: none;
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.day-btn.active {
+    background-color: var(--sidebar-accent);
+    color: var(--sidebar-primary);
+}
+
+.day-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.timeline-container {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+}
+
+.timeline-header-meta {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    margin-bottom: 16px;
+}
+
+.interventions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.intervention-card {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--background);
+}
+
+.intervention-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.intervention-time-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+    gap: 4px;
+    border-right: 1px solid var(--border);
+    padding-right: 14px;
+    margin-right: 14px;
+}
+
+.intervention-time {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.type-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    width: fit-content;
+}
+
+.type-tag.type-entretien {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.type-tag.type-installation {
+    background-color: rgba(95, 75, 219, 0.1);
+    color: var(--sidebar-primary);
+}
+
+.type-tag.type-dépannage {
+    background-color: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+.type-tag.type-contrôle {
+    background-color: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+}
+
+.intervention-body {
+    flex: 1;
+}
+
+.intervention-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--foreground);
+    margin-bottom: 2px;
+}
+
+.intervention-client-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted-foreground);
+}
+
+.client-name {
+    font-weight: 500;
+}
+
+.client-separator {
+    opacity: 0.5;
+}
+
+.status-dot-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 50px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+}
+
+.status-dot-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-dot-pill.status-confirmé {
+    color: #16a34a;
+}
+.status-dot-pill.status-confirmé .dot {
+    background-color: #16a34a;
+}
+
+.status-dot-pill.status-en-cours {
+    color: #d97706;
+}
+.status-dot-pill.status-en-cours .dot {
+    background-color: #d97706;
+    animation: pulse 1.5s infinite;
+}
+
+.status-dot-pill.status-planifié {
+    color: #4f46e5;
+}
+.status-dot-pill.status-planifié .dot {
+    background-color: #4f46e5;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+    100% { transform: scale(0.9); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .day-btn {
+        min-width: 65px;
+        padding: 8px 4px;
+    }
+
+    .intervention-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .intervention-time-col {
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 8px;
+        margin-right: 0;
+    }
+
+    .status-dot-pill {
+        margin-top: 4px;
+    }
+}

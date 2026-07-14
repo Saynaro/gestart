@@ -1,34 +1,24 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./SideBar.css";
 import BottomSheet from "./BottomSheet";
 import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
 
 function SideBar() {
-    const [activePath, setActivePath] = useState(window.location.pathname || "/dashboard");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const activePath = location.pathname || "/home";
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
-
-    // Sync path state if browser URL changes
-    useEffect(() => {
-        const handleLocationChange = () => {
-            setActivePath(window.location.pathname || "/dashboard");
-        };
-        window.addEventListener("popstate", handleLocationChange);
-        return () => window.removeEventListener("popstate", handleLocationChange);
-    }, []);
 
     const navigateTo = (e, path) => {
         e.preventDefault();
-        setActivePath(path);
-        window.history.pushState(null, "", path);
-        window.dispatchEvent(new Event("popstate"));
+        navigate(path);
     };
-
-
 
     // FAB Button Configuration
     const getFabConfig = () => {
         const path = activePath.toLowerCase();
-        if (path.includes("clients")) {
+        if (path.includes("client")) {
             return { label: "Nouveau client", icon: Icons.plus };
         }
         if (path.includes("planning")) {
@@ -83,7 +73,7 @@ function SideBar() {
                             <h2 className="section-title">{section.category}</h2>
                             <ul className="menu-list">
                                 {section.items.map((item, iIndex) => {
-                                    const isActive = item.path === activePath || (item.path === "/dashboard" && (activePath === "/" || activePath === "/dashboard"));
+                                    const isActive = item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home"));
                                     return (
                                         <li key={iIndex} className={`menu-item ${isActive ? "active" : ""}`}>
                                             <a href={item.path} onClick={(e) => navigateTo(e, item.path)} className="menu-link">
@@ -118,8 +108,8 @@ function SideBar() {
 
             {/* Mobile Floating Action Button (FAB) */}
             {fabConfig && (
-                <button 
-                    className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("clients") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : "factures"}`} 
+                <button
+                    className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : "factures"}`}
                     onClick={() => alert(`Action: ${fabConfig.label}`)}
                 >
                     <span className="fab-icon">{fabConfig.icon}</span>
@@ -130,7 +120,7 @@ function SideBar() {
             {/* Mobile Bottom Tab Bar */}
             <nav className="mobile-bottom-nav">
                 {mobileTabBarItems.map((item, index) => {
-                    const isTabActive = item.isPlus ? bottomSheetOpen : (item.path === activePath || (item.path === "/dashboard" && (activePath === "/" || activePath === "/dashboard")));
+                    const isTabActive = item.isPlus ? bottomSheetOpen : (item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home")));
                     return (
                         <a
                             key={index}

@@ -1,0 +1,126 @@
+.content-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.new-client-btn {
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.new-client-btn:hover {
+    opacity: 0.9;
+}
+
+.filters-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 320px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    color: var(--muted-foreground);
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13.5px;
+    background-color: var(--background);
+    color: var(--foreground);
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: var(--sidebar-primary);
+}
+
+.filter-options {
+    display: flex;
+    gap: 6px;
+}
+
+.filter-tab {
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-tab.active {
+    background-color: var(--sidebar-accent);
+    color: var(--sidebar-primary);
+    font-weight: 600;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--muted-foreground);
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .content-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .new-client-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .search-input-wrapper {
+        max-width: none;
+    }
+
+    .filter-options {
+        justify-content: flex-start;
+        overflow-x: auto;
+    }
+}

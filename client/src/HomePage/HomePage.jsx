@@ -2,18 +2,20 @@ import "./Homepage.css";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 
-const mockClients = [
-    { name: "Jean Dupont", company: "AluTech SAS", email: "jean.dupont@alutech.fr", status: "Active" },
-    { name: "Sophie Martin", company: "BatiConstruct", email: "s.martin@baticonstruct.fr", status: "En attente" },
-    { name: "Pierre Leroy", company: "Chauffage Pro", email: "p.leroy@chauffagepro.fr", status: "Active" },
-    { name: "Marie Dubois", company: "EcoEnergie", email: "m.dubois@ecoenergie.fr", status: "Active" },
-    { name: "Thomas Petit", company: "Génie Climatique", email: "t.petit@genieclim.fr", status: "Désactivé" },
-    { name: "Lucie Bernard", company: "ThermaAir", email: "l.bernard@thermaair.fr", status: "Active" },
-    { name: "Antoine Richard", company: "Richard & Fils", email: "antoine@richardfils.fr", status: "En attente" },
-    { name: "Julie Michel", company: "SolarLife", email: "j.michel@solarlife.fr", status: "Active" }
-];
-
 function HomePage() {
+    const stats = [
+        { title: "Clients totaux", value: "8", change: "+12% ce mois", icon: "👥", color: "rgba(95, 75, 219, 0.08)" },
+        { title: "Interventions aujourd'hui", value: "4", change: "2 en cours", icon: "📅", color: "rgba(59, 130, 246, 0.08)" },
+        { title: "Messages non lus", value: "2", change: "Réponse attendue", icon: "💬", color: "rgba(16, 185, 129, 0.08)" },
+        { title: "Chiffre d'affaires (Mois)", value: "3 420 €", change: "+8% vs juin", icon: "💳", color: "rgba(245, 158, 11, 0.08)" }
+    ];
+
+    const todayInterventions = [
+        { title: "Entretien climatisation", client: "Jean Dupont", time: "09:00", status: "Confirmé" },
+        { title: "Installation pompe à chaleur", client: "Sophie Martin", time: "11:00", status: "Confirmé" },
+        { title: "Dépannage d'urgence - Fuite", client: "Pierre Leroy", time: "14:00", status: "En cours" }
+    ];
+
     return (
         <div className="home-page">
             <SideBar />
@@ -21,40 +23,71 @@ function HomePage() {
                 <Header />
                 <div className="page-content">
                     <div className="content-header">
-                        <h1 className="content-title">Annuaire des Clients</h1>
-                        <p className="content-subtitle">Gérez vos relations clients et les interventions associées.</p>
+                        <h1 className="content-title">Tableau de bord</h1>
+                        <p className="content-subtitle">Bienvenue sur votre espace d'administration ClimPro.</p>
                     </div>
 
-                    <div className="clients-grid">
-                        {mockClients.map((client, index) => (
-                            <div key={index} className="client-card">
-                                <div className="client-avatar-badge">{client.name.split(" ").map(n => n[0]).join("")}</div>
-                                <div className="client-info">
-                                    <h3>{client.name}</h3>
-                                    <span className="client-company">{client.company}</span>
-                                    <span className="client-email">{client.email}</span>
+                    {/* Stats Grid */}
+                    <div className="dashboard-stats-grid">
+                        {stats.map((stat, i) => (
+                            <div key={i} className="stat-card">
+                                <div className="stat-card-header">
+                                    <span className="stat-icon-bg" style={{ backgroundColor: stat.color }}>{stat.icon}</span>
+                                    <span className="stat-change">{stat.change}</span>
                                 </div>
-                                <div className="client-status-wrapper">
-                                    <span className={`status-pill ${client.status.toLowerCase().replace(" ", "-")}`}>
-                                        {client.status}
-                                    </span>
+                                <div className="stat-card-body">
+                                    <span className="stat-value">{stat.value}</span>
+                                    <h3 className="stat-title">{stat.title}</h3>
                                 </div>
                             </div>
                         ))}
-                        {/* Repeat mock clients list to guarantee scroll height */}
-                        {mockClients.map((client, index) => (
-                            <div key={`dup-${index}`} className="client-card">
-                                <div className="client-avatar-badge">{client.name.split(" ").map(n => n[0]).join("")}</div>
-                                <div className="client-info">
-                                    <h3>{client.name} (Archives)</h3>
-                                    <span className="client-company">{client.company}</span>
-                                    <span className="client-email">{client.email}</span>
-                                </div>
-                                <div className="client-status-wrapper">
-                                    <span className="status-pill disabled">Archivé</span>
+                    </div>
+
+                    {/* Layout panels */}
+                    <div className="dashboard-panels">
+                        {/* Panel 1 */}
+                        <div className="dashboard-panel">
+                            <div className="panel-header">
+                                <h2>Aujourd'hui</h2>
+                            </div>
+                            <div className="panel-body">
+                                <div className="mini-interventions-list">
+                                    {todayInterventions.map((item, index) => (
+                                        <div key={index} className="mini-intervention-item">
+                                            <span className="mini-time">{item.time}</span>
+                                            <div className="mini-details">
+                                                <h4>{item.title}</h4>
+                                                <p>{item.client}</p>
+                                            </div>
+                                            <span className={`mini-status ${item.status === "En cours" ? "active" : ""}`}>
+                                                {item.status}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
+                        </div>
+
+                        {/* Panel 2 */}
+                        <div className="dashboard-panel">
+                            <div className="panel-header">
+                                <h2>Raccourcis rapides</h2>
+                            </div>
+                            <div className="panel-body quick-actions-panel">
+                                <button className="quick-action-btn">
+                                    <span className="qa-icon">➕</span>
+                                    <span>Planifier une intervention</span>
+                                </button>
+                                <button className="quick-action-btn">
+                                    <span className="qa-icon">📄</span>
+                                    <span>Créer un devis</span>
+                                </button>
+                                <button className="quick-action-btn">
+                                    <span className="qa-icon">👤</span>
+                                    <span>Ajouter un client</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

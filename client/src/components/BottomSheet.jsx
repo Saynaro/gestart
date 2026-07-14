@@ -51,7 +51,6 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
         };
     }, [isOpen, onClose]);
 
-
     return (
         <AnimatePresence>
             {isOpen && (
@@ -93,9 +92,9 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                         </div>
 
                         {/* Menu Navigation List */}
-                        <nav className="flex flex-col">
+                        <nav className="flex flex-col px-3 pb-3">
                             {/* Section 1 */}
-                            <ul className="flex flex-col">
+                            <ul className="flex flex-col gap-1">
                                 {section1Items.map((item, index) => {
                                     const IconComponent = item.icon;
                                     const isActive = activePath === item.path;
@@ -107,20 +106,25 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                                     navigateTo(e, item.path);
                                                     onClose();
                                                 }}
-                                                className={`min-h-[56px] px-6 flex items-center gap-4 transition-all duration-100 outline-none hover:bg-[#F8FAFC] focus-visible:bg-[#F8FAFC] active:bg-[#F1F5F9] select-none ${
-                                                    isActive ? "text-[#5B4DDB]" : "text-[#0F172A]"
+                                                className={`relative min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
+                                                    isActive 
+                                                        ? "bg-sidebar-accent text-sidebar-primary font-semibold" 
+                                                        : "text-[#0F172A] hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
                                                 }`}
                                             >
                                                 <IconComponent
-                                                    className={`w-[22px] h-[22px] stroke-[1.5] ${
-                                                        isActive ? "text-[#5B4DDB]" : "text-[#64748B]"
+                                                    className={`w-[22px] h-[22px] stroke-[1.8] ${
+                                                        isActive ? "text-sidebar-primary" : "text-[#64748B]"
                                                     }`}
                                                 />
-                                                <span className="text-[16px] font-medium">{item.title}</span>
+                                                <span className="text-[14.5px] font-medium">{item.title}</span>
                                                 {item.isPremium && (
-                                                    <span className="ml-auto bg-[#5B4DDB] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                                                    <span className="ml-auto bg-sidebar-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                                                         PRO
                                                     </span>
+                                                )}
+                                                {isActive && (
+                                                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[16px] bg-sidebar-primary rounded-r-md" />
                                                 )}
                                             </a>
                                         </li>
@@ -129,10 +133,10 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                             </ul>
 
                             {/* Separator */}
-                            <div className="h-[1px] bg-[#F1F5F9] my-1" />
+                            <div className="h-[1px] bg-[#F1F5F9] my-2" />
 
                             {/* Section 2 (Account / Tools) */}
-                            <ul className="flex flex-col">
+                            <ul className="flex flex-col gap-1">
                                 <li>
                                     <a
                                         href="/settings"
@@ -140,10 +144,17 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                             navigateTo(e, "/settings");
                                             onClose();
                                         }}
-                                        className="min-h-[56px] px-6 flex items-center gap-4 transition-all duration-100 outline-none hover:bg-[#F8FAFC] focus-visible:bg-[#F8FAFC] active:bg-[#F1F5F9] select-none text-[#0F172A]"
+                                        className={`relative min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
+                                            activePath === "/settings"
+                                                ? "bg-sidebar-accent text-sidebar-primary font-semibold"
+                                                : "text-[#0F172A] hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
+                                        }`}
                                     >
-                                        <Settings className="w-[22px] h-[22px] stroke-[1.5] text-[#64748B]" />
-                                        <span className="text-[16px] font-medium">Paramètres</span>
+                                        <Settings className={`w-[22px] h-[22px] stroke-[1.8] ${activePath === "/settings" ? "text-sidebar-primary" : "text-[#64748B]"}`} />
+                                        <span className="text-[14.5px] font-medium">Paramètres</span>
+                                        {activePath === "/settings" && (
+                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[16px] bg-sidebar-primary rounded-r-md" />
+                                        )}
                                     </a>
                                 </li>
                                 <li>
@@ -152,10 +163,10 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                             alert("Déconnexion");
                                             onClose();
                                         }}
-                                        className="w-full min-h-[56px] px-6 flex items-center gap-4 transition-all duration-100 outline-none hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100 select-none text-[#DC2626]"
+                                        className="w-full min-h-[48px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100 select-none text-[#DC2626]"
                                     >
-                                        <LogOut className="w-[22px] h-[22px] stroke-[1.5] text-[#DC2626]" />
-                                        <span className="text-[16px] font-medium">Déconnexion</span>
+                                        <LogOut className="w-[22px] h-[22px] stroke-[1.8] text-[#DC2626]" />
+                                        <span className="text-[14.5px] font-medium">Déconnexion</span>
                                     </button>
                                 </li>
                             </ul>

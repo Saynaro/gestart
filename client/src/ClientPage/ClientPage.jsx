@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import "../HomePage/Homepage.css";
 import "./ClientPage.css";
 import SideBar from "../components/SideBar";
@@ -39,7 +40,12 @@ function ClientPage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <div className="page-content">
+                <motion.div 
+                    className="page-content"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
                     <div className="content-header-row">
                         <div className="content-header">
                             <h1 className="content-title">Clients</h1>
@@ -109,7 +115,7 @@ function ClientPage() {
                             </div>
                         )}
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

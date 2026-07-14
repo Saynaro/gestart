@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
 import SideBar from "../components/SideBar";
@@ -43,7 +44,12 @@ function MessagesPage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <div className="page-content messages-page-content">
+                <motion.div 
+                    className="page-content messages-page-content"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
                     <div className="messaging-container">
                         {/* Inbox sidebar */}
                         <div className="inbox-sidebar">
@@ -116,7 +122,7 @@ function MessagesPage() {
                             </form>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

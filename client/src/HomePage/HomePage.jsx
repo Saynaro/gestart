@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import "./Homepage.css";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
@@ -21,7 +22,12 @@ function HomePage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <div className="page-content">
+                <motion.div 
+                    className="page-content"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
                     <div className="content-header">
                         <h1 className="content-title">Tableau de bord</h1>
                         <p className="content-subtitle">Bienvenue sur votre espace d'administration ClimPro.</p>
@@ -89,7 +95,7 @@ function HomePage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

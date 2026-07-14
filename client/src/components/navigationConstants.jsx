@@ -1,4 +1,4 @@
-import { FileText, FilePlus, BarChart2, Package, Calculator, Star } from "lucide-react";
+import { FileText, FileSpreadsheet, BarChart2, Package, Calculator, Star } from "lucide-react";
 
 export const Icons = {
     dashboard: (
@@ -40,9 +40,12 @@ export const Icons = {
     ),
     devis: (
         <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <path d="M16 13H8M16 17H8"></path>
+            <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+            <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+            <path d="M8 13h2" />
+            <path d="M14 13h2" />
+            <path d="M8 17h2" />
+            <path d="M14 17h2" />
         </svg>
     ),
     rapports: (
@@ -54,11 +57,16 @@ export const Icons = {
     ),
     comptabilite: (
         <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-            <line x1="9" y1="22" x2="9" y2="16"></line>
+            <rect x="4" y="2" width="16" height="20" rx="2"></rect>
             <line x1="8" y1="6" x2="16" y2="6"></line>
             <line x1="16" y1="14" x2="16" y2="18"></line>
-            <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"></path>
+            <path d="M16 10h.01" />
+            <path d="M12 10h.01" />
+            <path d="M8 10h.01" />
+            <path d="M12 14h.01" />
+            <path d="M8 14h.01" />
+            <path d="M12 18h.01" />
+            <path d="M8 18h.01" />
         </svg>
     ),
     catalogue: (
@@ -143,7 +151,7 @@ export const profilePages = [
 
 export const section1Items = [
     { title: "Factures", path: "/factures", icon: FileText },
-    { title: "Devis", path: "/devis", icon: FilePlus },
+    { title: "Devis", path: "/devis", icon: FileSpreadsheet },
     { title: "Rapports", path: "/rapports", icon: BarChart2 },
     { title: "Catalogue", path: "/catalogue", icon: Package },
     { title: "Comptabilité", path: "/comptabilite", icon: Calculator },

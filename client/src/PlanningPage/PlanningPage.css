@@ -50,10 +50,9 @@
 
 .timeline-container {
     background-color: var(--card);
-    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
 .timeline-header-meta {

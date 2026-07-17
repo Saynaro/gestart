@@ -371,7 +371,7 @@ function SettingsPage() {
                                 <div className="form-field">
                                     <label className="form-label">Civilité</label>
                                     <select 
-                                        className="form-input" 
+                                        className="form-input civility-select" 
                                         value={civility}
                                         onChange={(e) => setCivility(e.target.value)}
                                     >
@@ -987,8 +987,8 @@ function SettingsPage() {
                     <div className="main-content">
                         <Header />
                         
-                        <div className="settings-main-container">
-                            <div className="settings-panel">
+                        <div className="settings-layout-container">
+                            <div className="settings-content-panel">
                                 <AnimatePresence mode="wait">
                                     {renderTabContent(false)}
                                 </AnimatePresence>

@@ -157,6 +157,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    padding: 32px;
     animation: fadeIn 0.3s ease;
 }
 
@@ -171,10 +172,9 @@
     align-items: center;
     gap: 16px;
     background: linear-gradient(135deg, var(--card) 0%, rgba(95, 75, 219, 0.02) 100%);
-    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
 .card-avatar {
@@ -241,10 +241,9 @@
 /* Settings Content Panel */
 .settings-content-panel {
     background-color: var(--card);
-    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 24px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     min-height: 480px;
 }
 
@@ -308,6 +307,10 @@
     border-color: var(--sidebar-primary);
     box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.08);
     outline: none;
+}
+
+.civility-select {
+    max-width: 200px;
 }
 
 /* Avatar edit field */
@@ -609,11 +612,10 @@
 /* Mobile upgrade banner */
 .mobile-upgrade-card {
     background-color: white;
-    border: 1px solid #e2e8f0;
     border-radius: 16px;
     padding: 16px;
     margin: 0 16px 20px 16px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     position: relative;
     overflow: hidden;
 }
@@ -680,10 +682,9 @@
 
 .mobile-items-card {
     background-color: white;
-    border: 1px solid #e2e8f0;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
 .mobile-settings-row-btn {
@@ -819,14 +820,13 @@
 /* Company details list on mobile (Image 1 style) */
 .mobile-entreprise-search-card {
     background-color: white;
-    border: 1px solid #e2e8f0;
     border-radius: 14px;
     padding: 14px;
     margin: 16px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
 .mobile-search-icon-bg {

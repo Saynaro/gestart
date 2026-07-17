@@ -49,10 +49,9 @@
 
 .stat-card {
     background-color: var(--card);
-    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -107,10 +106,9 @@
 
 .dashboard-panel {
     background-color: var(--card);
-    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
 .panel-header {
@@ -224,19 +222,18 @@
 
 .client-card {
     background-color: var(--card);
-    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 16px;
     display: flex;
     align-items: center;
     gap: 14px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .client-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.03);
+    box-shadow: rgba(149, 157, 165, 0.3) 0px 12px 32px;
 }
 
 .client-avatar-badge {

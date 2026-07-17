@@ -39,7 +39,7 @@
     display: flex;
     align-items: center;
     flex: 1;
-    max-width: 320px;
+    width: 100%;
 }
 
 .search-icon {
@@ -98,63 +98,286 @@
     font-size: 14px;
 }
 
-.clients-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+/* Search & Filter Card Styles */
+.client-search-filter-card {
+    background-color: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
 }
 
-.client-card {
-    background-color: var(--card);
+.search-input-field {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border: 1.5px solid #e2e8f0;
     border-radius: 12px;
-    padding: 16px;
+    font-size: 14.5px;
+    background-color: #f8fafc;
+    color: var(--foreground);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.search-input-field:focus {
+    border-color: var(--sidebar-primary);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.15);
+}
+
+.search-icon-left {
+    position: absolute;
+    left: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.status-filter-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.status-pill-btn {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.status-pill-btn:hover {
+    background-color: #e2e8f0;
+}
+
+.status-pill-btn.active {
+    background-color: var(--sidebar-primary);
+    color: white;
+}
+
+/* Desktop Data Table Styles */
+.client-table-card {
+    background-color: var(--card);
+    border-radius: 16px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    overflow: visible; /* Allow option dropdowns to pop out */
+    padding: 8px 0;
+}
+
+.client-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.client-data-table th {
+    padding: 16px 24px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1.5px solid #f1f5f9;
+}
+
+.client-table-row {
+    border-bottom: 1px solid #f8fafc;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.client-table-row:hover {
+    background-color: #f8fafc;
+}
+
+.client-profile-cell {
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.client-card:hover {
-    transform: translateY(-2px);
-    box-shadow: rgba(149, 157, 165, 0.3) 0px 12px 32px;
+    padding: 14px 24px;
 }
 
 .client-avatar-badge {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background-color: var(--sidebar-primary);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 13.5px;
 }
 
-.client-info {
+.client-name-bold {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.client-table-text-muted {
+    font-size: 14px;
+    color: #64748b;
+    padding: 14px 24px;
+    display: inline-block;
+}
+
+.client-table-text-medium {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    padding: 14px 24px;
+    display: inline-block;
+}
+
+/* Status pill badges */
+.status-pill {
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pill.ok {
+    color: #16a34a;
+    background-color: rgba(22, 163, 74, 0.12);
+}
+
+.status-pill.urgent {
+    color: #dc2626;
+    background-color: rgba(220, 38, 38, 0.12);
+}
+
+.status-pill.bientot {
+    color: #ea580c;
+    background-color: rgba(234, 88, 12, 0.12);
+}
+
+/* Dropdown Options Popup Menu */
+.client-row-more-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.client-row-more-btn:hover, .client-row-more-btn.active {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.client-row-dropdown {
+    position: absolute;
+    right: 24px;
+    top: 50px;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 14px;
+    padding: 8px;
+    width: 170px;
+    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+    border: 1px solid #e2e8f0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #475569;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8fafc;
+}
+
+.dropdown-item.delete {
+    color: #ef4444;
+}
+
+.dropdown-item.delete:hover {
+    background-color: #fef2f2;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #f1f5f9;
+    margin: 6px 0;
+}
+
+/* Mobile Cards list components */
+.client-mobile-list-card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: rgba(149, 157, 165, 0.1) 0px 4px 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.mobile-client-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1.5px solid #f8fafc;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-client-list-row:last-child {
+    border-bottom: none;
+}
+
+.mobile-client-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-client-row-info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    flex: 1;
+    gap: 4px;
 }
 
-.client-info h3 {
-    margin: 0;
-    font-size: 14.5px;
-    font-weight: 600;
-    color: var(--foreground);
+.mobile-client-name-bold {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
 }
 
-.client-company {
-    font-size: 12px;
-    color: var(--muted-foreground);
-}
-
-.client-email {
-    font-size: 11.5px;
-    color: var(--muted-foreground);
+.mobile-client-subtext {
+    font-size: 13px;
+    color: #64748b;
 }
 
 
@@ -1427,6 +1650,138 @@ input:checked + .toggle-slider:before {
     gap: 14px;
 }
 
+/* Segmented Control Styles */
+.segmented-control-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+.segmented-control {
+    display: flex;
+    background-color: #e2e8f0;
+    padding: 4px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.segmented-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+.segmented-btn.active {
+    background-color: white;
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Mobile alphabetical groupings list layout */
+.mobile-letter-divider {
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+    margin: 16px auto 8px auto;
+    width: 92%;
+    padding-left: 8px;
+    text-transform: uppercase;
+}
+
+.client-mobile-list-card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: rgba(149, 157, 165, 0.1) 0px 4px 12px;
+    overflow: hidden;
+    margin: 0 auto 16px auto;
+    width: 92%;
+}
+
+.mobile-client-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-client-row-left-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.mobile-client-name-badge-row {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-client-name-bold {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.mobile-client-subtext-email {
+    font-size: 13.5px;
+    color: #64748b;
+}
+
+.mobile-row-chevron-right-grey {
+    color: #94a3b8;
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+.mobile-contact-badge-green {
+    font-size: 11px;
+    font-weight: 700;
+    color: #16a34a;
+    background-color: rgba(22, 163, 74, 0.12);
+    padding: 2px 8px;
+    border-radius: 9999px;
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.mobile-add-fab {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    background-color: #0066fe;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 9999px;
+    font-size: 14.5px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 102, 254, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    z-index: 99;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.mobile-add-fab:active {
+    transform: scale(0.95);
+}
+
 /* ==========================================================================
    DESKTOP MEDIA QUERIES & RESPONSIVENESS OVERRIDES
    ========================================================================== */
@@ -1440,6 +1795,31 @@ input:checked + .toggle-slider:before {
     .settings-sidebar,
     .main-content {
         display: none !important;
+    }
+
+    .segmented-control-wrapper {
+        justify-content: center;
+        padding: 0 16px;
+        margin-top: 16px;
+    }
+
+    .client-search-filter-card {
+        width: 92%;
+        margin: 0 auto 20px auto;
+    }
+
+    .status-filter-pills {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        width: 100% !important;
+    }
+
+    .status-pill-btn {
+        flex: 1 !important;
+        padding: 8px 4px !important;
+        font-size: 13px !important;
+        text-align: center !important;
     }
 }
 

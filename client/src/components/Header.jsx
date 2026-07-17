@@ -6,6 +6,15 @@ import { profilePages, DropdownIcons } from "./navigationConstants";
 function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activePath, setActivePath] = useState(window.location.pathname || "/dashboard");
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Sync path state if browser URL changes
     useEffect(() => {
@@ -26,6 +35,17 @@ function Header() {
     const toggleMenu = (e) => {
         e.stopPropagation();
         setMenuOpen(!menuOpen);
+    };
+
+    const handleAvatarClick = (e) => {
+        if (isMobile) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.history.pushState(null, "", "/settings");
+            window.dispatchEvent(new Event("popstate"));
+        } else {
+            toggleMenu(e);
+        }
     };
 
     // Close menu when clicking outside
@@ -50,7 +70,7 @@ function Header() {
                     <span className="notification-dot"></span>
                 </div>
                 
-                <div className="avatar-wrapper" onClick={toggleMenu}>
+                <div className="avatar-wrapper" onClick={handleAvatarClick}>
                     <div className="header-avatar">KS</div>
                     
                     {menuOpen && (

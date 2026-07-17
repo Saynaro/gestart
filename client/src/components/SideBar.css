@@ -4,6 +4,7 @@
     position: sticky;
     top: 0;
     left: 0;
+    align-self: flex-start;
     background-color: var(--sidebar);
     border-right: 1px solid var(--sidebar-border);
     display: flex;

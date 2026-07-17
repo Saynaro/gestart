@@ -974,7 +974,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0066FF;
+    color: #556B2F;
     cursor: pointer;
 }
 

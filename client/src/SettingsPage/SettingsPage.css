@@ -902,7 +902,7 @@
 }
 
 .mobile-save-btn.active {
-    background-color: #3b82f6;
+    background-color: var(--sidebar-primary);
     color: white;
 }
 
@@ -1028,7 +1028,7 @@
 
 .mobile-phone-number-field {
     flex: 1;
-    border: 1px solid #0066FF;
+    border: 1px solid #556B2F;
     border-radius: 12px;
     padding: 10px 14px;
     display: flex;
@@ -1062,7 +1062,7 @@
 
 .mobile-sub-sheet-confirm-btn {
     width: 100%;
-    background-color: #0066FF;
+    background-color: var(--sidebar-primary);
     color: white;
     font-size: 16px;
     font-weight: 700;
@@ -1071,12 +1071,11 @@
     border-radius: 12px;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
     margin-top: 16px;
 }
 
 .mobile-sub-sheet-confirm-btn:active {
-    background-color: #0052cc;
+    opacity: 0.9;
 }
 
 /* Civility selection row options */
@@ -1115,14 +1114,14 @@
 }
 
 .mobile-select-row.active .mobile-radio-circle {
-    border-color: #0066FF;
+    border-color: #556B2F;
 }
 
 .mobile-radio-circle-inner {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: #0066FF;
+    background-color: #556B2F;
 }
 
 /* Calendar Month picker styling */
@@ -1302,6 +1301,72 @@
 .mobile-abby-banner-btn:active {
     background-color: #0052cc;
     transform: scale(0.98);
+}
+
+/* Theme Toggle Switches */
+.desktop-theme-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: var(--background);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+}
+
+.theme-toggle-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+/* Toggle switch standard iOS style container */
+.mobile-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.mobile-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+input:checked + .toggle-slider {
+    background-color: #556B2F; /* dark olive green matches the new primary */
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(20px);
 }
 
 /* ==========================================================================

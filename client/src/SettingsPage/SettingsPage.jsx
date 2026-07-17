@@ -30,16 +30,23 @@ import {
     ArrowLeft,
     Search,
     Folder,
-    X
+    X,
+    Sun,
+    Moon
 } from "lucide-react";
+
+const monthsList = [
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+];
 
 function SettingsPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    
+
     // Ref to store scroll position for mobile back navigation
     const scrollYRef = useRef(0);
-    
+
     // Form and user state (aligned with Khalid Sainaro initial user demo data)
     const [firstName, setFirstName] = useState("Khalid");
     const [lastName, setLastName] = useState("Sainaro");
@@ -48,20 +55,48 @@ function SettingsPage() {
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [civility, setCivility] = useState("");
     const [dob, setDob] = useState("");
-    
+
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        return document.documentElement.classList.contains("dark") || localStorage.getItem("theme") === "dark";
+    });
+
+    useEffect(() => {
+        if (isDarkMode) {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("theme", "dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+        }
+    }, [isDarkMode]);
+
     // Layout and Navigation State
     const [activeTab, setActiveTab] = useState("profil");
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [isMobile, setIsMobile] = useState(false);
-    
+
     // Scroll tracking for iOS-style header title transition
     const [isScrolled, setIsScrolled] = useState(false);
 
     // Profile Sub-Sheets states
     const [activeProfileSubSheet, setActiveProfileSubSheet] = useState(null); // null, "phone", "civility", "calendar"
     const [selectedCalDay, setSelectedCalDay] = useState(1);
+    const [selectedCalMonth, setSelectedCalMonth] = useState(1);
+    const [selectedCalYear, setSelectedCalYear] = useState(1990);
     const dragControlsProfileSub = useDragControls();
+
+    // Sync sub-sheet values from dob
+    useEffect(() => {
+        if (activeProfileSubSheet === "calendar" && dob) {
+            const parts = dob.split("/");
+            if (parts.length === 3) {
+                setSelectedCalDay(parseInt(parts[0], 10) || 1);
+                setSelectedCalMonth(parseInt(parts[1], 10) || 1);
+                setSelectedCalYear(parseInt(parts[2], 10) || 1990);
+            }
+        }
+    }, [activeProfileSubSheet, dob]);
 
     // mobileScreenState can be "list" (show categories menu) or "detail" (show selected settings tab)
     const [mobileScreenState, setMobileScreenState] = useState("list");
@@ -118,7 +153,7 @@ function SettingsPage() {
         } else {
             setMobileScreenState("list");
             setActiveTab("profil"); // default tab for desktop view
-            
+
             // Restore scroll position on mobile when returning to the list view
             if (window.innerWidth <= 768 && scrollYRef.current > 0) {
                 setTimeout(() => {
@@ -246,7 +281,7 @@ function SettingsPage() {
                                 <div className="panel-divider"></div>
                             </>
                         )}
-                        
+
                         {isMobileView ? (
                             // Mobile specific form fields (Image 4 style)
                             <div className="mobile-fields-stack">
@@ -370,8 +405,8 @@ function SettingsPage() {
                                 </div>
                                 <div className="form-field">
                                     <label className="form-label">Civilité</label>
-                                    <select 
-                                        className="form-input civility-select" 
+                                    <select
+                                        className="form-input civility-select"
                                         value={civility}
                                         onChange={(e) => setCivility(e.target.value)}
                                     >
@@ -401,7 +436,7 @@ function SettingsPage() {
                         )}
                     </motion.div>
                 );
-                
+
             case "ma-societe":
                 return (
                     <motion.div
@@ -419,7 +454,7 @@ function SettingsPage() {
                                 <div className="panel-divider"></div>
                             </>
                         )}
-                        
+
                         {isMobileView ? (
                             // Mobile Company layout
                             <div>
@@ -436,7 +471,7 @@ function SettingsPage() {
                                 </div>
 
                                 <h3 className="mobile-detail-section-title">Informations détaillées</h3>
-                                
+
                                 <div className="mobile-group-container" style={{ padding: '0 16px' }}>
                                     <div className="mobile-items-card">
                                         <button className="mobile-settings-row-btn" type="button">
@@ -506,7 +541,7 @@ function SettingsPage() {
                         )}
                     </motion.div>
                 );
-                
+
             case "securite":
                 return (
                     <motion.div
@@ -524,7 +559,7 @@ function SettingsPage() {
                                 <div className="panel-divider"></div>
                             </>
                         )}
-                        
+
                         {isMobileView ? (
                             <div className="mobile-fields-stack">
                                 <div className="mobile-input-card">
@@ -670,8 +705,8 @@ function SettingsPage() {
                                     {category.items.map((item) => {
                                         const RowIcon = item.icon;
                                         return (
-                                            <button 
-                                                key={item.id} 
+                                            <button
+                                                key={item.id}
                                                 className="mobile-settings-row-btn"
                                                 type="button"
                                                 onClick={() => handleTabSelect(item.id)}
@@ -689,6 +724,30 @@ function SettingsPage() {
                             </div>
                         ))}
 
+                        {/* Preference / Theme Switcher Row */}
+                        <div className="mobile-group-section">
+                            <h4 className="mobile-group-header">Préférences</h4>
+                            <div className="mobile-items-card">
+                                <div className="mobile-settings-row-btn" style={{ cursor: 'default' }}>
+                                    <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(85, 107, 47, 0.08)', color: '#556B2F' }}>
+                                        {isDarkMode ? <Moon size={16} /> : <Sun size={16} />}
+                                    </span>
+                                    <span className="mobile-row-text-col">
+                                        <span className="mobile-row-label">Mode sombre</span>
+                                        <span className="mobile-row-subtitle">Activer le thème sombre de l'application</span>
+                                    </span>
+                                    <label className="mobile-toggle-switch" style={{ marginRight: '8px' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={isDarkMode}
+                                            onChange={(e) => setIsDarkMode(e.target.checked)}
+                                        />
+                                        <span className="toggle-slider" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Logout Row */}
                         <div className="mobile-group-section">
                             <div className="mobile-items-card">
@@ -703,7 +762,7 @@ function SettingsPage() {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Sticky Mobile Nav from Sidebar */}
                     <SideBar />
                 </div>
@@ -713,7 +772,7 @@ function SettingsPage() {
             const currentItem = menuCategories
                 .flatMap(cat => cat.items)
                 .find(item => item.id === activeTab) || { label: "Paramètres" };
-                
+
             return (
                 <div className="mobile-settings-view" style={{ backgroundColor: '#f8fafc' }}>
                     {/* Header */}
@@ -726,9 +785,9 @@ function SettingsPage() {
                         </span>
                         <div style={{ width: '36px' }} />
                     </div>
-                    
+
                     <h1 className="mobile-header-title">{currentItem.label}</h1>
-                    
+
                     {/* Render active form detail */}
                     {renderTabContent(true)}
 
@@ -747,7 +806,7 @@ function SettingsPage() {
 
                                 {/* Sub-Sheet Container */}
                                 <motion.div
-                                    className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-white rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
+                                    className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
                                     style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
                                     initial={{ y: "100%" }}
                                     animate={{ y: 0 }}
@@ -765,10 +824,10 @@ function SettingsPage() {
                                     }}
                                 >
                                     {/* Draggable Header Zone for Sub-Sheet */}
-                                    <div 
+                                    <div
                                         className="mobile-sheet-header-drag-zone"
                                         onPointerDown={(e) => dragControlsProfileSub.start(e)}
-                                        style={{ touchAction: "none", backgroundColor: 'white' }}
+                                        style={{ touchAction: "none" }}
                                     >
                                         <div className="mobile-drag-handle-bar" />
                                     </div>
@@ -783,7 +842,7 @@ function SettingsPage() {
                                                 </button>
                                             </div>
                                             <div className="mobile-sheet-body-stack" style={{ padding: '16px' }}>
-                                                <div 
+                                                <div
                                                     className={`mobile-select-row ${civility === "Madame" ? "active" : ""}`}
                                                     onClick={() => { setCivility("Madame"); setActiveProfileSubSheet(null); }}
                                                 >
@@ -792,7 +851,7 @@ function SettingsPage() {
                                                         {civility === "Madame" && <div className="mobile-radio-circle-inner" />}
                                                     </div>
                                                 </div>
-                                                <div 
+                                                <div
                                                     className={`mobile-select-row ${civility === "Monsieur" ? "active" : ""}`}
                                                     onClick={() => { setCivility("Monsieur"); setActiveProfileSubSheet(null); }}
                                                 >
@@ -822,7 +881,7 @@ function SettingsPage() {
                                                         <span className="mobile-phone-code">+33</span>
                                                     </div>
                                                     <div className="mobile-phone-number-field">
-                                                        <input 
+                                                        <input
                                                             type="tel"
                                                             value={phone}
                                                             onChange={(e) => setPhone(e.target.value)}
@@ -848,52 +907,75 @@ function SettingsPage() {
                                     {activeProfileSubSheet === "calendar" && (
                                         <div>
                                             <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent', padding: '10px 16px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
-                                                    <h2 className="mobile-sheet-title" style={{ margin: 0, fontSize: '20px', fontWeight: 800, textAlign: 'left' }}>Janvier 1990</h2>
-                                                    <ChevronRight size={18} style={{ color: '#2563eb' }} />
-                                                </div>
-                                                <div style={{ display: 'flex', gap: '16px' }}>
-                                                    <ChevronLeft size={20} style={{ color: '#2563eb', cursor: 'pointer' }} />
-                                                    <ChevronRight size={20} style={{ color: '#2563eb', cursor: 'pointer' }} />
-                                                </div>
+                                                <h2 className="mobile-sheet-title" style={{ margin: 0, fontSize: '22px', fontWeight: 800, textAlign: 'left', flex: 1 }}>Date de naissance</h2>
+                                                <button className="mobile-sheet-close-btn" style={{ position: 'static' }} onClick={() => setActiveProfileSubSheet(null)}>
+                                                    <X size={18} />
+                                                </button>
                                             </div>
 
-                                            <div className="mobile-calendar-body" style={{ padding: '0 16px' }}>
-                                                {/* Weekday headers */}
-                                                <div className="mobile-calendar-weekdays">
-                                                    {["LUN.", "MAR.", "MER.", "JEU.", "VEN.", "SAM.", "DIM."].map((w) => (
-                                                        <span key={w}>{w}</span>
-                                                    ))}
-                                                </div>
-
-                                                {/* Days grid */}
-                                                <div className="mobile-calendar-days-grid">
-                                                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                                                        <button 
-                                                            key={d} 
-                                                            className={`mobile-calendar-day-btn ${selectedCalDay === d ? "active" : ""}`}
-                                                            onClick={() => setSelectedCalDay(d)}
+                                            <div className="mobile-sheet-body-stack" style={{ padding: '0 16px 24px 16px' }}>
+                                                <p style={{ fontSize: '13.5px', color: '#64748b', marginBottom: '16px' }}>
+                                                    Sélectionnez votre date de naissance :
+                                                </p>
+                                                
+                                                <div className="mobile-birthday-selects-row" style={{ display: 'flex', gap: '10px', marginBottom: '24px' }}>
+                                                    {/* Day Select */}
+                                                    <div style={{ flex: 1 }}>
+                                                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', marginBottom: '4px' }}>Jour</label>
+                                                        <select
+                                                            className="civility-select"
+                                                            value={selectedCalDay}
+                                                            onChange={(e) => setSelectedCalDay(parseInt(e.target.value, 10))}
+                                                            style={{ width: '100%', padding: '10px', borderRadius: '10px', fontWeight: 700 }}
                                                         >
-                                                            {d}
-                                                        </button>
-                                                    ))}
+                                                            {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                                                                <option key={d} value={d}>{d}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+
+                                                    {/* Month Select */}
+                                                    <div style={{ flex: 2 }}>
+                                                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', marginBottom: '4px' }}>Mois</label>
+                                                        <select
+                                                            className="civility-select"
+                                                            value={selectedCalMonth}
+                                                            onChange={(e) => setSelectedCalMonth(parseInt(e.target.value, 10))}
+                                                            style={{ width: '100%', padding: '10px', borderRadius: '10px', fontWeight: 700 }}
+                                                        >
+                                                            {monthsList.map((m, idx) => (
+                                                                <option key={idx} value={idx + 1}>{m}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+
+                                                    {/* Year Select */}
+                                                    <div style={{ flex: 1.5 }}>
+                                                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', marginBottom: '4px' }}>Année</label>
+                                                        <select
+                                                            className="civility-select"
+                                                            value={selectedCalYear}
+                                                            onChange={(e) => setSelectedCalYear(parseInt(e.target.value, 10))}
+                                                            style={{ width: '100%', padding: '10px', borderRadius: '10px', fontWeight: 700 }}
+                                                        >
+                                                            {Array.from({ length: 100 }, (_, i) => 2026 - i).map(y => (
+                                                                <option key={y} value={y}>{y}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
                                                 </div>
 
-                                                <div className="mobile-calendar-actions">
-                                                    <button 
-                                                        className="mobile-calendar-val-btn"
-                                                        onClick={() => {
-                                                            const formattedDay = selectedCalDay < 10 ? `0${selectedCalDay}` : selectedCalDay;
-                                                            setDob(`${formattedDay}/01/1990`);
-                                                            setActiveProfileSubSheet(null);
-                                                        }}
-                                                    >
-                                                        Valider
-                                                    </button>
-                                                    <button className="mobile-calendar-cancel-btn" onClick={() => setActiveProfileSubSheet(null)}>
-                                                        Annuler
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    className="mobile-sub-sheet-confirm-btn"
+                                                    onClick={() => {
+                                                        const formattedDay = selectedCalDay < 10 ? `0${selectedCalDay}` : selectedCalDay;
+                                                        const formattedMonth = selectedCalMonth < 10 ? `0${selectedCalMonth}` : selectedCalMonth;
+                                                        setDob(`${formattedDay}/${formattedMonth}/${selectedCalYear}`);
+                                                        setActiveProfileSubSheet(null);
+                                                    }}
+                                                >
+                                                    Mettre à jour la date
+                                                </button>
                                             </div>
                                         </div>
                                     )}
@@ -914,7 +996,7 @@ function SettingsPage() {
                 // Desktop Layout
                 <div className="home-page">
                     <SideBar />
-                    
+
                     {/* Secondary Settings Sidebar */}
                     <aside className="settings-sidebar">
                         <h2 className="settings-title">Paramètres</h2>
@@ -937,7 +1019,7 @@ function SettingsPage() {
 
                                         <AnimatePresence initial={false}>
                                             {isOpen && (
-                                                <motion.ul 
+                                                <motion.ul
                                                     className="settings-submenu"
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: "auto", opacity: 1 }}
@@ -971,6 +1053,17 @@ function SettingsPage() {
                             })}
                         </div>
                         <div className="settings-sidebar-footer">
+                            <div className="desktop-theme-toggle-row">
+                                <span className="theme-toggle-label">Mode sombre</span>
+                                <label className="mobile-toggle-switch">
+                                    <input
+                                        type="checkbox"
+                                        checked={isDarkMode}
+                                        onChange={(e) => setIsDarkMode(e.target.checked)}
+                                    />
+                                    <span className="toggle-slider" />
+                                </label>
+                            </div>
                             <button
                                 onClick={() => alert("Déconnexion")}
                                 className="settings-logout-btn"
@@ -986,7 +1079,7 @@ function SettingsPage() {
                     {/* Settings Content Area */}
                     <div className="main-content">
                         <Header />
-                        
+
                         <div className="settings-layout-container">
                             <div className="settings-content-panel">
                                 <AnimatePresence mode="wait">
@@ -997,11 +1090,11 @@ function SettingsPage() {
                     </div>
                 </div>
             )}
-            
+
             {/* Custom confirmation toast */}
             <AnimatePresence>
                 {showToast && (
-                    <motion.div 
+                    <motion.div
                         className="custom-toast"
                         initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}

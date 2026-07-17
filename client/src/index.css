@@ -115,7 +115,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: #556B2F;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -135,7 +135,7 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary: #556B2F;
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -169,7 +169,7 @@
   --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: #556B2F;
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
@@ -201,7 +201,154 @@
 
 /* Disable auto-zoom on inputs in iOS Safari */
 @media screen and (max-width: 768px) {
-  input, select, textarea {
+
+  input,
+  select,
+  textarea {
     font-size: 16px !important;
   }
+}
+
+/* ==========================================================================
+   GLOBAL DARK MODE MOBILE & INPUT OVERRIDES
+   ========================================================================== */
+.dark * {
+  box-shadow: none !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea,
+.dark .search-input-field,
+.dark .mobile-address-search-input,
+.dark .mobile-form-card-input,
+.dark .mobile-phone-number-input,
+.dark .desktop-modal-input,
+.dark .civility-select {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark .mobile-input-card-field,
+.dark .mobile-input-card-field:focus,
+.dark .mobile-phone-number-input,
+.dark .mobile-phone-number-input:focus {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Mobile Screens Background and Text colors */
+.dark .mobile-contacts-view,
+.dark .mobile-settings-view,
+.dark .mobile-planning-view,
+.dark .mobile-messages-view,
+.dark .mobile-detail-view-container {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .mobile-nav-header,
+.dark .mobile-items-card,
+.dark .client-mobile-list-card,
+.dark .mobile-detail-tabs-card,
+.dark .mobile-detail-profile-card,
+.dark .mobile-input-card,
+.dark .mobile-save-bar,
+.dark .mobile-bottom-sheet,
+.dark .mobile-sheet-header,
+.dark .mobile-sub-sheet,
+.dark .mobile-form-card,
+.dark .mobile-client-list-row,
+.dark .mobile-settings-row-btn,
+.dark .mobile-abby-banner,
+.dark .mobile-history-card,
+.dark .mobile-back-circle,
+.dark .mobile-add-btn-circle,
+.dark .mobile-phone-input-container,
+.dark .mobile-address-search-card,
+.dark .mobile-select-row {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Specific text color fixes to stay readable in dark mode */
+.dark .client-name-bold,
+.dark .client-table-text-medium,
+.dark .mobile-client-name-bold,
+.dark .mobile-row-label,
+.dark .mobile-sheet-title,
+.dark .mobile-nav-header-title,
+.dark .mobile-settings-profile-name,
+.dark .mobile-abby-banner-title,
+.dark .mobile-abby-banner-text,
+.dark .mobile-history-card p,
+.dark .mobile-profile-name,
+.dark .mobile-contact-row,
+.dark .equipment-value,
+.dark .maintenance-next,
+.dark .mobile-input-card-field,
+.dark .mobile-input-card-val,
+.dark .mobile-header-title,
+.dark .mobile-select-row-label {
+  color: #ffffff !important;
+}
+
+.dark .client-table-text-muted,
+.dark .mobile-client-subtext-email,
+.dark .mobile-row-subtitle,
+.dark .mobile-settings-profile-email,
+.dark .mobile-history-card span,
+.dark .equipment-label,
+.dark .contact-icon-icon,
+.dark .mobile-input-card-label {
+  color: #94a3b8 !important;
+}
+
+.dark .mobile-row-arrow,
+.dark .mobile-card-chevron {
+  color: #94a3b8 !important;
+}
+
+.dark .segmented-control {
+  background-color: #1e293b !important;
+}
+
+.dark .segmented-btn {
+  color: #94a3b8 !important;
+}
+
+.dark .segmented-btn.active {
+  background-color: var(--card) !important;
+  color: #ffffff !important;
+}
+
+.dark .mobile-email-add-btn {
+  background-color: #1e293b !important;
+  color: #556B2F !important;
+}
+
+.dark .mobile-phone-country,
+.dark .mobile-phone-number-field {
+  background-color: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.dark .mobile-sheet-header-drag-zone {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .mobile-drag-handle-bar {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .mobile-radio-circle {
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }

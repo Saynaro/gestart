@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDragControls } from "framer-motion";
 import "../HomePage/Homepage.css";
 import "./ClientPage.css";
@@ -240,6 +240,7 @@ const getClientDetails = (client) => {
 
 function ClientPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [contacts, setContacts] = useState(initialContacts);
     const [organisations, setOrganisations] = useState(initialOrganisations);
     const [activeTabType, setActiveTabType] = useState("particulier"); // "particulier" or "organisation"
@@ -248,6 +249,24 @@ function ClientPage() {
     const [isMobile, setIsMobile] = useState(false);
     const [selectedClient, setSelectedClient] = useState(null);
     const [detailTab, setDetailTab] = useState("interventions");
+
+    // Sync selected client with URL search query parameter (e.g. ?id=123)
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const clientId = params.get("id");
+        if (clientId) {
+            const parsedId = parseInt(clientId, 10);
+            const foundClient = contacts.find(c => c.id === parsedId) || organisations.find(o => o.id === parsedId);
+            if (foundClient) {
+                const isOrg = organisations.some(o => o.id === parsedId);
+                setSelectedClient({ ...foundClient, isOrg });
+            } else {
+                setSelectedClient(null);
+            }
+        } else {
+            setSelectedClient(null);
+        }
+    }, [location.search, contacts, organisations]);
 
     // Framer motion drag controls to isolate drag on the handle-bar/header
     const dragControlsMain = useDragControls();
@@ -399,7 +418,7 @@ function ClientPage() {
                 selectedClient ? (
                     <ClientMobileDetailView
                         selectedClient={selectedClient}
-                        setSelectedClient={setSelectedClient}
+                        setSelectedClient={() => navigate("/client")}
                         getClientDetails={getClientDetails}
                         detailTab={detailTab}
                         setDetailTab={setDetailTab}
@@ -446,7 +465,7 @@ function ClientPage() {
                             <ClientMobileList
                                 sortedLetters={sortedLetters}
                                 groupedItems={groupedItems}
-                                onSelect={setSelectedClient}
+                                onSelect={(client) => navigate("/client?id=" + client.id)}
                                 activeTabType={activeTabType}
                             />
                         </div>
@@ -465,7 +484,7 @@ function ClientPage() {
                             {selectedClient ? (
                                 <ClientDetailView
                                     selectedClient={selectedClient}
-                                    setSelectedClient={setSelectedClient}
+                                    setSelectedClient={() => navigate("/client")}
                                     getClientDetails={getClientDetails}
                                     detailTab={detailTab}
                                     setDetailTab={setDetailTab}
@@ -520,7 +539,7 @@ function ClientPage() {
                                     <ClientTable
                                         clients={activeTabType === "particulier" ? filteredContacts : filteredOrganisations}
                                         getClientDetails={getClientDetails}
-                                        onSelect={setSelectedClient}
+                                        onSelect={(client) => navigate("/client?id=" + client.id)}
                                         onEdit={handleOpenEdit}
                                         onPlan={handlePlanClient}
                                         onArchive={handleArchiveClient}

@@ -77,7 +77,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                         role="dialog"
                         aria-modal="true"
                         tabIndex="-1"
-                        className="fixed bottom-0 left-0 right-0 z-[2100] mx-auto w-full max-w-md bg-white rounded-t-[24px] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] overflow-hidden pb-[max(20px,env(safe-area-inset-bottom))] outline-none focus:outline-none"
+                        className="fixed bottom-0 left-0 right-0 z-[2100] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[24px] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] overflow-hidden pb-[max(20px,env(safe-area-inset-bottom))] outline-none focus:outline-none"
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
@@ -94,7 +94,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                     >
                         {/* Drag Handle Bar */}
                         <div className="flex justify-center w-full py-3 cursor-grab active:cursor-grabbing">
-                            <div className="w-[36px] h-1 bg-[#E2E8F0] rounded-[2px]" />
+                            <div className="w-[36px] h-1 bg-border rounded-[2px]" />
                         </div>
 
                         {/* Menu Navigation List */}
@@ -117,7 +117,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                                 className={`relative min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
                                                     isActive 
                                                         ? "bg-sidebar-accent text-sidebar-primary font-semibold" 
-                                                        : "text-[#0F172A] hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
+                                                        : "text-foreground hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
                                                 }`}
                                             >
                                                 <IconComponent
@@ -141,7 +141,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                             </ul>
 
                             {/* Separator */}
-                            <div className="h-[1px] bg-[#F1F5F9] my-2" />
+                            <div className="h-[1px] bg-border my-2" />
 
                             {/* Section 2 (Account / Tools) */}
                             <ul className="flex flex-col gap-1">
@@ -157,7 +157,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                         className={`relative min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none ${
                                             activePath === "/settings"
                                                 ? "bg-sidebar-accent text-sidebar-primary font-semibold"
-                                                : "text-[#0F172A] hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
+                                                : "text-foreground hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
                                         }`}
                                     >
                                         <Settings className={`w-[25px] h-[25px] stroke-[1.8] ${activePath === "/settings" ? "text-sidebar-primary" : "text-[#64748B]"}`} />

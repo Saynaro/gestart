@@ -167,7 +167,8 @@
     background-color: var(--card);
     border-radius: 16px;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-    overflow: visible; /* Allow option dropdowns to pop out */
+    overflow: visible;
+    /* Allow option dropdowns to pop out */
     padding: 8px 0;
 }
 
@@ -281,7 +282,8 @@
     transition: all 0.2s ease;
 }
 
-.client-row-more-btn:hover, .client-row-more-btn.active {
+.client-row-more-btn:hover,
+.client-row-more-btn.active {
     background-color: #f1f5f9;
     color: #0f172a;
 }
@@ -386,7 +388,8 @@
    ========================================================================== */
 
 /* Lock viewport overscroll to keep navbar fixed */
-html, body {
+html,
+body {
     overscroll-behavior-y: none !important;
     overscroll-behavior-x: none !important;
     scroll-behavior: smooth;
@@ -406,7 +409,8 @@ html, body {
     height: 100%;
     overflow: hidden;
     overscroll-behavior-x: none !important;
-    background-color: #f8fafc; /* Slate 50 */
+    background-color: #f8fafc;
+    /* Slate 50 */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -417,7 +421,8 @@ html, body {
     overscroll-behavior-y: contain !important;
     overscroll-behavior-x: none !important;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 100px; /* Space for bottom navigation tab bar */
+    padding-bottom: 100px;
+    /* Space for bottom navigation tab bar */
 }
 
 /* Tab Bar Pill Selector */
@@ -426,7 +431,8 @@ html, body {
 }
 
 .mobile-contacts-tab-bar {
-    background-color: #f1f5f9; /* Soft purple-grey */
+    background-color: #f1f5f9;
+    /* Soft purple-grey */
     border-radius: 12px;
     display: flex;
     padding: 4px;
@@ -615,7 +621,8 @@ html, body {
     position: fixed;
     bottom: 95px;
     right: 16px;
-    background-color: #0066FF; /* Native blue */
+    background-color: #0066FF;
+    /* Native blue */
     color: white;
     border: none;
     border-radius: 50px;
@@ -846,11 +853,11 @@ html, body {
     border-radius: 50%;
 }
 
-input:checked + .toggle-slider {
+input:checked+.toggle-slider {
     background-color: #0066FF;
 }
 
-input:checked + .toggle-slider:before {
+input:checked+.toggle-slider:before {
     transform: translateX(20px);
 }
 
@@ -1057,7 +1064,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .mobile-keyboard-key:active {

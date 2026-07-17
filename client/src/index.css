@@ -225,9 +225,9 @@
 .dark .mobile-phone-number-input,
 .dark .desktop-modal-input,
 .dark .civility-select {
-  background-color: #1e293b !important;
+  background-color: var(--background) !important;
   color: #ffffff !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .dark .mobile-input-card-field,
@@ -244,6 +244,7 @@
 }
 
 /* Mobile Screens Background and Text colors */
+.dark .home-page,
 .dark .mobile-contacts-view,
 .dark .mobile-settings-view,
 .dark .mobile-planning-view,
@@ -317,7 +318,7 @@
 }
 
 .dark .segmented-control {
-  background-color: #1e293b !important;
+  background-color: var(--background) !important;
 }
 
 .dark .segmented-btn {
@@ -329,15 +330,31 @@
   color: #ffffff !important;
 }
 
+/* Status Pill Buttons Dark Theme Overrides */
+.dark .status-pill-btn {
+  background-color: var(--background) !important;
+  color: #94a3b8 !important;
+}
+
+.dark .status-pill-btn:hover {
+  background-color: oklch(0.25 0 0) !important;
+  color: #ffffff !important;
+}
+
+.dark .status-pill-btn.active {
+  background-color: var(--sidebar-primary) !important;
+  color: #ffffff !important;
+}
+
 .dark .mobile-email-add-btn {
-  background-color: #1e293b !important;
+  background-color: var(--background) !important;
   color: #556B2F !important;
 }
 
 .dark .mobile-phone-country,
 .dark .mobile-phone-number-field {
-  background-color: #1e293b !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  background-color: var(--background) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
 }
 
@@ -351,4 +368,17 @@
 
 .dark .mobile-radio-circle {
   border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Desktop Clients Table Dark Theme Overrides */
+.dark .client-table-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+.dark .client-table-row:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .client-data-table th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
 }

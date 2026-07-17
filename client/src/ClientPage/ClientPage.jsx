@@ -246,7 +246,7 @@ function ClientPage() {
     const [activeTabType, setActiveTabType] = useState("particulier"); // "particulier" or "organisation"
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("Tous");
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
     const [selectedClient, setSelectedClient] = useState(null);
     const [detailTab, setDetailTab] = useState("interventions");
 

@@ -74,7 +74,7 @@ function SettingsPage() {
     const [activeTab, setActiveTab] = useState("profil");
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
 
     // Scroll tracking for iOS-style header title transition
     const [isScrolled, setIsScrolled] = useState(false);
@@ -774,9 +774,9 @@ function SettingsPage() {
                 .find(item => item.id === activeTab) || { label: "Paramètres" };
 
             return (
-                <div className="mobile-settings-view" style={{ backgroundColor: '#f8fafc' }}>
+                <div className="mobile-settings-view" style={{ backgroundColor: 'var(--background)' }}>
                     {/* Header */}
-                    <div className="mobile-nav-header" style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 100 }}>
+                    <div className="mobile-nav-header" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--card)', position: 'sticky', top: 0, zIndex: 100 }}>
                         <button className="mobile-back-circle" onClick={() => navigate(-1)}>
                             <ArrowLeft size={16} />
                         </button>

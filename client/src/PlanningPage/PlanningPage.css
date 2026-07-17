@@ -1,233 +1,938 @@
-.new-intervention-btn {
-    background-color: var(--sidebar-primary);
-    color: var(--sidebar-primary-foreground);
-    border: none;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 13.5px;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
+/* Planning Page Layout Styles */
 
-.new-intervention-btn:hover {
-    opacity: 0.9;
-}
-
-.day-selector {
+.calendar-header-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     background-color: var(--card);
     border: 1px solid var(--border);
-    padding: 6px;
+    padding: 6px 12px;
     border-radius: 12px;
-    overflow-x: auto;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 2px 4px;
 }
 
-.day-btn {
-    flex: 1;
-    min-width: 80px;
+.nav-arrow-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     border: none;
-    background: none;
-    padding: 10px 8px;
-    border-radius: 8px;
+    background-color: transparent;
+    color: var(--foreground);
     cursor: pointer;
-    text-align: center;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.day-btn.active {
-    background-color: var(--sidebar-accent);
+.nav-arrow-btn:hover {
+    background-color: var(--background);
     color: var(--sidebar-primary);
 }
 
-.day-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.timeline-container {
-    background-color: var(--card);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-}
-
-.timeline-header-meta {
-    font-size: 12px;
+.calendar-current-range {
+    font-size: 16px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--muted-foreground);
-    margin-bottom: 16px;
+    color: var(--foreground);
+    min-width: 140px;
+    text-align: center;
+    text-transform: capitalize;
 }
 
-.interventions-list {
+.header-right-group {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 12px;
 }
 
-.intervention-card {
+/* Filter Dropdown */
+.filter-dropdown-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
+}
+
+.filter-select {
+    appearance: none;
+    background-color: var(--card);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    background-color: var(--background);
+    border-radius: 12px;
+    padding: 10px 36px 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--foreground);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 2px 4px;
 }
 
-.intervention-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+.filter-select:focus {
+    border-color: var(--sidebar-primary);
 }
 
-.intervention-time-col {
+.dropdown-arrow-icon {
+    position: absolute;
+    right: 12px;
+    color: var(--muted-foreground);
+    pointer-events: none;
+}
+
+.new-intervention-btn {
     display: flex;
-    flex-direction: column;
-    min-width: 120px;
-    gap: 4px;
-    border-right: 1px solid var(--border);
-    padding-right: 14px;
-    margin-right: 14px;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--sidebar-primary);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    box-shadow: rgba(95, 75, 219, 0.15) 0px 4px 12px;
 }
 
-.intervention-time {
+.new-intervention-btn:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+}
+
+.new-intervention-btn:active {
+    transform: translateY(0);
+}
+
+/* View Selector & Legends Row */
+.view-legends-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.view-selector-pill {
+    display: flex;
+    background-color: #e2e8f0;
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.view-btn {
+    border: none;
+    background: none;
+    padding: 8px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.view-btn.active {
+    background-color: white;
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Calendar Legends */
+.calendar-legends {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--foreground);
-}
-
-.type-tag {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    width: fit-content;
-}
-
-.type-tag.type-entretien {
-    background-color: rgba(59, 130, 246, 0.1);
-    color: #2563eb;
-}
-
-.type-tag.type-installation {
-    background-color: rgba(95, 75, 219, 0.1);
-    color: var(--sidebar-primary);
-}
-
-.type-tag.type-dépannage {
-    background-color: rgba(220, 38, 38, 0.1);
-    color: #dc2626;
-}
-
-.type-tag.type-contrôle {
-    background-color: rgba(79, 70, 229, 0.1);
-    color: #4f46e5;
-}
-
-.intervention-body {
-    flex: 1;
-}
-
-.intervention-title {
-    font-size: 14.5px;
-    font-weight: 600;
-    color: var(--foreground);
-    margin-bottom: 2px;
-}
-
-.intervention-client-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
     color: var(--muted-foreground);
 }
 
-.client-name {
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.type-installation .legend-dot {
+    background-color: #6366f1; /* Indigo */
+}
+
+.type-maintenance .legend-dot {
+    background-color: #22c55e; /* Green */
+}
+
+.type-depannage .legend-dot {
+    background-color: #f97316; /* Orange */
+}
+
+.type-controle .legend-dot {
+    background-color: #64748b; /* Slate */
+}
+
+/* Calendar Card */
+.calendar-card {
+    background-color: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 4px 18px;
+}
+
+.calendar-touch-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Event Styles */
+.custom-event-card {
+    display: flex;
+    padding: 2px 5px;
+    border-radius: 8px;
+    height: 100%;
+    width: 100%;
+    font-family: inherit;
+    gap: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    color: #ffffff !important;
+    align-items: flex-start;
+    /* Let clicks pass through to FullCalendar's harness so eventClick fires */
+    pointer-events: none;
+}
+
+.custom-event-card * {
+    color: #ffffff !important;
+}
+
+/* Hide grip dots — they waste horizontal space */
+.event-grip {
+    display: none;
+}
+
+.event-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 1px 0;
+    gap: 1px;
+}
+
+/* Title row: time-tag + client name + ! icon in one line */
+.event-title-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 5px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.title-left-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Time tag: small pill — inline in compact, block in normal */
+.event-time-tag {
+    font-size: 9px;
+    font-weight: 700;
+    opacity: 0.85;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    line-height: 1.5;
+    display: inline-block;
+}
+
+/* Block version: time on its own line, shrinks to content width */
+.event-time-block {
+    display: inline-block;
+    width: fit-content;
+    margin-bottom: 1px;
+}
+
+/* Client name: always visible, ellipsis if too short */
+.event-title {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Warning badge */
+.event-warning-icon {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: #f3f4f6 !important;
+    font-size: 9px;
+    font-weight: 800;
+    flex-shrink: 0;
+    line-height: 1;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* === COMPACT MODE: 30-min slots ===
+   Show only title-row: time + client name + ! icon in single line */
+.custom-event-card.compact {
+    align-items: center;
+    padding: 0 4px;
+}
+
+.custom-event-card.compact .event-details {
+    padding: 0;
+    justify-content: center;
+}
+
+.custom-event-card.compact .event-title-row {
+    flex-shrink: 0;
+}
+
+.custom-event-card.compact .event-title {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.custom-event-card.compact .event-time-tag {
+    font-size: 8.5px;
+    padding: 0 3px;
+}
+
+.event-type {
+    font-size: 11px;
     font-weight: 500;
+    opacity: 0.85;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.client-separator {
-    opacity: 0.5;
+.event-tech {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    opacity: 0.9;
+    white-space: nowrap;
 }
 
-.status-dot-pill {
+.tech-icon {
+    flex-shrink: 0;
+}
+
+/* Event Types Color Themes (Light Theme Default) */
+.custom-event-card.type-installation {
+    background-color: #5d5fef !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.custom-event-card.type-maintenance {
+    background-color: #23b160 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.custom-event-card.type-depannage {
+    background-color: #e26a2c !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.custom-event-card.type-controle {
+    background-color: #5c6b73 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* FullCalendar Variables & Overrides */
+.fc {
+    --fc-border-color: var(--border);
+    --fc-page-bg-color: var(--card);
+    --fc-today-bg-color: rgba(95, 75, 219, 0.03);
+    --fc-event-border-color: transparent;
+    --fc-event-bg-color: transparent;
+    --fc-event-color: transparent;
+    --fc-classic-event: transparent;
+    --fc-classic-event-border-color: transparent;
+    font-family: inherit !important;
+}
+
+/* Column Header Cells */
+.fc .fc-col-header-cell {
+    background-color: transparent !important;
+    padding: 12px 0 !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--muted-foreground);
+    text-decoration: none !important;
+    text-transform: capitalize;
+}
+
+/* Style active/current day header */
+.fc .fc-day-today .fc-col-header-cell-cushion {
+    color: var(--sidebar-primary) !important;
+    position: relative;
+}
+
+/* Y-Axis Time Slot Label Styles */
+.fc .fc-timegrid-slot-label-cushion {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: lowercase;
+}
+
+/* Thin Grid Lines */
+.fc-timegrid-slots td {
+    height: 48px !important; /* height of hour rows */
+}
+
+.fc .fc-timegrid-slot {
+    border-bottom: 1px solid rgba(26, 26, 26, 0.04) !important;
+}
+
+.fc .fc-timegrid-slot-minor {
+    border-bottom: 1px dashed rgba(26, 26, 26, 0.02) !important;
+}
+
+/* Remove ALL default FullCalendar event borders and backgrounds.
+   Using attribute selector to also catch inline style border-color */
+.fc .fc-event,
+.fc .fc-h-event,
+.fc .fc-v-event,
+.fc-timegrid-event,
+.fc-timegrid-event-harness .fc-timegrid-event,
+.fc .fc-timegrid-event .fc-event-main,
+.fc .fc-event-main,
+.fc .fc-event-main-frame {
+    background: transparent !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    outline: none !important;
+}
+
+/* Make event-main fill full width so card stretches edge-to-edge */
+.fc .fc-timegrid-event .fc-event-main {
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+/* Kill the classic theme colored left stripe (::before pseudo-element) */
+.fc .fc-v-event::before,
+.fc .fc-v-event .fc-event-main::before,
+.fc .fc-timegrid-event::before,
+.fc .fc-event::before,
+.fc .fc-event::after {
+    display: none !important;
+    width: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    content: none !important;
+}
+
+/* Harness: stretch to full column width */
+.fc .fc-timegrid-event-harness {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    /* Override FullCalendar's overlap-positioning — always fill full width */
+    inset-inline-start: 0 !important;
+    inset-inline-end: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    margin-inline-end: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* The event itself: also full width */
+.fc .fc-timegrid-event-harness .fc-timegrid-event,
+.fc .fc-timegrid-event {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+/* event-main wrapper: full width, no padding */
+.fc .fc-event-main {
+    width: 100% !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.fc .fc-event:focus,
+.fc .fc-event:focus-within,
+.fc .fc-event.fc-event-dragging {
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+}
+
+/* Event hover effect */
+.custom-event-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+}
+
+.custom-event-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    filter: brightness(1.06);
+}
+
+/* Modal Popup Styles */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 2100;
+}
+
+.add-event-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 92%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    z-index: 2200;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--foreground);
+    margin: 0;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+.modal-form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-slot-info {
+    background-color: rgba(95, 75, 219, 0.05);
+    border: 1px solid rgba(95, 75, 219, 0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.slot-info-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.slot-info-val {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--sidebar-primary);
+}
+
+.modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modal-label {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 11px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.modal-input {
+    height: 42px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    padding: 10px 14px;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.modal-input:focus {
+    border-color: var(--sidebar-primary);
+}
+
+.modal-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.modal-select {
+    appearance: none;
+    width: 100%;
+    height: 42px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    padding: 10px 36px 10px 14px;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: 14px;
     font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 50px;
+    outline: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.modal-select:focus {
+    border-color: var(--sidebar-primary);
+}
+
+.modal-select-arrow {
+    position: absolute;
+    right: 12px;
+    color: var(--muted-foreground);
+    pointer-events: none;
+}
+
+.modal-footer-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.modal-cancel-btn {
+    background: none !important;
+    border: none !important;
+    padding: 10px 18px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    color: var(--muted-foreground) !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.modal-cancel-btn:hover {
+    background-color: var(--background) !important;
+}
+
+.modal-submit-btn {
+    background-color: var(--sidebar-primary) !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 18px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: opacity 0.2s ease !important;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px !important;
+}
+
+.modal-submit-btn:hover {
+    opacity: 0.9 !important;
+}
+
+/* ==========================================================================
+   DARK THEME SPECIFIC CALENDAR OVERRIDES
+   ========================================================================== */
+
+.dark .fc-timegrid-col,
+.dark .fc-timegrid-slots td,
+.dark .fc-daygrid-day,
+.dark .fc-col-header-cell,
+.dark .fc-scrollgrid,
+.dark .fc-timegrid-slot,
+.dark .fc-theme-standard td,
+.dark .fc-theme-standard th,
+.dark .fc-theme-classic td,
+.dark .fc-theme-classic th,
+.dark .fc td,
+.dark .fc th,
+.dark .fc {
+    background-color: var(--background) !important;
+    border-color: var(--border) !important;
+}
+.dark {
+    --fc-today-bg-color: rgba(255, 255, 255, 0.03) !important;
+    --fc-event-color: transparent !important;
+    --fc-event-border-color: transparent !important;
+    --fc-event-bg-color: transparent !important;
+    --fc-classic-event: transparent !important;
+    --fc-classic-event-border-color: transparent !important;
+    --fc-classic-background: var(--background) !important;
+    --fc-classic-foreground: var(--foreground) !important;
+    --fc-classic-border: var(--border) !important;
+    --fc-classic-faint: rgba(255, 255, 255, 0.03) !important;
+    --fc-classic-muted: rgba(255, 255, 255, 0.06) !important;
+    --fc-classic-strong: rgba(255, 255, 255, 0.1) !important;
+    --fc-classic-button: var(--card) !important;
+    --fc-classic-button-border: var(--border) !important;
+    --fc-classic-button-foreground: var(--foreground) !important;
+    
+    --fc-page-bg-color: var(--background) !important;
+    --fc-border-color: var(--border) !important;
+    --fc-neutral-bg-color: var(--background) !important;
+    --fc-neutral-text-color: var(--foreground) !important;
+}
+
+.dark .fc-scroller {
+    scrollbar-color: var(--border) transparent;
+}
+
+.dark .view-selector-pill {
+    background-color: var(--background);
+}
+
+.dark .view-btn {
+    color: #94a3b8;
+}
+
+.dark .view-btn.active {
     background-color: var(--card);
-    border: 1px solid var(--border);
+    color: #ffffff;
+    box-shadow: none;
 }
 
-.status-dot-pill .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
+/* Dark theme events styling */
+.dark .custom-event-card.type-installation {
+    background-color: #5d5fef !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-.status-dot-pill.status-confirmé {
-    color: #16a34a;
-}
-.status-dot-pill.status-confirmé .dot {
-    background-color: #16a34a;
+.dark .custom-event-card.type-maintenance {
+    background-color: #23b160 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-.status-dot-pill.status-en-cours {
-    color: #d97706;
-}
-.status-dot-pill.status-en-cours .dot {
-    background-color: #d97706;
-    animation: pulse 1.5s infinite;
+.dark .custom-event-card.type-depannage {
+    background-color: #e26a2c !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-.status-dot-pill.status-planifié {
-    color: #4f46e5;
-}
-.status-dot-pill.status-planifié .dot {
-    background-color: #4f46e5;
+.dark .custom-event-card.type-controle {
+    background-color: #5c6b73 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-@keyframes pulse {
-    0% { transform: scale(0.9); opacity: 1; }
-    50% { transform: scale(1.3); opacity: 0.5; }
-    100% { transform: scale(0.9); opacity: 1; }
+.dark .event-time-tag {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
+/* Faint grid lines in dark mode */
+.dark .fc .fc-timegrid-slot {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .fc .fc-timegrid-slot-minor {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.015) !important;
+}
+
+.dark .fc .fc-col-header-cell-cushion {
+    color: #94a3b8;
+}
+
+.dark .fc .fc-timegrid-slot-label-cushion {
+    color: #64748b;
+}
+
+/* Mobile Screens Styles */
 @media (max-width: 768px) {
-    .day-btn {
-        min-width: 65px;
-        padding: 8px 4px;
-    }
-
-    .intervention-card {
+    .calendar-header-row {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 12px;
     }
 
-    .intervention-time-col {
-        flex-direction: row;
-        align-items: center;
+    .header-left-group {
+        justify-content: space-between;
         width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        padding-right: 0;
-        padding-bottom: 8px;
-        margin-right: 0;
+        gap: 10px;
     }
 
-    .status-dot-pill {
-        margin-top: 4px;
+    .calendar-navigation {
+        padding: 4px 8px;
+        border-radius: 10px;
     }
+
+    .calendar-current-range {
+        font-size: 14.5px;
+        min-width: 120px;
+    }
+
+    .header-right-group {
+        width: 100%;
+    }
+
+    .filter-dropdown-wrapper {
+        flex: 1;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+
+    .new-intervention-btn {
+        flex-shrink: 0;
+    }
+
+    .view-legends-row {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .view-selector-pill {
+        width: 100%;
+    }
+
+    .view-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 0;
+    }
+
+    .calendar-legends {
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .calendar-card {
+        padding: 10px;
+        border-radius: 12px;
+    }
+}
+
+/* Edit Event Modal Footer Button Styles */
+.edit-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.footer-right-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.modal-delete-btn {
+    background-color: #ef4444 !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 18px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: opacity 0.2s ease !important;
+    box-shadow: rgba(239, 68, 68, 0.15) 0px 4px 12px !important;
+}
+
+.modal-delete-btn:hover {
+    opacity: 0.9 !important;
+}
+
+.dark .modal-delete-btn {
+    background-color: #ef4444 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.dark .modal-delete-btn:hover {
+    opacity: 0.9 !important;
+}
+
+.edit-save-btn {
+    background-color: var(--sidebar-primary) !important;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px !important;
 }

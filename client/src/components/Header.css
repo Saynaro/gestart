@@ -210,9 +210,13 @@
     .header {
         padding: 0 16px;
         background-color: var(--sidebar);
+        border-bottom: none;
     }
     
     .greeting {
-        font-size: 18px;
+        font-size: 24px;
+        font-weight: 750;
+        color: var(--foreground);
+        letter-spacing: -0.5px;
     }
 }

@@ -5,7 +5,7 @@ import "./SideBar.css";
 import BottomSheet from "./BottomSheet";
 import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
 
-function SideBar() {
+function SideBar({ onFabClick }) {
     const navigate = useNavigate();
     const location = useLocation();
     const activePath = location.pathname || "/home";
@@ -243,11 +243,16 @@ function SideBar() {
                 </div>
             </div>
 
-            {/* Mobile Floating Action Button (FAB) */}
             {fabConfig && (
                 <button
                     className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : "factures"}`}
-                    onClick={() => alert(`Action: ${fabConfig.label}`)}
+                    onClick={(e) => {
+                        if (onFabClick) {
+                            onFabClick(e);
+                        } else {
+                            alert(`Action: ${fabConfig.label}`);
+                        }
+                    }}
                 >
                     <span className="fab-icon">{fabConfig.icon}</span>
                     <span className="fab-text">{fabConfig.label}</span>

@@ -178,19 +178,23 @@
 }
 
 .type-installation .legend-dot {
-    background-color: #6366f1; /* Indigo */
+    background-color: #6366f1;
+    /* Indigo */
 }
 
 .type-maintenance .legend-dot {
-    background-color: #22c55e; /* Green */
+    background-color: #22c55e;
+    /* Green */
 }
 
 .type-depannage .legend-dot {
-    background-color: #f97316; /* Orange */
+    background-color: #f97316;
+    /* Orange */
 }
 
 .type-controle .legend-dot {
-    background-color: #64748b; /* Slate */
+    background-color: #64748b;
+    /* Slate */
 }
 
 /* Calendar Card */
@@ -428,7 +432,8 @@
 
 /* Thin Grid Lines */
 .fc-timegrid-slots td {
-    height: 48px !important; /* height of hour rows */
+    height: 48px !important;
+    /* height of hour rows */
 }
 
 .fc .fc-timegrid-slot {
@@ -682,6 +687,93 @@
     pointer-events: none;
 }
 
+/* Client selector trigger — shared between mobile & desktop */
+.modal-select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 42px;
+    background-color: var(--background);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--foreground);
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    gap: 8px;
+}
+
+.modal-select-trigger:hover {
+    border-color: color-mix(in srgb, var(--sidebar-primary) 60%, var(--border));
+}
+
+.modal-select-trigger:active {
+    border-color: var(--sidebar-primary);
+}
+
+.trigger-val {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.trigger-arrow {
+    color: var(--muted-foreground);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+/* Client search overlay backdrop */
+.client-search-overlay-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background);
+    /* mobile: solid bg */
+}
+
+/* Panel fills full screen on mobile */
+.client-search-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    background-color: var(--background);
+}
+
+/* Desktop: dim overlay + centered panel card */
+@media (min-width: 769px) {
+    .client-search-overlay-wrapper {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .client-search-panel {
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        width: 500px;
+        max-height: 75vh;
+        flex: unset;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+    }
+}
+
 .modal-footer-row {
     display: flex;
     justify-content: flex-end;
@@ -742,6 +834,7 @@
     background-color: var(--background) !important;
     border-color: var(--border) !important;
 }
+
 .dark {
     --fc-today-bg-color: rgba(255, 255, 255, 0.03) !important;
     --fc-event-color: transparent !important;
@@ -758,7 +851,7 @@
     --fc-classic-button: var(--card) !important;
     --fc-classic-button-border: var(--border) !important;
     --fc-classic-button-foreground: var(--foreground) !important;
-    
+
     --fc-page-bg-color: var(--background) !important;
     --fc-border-color: var(--border) !important;
     --fc-neutral-bg-color: var(--background) !important;
@@ -906,7 +999,7 @@
 }
 
 .modal-delete-btn {
-    background-color: #ef4444 !important;
+    background-color: #d10000dd !important;
     color: white !important;
     border: none !important;
     padding: 10px 18px !important;
@@ -915,7 +1008,6 @@
     font-size: 14px !important;
     cursor: pointer !important;
     transition: opacity 0.2s ease !important;
-    box-shadow: rgba(239, 68, 68, 0.15) 0px 4px 12px !important;
 }
 
 .modal-delete-btn:hover {
@@ -923,7 +1015,7 @@
 }
 
 .dark .modal-delete-btn {
-    background-color: #ef4444 !important;
+    background-color: #d10000dd !important;
     color: white !important;
     border: none !important;
 }
@@ -935,4 +1027,766 @@
 .edit-save-btn {
     background-color: var(--sidebar-primary) !important;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px !important;
+}
+
+/* Mobile planning page responsive additions */
+@media (max-width: 768px) {
+    .mobile-planning-view-wrapper {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #f8fafc;
+    }
+
+    .dark .mobile-planning-view-wrapper {
+        background-color: var(--background) !important;
+    }
+
+    .mobile-planning-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 134px);
+        padding: 16px 16px 0 16px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .mobile-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mobile-notification-wrapper {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--foreground);
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .mobile-notification-wrapper:active {
+        opacity: 1;
+    }
+
+    .mobile-bell-icon {
+        width: 22px;
+        height: 22px;
+        stroke-width: 1.8;
+    }
+
+    .mobile-notification-dot {
+        position: absolute;
+        top: -1px;
+        right: -1px;
+        width: 7px;
+        height: 7px;
+        background-color: var(--destructive);
+        border-radius: 50%;
+        border: 1.5px solid var(--background);
+    }
+
+    .mobile-avatar-wrapper {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-header-avatar {
+        background-color: var(--sidebar-primary);
+        color: var(--sidebar-primary-foreground);
+        font-weight: 650;
+        font-size: 13px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 8px;
+    }
+
+    .mobile-day-navigator {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 2px 6px;
+    }
+
+    .mobile-nav-btn {
+        background: none;
+        border: none;
+        color: var(--foreground);
+        padding: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+    }
+
+    .mobile-nav-btn:active {
+        background-color: var(--border);
+    }
+
+    .mobile-current-day-label {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--foreground);
+        text-transform: capitalize;
+    }
+
+    .mobile-days-strip-container {
+        margin-bottom: 20px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        /* Firefox */
+        padding-bottom: 4px;
+    }
+
+    .mobile-days-strip-container::-webkit-scrollbar {
+        display: none;
+        /* Chrome/Safari */
+    }
+
+    .mobile-days-strip {
+        display: flex;
+        gap: 10px;
+    }
+
+    .mobile-day-strip-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 52px;
+        height: 68px;
+        border-radius: 14px;
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        color: var(--foreground);
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        flex-shrink: 0;
+        position: relative;
+        padding: 8px 0;
+        box-shadow: rgba(0, 0, 0, 0.01) 0px 2px 4px;
+    }
+
+    .mobile-day-strip-item .day-name {
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--muted-foreground);
+        margin-bottom: 4px;
+        letter-spacing: 0.3px;
+    }
+
+    .mobile-day-strip-item .day-number {
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .mobile-day-strip-item .day-indicator-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: var(--sidebar-primary);
+        position: absolute;
+        bottom: 8px;
+    }
+
+    .mobile-day-strip-item.active {
+        background-color: var(--sidebar-primary);
+        border-color: var(--sidebar-primary);
+        color: white !important;
+    }
+
+    .mobile-day-strip-item.active .day-name {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .mobile-day-strip-item.active .day-indicator-dot {
+        background-color: white;
+    }
+
+    /* Strip today item when not active */
+    .mobile-day-strip-item.today:not(.active) {
+        border-color: var(--sidebar-primary);
+        color: var(--sidebar-primary);
+    }
+
+    .mobile-day-strip-item.today:not(.active) .day-name {
+        color: var(--sidebar-primary);
+    }
+
+    .mobile-events-scroll-area {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 100px;
+        /* clear space for FAB + bottom nav */
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    .mobile-events-scroll-area::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    .mobile-events-list-wrapper {
+        width: 100%;
+    }
+
+    .mobile-event-cards-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .mobile-event-card {
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 2px 8px;
+    }
+
+    /* Type styles for event cards - Solid colors, no thick left border */
+    .mobile-event-card.type-installation {
+        border-left: 1px solid #c7d2fe !important;
+        background-color: #eef2ff !important;
+        border-color: #c7d2fe !important;
+    }
+
+    .mobile-event-card.type-maintenance {
+        border-left: 1px solid #bbf7d0 !important;
+        background-color: #f0fdf4 !important;
+        border-color: #bbf7d0 !important;
+    }
+
+    .mobile-event-card.type-depannage,
+    .mobile-event-card.type-dépannage {
+        border-left: 1px solid #fed7aa !important;
+        background-color: #fff7ed !important;
+        border-color: #fed7aa !important;
+    }
+
+    .mobile-event-card.type-controle,
+    .mobile-event-card.type-contrôle {
+        border-left: 1px solid #cbd5e1 !important;
+        background-color: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    /* Dark theme specific borders and backgrounds - Solid colors */
+    .dark .mobile-event-card.type-installation {
+        border-left: 1px solid #312e81 !important;
+        background-color: #1e1b4b !important;
+        border-color: #312e81 !important;
+    }
+
+    .dark .mobile-event-card.type-maintenance {
+        border-left: 1px solid #14532d !important;
+        background-color: #062f17 !important;
+        border-color: #14532d !important;
+    }
+
+    .dark .mobile-event-card.type-depannage,
+    .dark .mobile-event-card.type-dépannage {
+        border-left: 1px solid #7c2d12 !important;
+        background-color: #431407 !important;
+        border-color: #7c2d12 !important;
+    }
+
+    .dark .mobile-event-card.type-controle,
+    .dark .mobile-event-card.type-contrôle {
+        border-left: 1px solid #1e293b !important;
+        background-color: #0f172a !important;
+        border-color: #1e293b !important;
+    }
+
+    .card-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-time-span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13.5px;
+        font-weight: 650;
+        color: var(--muted-foreground);
+    }
+
+    .card-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Badge specific color categories */
+    .type-installation .card-badge {
+        background-color: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+
+    .type-maintenance .card-badge {
+        background-color: rgba(34, 197, 94, 0.08);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.15);
+    }
+
+    .type-depannage .card-badge,
+    .type-dépannage .card-badge {
+        background-color: rgba(249, 115, 22, 0.08);
+        color: #f97316;
+        border: 1px solid rgba(249, 115, 22, 0.15);
+    }
+
+    .type-controle .card-badge,
+    .type-contrôle .card-badge {
+        background-color: rgba(100, 116, 139, 0.08);
+        color: #64748b;
+        border: 1px solid rgba(100, 116, 139, 0.15);
+    }
+
+    /* Dark Mode specific badges */
+    .dark .type-installation .card-badge {
+        background-color: rgba(93, 95, 239, 0.15);
+        color: #818cf8;
+        border-color: rgba(93, 95, 239, 0.25);
+    }
+
+    .dark .type-maintenance .card-badge {
+        background-color: rgba(35, 177, 96, 0.15);
+        color: #4ade80;
+        border-color: rgba(35, 177, 96, 0.25);
+    }
+
+    .dark .type-depannage .card-badge,
+    .dark .type-dépannage .card-badge {
+        background-color: rgba(226, 106, 44, 0.15);
+        color: #fb923c;
+        border-color: rgba(226, 106, 44, 0.25);
+    }
+
+    .dark .type-controle .card-badge,
+    .dark .type-contrôle .card-badge {
+        background-color: rgba(92, 107, 115, 0.15);
+        color: #94a3b8;
+        border-color: rgba(92, 107, 115, 0.25);
+    }
+
+    .card-client-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16.5px;
+        font-weight: 700;
+        color: var(--foreground);
+        margin: 0;
+    }
+
+    .card-technician-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--muted-foreground);
+    }
+
+    .card-icon {
+        color: var(--muted-foreground);
+        opacity: 0.7;
+        flex-shrink: 0;
+    }
+
+    /* Empty state styling */
+    .mobile-empty-state-view {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 56px 16px;
+        text-align: center;
+        background-color: var(--card);
+        border: 2px dashed var(--border);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .mobile-empty-state-view:active {
+        background-color: var(--border);
+    }
+
+    .empty-calendar-icon {
+        color: var(--muted-foreground);
+        opacity: 0.55;
+        animation: float 3.5s ease-in-out infinite;
+    }
+
+    .mobile-empty-state-view h3 {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--foreground);
+        margin: 16px 0 6px 0;
+    }
+
+    .mobile-empty-state-view p {
+        font-size: 13.5px;
+        color: var(--muted-foreground);
+        margin: 0;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-7px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    /* Time inputs styling */
+    .modal-input-time {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 42px;
+        background-color: var(--background);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--foreground);
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease;
+        line-height: normal;
+    }
+
+    .modal-input-time:focus {
+        border-color: var(--sidebar-primary);
+    }
+
+    /* Client selector trigger button (mobile + desktop) */
+    .modal-select-trigger {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        height: 42px;
+        background-color: var(--background);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        color: var(--foreground);
+        box-sizing: border-box;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+    }
+
+    .modal-select-trigger:active {
+        border-color: var(--sidebar-primary);
+    }
+
+    .modal-select-trigger .trigger-val {
+        font-weight: 600;
+    }
+
+    .trigger-arrow {
+        color: var(--muted-foreground);
+        opacity: 0.7;
+        flex-shrink: 0;
+    }
+
+    /* On mobile, cards use var(--card) — not the darker var(--background) used on desktop */
+    .client-search-item {
+        background-color: var(--card) !important;
+    }
+}
+
+/* ── Global: Client search overlay components (mobile + desktop) ─── */
+
+.client-search-header {
+    height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--card);
+}
+
+.client-search-header h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0;
+    letter-spacing: -0.4px;
+}
+
+.client-search-back-btn {
+    background: none;
+    border: none;
+    color: var(--foreground);
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.client-search-back-btn:hover {
+    background-color: var(--secondary);
+}
+
+.client-search-bar-container {
+    padding: 12px 16px;
+    flex-shrink: 0;
+}
+
+.client-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.client-search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--muted-foreground);
+    pointer-events: none;
+}
+
+.client-search-input {
+    width: 100%;
+    height: 44px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background-color: var(--background);
+    padding: 10px 14px 10px 40px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--foreground);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.client-search-input:focus {
+    border-color: var(--sidebar-primary);
+}
+
+.client-search-list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px 16px 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.client-search-list-container::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.client-search-group {
+    margin-bottom: 20px;
+}
+
+.client-search-group-letter {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sidebar-primary);
+    display: block;
+    margin-bottom: 8px;
+    padding-left: 4px;
+    text-transform: uppercase;
+}
+
+.client-search-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.client-search-item {
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    user-select: none;
+}
+
+.client-search-item:active {
+    transform: scale(0.99);
+}
+
+.client-search-item.selected {
+    background-color: rgba(95, 75, 219, 0.06);
+    border-color: var(--sidebar-primary);
+    border-width: 1.5px;
+}
+
+.client-item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.client-item-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.client-item-badge.particulier {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+
+.dark .client-item-badge.particulier {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #4ade80;
+}
+
+.client-item-badge.organisation {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.dark .client-item-badge.organisation {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.client-search-empty {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--muted-foreground);
+    font-size: 14px;
+}
+
+/* Footer — normal flow (not absolute) so it works in flex column */
+.client-search-footer {
+    flex-shrink: 0;
+    padding: 12px 16px 16px 16px;
+    background-color: var(--card);
+    border-top: 1px solid var(--border);
+}
+
+.client-search-confirm-btn {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sidebar-primary) 0%, color-mix(in srgb, var(--sidebar-primary) 80%, #6366f1) 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    margin-bottom: 8px;
+    padding: 0 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(95, 75, 219, 0.35);
+}
+
+.client-search-confirm-btn:hover {
+    opacity: 0.93;
+}
+
+.client-search-confirm-btn:active {
+    opacity: 0.85;
+    transform: scale(0.99);
+}
+
+.client-search-add-btn {
+    width: 100%;
+    height: 44px;
+    background-color: var(--sidebar-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.client-search-add-btn:active {
+    opacity: 0.85;
+}
+
+.client-search-add-btn.secondary {
+    background-color: transparent;
+    color: var(--sidebar-primary);
+    border: 1.5px solid var(--border);
+    font-weight: 600;
+}
+
+.client-search-add-btn.secondary:hover {
+    border-color: var(--sidebar-primary);
+    background-color: rgba(95, 75, 219, 0.04);
 }

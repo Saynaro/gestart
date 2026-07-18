@@ -56,10 +56,24 @@ function Header() {
         return () => window.removeEventListener("click", closeMenu);
     }, [menuOpen]);
 
+    const getPageTitle = (pathname) => {
+        if (pathname.startsWith("/client")) return "Clients";
+        if (pathname.startsWith("/planning")) return "Planning";
+        if (pathname.startsWith("/messages")) return "Messages";
+        if (pathname.startsWith("/factures")) return "Factures";
+        if (pathname.startsWith("/devis")) return "Devis";
+        if (pathname.startsWith("/rapports")) return "Rapports";
+        if (pathname.startsWith("/comptabilite")) return "Comptabilité";
+        if (pathname.startsWith("/catalogue")) return "Catalogue";
+        if (pathname.startsWith("/premium")) return "Premium";
+        if (pathname.startsWith("/settings")) return "Paramètres";
+        return "Bonjour Khalid 👋";
+    };
+
     return (
         <div className="header">
             <div className="header-left">
-                <span className="greeting">Bonjour Khalid 👋</span>
+                <span className="greeting">{isMobile ? getPageTitle(activePath) : "Bonjour Khalid 👋"}</span>
             </div>
             <div className="header-right">
                 <div className="notification-wrapper">

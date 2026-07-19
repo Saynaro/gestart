@@ -32,7 +32,11 @@ import {
     Folder,
     X,
     Sun,
-    Moon
+    Moon,
+    Calculator,
+    Percent,
+    Link,
+    RefreshCw
 } from "lucide-react";
 
 const monthsList = [
@@ -105,6 +109,7 @@ function SettingsPage() {
     // Desktop Accordion states
     const [openCategories, setOpenCategories] = useState({
         "Mon compte": true,
+        "Comptabilité": true,
         "Config": true,
         "Communauté": false,
         "À propos": false
@@ -215,6 +220,18 @@ function SettingsPage() {
                 { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
                 { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" },
                 { id: "utilisateurs", label: "Utilisateurs", icon: Users, subtitle: "Gérez les accès de vos collaborateurs" }
+            ]
+        },
+        {
+            title: "Comptabilité",
+            items: [
+                { id: "chiffre-affaires", label: "Chiffre d'affaires", icon: Calculator, subtitle: "Plafonds et CA annuel" },
+                { id: "cotisations", label: "Cotisations sociales", icon: Percent, subtitle: "Taux et calcul de cotisations" },
+                { id: "tva-config", label: "TVA", icon: Receipt, subtitle: "Taux de TVA et déclarations" },
+                { id: "connexion-urssaf", label: "Connexion Urssaf", icon: Link, subtitle: "Synchronisation de vos comptes" },
+                { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos connexions bancaires" },
+                { id: "transactions", label: "Transactions", icon: RefreshCw, subtitle: "Flux de transactions financières" },
+                { id: "categories-perso", label: "Catégorie personnalisées", icon: Settings, subtitle: "Gérez vos catégories de dépenses" }
             ]
         },
         {
@@ -627,6 +644,285 @@ function SettingsPage() {
                         )}
                         <div style={{ padding: '16px', fontSize: '14px', color: '#64748b' }}>
                             Débloquez les fonctionnalités Pro avancées.
+                        </div>
+                    </motion.div>
+                );
+
+            case "chiffre-affaires":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Calculator size={18} /></span>
+                                    <h2 className="panel-title">Chiffre d'affaires</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            <div className="mobile-abby-banner" style={{ margin: '0 0 20px 0', padding: '16px', border: '1px solid var(--border)' }}>
+                                <h3 className="mobile-abby-banner-title">Suivi du Plafond de Chiffre d'affaires</h3>
+                                <p className="mobile-abby-banner-text" style={{ fontSize: '13px', margin: '8px 0' }}>
+                                    Pour le statut de micro-entreprise de prestation de services, le plafond est de <strong>77 700 €</strong>.
+                                </p>
+                                <div className="double-progress-bar" style={{ height: '12px', borderRadius: '6px', margin: '12px 0 6px 0' }}>
+                                    <div className="fill completed" style={{ width: '48%', backgroundColor: '#556B2F' }}></div>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted-foreground)' }}>
+                                    <span>Actuel: 37 300 €</span>
+                                    <span>Plafond: 77 700 € (48%)</span>
+                                </div>
+                            </div>
+                            <div className="profile-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                <div className="form-field">
+                                    <label className="form-label">Objectif annuel de CA</label>
+                                    <input type="text" className="profile-input" defaultValue="50 000 €" />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Date de clôture d'exercice</label>
+                                    <input type="text" className="profile-input" defaultValue="31 Décembre" />
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+
+            case "cotisations":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Percent size={18} /></span>
+                                    <h2 className="panel-title">Cotisations sociales</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            <div className="profile-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                <div className="form-field">
+                                    <label className="form-label">Type d'activité principale</label>
+                                    <select className="profile-input" style={{ width: '100%', height: '42px', padding: '0 8px', border: '1px solid var(--border)', borderRadius: '6px', backgroundColor: 'var(--card)' }}>
+                                        <option>Prestation de services (BNC) — Taux: 21,1%</option>
+                                        <option>Prestation de services (BIC) — Taux: 21,2%</option>
+                                        <option>Vente de marchandises (BIC) — Taux: 12,3%</option>
+                                        <option>Profession libérale réglementée — Taux: 21,2%</option>
+                                    </select>
+                                </div>
+                                <div className="form-field" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                                    <input type="checkbox" defaultChecked id="acre-checkbox" style={{ width: '18px', height: '18px' }} />
+                                    <label htmlFor="acre-checkbox" style={{ fontSize: '13px', fontWeight: 500 }}>Bénéficiaire de l'ACRE (Taux réduit la 1ère année)</label>
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Périodicité des déclarations Urssaf</label>
+                                    <select className="profile-input" style={{ width: '100%', height: '42px', padding: '0 8px', border: '1px solid var(--border)', borderRadius: '6px', backgroundColor: 'var(--card)' }}>
+                                        <option>Mensuelle</option>
+                                        <option>Trimestrielle</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+
+            case "tva-config":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Receipt size={18} /></span>
+                                    <h2 className="panel-title">TVA</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            <div className="profile-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                <div className="form-field" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                                    <input type="checkbox" defaultChecked id="tva-franchise" style={{ width: '18px', height: '18px', marginTop: '3px' }} />
+                                    <div>
+                                        <label htmlFor="tva-franchise" style={{ fontSize: '14px', fontWeight: 600 }}>Franchise en base de TVA</label>
+                                        <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '4px' }}>
+                                            Vous ne facturez pas la TVA et ne la récupérez pas (Art. 293 B du CGI).
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="form-field" style={{ marginTop: '10px' }}>
+                                    <label className="form-label">Taux de TVA par défaut (si assujetti)</label>
+                                    <select className="profile-input" style={{ width: '100%', height: '42px', padding: '0 8px', border: '1px solid var(--border)', borderRadius: '6px', backgroundColor: 'var(--card)' }}>
+                                        <option>20% (Taux normal)</option>
+                                        <option>10% (Taux intermédiaire)</option>
+                                        <option>5,5% (Taux réduit)</option>
+                                        <option>2,1% (Taux particulier)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+
+            case "connexion-urssaf":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Link size={18} /></span>
+                                    <h2 className="panel-title">Connexion Urssaf</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px', textAlign: 'center' }}>
+                            <div className="header-icon-container" style={{ width: '60px', height: '60px', borderRadius: '30px', margin: '0 auto 15px auto', backgroundColor: 'rgba(85, 107, 47, 0.1)' }}>
+                                <Link size={24} style={{ color: '#556B2F' }} />
+                            </div>
+                            <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>Synchronisez votre compte Urssaf</h3>
+                            <p style={{ fontSize: '13px', color: 'var(--muted-foreground)', maxWidth: '400px', margin: '0 auto 20px auto' }}>
+                                Connectez votre compte auto-entrepreneur Urssaf pour déclarer votre chiffre d'affaires et régler vos cotisations en un clic depuis ClimPro.
+                            </p>
+                            <button className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: '#556B2F', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }} onClick={() => triggerToast("Connexion Urssaf en cours...")}>
+                                Se connecter à l'Urssaf
+                            </button>
+                        </div>
+                    </motion.div>
+                );
+
+            case "banques":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Building size={18} /></span>
+                                    <h2 className="panel-title">Banques</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            <div className="urgent-client-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border)', borderRadius: '8px', marginBottom: '15px' }}>
+                                <div>
+                                    <span style={{ display: 'block', fontSize: '14px', fontWeight: 600 }}>Boursorama Banque</span>
+                                    <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Compte Pro principal ****4920</span>
+                                </div>
+                                <span className="status-tag success" style={{ backgroundColor: 'rgba(26, 158, 92, 0.12)', color: 'var(--success)', fontSize: '11px', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>Connecté</span>
+                            </div>
+                            <button className="save-profile-btn" style={{ padding: '10px 20px', backgroundColor: '#556B2F', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }} onClick={() => triggerToast("Redirection vers la passerelle bancaire...")}>
+                                + Connecter une autre banque
+                            </button>
+                        </div>
+                    </motion.div>
+                );
+
+            case "transactions":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><RefreshCw size={18} /></span>
+                                    <h2 className="panel-title">Transactions</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            <div className="table-responsive">
+                                <table className="widget-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                            <th style={{ padding: '8px', textAlign: 'left' }}>Date</th>
+                                            <th style={{ padding: '8px', textAlign: 'left' }}>Libellé</th>
+                                            <th style={{ padding: '8px', textAlign: 'right' }}>Montant</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                            <td style={{ padding: '10px 8px' }}>18/07/2026</td>
+                                            <td style={{ padding: '10px 8px' }}>Virement Client M. Martin</td>
+                                            <td style={{ padding: '10px 8px', textAlign: 'right', color: 'var(--success)', fontWeight: 600 }}>+ 152,33 €</td>
+                                        </tr>
+                                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                            <td style={{ padding: '10px 8px' }}>15/07/2026</td>
+                                            <td style={{ padding: '10px 8px' }}>Achat Outillage Daikin</td>
+                                            <td style={{ padding: '10px 8px', textAlign: 'right', color: 'var(--destructive)', fontWeight: 600 }}>- 31,52 €</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+
+            case "categories-perso":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Settings size={18} /></span>
+                                    <h2 className="panel-title">Catégories personnalisées</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', backgroundColor: 'var(--background)', borderRadius: '6px', fontSize: '13px' }}>
+                                    <span>🔧 Matériel & Outillage</span>
+                                    <span style={{ color: 'var(--muted-foreground)' }}>Dépenses</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', backgroundColor: 'var(--background)', borderRadius: '6px', fontSize: '13px' }}>
+                                    <span>🚗 Carburant & Transport</span>
+                                    <span style={{ color: 'var(--muted-foreground)' }}>Dépenses</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', backgroundColor: 'var(--background)', borderRadius: '6px', fontSize: '13px' }}>
+                                    <span>📱 Téléphonie & Internet</span>
+                                    <span style={{ color: 'var(--muted-foreground)' }}>Dépenses</span>
+                                </div>
+                            </div>
+                            <button className="save-profile-btn" style={{ padding: '8px 16px', backgroundColor: '#556B2F', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500, marginTop: '15px' }} onClick={() => triggerToast("Création de catégorie bientôt disponible !")}>
+                                + Nouvelle catégorie
+                            </button>
                         </div>
                     </motion.div>
                 );

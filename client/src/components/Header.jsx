@@ -57,6 +57,7 @@ function Header() {
     }, [menuOpen]);
 
     const getPageTitle = (pathname) => {
+        if (pathname.startsWith("/home") || pathname === "/dashboard") return "Home";
         if (pathname.startsWith("/client")) return "Clients";
         if (pathname.startsWith("/planning")) return "Planning";
         if (pathname.startsWith("/messages")) return "Messages";
@@ -67,7 +68,7 @@ function Header() {
         if (pathname.startsWith("/catalogue")) return "Catalogue";
         if (pathname.startsWith("/premium")) return "Premium";
         if (pathname.startsWith("/settings")) return "Paramètres";
-        return "Bonjour Khalid 👋";
+        return "Home";
     };
 
     return (

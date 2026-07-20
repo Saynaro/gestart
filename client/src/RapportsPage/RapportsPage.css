@@ -443,8 +443,17 @@
 
 .axis-label {
     fill: var(--muted-foreground);
-    font-size: 10px;
+    font-size: 11.5px;
+    font-weight: 500;
     font-family: var(--font-body);
+}
+
+@media (max-width: 768px) {
+    .axis-label {
+        font-size: 13.5px;
+        font-weight: 600;
+        fill: var(--foreground);
+    }
 }
 
 /* Tables style inside widgets */

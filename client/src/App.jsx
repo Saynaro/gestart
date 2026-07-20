@@ -9,6 +9,14 @@ import SideBar from './components/SideBar'
 import Header from './components/Header'
 import SettingsPage from './SettingsPage/SettingsPage'
 import RapportsPage from './RapportsPage/RapportsPage'
+import ComptabilityPage from './ComptabilityPage/ComptabilityPage'
+import FacturesPage from './FacturesPage/FacturesPage'
+import DevisPage from './DevisPage/DevisPage'
+import PremiumPage from './PremiumPage/PremiumPage'
+import SignatureQuote from './PublicPages/SignatureQuote'
+import PayInvoice from './PublicPages/PayInvoice'
+import PublicContact from './PublicPages/PublicContact'
+import SuperAdminPanel from './AdminPage/AdminPage'
 import './App.css'
 
 import { Routes, Route, useLocation } from 'react-router-dom'
@@ -70,13 +78,22 @@ function App() {
         <Route path="/messages" element={<MessagesPage />} />
 
         {/* Placeholders for secondary routes to show styling and active states */}
-        <Route path="/factures" element={<PlaceholderPage title="Factures" subtitle="Gérez vos factures et règlements clients." />} />
-        <Route path="/devis" element={<PlaceholderPage title="Devis" subtitle="Créez et envoyez vos propositions commerciales." />} />
+        {/* Factures, Devis, and Premium Pages */}
+        <Route path="/factures" element={<FacturesPage />} />
+        <Route path="/devis" element={<DevisPage />} />
         <Route path="/rapports" element={<RapportsPage />} />
-        <Route path="/comptabilite" element={<PlaceholderPage title="Comptabilité" subtitle="Suivi des écritures comptables et bilan." />} />
+        <Route path="/comptabilite" element={<ComptabilityPage />} />
         <Route path="/catalogue" element={<PlaceholderPage title="Catalogue" subtitle="Gérez vos produits, prestations et tarifs." />} />
-        <Route path="/premium" element={<PlaceholderPage title="Premium" subtitle="Découvrez les fonctionnalités ClimPro Pro." />} />
+        <Route path="/premium" element={<PremiumPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+
+        {/* Public Pages */}
+        <Route path="/sign/quote/:token" element={<SignatureQuote />} />
+        <Route path="/pay/invoice/:token" element={<PayInvoice />} />
+        <Route path="/contact/:slug" element={<PublicContact />} />
+
+        {/* Admin Page */}
+        <Route path="/admin" element={<SuperAdminPanel />} />
       </Routes>
     </>
   )

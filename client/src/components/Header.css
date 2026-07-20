@@ -220,3 +220,158 @@
         letter-spacing: -0.5px;
     }
 }
+
+/* Bell Dropdown Styles */
+.bell-dropdown-container {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 320px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    z-index: 3000;
+    overflow: hidden;
+    animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@media (max-width: 480px) {
+    .bell-dropdown-container {
+        width: 290px;
+        right: -50px;
+    }
+}
+
+.bell-tabs-header {
+    display: flex;
+    background-color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding: 3px;
+}
+
+.bell-tab-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+    background: none;
+    padding: 8px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.bell-tab-btn.active {
+    background-color: var(--card);
+    color: #556B2F;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.bell-tabs-content {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.notifications-list,
+.sms-notifications-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item,
+.sms-notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover,
+.sms-notification-item:hover {
+    background-color: var(--muted);
+}
+
+.notification-item:last-child,
+.sms-notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item .meta,
+.sms-notification-item .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-item .title,
+.sms-notification-item .sender {
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.notification-item .time,
+.sms-notification-item .date {
+    font-size: 0.7rem;
+    color: var(--muted-foreground);
+}
+
+.notification-item .text,
+.sms-notification-item .msg {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin: 0;
+    line-height: 1.35;
+}
+
+/* SMS quick reply elements */
+.sms-reply-trigger {
+    align-self: flex-start;
+    border: none;
+    background: none;
+    color: #556B2F;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 2px 0;
+    margin-top: 4px;
+}
+
+.sms-reply-form {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.sms-reply-form .reply-input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    outline: none;
+    font-family: var(--font-body);
+}
+
+.sms-reply-form .reply-send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #556B2F;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+}

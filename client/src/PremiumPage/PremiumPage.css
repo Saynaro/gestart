@@ -1,0 +1,210 @@
+/* Premium Page Stylesheet */
+
+.premium-page-wrapper {
+    min-height: 100vh;
+    background-color: var(--background);
+}
+
+.premium-header-row {
+    margin-bottom: 2rem;
+}
+
+.big-badge {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.premium-grid-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+    .premium-grid-layout {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.premium-left-column {
+    flex: 1.5;
+}
+
+.premium-right-column {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.sms-settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.sms-settings-form .option-select {
+    width: 100%;
+    height: 42px;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background-color: var(--card);
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.variable-hints {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+}
+
+.variable-hints code {
+    background-color: var(--muted);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    color: #556B2F;
+    font-size: 0.7rem;
+}
+
+.save-sms-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: #556B2F;
+    color: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(85, 107, 47, 0.12);
+    align-self: flex-start;
+}
+
+.save-sms-btn:hover {
+    opacity: 0.95;
+}
+
+/* Live Smartphone Simulator */
+.smartphone-simulator-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 2rem;
+}
+
+.smartphone-bezel {
+    position: relative;
+    width: 260px;
+    height: 520px;
+    background-color: #000;
+    border: 12px solid #1c1c1e;
+    border-radius: 36px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.smartphone-camera-notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 18px;
+    background-color: #1c1c1e;
+    border-radius: 0 0 12px 12px;
+    z-index: 10;
+}
+
+.smartphone-screen {
+    width: 100%;
+    height: 100%;
+    background-color: #f2f2f7;
+    display: flex;
+    flex-direction: column;
+    padding-top: 18px;
+}
+
+.sms-chat-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5ea;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sms-chat-header .sms-contact-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #000000;
+}
+
+.sms-chat-header .sms-contact-status {
+    font-size: 0.6rem;
+    color: var(--muted-foreground);
+}
+
+.sms-chat-body {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sms-bubble-received {
+    align-self: flex-start;
+    background-color: #e5e5ea;
+    border-radius: 16px 16px 16px 4px;
+    padding: 10px 12px;
+    max-width: 85%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.sms-bubble-received .sms-text {
+    font-size: 0.75rem;
+    color: #000000;
+    line-height: 1.35;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.sms-bubble-received .sms-time {
+    display: block;
+    text-align: right;
+    font-size: 0.6rem;
+    color: #8e8e93;
+    margin-top: 4px;
+}
+
+.simulator-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Animation utilities */
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

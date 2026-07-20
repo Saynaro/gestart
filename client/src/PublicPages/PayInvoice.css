@@ -1,0 +1,188 @@
+/* Public Pay Invoice Stylesheet */
+
+.public-payment-page {
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    display: flex;
+    flex-direction: column;
+}
+
+.public-pay-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.public-pay-card .card-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.public-pay-card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.invoice-recap-box {
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.invoice-recap-box .recap-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.invoice-recap-box .recap-row .lbl {
+    color: var(--muted-foreground);
+}
+
+.invoice-recap-box .recap-row.amount-total {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #556B2F;
+}
+
+.pay-now-action-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #556B2F;
+    color: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(85, 107, 47, 0.12);
+    text-align: center;
+}
+
+.stripe-secure-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+}
+
+/* Stripe Checkout specific bezel simulator */
+.stripe-checkout-bezel {
+    border: 1px solid #e3e8ee;
+    padding: 0;
+    overflow: hidden;
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+.stripe-header {
+    background-color: #635bff;
+    color: white;
+    padding: 12px 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stripe-logo {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.checkout-badge {
+    background-color: rgba(255, 255, 255, 0.15);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.stripe-form {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.stripe-form h3 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.card-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e3e8ee;
+    border-radius: 6px;
+    background-color: white;
+    overflow: hidden;
+}
+
+.card-field {
+    border: none;
+    outline: none;
+    font-size: 0.85rem;
+    padding: 10px;
+    width: 100%;
+}
+
+.card-input-wrapper .num {
+    border-bottom: 1px solid #e3e8ee;
+}
+
+.card-input-wrapper .card-row {
+    display: flex;
+}
+
+.card-input-wrapper .exp {
+    border-right: 1px solid #e3e8ee;
+}
+
+.stripe-submit-btn {
+    background-color: #635bff;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.stripe-submit-btn:hover {
+    background-color: #4f46e5;
+}
+
+.stripe-back-btn {
+    background: none;
+    border: none;
+    color: #635bff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+}
+.sub-txt {
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+}

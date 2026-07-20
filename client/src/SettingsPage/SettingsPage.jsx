@@ -602,6 +602,68 @@ function SettingsPage() {
                     </motion.div>
                 );
 
+            case "sms":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><MessageSquare size={18} /></span>
+                                    <h2 className="panel-title">SMS</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            {/* Credits Info */}
+                            <div className="mobile-abby-banner" style={{ margin: '0 0 20px 0', padding: '16px', border: '1px solid var(--border)' }}>
+                                <h3 className="mobile-abby-banner-title">Crédits SMS restants</h3>
+                                <p className="mobile-abby-banner-text" style={{ fontSize: '13px', margin: '8px 0' }}>
+                                    Vous consommez vos SMS automatiques pour les rappels de rendez-vous et relances.
+                                </p>
+                                <div className="double-progress-bar" style={{ height: '10px', borderRadius: '5px', margin: '12px 0 6px 0', backgroundColor: 'var(--muted)' }}>
+                                    <div className="fill completed" style={{ width: '94%', backgroundColor: '#556B2F', height: '100%', borderRadius: '5px' }}></div>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted-foreground)' }}>
+                                    <span>Solde: 142 SMS restants</span>
+                                    <span>Quota mensuel: 150 SMS</span>
+                                </div>
+                                <button className="save-profile-btn" style={{ padding: '6px 12px', fontSize: '12px', marginTop: '12px', display: 'inline-block' }} onClick={() => triggerToast("Achat bientôt disponible !")}>
+                                    Acheter des crédits
+                                </button>
+                            </div>
+
+                            {/* SMS custom sender identity */}
+                            <div className="profile-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                <div className="form-field">
+                                    <label className="form-label">Nom de l'expéditeur personnalisé (Sender ID)</label>
+                                    <input type="text" className="profile-input" maxLength="11" defaultValue="DupontClim" />
+                                    <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>Maximum 11 caractères alphanumériques. S'affiche sur le téléphone de vos clients.</span>
+                                </div>
+
+                                <div className="form-field" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                                    <input type="checkbox" defaultChecked id="sms-copy" style={{ width: '18px', height: '18px' }} />
+                                    <label htmlFor="sms-copy" style={{ fontSize: '13px', fontWeight: 500 }}>Recevoir une copie e-mail de chaque SMS envoyé</label>
+                                </div>
+
+                                <div className="form-field" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <input type="checkbox" defaultChecked id="sms-reply-email" style={{ width: '18px', height: '18px' }} />
+                                    <label htmlFor="sms-reply-email" style={{ fontSize: '13px', fontWeight: 500 }}>Transférer les réponses des clients sur mon adresse e-mail</label>
+                                </div>
+
+                                <button className="save-profile-btn" style={{ marginTop: '10px', alignSelf: 'flex-start' }} onClick={() => triggerToast("Paramètres SMS enregistrés !")}>
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+
             case "notifications":
                 return (
                     <motion.div

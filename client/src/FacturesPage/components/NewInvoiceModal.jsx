@@ -88,8 +88,12 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
     const [tempName, setTempName] = useState("");
     const [tempReference, setTempReference] = useState("");
     const [tempPrice, setTempPrice] = useState("");
+    const [tempQty, setTempQty] = useState(1);
     const [tempUrssafCategory, setTempUrssafCategory] = useState("Vente de marchandises (BIC)");
     const [tempUnit, setTempUnit] = useState("À l'unité");
+
+    // Drag to close tracking
+    const [dragStartY, setDragStartY] = useState(0);
 
     // Sub-drawers for selecting properties
     const [showUrssafSelector, setShowUrssafSelector] = useState(false);
@@ -153,6 +157,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
         setTempName(line.description || "");
         setTempReference(line.reference || "");
         setTempPrice(line.unitPrice !== undefined ? line.unitPrice.toString() : "0");
+        setTempQty(line.qty || 1);
         setTempUrssafCategory(line.urssafCategory || "Vente de marchandises (BIC)");
         setTempUnit(line.unit || "À l'unité");
         setShowUrssafSelector(false);
@@ -165,6 +170,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
         setTempName(initialName);
         setTempReference("");
         setTempPrice("");
+        setTempQty(1);
         setTempUrssafCategory("Vente de marchandises (BIC)");
         setTempUnit("À l'unité");
         setShowUrssafSelector(false);
@@ -181,6 +187,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
             ...line,
             description: tempName,
             reference: tempReference,
+            qty: tempQty,
             unitPrice: parseFloat(tempPrice) || 0,
             urssafCategory: tempUrssafCategory,
             unit: tempUnit
@@ -199,7 +206,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
             id: Date.now(),
             description: tempName,
             reference: tempReference,
-            qty: 1,
+            qty: tempQty,
             unitPrice: price,
             urssafCategory: tempUrssafCategory,
             unit: tempUnit
@@ -562,6 +569,11 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                         <div
                                             key={line.id}
                                             onClick={() => handleStartEditLine(line)}
+                                            onTouchEnd={(e) => {
+                                                if (e.target === e.currentTarget) {
+                                                    handleStartEditLine(line);
+                                                }
+                                            }}
                                             style={{
                                                 backgroundColor: 'var(--card)',
                                                 border: '1px solid var(--border)',
@@ -570,7 +582,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
                                                 alignItems: 'center',
-                                                cursor: 'pointer'
+                                                cursor: 'pointer',
+                                                touchAction: 'manipulation'
                                             }}
                                         >
                                             <div>
@@ -583,7 +596,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                                         value={line.qty}
                                                         onChange={(e) => handleLineChange(line.id, "qty", parseInt(e.target.value) || 1)}
                                                         onClick={(e) => e.stopPropagation()}
-                                                        style={{ width: '45px', textAlign: 'center', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '0.8rem', padding: '2px', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
+                                                        onTouchEnd={(e) => e.stopPropagation()}
+                                                        style={{ width: '45px', textAlign: 'center', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '0.9rem', padding: '2px', backgroundColor: 'var(--background)', color: 'var(--foreground)', cursor: 'text', pointerEvents: 'auto' }}
                                                         min="1"
                                                     />
                                                     <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
@@ -599,7 +613,11 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                                         e.stopPropagation();
                                                         handleRemoveLine(line.id);
                                                     }}
-                                                    style={{ border: 'none', background: 'none', color: '#EF4444', cursor: 'pointer' }}
+                                                    onTouchEnd={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRemoveLine(line.id);
+                                                    }}
+                                                    style={{ border: 'none', background: 'none', color: '#EF4444', cursor: 'pointer', pointerEvents: 'auto' }}
                                                 >
                                                     <Trash size={16} />
                                                 </button>
@@ -932,6 +950,246 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                     document.body
                 )}
 
+                {/* ARTICLE EDIT/CREATE DRAWER PORTAL - MOBILE */}
+                {(isEditingItem || isCreatingItem) && createPortal(
+                    <div className="article-drawer-overlay" onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                            setIsEditingItem(false);
+                            setIsCreatingItem(false);
+                        }
+                    }}>
+                        <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => setDragStartY(e.touches[0].clientY)}
+                            onTouchEnd={(e) => {
+                                const dragEndY = e.changedTouches[0].clientY;
+                                if (dragEndY - dragStartY > 100) {
+                                    setIsEditingItem(false);
+                                    setIsCreatingItem(false);
+                                }
+                            }}
+                        >
+                            <div className="bottom-sheet-drag-handle" onTouchStart={(e) => {
+                                e.stopPropagation();
+                                setDragStartY(e.touches[0].clientY);
+                            }} />
+
+                            <div className="article-drawer-header">
+                                <button
+                                    type="button"
+                                    className="drawer-round-btn"
+                                    onClick={() => {
+                                        setIsEditingItem(false);
+                                        setIsCreatingItem(false);
+                                    }}
+                                >
+                                    <X size={20} />
+                                </button>
+                                <h2>{isEditingItem ? "Modifier l'article" : "Créer un nouvel article"}</h2>
+                                <button type="button" className="drawer-round-btn" style={{ opacity: 0.7 }}>
+                                    <MoreHorizontal size={20} />
+                                </button>
+                            </div>
+
+                            <div className="article-drawer-body">
+                                {/* Nom et référence group */}
+                                <div>
+                                    <div className="article-drawer-group-title">Nom et référence</div>
+                                    <div className="article-drawer-group-card">
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Désignation*</label>
+                                            <input
+                                                type="text"
+                                                className="article-drawer-input"
+                                                placeholder="Ex: Main d'œuvre diagnostic"
+                                                value={tempName}
+                                                onChange={(e) => setTempName(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Référence</label>
+                                            <input
+                                                type="text"
+                                                className="article-drawer-input"
+                                                placeholder="Ex: REF-001"
+                                                value={tempReference}
+                                                onChange={(e) => setTempReference(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Prix et configuration group */}
+                                <div>
+                                    <div className="article-drawer-group-title">Tarification & Déclaration</div>
+                                    <div className="article-drawer-group-card">
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Prix unitaire HT (€)*</label>
+                                            <input
+                                                type="number"
+                                                className="article-drawer-input"
+                                                placeholder="Ex: 85"
+                                                value={tempPrice}
+                                                onChange={(e) => setTempPrice(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Type d'article (URSSAF)</label>
+                                            <div
+                                                className="article-drawer-trigger"
+                                                onClick={() => setShowUrssafSelector(true)}
+                                            >
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tempUrssafCategory}</span>
+                                                <ChevronRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                            </div>
+                                        </div>
+
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Unité de facturation</label>
+                                            <div
+                                                className="article-drawer-trigger"
+                                                onClick={() => setShowUnitSelector(true)}
+                                            >
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tempUnit}</span>
+                                                <span className="article-drawer-trigger-value">
+                                                    {tempUnit !== "Aucune" ? `/ ${tempUnit.replace("À l'", "").replace("À la ", "").replace("Au ", "").replace("À ", "")}` : ""}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {isEditingItem && (
+                                            <div className="article-drawer-field">
+                                                <label className="article-drawer-label">Quantité</label>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)', borderRadius: '8px', padding: '8px', border: '1px solid var(--border)' }}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setTempQty(Math.max(1, tempQty - 1))}
+                                                        style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: 'rgba(85, 107, 47, 0.1)', color: '#556B2F', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}
+                                                    >
+                                                        −
+                                                    </button>
+                                                    <input
+                                                        type="number"
+                                                        value={tempQty}
+                                                        onChange={(e) => {
+                                                            const val = parseInt(e.target.value) || 1;
+                                                            setTempQty(Math.max(1, val));
+                                                        }}
+                                                        style={{ flex: 1, textAlign: 'center', border: 'none', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--foreground)', fontWeight: 800, fontSize: '1rem', outline: 'none', padding: '8px' }}
+                                                        min="1"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setTempQty(tempQty + 1)}
+                                                        style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: '#556B2F', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="article-drawer-footer">
+                                <button
+                                    type="button"
+                                    className="drawer-primary-btn"
+                                    onClick={isEditingItem ? handleSaveEditedLine : handleSaveCreatedLine}
+                                >
+                                    {isEditingItem ? "Enregistrer les modifications" : "Confirmer et ajouter"}
+                                </button>
+                                {isEditingItem && (
+                                    <button
+                                        type="button"
+                                        className="drawer-danger-btn"
+                                        onClick={() => {
+                                            handleRemoveLine(editingLineId);
+                                            setIsEditingItem(false);
+                                        }}
+                                    >
+                                        Supprimer l'article
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* NESTED URSSAF SELECTOR */}
+                            {showUrssafSelector && (
+                                <div className="selector-subsheet">
+                                    <div className="article-drawer-header">
+                                        <button
+                                            type="button"
+                                            className="drawer-round-btn"
+                                            onClick={() => setShowUrssafSelector(false)}
+                                        >
+                                            <ArrowLeft size={20} />
+                                        </button>
+                                        <h2>Type d'article</h2>
+                                        <button
+                                            type="button"
+                                            className="drawer-round-btn"
+                                            style={{ opacity: 0 }}
+                                        />
+                                    </div>
+                                    <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+                                        {["Vente de marchandises (BIC)", "Prestation de service (BIC)", "Vente de services assimilée à une livraison (BIC)", "Achat de marchandises (BIC)"].map(cat => (
+                                            <div
+                                                key={cat}
+                                                onClick={() => {
+                                                    setTempUrssafCategory(cat);
+                                                    setShowUrssafSelector(false);
+                                                }}
+                                                style={{ padding: '16px', borderBottom: '1px solid var(--border)', cursor: 'pointer', backgroundColor: tempUrssafCategory === cat ? 'rgba(85, 107, 47, 0.1)' : 'transparent' }}
+                                            >
+                                                {cat}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* NESTED UNIT SELECTOR */}
+                            {showUnitSelector && (
+                                <div className="selector-subsheet">
+                                    <div className="article-drawer-header">
+                                        <button
+                                            type="button"
+                                            className="drawer-round-btn"
+                                            onClick={() => setShowUnitSelector(false)}
+                                        >
+                                            <ArrowLeft size={20} />
+                                        </button>
+                                        <h2>Unité de facturation</h2>
+                                        <button
+                                            type="button"
+                                            className="drawer-round-btn"
+                                            style={{ opacity: 0 }}
+                                        />
+                                    </div>
+                                    <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+                                        {["À l'unité", "À l'heure", "À la journée", "À la semaine", "À l'année", "Au gramme", "Au forfait", "Au caractère", "À la ligne", "Aucune"].map(unit => (
+                                            <div
+                                                key={unit}
+                                                onClick={() => {
+                                                    setTempUnit(unit);
+                                                    setShowUnitSelector(false);
+                                                }}
+                                                style={{ padding: '16px', borderBottom: '1px solid var(--border)', cursor: 'pointer', backgroundColor: tempUnit === unit ? 'rgba(85, 107, 47, 0.1)' : 'transparent' }}
+                                            >
+                                                {unit}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>,
+                    document.body
+                )}
+
                 {/* Full Screen Catalog search portal matching planning style */}
                 {showCatalogSearch && createPortal(
                     <div className="client-search-overlay-wrapper" onClick={(e) => { if (e.target === e.currentTarget) setShowCatalogSearch(false); }}>
@@ -1098,6 +1356,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                             type="button"
                                             className="client-search-add-btn secondary"
                                             onClick={() => {
+                                                setShowCatalogSearch(false);
                                                 handleStartCreateLine(catalogSearchQuery);
                                             }}
                                         >
@@ -1646,6 +1905,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                         type="button"
                                         className="client-search-add-btn secondary"
                                         onClick={() => {
+                                            setShowCatalogSearch(false);
                                             handleStartCreateLine(catalogSearchQuery);
                                         }}
                                     >
@@ -1667,8 +1927,20 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                         setIsCreatingItem(false);
                     }
                 }}>
-                    <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}>
-                        {isMobile && <div className="bottom-sheet-drag-handle" />}
+                    <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}
+                        onTouchStart={(e) => setDragStartY(e.touches[0].clientY)}
+                        onTouchEnd={(e) => {
+                            const dragEndY = e.changedTouches[0].clientY;
+                            if (dragEndY - dragStartY > 100) {
+                                setIsEditingItem(false);
+                                setIsCreatingItem(false);
+                            }
+                        }}
+                    >
+                        {isMobile && <div className="bottom-sheet-drag-handle" onTouchStart={(e) => {
+                            e.stopPropagation();
+                            setDragStartY(e.touches[0].clientY);
+                        }} />}
 
                         <div className="article-drawer-header">
                             <button

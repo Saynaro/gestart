@@ -6,6 +6,7 @@ import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
 import MobileEditBottomSheet from "../../ClientPage/components/MobileEditBottomSheet";
 import DesktopEditModal from "../../ClientPage/components/DesktopEditModal";
+import { LegalHelpTooltip } from "../../components/LegalHelpModal";
 
 const initialClientDetails = [
     { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
@@ -541,7 +542,10 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     {/* STEP 1: Client selection */}
                     {step === 1 && (
                         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-                            <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '12px' }}>Quel client facturer ?</h2>
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                                <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--foreground)', margin: 0 }}>Quel client facturer ?</h2>
+                                <LegalHelpTooltip lawArticle="art. L111-1 & L111-3 C.conso" title="Devis Obligatoire" text="Devis obligatoire pour les prestations de dépannage/rénovation aux particuliers au-dessus de 150 €. Obligation d'information précontractuelle sur le prix." />
+                            </div>
 
                             <div className="client-search-input-wrapper" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', marginBottom: '12px' }}>
                                 <Search size={18} className="client-search-icon" />

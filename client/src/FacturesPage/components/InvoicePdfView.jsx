@@ -185,7 +185,10 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                 <span>FR76 3000 6000 0123 4567 8901 234</span> · <span>BIC : PRSBFRPPXXX</span>
                             </div>
                             <div className="legal-notes">
-                                <strong>Conditions de paiement :</strong> {invoice.paymentConditions || "Paiement à réception"} (Échéance le {new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}). Tout retard de paiement entraînera l'application de pénalités de retard au taux légal en vigueur ainsi qu'une indemnité forfaitaire pour frais de recouvrement de 40 € (Art. L. 441-6 du Code de commerce).
+                                <strong>Conditions de paiement :</strong> {invoice.paymentConditions || "Paiement à réception"} (Échéance le {new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}).<br />
+                                <strong>Pénalités de retard :</strong> En cas de retard de paiement, application d'un taux d'intérêt égal au taux de la BCE majoré de 10 points de pourcentage (art. L. 441-10 C.com).<br />
+                                <strong>Indemnité forfaitaire pour frais de recouvrement :</strong> 40 € dus de plein droit par tout professionnel en cas de retard de paiement (art. D. 441-5 C.com). Aucun escompte pour paiement anticipé (art. L. 441-9 C.com).<br />
+                                {invoice.tvaRate === 0 && <span style={{ fontWeight: 700, color: '#556B2F' }}>TVA non applicable — art. 293 B du CGI.</span>}
                             </div>
                         </div>
                     </div>

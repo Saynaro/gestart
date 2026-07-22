@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
 import "./SettingsPage.css";
 
 // Import Lucide icons
@@ -218,6 +219,7 @@ function SettingsPage() {
                 { id: "profil", label: "Profil", icon: User, subtitle: "Vos informations personnelles" },
                 { id: "ma-societe", label: "Entreprise", icon: Building, subtitle: "Coordonnées et statut juridique" },
                 { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
+                { id: "rgpd-legal", label: "Légal & RGPD", icon: Lock, subtitle: "Exportation de données et droits" },
                 { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" },
                 { id: "utilisateurs", label: "Utilisateurs", icon: Users, subtitle: "Gérez les accès de vos collaborateurs" }
             ]
@@ -811,7 +813,10 @@ function SettingsPage() {
                             <>
                                 <div className="panel-title-row">
                                     <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Receipt size={18} /></span>
-                                    <h2 className="panel-title">TVA</h2>
+                                    <h2 className="panel-title" style={{ display: 'flex', alignItems: 'center' }}>
+                                        TVA
+                                        <LegalHelpTooltip lawArticle="art. 293 B & 278 CGI" title="Régime de TVA" text="Détermine le taux applicable sur vos documents. Cochez Franchise TVA si auto-entrepreneur non assujetti." />
+                                    </h2>
                                 </div>
                                 <div className="panel-divider"></div>
                             </>
@@ -835,6 +840,69 @@ function SettingsPage() {
                                         <option>5,5% (Taux réduit)</option>
                                         <option>2,1% (Taux particulier)</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+
+            case "rgpd-legal":
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {!isMobileView && (
+                            <>
+                                <div className="panel-title-row">
+                                    <span className="submenu-item-icon" style={{ color: "var(--sidebar-primary)" }}><Lock size={18} /></span>
+                                    <h2 className="panel-title">Droits RGPD & Protections</h2>
+                                </div>
+                                <div className="panel-divider"></div>
+                            </>
+                        )}
+                        <div style={{ padding: '20px' }}>
+                            <div className="mobile-abby-banner" style={{ margin: '0 0 20px 0', padding: '16px', border: '1px solid var(--border)' }}>
+                                <h3 className="mobile-abby-banner-title" style={{ display: 'flex', alignItems: 'center' }}>
+                                    Vos Droits Informatique & Libertés
+                                    <LegalHelpTooltip lawArticle="RGPD 2016/679" title="Conformité Européenne" text="Conformément au RGPD et à la loi Informatique et Libertés, vous disposez d'un droit d'accès, d'exportation et d'effacement de vos données." />
+                                </h3>
+                                <p className="mobile-abby-banner-text" style={{ fontSize: '13px', margin: '8px 0' }}>
+                                    Vous pouvez télécharger l'intégralité de vos données ou demander la suppression définitive de votre compte selon l'article 17 du RGPD.
+                                </p>
+                            </div>
+
+                            <div className="profile-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div style={{ border: '1px solid var(--border)', borderRadius: '10px', padding: '16px', backgroundColor: 'var(--card)' }}>
+                                    <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 700 }}>Exporter mes données (Art. 15-20 RGPD)</h4>
+                                    <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: 'var(--muted-foreground)' }}>Téléchargez une archive au format JSON contenant vos factures, devis, fiches clients et paramètres.</p>
+                                    <button
+                                        type="button"
+                                        className="save-profile-btn"
+                                        style={{ backgroundColor: '#556B2F' }}
+                                        onClick={() => triggerToast("Exportation RGPD démarrée ! Votre fichier JSON est en cours de téléchargement.")}
+                                    >
+                                        Exporter toutes mes données
+                                    </button>
+                                </div>
+
+                                <div style={{ border: '1px solid #FCA5A5', borderRadius: '10px', padding: '16px', backgroundColor: 'rgba(239, 68, 68, 0.04)' }}>
+                                    <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 700, color: '#DC2626' }}>Supprimer mon compte (Art. 17 RGPD - Droit à l'oubli)</h4>
+                                    <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: 'var(--muted-foreground)' }}>Cette action est irréversible. Toutes vos données d'entreprise seront définitivement supprimées.</p>
+                                    <button
+                                        type="button"
+                                        className="save-profile-btn"
+                                        style={{ backgroundColor: '#DC2626', color: 'white' }}
+                                        onClick={() => {
+                                            if (window.confirm("Êtes-vous sûr de vouloir demander la suppression définitive de votre compte et de toutes vos données conformément au RGPD ?")) {
+                                                triggerToast("Demande de suppression prise en compte.");
+                                            }
+                                        }}
+                                    >
+                                        Demander la suppression du compte
+                                    </button>
                                 </div>
                             </div>
                         </div>

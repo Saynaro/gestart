@@ -1,6 +1,8 @@
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import "./Footer.css";
+import LegalModal from "../../components/LegalHelpModal";
 
 const staggerContainer = {
     hidden: { opacity: 0 },
@@ -37,6 +39,14 @@ function Footer() {
     const brandName = "GestArt";
     const description = "Optimisez vos interventions, fidélisez vos clients et automatisez votre facturation en toute simplicité.";
     const email = "support@gestart.fr";
+    const [activeLegalModal, setActiveLegalModal] = useState(null);
+
+    const legalLinks = [
+        { label: "Mentions légales", id: "mentions" },
+        { label: "CGU / CGV", id: "cgu" },
+        { label: "Politique de confidentialité", id: "rgpd" },
+        { label: "Gestion des cookies", id: "cookies" }
+    ];
 
     const links = {
         col1: [
@@ -46,10 +56,6 @@ function Footer() {
         col2: [
             { label: "Tarifs", href: "#analytics" },
             { label: "Contact", href: `mailto:${email}` }
-        ],
-        col3: [
-            { label: "Mentions légales", href: "#" },
-            { label: "CGU / CGV", href: "#" }
         ]
     };
 
@@ -124,15 +130,20 @@ function Footer() {
                             </ul>
                         </motion.div>
 
-                        {/* Column 3 */}
+                        {/* Column 3: Legal Compliance */}
                         <motion.div variants={riseItem} className="links-col">
-                            <h4 className="links-col-title">Légal</h4>
+                            <h4 className="links-col-title">Légal & RGPD</h4>
                             <ul className="links-list">
-                                {links.col3.map((link, idx) => (
-                                    <li key={idx}>
-                                        <a href={link.href} className="footer-nav-link">
+                                {legalLinks.map((link) => (
+                                    <li key={link.id}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveLegalModal(link.id)}
+                                            className="footer-nav-link"
+                                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+                                        >
                                             {link.label}
-                                        </a>
+                                        </button>
                                     </li>
                                 ))}
                             </ul>
@@ -177,6 +188,13 @@ function Footer() {
                 </div>
 
             </div>
+
+            {activeLegalModal && (
+                <LegalModal
+                    type={activeLegalModal}
+                    onClose={() => setActiveLegalModal(null)}
+                />
+            )}
         </motion.footer>
     );
 }

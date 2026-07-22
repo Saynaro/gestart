@@ -1,4 +1,77 @@
-import React from "react";
+import React, { useState } from "react";
+import { HelpCircle, ShieldCheck } from "lucide-react";
+
+function PlafondTooltip({ title, text, details }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <span 
+            style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: '6px' }}
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}
+        >
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen(!isOpen);
+                }}
+                style={{
+                    border: 'none',
+                    background: 'none',
+                    color: '#64748B',
+                    borderRadius: '50%',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    padding: 0
+                }}
+                title="En savoir plus sur les plafonds"
+            >
+                <HelpCircle size={16} />
+            </button>
+
+            {isOpen && (
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                        position: 'absolute',
+                        bottom: '125%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '290px',
+                        backgroundColor: '#1E293B',
+                        color: '#F8FAFC',
+                        padding: '12px 14px',
+                        borderRadius: '10px',
+                        boxShadow: '0 12px 30px rgba(0,0,0,0.35)',
+                        zIndex: 99999,
+                        fontSize: '0.78rem',
+                        lineHeight: '1.45',
+                        textAlign: 'left'
+                    }}
+                >
+                    {title && <div style={{ fontWeight: 700, marginBottom: '4px', color: '#A3E635', fontSize: '0.82rem' }}>{title}</div>}
+                    <div style={{ color: '#CBD5E1', fontSize: '0.75rem', marginBottom: '6px' }}>{text}</div>
+                    
+                    {details && details.length > 0 && (
+                        <div style={{ borderTop: '1px solid #334155', paddingTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {details.map((d, i) => (
+                                <div key={i} style={{ color: '#E2E8F0', fontSize: '0.73rem' }}>
+                                    <strong style={{ color: d.color || '#A3E635' }}>• {d.label} : </strong>
+                                    <span>{d.val}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+        </span>
+    );
+}
 
 function PlafondsCard({
     commercialCurrent = 57,
@@ -6,7 +79,7 @@ function PlafondsCard({
     commercialTva = 85000,
     commercialTvaMax = 93500,
     servicesCurrent = 95,
-    servicesMax = 83600,
+    servicesMax = 77700,
     servicesTva = 37500,
     servicesTvaMax = 41250
 }) {
@@ -44,13 +117,15 @@ function PlafondsCard({
                 <div className="plafond-item-label-row">
                     <div className="plafond-item-title">
                         <span>Activités commerciales</span>
-                        <button className="stat-info-btn" title="Limite de chiffre d'affaires annuel pour les activités d'achat/revente de marchandises">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                            </svg>
-                        </button>
+                        <PlafondTooltip 
+                            title="Plafonds Vente de Marchandises (BIC)"
+                            text="Limites de chiffre d'affaires annuel pour l'activité d'achat/revente de marchandises."
+                            details={[
+                                { label: "Plafond Statut CA max", val: `${formatCurrency(commercialMax)} / an`, color: "#60A5FA" },
+                                { label: "Seuil Franchise TVA", val: `${formatCurrency(commercialTva)} / an (art. 293 B CGI)`, color: "#F59E0B" },
+                                { label: "Seuil Majoré TVA", val: `${formatCurrency(commercialTvaMax)} / an (assujettissement immédiat)`, color: "#EF4444" }
+                            ]}
+                        />
                     </div>
                 </div>
 
@@ -99,13 +174,15 @@ function PlafondsCard({
                 <div className="plafond-item-label-row">
                     <div className="plafond-item-title">
                         <span>Prestations de services</span>
-                        <button className="stat-info-btn" title="Limite de chiffre d'affaires annuel pour les activités de prestations de services artisanales ou commerciales">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                            </svg>
-                        </button>
+                        <PlafondTooltip 
+                            title="Plafonds Prestations de Services (Artisans/BNC)"
+                            text="Limites de chiffre d'affaires annuel pour les activités artisanales et prestations de services."
+                            details={[
+                                { label: "Plafond Statut CA max", val: `${formatCurrency(servicesMax)} / an`, color: "#60A5FA" },
+                                { label: "Seuil Franchise TVA", val: `${formatCurrency(servicesTva)} / an (art. 293 B CGI)`, color: "#F59E0B" },
+                                { label: "Seuil Majoré TVA", val: `${formatCurrency(servicesTvaMax)} / an (assujettissement immédiat)`, color: "#EF4444" }
+                            ]}
+                        />
                     </div>
                 </div>
 

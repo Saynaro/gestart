@@ -8,7 +8,7 @@
 
 html,
 body {
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
 }
 
 /* Safari overscroll rubber-band fix:
@@ -33,4 +33,16 @@ body {
     flex-direction: column;
     min-height: 100vh;
     width: 100%;
+}
+
+/* Hide navbar and lock scroll when a modal is open */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+body.modal-open .navbar {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }

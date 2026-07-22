@@ -387,16 +387,7 @@
    MOBILE NATIVE LAYOUT STYLES (NEW ACCORDION / GROUPED CONTACTS DESIGN)
    ========================================================================== */
 
-/* Lock viewport overscroll to keep navbar fixed */
-html,
-body {
-    overscroll-behavior-y: none !important;
-    overscroll-behavior-x: none !important;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    overflow-x: hidden !important;
-}
-
+/* Lock viewport overscroll for mobile contacts */
 .mobile-contacts-view {
     display: flex;
     flex-direction: column;

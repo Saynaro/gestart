@@ -193,7 +193,10 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                         {/* Footer details */}
                         <div className="pdf-footer-section">
                             <div className="legal-notes">
-                                <strong>Conditions de paiement :</strong> {quote.paymentConditions || "Paiement à 30 jours"} (Échéance le {new Date(quote.dueDate || quote.date).toLocaleDateString("fr-FR")}). Validité du devis : 30 jours à compter de la date d'émission. Les travaux débuteront après signature du devis accompagné d'un acompte de 30%.
+                                <strong>Conditions de paiement :</strong> {quote.paymentConditions || "Paiement à 30 jours"} (Échéance le {new Date(quote.dueDate || quote.date).toLocaleDateString("fr-FR")}).<br />
+                                <strong>Validité du devis :</strong> 30 jours à compter de la date d'émission (art. L. 221-5 et L. 111-1 C.conso). Devis gratuit avant exécution des travaux (art. L. 111-3 C.conso).<br />
+                                <strong>Conditions d'exécution :</strong> Les travaux débuteront après signature du devis accompagné d'un acompte de 30%.<br />
+                                {quote.tvaRate === 0 && <span style={{ fontWeight: 700, color: '#556B2F' }}>TVA non applicable — art. 293 B du CGI.</span>}
                             </div>
                         </div>
                     </div>

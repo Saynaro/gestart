@@ -49,7 +49,7 @@ function PlaceholderPage({ title, subtitle }) {
             <p className="content-subtitle">{subtitle || "Cette page est en cours de développement."}</p>
           </div>
           <div className="timeline-container" style={{ padding: '40px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
-            🚀 Fonctionnalité bientôt disponible !
+            Fonctionnalité bientôt disponible !
           </div>
         </motion.div>
       </div>

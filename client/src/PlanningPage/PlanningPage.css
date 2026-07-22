@@ -1242,8 +1242,7 @@
     .mobile-events-scroll-area {
         flex: 1;
         overflow-y: auto;
-        padding-bottom: 100px;
-        /* clear space for FAB + bottom nav */
+        padding-bottom: 24px;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none !important;
         -ms-overflow-style: none !important;
@@ -1789,4 +1788,97 @@
 .client-search-add-btn.secondary:hover {
     border-color: var(--sidebar-primary);
     background-color: rgba(95, 75, 219, 0.04);
+}
+
+/* ── Shared 2-Column Desktop layout (Detail + Edit panels with live preview) ── */
+.fp-detail-wide-container {
+    display: flex;
+    flex-direction: row;
+    width: min(1060px, 96vw);
+    max-height: min(90vh, 900px);
+    background: transparent;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+    z-index: 1101;
+    animation: fpScaleIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Left panel: the form/details */
+.fp-detail-left {
+    width: min(540px, 55%);
+    flex-shrink: 0;
+    max-height: min(90vh, 900px);
+    border-radius: 16px 0 0 16px;
+    border-right: 1px solid var(--border);
+    box-shadow: none;
+    animation: none;
+}
+
+/* Right panel: live invoice preview */
+.fp-detail-right {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    background-color: var(--background);
+    border-radius: 0 16px 16px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* On mobile: hide preview right panel, show only the form as bottom sheet */
+@media (max-width: 768px) {
+    .fp-detail-wide-container {
+        flex-direction: column;
+        width: 100%;
+        max-height: 90vh;
+        border-radius: 20px 20px 0 0;
+        animation: fpSlideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .fp-detail-left {
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        border-right: none;
+        max-height: 90vh;
+    }
+    .fp-detail-right {
+        display: none;
+    }
+}
+
+/* Responsive Desktop Modal styling for Article Drawer */
+@media (min-width: 769px) {
+    .article-drawer-overlay {
+        align-items: center;
+        justify-content: center;
+    }
+
+    .article-drawer-content {
+        width: 580px;
+        max-height: 82vh;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+        animation: articleModalScaleIn 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+        padding-bottom: 0;
+    }
+
+    .bottom-sheet-drag-handle {
+        display: none;
+    }
+
+    .selector-subsheet {
+        border-radius: 16px;
+    }
+}
+
+@keyframes articleModalScaleIn {
+    from {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }

@@ -9,7 +9,7 @@
     height: 100%;
     min-height: 100svh;
     background: var(--background);
-    padding-bottom: 90px; /* space for FAB */
+    padding-bottom: 24px;
     position: relative;
     overflow-x: hidden;
 }

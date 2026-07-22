@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Plus, Trash, X, ChevronDown, ChevronRight, MoreHorizontal, Search, Eye, FileText, Check, Edit2, ArrowLeft } from "lucide-react";
+import { Plus, Trash, X, ChevronDown, ChevronRight, MoreHorizontal, Search, Eye, FileText, Check, Edit2, ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
+import InterventionPickerModal from "../../components/InterventionPickerModal";
+import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
 
 function NewInvoiceModal({ onClose, onCreateInvoice }) {
     // Determine screen size dynamically
@@ -40,23 +42,19 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
         { id: "cat5", description: "Condenseur climatisation", unitPrice: 420 }
     ].sort((a, b) => a.description.localeCompare(b.description));
 
-    const savedInterventions = [
-        "Entretien annuel",
-        "Dépannage d'urgence",
-        "Mise en service climatisation",
-        "Installation pompe à chaleur",
-        "Contrôle d'étanchéité"
-    ];
-
     // Form states
     const [selectedClient, setSelectedClient] = useState(clientDetails[0]);
-    const [interventionInput, setInterventionInput] = useState("Entretien annuel");
-    const [showInterventionDropdown, setShowInterventionDropdown] = useState(false);
-
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split("T")[0]);
+    const [echeanceOptionId, setEcheanceOptionId] = useState("30j");
+    const [echeanceCustomDate, setEcheanceCustomDate] = useState("");
+    const [showEcheancePicker, setShowEcheancePicker] = useState(false);
+    const [hasDeliveryDate, setHasDeliveryDate] = useState(false);
+    const [deliveryDate, setDeliveryDate] = useState("");
     const [tvaRate, setTvaRate] = useState(20);
-    const [workDetails, setWorkDetails] = useState("");
     const [internalNotes, setInternalNotes] = useState("");
+
+    const calculatedDueDate = computeDueDate(invoiceDate, echeanceOptionId, echeanceCustomDate);
+    const echeanceLabel = getEcheanceLabel(echeanceOptionId, echeanceCustomDate);
 
     // Supplies rows
     const [lines, setLines] = useState([
@@ -94,6 +92,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
 
     // Drag to close tracking
     const [dragStartY, setDragStartY] = useState(0);
+    const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
     // Sub-drawers for selecting properties
     const [showUrssafSelector, setShowUrssafSelector] = useState(false);
@@ -105,8 +104,12 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
     const [newClientNameMobile, setNewClientNameMobile] = useState("");
     const [newClientEmailMobile, setNewClientEmailMobile] = useState("");
 
-    // Mobile preview overlay toggle
+    // Mobile preview overlay toggle and zoom
     const [showMobilePreview, setShowMobilePreview] = useState(false);
+    const [previewZoom, setPreviewZoom] = useState(0.65);
+    const zoomInPreview = () => setPreviewZoom(prev => Math.min(1.6, Math.round((prev + 0.1) * 100) / 100));
+    const zoomOutPreview = () => setPreviewZoom(prev => Math.max(0.35, Math.round((prev - 0.1) * 100) / 100));
+    const resetZoomPreview = () => setPreviewZoom(0.65);
 
     // Disable scrolling when mobile preview modal is active
     useEffect(() => {
@@ -246,12 +249,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
             alert("Veuillez sélectionner un client.");
             return;
         }
-        if (!interventionInput.trim()) {
-            alert("Veuillez renseigner le type d'intervention.");
-            return;
-        }
 
-        const validLines = lines.filter(l => l.description.trim() !== "");
+        const validLines = lines.filter(l => (l.description || "").trim() !== "");
         if (validLines.length === 0) {
             alert("Veuillez ajouter au moins une prestation ou fourniture.");
             return;
@@ -260,13 +259,16 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
         const newInvoice = {
             id: Date.now(),
             clientName: selectedClient.name,
-            clientEmail: selectedClient.email,
-            clientAddress: selectedClient.address,
-            interventionType: interventionInput,
+            clientEmail: selectedClient.email || "",
+            clientAddress: selectedClient.address || "",
             date: invoiceDate,
-            tvaRate: tvaRate,
-            workDetails: workDetails,
-            internalNotes: internalNotes,
+            dueDate: calculatedDueDate,
+            echeanceOptionId: echeanceOptionId,
+            echeanceCustomDate: echeanceCustomDate,
+            deliveryDate: hasDeliveryDate && deliveryDate ? deliveryDate : null,
+            paymentConditions: echeanceLabel,
+            tvaRate: tvaRate || 20,
+            internalNotes: internalNotes || "",
             lines: validLines.map(l => ({
                 description: l.description,
                 qty: parseInt(l.qty) || 1,
@@ -307,9 +309,19 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                     <td>INV-2026-TEMP</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Date :</strong></td>
+                                    <td><strong>Date d'émission :</strong></td>
                                     <td>{new Date(invoiceDate).toLocaleDateString("fr-FR")}</td>
                                 </tr>
+                                <tr>
+                                    <td><strong>Date d'exigibilité :</strong></td>
+                                    <td>{new Date(calculatedDueDate).toLocaleDateString("fr-FR")}</td>
+                                </tr>
+                                {hasDeliveryDate && deliveryDate && (
+                                    <tr>
+                                        <td><strong>Date de livraison :</strong></td>
+                                        <td>{new Date(deliveryDate).toLocaleDateString("fr-FR")}</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -324,15 +336,6 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                             {selectedClient ? selectedClient.email : ""}
                         </p>
                     </div>
-                </div>
-
-                <div className="pdf-intervention-info" style={{ padding: '6pt 8pt', marginBottom: '10pt', fontSize: '8.5pt' }}>
-                    <span>Intervention : <strong>{interventionInput || "Non spécifié"}</strong></span>
-                    {workDetails && (
-                        <p className="work-details" style={{ fontSize: '8pt', marginTop: '4pt', paddingTop: '4pt' }}>
-                            {workDetails}
-                        </p>
-                    )}
                 </div>
 
                 <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
@@ -375,7 +378,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                     </table>
                 </div>
 
-                <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt' }}>
+                <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: '12pt', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
+                    <div><strong>Conditions de paiement :</strong> Paiement {echeanceLabel} (Échéance le {new Date(calculatedDueDate).toLocaleDateString("fr-FR")})</div>
                     <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>
                 </div>
             </div>
@@ -384,7 +388,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
 
     // ── MOBILE WIZARD INTERFACE ────────────────────────────────────────
     if (isMobile) {
-        return (
+        return createPortal(
             <div className="mobile-preview-full-overlay" style={{ backgroundColor: 'var(--background)' }}>
 
                 {/* Progress Header matching screenshot layout */}
@@ -706,48 +710,73 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                         type="date"
                                         value={invoiceDate}
                                         onChange={(e) => setInvoiceDate(e.target.value)}
-                                        style={{ borderRadius: '12px', borderColor: 'var(--border)', border: '1px solid var(--border)', width: '95%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent', marginLeft: 'auto' }}
+                                        style={{ borderRadius: '12px', borderColor: 'var(--border)', border: '1px solid var(--border)', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent', boxSizing: 'border-box' }}
                                     />
                                 </div>
 
-                                {/* Due date / TVA Rate row */}
-                                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Taux TVA*</label>
-                                    <select
-                                        value={tvaRate}
-                                        onChange={(e) => setTvaRate(parseFloat(e.target.value))}
-                                        style={{ borderRadius: '12px', border: 'none', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent' }}
+                                {/* Mandatory Date d'échéance picker trigger */}
+                                <div
+                                    onClick={() => setShowEcheancePicker(true)}
+                                    style={{ backgroundColor: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: '12px', padding: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                >
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Date d'échéance*</label>
+                                        <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                            {echeanceLabel} ({new Date(calculatedDueDate).toLocaleDateString('fr-FR')})
+                                        </span>
+                                    </div>
+                                    <ChevronRight size={20} style={{ color: 'var(--muted-foreground)' }} />
+                                </div>
+
+                                {/* Optional Date de livraison */}
+                                {!hasDeliveryDate ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setHasDeliveryDate(true);
+                                            setDeliveryDate(invoiceDate);
+                                        }}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            padding: '14px',
+                                            borderRadius: '12px',
+                                            border: '1.5px dashed #556B2F',
+                                            backgroundColor: 'rgba(85, 107, 47, 0.05)',
+                                            color: '#556B2F',
+                                            fontWeight: 700,
+                                            fontSize: '0.875rem',
+                                            cursor: 'pointer',
+                                            width: '100%'
+                                        }}
                                     >
-                                        <option value={0}>0% (Exonéré)</option>
-                                        <option value={5.5}>5.5% (Prestations réduites)</option>
-                                        <option value={10}>10% (Taux intermédiaire)</option>
-                                        <option value={20}>20% (Taux normal)</option>
-                                    </select>
-                                </div>
-
-                                {/* Intervention input block */}
-                                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Type d'intervention*</label>
-                                    <input
-                                        type="text"
-                                        value={interventionInput}
-                                        onChange={(e) => setInterventionInput(e.target.value)}
-                                        placeholder="Ex: Entretien annuel"
-                                        style={{ borderRadius: '12px', border: 'none', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent' }}
-                                    />
-                                </div>
-
-                                {/* Description of works */}
-                                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Description des travaux</label>
-                                    <textarea
-                                        rows="3"
-                                        value={workDetails}
-                                        onChange={(e) => setWorkDetails(e.target.value)}
-                                        placeholder="Détails de l'intervention..."
-                                        style={{ borderRadius: '12px', border: 'none', width: '100%', fontSize: '0.85rem', color: 'var(--foreground)', padding: '8px', outline: 'none', resize: 'none', backgroundColor: 'transparent' }}
-                                    />
-                                </div>
+                                        <Plus size={16} /> Ajouter une date de livraison
+                                    </button>
+                                ) : (
+                                    <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Date de livraison</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setHasDeliveryDate(false);
+                                                    setDeliveryDate("");
+                                                }}
+                                                style={{ border: 'none', background: 'none', color: 'var(--destructive)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 600 }}
+                                            >
+                                                <Trash size={14} /> Supprimer
+                                            </button>
+                                        </div>
+                                        <input
+                                            type="date"
+                                            value={deliveryDate}
+                                            onChange={(e) => setDeliveryDate(e.target.value)}
+                                            style={{ borderRadius: '12px', borderColor: 'var(--border)', border: '1px solid var(--border)', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent', boxSizing: 'border-box' }}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Footer continue button */}
@@ -773,7 +802,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                         </div>
                     )}
 
-                    {/* STEP 4: Final recap sheet matching screenshot style */}
+                    {/* STEP 4: Final recap sheet */}
                     {step === 4 && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
                             <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--foreground)' }}>Récapitulatif</h2>
@@ -781,21 +810,24 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 {/* Client summary card */}
                                 <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
-                                    <span style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Client</span>
-                                    <h4 style={{ fontWeight: 800, fontSize: '1rem', marginTop: '4px', color: 'var(--foreground)' }}>{selectedClient.name}</h4>
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginTop: '2px' }}>{selectedClient.email}</p>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Client</span>
+                                    <h4 style={{ fontWeight: 800, fontSize: '0.95rem', marginTop: '4px', color: 'var(--foreground)' }}>{selectedClient?.name || "Client non défini"}</h4>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '2px' }}>{selectedClient?.email || ""}</p>
                                     <button type="button" onClick={() => setStep(1)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'none', color: '#556B2F', cursor: 'pointer' }}>
                                         <Edit2 size={16} />
                                     </button>
                                 </div>
 
-                                {/* Date / Intervention summary card */}
+                                {/* Date / Échéance summary card */}
                                 <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
-                                    <span style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Date & Intervention</span>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Dates & Échéance</span>
                                     <div style={{ marginTop: '6px', color: 'var(--foreground)' }}>
-                                        <span style={{ fontSize: '0.9rem', display: 'block' }}>Date d'émission : <strong>{new Date(invoiceDate).toLocaleDateString("fr-FR")}</strong></span>
-                                        <span style={{ fontSize: '0.9rem', display: 'block', marginTop: '2px' }}>Type : <strong>{interventionInput}</strong></span>
-                                        <span style={{ fontSize: '0.9rem', display: 'block', marginTop: '2px' }}>TVA: <strong>{tvaRate}%</strong></span>
+                                        <span style={{ fontSize: '0.85rem', display: 'block' }}>Date d'émission : <strong>{invoiceDate ? new Date(invoiceDate).toLocaleDateString("fr-FR") : "—"}</strong></span>
+                                        <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>Date d'exigibilité : <strong>{new Date(calculatedDueDate).toLocaleDateString("fr-FR")}</strong></span>
+                                        {hasDeliveryDate && deliveryDate && (
+                                            <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>Date de livraison : <strong>{new Date(deliveryDate).toLocaleDateString("fr-FR")}</strong></span>
+                                        )}
+                                        <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>Conditions : <strong>{echeanceLabel}</strong></span>
                                     </div>
                                     <button type="button" onClick={() => setStep(3)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'none', color: '#556B2F', cursor: 'pointer' }}>
                                         <Edit2 size={16} />
@@ -804,10 +836,10 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
 
                                 {/* Items summary card */}
                                 <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
-                                    <span style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Articles</span>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Articles</span>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px', color: 'var(--foreground)' }}>
-                                        {lines.filter(l => l.description.trim() !== "").map(line => (
-                                            <div key={line.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                        {lines.filter(l => (l.description || "").trim() !== "").map(line => (
+                                            <div key={line.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                                                 <span style={{ flex: 1 }}>{line.description} (x{line.qty})</span>
                                                 <span style={{ fontWeight: 700 }}>{(line.qty * line.unitPrice).toLocaleString("fr-FR")} € HT</span>
                                             </div>
@@ -825,7 +857,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                         <span>{subtotalHt.toLocaleString("fr-FR")} €</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-                                        <span>TVA ({tvaRate}%) :</span>
+                                        <span>TVA ({tvaRate || 20}%) :</span>
                                         <span>{tvaAmount.toLocaleString("fr-FR")} €</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 800, marginTop: '8px', color: 'var(--foreground)', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
@@ -865,10 +897,25 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                     <div className="mobile-preview-full-overlay">
                         <div className="mobile-preview-header">
                             <h3>Aperçu Facture</h3>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'var(--muted)', padding: '2px 8px', borderRadius: '8px' }}>
+                                <button type="button" className="top-btn" onClick={zoomOutPreview} title="Уменьшить" style={{ padding: '4px 6px', border: 'none', background: 'none', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                    <ZoomOut size={16} />
+                                </button>
+                                <button type="button" className="top-btn" onClick={resetZoomPreview} style={{ fontSize: '0.8rem', fontWeight: 800, minWidth: '42px', textAlign: 'center', padding: '4px 2px', border: 'none', background: 'none', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                    {Math.round(previewZoom * 100)}%
+                                </button>
+                                <button type="button" className="top-btn" onClick={zoomInPreview} title="Приблизить" style={{ padding: '4px 6px', border: 'none', background: 'none', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                    <ZoomIn size={16} />
+                                </button>
+                            </div>
+
                             <button className="top-btn close-x" onClick={() => setShowMobilePreview(false)}><X size={20} /></button>
                         </div>
                         <div className="mobile-preview-body">
-                            {renderInvoiceLivePreviewSheet()}
+                            <div style={{ zoom: previewZoom, transform: `scale(${previewZoom})`, transformOrigin: 'top center', transition: 'transform 0.15s ease-out, zoom 0.15s ease-out' }}>
+                                {renderInvoiceLivePreviewSheet()}
+                            </div>
                         </div>
                         <div className="mobile-preview-actions">
                             <button className="cancel-btn" onClick={() => setShowMobilePreview(false)}>Fermer</button>
@@ -959,19 +1006,23 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                         }
                     }}>
                         <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}
-                            onTouchStart={(e) => setDragStartY(e.touches[0].clientY)}
                             onTouchEnd={(e) => {
+                                if (!isDraggingHandle) return;
                                 const dragEndY = e.changedTouches[0].clientY;
-                                if (dragEndY - dragStartY > 100) {
+                                if (dragEndY - dragStartY > 80) {
                                     setIsEditingItem(false);
                                     setIsCreatingItem(false);
                                 }
+                                setIsDraggingHandle(false);
                             }}
                         >
-                            <div className="bottom-sheet-drag-handle" onTouchStart={(e) => {
-                                e.stopPropagation();
-                                setDragStartY(e.touches[0].clientY);
-                            }} />
+                            <div
+                                className="bottom-sheet-drag-handle"
+                                onTouchStart={(e) => {
+                                    setDragStartY(e.touches[0].clientY);
+                                    setIsDraggingHandle(true);
+                                }}
+                            />
 
                             <div className="article-drawer-header">
                                 <button
@@ -1059,7 +1110,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                             </div>
                                         </div>
 
-                                        {isEditingItem && (
+                                        {(isEditingItem || isCreatingItem) && (
                                             <div className="article-drawer-field">
                                                 <label className="article-drawer-label">Quantité</label>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)', borderRadius: '8px', padding: '8px', border: '1px solid var(--border)' }}>
@@ -1134,19 +1185,36 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                             style={{ opacity: 0 }}
                                         />
                                     </div>
-                                    <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-                                        {["Vente de marchandises (BIC)", "Prestation de service (BIC)", "Vente de services assimilée à une livraison (BIC)", "Achat de marchandises (BIC)"].map(cat => (
-                                            <div
-                                                key={cat}
-                                                onClick={() => {
-                                                    setTempUrssafCategory(cat);
-                                                    setShowUrssafSelector(false);
-                                                }}
-                                                style={{ padding: '16px', borderBottom: '1px solid var(--border)', cursor: 'pointer', backgroundColor: tempUrssafCategory === cat ? 'rgba(85, 107, 47, 0.1)' : 'transparent' }}
-                                            >
-                                                {cat}
-                                            </div>
-                                        ))}
+                                    <div style={{ padding: '14px 20px 0', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                                        Détermine la catégorie de votre déclaration URSSAF.
+                                    </div>
+                                    <div className="selector-options-list">
+                                        {[
+                                            "Vente de marchandises (BIC)",
+                                            "Prestations de services (BNC)",
+                                            "Prestations de services artisanales ou commerciales (BIC)",
+                                            "Vente de produits fabriqués (BIC)",
+                                            "Débours"
+                                        ].map((cat) => {
+                                            const isSelected = tempUrssafCategory === cat;
+                                            return (
+                                                <div
+                                                    key={cat}
+                                                    className={`selector-option-card ${isSelected ? 'selected' : ''}`}
+                                                    onClick={() => {
+                                                        setTempUrssafCategory(cat);
+                                                        setShowUrssafSelector(false);
+                                                    }}
+                                                >
+                                                    <div className="option-details">
+                                                        <span className="option-title">{cat}</span>
+                                                    </div>
+                                                    <div className="option-radio">
+                                                        <div className="option-radio-inner" />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -1169,19 +1237,38 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                             style={{ opacity: 0 }}
                                         />
                                     </div>
-                                    <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-                                        {["À l'unité", "À l'heure", "À la journée", "À la semaine", "À l'année", "Au gramme", "Au forfait", "Au caractère", "À la ligne", "Aucune"].map(unit => (
-                                            <div
-                                                key={unit}
-                                                onClick={() => {
-                                                    setTempUnit(unit);
-                                                    setShowUnitSelector(false);
-                                                }}
-                                                style={{ padding: '16px', borderBottom: '1px solid var(--border)', cursor: 'pointer', backgroundColor: tempUnit === unit ? 'rgba(85, 107, 47, 0.1)' : 'transparent' }}
-                                            >
-                                                {unit}
-                                            </div>
-                                        ))}
+                                    <div className="selector-options-list">
+                                        {[
+                                            "À l'unité",
+                                            "À l'heure",
+                                            "À la journée",
+                                            "À la semaine",
+                                            "À l'année",
+                                            "Au gramme",
+                                            "Au forfait",
+                                            "Au caractère",
+                                            "À la ligne",
+                                            "Aucune"
+                                        ].map((unit) => {
+                                            const isSelected = tempUnit === unit;
+                                            return (
+                                                <div
+                                                    key={unit}
+                                                    className={`selector-option-card ${isSelected ? 'selected' : ''}`}
+                                                    onClick={() => {
+                                                        setTempUnit(unit);
+                                                        setShowUnitSelector(false);
+                                                    }}
+                                                >
+                                                    <div className="option-details">
+                                                        <span className="option-title">{unit}</span>
+                                                    </div>
+                                                    <div className="option-radio">
+                                                        <div className="option-radio-inner" />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -1297,10 +1384,16 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                                             <div
                                                                 key={item.id}
                                                                 className={`client-search-item ${isSelected ? 'selected' : ''}`}
-                                                                onClick={() => setPendingCatalogItem(item)}
+                                                                onClick={() => {
+                                                                    // Directly add item to lines and close
+                                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: "", urssafCategory: "Vente de marchandises (BIC)", unit: "À l'unité" }]);
+                                                                    setShowCatalogSearch(false);
+                                                                    setCatalogSearchQuery("");
+                                                                    setPendingCatalogItem(null);
+                                                                }}
                                                             >
                                                                 <span className="client-item-name">{item.description}</span>
-                                                                <span className="client-item-badge organisation" style={{ fontSize: '0.8rem', padding: '2px 8px' }}>
+                                                                <span className="catalog-price-badge">
                                                                     {item.unitPrice} € HT
                                                                 </span>
                                                             </div>
@@ -1320,44 +1413,15 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                     </div>
 
                                     <div className="client-search-footer" style={{ gap: '8px' }}>
-                                        {pendingCatalogItem ? (
-                                            <button
-                                                type="button"
-                                                className="client-search-confirm-btn"
-                                                onClick={() => {
-                                                    // Append item directly to active lines state list
-                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: pendingCatalogItem.description, qty: 1, unitPrice: pendingCatalogItem.unitPrice }]);
-                                                    setShowCatalogSearch(false);
-                                                    setCatalogSearchQuery("");
-                                                    setPendingCatalogItem(null);
-                                                }}
-                                            >
-                                                Sélectionner — {pendingCatalogItem.description}
-                                            </button>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                className="client-search-confirm-btn"
-                                                onClick={() => {
-                                                    const customDesc = catalogSearchQuery.trim();
-                                                    if (customDesc) {
-                                                        setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: customDesc, qty: 1, unitPrice: 0 }]);
-                                                        setShowCatalogSearch(false);
-                                                        setCatalogSearchQuery("");
-                                                    }
-                                                }}
-                                                disabled={!catalogSearchQuery.trim()}
-                                                style={{ opacity: catalogSearchQuery.trim() ? 1 : 0.6 }}
-                                            >
-                                                Sélectionner le texte saisi
-                                            </button>
-                                        )}
                                         <button
                                             type="button"
                                             className="client-search-add-btn secondary"
                                             onClick={() => {
                                                 setShowCatalogSearch(false);
-                                                handleStartCreateLine(catalogSearchQuery);
+                                                setCatalogSearchQuery("");
+                                                setPendingCatalogItem(null);
+                                                // small delay so catalog closes first, then drawer opens
+                                                setTimeout(() => handleStartCreateLine(""), 50);
                                             }}
                                         >
                                             + Créer un article
@@ -1365,13 +1429,27 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                     </div>
                                 </>
                             )}
+
                         </div>
                     </div>,
                     document.body
                 )}
 
+                {/* Echeance picker overlay - Mobile */}
+                {showEcheancePicker && (
+                    <EcheancePickerModal
+                        selectedOptionId={echeanceOptionId}
+                        customDate={echeanceCustomDate}
+                        onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
+                            setEcheanceOptionId(optId);
+                            setEcheanceCustomDate(custStr);
+                        }}
+                        onClose={() => setShowEcheancePicker(false)}
+                    />
+                )}
+
             </div>
-        );
+        , document.body);
     }
 
     // ── DESKTOP SPLIT VIEW INTERFACE ──────────────────────────────────
@@ -1412,47 +1490,6 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                 </div>
                             </div>
 
-                            {/* Intervention */}
-                            <div className="form-field form-field-bordered combobox-field">
-                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>TYPE D'INTERVENTION*</label>
-                                <input
-                                    type="text"
-                                    className="profile-input borderless-large-input"
-                                    placeholder="Type d'intervention..."
-                                    value={interventionInput}
-                                    onChange={(e) => {
-                                        setInterventionInput(e.target.value);
-                                        setShowInterventionDropdown(true);
-                                    }}
-                                    onFocus={() => setShowInterventionDropdown(true)}
-                                    style={{
-                                        border: 'none',
-                                        borderRadius: '20px',
-                                        padding: '8px',
-                                        fontSize: '1.2rem',
-                                        fontWeight: '500',
-                                        height: 'auto',
-                                        background: 'transparent'
-                                    }}
-                                />
-                                {showInterventionDropdown && (
-                                    <div className="combobox-dropdown">
-                                        {savedInterventions.filter(i => i.toLowerCase().includes(interventionInput.toLowerCase())).map(i => (
-                                            <div
-                                                key={i}
-                                                className="combobox-item"
-                                                onClick={() => {
-                                                    setInterventionInput(i);
-                                                    setShowInterventionDropdown(false);
-                                                }}
-                                            >
-                                                {i}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
                             {/* Date */}
                             <div className="form-field form-field-bordered">
                                 <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>DATE DE FACTURE*</label>
@@ -1477,35 +1514,70 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                 </div>
                             </div>
 
-                            {/* TVA */}
-                            <div className="form-field" style={{ marginBottom: '1.5rem' }}>
-                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '8px' }}>TAUX TVA</label>
-                                <div className="tva-radio-group">
-                                    {[0, 5.5, 10, 20].map((rate) => (
-                                        <label key={rate} className={`tva-radio-label ${tvaRate === rate ? "selected" : ""}`}>
-                                            <input
-                                                type="radio"
-                                                name="tva_rate"
-                                                value={rate}
-                                                checked={tvaRate === rate}
-                                                onChange={() => setTvaRate(rate)}
-                                            />
-                                            <span>{rate}%</span>
-                                        </label>
-                                    ))}
+                            {/* Mandatory Date d'échéance */}
+                            <div className="form-field form-field-bordered">
+                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>DATE D'ÉCHÉANCE*</label>
+                                <div
+                                    className="modal-select-trigger"
+                                    onClick={() => setShowEcheancePicker(true)}
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
+                                        padding: '12px 14px',
+                                        background: 'none'
+                                    }}
+                                >
+                                    <span style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--foreground)' }}>
+                                        {echeanceLabel} ({new Date(calculatedDueDate).toLocaleDateString('fr-FR')})
+                                    </span>
+                                    <ChevronDown size={20} style={{ color: 'var(--muted-foreground)' }} />
                                 </div>
                             </div>
 
-                            {/* Works description */}
-                            <div className="form-field" style={{ marginBottom: '1.5rem' }}>
-                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '8px' }}>DESCRIPTION DES TRAVAUX EFFECTUÉS</label>
-                                <textarea
-                                    className="profile-input textarea-field"
-                                    rows="3"
-                                    value={workDetails}
-                                    onChange={(e) => setWorkDetails(e.target.value)}
-                                    placeholder="Indiquez les détails de l'intervention..."
-                                />
+                            {/* Optional Date de livraison */}
+                            <div className="form-field form-field-bordered" style={{ marginBottom: '1.5rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>DATE DE LIVRAISON (OPTIONNEL)</label>
+                                    {!hasDeliveryDate ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => { setHasDeliveryDate(true); setDeliveryDate(invoiceDate); }}
+                                            style={{ border: 'none', background: 'none', color: '#556B2F', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Plus size={14} /> Ajouter
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => { setHasDeliveryDate(false); setDeliveryDate(""); }}
+                                            style={{ border: 'none', background: 'none', color: 'var(--destructive)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Trash size={14} /> Supprimer
+                                        </button>
+                                    )}
+                                </div>
+                                {hasDeliveryDate && (
+                                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginTop: '6px' }}>
+                                        <input
+                                            type="date"
+                                            className="profile-input borderless-large-input"
+                                            value={deliveryDate}
+                                            onChange={(e) => setDeliveryDate(e.target.value)}
+                                            style={{
+                                                border: 'none',
+                                                borderRadius: 0,
+                                                padding: '8px 0',
+                                                fontSize: '1.1rem',
+                                                fontWeight: '500',
+                                                height: 'auto',
+                                                background: 'transparent',
+                                                width: '100%'
+                                            }}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Supplies grid spreadsheet */}
@@ -2027,6 +2099,36 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                             </span>
                                         </div>
                                     </div>
+
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Quantité</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)', borderRadius: '8px', padding: '8px', border: '1px solid var(--border)' }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setTempQty(Math.max(1, tempQty - 1))}
+                                                style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: 'rgba(85, 107, 47, 0.1)', color: '#556B2F', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}
+                                            >
+                                                −
+                                            </button>
+                                            <input
+                                                type="number"
+                                                value={tempQty}
+                                                onChange={(e) => {
+                                                    const val = parseInt(e.target.value) || 1;
+                                                    setTempQty(Math.max(1, val));
+                                                }}
+                                                style={{ flex: 1, textAlign: 'center', border: 'none', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--foreground)', fontWeight: 800, fontSize: '1rem', outline: 'none', padding: '8px' }}
+                                                min="1"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setTempQty(tempQty + 1)}
+                                                style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: '#556B2F', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2220,7 +2322,17 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                 </div>,
                 document.body
             )}
-
+            {showEcheancePicker && (
+                <EcheancePickerModal
+                    selectedOptionId={echeanceOptionId}
+                    customDate={echeanceCustomDate}
+                    onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
+                        setEcheanceOptionId(optId);
+                        setEcheanceCustomDate(custStr);
+                    }}
+                    onClose={() => setShowEcheancePicker(false)}
+                />
+            )}
         </div>
     );
 }

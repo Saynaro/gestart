@@ -506,7 +506,7 @@
     flex-direction: column;
     min-height: 100vh;
     background-color: #f8fafc; /* Slate 50 */
-    padding-bottom: 90px; /* Space for tab bar */
+    padding-bottom: 24px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 

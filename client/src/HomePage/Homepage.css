@@ -1860,7 +1860,7 @@
         height: calc(100dvh - 64px) !important;
         overflow-y: auto !important;
         width: 100% !important;
-        padding-bottom: 96px !important;
+        padding-bottom: 24px !important;
         /* comfortable padding at bottom above tab bar */
     }
 

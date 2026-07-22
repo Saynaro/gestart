@@ -1,47 +1,57 @@
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import "./FacturesPage.css";
+import "../PlanningPage/PlanningPage.css";
 
-// Layout components
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 
-// Modular components
-import InvoiceStats from "./components/InvoiceStats";
-import InvoiceTable from "./components/InvoiceTable";
-import NewInvoiceModal from "./components/NewInvoiceModal";
-import SendOptionsModal from "./components/SendOptionsModal";
+import InvoiceList from "./components/InvoiceList";
+import InvoiceDetailDrawer from "./components/InvoiceDetailDrawer";
+import InvoiceSendDrawer from "./components/InvoiceSendDrawer";
+import InvoiceEditPanel from "./components/InvoiceEditPanel";
 import InvoicePdfView from "./components/InvoicePdfView";
+import NewInvoiceModal from "./components/NewInvoiceModal";
+
+const FILTERS = [
+    { key: "all",      label: "Toutes" },
+    { key: "draft",    label: "Brouillon" },
+    { key: "pending",  label: "En attente" },
+    { key: "paid",     label: "Payée" },
+    { key: "overdue",  label: "En retard" },
+];
 
 function FacturesPage() {
     const [invoices, setInvoices] = useState([
         {
             id: 1,
-            number: "INV-2026-001",
+            number: "F-2026-0001",
             clientName: "Jean Dupont",
             clientEmail: "jean.dupont@email.com",
             clientAddress: "12 Rue des Fleurs, 75001 Paris",
             interventionType: "Entretien annuel",
             workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
             date: "2026-07-02",
+            dueDate: "2026-08-01",
+            paymentDelay: 30,
             tvaRate: 20,
             subtotalHt: 100,
             tvaAmount: 20,
             totalTtc: 120,
             status: "paid",
-            lines: [
-                { description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }
-            ]
+            lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
         },
         {
             id: 2,
-            number: "INV-2026-002",
+            number: "F-2026-0002",
             clientName: "Marie Martin",
             clientEmail: "marie.martin@email.com",
             clientAddress: "45 Avenue Foch, 69006 Lyon",
             interventionType: "Dépannage d'urgence",
             workDetails: "Recherche de fuite de fluide frigorigène et réparation sur climatisation.",
             date: "2026-07-10",
+            dueDate: "2026-08-09",
+            paymentDelay: 30,
             tvaRate: 10,
             subtotalHt: 218.18,
             tvaAmount: 21.82,
@@ -54,13 +64,15 @@ function FacturesPage() {
         },
         {
             id: 3,
-            number: "INV-2026-003",
+            number: "F-2026-0003",
             clientName: "Garage Central",
             clientEmail: "contact@garagecentral.com",
             clientAddress: "8 Boulevard de l'Industrie, 44000 Nantes",
             interventionType: "Installation pompe à chaleur",
             workDetails: "Installation complète d'une pompe à chaleur air-eau Mitsubishi.",
             date: "2026-06-15",
+            dueDate: "2026-07-15",
+            paymentDelay: 30,
             tvaRate: 5.5,
             subtotalHt: 3981.04,
             tvaAmount: 218.96,
@@ -73,64 +85,110 @@ function FacturesPage() {
         },
         {
             id: 4,
-            number: "INV-2026-004",
+            number: "F-2026-0004",
             clientName: "Marc Leroy",
             clientEmail: "marc.leroy@outlook.fr",
             clientAddress: "109 Rue Saint-Dizier, 54000 Nancy",
             interventionType: "Contrôle d'étanchéité",
             workDetails: "Contrôle réglementaire périodique d'étanchéité du circuit frigorifique.",
             date: "2026-07-18",
+            dueDate: "2026-08-17",
+            paymentDelay: 30,
             tvaRate: 20,
             subtotalHt: 150,
             tvaAmount: 30,
             totalTtc: 180,
-            status: "pending",
-            lines: [
-                { description: "Contrôle d'étanchéité frigorifique", qty: 1, unitPrice: 150 }
-            ]
+            status: "draft",
+            lines: [{ description: "Contrôle d'étanchéité frigorifique", qty: 1, unitPrice: 150 }]
         }
     ]);
 
-    // Modals toggles
-    const [showNewModal, setShowNewModal] = useState(false);
-    const [showSendModal, setShowSendModal] = useState(false);
-    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [activeFilter, setActiveFilter] = useState("all");
     const [activeInvoice, setActiveInvoice] = useState(null);
+    const [showDetailDrawer, setShowDetailDrawer] = useState(false);
+    const [showSendDrawer, setShowSendDrawer] = useState(false);
+    const [showEditPanel, setShowEditPanel] = useState(false);
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [showNewModal, setShowNewModal] = useState(false);
+    const [toast, setToast] = useState(null);
 
-    const handleCreateInvoice = (newInv) => {
-        // Format document number
-        const nextNum = invoices.length + 1;
-        newInv.number = `INV-2026-${String(nextNum).padStart(3, "0")}`;
-        setInvoices([newInv, ...invoices]);
-        setShowNewModal(false);
-        setActiveInvoice(newInv);
-        setShowSendModal(true); // Open sharing selector modal immediately after creation
+    const showToast = (msg, type = "success") => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3500);
     };
 
-    const handleViewInvoice = (inv) => {
+    // Filtered list
+    const filteredInvoices = activeFilter === "all"
+        ? invoices
+        : invoices.filter(inv => inv.status === activeFilter);
+
+    const filterCount = (key) => key === "all"
+        ? invoices.length
+        : invoices.filter(inv => inv.status === key).length;
+
+    const openDetail = (inv) => {
         setActiveInvoice(inv);
-        setShowPdfModal(true);
+        setShowDetailDrawer(true);
+        setShowEditPanel(false);
+        setShowSendDrawer(false);
+    };
+
+    const closeAll = () => {
+        setShowDetailDrawer(false);
+        setShowEditPanel(false);
+        setShowSendDrawer(false);
+    };
+
+    const handleFinalise = (inv) => {
+        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "pending" } : i));
+        setActiveInvoice(prev => ({ ...prev, status: "pending" }));
+        showToast(`✓ Facture ${inv.number} finalisée !`);
+    };
+
+    const handleMarkPaid = (inv) => {
+        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "paid" } : i));
+        setActiveInvoice(prev => ({ ...prev, status: "paid" }));
+        showToast(`✓ Facture ${inv.number} marquée comme Payée !`);
+    };
+
+    const handleMarkUnpaid = (inv) => {
+        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "pending" } : i));
+        setActiveInvoice(prev => ({ ...prev, status: "pending" }));
+        showToast(`Facture ${inv.number} marquée comme non payée.`, "info");
+    };
+
+    const handleSaveEdit = (updatedInv) => {
+        setInvoices(prev => prev.map(i => i.id === updatedInv.id ? updatedInv : i));
+        setActiveInvoice(updatedInv);
+        setShowEditPanel(false);
+        setShowDetailDrawer(true);
+        showToast(`✓ Facture ${updatedInv.number} modifiée.`);
+    };
+
+    const handleSelfSend = (inv) => {
+        window.open(`mailto:${inv.clientEmail}?subject=Facture%20${inv.number}&body=Bonjour,%20veuillez%20trouver%20ci-joint%20votre%20facture.`);
+        setShowSendDrawer(false);
+        showToast(`Facture envoyée à ${inv.clientEmail}`);
+    };
+
+    const handleAutoSend = (inv) => {
+        setShowSendDrawer(false);
+        showToast(`✓ E-mail envoyé automatiquement à ${inv.clientEmail}`);
+    };
+
+    const handleCreateInvoice = (newInv) => {
+        const nextNum = invoices.length + 1;
+        newInv.number = `F-2026-${String(nextNum).padStart(4, "0")}`;
+        newInv.status = "draft";
+        setInvoices([newInv, ...invoices]);
+        setShowNewModal(false);
+        openDetail(newInv);
+        showToast(`✓ Facture ${newInv.number} créée en brouillon !`);
     };
 
     const handleDownloadPdf = (inv) => {
-        // Generate and download mock invoice summary as text
-        const textContent = `
-========================================
-       FACTURE - ${inv.number}       
-========================================
-Date: ${new Date(inv.date).toLocaleDateString("fr-FR")}
-Client: ${inv.clientName} (${inv.clientEmail})
-Type: ${inv.interventionType}
-----------------------------------------
-Detail:
-${inv.lines.map(l => `- ${l.description} x${l.qty} : ${l.unitPrice} € HT`).join("\n")}
-----------------------------------------
-Sous-total HT: ${inv.subtotalHt.toLocaleString("fr-FR")} €
-TVA (${inv.tvaRate}%): ${inv.tvaAmount.toLocaleString("fr-FR")} €
-Total TTC: ${inv.totalTtc.toLocaleString("fr-FR")} €
-========================================
-`;
-        const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+        const content = `FACTURE — ${inv.number}\nClient: ${inv.clientName}\nMontant HT: ${inv.subtotalHt} €\nTVA: ${inv.tvaAmount} €\nTotal TTC: ${inv.totalTtc} €`;
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = `Facture_${inv.number}.txt`;
@@ -139,111 +197,102 @@ Total TTC: ${inv.totalTtc.toLocaleString("fr-FR")} €
         document.body.removeChild(link);
     };
 
-    const handleMarkPaid = (inv) => {
-        setInvoices(invoices.map(i => i.id === inv.id ? { ...i, status: "paid" } : i));
-        alert(`✓ La facture ${inv.number} a été marquée comme Payée !`);
-    };
-
-    const handleSendOption = (inv) => {
-        setActiveInvoice(inv);
-        setShowSendModal(true);
-    };
-
-    const handleRemindOption = (inv) => {
-        alert(`✉️ Un e-mail de rappel a été envoyé au client ${inv.clientName} (${inv.clientEmail}) pour la facture ${inv.number}.`);
-    };
-
-    const handleCancelOption = (inv) => {
-        if (confirm(`Voulez-vous vraiment annuler la facture ${inv.number} ?`)) {
-            setInvoices(invoices.map(i => i.id === inv.id ? { ...i, status: "cancelled" } : i));
-        }
-    };
-
-    // Send options callbacks
-    const handleSelfSend = (inv) => {
-        handleDownloadPdf(inv);
-        window.open(`mailto:${inv.clientEmail}?subject=Facture%20${inv.number}&body=Bonjour,%20veuillez%20trouver%20ci-joint%20votre%20facture%20${inv.number}.`);
-        setShowSendModal(false);
-    };
-
-    const handleAutoSend = (inv) => {
-        alert(`✓ E-mail envoyé automatiquement à ${inv.clientEmail} avec la facture ${inv.number} jointe.`);
-        setShowSendModal(false);
-    };
-
-    const handleCreatePaymentLink = (inv) => {
-        const stripeLink = `https://climpro.fr/pay/invoice/mock_token_${inv.id}`;
-        alert(`✓ Lien Stripe Checkout généré : ${stripeLink}`);
-        setShowSendModal(false);
-    };
-
     return (
         <div className="home-page factures-page-wrapper">
             <SideBar onFabClick={() => setShowNewModal(true)} />
             <div className="main-content">
                 <Header />
                 <div className="page-content">
-                    {/* Header */}
-                    <div className="content-header factures-header-row">
+
+                    {/* Page Header */}
+                    <div className="fp-page-header">
                         <div>
                             <h1 className="content-title">Factures</h1>
                             <p className="content-subtitle">Gérez et suivez vos règlements clients.</p>
                         </div>
-                        <button 
-                            className="create-facture-btn"
-                            onClick={() => setShowNewModal(true)}
-                        >
+                        <button className="fp-new-btn" onClick={() => setShowNewModal(true)}>
                             <Plus size={16} /> Nouvelle facture
                         </button>
                     </div>
 
-                    {/* Stats counters */}
-                    <InvoiceStats invoices={invoices} />
-
-                    {/* Invoices table widget */}
-                    <div className="invoices-list-widget">
-                        <div className="widget-header">
-                            <h3>Historique des factures</h3>
-                        </div>
-                        <InvoiceTable 
-                            invoices={invoices}
-                            onView={handleViewInvoice}
-                            onDownloadPdf={handleDownloadPdf}
-                            onMarkPaid={handleMarkPaid}
-                            onSend={handleSendOption}
-                            onRemind={handleRemindOption}
-                            onCancel={handleCancelOption}
-                        />
+                    {/* Filter Tabs */}
+                    <div className="fp-filter-bar">
+                        {FILTERS.map(f => (
+                            <button
+                                key={f.key}
+                                className={`fp-filter-pill${activeFilter === f.key ? " active" : ""}`}
+                                onClick={() => setActiveFilter(f.key)}
+                            >
+                                {f.label}
+                                <span className="fp-filter-count">{filterCount(f.key)}</span>
+                            </button>
+                        ))}
                     </div>
+
+                    {/* Invoices List */}
+                    <InvoiceList
+                        invoices={filteredInvoices}
+                        onRowClick={openDetail}
+                    />
                 </div>
             </div>
 
-            {/* Modal: New Invoice */}
+            {/* Detail Drawer */}
+            {showDetailDrawer && activeInvoice && (
+                <InvoiceDetailDrawer
+                    invoice={activeInvoice}
+                    onClose={closeAll}
+                    onPreview={() => { setShowDetailDrawer(false); setShowPdfModal(true); }}
+                    onEdit={() => { setShowDetailDrawer(false); setShowEditPanel(true); }}
+                    onSend={() => setShowSendDrawer(true)}
+                    onFinalise={handleFinalise}
+                    onMarkPaid={handleMarkPaid}
+                    onMarkUnpaid={handleMarkUnpaid}
+                />
+            )}
+
+            {/* Edit Panel */}
+            {showEditPanel && activeInvoice && (
+                <InvoiceEditPanel
+                    invoice={activeInvoice}
+                    onClose={() => { setShowEditPanel(false); setShowDetailDrawer(true); }}
+                    onSave={handleSaveEdit}
+                    onFinalise={handleFinalise}
+                />
+            )}
+
+            {/* Send Drawer */}
+            {showSendDrawer && activeInvoice && (
+                <InvoiceSendDrawer
+                    invoice={activeInvoice}
+                    onClose={() => setShowSendDrawer(false)}
+                    onSelfSend={handleSelfSend}
+                    onAutoSend={handleAutoSend}
+                />
+            )}
+
+            {/* PDF Preview */}
+            {showPdfModal && activeInvoice && (
+                <InvoicePdfView
+                    invoice={activeInvoice}
+                    onClose={() => { setShowPdfModal(false); setShowDetailDrawer(true); }}
+                    onDownload={handleDownloadPdf}
+                />
+            )}
+
+            {/* New Invoice Modal */}
             {showNewModal && (
-                <NewInvoiceModal 
+                <NewInvoiceModal
                     onClose={() => setShowNewModal(false)}
                     onCreateInvoice={handleCreateInvoice}
                 />
             )}
 
-            {/* Modal: Sharing Options */}
-            {showSendModal && (
-                <SendOptionsModal 
-                    invoice={activeInvoice}
-                    onClose={() => setShowSendModal(false)}
-                    onSelfSend={handleSelfSend}
-                    onAutoSend={handleAutoSend}
-                    onCreatePaymentLink={handleCreatePaymentLink}
-                />
-            )}
-
-            {/* Modal: PDF print preview */}
-            {showPdfModal && (
-                <InvoicePdfView 
-                    invoice={activeInvoice}
-                    onClose={() => setShowPdfModal(false)}
-                    onDownload={handleDownloadPdf}
-                />
+            {/* Toast */}
+            {toast && (
+                <div className={`fp-toast fp-toast--${toast.type}`}>
+                    {toast.type === "success" ? "✓" : "ℹ"} {toast.msg}
+                </div>
             )}
         </div>
     );

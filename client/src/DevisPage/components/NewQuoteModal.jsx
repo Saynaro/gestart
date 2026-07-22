@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Plus, Trash, X, ChevronDown, Search, Eye, FileText, Check, Edit2, ArrowLeft } from "lucide-react";
+import { Plus, Trash, X, ChevronDown, ChevronRight, Search, Eye, FileText, Check, Edit2, ArrowLeft, MoreHorizontal, ZoomIn, ZoomOut } from "lucide-react";
+import InterventionPickerModal from "../../components/InterventionPickerModal";
+import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
 
 function NewQuoteModal({ onClose, onCreateQuote }) {
     // Determine screen size dynamically
@@ -40,23 +42,19 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
         { id: "cat5", description: "Condenseur climatisation", unitPrice: 420 }
     ].sort((a, b) => a.description.localeCompare(b.description));
 
-    const savedInterventions = [
-        "Entretien annuel",
-        "Dépannage d'urgence",
-        "Mise en service climatisation",
-        "Installation pompe à chaleur",
-        "Contrôle d'étanchéité"
-    ];
-
     // Form states
     const [selectedClient, setSelectedClient] = useState(clientDetails[0]);
-    const [interventionInput, setInterventionInput] = useState("Entretien annuel");
-    const [showInterventionDropdown, setShowInterventionDropdown] = useState(false);
-
     const [quoteDate, setQuoteDate] = useState(new Date().toISOString().split("T")[0]);
+    const [echeanceOptionId, setEcheanceOptionId] = useState("30j");
+    const [echeanceCustomDate, setEcheanceCustomDate] = useState("");
+    const [showEcheancePicker, setShowEcheancePicker] = useState(false);
+    const [hasDeliveryDate, setHasDeliveryDate] = useState(false);
+    const [deliveryDate, setDeliveryDate] = useState("");
     const [tvaRate, setTvaRate] = useState(20);
-    const [workDetails, setWorkDetails] = useState("");
     const [internalNotes, setInternalNotes] = useState("");
+
+    const calculatedDueDate = computeDueDate(quoteDate, echeanceOptionId, echeanceCustomDate);
+    const echeanceLabel = getEcheanceLabel(echeanceOptionId, echeanceCustomDate);
 
     // Supplies rows
     const [lines, setLines] = useState([
@@ -79,13 +77,38 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
     const [newItemName, setNewItemName] = useState("");
     const [newItemPrice, setNewItemPrice] = useState("");
 
+    // Article Editor / Creator Drawer States
+    const [isEditingItem, setIsEditingItem] = useState(false);
+    const [isCreatingItem, setIsCreatingItem] = useState(false);
+    const [editingLineId, setEditingLineId] = useState(null);
+
+    // Temporary form states for the active drawer
+    const [tempName, setTempName] = useState("");
+    const [tempReference, setTempReference] = useState("");
+    const [tempPrice, setTempPrice] = useState("");
+    const [tempQty, setTempQty] = useState(1);
+    const [tempUrssafCategory, setTempUrssafCategory] = useState("Vente de marchandises (BIC)");
+    const [tempUnit, setTempUnit] = useState("À l'unité");
+
+    // Drag to close tracking
+    const [dragStartY, setDragStartY] = useState(0);
+    const [isDraggingHandle, setIsDraggingHandle] = useState(false);
+
+    // Sub-drawers for selecting properties
+    const [showUrssafSelector, setShowUrssafSelector] = useState(false);
+    const [showUnitSelector, setShowUnitSelector] = useState(false);
+
     // Sub-form for creating a new client on mobile
     const [showNewClientFormMobile, setShowNewClientFormMobile] = useState(false);
     const [newClientNameMobile, setNewClientNameMobile] = useState("");
     const [newClientEmailMobile, setNewClientEmailMobile] = useState("");
 
-    // Mobile preview overlay toggle
+    // Mobile preview overlay toggle and zoom
     const [showMobilePreview, setShowMobilePreview] = useState(false);
+    const [previewZoom, setPreviewZoom] = useState(0.65);
+    const zoomInPreview = () => setPreviewZoom(prev => Math.min(1.6, Math.round((prev + 0.1) * 100) / 100));
+    const zoomOutPreview = () => setPreviewZoom(prev => Math.max(0.35, Math.round((prev - 0.1) * 100) / 100));
+    const resetZoomPreview = () => setPreviewZoom(0.65);
 
     // Disable scrolling when mobile preview modal is active
     useEffect(() => {
@@ -131,6 +154,55 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
         }));
     };
 
+    const handleStartEditLine = (line) => {
+        setEditingLineId(line.id);
+        setTempName(line.description || "");
+        setTempReference(line.reference || "");
+        setTempPrice(line.unitPrice !== undefined ? line.unitPrice.toString() : "0");
+        setTempQty(line.qty || 1);
+        setTempUrssafCategory(line.urssafCategory || "Vente de marchandises (BIC)");
+        setTempUnit(line.unit || "À l'unité");
+        setShowUrssafSelector(false);
+        setShowUnitSelector(false);
+        setIsEditingItem(true);
+    };
+
+    const handleStartCreateLine = (initialName = "") => {
+        setEditingLineId(null);
+        setTempName(initialName);
+        setTempReference("");
+        setTempPrice("");
+        setTempQty(1);
+        setTempUrssafCategory("Vente de marchandises (BIC)");
+        setTempUnit("À l'unité");
+        setShowUrssafSelector(false);
+        setShowUnitSelector(false);
+        setIsCreatingItem(true);
+    };
+
+    const handleSaveEditedLine = () => {
+        if (!tempName.trim()) { alert("Veuillez saisir une désignation."); return; }
+        setLines(lines.map(line => line.id === editingLineId ? {
+            ...line, description: tempName, reference: tempReference,
+            qty: tempQty, unitPrice: parseFloat(tempPrice) || 0,
+            urssafCategory: tempUrssafCategory, unit: tempUnit
+        } : line));
+        setIsEditingItem(false);
+        setEditingLineId(null);
+    };
+
+    const handleSaveCreatedLine = () => {
+        if (!tempName.trim()) { alert("Veuillez saisir une désignation."); return; }
+        const newLine = {
+            id: Date.now(), description: tempName, reference: tempReference,
+            qty: tempQty, unitPrice: parseFloat(tempPrice) || 0,
+            urssafCategory: tempUrssafCategory, unit: tempUnit
+        };
+        setLines([...lines.filter(l => l.description.trim() !== ""), newLine]);
+        setIsCreatingItem(false);
+        setShowCatalogSearch(false);
+    };
+
     const getGroupedClients = (list) => {
         const grouped = {};
         list.forEach(c => {
@@ -161,12 +233,8 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
             alert("Veuillez sélectionner un client.");
             return;
         }
-        if (!interventionInput.trim()) {
-            alert("Veuillez renseigner le type d'intervention.");
-            return;
-        }
 
-        const validLines = lines.filter(l => l.description.trim() !== "");
+        const validLines = lines.filter(l => (l.description || "").trim() !== "");
         if (validLines.length === 0) {
             alert("Veuillez ajouter au moins une prestation ou fourniture.");
             return;
@@ -175,13 +243,16 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
         const newQuote = {
             id: Date.now(),
             clientName: selectedClient.name,
-            clientEmail: selectedClient.email,
-            clientAddress: selectedClient.address,
-            interventionType: interventionInput,
+            clientEmail: selectedClient.email || "",
+            clientAddress: selectedClient.address || "",
             date: quoteDate,
-            tvaRate: tvaRate,
-            workDetails: workDetails,
-            internalNotes: internalNotes,
+            dueDate: calculatedDueDate,
+            echeanceOptionId: echeanceOptionId,
+            echeanceCustomDate: echeanceCustomDate,
+            deliveryDate: hasDeliveryDate && deliveryDate ? deliveryDate : null,
+            paymentConditions: echeanceLabel,
+            tvaRate: tvaRate || 20,
+            internalNotes: internalNotes || "",
             lines: validLines.map(l => ({ description: l.description, qty: parseInt(l.qty) || 1, unitPrice: parseFloat(l.unitPrice) || 0 })),
             subtotalHt: subtotalHt,
             tvaAmount: tvaAmount,
@@ -215,9 +286,19 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                     <td>DEV-2026-TEMP</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Date :</strong></td>
+                                    <td><strong>Date d'émission :</strong></td>
                                     <td>{new Date(quoteDate).toLocaleDateString("fr-FR")}</td>
                                 </tr>
+                                <tr>
+                                    <td><strong>Date d'exigibilité :</strong></td>
+                                    <td>{new Date(calculatedDueDate).toLocaleDateString("fr-FR")}</td>
+                                </tr>
+                                {hasDeliveryDate && deliveryDate && (
+                                    <tr>
+                                        <td><strong>Date de livraison :</strong></td>
+                                        <td>{new Date(deliveryDate).toLocaleDateString("fr-FR")}</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -232,15 +313,6 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                             {selectedClient ? selectedClient.email : ""}
                         </p>
                     </div>
-                </div>
-
-                <div className="pdf-intervention-info" style={{ padding: '6pt 8pt', marginBottom: '10pt', fontSize: '8.5pt' }}>
-                    <span>Objet : <strong>{interventionInput || "Non spécifié"}</strong></span>
-                    {workDetails && (
-                        <p className="work-details" style={{ fontSize: '8pt', marginTop: '4pt', paddingTop: '4pt' }}>
-                            {workDetails}
-                        </p>
-                    )}
                 </div>
 
                 <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
@@ -283,7 +355,8 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     </table>
                 </div>
 
-                <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt' }}>
+                <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: '12pt', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
+                    <div><strong>Conditions de paiement :</strong> Paiement {echeanceLabel} (Échéance le {new Date(calculatedDueDate).toLocaleDateString("fr-FR")})</div>
                     <span>Validité du devis : 30 jours.</span>
                 </div>
             </div>
@@ -292,7 +365,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
 
     // ── MOBILE WIZARD INTERFACE ────────────────────────────────────────
     if (isMobile) {
-        return (
+        return createPortal(
             <div className="mobile-preview-full-overlay" style={{ backgroundColor: 'var(--background)' }}>
 
                 {/* Progress Header matching screenshot layout */}
@@ -458,16 +531,20 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                             {/* Render lines list */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 {lines.filter(l => l.description.trim() !== "").map((line, idx) => (
-                                    <div key={line.id} style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div
+                                        key={line.id}
+                                        onClick={() => handleStartEditLine(line)}
+                                        style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                                    >
                                         <div>
                                             <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Article {idx + 1}</span>
                                             <h4 style={{ fontWeight: 700, fontSize: '0.95rem', margin: '2px 0', color: 'var(--foreground)' }}>{line.description}</h4>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-                                                {/* Qty controller inputs */}
                                                 <input
                                                     type="number"
                                                     value={line.qty}
-                                                    onChange={(e) => handleLineChange(line.id, "qty", parseInt(e.target.value) || 1)}
+                                                    onChange={(e) => { e.stopPropagation(); handleLineChange(line.id, "qty", parseInt(e.target.value) || 1); }}
+                                                    onClick={(e) => e.stopPropagation()}
                                                     style={{ width: '45px', textAlign: 'center', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '0.8rem', padding: '2px', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
                                                     min="1"
                                                 />
@@ -478,7 +555,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                             <span style={{ fontWeight: 700, color: 'var(--foreground)', fontSize: '0.95rem' }}>{(line.qty * line.unitPrice).toLocaleString("fr-FR")} € HT</span>
                                             <button
                                                 type="button"
-                                                onClick={() => handleRemoveLine(line.id)}
+                                                onClick={(e) => { e.stopPropagation(); handleRemoveLine(line.id); }}
                                                 style={{ border: 'none', background: 'none', color: '#EF4444', cursor: 'pointer' }}
                                             >
                                                 <Trash size={16} />
@@ -567,48 +644,73 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                         type="date"
                                         value={quoteDate}
                                         onChange={(e) => setQuoteDate(e.target.value)}
-                                        style={{ border: 'none', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: 0, outline: 'none', backgroundColor: 'transparent' }}
+                                        style={{ borderRadius: '12px', borderColor: 'var(--border)', border: '1px solid var(--border)', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent', boxSizing: 'border-box' }}
                                     />
                                 </div>
 
-                                {/* Due date / TVA Rate row */}
-                                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Taux TVA*</label>
-                                    <select
-                                        value={tvaRate}
-                                        onChange={(e) => setTvaRate(parseFloat(e.target.value))}
-                                        style={{ border: 'none', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: 0, outline: 'none', backgroundColor: 'transparent' }}
+                                {/* Mandatory Date d'échéance picker trigger */}
+                                <div
+                                    onClick={() => setShowEcheancePicker(true)}
+                                    style={{ backgroundColor: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: '12px', padding: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                >
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Date d'échéance*</label>
+                                        <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                            {echeanceLabel} ({new Date(calculatedDueDate).toLocaleDateString('fr-FR')})
+                                        </span>
+                                    </div>
+                                    <ChevronRight size={20} style={{ color: 'var(--muted-foreground)' }} />
+                                </div>
+
+                                {/* Optional Date de livraison */}
+                                {!hasDeliveryDate ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setHasDeliveryDate(true);
+                                            setDeliveryDate(quoteDate);
+                                        }}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            padding: '14px',
+                                            borderRadius: '12px',
+                                            border: '1.5px dashed #556B2F',
+                                            backgroundColor: 'rgba(85, 107, 47, 0.05)',
+                                            color: '#556B2F',
+                                            fontWeight: 700,
+                                            fontSize: '0.875rem',
+                                            cursor: 'pointer',
+                                            width: '100%'
+                                        }}
                                     >
-                                        <option value={0}>0% (Exonéré)</option>
-                                        <option value={5.5}>5.5% (Prestations réduites)</option>
-                                        <option value={10}>10% (Taux intermédiaire)</option>
-                                        <option value={20}>20% (Taux normal)</option>
-                                    </select>
-                                </div>
-
-                                {/* Intervention input block */}
-                                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Type d'intervention*</label>
-                                    <input
-                                        type="text"
-                                        value={interventionInput}
-                                        onChange={(e) => setInterventionInput(e.target.value)}
-                                        placeholder="Ex: Entretien annuel"
-                                        style={{ border: 'none', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: 0, outline: 'none', backgroundColor: 'transparent' }}
-                                    />
-                                </div>
-
-                                {/* Description of works */}
-                                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Description des travaux</label>
-                                    <textarea
-                                        rows="3"
-                                        value={workDetails}
-                                        onChange={(e) => setWorkDetails(e.target.value)}
-                                        placeholder="Détails de la prestation..."
-                                        style={{ border: 'none', width: '100%', fontSize: '0.85rem', color: 'var(--foreground)', padding: 0, outline: 'none', resize: 'none', backgroundColor: 'transparent' }}
-                                    />
-                                </div>
+                                        <Plus size={16} /> Ajouter une date de livraison
+                                    </button>
+                                ) : (
+                                    <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Date de livraison</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setHasDeliveryDate(false);
+                                                    setDeliveryDate("");
+                                                }}
+                                                style={{ border: 'none', background: 'none', color: 'var(--destructive)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 600 }}
+                                            >
+                                                <Trash size={14} /> Supprimer
+                                            </button>
+                                        </div>
+                                        <input
+                                            type="date"
+                                            value={deliveryDate}
+                                            onChange={(e) => setDeliveryDate(e.target.value)}
+                                            style={{ borderRadius: '12px', borderColor: 'var(--border)', border: '1px solid var(--border)', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent', boxSizing: 'border-box' }}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Footer continue button */}
@@ -643,20 +745,23 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 {/* Client summary card */}
                                 <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Client</span>
-                                    <h4 style={{ fontWeight: 800, fontSize: '0.95rem', marginTop: '4px', color: 'var(--foreground)' }}>{selectedClient.name}</h4>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '2px' }}>{selectedClient.email}</p>
+                                    <h4 style={{ fontWeight: 800, fontSize: '0.95rem', marginTop: '4px', color: 'var(--foreground)' }}>{selectedClient?.name || "Client non défini"}</h4>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '2px' }}>{selectedClient?.email || ""}</p>
                                     <button type="button" onClick={() => setStep(1)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'none', color: '#556B2F', cursor: 'pointer' }}>
                                         <Edit2 size={16} />
                                     </button>
                                 </div>
 
-                                {/* Date / Intervention summary card */}
+                                {/* Date / Échéance summary card */}
                                 <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Date & Intervention</span>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Dates & Échéance</span>
                                     <div style={{ marginTop: '6px', color: 'var(--foreground)' }}>
-                                        <span style={{ fontSize: '0.85rem', display: 'block' }}>Date d'émission : <strong>{new Date(quoteDate).toLocaleDateString("fr-FR")}</strong></span>
-                                        <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>Type : <strong>{interventionInput}</strong></span>
-                                        <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>TVA: <strong>{tvaRate}%</strong></span>
+                                        <span style={{ fontSize: '0.85rem', display: 'block' }}>Date d'émission : <strong>{quoteDate ? new Date(quoteDate).toLocaleDateString("fr-FR") : "—"}</strong></span>
+                                        <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>Date d'exigibilité : <strong>{new Date(calculatedDueDate).toLocaleDateString("fr-FR")}</strong></span>
+                                        {hasDeliveryDate && deliveryDate && (
+                                            <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>Date de livraison : <strong>{new Date(deliveryDate).toLocaleDateString("fr-FR")}</strong></span>
+                                        )}
+                                        <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '2px' }}>Conditions : <strong>{echeanceLabel}</strong></span>
                                     </div>
                                     <button type="button" onClick={() => setStep(3)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'none', color: '#556B2F', cursor: 'pointer' }}>
                                         <Edit2 size={16} />
@@ -667,7 +772,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', position: 'relative' }}>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Articles</span>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px', color: 'var(--foreground)' }}>
-                                        {lines.filter(l => l.description.trim() !== "").map(line => (
+                                        {lines.filter(l => (l.description || "").trim() !== "").map(line => (
                                             <div key={line.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                                                 <span style={{ flex: 1 }}>{line.description} (x{line.qty})</span>
                                                 <span style={{ fontWeight: 700 }}>{(line.qty * line.unitPrice).toLocaleString("fr-FR")} € HT</span>
@@ -686,7 +791,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                         <span>{subtotalHt.toLocaleString("fr-FR")} €</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-                                        <span>TVA ({tvaRate}%) :</span>
+                                        <span>TVA ({tvaRate || 20}%) :</span>
                                         <span>{tvaAmount.toLocaleString("fr-FR")} €</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 800, marginTop: '8px', color: 'var(--foreground)', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
@@ -726,10 +831,25 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     <div className="mobile-preview-full-overlay">
                         <div className="mobile-preview-header">
                             <h3>Aperçu Devis</h3>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'var(--muted)', padding: '2px 8px', borderRadius: '8px' }}>
+                                <button type="button" className="top-btn" onClick={zoomOutPreview} title="Уменьшить" style={{ padding: '4px 6px', border: 'none', background: 'none', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                    <ZoomOut size={16} />
+                                </button>
+                                <button type="button" className="top-btn" onClick={resetZoomPreview} style={{ fontSize: '0.8rem', fontWeight: 800, minWidth: '42px', textAlign: 'center', padding: '4px 2px', border: 'none', background: 'none', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                    {Math.round(previewZoom * 100)}%
+                                </button>
+                                <button type="button" className="top-btn" onClick={zoomInPreview} title="Приблизить" style={{ padding: '4px 6px', border: 'none', background: 'none', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                    <ZoomIn size={16} />
+                                </button>
+                            </div>
+
                             <button className="top-btn close-x" onClick={() => setShowMobilePreview(false)}><X size={20} /></button>
                         </div>
                         <div className="mobile-preview-body">
-                            {renderQuoteLivePreviewSheet()}
+                            <div style={{ zoom: previewZoom, transform: `scale(${previewZoom})`, transformOrigin: 'top center', transition: 'transform 0.15s ease-out, zoom 0.15s ease-out' }}>
+                                {renderQuoteLivePreviewSheet()}
+                            </div>
                         </div>
                         <div className="mobile-preview-actions">
                             <button className="cancel-btn" onClick={() => setShowMobilePreview(false)}>Fermer</button>
@@ -918,10 +1038,15 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                                             <div
                                                                 key={item.id}
                                                                 className={`client-search-item ${isSelected ? 'selected' : ''}`}
-                                                                onClick={() => setPendingCatalogItem(item)}
+                                                                onClick={() => {
+                                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: "", urssafCategory: "Vente de marchandises (BIC)", unit: "À l'unité" }]);
+                                                                    setShowCatalogSearch(false);
+                                                                    setCatalogSearchQuery("");
+                                                                    setPendingCatalogItem(null);
+                                                                }}
                                                             >
                                                                 <span className="client-item-name">{item.description}</span>
-                                                                <span className="client-item-badge organisation" style={{ fontSize: '0.75rem', padding: '2px 8px' }}>
+                                                                <span className="catalog-price-badge">
                                                                     {item.unitPrice} € HT
                                                                 </span>
                                                             </div>
@@ -941,45 +1066,14 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                     </div>
 
                                     <div className="client-search-footer" style={{ gap: '8px' }}>
-                                        {pendingCatalogItem ? (
-                                            <button
-                                                type="button"
-                                                className="client-search-confirm-btn"
-                                                onClick={() => {
-                                                    // Append item directly to active lines state list
-                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: pendingCatalogItem.description, qty: 1, unitPrice: pendingCatalogItem.unitPrice }]);
-                                                    setShowCatalogSearch(false);
-                                                    setCatalogSearchQuery("");
-                                                    setPendingCatalogItem(null);
-                                                }}
-                                            >
-                                                Sélectionner — {pendingCatalogItem.description}
-                                            </button>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                className="client-search-confirm-btn"
-                                                onClick={() => {
-                                                    const customDesc = catalogSearchQuery.trim();
-                                                    if (customDesc) {
-                                                        setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: customDesc, qty: 1, unitPrice: 0 }]);
-                                                        setShowCatalogSearch(false);
-                                                        setCatalogSearchQuery("");
-                                                    }
-                                                }}
-                                                disabled={!catalogSearchQuery.trim()}
-                                                style={{ opacity: catalogSearchQuery.trim() ? 1 : 0.6 }}
-                                            >
-                                                Sélectionner le texte saisi
-                                            </button>
-                                        )}
                                         <button
                                             type="button"
                                             className="client-search-add-btn secondary"
                                             onClick={() => {
-                                                setNewItemName(catalogSearchQuery);
-                                                setNewItemPrice("");
-                                                setShowNewCatalogItemForm(true);
+                                                setShowCatalogSearch(false);
+                                                setCatalogSearchQuery("");
+                                                setPendingCatalogItem(null);
+                                                setTimeout(() => handleStartCreateLine(""), 50);
                                             }}
                                         >
                                             + Créer un article
@@ -992,8 +1086,205 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     document.body
                 )}
 
+                {/* ARTICLE EDIT/CREATE DRAWER PORTAL - MOBILE */}
+                {(isEditingItem || isCreatingItem) && createPortal(
+                    <div className="article-drawer-overlay" onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                            setIsEditingItem(false);
+                            setIsCreatingItem(false);
+                        }
+                    }}>
+                        <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}
+                            onTouchEnd={(e) => {
+                                if (!isDraggingHandle) return;
+                                const dragEndY = e.changedTouches[0].clientY;
+                                if (dragEndY - dragStartY > 80) {
+                                    setIsEditingItem(false);
+                                    setIsCreatingItem(false);
+                                }
+                                setIsDraggingHandle(false);
+                            }}
+                        >
+                            <div
+                                className="bottom-sheet-drag-handle"
+                                onTouchStart={(e) => {
+                                    setDragStartY(e.touches[0].clientY);
+                                    setIsDraggingHandle(true);
+                                }}
+                            />
+
+                            <div className="article-drawer-header">
+                                <button type="button" className="drawer-round-btn" onClick={() => { setIsEditingItem(false); setIsCreatingItem(false); }}>
+                                    <X size={20} />
+                                </button>
+                                <h2>{isEditingItem ? "Modifier l'article" : "Créer un article"}</h2>
+                                <button type="button" className="drawer-round-btn" style={{ opacity: 0.7 }}>
+                                    <MoreHorizontal size={20} />
+                                </button>
+                            </div>
+
+                            <div className="article-drawer-body">
+                                <div>
+                                    <div className="article-drawer-group-title">Nom et référence</div>
+                                    <div className="article-drawer-group-card">
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Désignation*</label>
+                                            <input type="text" className="article-drawer-input" placeholder="Ex: Main d'œuvre diagnostic" value={tempName} onChange={(e) => setTempName(e.target.value)} />
+                                        </div>
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Référence</label>
+                                            <input type="text" className="article-drawer-input" placeholder="Ex: REF-001" value={tempReference} onChange={(e) => setTempReference(e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="article-drawer-group-title">Tarification &amp; Déclaration</div>
+                                    <div className="article-drawer-group-card">
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Prix unitaire HT (€)*</label>
+                                            <input type="number" className="article-drawer-input" placeholder="Ex: 85" value={tempPrice} onChange={(e) => setTempPrice(e.target.value)} />
+                                        </div>
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Type d'article (URSSAF)</label>
+                                            <div className="article-drawer-trigger" onClick={() => setShowUrssafSelector(true)}>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tempUrssafCategory}</span>
+                                                <ChevronRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                            </div>
+                                        </div>
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Unité de facturation</label>
+                                            <div className="article-drawer-trigger" onClick={() => setShowUnitSelector(true)}>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tempUnit}</span>
+                                                <ChevronRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                            </div>
+                                        </div>
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Quantité</label>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)', borderRadius: '8px', padding: '8px', border: '1px solid var(--border)' }}>
+                                                <button type="button" onClick={() => setTempQty(Math.max(1, tempQty - 1))} style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: 'rgba(85, 107, 47, 0.1)', color: '#556B2F', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}>−</button>
+                                                <input type="number" value={tempQty} onChange={(e) => setTempQty(Math.max(1, parseInt(e.target.value) || 1))} style={{ flex: 1, textAlign: 'center', border: 'none', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--foreground)', fontWeight: 800, fontSize: '1rem', outline: 'none', padding: '8px' }} min="1" />
+                                                <button type="button" onClick={() => setTempQty(tempQty + 1)} style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: '#556B2F', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}>+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="article-drawer-footer">
+                                <button type="button" className="drawer-primary-btn" onClick={isEditingItem ? handleSaveEditedLine : handleSaveCreatedLine}>
+                                    {isEditingItem ? "Enregistrer les modifications" : "Confirmer et ajouter"}
+                                </button>
+                                {isEditingItem && (
+                                    <button type="button" className="drawer-danger-btn" onClick={() => { handleRemoveLine(editingLineId); setIsEditingItem(false); }}>
+                                        Supprimer l'article
+                                    </button>
+                                )}
+                            </div>
+
+                            {showUrssafSelector && (
+                                <div className="selector-subsheet">
+                                    <div className="article-drawer-header">
+                                        <button type="button" className="drawer-round-btn" onClick={() => setShowUrssafSelector(false)}><ArrowLeft size={20} /></button>
+                                        <h2>Type d'article</h2>
+                                        <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
+                                    </div>
+                                    <div style={{ padding: '14px 20px 0', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                                        Détermine la catégorie de votre déclaration URSSAF.
+                                    </div>
+                                    <div className="selector-options-list">
+                                        {[
+                                            "Vente de marchandises (BIC)",
+                                            "Prestations de services (BNC)",
+                                            "Prestations de services artisanales ou commerciales (BIC)",
+                                            "Vente de produits fabriqués (BIC)",
+                                            "Débours"
+                                        ].map((cat) => {
+                                            const isSelected = tempUrssafCategory === cat;
+                                            return (
+                                                <div
+                                                    key={cat}
+                                                    className={`selector-option-card ${isSelected ? 'selected' : ''}`}
+                                                    onClick={() => {
+                                                        setTempUrssafCategory(cat);
+                                                        setShowUrssafSelector(false);
+                                                    }}
+                                                >
+                                                    <div className="option-details">
+                                                        <span className="option-title">{cat}</span>
+                                                    </div>
+                                                    <div className="option-radio">
+                                                        <div className="option-radio-inner" />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {showUnitSelector && (
+                                <div className="selector-subsheet">
+                                    <div className="article-drawer-header">
+                                        <button type="button" className="drawer-round-btn" onClick={() => setShowUnitSelector(false)}><ArrowLeft size={20} /></button>
+                                        <h2>Unité de facturation</h2>
+                                        <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
+                                    </div>
+                                    <div className="selector-options-list">
+                                        {[
+                                            "À l'unité",
+                                            "À l'heure",
+                                            "À la journée",
+                                            "À la semaine",
+                                            "À l'année",
+                                            "Au gramme",
+                                            "Au forfait",
+                                            "Au caractère",
+                                            "À la ligne",
+                                            "Aucune"
+                                        ].map((unit) => {
+                                            const isSelected = tempUnit === unit;
+                                            return (
+                                                <div
+                                                    key={unit}
+                                                    className={`selector-option-card ${isSelected ? 'selected' : ''}`}
+                                                    onClick={() => {
+                                                        setTempUnit(unit);
+                                                        setShowUnitSelector(false);
+                                                    }}
+                                                >
+                                                    <div className="option-details">
+                                                        <span className="option-title">{unit}</span>
+                                                    </div>
+                                                    <div className="option-radio">
+                                                        <div className="option-radio-inner" />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>,
+                    document.body
+                )}
+
+                {/* Echeance picker overlay - Mobile */}
+                {showEcheancePicker && (
+                    <EcheancePickerModal
+                        selectedOptionId={echeanceOptionId}
+                        customDate={echeanceCustomDate}
+                        onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
+                            setEcheanceOptionId(optId);
+                            setEcheanceCustomDate(custStr);
+                        }}
+                        onClose={() => setShowEcheancePicker(false)}
+                    />
+                )}
+
             </div>
-        );
+        , document.body);
     }
 
     // ── DESKTOP SPLIT VIEW INTERFACE ──────────────────────────────────
@@ -1036,47 +1327,6 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 </div>
                             </div>
 
-                            {/* Intervention */}
-                            <div className="form-field form-field-bordered combobox-field">
-                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>TYPE D'INTERVENTION*</label>
-                                <input
-                                    type="text"
-                                    className="profile-input borderless-large-input"
-                                    placeholder="Type d'intervention..."
-                                    value={interventionInput}
-                                    onChange={(e) => {
-                                        setInterventionInput(e.target.value);
-                                        setShowInterventionDropdown(true);
-                                    }}
-                                    onFocus={() => setShowInterventionDropdown(true)}
-                                    style={{
-                                        border: 'none',
-                                        borderRadius: 0,
-                                        padding: '8px 0',
-                                        fontSize: '1.2rem',
-                                        fontWeight: '500',
-                                        height: 'auto',
-                                        background: 'transparent'
-                                    }}
-                                />
-                                {showInterventionDropdown && (
-                                    <div className="combobox-dropdown">
-                                        {savedInterventions.filter(i => i.toLowerCase().includes(interventionInput.toLowerCase())).map(i => (
-                                            <div
-                                                key={i}
-                                                className="combobox-item"
-                                                onClick={() => {
-                                                    setInterventionInput(i);
-                                                    setShowInterventionDropdown(false);
-                                                }}
-                                            >
-                                                {i}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
                             {/* Date */}
                             <div className="form-field form-field-bordered">
                                 <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>DATE DE DEVIS*</label>
@@ -1101,35 +1351,70 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 </div>
                             </div>
 
-                            {/* TVA */}
-                            <div className="form-field" style={{ marginBottom: '1.5rem' }}>
-                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '8px' }}>TAUX TVA</label>
-                                <div className="tva-radio-group">
-                                    {[0, 5.5, 10, 20].map((rate) => (
-                                        <label key={rate} className={`tva-radio-label ${tvaRate === rate ? "selected" : ""}`}>
-                                            <input
-                                                type="radio"
-                                                name="tva_rate"
-                                                value={rate}
-                                                checked={tvaRate === rate}
-                                                onChange={() => setTvaRate(rate)}
-                                            />
-                                            <span>{rate}%</span>
-                                        </label>
-                                    ))}
+                            {/* Mandatory Date d'échéance */}
+                            <div className="form-field form-field-bordered">
+                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>DATE D'ÉCHÉANCE*</label>
+                                <div
+                                    className="modal-select-trigger"
+                                    onClick={() => setShowEcheancePicker(true)}
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
+                                        padding: '12px 14px',
+                                        background: 'none'
+                                    }}
+                                >
+                                    <span style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--foreground)' }}>
+                                        {echeanceLabel} ({new Date(calculatedDueDate).toLocaleDateString('fr-FR')})
+                                    </span>
+                                    <ChevronDown size={20} style={{ color: 'var(--muted-foreground)' }} />
                                 </div>
                             </div>
 
-                            {/* Works description */}
-                            <div className="form-field" style={{ marginBottom: '1.5rem' }}>
-                                <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '8px' }}>DESCRIPTION DES TRAVAUX PRÉVUS</label>
-                                <textarea
-                                    className="profile-input textarea-field"
-                                    rows="3"
-                                    value={workDetails}
-                                    onChange={(e) => setWorkDetails(e.target.value)}
-                                    placeholder="Indiquez les détails de la prestation..."
-                                />
+                            {/* Optional Date de livraison */}
+                            <div className="form-field form-field-bordered" style={{ marginBottom: '1.5rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <label className="form-label" style={{ letterSpacing: '0.05em', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>DATE DE LIVRAISON (OPTIONNEL)</label>
+                                    {!hasDeliveryDate ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => { setHasDeliveryDate(true); setDeliveryDate(quoteDate); }}
+                                            style={{ border: 'none', background: 'none', color: '#556B2F', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Plus size={14} /> Ajouter
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => { setHasDeliveryDate(false); setDeliveryDate(""); }}
+                                            style={{ border: 'none', background: 'none', color: 'var(--destructive)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Trash size={14} /> Supprimer
+                                        </button>
+                                    )}
+                                </div>
+                                {hasDeliveryDate && (
+                                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginTop: '6px' }}>
+                                        <input
+                                            type="date"
+                                            className="profile-input borderless-large-input"
+                                            value={deliveryDate}
+                                            onChange={(e) => setDeliveryDate(e.target.value)}
+                                            style={{
+                                                border: 'none',
+                                                borderRadius: 0,
+                                                padding: '8px 0',
+                                                fontSize: '1.1rem',
+                                                fontWeight: '500',
+                                                height: 'auto',
+                                                background: 'transparent',
+                                                width: '100%'
+                                            }}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Supplies grid spreadsheet */}
@@ -1159,22 +1444,39 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                                         <div
                                                             className="line-select-trigger"
                                                             onClick={() => {
-                                                                setActiveLineId(line.id);
-                                                                setCatalogSearchQuery(line.description);
-                                                                setPendingCatalogItem(null);
-                                                                setShowNewCatalogItemForm(false);
-                                                                setShowCatalogSearch(true);
+                                                                if (line.description) {
+                                                                    handleStartEditLine(line);
+                                                                } else {
+                                                                    setActiveLineId(line.id);
+                                                                    setCatalogSearchQuery("");
+                                                                    setPendingCatalogItem(null);
+                                                                    setShowNewCatalogItemForm(false);
+                                                                    setShowCatalogSearch(true);
+                                                                }
                                                             }}
                                                             style={{
                                                                 cursor: 'pointer',
-                                                                padding: '10px 8px',
+                                                                padding: '8px',
                                                                 fontSize: '0.85rem',
                                                                 minHeight: '38px',
                                                                 backgroundColor: 'transparent',
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                gap: '2px',
+                                                                alignItems: 'flex-start',
                                                                 color: line.description ? 'var(--foreground)' : 'var(--muted-foreground)'
                                                             }}
                                                         >
-                                                            {line.description || "Rechercher..."}
+                                                            <span style={{ fontWeight: line.description ? 700 : 400 }}>
+                                                                {line.description || "Rechercher..."}
+                                                            </span>
+                                                            {line.description && (
+                                                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
+                                                                    {line.reference ? `Réf: ${line.reference}` : "Sans réf"}
+                                                                    {line.unit && line.unit !== "Aucune" ? ` • ${line.unit}` : ""}
+                                                                    {line.urssafCategory ? ` • ${line.urssafCategory}` : ""}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </td>
                                                     <td>
@@ -1512,9 +1814,8 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                         type="button"
                                         className="client-search-add-btn secondary"
                                         onClick={() => {
-                                            setNewItemName(catalogSearchQuery);
-                                            setNewItemPrice("");
-                                            setShowNewCatalogItemForm(true);
+                                            setShowCatalogSearch(false);
+                                            handleStartCreateLine(catalogSearchQuery);
                                         }}
                                     >
                                         + Ajouter un nouvel article (nom, prix...)
@@ -1527,6 +1828,200 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                 document.body
             )}
 
+            {/* ARTICLE EDIT/CREATE DRAWER PORTAL */}
+            {(isEditingItem || isCreatingItem) && createPortal(
+                <div className="article-drawer-overlay" onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                        setIsEditingItem(false);
+                        setIsCreatingItem(false);
+                    }
+                }}>
+                    <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => {
+                            if (!isDraggingHandle) return;
+                            const dragEndY = e.changedTouches[0].clientY;
+                            if (dragEndY - dragStartY > 80) {
+                                setIsEditingItem(false);
+                                setIsCreatingItem(false);
+                            }
+                            setIsDraggingHandle(false);
+                        }}
+                    >
+                        {isMobile && <div
+                            className="bottom-sheet-drag-handle"
+                            onTouchStart={(e) => {
+                                setDragStartY(e.touches[0].clientY);
+                                setIsDraggingHandle(true);
+                            }}
+                        />}
+
+                        <div className="article-drawer-header">
+                            <button type="button" className="drawer-round-btn" onClick={() => { setIsEditingItem(false); setIsCreatingItem(false); }}>
+                                <X size={20} />
+                            </button>
+                            <h2>{isEditingItem ? "Modifier l'article" : "Créer un article"}</h2>
+                            <button type="button" className="drawer-round-btn" style={{ opacity: 0.7 }}>
+                                <MoreHorizontal size={20} />
+                            </button>
+                        </div>
+
+                        <div className="article-drawer-body">
+                            <div>
+                                <div className="article-drawer-group-title">Nom et référence</div>
+                                <div className="article-drawer-group-card">
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Désignation*</label>
+                                        <input type="text" className="article-drawer-input" placeholder="Ex: Main d'œuvre diagnostic" value={tempName} onChange={(e) => setTempName(e.target.value)} />
+                                    </div>
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Référence</label>
+                                        <input type="text" className="article-drawer-input" placeholder="Ex: REF-001" value={tempReference} onChange={(e) => setTempReference(e.target.value)} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="article-drawer-group-title">Tarification &amp; Déclaration</div>
+                                <div className="article-drawer-group-card">
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Prix unitaire HT (€)*</label>
+                                        <input type="number" className="article-drawer-input" placeholder="Ex: 85" value={tempPrice} onChange={(e) => setTempPrice(e.target.value)} />
+                                    </div>
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Type d'article (URSSAF)</label>
+                                        <div className="article-drawer-trigger" onClick={() => setShowUrssafSelector(true)}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tempUrssafCategory}</span>
+                                            <ChevronRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                        </div>
+                                    </div>
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Unité de facturation</label>
+                                        <div className="article-drawer-trigger" onClick={() => setShowUnitSelector(true)}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tempUnit}</span>
+                                            <ChevronRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                        </div>
+                                    </div>
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Quantité</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)', borderRadius: '8px', padding: '8px', border: '1px solid var(--border)' }}>
+                                            <button type="button" onClick={() => setTempQty(Math.max(1, tempQty - 1))} style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: 'rgba(85, 107, 47, 0.1)', color: '#556B2F', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}>−</button>
+                                            <input type="number" value={tempQty} onChange={(e) => setTempQty(Math.max(1, parseInt(e.target.value) || 1))} style={{ flex: 1, textAlign: 'center', border: 'none', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--foreground)', fontWeight: 800, fontSize: '1rem', outline: 'none', padding: '8px' }} min="1" />
+                                            <button type="button" onClick={() => setTempQty(tempQty + 1)} style={{ width: '36px', height: '36px', borderRadius: '6px', border: 'none', backgroundColor: '#556B2F', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: '1rem' }}>+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="article-drawer-footer">
+                            <button type="button" className="drawer-primary-btn" onClick={isEditingItem ? handleSaveEditedLine : handleSaveCreatedLine}>
+                                {isEditingItem ? "Enregistrer les modifications" : "Confirmer et ajouter"}
+                            </button>
+                            {isEditingItem && (
+                                <button type="button" className="drawer-danger-btn" onClick={() => { handleRemoveLine(editingLineId); setIsEditingItem(false); }}>
+                                    Supprimer l'article
+                                </button>
+                            )}
+                        </div>
+
+                        {showUrssafSelector && (
+                            <div className="selector-subsheet">
+                                <div className="article-drawer-header">
+                                    <button type="button" className="drawer-round-btn" onClick={() => setShowUrssafSelector(false)}><ArrowLeft size={20} /></button>
+                                    <h2>Type d'article</h2>
+                                    <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
+                                </div>
+                                <div style={{ padding: '14px 20px 0', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                                    Détermine la catégorie de votre déclaration URSSAF.
+                                </div>
+                                <div className="selector-options-list">
+                                    {[
+                                        "Vente de marchandises (BIC)",
+                                        "Prestations de services (BNC)",
+                                        "Prestations de services artisanales ou commerciales (BIC)",
+                                        "Vente de produits fabriqués (BIC)",
+                                        "Débours"
+                                    ].map((cat) => {
+                                        const isSelected = tempUrssafCategory === cat;
+                                        return (
+                                            <div
+                                                key={cat}
+                                                className={`selector-option-card ${isSelected ? 'selected' : ''}`}
+                                                onClick={() => {
+                                                    setTempUrssafCategory(cat);
+                                                    setShowUrssafSelector(false);
+                                                }}
+                                            >
+                                                <div className="option-details">
+                                                    <span className="option-title">{cat}</span>
+                                                </div>
+                                                <div className="option-radio">
+                                                    <div className="option-radio-inner" />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {showUnitSelector && (
+                            <div className="selector-subsheet">
+                                <div className="article-drawer-header">
+                                    <button type="button" className="drawer-round-btn" onClick={() => setShowUnitSelector(false)}><ArrowLeft size={20} /></button>
+                                    <h2>Unité de facturation</h2>
+                                    <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
+                                </div>
+                                <div className="selector-options-list">
+                                    {[
+                                        "À l'unité",
+                                        "À l'heure",
+                                        "À la journée",
+                                        "À la semaine",
+                                        "À l'année",
+                                        "Au gramme",
+                                        "Au forfait",
+                                        "Au caractère",
+                                        "À la ligne",
+                                        "Aucune"
+                                    ].map((unit) => {
+                                        const isSelected = tempUnit === unit;
+                                        return (
+                                            <div
+                                                key={unit}
+                                                className={`selector-option-card ${isSelected ? 'selected' : ''}`}
+                                                onClick={() => {
+                                                    setTempUnit(unit);
+                                                    setShowUnitSelector(false);
+                                                }}
+                                            >
+                                                <div className="option-details">
+                                                    <span className="option-title">{unit}</span>
+                                                </div>
+                                                <div className="option-radio">
+                                                    <div className="option-radio-inner" />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>,
+                document.body
+            )}
+            {showEcheancePicker && (
+                <EcheancePickerModal
+                    selectedOptionId={echeanceOptionId}
+                    customDate={echeanceCustomDate}
+                    onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
+                        setEcheanceOptionId(optId);
+                        setEcheanceCustomDate(custStr);
+                    }}
+                    onClose={() => setShowEcheancePicker(false)}
+                />
+            )}
         </div>
     );
 }

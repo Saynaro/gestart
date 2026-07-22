@@ -1,26 +1,63 @@
-import React from "react";
-import { X, Printer, Download } from "lucide-react";
+import React, { useState } from "react";
+import { X, Printer, Download, ZoomIn, ZoomOut } from "lucide-react";
 
 function InvoicePdfView({ invoice, onClose, onDownload }) {
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    const [zoom, setZoom] = useState(isMobile ? 0.65 : 1.0);
+
     if (!invoice) return null;
 
     const handlePrint = () => {
         window.print();
     };
 
+    const zoomIn = () => setZoom(prev => Math.min(1.6, Math.round((prev + 0.1) * 100) / 100));
+    const zoomOut = () => setZoom(prev => Math.max(0.35, Math.round((prev - 0.1) * 100) / 100));
+    const resetZoom = () => setZoom(isMobile ? 0.65 : 1.0);
+
     return (
         <div className="invoice-modal-overlay pdf-viewer-overlay">
             <div className="pdf-viewer-top-bar">
-                <span className="pdf-title">Aperçu Facture — {invoice.number}</span>
-                <div className="actions">
-                    <button className="top-btn" onClick={handlePrint}><Printer size={16} /> Imprimer</button>
-                    <button className="top-btn" onClick={() => onDownload(invoice)}><Download size={16} /> PDF</button>
-                    <button className="top-btn close-x" onClick={onClose}><X size={18} /></button>
+                <div className="pdf-viewer-top-bar-inner">
+                    <div className="pdf-top-row">
+                        <span className="pdf-title">Aperçu Facture — {invoice.number}</span>
+                        <button className="top-btn close-x-mobile" onClick={onClose} aria-label="Fermer">
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    <div className="pdf-controls-row">
+                        <div className="pdf-zoom-controls">
+                            <button className="top-btn" onClick={zoomOut} title="Уменьшить">
+                                <ZoomOut size={15} />
+                            </button>
+                            <button className="top-btn zoom-badge" onClick={resetZoom}>
+                                {Math.round(zoom * 100)}%
+                            </button>
+                            <button className="top-btn" onClick={zoomIn} title="Приблизить">
+                                <ZoomIn size={15} />
+                            </button>
+                        </div>
+
+                        <div className="actions">
+                            <button className="top-btn" onClick={handlePrint}><Printer size={15} /> <span className="btn-label">Imprimer</span></button>
+                            <button className="top-btn" onClick={() => onDownload(invoice)}><Download size={15} /> <span className="btn-label">PDF</span></button>
+                            <button className="top-btn close-x-desktop" onClick={onClose} aria-label="Fermer"><X size={18} /></button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div className="pdf-page-scroll-container">
-                <div className="a4-page-shadow">
+                <div
+                    className="a4-page-shadow"
+                    style={{
+                        zoom: zoom,
+                        transform: `scale(${zoom})`,
+                        transformOrigin: 'top center',
+                        transition: 'transform 0.15s ease-out, zoom 0.15s ease-out'
+                    }}
+                >
                     {/* A4 Sheet Container */}
                     <div className="invoice-pdf-a4-sheet" id="invoice-pdf-print-area">
                         {/* Company / Invoice details header */}
@@ -46,13 +83,19 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             <td>{invoice.number || `INV-${invoice.id}`}</td>
                                         </tr>
                                         <tr>
-                                            <td><strong>Date :</strong></td>
+                                            <td><strong>Date d'émission :</strong></td>
                                             <td>{new Date(invoice.date).toLocaleDateString("fr-FR")}</td>
                                         </tr>
                                         <tr>
-                                            <td><strong>Échéance :</strong></td>
-                                            <td>{new Date(new Date(invoice.date).setDate(new Date(invoice.date).getDate() + 30)).toLocaleDateString("fr-FR")}</td>
+                                            <td><strong>Date d'exigibilité du paiement :</strong></td>
+                                            <td>{new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}</td>
                                         </tr>
+                                        {invoice.deliveryDate && (
+                                            <tr>
+                                                <td><strong>Date de livraison :</strong></td>
+                                                <td>{new Date(invoice.deliveryDate).toLocaleDateString("fr-FR")}</td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -68,16 +111,6 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                     {invoice.clientEmail}
                                 </p>
                             </div>
-                        </div>
-
-                        {/* Intervention Info */}
-                        <div className="pdf-intervention-info">
-                            <span>Type d'intervention : <strong>{invoice.interventionType}</strong></span>
-                            {invoice.workDetails && (
-                                <p className="work-details">
-                                    <strong>Description :</strong> {invoice.workDetails}
-                                </p>
-                            )}
                         </div>
 
                         {/* Table items */}
@@ -141,7 +174,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                 <span>FR76 3000 6000 0123 4567 8901 234</span> · <span>BIC : PRSBFRPPXXX</span>
                             </div>
                             <div className="legal-notes">
-                                Conditions de paiement : Règlement à réception. Tout retard de paiement entraînera l'application de pénalités de retard au taux légal en vigueur ainsi qu'une indemnité forfaitaire pour frais de recouvrement de 40 € (Art. L. 441-6 du Code de commerce).
+                                <strong>Conditions de paiement :</strong> {invoice.paymentConditions || "Paiement à réception"} (Échéance le {new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}). Tout retard de paiement entraînera l'application de pénalités de retard au taux légal en vigueur ainsi qu'une indemnité forfaitaire pour frais de recouvrement de 40 € (Art. L. 441-6 du Code de commerce).
                             </div>
                         </div>
                     </div>

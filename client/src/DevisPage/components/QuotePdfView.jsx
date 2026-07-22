@@ -11,6 +11,17 @@ function QuotePdfView({ quote, onClose, onDownload }) {
         window.print();
     };
 
+    React.useEffect(() => {
+        window.history.pushState({ pdfViewer: true }, "");
+        const handlePopState = () => {
+            onClose();
+        };
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, []);
+
     const zoomIn = () => setZoom(prev => Math.min(1.6, Math.round((prev + 0.1) * 100) / 100));
     const zoomOut = () => setZoom(prev => Math.max(0.35, Math.round((prev - 0.1) * 100) / 100));
     const resetZoom = () => setZoom(isMobile ? 0.65 : 1.0);

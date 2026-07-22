@@ -2,6 +2,26 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
+const formatDateToISO = (frDate) => {
+    if (!frDate) return "";
+    if (frDate.includes("-")) return frDate;
+    const parts = frDate.split("/");
+    if (parts.length === 3) {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+    return frDate;
+};
+
+const formatDateToFR = (isoDate) => {
+    if (!isoDate) return "";
+    if (isoDate.includes("/")) return isoDate;
+    const parts = isoDate.split("-");
+    if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return isoDate;
+};
+
 function DesktopEditModal({
     editingClient,
     setEditingClient,
@@ -19,6 +39,12 @@ function DesktopEditModal({
     setEditZip,
     editCity,
     setEditCity,
+    editEquipModel,
+    setEditEquipModel,
+    editEquipInstallDate,
+    setEditEquipInstallDate,
+    editEquipSerial,
+    setEditEquipSerial,
     handleSaveClient
 }) {
     return (
@@ -43,7 +69,7 @@ function DesktopEditModal({
                         transition={{ duration: 0.2 }}
                     >
                         <div className="desktop-modal-header">
-                            <h2>Modifier le client</h2>
+                            <h2>{editingClient.isNew ? (editingClient.isOrg ? "Nouvelle organisation" : "Nouveau client") : "Modifier le client"}</h2>
                             <button className="desktop-modal-close" onClick={() => setEditingClient(null)}>
                                 <X size={18} />
                             </button>
@@ -140,6 +166,44 @@ function DesktopEditModal({
                                         className="form-input"
                                         placeholder="Paris"
                                     />
+                                </div>
+                            </div>
+
+                            {/* Équipement installé */}
+                            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                                <h4 style={{ fontSize: '0.88rem', fontWeight: 700, marginBottom: '12px', color: 'var(--foreground)' }}>Équipement installé</h4>
+                                
+                                <div className="form-field">
+                                    <label className="form-label">Marque / Modèle</label>
+                                    <input
+                                        type="text"
+                                        value={editEquipModel}
+                                        onChange={(e) => setEditEquipModel(e.target.value)}
+                                        className="form-input"
+                                        placeholder="ex: Mitsubishi 2.5kW"
+                                    />
+                                </div>
+
+                                <div className="profile-form-grid" style={{ marginTop: '12px' }}>
+                                    <div className="form-field">
+                                        <label className="form-label">Date d'installation</label>
+                                        <input
+                                            type="date"
+                                            value={formatDateToISO(editEquipInstallDate)}
+                                            onChange={(e) => setEditEquipInstallDate(formatDateToFR(e.target.value))}
+                                            className="form-input"
+                                        />
+                                    </div>
+                                    <div className="form-field">
+                                        <label className="form-label">N° de série</label>
+                                        <input
+                                            type="text"
+                                            value={editEquipSerial}
+                                            onChange={(e) => setEditEquipSerial(e.target.value)}
+                                            className="form-input"
+                                            placeholder="ex: MB-2024-5678"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>

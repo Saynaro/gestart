@@ -620,8 +620,7 @@ body {
     position: fixed;
     bottom: 95px;
     right: 16px;
-    background-color: #0066FF;
-    /* Native blue */
+    background-color: #556B2F;
     color: white;
     border: none;
     border-radius: 50px;
@@ -631,7 +630,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 4px 16px rgba(0, 102, 255, 0.35);
+    box-shadow: 0 4px 16px rgba(85, 107, 47, 0.35);
     z-index: 99;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -764,6 +763,11 @@ body {
     outline: none;
 }
 
+.mobile-form-card:focus-within {
+    border-color: #556B2F !important;
+    box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.18) !important;
+}
+
 .mobile-form-card-row {
     display: flex;
     align-items: center;
@@ -853,7 +857,7 @@ body {
 }
 
 input:checked+.toggle-slider {
-    background-color: #0066FF;
+    background-color: #556B2F;
 }
 
 input:checked+.toggle-slider:before {
@@ -870,7 +874,7 @@ input:checked+.toggle-slider:before {
 
 .mobile-sheet-save-btn {
     width: 100%;
-    background-color: #0066FF;
+    background-color: #556B2F;
     color: white;
     font-size: 16px;
     font-weight: 700;
@@ -879,12 +883,12 @@ input:checked+.toggle-slider:before {
     border-radius: 12px;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(85, 107, 47, 0.2);
     transition: background-color 0.2s ease;
 }
 
 .mobile-sheet-save-btn:active {
-    background-color: #0052cc;
+    background-color: #445625;
 }
 
 .mobile-sheet-archive-btn {
@@ -901,7 +905,7 @@ input:checked+.toggle-slider:before {
 /* Sub-sheet components */
 .mobile-sub-sheet-confirm-btn {
     width: 100%;
-    background-color: #0066FF;
+    background-color: #556B2F;
     color: white;
     font-size: 16px;
     font-weight: 700;
@@ -910,12 +914,12 @@ input:checked+.toggle-slider:before {
     border-radius: 12px;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(85, 107, 47, 0.2);
     margin-top: 16px;
 }
 
 .mobile-sub-sheet-confirm-btn:active {
-    background-color: #0052cc;
+    background-color: #445625;
 }
 
 .mobile-sub-sheet-desc {
@@ -927,8 +931,8 @@ input:checked+.toggle-slider:before {
 
 /* Email Pill block */
 .mobile-email-input-pill {
-    border: 1px solid #0066FF;
-    background-color: rgba(0, 102, 255, 0.03);
+    border: 1px solid #556B2F;
+    background-color: rgba(85, 107, 47, 0.05);
     padding: 8px 14px;
     border-radius: 50px;
     display: flex;
@@ -940,11 +944,11 @@ input:checked+.toggle-slider:before {
 .mobile-email-text {
     font-size: 16px;
     font-weight: 700;
-    color: #0066FF;
+    color: #556B2F;
 }
 
 .mobile-email-clear-btn {
-    background-color: #0066FF;
+    background-color: #556B2F;
     color: white;
     border-radius: 50%;
     width: 18px;
@@ -1007,7 +1011,7 @@ input:checked+.toggle-slider:before {
 
 .mobile-phone-number-field {
     flex: 1;
-    border: 1px solid #0066FF;
+    border: 1px solid #556B2F;
     border-radius: 12px;
     padding: 10px 14px;
     display: flex;
@@ -1126,7 +1130,7 @@ input:checked+.toggle-slider:before {
 .spinner-icon {
     width: 18px;
     height: 18px;
-    stroke: #0066FF;
+    stroke: #556B2F;
 }
 
 .spinner-icon.spinning {
@@ -1134,7 +1138,7 @@ input:checked+.toggle-slider:before {
 }
 
 .spinner-path {
-    stroke: #0066FF;
+    stroke: #556B2F;
     stroke-linecap: round;
     stroke-dasharray: 60;
     stroke-dashoffset: 20;
@@ -1361,21 +1365,35 @@ input:checked+.toggle-slider:before {
     display: flex;
     border-bottom: 1px solid var(--border);
     margin-bottom: 20px;
-    gap: 16px;
+    gap: 8px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+}
+
+.mobile-tabs-header::-webkit-scrollbar {
+    display: none;
 }
 
 .mobile-tabs-header .mobile-tab-btn {
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
-    padding: 12px 8px;
-    font-size: 14.5px;
+    padding: 10px 4px;
+    font-size: 13.5px;
     font-weight: 600;
     color: var(--muted-foreground);
     cursor: pointer;
     transition: all 0.2s ease;
     border-radius: 0;
     box-shadow: none;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    min-width: max-content;
 }
 
 .mobile-tabs-header .mobile-tab-btn.active {

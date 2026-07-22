@@ -13,7 +13,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
         <div className="mobile-contacts-view" style={{ backgroundColor: '#f8fafc' }}>
             {/* Header */}
             <div className="mobile-nav-header" style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', padding: '16px' }}>
-                <button className="mobile-back-circle" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(95, 75, 219, 0.08)', border: 'none', color: '#5f4bdb', cursor: 'pointer' }} onClick={() => setSelectedClient(null)}>
+                <button className="mobile-back-circle" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(95, 75, 219, 0.08)', border: 'none', color: '#5f4bdb', cursor: 'pointer' }} onClick={() => window.history.back()}>
                     <ArrowLeft size={16} />
                 </button>
                 <span className="mobile-nav-header-title visible" style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a', textAlign: 'center', flex: 1 }}>
@@ -176,7 +176,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                 </div>
             </div>
             {/* Mobile Bottom Tab Bar */}
-            <SideBar />
+            <SideBar hideFab={true} />
         </div>
     );
 }

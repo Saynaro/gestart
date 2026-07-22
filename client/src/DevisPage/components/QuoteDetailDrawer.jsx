@@ -40,6 +40,21 @@ function QuoteDetailDrawer({
         ? Math.min(100, (amountFactured / quote.totalTtc) * 100)
         : 0;
 
+    React.useEffect(() => {
+        window.history.pushState({ quoteDetail: true }, "");
+        const handlePopState = () => {
+            if (showStatusPicker) {
+                setShowStatusPicker(false);
+                return;
+            }
+            onClose();
+        };
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [showStatusPicker]);
+
     // ── Live mini PDF preview (same style as NewQuoteModal) ──
     const renderPreview = () => (
         <div className="live-preview-a4-wrapper">

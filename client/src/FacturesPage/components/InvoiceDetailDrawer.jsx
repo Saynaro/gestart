@@ -28,6 +28,17 @@ function InvoiceDetailDrawer({
     const isPaid    = invoice.status === "paid";
     const isPending = invoice.status === "pending" || invoice.status === "overdue";
 
+    React.useEffect(() => {
+        window.history.pushState({ invoiceDetail: true }, "");
+        const handlePopState = () => {
+            onClose();
+        };
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, []);
+
     const dueDate = invoice.dueDate
         ? new Date(invoice.dueDate).toLocaleDateString("fr-FR")
         : new Date(new Date(invoice.date).setDate(new Date(invoice.date).getDate() + (invoice.paymentDelay || 30))).toLocaleDateString("fr-FR");

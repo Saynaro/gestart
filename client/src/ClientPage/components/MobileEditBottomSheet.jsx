@@ -2,6 +2,26 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronDown, Plus, Search } from "lucide-react";
 
+const formatDateToISO = (frDate) => {
+    if (!frDate) return "";
+    if (frDate.includes("-")) return frDate;
+    const parts = frDate.split("/");
+    if (parts.length === 3) {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+    return frDate;
+};
+
+const formatDateToFR = (isoDate) => {
+    if (!isoDate) return "";
+    if (isoDate.includes("/")) return isoDate;
+    const parts = isoDate.split("-");
+    if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return isoDate;
+};
+
 function MobileEditBottomSheet({
     editingClient,
     setEditingClient,
@@ -23,12 +43,25 @@ function MobileEditBottomSheet({
     setEditCity,
     editDiffDelivery,
     setEditDiffDelivery,
+    editEquipModel,
+    setEditEquipModel,
+    editEquipInstallDate,
+    setEditEquipInstallDate,
+    editEquipSerial,
+    setEditEquipSerial,
     activeSubSheet,
     setActiveSubSheet,
     dragControlsMain,
     dragControlsSub,
     handleSaveClient
 }) {
+    const handleInputFocus = (e) => {
+        const el = e.currentTarget;
+        setTimeout(() => {
+            el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+        }, 250);
+    };
+
     return (
         <>
             {/* Main Client Edit Sheet (Modifier le client) */}
@@ -74,7 +107,9 @@ function MobileEditBottomSheet({
                                     <button className="mobile-sheet-close-btn" onClick={(e) => { e.stopPropagation(); setEditingClient(null); }}>
                                         <X size={18} />
                                     </button>
-                                    <h2 className="mobile-sheet-title">Modifier le client</h2>
+                                    <h2 className="mobile-sheet-title">
+                                        {editingClient.isNew ? (editingClient.isOrg ? "Nouvelle organisation" : "Nouveau client") : "Modifier le client"}
+                                    </h2>
                                     <div style={{ width: '36px' }} />
                                 </div>
                             </div>
@@ -88,6 +123,7 @@ function MobileEditBottomSheet({
                                             type="text"
                                             value={editFirstName}
                                             onChange={(e) => setEditFirstName(e.target.value)}
+                                            onFocus={handleInputFocus}
                                             className="mobile-form-card-input"
                                         />
                                     </div>
@@ -99,6 +135,7 @@ function MobileEditBottomSheet({
                                                 type="text"
                                                 value={editFirstName}
                                                 onChange={(e) => setEditFirstName(e.target.value)}
+                                                onFocus={handleInputFocus}
                                                 className="mobile-form-card-input"
                                             />
                                         </div>
@@ -109,6 +146,7 @@ function MobileEditBottomSheet({
                                                 type="text"
                                                 value={editLastName}
                                                 onChange={(e) => setEditLastName(e.target.value)}
+                                                onFocus={handleInputFocus}
                                                 className="mobile-form-card-input"
                                             />
                                         </div>
@@ -161,6 +199,55 @@ function MobileEditBottomSheet({
                                     <p className="mobile-toggle-desc">
                                         La modification de l'adresse de livraison depuis le client ne modifiera pas celle sur le document en cours d'édition.
                                     </p>
+                                </div>
+
+                                {/* Équipement installé Card */}
+                                <div className="mobile-form-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 18px', backgroundColor: 'white', border: '1px solid var(--border)', borderRadius: '20px' }}>
+                                    <span className="mobile-form-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--foreground)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                                        Équipement installé
+                                    </span>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <label style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Marque / Modèle</label>
+                                        <div style={{ backgroundColor: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center' }}>
+                                            <input
+                                                type="text"
+                                                placeholder="ex: Mitsubishi 2.5kW"
+                                                value={editEquipModel}
+                                                onChange={(e) => setEditEquipModel(e.target.value)}
+                                                onFocus={handleInputFocus}
+                                                style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <label style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Date d'installation</label>
+                                            <div style={{ backgroundColor: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center' }}>
+                                                <input
+                                                    type="date"
+                                                    value={formatDateToISO(editEquipInstallDate)}
+                                                    onChange={(e) => setEditEquipInstallDate(formatDateToFR(e.target.value))}
+                                                    onFocus={handleInputFocus}
+                                                    style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a', fontFamily: 'inherit' }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <label style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>N° de série</label>
+                                            <div style={{ backgroundColor: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center' }}>
+                                                <input
+                                                    type="text"
+                                                    placeholder="ex: MB-2024-5678"
+                                                    value={editEquipSerial}
+                                                    onChange={(e) => setEditEquipSerial(e.target.value)}
+                                                    onFocus={handleInputFocus}
+                                                    style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Save and Archive Buttons */}

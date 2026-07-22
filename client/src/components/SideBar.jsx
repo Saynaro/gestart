@@ -5,16 +5,32 @@ import "./SideBar.css";
 import BottomSheet from "./BottomSheet";
 import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
 
-function SideBar({ onFabClick }) {
+function SideBar({ onFabClick, hideFab = false }) {
     const navigate = useNavigate();
     const location = useLocation();
     const activePath = location.pathname || "/home";
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
-    
+
     // Close bottom sheet on route changes (including back navigation)
     useEffect(() => {
         setBottomSheetOpen(false);
     }, [location.pathname]);
+
+    // Intercept back gesture / button to close Plus bottom sheet
+    useEffect(() => {
+        if (!bottomSheetOpen) return;
+
+        window.history.pushState({ modal: "sidebar-plus-menu" }, "");
+
+        const handlePopState = () => {
+            setBottomSheetOpen(false);
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [bottomSheetOpen]);
 
     const [isCollapsed, setIsCollapsed] = useState(() => {
         const stored = localStorage.getItem("sidebar-expanded");
@@ -63,6 +79,9 @@ function SideBar({ onFabClick }) {
         }
         if (path.includes("factures")) {
             return { label: "Nouvelle facture", icon: Icons.plus };
+        }
+        if (path.includes("devis")) {
+            return { label: "Nouveau devis", icon: Icons.plus };
         }
         return null;
     };
@@ -243,7 +262,7 @@ function SideBar({ onFabClick }) {
                 </div>
             </div>
 
-            {fabConfig && (
+            {fabConfig && !hideFab && (
                 <button
                     className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : "factures"}`}
                     onClick={(e) => {

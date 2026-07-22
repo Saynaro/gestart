@@ -1,8 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useDragControls } from "framer-motion";
 import { Plus, Trash, X, ChevronDown, ChevronRight, Search, Eye, FileText, Check, Edit2, ArrowLeft, MoreHorizontal, ZoomIn, ZoomOut } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
+import MobileEditBottomSheet from "../../ClientPage/components/MobileEditBottomSheet";
+import DesktopEditModal from "../../ClientPage/components/DesktopEditModal";
+
+const initialClientDetails = [
+    { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
+    { name: "John Doe", type: "Particulier", email: "john.doe@email.com", address: "45 Avenue Foch, 69006 Lyon" },
+    { name: "Khalid Sainaro", type: "Particulier", email: "khalid@gmail.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
+    { name: "Martin Dupont", type: "Particulier", email: "martin.dupont@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
+    { name: "Sophie Bernard", type: "Particulier", email: "sophie.b@email.com", address: "45 Avenue Foch, 69006 Lyon" },
+    { name: "Jean Moreau", type: "Particulier", email: "jean.moreau@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
+    { name: "Marie Dubois", type: "Particulier", email: "marie.dubois@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
+    { name: "Claire Laurent", type: "Particulier", email: "claire.laurent@email.com", address: "45 Avenue Foch, 69006 Lyon" },
+    { name: "Pierre Leroy", type: "Particulier", email: "pierre.leroy@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
+    { name: "LexCorp", type: "Organisation", email: "contact@lexcorp.com", address: "Metropolis City" },
+    { name: "Acme Corp", type: "Organisation", email: "billing@acme.com", address: "109 Rue Saint-Dizier, 54000 Nancy" },
+    { name: "Dupont & Co", type: "Organisation", email: "dupontco@gmail.com", address: "12 Rue des Fleurs, 75001 Paris" },
+    { name: "Bernard SA", type: "Organisation", email: "contact@bernard.sa", address: "45 Avenue Foch, 69006 Lyon" }
+].sort((a, b) => a.name.localeCompare(b.name));
 
 function NewQuoteModal({ onClose, onCreateQuote }) {
     // Determine screen size dynamically
@@ -17,21 +36,65 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
     const [step, setStep] = useState(1);
 
     // Grouped Clients list matching /planning
-    const clientDetails = [
-        { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-        { name: "John Doe", type: "Particulier", email: "john.doe@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-        { name: "Khalid Sainaro", type: "Particulier", email: "khalid@gmail.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-        { name: "Martin Dupont", type: "Particulier", email: "martin.dupont@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-        { name: "Sophie Bernard", type: "Particulier", email: "sophie.b@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-        { name: "Jean Moreau", type: "Particulier", email: "jean.moreau@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-        { name: "Marie Dubois", type: "Particulier", email: "marie.dubois@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-        { name: "Claire Laurent", type: "Particulier", email: "claire.laurent@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-        { name: "Pierre Leroy", type: "Particulier", email: "pierre.leroy@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-        { name: "LexCorp", type: "Organisation", email: "contact@lexcorp.com", address: "Metropolis City" },
-        { name: "Acme Corp", type: "Organisation", email: "billing@acme.com", address: "109 Rue Saint-Dizier, 54000 Nancy" },
-        { name: "Dupont & Co", type: "Organisation", email: "dupontco@gmail.com", address: "12 Rue des Fleurs, 75001 Paris" },
-        { name: "Bernard SA", type: "Organisation", email: "contact@bernard.sa", address: "45 Avenue Foch, 69006 Lyon" }
-    ].sort((a, b) => a.name.localeCompare(b.name));
+    const [clientDetails, setClientDetails] = useState(initialClientDetails);
+
+    // Full Client Edit / New Client BottomSheet states
+    const dragControlsMain = useDragControls();
+    const dragControlsSub = useDragControls();
+    const [editingClient, setEditingClient] = useState(null);
+    const [activeSubSheet, setActiveSubSheet] = useState(null);
+    const [editFirstName, setEditFirstName] = useState("");
+    const [editLastName, setEditLastName] = useState("");
+    const [editPhone, setEditPhone] = useState("");
+    const [editEmail, setEditEmail] = useState("");
+    const [editAddress, setEditAddress] = useState("");
+    const [editComplAddress, setEditComplAddress] = useState("");
+    const [editZip, setEditZip] = useState("");
+    const [editCity, setEditCity] = useState("");
+    const [editDiffDelivery, setEditDiffDelivery] = useState(false);
+    const [editEquipModel, setEditEquipModel] = useState("");
+    const [editEquipInstallDate, setEditEquipInstallDate] = useState("");
+    const [editEquipSerial, setEditEquipSerial] = useState("");
+
+    const handleOpenAddClient = () => {
+        setShowClientSearch(false);
+        setEditFirstName("");
+        setEditLastName("");
+        setEditPhone("");
+        setEditEmail("");
+        setEditAddress("");
+        setEditComplAddress("");
+        setEditZip("");
+        setEditCity("");
+        setEditDiffDelivery(false);
+        setEditEquipModel("");
+        setEditEquipInstallDate("");
+        setEditEquipSerial("");
+        setEditingClient({ isNew: true, isOrg: false });
+        window.history.pushState({ modal: "nouveau-client" }, "");
+    };
+
+    const handleSaveNewClient = () => {
+        const fullName = editingClient?.isOrg
+            ? editFirstName.trim()
+            : `${editFirstName} ${editLastName}`.trim();
+        if (!fullName) return;
+
+        const newClientObj = {
+            name: fullName,
+            type: editingClient?.isOrg ? "Organisation" : "Particulier",
+            email: editEmail || `${editFirstName.toLowerCase().replace(/\s+/g, ".")}@email.com`,
+            address: editAddress ? `${editAddress}, ${editZip} ${editCity}`.trim() : "Adresse personnalisée"
+        };
+
+        setClientDetails(prev => [...prev, newClientObj].sort((a, b) => a.name.localeCompare(b.name)));
+        setSelectedClient(newClientObj);
+        setEditingClient(null);
+        setShowClientSearch(false);
+        if (isMobile) {
+            setStep(2);
+        }
+    };
 
     // Mock catalog for supplies matching Screenshot style
     const mockCatalog = [
@@ -43,7 +106,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
     ].sort((a, b) => a.description.localeCompare(b.description));
 
     // Form states
-    const [selectedClient, setSelectedClient] = useState(clientDetails[0]);
+    const [selectedClient, setSelectedClient] = useState(null);
     const [quoteDate, setQuoteDate] = useState(new Date().toISOString().split("T")[0]);
     const [echeanceOptionId, setEcheanceOptionId] = useState("30j");
     const [echeanceCustomDate, setEcheanceCustomDate] = useState("");
@@ -121,6 +184,82 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
             document.body.style.overflow = "";
         };
     }, [showMobilePreview]);
+
+    // Intercept browser back button & iOS edge swipe gesture
+    const historyStepPushedRef = React.useRef(0);
+
+    useEffect(() => {
+        window.history.pushState({ modal: "quote-modal", step }, "");
+        historyStepPushedRef.current += 1;
+
+        const handlePopState = () => {
+            if (historyStepPushedRef.current > 0) {
+                historyStepPushedRef.current -= 1;
+            }
+
+            if (editingClient) {
+                if (activeSubSheet) {
+                    setActiveSubSheet(null);
+                } else {
+                    setEditingClient(null);
+                    if (!isMobile) {
+                        setShowClientSearch(true);
+                    }
+                }
+                return;
+            }
+
+            if (showNewCatalogItemForm) {
+                setShowNewCatalogItemForm(false);
+                return;
+            }
+            if (showCatalogSearch) {
+                setShowCatalogSearch(false);
+                return;
+            }
+            if (showUrssafSelector) {
+                setShowUrssafSelector(false);
+                return;
+            }
+            if (showUnitSelector) {
+                setShowUnitSelector(false);
+                return;
+            }
+            if (isCreatingItem || isEditingItem) {
+                setIsCreatingItem(false);
+                setIsEditingItem(false);
+                return;
+            }
+            if (showEcheancePicker) {
+                setShowEcheancePicker(false);
+                return;
+            }
+            if (showNewClientFormMobile) {
+                setShowNewClientFormMobile(false);
+                return;
+            }
+            if (showMobilePreview) {
+                setShowMobilePreview(false);
+                return;
+            }
+
+            if (step > 1) {
+                setStep(prev => prev - 1);
+                return;
+            }
+
+            onClose();
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [step, editingClient, activeSubSheet, isMobile, showCatalogSearch, showNewCatalogItemForm, isCreatingItem, isEditingItem, showUrssafSelector, showUnitSelector, showEcheancePicker, showNewClientFormMobile, showMobilePreview]);
+
+    const handleGoBack = () => {
+        window.history.back();
+    };
 
     // Totals calculation
     const [subtotalHt, setSubtotalHt] = useState(0);
@@ -372,10 +511,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 16px', backgroundColor: 'var(--card)', borderBottom: '1px solid var(--border)' }}>
                     <button
                         type="button"
-                        onClick={() => {
-                            if (step > 1) setStep(step - 1);
-                            else onClose();
-                        }}
+                        onClick={handleGoBack}
                         style={{ border: 'none', background: 'var(--muted)', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--foreground)' }}
                     >
                         <ArrowLeft size={18} />
@@ -404,10 +540,10 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
 
                     {/* STEP 1: Client selection */}
                     {step === 1 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
-                            <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--foreground)' }}>Quel client facturer ?</h2>
+                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+                            <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '12px' }}>Quel client facturer ?</h2>
 
-                            <div className="client-search-input-wrapper" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+                            <div className="client-search-input-wrapper" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', marginBottom: '12px' }}>
                                 <Search size={18} className="client-search-icon" />
                                 <input
                                     type="text"
@@ -419,7 +555,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, overflowY: 'auto', paddingRight: '2px', paddingBottom: '16px' }}>
                                 {Object.entries(
                                     getGroupedClients(
                                         clientDetails.filter(c =>
@@ -470,11 +606,11 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 ))}
                             </div>
 
-                            {/* Sticky footer button for step 1 */}
-                            <div style={{ marginTop: 'auto', paddingTop: '16px', paddingBottom: '32px' }}>
+                            {/* Fixed bottom button for step 1 */}
+                            <div style={{ position: 'sticky', bottom: 0, backgroundColor: 'var(--background)', paddingTop: '12px', paddingBottom: '16px', borderTop: '1px solid var(--border)', zIndex: 10, marginTop: 'auto' }}>
                                 <button
                                     type="button"
-                                    onClick={() => setShowNewClientFormMobile(true)}
+                                    onClick={handleOpenAddClient}
                                     style={{
                                         width: '100%',
                                         height: '48px',
@@ -483,8 +619,9 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                         border: 'none',
                                         borderRadius: '8px',
                                         fontWeight: 800,
-                                        fontSize: '0.9rem',
-                                        cursor: 'pointer'
+                                        fontSize: '0.95rem',
+                                        cursor: 'pointer',
+                                        boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
                                     }}
                                 >
                                     Ajouter un client
@@ -1283,6 +1420,43 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     />
                 )}
 
+                {/* Full Client Edit / New Client Portal Sheet (Mobile) */}
+                {editingClient && (
+                    <MobileEditBottomSheet
+                        editingClient={editingClient}
+                        setEditingClient={setEditingClient}
+                        editFirstName={editFirstName}
+                        setEditFirstName={setEditFirstName}
+                        editLastName={editLastName}
+                        setEditLastName={setEditLastName}
+                        editPhone={editPhone}
+                        setEditPhone={setEditPhone}
+                        editEmail={editEmail}
+                        setEditEmail={setEditEmail}
+                        editAddress={editAddress}
+                        setEditAddress={setEditAddress}
+                        editComplAddress={editComplAddress}
+                        setEditComplAddress={setEditComplAddress}
+                        editZip={editZip}
+                        setEditZip={setEditZip}
+                        editCity={editCity}
+                        setEditCity={setEditCity}
+                        editDiffDelivery={editDiffDelivery}
+                        setEditDiffDelivery={setEditDiffDelivery}
+                        editEquipModel={editEquipModel}
+                        setEditEquipModel={setEditEquipModel}
+                        editEquipInstallDate={editEquipInstallDate}
+                        setEditEquipInstallDate={setEditEquipInstallDate}
+                        editEquipSerial={editEquipSerial}
+                        setEditEquipSerial={setEditEquipSerial}
+                        activeSubSheet={activeSubSheet}
+                        setActiveSubSheet={setActiveSubSheet}
+                        dragControlsMain={dragControlsMain}
+                        dragControlsSub={dragControlsSub}
+                        handleSaveClient={handleSaveNewClient}
+                    />
+                )}
+
             </div>
         , document.body);
     }
@@ -1614,11 +1788,12 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                             ))}
                         </div>
 
-                        <div className="client-search-footer">
-                            {pendingClient ? (
+                        <div className="client-search-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px' }}>
+                            {pendingClient && (
                                 <button
                                     type="button"
                                     className="client-search-confirm-btn"
+                                    style={{ width: '100%', height: '44px' }}
                                     onClick={() => {
                                         setSelectedClient(pendingClient);
                                         setShowClientSearch(false);
@@ -1628,22 +1803,15 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 >
                                     Confirmer — {pendingClient.name}
                                 </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    className="client-search-add-btn secondary"
-                                    onClick={() => {
-                                        const newName = clientSearchQuery.trim();
-                                        if (newName) {
-                                            setSelectedClient({ name: newName, type: "Particulier", email: `${newName.toLowerCase().replace(" ", ".")}@email.com`, address: "Adresse personnalisée" });
-                                            setShowClientSearch(false);
-                                            setClientSearchQuery("");
-                                        }
-                                    }}
-                                >
-                                    + Ajouter un client
-                                </button>
                             )}
+                            <button
+                                type="button"
+                                className="client-search-add-btn secondary"
+                                style={{ width: '100%', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                onClick={handleOpenAddClient}
+                            >
+                                + Ajouter un nouveau client
+                            </button>
                         </div>
                     </div>
                 </div>,
@@ -2021,6 +2189,71 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     }}
                     onClose={() => setShowEcheancePicker(false)}
                 />
+            )}
+
+            {/* Full Client Edit / New Client Portal Sheet (Mobile) & Modal (Desktop) */}
+            {editingClient && (
+                isMobile ? (
+                    <MobileEditBottomSheet
+                        editingClient={editingClient}
+                        setEditingClient={setEditingClient}
+                        editFirstName={editFirstName}
+                        setEditFirstName={setEditFirstName}
+                        editLastName={editLastName}
+                        setEditLastName={setEditLastName}
+                        editPhone={editPhone}
+                        setEditPhone={setEditPhone}
+                        editEmail={editEmail}
+                        setEditEmail={setEditEmail}
+                        editAddress={editAddress}
+                        setEditAddress={setEditAddress}
+                        editComplAddress={editComplAddress}
+                        setEditComplAddress={setEditComplAddress}
+                        editZip={editZip}
+                        setEditZip={setEditZip}
+                        editCity={editCity}
+                        setEditCity={setEditCity}
+                        editDiffDelivery={editDiffDelivery}
+                        setEditDiffDelivery={setEditDiffDelivery}
+                        editEquipModel={editEquipModel}
+                        setEditEquipModel={setEditEquipModel}
+                        editEquipInstallDate={editEquipInstallDate}
+                        setEditEquipInstallDate={setEditEquipInstallDate}
+                        editEquipSerial={editEquipSerial}
+                        setEditEquipSerial={setEditEquipSerial}
+                        activeSubSheet={activeSubSheet}
+                        setActiveSubSheet={setActiveSubSheet}
+                        dragControlsMain={dragControlsMain}
+                        dragControlsSub={dragControlsSub}
+                        handleSaveClient={handleSaveNewClient}
+                    />
+                ) : (
+                    <DesktopEditModal
+                        editingClient={editingClient}
+                        setEditingClient={setEditingClient}
+                        editFirstName={editFirstName}
+                        setEditFirstName={setEditFirstName}
+                        editLastName={editLastName}
+                        setEditLastName={setEditLastName}
+                        editPhone={editPhone}
+                        setEditPhone={setEditPhone}
+                        editEmail={editEmail}
+                        setEditEmail={setEditEmail}
+                        editAddress={editAddress}
+                        setEditAddress={setEditAddress}
+                        editZip={editZip}
+                        setEditZip={setEditZip}
+                        editCity={editCity}
+                        setEditCity={setEditCity}
+                        editEquipModel={editEquipModel}
+                        setEditEquipModel={setEditEquipModel}
+                        editEquipInstallDate={editEquipInstallDate}
+                        setEditEquipInstallDate={setEditEquipInstallDate}
+                        editEquipSerial={editEquipSerial}
+                        setEditEquipSerial={setEditEquipSerial}
+                        handleSaveClient={handleSaveNewClient}
+                    />
+                )
             )}
         </div>
     );

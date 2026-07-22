@@ -57,6 +57,45 @@ function PlaceholderPage({ title, subtitle }) {
   );
 }
 
+// Helper component to prevent browser back gesture / navigation on main pages when no modal is active
+const MAIN_APP_ROUTES = [
+  "/home",
+  "/client",
+  "/planning",
+  "/messages",
+  "/factures",
+  "/devis",
+  "/rapports",
+  "/comptabilite",
+  "/catalogue",
+  "/premium",
+  "/settings"
+];
+
+function PreventMainPageBack() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const currentPath = pathname.toLowerCase();
+    if (!MAIN_APP_ROUTES.includes(currentPath)) return;
+
+    // Lock main page history entry so back button/swipe stays on the page when no modal is active
+    window.history.pushState({ mainLock: true, path: currentPath }, "", window.location.href);
+
+    const handlePopState = () => {
+      // Re-push main lock entry if back is pressed on main page without modal
+      window.history.pushState({ mainLock: true, path: currentPath }, "", window.location.href);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -70,6 +109,7 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <PreventMainPageBack />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<HomePage />} />

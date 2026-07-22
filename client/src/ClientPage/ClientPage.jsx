@@ -287,6 +287,11 @@ function ClientPage() {
     const [editCity, setEditCity] = useState("");
     const [editDiffDelivery, setEditDiffDelivery] = useState(false);
 
+    // Equipment form states
+    const [editEquipModel, setEditEquipModel] = useState("");
+    const [editEquipInstallDate, setEditEquipInstallDate] = useState("");
+    const [editEquipSerial, setEditEquipSerial] = useState("");
+
     // Detect mobile viewport
     useEffect(() => {
         setIsMobile(window.innerWidth <= 768);
@@ -307,6 +312,36 @@ function ClientPage() {
             }
         }
     }, [contacts, organisations, selectedClient?.id, selectedClient?.isOrg]);
+
+    // Intercept browser back button & iOS edge swipe gesture for selected client detail & editing bottom sheet
+    useEffect(() => {
+        if (selectedClient || editingClient) {
+            window.history.pushState({ clientView: true }, "");
+
+            const handlePopState = () => {
+                if (activeSubSheet) {
+                    setActiveSubSheet(null);
+                    return;
+                }
+                if (editingClient) {
+                    setEditingClient(null);
+                    return;
+                }
+                if (selectedClient) {
+                    setSelectedClient(null);
+                    const params = new URLSearchParams(window.location.search);
+                    params.delete("id");
+                    navigate({ search: params.toString() }, { replace: true });
+                    return;
+                }
+            };
+
+            window.addEventListener("popstate", handlePopState);
+            return () => {
+                window.removeEventListener("popstate", handlePopState);
+            };
+        }
+    }, [selectedClient?.id, editingClient?.id, editingClient?.isNew, activeSubSheet, navigate]);
 
     // Filter contacts based on search and status pills
     const filteredContacts = contacts.filter(contact => {
@@ -350,6 +385,24 @@ function ClientPage() {
     });
     const sortedLetters = Object.keys(groupedItems).sort();
 
+    // Trigger creating new Client Modal / Bottom Sheet
+    const handleOpenAddClient = () => {
+        const isOrg = activeTabType === "organisation";
+        setEditingClient({ id: null, isOrg, isNew: true });
+        setEditFirstName("");
+        setEditLastName("");
+        setEditPhone("");
+        setEditEmail("");
+        setEditAddress("");
+        setEditComplAddress("");
+        setEditZip("");
+        setEditCity("");
+        setEditDiffDelivery(false);
+        setEditEquipModel("");
+        setEditEquipInstallDate("");
+        setEditEquipSerial("");
+    };
+
     // Trigger editing Modal / Bottom Sheet
     const handleOpenEdit = (client, isOrg = false) => {
         setEditingClient({ ...client, isOrg });
@@ -367,9 +420,61 @@ function ClientPage() {
         setEditZip(client.zip || "");
         setEditCity(client.city || "");
         setEditDiffDelivery(false);
+        setEditEquipModel(client.equipment?.model || "");
+        setEditEquipInstallDate(client.equipment?.installDate || "");
+        setEditEquipSerial(client.equipment?.serialNumber || "");
     };
 
     const handleSaveClient = () => {
+        if (!editingClient) return;
+
+        const equipData = {
+            model: editEquipModel || "Daikin 3.5kW",
+            installDate: editEquipInstallDate || new Date().toLocaleDateString("fr-FR"),
+            serialNumber: editEquipSerial || `SN-${Date.now().toString().slice(-6)}`
+        };
+
+        if (editingClient.isNew) {
+            const newId = Date.now();
+            if (editingClient.isOrg) {
+                const newOrg = {
+                    id: newId,
+                    name: editFirstName || "Nouvelle Organisation",
+                    contact: "",
+                    phone: editPhone,
+                    email: editEmail,
+                    address: editAddress,
+                    zip: editZip,
+                    city: editCity,
+                    type: "organisation",
+                    isOrg: true,
+                    equipment: equipData,
+                    maintenance: { status: "OK", nextMaintenance: "10/05/2027" },
+                    interventions: []
+                };
+                setOrganisations(prev => [newOrg, ...prev]);
+            } else {
+                const newContact = {
+                    id: newId,
+                    firstName: editFirstName || "Nouveau",
+                    lastName: editLastName || "Client",
+                    badge: null,
+                    phone: editPhone,
+                    email: editEmail,
+                    address: editAddress,
+                    zip: editZip,
+                    city: editCity,
+                    type: "particulier",
+                    equipment: equipData,
+                    maintenance: { status: "OK", nextMaintenance: "15/03/2027" },
+                    interventions: []
+                };
+                setContacts(prev => [newContact, ...prev]);
+            }
+            setEditingClient(null);
+            return;
+        }
+
         const updatedClient = editingClient.isOrg ? {
             ...editingClient,
             name: editFirstName,
@@ -377,7 +482,8 @@ function ClientPage() {
             email: editEmail,
             address: editAddress,
             zip: editZip,
-            city: editCity
+            city: editCity,
+            equipment: equipData
         } : {
             ...editingClient,
             firstName: editFirstName,
@@ -386,10 +492,15 @@ function ClientPage() {
             email: editEmail,
             address: editAddress,
             zip: editZip,
-            city: editCity
+            city: editCity,
+            equipment: equipData
         };
 
-        setContacts(prev => prev.map(c => c.id === editingClient.id ? updatedClient : c));
+        if (editingClient.isOrg) {
+            setOrganisations(prev => prev.map(o => o.id === editingClient.id ? updatedClient : o));
+        } else {
+            setContacts(prev => prev.map(c => c.id === editingClient.id ? updatedClient : c));
+        }
 
         if (selectedClient && selectedClient.id === editingClient.id) {
             setSelectedClient(updatedClient);
@@ -471,7 +582,7 @@ function ClientPage() {
                         </div>
 
                         {/* Mobile Bottom Tab Bar */}
-                        <SideBar />
+                        <SideBar onFabClick={handleOpenAddClient} hideFab={!!selectedClient} />
                     </div>
                 )
             ) : (
@@ -497,7 +608,7 @@ function ClientPage() {
                                             <h1 className="content-title">Clients</h1>
                                             <p className="content-subtitle">Gérez vos relations clients et leurs informations.</p>
                                         </div>
-                                        <button className="new-client-btn" onClick={() => alert("Nouveau client")}>
+                                        <button className="new-client-btn" onClick={handleOpenAddClient}>
                                             + Nouveau Client
                                         </button>
                                     </div>
@@ -570,6 +681,12 @@ function ClientPage() {
                     setEditZip={setEditZip}
                     editCity={editCity}
                     setEditCity={setEditCity}
+                    editEquipModel={editEquipModel}
+                    setEditEquipModel={setEditEquipModel}
+                    editEquipInstallDate={editEquipInstallDate}
+                    setEditEquipInstallDate={setEditEquipInstallDate}
+                    editEquipSerial={editEquipSerial}
+                    setEditEquipSerial={setEditEquipSerial}
                     handleSaveClient={handleSaveClient}
                 />
             )}
@@ -597,6 +714,12 @@ function ClientPage() {
                     setEditCity={setEditCity}
                     editDiffDelivery={editDiffDelivery}
                     setEditDiffDelivery={setEditDiffDelivery}
+                    editEquipModel={editEquipModel}
+                    setEditEquipModel={setEditEquipModel}
+                    editEquipInstallDate={editEquipInstallDate}
+                    setEditEquipInstallDate={setEditEquipInstallDate}
+                    editEquipSerial={editEquipSerial}
+                    setEditEquipSerial={setEditEquipSerial}
                     activeSubSheet={activeSubSheet}
                     setActiveSubSheet={setActiveSubSheet}
                     dragControlsMain={dragControlsMain}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Bell, MessageSquare, Send, X } from "lucide-react";
 import "./Header.css";
 import { profilePages, DropdownIcons } from "./navigationConstants";
@@ -27,15 +28,51 @@ function Header() {
     const [activePath, setActivePath] = useState(window.location.pathname || "/dashboard");
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+    const [touchStartX, setTouchStartX] = useState(null);
+    const [touchCurrentX, setTouchCurrentX] = useState(null);
+
+    const handleCloseNotifications = () => {
+        setBellOpen(false);
+        setActiveSmsReplyId(null);
+    };
+
     useEffect(() => {
         if (!bellOpen) return;
-        const closeBell = () => {
+
+        // Push state so back button / iOS back swipe closes the notifications panel
+        window.history.pushState({ notificationsOpen: true }, "");
+
+        const handlePopState = (e) => {
             setBellOpen(false);
             setActiveSmsReplyId(null);
         };
-        window.addEventListener("click", closeBell);
-        return () => window.removeEventListener("click", closeBell);
+
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
     }, [bellOpen]);
+
+    const handleTouchStart = (e) => {
+        setTouchStartX(e.touches[0].clientX);
+    };
+
+    const handleTouchMove = (e) => {
+        if (touchStartX !== null) {
+            setTouchCurrentX(e.touches[0].clientX);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (touchStartX !== null && touchCurrentX !== null) {
+            const deltaX = touchCurrentX - touchStartX;
+            if (deltaX > 60) {
+                handleCloseNotifications();
+            }
+        }
+        setTouchStartX(null);
+        setTouchCurrentX(null);
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -113,90 +150,111 @@ function Header() {
                     </svg>
                     <span className="notification-dot"></span>
 
-                    {bellOpen && (
-                        <div className="bell-dropdown-container" onClick={(e) => e.stopPropagation()}>
-                            <div className="bell-tabs-header">
-                                <button 
-                                    className={`bell-tab-btn ${bellTab === "notifications" ? "active" : ""}`}
-                                    onClick={() => setBellTab("notifications")}
-                                >
-                                    <Bell size={13} /> Notifications
-                                </button>
-                                <button 
-                                    className={`bell-tab-btn ${bellTab === "sms" ? "active" : ""}`}
-                                    onClick={() => setBellTab("sms")}
-                                >
-                                    <MessageSquare size={13} /> SMS reçus
-                                </button>
-                            </div>
-
-                            <div className="bell-tabs-content">
-                                {bellTab === "notifications" ? (
-                                    <div className="notifications-list">
-                                        {notificationsList.map(n => (
-                                            <div key={n.id} className="notification-item">
-                                                <div className="meta">
-                                                    <span className="title">{n.title}</span>
-                                                    <span className="time">{n.time}</span>
-                                                </div>
-                                                <p className="text">{n.text}</p>
-                                            </div>
-                                        ))}
+                    {bellOpen && createPortal(
+                        <div className="bell-overlay-wrapper" onClick={handleCloseNotifications}>
+                            <div
+                                className="bell-full-page-panel"
+                                onClick={(e) => e.stopPropagation()}
+                                onTouchStart={handleTouchStart}
+                                onTouchMove={handleTouchMove}
+                                onTouchEnd={handleTouchEnd}
+                            >
+                                <div className="bell-panel-header">
+                                    <div className="bell-panel-title-group">
+                                        <span className="bell-panel-title">Notifications</span>
+                                        <span className="bell-unread-badge">{notificationsList.length} nouvelles</span>
                                     </div>
-                                ) : (
-                                    <div className="sms-notifications-list">
-                                        {smsList.map(s => (
-                                            <div key={s.id} className="sms-notification-item">
-                                                <div className="meta">
-                                                    <span className="sender">{s.sender}</span>
-                                                    <span className="date">{s.date}</span>
+                                    <button type="button" className="bell-panel-close-btn" onClick={handleCloseNotifications}>
+                                        <X size={22} />
+                                    </button>
+                                </div>
+
+                                <div className="bell-tabs-header">
+                                    <button
+                                        type="button"
+                                        className={`bell-tab-btn ${bellTab === "notifications" ? "active" : ""}`}
+                                        onClick={() => setBellTab("notifications")}
+                                    >
+                                        <Bell size={15} /> Notifications ({notificationsList.length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`bell-tab-btn ${bellTab === "sms" ? "active" : ""}`}
+                                        onClick={() => setBellTab("sms")}
+                                    >
+                                        <MessageSquare size={15} /> SMS reçus ({smsList.length})
+                                    </button>
+                                </div>
+
+                                <div className="bell-tabs-content">
+                                    {bellTab === "notifications" ? (
+                                        <div className="notifications-list">
+                                            {notificationsList.map(n => (
+                                                <div key={n.id} className="notification-item">
+                                                    <div className="meta">
+                                                        <span className="title">{n.title}</span>
+                                                        <span className="time">{n.time}</span>
+                                                    </div>
+                                                    <p className="text">{n.text}</p>
                                                 </div>
-                                                <p className="msg">"{s.msg}"</p>
-                                                
-                                                {activeSmsReplyId === s.id ? (
-                                                    <div className="sms-reply-form">
-                                                        <input 
-                                                            type="text" 
-                                                            className="reply-input"
-                                                            placeholder="Votre réponse..."
-                                                            value={replyText}
-                                                            onChange={(e) => setReplyText(e.target.value)}
-                                                        />
-                                                        <button 
-                                                            className="reply-send-btn"
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="sms-notifications-list">
+                                            {smsList.map(s => (
+                                                <div key={s.id} className="sms-notification-item">
+                                                    <div className="meta">
+                                                        <span className="sender">{s.sender}</span>
+                                                        <span className="date">{s.date}</span>
+                                                    </div>
+                                                    <p className="msg">{s.msg}</p>
+
+                                                    {activeSmsReplyId === s.id ? (
+                                                        <div className="sms-reply-form">
+                                                            <input
+                                                                type="text"
+                                                                className="reply-input"
+                                                                placeholder="Votre réponse..."
+                                                                value={replyText}
+                                                                onChange={(e) => setReplyText(e.target.value)}
+                                                            />
+                                                            <button
+                                                                className="reply-send-btn"
+                                                                onClick={() => {
+                                                                    if (!replyText.trim()) return;
+                                                                    alert(`✓ Réponse SMS envoyée à ${s.sender}`);
+                                                                    setReplyText("");
+                                                                    setActiveSmsReplyId(null);
+                                                                }}
+                                                            >
+                                                                <Send size={12} />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            className="sms-reply-trigger"
                                                             onClick={() => {
-                                                                if (!replyText.trim()) return;
-                                                                alert(`✓ Réponse SMS envoyée à ${s.sender}`);
+                                                                setActiveSmsReplyId(s.id);
                                                                 setReplyText("");
-                                                                setActiveSmsReplyId(null);
                                                             }}
                                                         >
-                                                            <Send size={12} />
+                                                            Répondre par SMS
                                                         </button>
-                                                    </div>
-                                                ) : (
-                                                    <button 
-                                                        className="sms-reply-trigger"
-                                                        onClick={() => {
-                                                            setActiveSmsReplyId(s.id);
-                                                            setReplyText("");
-                                                        }}
-                                                    >
-                                                        Répondre par SMS
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
                 </div>
-                
+
                 <div className="avatar-wrapper" onClick={handleAvatarClick}>
                     <div className="header-avatar">KS</div>
-                    
+
                     {menuOpen && (
                         <div className="mobile-dropdown" onClick={(e) => e.stopPropagation()}>
                             <div className="dropdown-header">
@@ -209,12 +267,12 @@ function Header() {
                                     const isActive = activePath === page.path;
                                     return (
                                         <li key={index} className={`dropdown-item ${isActive ? "active" : ""}`}>
-                                            <a 
-                                                href={page.path} 
+                                            <a
+                                                href={page.path}
                                                 onClick={(e) => {
                                                     navigateTo(e, page.path);
                                                     setMenuOpen(false);
-                                                }} 
+                                                }}
                                                 className="dropdown-link"
                                             >
                                                 {DropdownIcons[page.iconKey]}
@@ -226,13 +284,13 @@ function Header() {
                                 })}
                                 <div className="dropdown-divider"></div>
                                 <li className="dropdown-item danger">
-                                    <a 
-                                        href="/logout" 
+                                    <a
+                                        href="/logout"
                                         onClick={(e) => {
                                             e.preventDefault();
                                             alert("Déconnexion");
                                             setMenuOpen(false);
-                                        }} 
+                                        }}
                                         className="dropdown-link"
                                     >
                                         {DropdownIcons.logout}

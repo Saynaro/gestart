@@ -397,6 +397,7 @@ select:-webkit-autofill:active {
 
 .dark .segmented-control {
   background-color: var(--background) !important;
+  border: 1px solid rgba(255, 255, 255, 0.054) !important;
 }
 
 .dark .segmented-btn {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -47,6 +47,16 @@ function DesktopEditModal({
     setEditEquipSerial,
     handleSaveClient
 }) {
+    useEffect(() => {
+        if (editingClient) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [editingClient]);
     return (
         <AnimatePresence>
             {editingClient && (
@@ -97,6 +107,7 @@ function DesktopEditModal({
                                             onChange={(e) => setEditFirstName(e.target.value)}
                                             className="form-input"
                                             required
+                                            placeholder="Prénom"
                                         />
                                     </div>
                                     <div className="form-field">
@@ -107,6 +118,7 @@ function DesktopEditModal({
                                             onChange={(e) => setEditLastName(e.target.value)}
                                             className="form-input"
                                             required
+                                            placeholder="Nom"
                                         />
                                     </div>
                                 </div>
@@ -172,7 +184,7 @@ function DesktopEditModal({
                             {/* Équipement installé */}
                             <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
                                 <h4 style={{ fontSize: '0.88rem', fontWeight: 700, marginBottom: '12px', color: 'var(--foreground)' }}>Équipement installé</h4>
-                                
+
                                 <div className="form-field">
                                     <label className="form-label">Marque / Modèle</label>
                                     <input

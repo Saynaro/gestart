@@ -37,7 +37,12 @@ function Header() {
     };
 
     useEffect(() => {
-        if (!bellOpen) return;
+        if (!bellOpen) {
+            document.body.style.overflow = "";
+            return;
+        }
+
+        document.body.style.overflow = "hidden";
 
         // Push state so back button / iOS back swipe closes the notifications panel
         window.history.pushState({ notificationsOpen: true }, "");
@@ -45,11 +50,13 @@ function Header() {
         const handlePopState = (e) => {
             setBellOpen(false);
             setActiveSmsReplyId(null);
+            document.body.style.overflow = "";
         };
 
         window.addEventListener("popstate", handlePopState);
         return () => {
             window.removeEventListener("popstate", handlePopState);
+            document.body.style.overflow = "";
         };
     }, [bellOpen]);
 

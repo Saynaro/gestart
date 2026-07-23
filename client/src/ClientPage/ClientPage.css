@@ -741,20 +741,55 @@
 }
 
 .mobile-form-card-input {
-    border: none;
-    padding: 0;
-    font-size: 17px;
+    border: none !important;
+    padding: 2px 0 !important;
+    font-size: 16px;
     font-weight: 700;
     color: #0f172a;
-    background: transparent;
+    background: transparent !important;
+    background-color: transparent !important;
     width: 100%;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .mobile-form-card-input:focus {
-    outline: none;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .mobile-form-card:focus-within {
+    border-color: #556B2F !important;
+    box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.18) !important;
+}
+
+.mobile-form-card:has(.mobile-inner-input-box):focus-within {
+    border-color: #e2e8f0 !important;
+    box-shadow: none !important;
+}
+
+.dark .mobile-form-card:has(.mobile-inner-input-box):focus-within {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: none !important;
+}
+
+.mobile-inner-input-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: all 0.2s ease;
+}
+
+.dark .mobile-inner-input-box {
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.mobile-inner-input-box:focus-within {
     border-color: #556B2F !important;
     box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.18) !important;
 }
@@ -805,8 +840,84 @@
 .mobile-toggle-desc {
     font-size: 13px;
     color: #64748b;
-    line-height: 1.4;
+    line-height: 1.45;
     margin: 0;
+}
+
+/* Dark Theme Overrides for Mobile Bottom Sheet & Cards */
+.dark .mobile-sheet-header {
+    background-color: transparent !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .mobile-sheet-header-drag-zone {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .mobile-drag-handle-bar {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .mobile-sheet-close-btn {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #f1f5f9 !important;
+}
+
+.dark .mobile-sheet-title {
+    color: #f8fafc !important;
+}
+
+.dark .mobile-form-card {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .mobile-form-card.select:active {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark .mobile-form-card-label {
+    color: #94a3b8 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.dark .mobile-form-card-input {
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.dark .mobile-form-card-input::placeholder {
+    color: rgba(255, 255, 255, 0.32) !important;
+    font-weight: 400 !important;
+}
+
+.dark .mobile-form-card-val {
+    color: #f8fafc !important;
+}
+
+.dark .mobile-card-chevron {
+    color: #94a3b8 !important;
+}
+
+.dark .mobile-toggle-card {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .mobile-toggle-label {
+    color: #f8fafc !important;
+}
+
+.dark .mobile-toggle-desc {
+    color: #94a3b8 !important;
 }
 
 .mobile-toggle-switch {
@@ -920,6 +1031,10 @@ input:checked+.toggle-slider:before {
     margin: 12px 0 0 4px;
 }
 
+.dark .mobile-sub-sheet-desc {
+    color: #94a3b8 !important;
+}
+
 /* Email Pill block */
 .mobile-email-input-pill {
     border: 1px solid #556B2F;
@@ -932,10 +1047,19 @@ input:checked+.toggle-slider:before {
     margin-bottom: 16px;
 }
 
+.dark .mobile-email-input-pill {
+    background-color: rgba(85, 107, 47, 0.15) !important;
+    border-color: #556B2F !important;
+}
+
 .mobile-email-text {
     font-size: 16px;
     font-weight: 700;
     color: #556B2F;
+}
+
+.dark .mobile-email-text {
+    color: #a3e635 !important;
 }
 
 .mobile-email-clear-btn {
@@ -959,11 +1083,20 @@ input:checked+.toggle-slider:before {
 
 .mobile-email-add-input {
     flex: 1;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 10px 14px;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 600;
     outline: none;
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+.dark .mobile-email-add-input {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
 }
 
 .mobile-email-add-btn {
@@ -979,6 +1112,11 @@ input:checked+.toggle-slider:before {
     cursor: pointer;
 }
 
+.dark .mobile-email-add-btn {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #a3e635 !important;
+}
+
 /* Phone edit block */
 .mobile-phone-input-row {
     display: flex;
@@ -988,16 +1126,22 @@ input:checked+.toggle-slider:before {
 }
 
 .mobile-phone-country {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 10px 12px;
     display: flex;
     gap: 6px;
     align-items: center;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    color: #1e293b;
-    background-color: white;
+    color: var(--foreground);
+    background-color: var(--card);
+}
+
+.dark .mobile-phone-country {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
 }
 
 .mobile-phone-number-field {
@@ -1008,17 +1152,26 @@ input:checked+.toggle-slider:before {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: white;
+    background-color: var(--card);
+}
+
+.dark .mobile-phone-number-field {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: #556B2F !important;
 }
 
 .mobile-phone-number-input {
     border: none;
     outline: none;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--foreground);
     width: 80%;
     background: transparent;
+}
+
+.dark .mobile-phone-number-input {
+    color: #ffffff !important;
 }
 
 .mobile-phone-clear-btn {
@@ -1046,6 +1199,10 @@ input:checked+.toggle-slider:before {
     border-top-right-radius: 24px;
 }
 
+.dark .mobile-keyboard-mockup {
+    background-color: #0f172a !important;
+}
+
 .mobile-keyboard-key {
     background-color: white;
     border: none;
@@ -1061,29 +1218,51 @@ input:checked+.toggle-slider:before {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+.dark .mobile-keyboard-key {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
 .mobile-keyboard-key:active {
     background-color: #f1f5f9;
 }
 
 /* Address search and forms */
 .mobile-address-search-card {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 10px 14px 10px 16px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: space-between;
+    gap: 8px;
     margin-bottom: 12px;
-    background-color: white;
+    background-color: var(--card);
+}
+
+.dark .mobile-address-search-card {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 .mobile-address-search-input {
-    border: none;
-    outline: none;
-    font-size: 16px;
+    flex: 1;
+    border: none !important;
+    outline: none !important;
+    font-size: 15px;
     width: 100%;
-    color: #1e293b;
-    padding: 0;
+    color: var(--foreground);
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.dark .mobile-address-search-input {
+    color: #ffffff !important;
+}
+
+.mobile-search-icon-right {
+    color: #94a3b8;
+    flex-shrink: 0;
 }
 
 

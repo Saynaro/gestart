@@ -221,7 +221,10 @@ function FacturesPage() {
                             <button
                                 key={f.key}
                                 className={`fp-filter-pill${activeFilter === f.key ? " active" : ""}`}
-                                onClick={() => setActiveFilter(f.key)}
+                                onClick={(e) => {
+                                    setActiveFilter(f.key);
+                                    e.currentTarget.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                                }}
                             >
                                 {f.label}
                                 <span className="fp-filter-count">{filterCount(f.key)}</span>

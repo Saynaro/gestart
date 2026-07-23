@@ -1070,11 +1070,15 @@ function SettingsPage() {
         if (mobileScreenState === "list") {
             return (
                 <div className="mobile-settings-view">
-                    {/* Header */}
-                    <div className="mobile-nav-header" style={{ borderBottom: 'none', backgroundColor: 'transparent', padding: '16px 16px 8px 16px' }}>
+                    {/* Fixed Sticky Header */}
+                    <div className="mobile-nav-header">
                         <button className="mobile-back-circle" onClick={handleMainListBack}>
                             <ArrowLeft size={16} />
                         </button>
+                        <span className="mobile-nav-header-title visible">
+                            Paramètres
+                        </span>
+                        <div style={{ width: '36px' }} />
                     </div>
 
                     {/* Centered User Profile info */}
@@ -1202,11 +1206,11 @@ function SettingsPage() {
             return (
                 <div className="mobile-settings-view" style={{ backgroundColor: 'var(--background)' }}>
                     {/* Header */}
-                    <div className="mobile-nav-header" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--card)', position: 'sticky', top: 0, zIndex: 100 }}>
+                    <div className="mobile-nav-header">
                         <button className="mobile-back-circle" onClick={() => navigate(-1)}>
                             <ArrowLeft size={16} />
                         </button>
-                        <span className={`mobile-nav-header-title ${isScrolled ? 'visible' : ''}`}>
+                        <span className="mobile-nav-header-title visible">
                             {currentItem.label}
                         </span>
                         <div style={{ width: '36px' }} />

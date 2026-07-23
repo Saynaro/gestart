@@ -82,7 +82,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-                        style={{ willChange: "transform" }}
+                        style={{ willChange: "transform", fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}
                         drag="y"
                         dragConstraints={{ top: 0 }}
                         dragElastic={{ top: 0, bottom: 0.8 }}

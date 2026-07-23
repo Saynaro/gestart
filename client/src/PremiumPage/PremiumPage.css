@@ -208,3 +208,16 @@
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 768px) {
+    .premium-page-wrapper .main-content {
+        height: 100vh !important;
+        height: 100dvh !important;
+        overflow-y: auto !important;
+        padding-bottom: 0 !important;
+    }
+
+    .premium-page-wrapper .page-content {
+        padding: 16px 16px calc(76px + env(safe-area-inset-bottom, 0px)) 16px !important;
+    }
+}

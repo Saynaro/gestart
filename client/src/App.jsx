@@ -13,6 +13,7 @@ import ComptabilityPage from './ComptabilityPage/ComptabilityPage'
 import FacturesPage from './FacturesPage/FacturesPage'
 import DevisPage from './DevisPage/DevisPage'
 import PremiumPage from './PremiumPage/PremiumPage'
+import CataloguePage from './CataloguePage.jsx/CataloguePage'
 import SignatureQuote from './PublicPages/SignatureQuote'
 import PayInvoice from './PublicPages/PayInvoice'
 import PublicContact from './PublicPages/PublicContact'
@@ -123,7 +124,7 @@ function App() {
         <Route path="/devis" element={<DevisPage />} />
         <Route path="/rapports" element={<RapportsPage />} />
         <Route path="/comptabilite" element={<ComptabilityPage />} />
-        <Route path="/catalogue" element={<PlaceholderPage title="Catalogue" subtitle="Gérez vos produits, prestations et tarifs." />} />
+        <Route path="/catalogue" element={<CataloguePage />} />
         <Route path="/premium" element={<PremiumPage />} />
         <Route path="/settings" element={<SettingsPage />} />
 

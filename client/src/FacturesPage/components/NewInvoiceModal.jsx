@@ -570,7 +570,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                 <LegalHelpTooltip lawArticle="art. 289 CGI & Décret 2026" title="Obligations Client Facture" text="Chaque facture B2B doit comporter l'identité complète du client et son numéro SIREN (réforme facturation électronique 2026)." />
                             </div>
 
-                            <div className="client-search-input-wrapper" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', marginBottom: '12px' }}>
+                            <div className="client-search-input-wrapper" style={{ marginBottom: '12px' }}>
                                 <Search size={18} className="client-search-icon" />
                                 <input
                                     type="text"
@@ -2392,7 +2392,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                                     Apparaîtra après le prix sur votre document.
                                 </div>
                                 <div style={{ padding: '12px 20px' }}>
-                                    <div className="client-search-input-wrapper" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+                                    <div className="client-search-input-wrapper">
                                         <Search size={18} className="client-search-icon" />
                                         <input
                                             type="text"

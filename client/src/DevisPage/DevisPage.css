@@ -45,7 +45,16 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 1.25rem;
-    flex-wrap: wrap;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.dv-filter-bar::-webkit-scrollbar {
+    display: none;
 }
 
 .dv-filter-pill {
@@ -61,6 +70,8 @@
     font-size: 0.825rem;
     font-weight: 500;
     cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
     transition: all 0.18s;
 }
 

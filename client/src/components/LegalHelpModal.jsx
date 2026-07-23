@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, ShieldCheck, FileText, Scale, Lock, Cookie, HelpCircle, CheckCircle2 } from "lucide-react";
 
-export function LegalHelpTooltip({ title, text, lawArticle }) {
+export function LegalHelpTooltip({ title, text, lawArticle, positionDirection = "down" }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -14,7 +14,7 @@ export function LegalHelpTooltip({ title, text, lawArticle }) {
                 }}
                 style={{
                     border: 'none',
-                    background: 'rgba(85, 107, 47, 0.12)',
+                    background: 'rgba(85, 107, 47, 0.18)',
                     color: '#556B2F',
                     borderRadius: '50%',
                     width: '18px',
@@ -37,16 +37,17 @@ export function LegalHelpTooltip({ title, text, lawArticle }) {
                     onClick={(e) => e.stopPropagation()}
                     style={{
                         position: 'absolute',
-                        bottom: '120%',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
+                        ...(positionDirection === "up" ? { bottom: '120%' } : { top: 'calc(100% + 8px)' }),
+                        right: '0px',
                         width: '260px',
+                        maxWidth: 'calc(100vw - 36px)',
                         backgroundColor: '#1E293B',
                         color: '#F8FAFC',
                         padding: '12px 14px',
-                        borderRadius: '10px',
-                        boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-                        zIndex: 99999,
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        zIndex: 999999,
                         fontSize: '0.8rem',
                         lineHeight: '1.4'
                     }}

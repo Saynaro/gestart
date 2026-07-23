@@ -1856,12 +1856,11 @@
     body .home-page .main-content {
         display: flex !important;
         flex: 1 !important;
-        height: calc(100vh - 64px) !important;
-        height: calc(100dvh - 64px) !important;
+        height: 100vh !important;
+        height: 100dvh !important;
         overflow-y: auto !important;
         width: 100% !important;
-        padding-bottom: 24px !important;
-        /* comfortable padding at bottom above tab bar */
+        padding-bottom: 0 !important;
     }
 
     .chart-axis-label {
@@ -1870,10 +1869,8 @@
         fill: #334155 !important;
     }
 
-
-
     .page-content {
-        padding: 16px;
+        padding: 16px 16px calc(76px + env(safe-area-inset-bottom, 0px)) 16px !important;
     }
 
     .dashboard-stats-grid {

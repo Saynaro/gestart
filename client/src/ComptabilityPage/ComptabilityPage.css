@@ -693,4 +693,13 @@
     .content-header.comptability-header-row {
         margin-bottom: 1.5rem;
     }
+    .comptability-page-wrapper .main-content {
+        height: 100vh !important;
+        height: 100dvh !important;
+        overflow-y: auto !important;
+        padding-bottom: 0 !important;
+    }
+    .comptability-page-wrapper .page-content {
+        padding: 16px 16px calc(76px + env(safe-area-inset-bottom, 0px)) 16px !important;
+    }
 }

@@ -198,7 +198,10 @@ function DevisPage() {
                             <button
                                 key={f.key}
                                 className={`dv-filter-pill${activeFilter === f.key ? " active" : ""}`}
-                                onClick={() => setActiveFilter(f.key)}
+                                onClick={(e) => {
+                                    setActiveFilter(f.key);
+                                    e.currentTarget.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                                }}
                             >
                                 {f.label}
                                 <span className="dv-filter-count">{filterCount(f.key)}</span>

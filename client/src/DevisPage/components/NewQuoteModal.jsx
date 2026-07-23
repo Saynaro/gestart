@@ -547,7 +547,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 <LegalHelpTooltip lawArticle="art. L111-1 & L111-3 C.conso" title="Devis Obligatoire" text="Devis obligatoire pour les prestations de dépannage/rénovation aux particuliers au-dessus de 150 €. Obligation d'information précontractuelle sur le prix." />
                             </div>
 
-                            <div className="client-search-input-wrapper" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', marginBottom: '12px' }}>
+                            <div className="client-search-input-wrapper" style={{ marginBottom: '12px' }}>
                                 <Search size={18} className="client-search-icon" />
                                 <input
                                     type="text"

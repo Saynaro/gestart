@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
@@ -164,8 +164,38 @@ function SettingsPage() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Sync active settings tab with search param '?tab=id'
+    // Set manual scroll restoration to prevent iOS Safari freeze during back swipe
     useEffect(() => {
+        if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+            window.history.scrollRestoration = "manual";
+        }
+    }, []);
+
+    // Instant popstate listener for iPhone swipe-back gesture and browser back button
+    useLayoutEffect(() => {
+        const handlePopState = () => {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get("tab");
+            if (!tab) {
+                setMobileScreenState("list");
+                if (window.innerWidth <= 768 && scrollYRef.current > 0) {
+                    window.scrollTo(0, scrollYRef.current);
+                }
+            } else {
+                setActiveTab(tab);
+                setMobileScreenState("detail");
+                if (window.innerWidth <= 768) {
+                    window.scrollTo(0, 0);
+                }
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, []);
+
+    // Sync active settings tab with search param '?tab=id'
+    useLayoutEffect(() => {
         const params = new URLSearchParams(location.search);
         const tab = params.get("tab");
         if (tab) {
@@ -362,20 +392,31 @@ function SettingsPage() {
     };
 
     const renderMobileLayout = () => {
-        if (mobileScreenState === "list") {
-            return (
-                <div className="mobile-settings-view">
-                    {/* Fixed Sticky Header */}
-                    <div className="mobile-nav-header">
-                        <button className="mobile-back-circle" onClick={handleMainListBack}>
-                            <ArrowLeft size={16} />
-                        </button>
-                        <span className="mobile-nav-header-title visible">
-                            Paramètres
-                        </span>
-                        <div style={{ width: '36px' }} />
-                    </div>
+        const currentItem = menuCategories
+            .flatMap(cat => cat.items)
+            .find(item => item.id === activeTab) || { label: "Paramètres" };
 
+        const isDetail = mobileScreenState === "detail";
+
+        return (
+            <div className="mobile-settings-view" style={{ backgroundColor: 'var(--background)' }}>
+                {/* Stable Fixed Sticky Header */}
+                <div className="mobile-nav-header">
+                    <button
+                        className="mobile-back-circle"
+                        onClick={isDetail ? handleBackFromDetail : handleMainListBack}
+                        style={!isDetail ? { opacity: 0.4, cursor: 'default' } : {}}
+                    >
+                        <ArrowLeft size={16} />
+                    </button>
+                    <span className="mobile-nav-header-title visible">
+                        {isDetail ? currentItem.label : "Paramètres"}
+                    </span>
+                    <div style={{ width: '36px' }} />
+                </div>
+
+                {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
+                <div style={{ display: !isDetail ? 'block' : 'none' }}>
                     {/* Centered User Profile info */}
                     <div className="mobile-settings-profile-header">
                         <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
@@ -477,7 +518,7 @@ function SettingsPage() {
                         </div>
 
                         {/* Logout Row */}
-                        <div className="mobile-group-section">
+                        <div className="mobile-group-section" style={{ marginBottom: '50px' }}>
                             <div className="mobile-items-card">
                                 <button className="mobile-settings-row-btn" type="button" onClick={() => triggerToast("Déconnexion...")}>
                                     <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
@@ -493,32 +534,14 @@ function SettingsPage() {
 
                     <SideBar />
                 </div>
-            );
-        } else {
-            // detail screen view on mobile
-            const currentItem = menuCategories
-                .flatMap(cat => cat.items)
-                .find(item => item.id === activeTab) || { label: "Paramètres" };
 
-            return (
-                <div className="mobile-settings-view" style={{ backgroundColor: 'var(--background)' }}>
-                    {/* Header */}
-                    <div className="mobile-nav-header">
-                        <button className="mobile-back-circle" onClick={handleBackFromDetail}>
-                            <ArrowLeft size={16} />
-                        </button>
-                        <span className="mobile-nav-header-title visible">
-                            {currentItem.label}
-                        </span>
-                        <div style={{ width: '36px' }} />
-                    </div>
+                {/* Detail View Container - Kept mounted with CSS display toggle */}
+                <div className="mobile-tab-content-wrapper" style={{ display: isDetail ? 'block' : 'none' }}>
+                    <h1 className="mobile-header-title">{currentItem.label}</h1>
 
-                    <div className="mobile-tab-content-wrapper">
-                        <h1 className="mobile-header-title">{currentItem.label}</h1>
-
-                        {/* Render active form detail */}
-                        {renderTabContent(true)}
-                    </div>
+                    {/* Render active form detail */}
+                    {renderTabContent(true)}
+                </div>
 
                     {/* Profile Sub-Sheets (z-index 2200) */}
                     <AnimatePresence>
@@ -600,9 +623,8 @@ function SettingsPage() {
                             </>
                         )}
                     </AnimatePresence>
-                </div>
-            );
-        }
+            </div>
+        );
     };
 
     return (

@@ -154,10 +154,12 @@
 
 /* Main content wrapper updates */
 .settings-layout-container {
+    flex: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 24px;
-    padding: 32px;
+    padding: 32px 32px 80px 32px;
     animation: fadeIn 0.3s ease;
 }
 
@@ -242,7 +244,8 @@
 .settings-content-panel {
     background-color: var(--card);
     border-radius: 14px;
-    padding: 24px;
+    padding: 24px 24px 40px 24px;
+    margin-bottom: 60px;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     min-height: 480px;
 }
@@ -885,11 +888,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: white;
-    border-top: 1px solid #e2e8f0;
-    padding: 12px 16px;
+    background-color: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) 16px;
     z-index: 100;
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .mobile-save-btn {
@@ -918,14 +921,15 @@
 
 /* Center Navbar small title styling */
 .mobile-nav-header-title {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 19px;
+    font-weight: 800;
     color: var(--foreground);
     opacity: 0;
     transform: translateY(4px);
     transition: opacity 0.2s ease, transform 0.2s ease;
     text-align: center;
     flex: 1;
+    letter-spacing: -0.01em;
 }
 
 .mobile-nav-header-title.visible {
@@ -1382,11 +1386,75 @@ input:checked + .toggle-slider:before {
     .home-page {
         flex-direction: column;
         background-color: #f8fafc;
+        overflow-x: clip;
     }
 
     .settings-sidebar,
     .main-content {
         display: none !important;
+    }
+
+    /* Mobile form grid overrides */
+    .profile-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .form-group-full {
+        grid-column: span 1 !important;
+    }
+
+    .mobile-settings-view {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: clip !important;
+        box-sizing: border-box !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    .mobile-nav-header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 14px 16px !important;
+        margin: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        border-radius: 0 !important;
+        background-color: var(--background) !important;
+        border-bottom: 1px solid var(--border) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .mobile-tab-content-wrapper {
+        padding: 0 16px 20px 16px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    .mobile-fields-stack,
+    .mobile-input-card,
+    .mobile-group-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .form-input,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    select,
+    textarea {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 

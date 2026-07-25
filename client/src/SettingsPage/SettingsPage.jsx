@@ -562,86 +562,86 @@ function SettingsPage() {
                     {renderTabContent(true)}
                 </div>
 
-                    {/* Profile Sub-Sheets (z-index 2200) */}
-                    <AnimatePresence>
-                        {activeProfileSubSheet && (
-                            <>
-                                <motion.div
-                                    className="fixed inset-0 z-[2200] bg-black/45 backdrop-blur-[2px]"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    onClick={() => setActiveProfileSubSheet(null)}
-                                />
+                {/* Profile Sub-Sheets (z-index 2200) */}
+                <AnimatePresence>
+                    {activeProfileSubSheet && (
+                        <>
+                            <motion.div
+                                className="fixed inset-0 z-[2200] bg-black/45 backdrop-blur-[2px]"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setActiveProfileSubSheet(null)}
+                            />
 
-                                <motion.div
-                                    className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
-                                    style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
-                                    initial={{ y: "100%" }}
-                                    animate={{ y: 0 }}
-                                    exit={{ y: "100%" }}
-                                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
-                                    drag="y"
-                                    dragControls={dragControlsProfileSub}
-                                    dragListener={false}
-                                    dragConstraints={{ top: 0 }}
-                                    dragElastic={{ top: 0, bottom: 0.8 }}
-                                    onDragEnd={(event, info) => {
-                                        if (info.offset.y > 100) {
-                                            setActiveProfileSubSheet(null);
-                                        }
-                                    }}
+                            <motion.div
+                                className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
+                                style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
+                                initial={{ y: "100%" }}
+                                animate={{ y: 0 }}
+                                exit={{ y: "100%" }}
+                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
+                                drag="y"
+                                dragControls={dragControlsProfileSub}
+                                dragListener={false}
+                                dragConstraints={{ top: 0 }}
+                                dragElastic={{ top: 0, bottom: 0.8 }}
+                                onDragEnd={(event, info) => {
+                                    if (info.offset.y > 100) {
+                                        setActiveProfileSubSheet(null);
+                                    }
+                                }}
+                            >
+                                <div
+                                    className="mobile-sheet-header-drag-zone"
+                                    onPointerDown={(e) => dragControlsProfileSub.start(e)}
+                                    style={{ touchAction: "none" }}
                                 >
-                                    <div
-                                        className="mobile-sheet-header-drag-zone"
-                                        onPointerDown={(e) => dragControlsProfileSub.start(e)}
-                                        style={{ touchAction: "none" }}
-                                    >
-                                        <div className="mobile-drag-handle-bar" />
-                                    </div>
+                                    <div className="mobile-drag-handle-bar" />
+                                </div>
 
-                                    {/* SUB-SHEET: PHONE */}
-                                    {activeProfileSubSheet === "phone" && (
-                                        <div>
-                                            <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent' }}>
-                                                <button className="mobile-sheet-close-btn" onClick={() => setActiveProfileSubSheet(null)}>
-                                                    <X size={18} />
-                                                </button>
-                                                <h2 className="mobile-sheet-title">Numéro de téléphone</h2>
-                                                <div style={{ width: '36px' }} />
-                                            </div>
-                                            <div className="mobile-sheet-body-stack" style={{ padding: '0 16px 20px 16px' }}>
-                                                <div className="mobile-phone-input-row" style={{ marginTop: '10px' }}>
-                                                    <div className="mobile-phone-country">
-                                                        <span className="mobile-flag" style={{ fontSize: '18px' }}>🇫🇷</span>
-                                                        <span className="mobile-phone-code">+33</span>
-                                                    </div>
-                                                    <div className="mobile-phone-number-field">
-                                                        <input
-                                                            type="tel"
-                                                            value={phone}
-                                                            onChange={(e) => setPhone(e.target.value)}
-                                                            placeholder="06 12 34 56 78"
-                                                            className="mobile-phone-number-input"
-                                                        />
-                                                        {phone && (
-                                                            <button className="mobile-phone-clear-btn" onClick={() => setPhone("")}>
-                                                                <X size={14} />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <button className="mobile-sub-sheet-confirm-btn" onClick={() => setActiveProfileSubSheet(null)}>
-                                                    Ajouter ce numéro
-                                                </button>
-                                            </div>
+                                {/* SUB-SHEET: PHONE */}
+                                {activeProfileSubSheet === "phone" && (
+                                    <div>
+                                        <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent' }}>
+                                            <button className="mobile-sheet-close-btn" onClick={() => setActiveProfileSubSheet(null)}>
+                                                <X size={18} />
+                                            </button>
+                                            <h2 className="mobile-sheet-title">Numéro de téléphone</h2>
+                                            <div style={{ width: '36px' }} />
                                         </div>
-                                    )}
-                                </motion.div>
-                            </>
-                        )}
-                    </AnimatePresence>
+                                        <div className="mobile-sheet-body-stack" style={{ padding: '0 16px 20px 16px' }}>
+                                            <div className="mobile-phone-input-row" style={{ marginTop: '10px' }}>
+                                                <div className="mobile-phone-country">
+                                                    <span className="mobile-flag" style={{ fontSize: '18px' }}>🇫🇷</span>
+                                                    <span className="mobile-phone-code">+33</span>
+                                                </div>
+                                                <div className="mobile-phone-number-field">
+                                                    <input
+                                                        type="tel"
+                                                        value={phone}
+                                                        onChange={(e) => setPhone(e.target.value)}
+                                                        placeholder="06 12 34 56 78"
+                                                        className="mobile-phone-number-input"
+                                                    />
+                                                    {phone && (
+                                                        <button className="mobile-phone-clear-btn" onClick={() => setPhone("")}>
+                                                            <X size={14} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <button className="mobile-sub-sheet-confirm-btn" onClick={() => setActiveProfileSubSheet(null)}>
+                                                Ajouter ce numéro
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
             </div>
         );
     };

@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowLeft, Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText } from "lucide-react";
 import SideBar from "../../components/SideBar";
 
-function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit }) {
+function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote }) {
     const details = getClientDetails(selectedClient);
     if (!details) return null;
 
@@ -26,7 +26,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                 {/* Mobile Detail Layout */}
                 <div className="mobile-detail-container" style={{ padding: '16px' }}>
                     {/* Profile Card */}
-                    <div className="mobile-detail-profile-card">
+                    <div className="mobile-detail-profile-card" style={{ paddingTop: '28px' }}>
                         <div className="mobile-profile-avatar">
                             {initials}
                         </div>
@@ -52,19 +52,29 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                         
                         <div className="panel-divider"></div>
                         
-                        <h3 className="mobile-section-title">ÉQUIPEMENT</h3>
-                        <div className="mobile-equipment-box">
-                            <div className="equipment-row">
-                                <span className="equipment-label">Marque / Modèle</span>
-                                <span className="equipment-value">{details.equipment.model}</span>
+                        <h3 className="mobile-section-title" style={{ marginBottom: '8px', textAlign: 'left' }}>ÉQUIPEMENT</h3>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                            border: '1px solid var(--border)',
+                            borderRadius: '14px',
+                            padding: '14px 16px',
+                            width: '100%',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>Modèle</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment.model}</span>
                             </div>
-                            <div className="equipment-row">
-                                <span className="equipment-label">Date installation</span>
-                                <span className="equipment-value">{details.equipment.installDate}</span>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>Installé le</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment.installDate}</span>
                             </div>
-                            <div className="equipment-row">
-                                <span className="equipment-label">N° de série</span>
-                                <span className="equipment-value font-mono">{details.equipment.serialNumber}</span>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>N° de série</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, fontFamily: 'monospace', textAlign: 'right' }}>{details.equipment.serialNumber}</span>
                             </div>
                         </div>
                         
@@ -100,7 +110,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                         </div>
                     </div>
                     
-                    {/* Tabs Panel */}
+                    {/* Tabs Card */}
                     <div className="mobile-detail-tabs-card">
                         <div className="mobile-tabs-header">
                             {["interventions", "messages", "factures", "devis"].map((tab) => (
@@ -114,7 +124,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                             ))}
                         </div>
                         
-                        <div className="mobile-tab-body">
+                        <div className="mobile-tabs-content">
                             {detailTab === "interventions" && (
                                 <div className="mobile-tab-panel">
                                     {details.interventions.map((item, idx) => (
@@ -123,8 +133,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                 <h4>{item.title}</h4>
                                                 <span className="history-card-date">{item.date}</span>
                                             </div>
-                                            <p><strong>Tech:</strong> {item.tech} · <span className="status-finished">{item.status}</span></p>
-                                            <p className="history-card-desc">"{item.desc}"</p>
+                                            <p className="history-card-desc">{item.desc}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -133,9 +142,9 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                             {detailTab === "messages" && (
                                 <div className="mobile-tab-panel">
                                     {details.messages.map((item, idx) => (
-                                        <div key={idx} className={`mobile-history-card msg-${item.sender.toLowerCase()}`}>
+                                        <div key={idx} className="mobile-history-card msg">
                                             <div className="history-card-header">
-                                                <h4>{item.sender}</h4>
+                                                <h4>{item.author}</h4>
                                                 <span className="history-card-date">{item.date}</span>
                                             </div>
                                             <p className="history-card-desc">"{item.text}"</p>
@@ -147,7 +156,27 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                             {detailTab === "factures" && (
                                 <div className="mobile-tab-panel">
                                     {details.factures.map((item, idx) => (
-                                        <div key={idx} className="mobile-history-card bill">
+                                        <div
+                                            key={idx}
+                                            className="mobile-history-card bill"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => {
+                                                if (onOpenInvoice) {
+                                                    onOpenInvoice({
+                                                        id: idx + 1,
+                                                        number: item.id.replace(/^FACT-/, "F-"),
+                                                        date: item.date || "15/03/2026",
+                                                        clientName: displayName,
+                                                        clientEmail: selectedClient.email || "client@email.com",
+                                                        clientAddress: selectedClient.address || "12 Rue des Fleurs, 75001 Paris",
+                                                        subtotalHt: 100,
+                                                        tvaAmount: 20,
+                                                        totalTtc: parseFloat((item.amount || "120,00 €").replace("€", "").replace(",", ".")) || 120,
+                                                        status: item.status === "PAYÉ" || item.status === "Payée" ? "paid" : "pending"
+                                                    });
+                                                }
+                                            }}
+                                        >
                                             <div className="history-card-header">
                                                 <h4>{item.id}</h4>
                                                 <span className="history-card-date">{item.date}</span>
@@ -161,7 +190,27 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                             {detailTab === "devis" && (
                                 <div className="mobile-tab-panel">
                                     {details.devis.map((item, idx) => (
-                                        <div key={idx} className="mobile-history-card quote">
+                                        <div
+                                            key={idx}
+                                            className="mobile-history-card quote"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => {
+                                                if (onOpenQuote) {
+                                                    onOpenQuote({
+                                                        id: idx + 1,
+                                                        number: item.id.replace(/^DEV-/, "D-"),
+                                                        date: item.date || "10/03/2026",
+                                                        clientName: displayName,
+                                                        clientEmail: selectedClient.email || "client@email.com",
+                                                        clientAddress: selectedClient.address || "12 Rue des Fleurs, 75001 Paris",
+                                                        subtotalHt: 100,
+                                                        tvaAmount: 20,
+                                                        totalTtc: parseFloat((item.amount || "120,00 €").replace("€", "").replace(",", ".")) || 120,
+                                                        status: item.status === "ACCEPTÉ" || item.status === "Signé" ? "ACCEPTED" : "SENT"
+                                                    });
+                                                }
+                                            }}
+                                        >
                                             <div className="history-card-header">
                                                 <h4>{item.id}</h4>
                                                 <span className="history-card-date">{item.date}</span>

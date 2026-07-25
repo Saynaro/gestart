@@ -1433,22 +1433,29 @@ input:checked+.toggle-slider:before {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
 }
 
 .equipment-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 13px;
+    font-size: 13.5px;
+    width: 100%;
 }
 
 .equipment-label {
     color: var(--muted-foreground);
+    font-weight: 500;
 }
 
 .equipment-value {
     font-weight: 600;
     color: var(--foreground);
+    text-align: right;
 }
 
 .mobile-maintenance-box {

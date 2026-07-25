@@ -16,6 +16,10 @@ import ClientDetailView from "./components/ClientDetailView";
 import ClientMobileDetailView from "./components/ClientMobileDetailView";
 import DesktopEditModal from "./components/DesktopEditModal";
 import MobileEditBottomSheet from "./components/MobileEditBottomSheet";
+import InvoiceDetailDrawer from "../FacturesPage/components/InvoiceDetailDrawer";
+import QuoteDetailDrawer from "../DevisPage/components/QuoteDetailDrawer";
+import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
+import QuotePdfView from "../DevisPage/components/QuotePdfView";
 
 // Contacts data matching the user's requirements and screenshots
 const initialContacts = [
@@ -275,6 +279,10 @@ function ClientPage() {
     // Bottom Sheets / Edit Modal states
     const [editingClient, setEditingClient] = useState(null);
     const [activeSubSheet, setActiveSubSheet] = useState(null); // null, "phone", "email", "address"
+    const [activeInvoiceForDrawer, setActiveInvoiceForDrawer] = useState(null);
+    const [activeQuoteForDrawer, setActiveQuoteForDrawer] = useState(null);
+    const [pdfModalInvoice, setPdfModalInvoice] = useState(null);
+    const [pdfModalQuote, setPdfModalQuote] = useState(null);
 
     // Form temporary states
     const [editFirstName, setEditFirstName] = useState("");
@@ -534,6 +542,8 @@ function ClientPage() {
                         detailTab={detailTab}
                         setDetailTab={setDetailTab}
                         onEdit={handleOpenEdit}
+                        onOpenInvoice={(inv) => setActiveInvoiceForDrawer(inv)}
+                        onOpenQuote={(q) => setActiveQuoteForDrawer(q)}
                     />
                 ) : (
                     <div className="mobile-contacts-view">
@@ -600,6 +610,8 @@ function ClientPage() {
                                     detailTab={detailTab}
                                     setDetailTab={setDetailTab}
                                     onEdit={handleOpenEdit}
+                                    onOpenInvoice={(inv) => setActiveInvoiceForDrawer(inv)}
+                                    onOpenQuote={(q) => setActiveQuoteForDrawer(q)}
                                 />
                             ) : (
                                 <>
@@ -725,6 +737,52 @@ function ClientPage() {
                     dragControlsMain={dragControlsMain}
                     dragControlsSub={dragControlsSub}
                     handleSaveClient={handleSaveClient}
+                />
+            )}
+
+            {/* Invoice Detail Drawer */}
+            {activeInvoiceForDrawer && (
+                <InvoiceDetailDrawer
+                    invoice={activeInvoiceForDrawer}
+                    onClose={() => setActiveInvoiceForDrawer(null)}
+                    overlayStyle={{ zIndex: 1200 }}
+                    onPreview={() => setPdfModalInvoice(activeInvoiceForDrawer)}
+                    onEdit={() => setActiveInvoiceForDrawer(null)}
+                    onSend={() => setActiveInvoiceForDrawer(null)}
+                    onFinalise={() => {}}
+                    onMarkPaid={() => {}}
+                    onMarkUnpaid={() => {}}
+                />
+            )}
+
+            {/* Quote Detail Drawer */}
+            {activeQuoteForDrawer && (
+                <QuoteDetailDrawer
+                    quote={activeQuoteForDrawer}
+                    onClose={() => setActiveQuoteForDrawer(null)}
+                    overlayStyle={{ zIndex: 1200 }}
+                    onPreview={() => setPdfModalQuote(activeQuoteForDrawer)}
+                    onSend={() => setActiveQuoteForDrawer(null)}
+                    onConvertToInvoice={() => {}}
+                    onChangeStatus={() => {}}
+                    onEdit={() => setActiveQuoteForDrawer(null)}
+                />
+            )}
+
+            {/* PDF View Modals */}
+            {pdfModalInvoice && (
+                <InvoicePdfView
+                    invoice={pdfModalInvoice}
+                    onClose={() => setPdfModalInvoice(null)}
+                    onDownload={() => alert("Téléchargement de la facture...")}
+                />
+            )}
+
+            {pdfModalQuote && (
+                <QuotePdfView
+                    quote={pdfModalQuote}
+                    onClose={() => setPdfModalQuote(null)}
+                    onDownload={() => alert("Téléchargement du devis...")}
                 />
             )}
         </>

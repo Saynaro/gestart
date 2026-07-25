@@ -13,6 +13,8 @@ import InvoiceEditPanel from "./components/InvoiceEditPanel";
 import InvoicePdfView from "./components/InvoicePdfView";
 import NewInvoiceModal from "./components/NewInvoiceModal";
 import PaymentMethodModal from "./components/PaymentMethodModal";
+import QuoteDetailDrawer from "../DevisPage/components/QuoteDetailDrawer";
+import QuotePdfView from "../DevisPage/components/QuotePdfView";
 
 const FILTERS = [
     { key: "all",      label: "Toutes" },
@@ -112,6 +114,8 @@ function FacturesPage() {
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [showNewModal, setShowNewModal] = useState(false);
     const [paymentModalInvoice, setPaymentModalInvoice] = useState(null);
+    const [linkedQuoteForDrawer, setLinkedQuoteForDrawer] = useState(null);
+    const [pdfModalQuote, setPdfModalQuote] = useState(null);
     const [toast, setToast] = useState(null);
 
     const showToast = (msg, type = "success") => {
@@ -259,6 +263,21 @@ function FacturesPage() {
                     onFinalise={handleFinalise}
                     onMarkPaid={handleMarkPaid}
                     onMarkUnpaid={handleMarkUnpaid}
+                    onOpenLinkedDevis={(quote) => setLinkedQuoteForDrawer(quote)}
+                />
+            )}
+
+            {/* Linked Quote Drawer */}
+            {linkedQuoteForDrawer && (
+                <QuoteDetailDrawer
+                    quote={linkedQuoteForDrawer}
+                    onClose={() => setLinkedQuoteForDrawer(null)}
+                    overlayStyle={{ zIndex: 1200 }}
+                    onPreview={() => setPdfModalQuote(linkedQuoteForDrawer)}
+                    onSend={() => setLinkedQuoteForDrawer(null)}
+                    onConvertToInvoice={() => {}}
+                    onChangeStatus={() => {}}
+                    onEdit={() => {}}
                 />
             )}
 
@@ -288,6 +307,14 @@ function FacturesPage() {
                     invoice={activeInvoice}
                     onClose={() => { setShowPdfModal(false); setShowDetailDrawer(true); }}
                     onDownload={handleDownloadPdf}
+                />
+            )}
+
+            {pdfModalQuote && (
+                <QuotePdfView
+                    quote={pdfModalQuote}
+                    onClose={() => setPdfModalQuote(null)}
+                    onDownload={() => alert("Téléchargement du devis...")}
                 />
             )}
 

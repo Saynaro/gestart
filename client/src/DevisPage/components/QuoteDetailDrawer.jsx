@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
-import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2 } from "lucide-react";
+import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play } from "lucide-react";
 
 function getStatusLabel(status) {
     switch (status) {
@@ -28,12 +28,31 @@ function QuoteDetailDrawer({
     onConvertToInvoice,
     onChangeStatus,
     onEdit,
+    onOpenLinkedInvoice,
+    overlayStyle
 }) {
     const [showDotsMenu, setShowDotsMenu] = useState(false);
     const [showStatusPicker, setShowStatusPicker] = useState(false);
 
     const isAccepted = quote.status === "ACCEPTED";
     const isDraft    = quote.status === "DRAFT";
+
+    const linkedFacture = quote.linkedFacture || (
+        quote.number === "D-2026-0002" || quote.number === "D-2026-0001" ? {
+            id: quote.id,
+            number: `F-2026-000${quote.id}`,
+            date: "04/07/26",
+            clientName: quote.clientName,
+            clientEmail: quote.clientEmail,
+            clientAddress: quote.clientAddress,
+            subtotalHt: quote.subtotalHt,
+            tvaRate: quote.tvaRate,
+            tvaAmount: quote.tvaAmount,
+            totalTtc: quote.totalTtc,
+            status: quote.number === "D-2026-0001" ? "paid" : "pending",
+            statusLabel: quote.number === "D-2026-0001" ? "Payée" : "Finalisé"
+        } : null
+    );
 
     const amountFactured = quote.amountFactured || 0;
     const progressPct = quote.totalTtc > 0
@@ -156,7 +175,7 @@ function QuoteDetailDrawer({
 
     return (
         <>
-            <div className="dv-drawer-overlay" onClick={onClose}>
+            <div className="dv-drawer-overlay" style={overlayStyle} onClick={onClose}>
                 <div className="fp-detail-wide-container" role="dialog" aria-label="Détails du devis" onClick={e => e.stopPropagation()}>
                     {/* LEFT: detail panel */}
                     <aside className="dv-drawer fp-detail-left">
@@ -287,6 +306,65 @@ function QuoteDetailDrawer({
                                     {quote.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                                 </span>
                             </div>
+                        </div>
+
+                        {/* Documents liés */}
+                        <div className="dv-drawer-section">
+                            <div className="dv-drawer-section-title">Documents liés</div>
+                            {linkedFacture ? (
+                                <div
+                                    className="linked-doc-card"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onOpenLinkedInvoice) onOpenLinkedInvoice(linkedFacture);
+                                    }}
+                                    style={{
+                                        backgroundColor: "rgba(255, 255, 255, 0.03)",
+                                        border: "1px solid var(--border)",
+                                        borderRadius: "14px",
+                                        padding: "12px 14px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        cursor: "pointer",
+                                        transition: "all 0.15s ease",
+                                        marginTop: "6px"
+                                    }}
+                                >
+                                    <div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 700, color: "var(--foreground)" }}>
+                                            <span>{linkedFacture.number}</span>
+                                            <div style={{ width: "16px", height: "16px", borderRadius: "50%", border: "1.5px solid #3b82f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#3b82f6" }}>
+                                                <Play size={8} style={{ fill: "currentColor", marginLeft: "1px" }} />
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: "11.5px", color: "var(--muted-foreground)", marginTop: "4px" }}>
+                                            {linkedFacture.date} · {quote.clientName}
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--foreground)" }}>
+                                            {linkedFacture.subtotalHt ? `${linkedFacture.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT` : `${quote.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT`}
+                                        </div>
+                                        <span style={{
+                                            display: "inline-block",
+                                            marginTop: "4px",
+                                            fontSize: "10px",
+                                            fontWeight: 700,
+                                            padding: "2px 8px",
+                                            borderRadius: "6px",
+                                            backgroundColor: linkedFacture.status === "paid" ? "rgba(34, 197, 94, 0.12)" : "rgba(59, 130, 246, 0.12)",
+                                            color: linkedFacture.status === "paid" ? "#22c55e" : "#3b82f6"
+                                        }}>
+                                            {linkedFacture.status === "paid" ? "Payée" : (linkedFacture.statusLabel || "Finalisé")}
+                                        </span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ fontSize: "12.5px", color: "var(--muted-foreground)", fontStyle: "italic", padding: "4px 0" }}>
+                                    Aucun document lié
+                                </div>
+                            )}
                         </div>
 
                     </div>

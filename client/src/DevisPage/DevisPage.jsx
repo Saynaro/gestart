@@ -13,13 +13,15 @@ import QuoteSendDrawer from "./components/QuoteSendDrawer";
 import QuotePdfView from "./components/QuotePdfView";
 import NewQuoteModal from "./components/NewQuoteModal";
 import QuoteEditPanel from "./components/QuoteEditPanel";
+import InvoiceDetailDrawer from "../FacturesPage/components/InvoiceDetailDrawer";
+import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 
 const FILTERS = [
-    { key: "all",      label: "Tous" },
-    { key: "DRAFT",    label: "Brouillon" },
-    { key: "SENT",     label: "En attente" },
+    { key: "all", label: "Tous" },
+    { key: "DRAFT", label: "Brouillon" },
+    { key: "SENT", label: "En attente" },
     { key: "ACCEPTED", label: "Signé" },
-    { key: "REFUSED",  label: "Refusé" },
+    { key: "REFUSED", label: "Refusé" },
 ];
 
 function DevisPage() {
@@ -90,9 +92,11 @@ function DevisPage() {
     const [activeQuote, setActiveQuote] = useState(null);
     const [showDetailDrawer, setShowDetailDrawer] = useState(false);
     const [showSendDrawer, setShowSendDrawer] = useState(false);
+    const [showEditPanel, setShowEditPanel] = useState(false);
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [showNewModal, setShowNewModal] = useState(false);
-    const [showEditPanel, setShowEditPanel] = useState(false);
+    const [linkedInvoiceForDrawer, setLinkedInvoiceForDrawer] = useState(null);
+    const [pdfModalInvoice, setPdfModalInvoice] = useState(null);
     const [toast, setToast] = useState(null);
 
     const showToast = (msg, type = "success") => {
@@ -227,6 +231,22 @@ function DevisPage() {
                     onConvertToInvoice={handleConvertToInvoice}
                     onChangeStatus={handleChangeStatus}
                     onEdit={() => { setShowDetailDrawer(false); setShowEditPanel(true); }}
+                    onOpenLinkedInvoice={(inv) => setLinkedInvoiceForDrawer(inv)}
+                />
+            )}
+
+            {/* Linked Invoice Drawer */}
+            {linkedInvoiceForDrawer && (
+                <InvoiceDetailDrawer
+                    invoice={linkedInvoiceForDrawer}
+                    onClose={() => setLinkedInvoiceForDrawer(null)}
+                    overlayStyle={{ zIndex: 1200 }}
+                    onPreview={() => setPdfModalInvoice(linkedInvoiceForDrawer)}
+                    onEdit={() => { setLinkedInvoiceForDrawer(null); }}
+                    onSend={() => setLinkedInvoiceForDrawer(null)}
+                    onFinalise={() => { }}
+                    onMarkPaid={() => { }}
+                    onMarkUnpaid={() => { }}
                 />
             )}
 
@@ -255,6 +275,14 @@ function DevisPage() {
                     quote={activeQuote}
                     onClose={() => { setShowPdfModal(false); setShowDetailDrawer(true); }}
                     onDownload={handleDownloadPdf}
+                />
+            )}
+
+            {pdfModalInvoice && (
+                <InvoicePdfView
+                    invoice={pdfModalInvoice}
+                    onClose={() => setPdfModalInvoice(null)}
+                    onDownload={() => alert("Téléchargement de la facture...")}
                 />
             )}
 

@@ -764,6 +764,10 @@
 }
 
 /* Reuse PDF styles from FacturesPage */
+.pdf-viewer-overlay {
+    z-index: 1300 !important;
+}
+
 .invoice-modal-overlay {
     position: fixed;
     top: 0;

@@ -10,6 +10,8 @@
     position: sticky;
     top: 0;
     z-index: 99;
+    overscroll-behavior: none !important;
+    touch-action: pan-x pinch-zoom;
 }
 
 .header-left {

@@ -69,8 +69,7 @@ const MAIN_APP_ROUTES = [
   "/rapports",
   "/comptabilite",
   "/catalogue",
-  "/premium",
-  "/settings"
+  "/premium"
 ];
 
 function PreventMainPageBack() {

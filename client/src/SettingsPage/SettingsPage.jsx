@@ -1,5 +1,5 @@
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
@@ -71,7 +71,6 @@ const monthsList = [
 
 function SettingsPage() {
     const navigate = useNavigate();
-    const location = useLocation();
 
     // Ref to store scroll position for mobile back navigation
     const scrollYRef = useRef(0);
@@ -171,46 +170,7 @@ function SettingsPage() {
         }
     }, []);
 
-    // Instant popstate listener for iPhone swipe-back gesture and browser back button
-    useLayoutEffect(() => {
-        const handlePopState = () => {
-            const params = new URLSearchParams(window.location.search);
-            const tab = params.get("tab");
-            if (!tab) {
-                setMobileScreenState("list");
-                if (window.innerWidth <= 768 && scrollYRef.current > 0) {
-                    window.scrollTo(0, scrollYRef.current);
-                }
-            } else {
-                setActiveTab(tab);
-                setMobileScreenState("detail");
-                if (window.innerWidth <= 768) {
-                    window.scrollTo(0, 0);
-                }
-            }
-        };
 
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
-
-    // Sync active settings tab with search param '?tab=id'
-    useLayoutEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const tab = params.get("tab");
-        if (tab) {
-            setActiveTab(tab);
-            setMobileScreenState("detail");
-            if (window.innerWidth <= 768) {
-                window.scrollTo(0, 0);
-            }
-        } else {
-            setMobileScreenState("list");
-            if (window.innerWidth <= 768 && scrollYRef.current > 0) {
-                window.scrollTo(0, scrollYRef.current);
-            }
-        }
-    }, [location.search]);
 
     const toggleCategory = (title) => {
         setOpenCategories((prev) => ({
@@ -280,36 +240,61 @@ function SettingsPage() {
         }
     ];
 
-    // Helper to change tab
-    const handleTabSelect = (itemId) => {
+    // Touch swipe left-to-right from screen edge to dismiss detail screen
+    const touchStartX = useRef(0);
+    const touchStartY = useRef(0);
+
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchEndX - touchStartX.current;
+        const deltaY = Math.abs(touchEndY - touchStartY.current);
+
+        // If swiped right from left edge (start X < 60px, distance > 40px, predominantly horizontal)
+        if (touchStartX.current < 60 && deltaX > 40 && deltaY < deltaX) {
+            handleBackFromDetail();
+        }
+    };
+
+    // Helper to change tab instantly via React state without affecting browser history
+    const handleTabSelect = useCallback((itemId) => {
+        setActiveTab(itemId);
         if (window.innerWidth <= 768) {
             scrollYRef.current = window.scrollY;
             setMobileScreenState("detail");
             window.scrollTo(0, 0);
         }
-        setActiveTab(itemId);
-        navigate(`/settings?tab=${itemId}`);
-    };
+    }, []);
 
-    const handleBackFromDetail = () => {
+    const handleBackFromDetail = useCallback(() => {
         setMobileScreenState("list");
-        if (window.innerWidth <= 768 && scrollYRef.current > 0) {
-            window.scrollTo(0, scrollYRef.current);
+        if (typeof window !== "undefined" && window.innerWidth <= 768) {
+            const targetY = scrollYRef.current || 0;
+            setTimeout(() => {
+                window.scrollTo({ top: targetY, behavior: "instant" });
+            }, 0);
         }
-        navigate('/settings', { replace: true });
-    };
+    }, []);
 
     const handleMainListBack = () => {
         // Do nothing on main /settings list screen as requested
         return;
     };
 
-    // Render Tab Content
-    const renderTabContent = (isMobileView = false) => {
-        const currentItem = menuCategories
+    // Memoize active tab object to avoid redundant recalculations
+    const currentItem = useMemo(() => {
+        return menuCategories
             .flatMap(cat => cat.items)
             .find(item => item.id === activeTab) || { label: "Paramètres", icon: Settings };
+    }, [activeTab]);
 
+    // Render Tab Content
+    const renderTabContent = (isMobileView = false) => {
         const ItemIcon = currentItem.icon;
 
         return (
@@ -392,14 +377,16 @@ function SettingsPage() {
     };
 
     const renderMobileLayout = () => {
-        const currentItem = menuCategories
-            .flatMap(cat => cat.items)
-            .find(item => item.id === activeTab) || { label: "Paramètres" };
 
         const isDetail = mobileScreenState === "detail";
 
         return (
-            <div className="mobile-settings-view" style={{ backgroundColor: 'var(--background)' }}>
+            <div
+                className="mobile-settings-view"
+                style={{ backgroundColor: 'var(--background)' }}
+                onTouchStart={isDetail ? handleTouchStart : undefined}
+                onTouchEnd={isDetail ? handleTouchEnd : undefined}
+            >
                 {/* Stable Fixed Sticky Header */}
                 <div className="mobile-nav-header">
                     <button

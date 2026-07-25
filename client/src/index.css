@@ -184,10 +184,16 @@
 
   body {
     @apply bg-background text-foreground;
+    background-color: var(--background) !important;
   }
 
   html {
     @apply font-sans bg-background;
+    background-color: var(--background) !important;
+  }
+
+  #root {
+    background-color: var(--background) !important;
   }
 
   #hero,

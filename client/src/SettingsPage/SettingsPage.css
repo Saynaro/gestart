@@ -12,6 +12,7 @@
     top: 0;
     animation: slideInLeft 0.3s ease;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
 }
 
 @keyframes slideInLeft {
@@ -533,6 +534,7 @@
     background-color: var(--background) !important;
     padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overscroll-behavior-y: contain;
 }
 
 /* Mobile header styling */
@@ -548,6 +550,8 @@
     z-index: 100;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    overscroll-behavior: none !important;
+    touch-action: pan-x pinch-zoom;
 }
 
 .mobile-back-circle {

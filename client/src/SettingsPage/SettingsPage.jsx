@@ -261,23 +261,55 @@ function SettingsPage() {
         }
     };
 
-    // Helper to change tab instantly via React state without affecting browser history
-    const handleTabSelect = useCallback((itemId) => {
-        setActiveTab(itemId);
-        if (window.innerWidth <= 768) {
-            scrollYRef.current = window.scrollY;
-            setMobileScreenState("detail");
-            window.scrollTo(0, 0);
-        }
+    // Handle browser popstate (back button / Safari edge swipe) for mobile sub-screen navigation
+    useEffect(() => {
+        const handlePopState = (e) => {
+            if (e.state && e.state.settingsDetail) {
+                setMobileScreenState("detail");
+                if (e.state.tab) {
+                    setActiveTab(e.state.tab);
+                }
+            } else {
+                setMobileScreenState("list");
+                if (typeof window !== "undefined" && window.innerWidth <= 768) {
+                    const targetY = scrollYRef.current || 0;
+                    setTimeout(() => {
+                        window.scrollTo({ top: targetY, behavior: "instant" });
+                    }, 0);
+                }
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
     }, []);
 
-    const handleBackFromDetail = useCallback(() => {
-        setMobileScreenState("list");
+    // Helper to change tab
+    const handleTabSelect = useCallback((itemId) => {
+        setActiveTab(itemId);
         if (typeof window !== "undefined" && window.innerWidth <= 768) {
-            const targetY = scrollYRef.current || 0;
-            setTimeout(() => {
-                window.scrollTo({ top: targetY, behavior: "instant" });
-            }, 0);
+            scrollYRef.current = window.scrollY;
+            if (mobileScreenState === "detail") {
+                window.history.replaceState({ settingsDetail: true, tab: itemId }, "", window.location.href);
+            } else {
+                window.history.pushState({ settingsDetail: true, tab: itemId }, "", window.location.href);
+                setMobileScreenState("detail");
+            }
+            window.scrollTo(0, 0);
+        }
+    }, [mobileScreenState]);
+
+    const handleBackFromDetail = useCallback(() => {
+        if (typeof window !== "undefined" && window.history.state?.settingsDetail) {
+            window.history.back();
+        } else {
+            setMobileScreenState("list");
+            if (typeof window !== "undefined" && window.innerWidth <= 768) {
+                const targetY = scrollYRef.current || 0;
+                setTimeout(() => {
+                    window.scrollTo({ top: targetY, behavior: "instant" });
+                }, 0);
+            }
         }
     }, []);
 

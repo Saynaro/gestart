@@ -1003,6 +1003,10 @@
     font-weight: 500;
 }
 
+.rapports-dashboard-grid {
+    margin-bottom: 60px;
+}
+
 @media (max-width: 768px) {
     .rapports-page-wrapper .main-content {
         height: 100vh !important;
@@ -1012,6 +1016,6 @@
     }
 
     .rapports-page-wrapper .page-content {
-        padding: 16px 16px calc(76px + env(safe-area-inset-bottom, 0px)) 16px !important;
+        padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px)) 16px !important;
     }
 }

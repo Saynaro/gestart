@@ -575,7 +575,7 @@
 .mobile-header-title {
     font-size: 28px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--foreground);
     margin: 12px 16px 4px 16px;
     letter-spacing: -0.02em;
 }
@@ -766,7 +766,7 @@
 .mobile-row-label {
     font-size: 16.5px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--foreground);
 }
 
 .mobile-row-subtitle {
@@ -1208,9 +1208,9 @@
 }
 
 .mobile-calendar-day-btn.active {
-    background-color: #0066FF !important;
-    color: white !important;
-    box-shadow: 0 4px 10px rgba(0, 102, 255, 0.25);
+    background-color: var(--sidebar-primary) !important;
+    color: var(--sidebar-primary-foreground, white) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .mobile-calendar-actions {
@@ -1223,19 +1223,19 @@
 
 .mobile-calendar-val-btn {
     width: 100%;
-    background-color: #0066FF;
-    color: white;
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground, white);
     font-size: 16px;
     font-weight: 700;
     border: none;
     padding: 12px;
     border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .mobile-calendar-val-btn:active {
-    background-color: #0052cc;
+    opacity: 0.9;
 }
 
 .mobile-calendar-cancel-btn {
@@ -1266,7 +1266,7 @@
 .mobile-settings-profile-name {
     font-size: 26px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--foreground);
     margin: 0 0 6px 0;
     letter-spacing: -0.02em;
 }
@@ -1274,21 +1274,19 @@
 .mobile-settings-profile-email {
     font-size: 15px;
     font-weight: 500;
-    color: #64748b;
+    color: var(--muted-foreground);
     margin: 0;
 }
 
 /* Abby-style Pro Upgrade Banner */
 .mobile-abby-banner {
     position: relative;
-    background-color: #eff6ff;
-    /* sky-50/blue-50 tint */
-    border: 1.5px solid #0066FF;
-    /* abby border blue */
+    background-color: var(--card);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 20px;
     margin: 16px;
-    box-shadow: 0 4px 18px rgba(0, 102, 255, 0.04);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
 }
 
 .mobile-abby-banner-close {
@@ -1297,7 +1295,7 @@
     right: 20px;
     background: transparent;
     border: none;
-    color: #475569;
+    color: var(--muted-foreground);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1308,7 +1306,7 @@
 .mobile-abby-banner-title {
     font-size: 18px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--foreground);
     margin: 0 0 8px 0;
     text-align: left;
     letter-spacing: -0.01em;
@@ -1317,15 +1315,15 @@
 .mobile-abby-banner-text {
     font-size: 14px;
     line-height: 1.45;
-    color: #475569;
+    color: var(--muted-foreground);
     margin: 0 0 16px 0;
     text-align: left;
 }
 
 .mobile-abby-banner-btn {
     width: 100%;
-    background-color: #0066FF;
-    color: white;
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground, #ffffff);
     font-size: 16px;
     font-weight: 700;
     border: none;
@@ -1333,12 +1331,12 @@
     border-radius: 12px;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .mobile-abby-banner-btn:active {
-    background-color: #0052cc;
+    opacity: 0.9;
     transform: scale(0.98);
 }
 

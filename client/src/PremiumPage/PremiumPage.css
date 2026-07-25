@@ -19,6 +19,7 @@
     display: flex;
     gap: 2rem;
     align-items: flex-start;
+    margin-bottom: 60px;
 }
 
 @media (max-width: 900px) {
@@ -218,6 +219,6 @@
     }
 
     .premium-page-wrapper .page-content {
-        padding: 16px 16px calc(76px + env(safe-area-inset-bottom, 0px)) 16px !important;
+        padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px)) 16px !important;
     }
 }

@@ -1169,3 +1169,19 @@
     flex-direction: column;
     gap: 8px;
 }
+
+/* Mobile overscroll & bottom space configuration */
+@media (max-width: 768px) {
+    .devis-page-wrapper .main-content {
+        height: 100vh !important;
+        height: 100dvh !important;
+        overflow-y: auto !important;
+        overscroll-behavior-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .devis-page-wrapper .page-content {
+        padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
+        overscroll-behavior-y: auto !important;
+    }
+}

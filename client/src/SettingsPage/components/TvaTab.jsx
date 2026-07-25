@@ -129,48 +129,81 @@ export default function TvaTab({ isMobileView, triggerToast }) {
             {/* Résumé TVA Trimestriel & Guide CA3 */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <h4 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: 700 }}>Résumé TVA par trimestre & Aide à la déclaration CA3</h4>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                <th style={{ padding: '8px' }}>Période</th>
-                                <th style={{ padding: '8px' }}>TVA Collectée (Ventes)</th>
-                                <th style={{ padding: '8px' }}>TVA Déductible (Achats)</th>
-                                <th style={{ padding: '8px' }}>TVA Net à payer</th>
-                                <th style={{ padding: '8px' }}>Statut</th>
-                                <th style={{ padding: '8px', textAlign: 'right' }}>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {tvaQuarters.map((q, idx) => (
-                                <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '10px 8px', fontWeight: 600 }}>{q.quarter}</td>
-                                    <td style={{ padding: '10px 8px', color: '#22c55e', fontWeight: 600 }}>+ {q.collected}</td>
-                                    <td style={{ padding: '10px 8px', color: '#ef4444', fontWeight: 600 }}>- {q.deductible}</td>
-                                    <td style={{ padding: '10px 8px', fontWeight: 800, color: 'var(--foreground)' }}>{q.netPayable}</td>
-                                    <td style={{ padding: '10px 8px' }}>
-                                        <span style={{ backgroundColor: q.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: q.status === 'Déclaré' ? '#22c55e' : '#f59e0b', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                            {q.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                        {q.status !== 'Déclaré' ? (
-                                            <button
-                                                type="button"
-                                                onClick={() => handleMarkDeclared(q.quarter)}
-                                                style={{ padding: '6px 12px', borderRadius: '6px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '12px', cursor: 'pointer' }}
-                                            >
-                                                Marquer comme Déclaré
-                                            </button>
-                                        ) : (
-                                            <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Le {q.dateDeclared}</span>
-                                        )}
-                                    </td>
+                {isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {tvaQuarters.map((q, idx) => (
+                            <div key={idx} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--foreground)' }}>{q.quarter}</span>
+                                    <span style={{ backgroundColor: q.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: q.status === 'Déclaré' ? '#22c55e' : '#f59e0b', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                        {q.status}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '12px' }}>
+                                    <div>Collectée: <strong style={{ color: '#22c55e' }}>+ {q.collected}</strong></div>
+                                    <div>Déductible: <strong style={{ color: '#ef4444' }}>- {q.deductible}</strong></div>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
+                                    <div>Net à payer: <strong style={{ fontSize: '14px', color: 'var(--foreground)' }}>{q.netPayable}</strong></div>
+                                    {q.status !== 'Déclaré' ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleMarkDeclared(q.quarter)}
+                                            style={{ padding: '6px 10px', borderRadius: '6px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '11px', cursor: 'pointer' }}
+                                        >
+                                            Déclarer
+                                        </button>
+                                    ) : (
+                                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{q.dateDeclared}</span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                    <th style={{ padding: '8px' }}>Période</th>
+                                    <th style={{ padding: '8px' }}>TVA Collectée (Ventes)</th>
+                                    <th style={{ padding: '8px' }}>TVA Déductible (Achats)</th>
+                                    <th style={{ padding: '8px' }}>TVA Net à payer</th>
+                                    <th style={{ padding: '8px' }}>Statut</th>
+                                    <th style={{ padding: '8px', textAlign: 'right' }}>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {tvaQuarters.map((q, idx) => (
+                                    <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{q.quarter}</td>
+                                        <td style={{ padding: '10px 8px', color: '#22c55e', fontWeight: 600 }}>+ {q.collected}</td>
+                                        <td style={{ padding: '10px 8px', color: '#ef4444', fontWeight: 600 }}>- {q.deductible}</td>
+                                        <td style={{ padding: '10px 8px', fontWeight: 800, color: 'var(--foreground)' }}>{q.netPayable}</td>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            <span style={{ backgroundColor: q.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: q.status === 'Déclaré' ? '#22c55e' : '#f59e0b', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                                {q.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
+                                            {q.status !== 'Déclaré' ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleMarkDeclared(q.quarter)}
+                                                    style={{ padding: '6px 12px', borderRadius: '6px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '12px', cursor: 'pointer' }}
+                                                >
+                                                    Marquer comme Déclaré
+                                                </button>
+                                            ) : (
+                                                <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Le {q.dateDeclared}</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
                 {/* Guide cases impots.gouv.fr */}
                 <div style={{ marginTop: '16px', padding: '14px', backgroundColor: 'rgba(91, 77, 219, 0.04)', borderRadius: '8px', border: '1px dashed rgba(91, 77, 219, 0.2)', fontSize: '12.5px' }}>

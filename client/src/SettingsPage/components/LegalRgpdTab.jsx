@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Lock, Download, Trash2, ShieldCheck, Mail, FileText, CheckCircle2, Info } from "lucide-react";
 
-export default function LegalRgpdTab({ isMobileView, triggerToast }) {
+export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [cookieConsent, setCookieConsent] = useState(true);
     const [marketingConsent, setMarketingConsent] = useState(false);
     const [dpoEmail, setDpoEmail] = useState("dpo@gestart.fr");
@@ -173,7 +173,19 @@ export default function LegalRgpdTab({ isMobileView, triggerToast }) {
                 </p>
                 <button
                     type="button"
-                    onClick={() => setShowDeleteModal(true)}
+                    onClick={() => {
+                        if (triggerConfirm) {
+                            triggerConfirm({
+                                title: "Suppression définitive du compte",
+                                message: "Êtes-vous sûr de vouloir demander la suppression définitive de votre compte SAINARO KHALID CLIM et de toutes ses données (Art. 17 RGPD) ?",
+                                confirmText: "Oui, supprimer mon compte",
+                                cancelText: "Annuler",
+                                onConfirm: handleDeleteAccount
+                            });
+                        } else {
+                            setShowDeleteModal(true);
+                        }
+                    }}
                     style={{ padding: '10px 18px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
                 >
                     Demander la suppression définitive du compte

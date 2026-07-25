@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, RefreshCw, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react";
 
-export default function UrssafTab({ isMobileView, triggerToast }) {
+export default function UrssafTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [isConnected, setIsConnected] = useState(true);
     const [siret, setSiret] = useState("94408772500012");
     const [lastSyncDate, setLastSyncDate] = useState("24/07/2026 09:15");
@@ -53,8 +53,26 @@ export default function UrssafTab({ isMobileView, triggerToast }) {
                     <button
                         type="button"
                         onClick={() => {
-                            setIsConnected(!isConnected);
-                            triggerToast(isConnected ? "Compte URSSAF déconnecté." : "Compte URSSAF connecté !");
+                            if (isConnected) {
+                                if (triggerConfirm) {
+                                    triggerConfirm({
+                                        title: "Déconnexion URSSAF",
+                                        message: "Êtes-vous sûr de vouloir déconnecter votre compte URSSAF de GestArt ?",
+                                        confirmText: "Déconnecter",
+                                        cancelText: "Annuler",
+                                        onConfirm: () => {
+                                            setIsConnected(false);
+                                            triggerToast("Compte URSSAF déconnecté.");
+                                        }
+                                    });
+                                } else {
+                                    setIsConnected(false);
+                                    triggerToast("Compte URSSAF déconnecté.");
+                                }
+                            } else {
+                                setIsConnected(true);
+                                triggerToast("Compte URSSAF connecté !");
+                            }
                         }}
                         style={{ padding: '9px 16px', backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
                     >
@@ -72,28 +90,42 @@ export default function UrssafTab({ isMobileView, triggerToast }) {
             {/* Historique des synchronisations */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <h4 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: 700 }}>Historique des synchronisations</h4>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                <th style={{ padding: '8px' }}>Date & Heure</th>
-                                <th style={{ padding: '8px' }}>Détails</th>
-                                <th style={{ padding: '8px', textAlign: 'right' }}>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {syncHistory.map((item, idx) => (
-                                <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '10px 8px', fontWeight: 500 }}>{item.date}</td>
-                                    <td style={{ padding: '10px 8px' }}>{item.details}</td>
-                                    <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                        <span style={{ color: '#22c55e', fontWeight: 700, fontSize: '12px' }}>{item.status}</span>
-                                    </td>
+                {isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {syncHistory.map((item, idx) => (
+                            <div key={idx} style={{ padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 600, fontSize: '13px', color: 'var(--foreground)' }}>{item.details}</span>
+                                    <span style={{ color: '#22c55e', fontWeight: 700, fontSize: '12px' }}>{item.status}</span>
+                                </div>
+                                <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>{item.date}</span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                    <th style={{ padding: '8px' }}>Date & Heure</th>
+                                    <th style={{ padding: '8px' }}>Détails</th>
+                                    <th style={{ padding: '8px', textAlign: 'right' }}>Statut</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {syncHistory.map((item, idx) => (
+                                    <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '10px 8px', fontWeight: 500 }}>{item.date}</td>
+                                        <td style={{ padding: '10px 8px' }}>{item.details}</td>
+                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
+                                            <span style={{ color: '#22c55e', fontWeight: 700, fontSize: '12px' }}>{item.status}</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );

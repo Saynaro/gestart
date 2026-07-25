@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CreditCard, Sparkles, Check, Download, AlertCircle, ExternalLink } from "lucide-react";
 
-export default function AbonnementTab({ isMobileView, triggerToast }) {
+export default function AbonnementTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [billingCycle, setBillingCycle] = useState("mensuel"); // "mensuel" | "annuel"
     const [currentPlan, setCurrentPlan] = useState("Pro");
     const [showStripeModal, setShowStripeModal] = useState(false);
@@ -198,48 +198,86 @@ export default function AbonnementTab({ isMobileView, triggerToast }) {
             {/* Historique des factures et paiements */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700 }}>Historique des règlements Stripe</h3>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                <th style={{ padding: '8px' }}>N° Facture</th>
-                                <th style={{ padding: '8px' }}>Date</th>
-                                <th style={{ padding: '8px' }}>Montant</th>
-                                <th style={{ padding: '8px' }}>Statut</th>
-                                <th style={{ padding: '8px', textAlign: 'right' }}>Reçu PDF</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paymentHistory.map((item) => (
-                                <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.id}</td>
-                                    <td style={{ padding: '10px 8px' }}>{item.date}</td>
-                                    <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.amount}</td>
-                                    <td style={{ padding: '10px 8px' }}>
-                                        <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                        <button
-                                            type="button"
-                                            onClick={() => triggerToast(`Téléchargement de la facture PDF ${item.id}...`)}
-                                            style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                                        >
-                                            <Download size={14} /> PDF
-                                        </button>
-                                    </td>
+                {isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {paymentHistory.map((item) => (
+                            <div key={item.id} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--foreground)' }}>{item.id}</span>
+                                    <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px' }}>
+                                    <span style={{ color: 'var(--muted-foreground)' }}>{item.date}</span>
+                                    <span style={{ fontWeight: 700, color: 'var(--foreground)' }}>{item.amount}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => triggerToast(`Téléchargement de la facture PDF ${item.id}...`)}
+                                        style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                    >
+                                        <Download size={14} /> PDF
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                    <th style={{ padding: '8px' }}>N° Facture</th>
+                                    <th style={{ padding: '8px' }}>Date</th>
+                                    <th style={{ padding: '8px' }}>Montant</th>
+                                    <th style={{ padding: '8px' }}>Statut</th>
+                                    <th style={{ padding: '8px', textAlign: 'right' }}>Reçu PDF</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {paymentHistory.map((item) => (
+                                    <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.id}</td>
+                                        <td style={{ padding: '10px 8px' }}>{item.date}</td>
+                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.amount}</td>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => triggerToast(`Téléchargement de la facture PDF ${item.id}...`)}
+                                                style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                            >
+                                                <Download size={14} /> PDF
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
                 <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <button
                         type="button"
                         onClick={() => {
-                            if (window.confirm("Êtes-vous sûr de vouloir résilier votre abonnement à la fin de la période en cours ?")) {
+                            if (triggerConfirm) {
+                                triggerConfirm({
+                                    title: "Résiliation d'abonnement",
+                                    message: "Êtes-vous sûr de vouloir résilier votre abonnement à la fin de la période en cours ?",
+                                    confirmText: "Oui, résilier",
+                                    cancelText: "Conserver mon offre",
+                                    onConfirm: () => {
+                                        triggerToast("Demande d'annulation prise en compte. Votre accès reste actif jusqu'au 15/08/2026.");
+                                    }
+                                });
+                            } else if (window.confirm("Êtes-vous sûr de vouloir résilier votre abonnement à la fin de la période en cours ?")) {
                                 triggerToast("Demande d'annulation prise en compte. Votre accès reste actif jusqu'au 15/08/2026.");
                             }
                         }}

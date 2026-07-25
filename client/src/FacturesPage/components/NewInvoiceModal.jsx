@@ -1612,6 +1612,18 @@ function NewInvoiceModal({ onClose, onCreateInvoice }) {
                         handleSaveClient={handleSaveNewClient}
                     />
                 )}
+                {/* Echeance picker overlay - Mobile */}
+                {showEcheancePicker && (
+                    <EcheancePickerModal
+                        selectedOptionId={echeanceOptionId}
+                        customDate={echeanceCustomDate}
+                        onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
+                            setEcheanceOptionId(optId);
+                            setEcheanceCustomDate(custStr);
+                        }}
+                        onClose={() => setShowEcheancePicker(false)}
+                    />
+                )}
 
             </div>
             , document.body);

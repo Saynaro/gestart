@@ -94,7 +94,7 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                 </div>
             </div>
 
-            <div className="profile-form-grid">
+            <div className="profile-form-grid" style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)' }}>
                 <div className="form-field form-group-full">
                     <label className="form-label">Logo de l'entreprise (Imprimé sur les devis & factures PDF)</label>
                     <div className="avatar-edit-field">
@@ -139,12 +139,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
                 <div className="form-field">
                     <label className="form-label">SIREN (9 chiffres - Calculé auto)</label>
-                    <input type="text" className="form-input" value={siren} readOnly style={{ backgroundColor: 'rgba(0,0,0,0.03)', fontWeight: 700 }} />
+                    <input type="text" className="form-input" value={siren} readOnly style={{ opacity: 0.85, fontWeight: 700 }} />
                 </div>
 
                 <div className="form-field">
                     <label className="form-label">N° TVA Intracommunautaire (Calculé auto)</label>
-                    <input type="text" className="form-input" value={tvaNumber} readOnly style={{ backgroundColor: 'rgba(0,0,0,0.03)', fontWeight: 700, color: 'var(--sidebar-primary)' }} />
+                    <input type="text" className="form-input" value={tvaNumber} readOnly style={{ opacity: 0.85, fontWeight: 700, color: 'var(--sidebar-primary)' }} />
                 </div>
 
                 <div className="form-field">
@@ -191,12 +191,11 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     <label className="form-label">BIC / SWIFT</label>
                     <input type="text" className="form-input" value={bic} onChange={(e) => setBIC(e.target.value)} style={{ fontFamily: 'monospace', fontWeight: 600 }} />
                 </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
-                <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                    Enregistrer l'entreprise
-                </button>
+                <div className="form-group-full" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--border)' }}>
+                    <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                        Enregistrer l'entreprise
+                    </button>
+                </div>
             </div>
         </form>
     );

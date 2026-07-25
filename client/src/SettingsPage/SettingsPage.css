@@ -257,12 +257,15 @@
 
 /* Settings Content Panel */
 .settings-content-panel {
-    background-color: var(--card);
-    border-radius: 14px;
-    padding: 24px 24px 40px 24px;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
     margin-bottom: 60px;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-    min-height: 480px;
+    box-shadow: none;
+    min-height: auto;
+    width: 100%;
+    max-width: 920px;
 }
 
 .panel-title-row {
@@ -299,32 +302,47 @@
 .form-field {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
 .form-label {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
 }
 
 .form-input {
-    padding: 9px 12px;
-    border-radius: 8px;
+    padding: 11px 14px;
+    border-radius: 10px;
     border: 1px solid var(--border);
-    background-color: var(--background);
+    background-color: var(--card);
     color: var(--foreground);
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 500;
     transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .form-input:focus {
     border-color: var(--sidebar-primary);
-    box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.08);
+    box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.12);
     outline: none;
+}
+
+/* Clear crisp input border separation in dark mode */
+.dark .form-input,
+:root.dark .form-input {
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark .form-input:focus,
+:root.dark .form-input:focus {
+    border-color: var(--sidebar-primary) !important;
+    box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.25) !important;
 }
 
 .civility-select {
@@ -1431,7 +1449,7 @@ input:checked+.toggle-slider:before {
     /* Mobile form grid overrides */
     .profile-form-grid {
         grid-template-columns: 1fr !important;
-        gap: 12px !important;
+        gap: 18px !important;
     }
 
     .form-group-full {
@@ -1498,5 +1516,18 @@ input:checked+.toggle-slider:before {
     /* Hide mobile views when on desktop */
     .mobile-settings-view {
         display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-tab-content-wrapper table {
+        width: 100% !important;
+        font-size: 12px !important;
+    }
+    .mobile-tab-content-wrapper td,
+    .mobile-tab-content-wrapper th {
+        padding: 8px 4px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
     }
 }

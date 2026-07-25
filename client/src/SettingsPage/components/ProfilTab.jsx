@@ -126,7 +126,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
     }
 
     return (
-        <form onSubmit={handleSubmit} className="profile-form-grid">
+        <form onSubmit={handleSubmit} className="profile-form-grid" style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)' }}>
             <div className="form-field form-group-full">
                 <label className="form-label">Photo de profil (Avatar)</label>
                 <div className="avatar-edit-field">
@@ -233,7 +233,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                 </select>
             </div>
 
-            <div className="form-group-full" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+            <div className="form-group-full" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', paddingTop: '16px', borderTop: '1px dashed var(--border)' }}>
                 <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
                     Enregistrer les modifications
                 </button>

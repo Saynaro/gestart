@@ -12,6 +12,7 @@ import InvoiceSendDrawer from "./components/InvoiceSendDrawer";
 import InvoiceEditPanel from "./components/InvoiceEditPanel";
 import InvoicePdfView from "./components/InvoicePdfView";
 import NewInvoiceModal from "./components/NewInvoiceModal";
+import PaymentMethodModal from "./components/PaymentMethodModal";
 
 const FILTERS = [
     { key: "all",      label: "Toutes" },
@@ -110,6 +111,7 @@ function FacturesPage() {
     const [showEditPanel, setShowEditPanel] = useState(false);
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [showNewModal, setShowNewModal] = useState(false);
+    const [paymentModalInvoice, setPaymentModalInvoice] = useState(null);
     const [toast, setToast] = useState(null);
 
     const showToast = (msg, type = "success") => {
@@ -135,8 +137,9 @@ function FacturesPage() {
 
     const closeAll = () => {
         setShowDetailDrawer(false);
-        setShowEditPanel(false);
         setShowSendDrawer(false);
+        setShowEditPanel(false);
+        setShowPdfModal(false);
     };
 
     const handleFinalise = (inv) => {
@@ -146,9 +149,14 @@ function FacturesPage() {
     };
 
     const handleMarkPaid = (inv) => {
-        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "paid" } : i));
-        setActiveInvoice(prev => ({ ...prev, status: "paid" }));
-        showToast(`✓ Facture ${inv.number} marquée comme Payée !`);
+        setPaymentModalInvoice(inv);
+    };
+
+    const handleConfirmPayment = (inv, paymentMethod) => {
+        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "paid", paymentMethod } : i));
+        setActiveInvoice(prev => ({ ...prev, status: "paid", paymentMethod }));
+        setPaymentModalInvoice(null);
+        showToast(`✓ Facture ${inv.number} encaissée par ${paymentMethod} !`);
     };
 
     const handleMarkUnpaid = (inv) => {
@@ -288,6 +296,15 @@ function FacturesPage() {
                 <NewInvoiceModal
                     onClose={() => setShowNewModal(false)}
                     onCreateInvoice={handleCreateInvoice}
+                />
+            )}
+
+            {/* Payment Method Selector Modal */}
+            {paymentModalInvoice && (
+                <PaymentMethodModal
+                    invoice={paymentModalInvoice}
+                    onConfirm={handleConfirmPayment}
+                    onClose={() => setPaymentModalInvoice(null)}
                 />
             )}
 

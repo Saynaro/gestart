@@ -84,45 +84,75 @@ export default function TransactionsTab({ isMobileView, triggerToast }) {
 
             {/* Table des transactions */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                <th style={{ padding: '8px' }}>Réf & Facture</th>
-                                <th style={{ padding: '8px' }}>Date</th>
-                                <th style={{ padding: '8px' }}>Client</th>
-                                <th style={{ padding: '8px' }}>Mode de règlement</th>
-                                <th style={{ padding: '8px' }}>Statut</th>
-                                <th style={{ padding: '8px', textAlign: 'right' }}>Montant</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredTransactions.map((tx) => (
-                                <tr key={tx.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '10px 8px', fontWeight: 600 }}>
-                                        <div>{tx.id}</div>
-                                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{tx.invoice}</span>
-                                    </td>
-                                    <td style={{ padding: '10px 8px' }}>{tx.date}</td>
-                                    <td style={{ padding: '10px 8px', fontWeight: 500 }}>{tx.client}</td>
-                                    <td style={{ padding: '10px 8px', color: 'var(--muted-foreground)' }}>{tx.method}</td>
-                                    <td style={{ padding: '10px 8px' }}>
-                                        <span style={{
-                                            backgroundColor: tx.type === 'PAID' ? 'rgba(34, 197, 94, 0.1)' : tx.type === 'PENDING' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                            color: tx.type === 'PAID' ? '#22c55e' : tx.type === 'PENDING' ? '#f59e0b' : '#ef4444',
-                                            fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700
-                                        }}>
-                                            {tx.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 800, color: tx.type === 'PAID' ? '#22c55e' : 'var(--foreground)' }}>
-                                        {tx.amount}
-                                    </td>
+                {isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {filteredTransactions.map((tx) => (
+                            <div key={tx.id} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--foreground)' }}>{tx.id}</div>
+                                        <div style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{tx.invoice}</div>
+                                    </div>
+                                    <span style={{
+                                        backgroundColor: tx.type === 'PAID' ? 'rgba(34, 197, 94, 0.1)' : tx.type === 'PENDING' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                        color: tx.type === 'PAID' ? '#22c55e' : tx.type === 'PENDING' ? '#f59e0b' : '#ef4444',
+                                        fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700
+                                    }}>
+                                        {tx.status}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px' }}>
+                                    <div>
+                                        <span style={{ fontWeight: 600, color: 'var(--foreground)' }}>{tx.client}</span>
+                                        <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', marginLeft: '6px' }}>({tx.method})</span>
+                                    </div>
+                                    <span style={{ fontWeight: 800, fontSize: '14px', color: tx.type === 'PAID' ? '#22c55e' : 'var(--foreground)' }}>{tx.amount}</span>
+                                </div>
+                                <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>{tx.date}</div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                    <th style={{ padding: '8px' }}>Réf & Facture</th>
+                                    <th style={{ padding: '8px' }}>Date</th>
+                                    <th style={{ padding: '8px' }}>Client</th>
+                                    <th style={{ padding: '8px' }}>Mode de règlement</th>
+                                    <th style={{ padding: '8px' }}>Statut</th>
+                                    <th style={{ padding: '8px', textAlign: 'right' }}>Montant</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {filteredTransactions.map((tx) => (
+                                    <tr key={tx.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>
+                                            <div>{tx.id}</div>
+                                            <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{tx.invoice}</span>
+                                        </td>
+                                        <td style={{ padding: '10px 8px' }}>{tx.date}</td>
+                                        <td style={{ padding: '10px 8px', fontWeight: 500 }}>{tx.client}</td>
+                                        <td style={{ padding: '10px 8px', color: 'var(--muted-foreground)' }}>{tx.method}</td>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            <span style={{
+                                                backgroundColor: tx.type === 'PAID' ? 'rgba(34, 197, 94, 0.1)' : tx.type === 'PENDING' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                                color: tx.type === 'PAID' ? '#22c55e' : tx.type === 'PENDING' ? '#f59e0b' : '#ef4444',
+                                                fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700
+                                            }}>
+                                                {tx.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 800, color: tx.type === 'PAID' ? '#22c55e' : 'var(--foreground)' }}>
+                                            {tx.amount}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1278,58 +1278,50 @@
         box-shadow: rgba(0, 0, 0, 0.02) 0px 2px 8px;
     }
 
-    /* Type styles for event cards - Solid colors, no thick left border */
+    /* Type styles for event cards - Rich saturated colors with matching borders */
     .mobile-event-card.type-installation {
-        border-left: 1px solid #c7d2fe !important;
-        background-color: #eef2ff !important;
-        border-color: #c7d2fe !important;
+        border: 1px solid #e0e7ff !important;
+        background-color: #e0e7ff !important;
     }
 
     .mobile-event-card.type-maintenance {
-        border-left: 1px solid #bbf7d0 !important;
-        background-color: #f0fdf4 !important;
-        border-color: #bbf7d0 !important;
+        border: 1px solid #dcfce7 !important;
+        background-color: #dcfce7 !important;
     }
 
     .mobile-event-card.type-depannage,
     .mobile-event-card.type-dépannage {
-        border-left: 1px solid #fed7aa !important;
-        background-color: #fff7ed !important;
-        border-color: #fed7aa !important;
+        border: 1px solid #ffedd5 !important;
+        background-color: #ffedd5 !important;
     }
 
     .mobile-event-card.type-controle,
     .mobile-event-card.type-contrôle {
-        border-left: 1px solid #cbd5e1 !important;
-        background-color: #f1f5f9 !important;
-        border-color: #cbd5e1 !important;
+        border: 1px solid #e0f2fe !important;
+        background-color: #e0f2fe !important;
     }
 
-    /* Dark theme specific borders and backgrounds - Solid colors */
+    /* Dark theme specific borders and backgrounds - Rich saturated colors with matching borders */
     .dark .mobile-event-card.type-installation {
-        border-left: 1px solid #312e81 !important;
-        background-color: #1e1b4b !important;
-        border-color: #312e81 !important;
+        border: 1px solid #1e2468 !important;
+        background-color: #1e2468 !important;
     }
 
     .dark .mobile-event-card.type-maintenance {
-        border-left: 1px solid #14532d !important;
-        background-color: #062f17 !important;
-        border-color: #14532d !important;
+        border: 1px solid #084d28 !important;
+        background-color: #084d28 !important;
     }
 
     .dark .mobile-event-card.type-depannage,
     .dark .mobile-event-card.type-dépannage {
-        border-left: 1px solid #7c2d12 !important;
-        background-color: #431407 !important;
-        border-color: #7c2d12 !important;
+        border: 1px solid #632709 !important;
+        background-color: #632709 !important;
     }
 
     .dark .mobile-event-card.type-controle,
     .dark .mobile-event-card.type-contrôle {
-        border-left: 1px solid #1e293b !important;
-        background-color: #0f172a !important;
-        border-color: #1e293b !important;
+        border: 1px solid #0c465a !important;
+        background-color: #0c465a !important;
     }
 
     .card-top-row {
@@ -1350,64 +1342,65 @@
     .card-badge {
         font-size: 11px;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 20px;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.4px;
+        border: none !important;
     }
 
-    /* Badge specific color categories */
+    /* Badge specific color categories - Light Mode */
     .type-installation .card-badge {
-        background-color: rgba(99, 102, 241, 0.08);
-        color: #6366f1;
-        border: 1px solid rgba(99, 102, 241, 0.15);
+        background-color: rgba(67, 56, 202, 0.12) !important;
+        color: #3730a3 !important;
+        border: none !important;
     }
 
     .type-maintenance .card-badge {
-        background-color: rgba(34, 197, 94, 0.08);
-        color: #22c55e;
-        border: 1px solid rgba(34, 197, 94, 0.15);
+        background-color: rgba(21, 128, 61, 0.12) !important;
+        color: #166534 !important;
+        border: none !important;
     }
 
     .type-depannage .card-badge,
     .type-dépannage .card-badge {
-        background-color: rgba(249, 115, 22, 0.08);
-        color: #f97316;
-        border: 1px solid rgba(249, 115, 22, 0.15);
+        background-color: rgba(194, 65, 12, 0.12) !important;
+        color: #9a3412 !important;
+        border: none !important;
     }
 
     .type-controle .card-badge,
     .type-contrôle .card-badge {
-        background-color: rgba(100, 116, 139, 0.08);
-        color: #64748b;
-        border: 1px solid rgba(100, 116, 139, 0.15);
+        background-color: rgba(3, 105, 161, 0.12) !important;
+        color: #075985 !important;
+        border: none !important;
     }
 
-    /* Dark Mode specific badges */
+    /* Dark Mode specific badges - No cheap ring border, soft modern overlay */
     .dark .type-installation .card-badge {
-        background-color: rgba(93, 95, 239, 0.15);
-        color: #818cf8;
-        border-color: rgba(93, 95, 239, 0.25);
+        background-color: rgba(255, 255, 255, 0.14) !important;
+        color: #a5b4fc !important;
+        border: none !important;
     }
 
     .dark .type-maintenance .card-badge {
-        background-color: rgba(35, 177, 96, 0.15);
-        color: #4ade80;
-        border-color: rgba(35, 177, 96, 0.25);
+        background-color: rgba(255, 255, 255, 0.14) !important;
+        color: #86efac !important;
+        border: none !important;
     }
 
     .dark .type-depannage .card-badge,
     .dark .type-dépannage .card-badge {
-        background-color: rgba(226, 106, 44, 0.15);
-        color: #fb923c;
-        border-color: rgba(226, 106, 44, 0.25);
+        background-color: rgba(255, 255, 255, 0.14) !important;
+        color: #fdba74 !important;
+        border: none !important;
     }
 
     .dark .type-controle .card-badge,
     .dark .type-contrôle .card-badge {
-        background-color: rgba(92, 107, 115, 0.15);
-        color: #94a3b8;
-        border-color: rgba(92, 107, 115, 0.25);
+        background-color: rgba(255, 255, 255, 0.14) !important;
+        color: #7dd3fc !important;
+        border: none !important;
     }
 
     .card-client-name {

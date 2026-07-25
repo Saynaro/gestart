@@ -116,36 +116,58 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
             {/* Historique des déclarations URSSAF */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <h4 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: 700 }}>Historique des déclarations & Cotisations réglées</h4>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                <th style={{ padding: '8px' }}>Période</th>
-                                <th style={{ padding: '8px' }}>CA Déclaré</th>
-                                <th style={{ padding: '8px' }}>Taux</th>
-                                <th style={{ padding: '8px' }}>Cotisations dues</th>
-                                <th style={{ padding: '8px' }}>Statut</th>
-                                <th style={{ padding: '8px', textAlign: 'right' }}>Date règlement</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {urssafDeclarations.map((item, idx) => (
-                                <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.period}</td>
-                                    <td style={{ padding: '10px 8px' }}>{item.ca}</td>
-                                    <td style={{ padding: '10px 8px' }}>{item.rate}</td>
-                                    <td style={{ padding: '10px 8px', fontWeight: 700, color: 'var(--foreground)' }}>{item.due}</td>
-                                    <td style={{ padding: '10px 8px' }}>
-                                        <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '10px 8px', textAlign: 'right', color: 'var(--muted-foreground)' }}>{item.datePayed}</td>
+                {isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {urssafDeclarations.map((item, idx) => (
+                            <div key={idx} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--foreground)' }}>{item.period}</span>
+                                    <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px' }}>
+                                    <div>CA: <strong>{item.ca}</strong> <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>({item.rate})</span></div>
+                                    <div>Dues: <strong style={{ fontSize: '13.5px', color: 'var(--foreground)' }}>{item.due}</strong></div>
+                                </div>
+                                <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', textAlign: 'right' }}>
+                                    Réglé le {item.datePayed}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                    <th style={{ padding: '8px' }}>Période</th>
+                                    <th style={{ padding: '8px' }}>CA Déclaré</th>
+                                    <th style={{ padding: '8px' }}>Taux</th>
+                                    <th style={{ padding: '8px' }}>Cotisations dues</th>
+                                    <th style={{ padding: '8px' }}>Statut</th>
+                                    <th style={{ padding: '8px', textAlign: 'right' }}>Date règlement</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {urssafDeclarations.map((item, idx) => (
+                                    <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.period}</td>
+                                        <td style={{ padding: '10px 8px' }}>{item.ca}</td>
+                                        <td style={{ padding: '10px 8px' }}>{item.rate}</td>
+                                        <td style={{ padding: '10px 8px', fontWeight: 700, color: 'var(--foreground)' }}>{item.due}</td>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '10px 8px', textAlign: 'right', color: 'var(--muted-foreground)' }}>{item.datePayed}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </form>
     );

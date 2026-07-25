@@ -7,7 +7,7 @@ import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import EventCalendar from "../components/EventCalendar";
 import MobilePlanningView from "./MobilePlanningView";
-import { ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, Briefcase, Clock, ArrowLeft, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, Briefcase, Clock, ArrowLeft, Search, AlertTriangle } from "lucide-react";
 
 // ── Responsive hook ──────────────────────────────────────────────
 function useWindowWidth() {
@@ -275,10 +275,23 @@ function PlanningPage() {
         setShowAddModal(true);
     };
 
+    const isTimeInvalid = React.useMemo(() => {
+        if (!startTime || !endTime) return false;
+        const [startH, startM] = startTime.split(":").map(Number);
+        const [endH, endM] = endTime.split(":").map(Number);
+        if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return false;
+        return (endH * 60 + endM) <= (startH * 60 + startM);
+    }, [startTime, endTime]);
+
     // Save new event
     const handleAddEventSubmit = (e) => {
         e.preventDefault();
         if (!newClientName || !selectedSlot) return;
+
+        if (isMobile && isTimeInvalid) {
+            alert("L'heure de fin doit être supérieure à l'heure de début !");
+            return;
+        }
 
         let startStr = selectedSlot.startStr;
         let endStr = selectedSlot.endStr;
@@ -314,6 +327,11 @@ function PlanningPage() {
     const handleEditEventSubmit = (e) => {
         e.preventDefault();
         if (!editClientName || !selectedEvent) return;
+
+        if (isMobile && isTimeInvalid) {
+            alert("L'heure de fin doit être supérieure à l'heure de début !");
+            return;
+        }
 
         let startStr = selectedEvent.start;
         let endStr = selectedEvent.end;
@@ -364,10 +382,10 @@ function PlanningPage() {
         : events.filter(e => e.extendedProps.type === typeFilter);
 
     // Helpers to format slot date time inside the modal
-    const formatSlotDateTime = (slotInfo) => {
+    const formatSlotDateTime = (slotInfo, currentStart, currentEnd) => {
         if (!slotInfo) return "";
         const start = new Date(slotInfo.start);
-        const end = new Date(slotInfo.end);
+        const end = slotInfo.end ? new Date(slotInfo.end) : start;
         
         let dateStr = "";
         try {
@@ -380,12 +398,10 @@ function PlanningPage() {
             dateStr = `${days[start.getDay()]} ${start.getDate()} ${months[start.getMonth()]} ${start.getFullYear()}`;
         }
         
-        const startHour = String(start.getHours()).padStart(2, '0');
-        const startMin = String(start.getMinutes()).padStart(2, '0');
-        const endHour = String(end.getHours()).padStart(2, '0');
-        const endMin = String(end.getMinutes()).padStart(2, '0');
+        const displayStart = currentStart || `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`;
+        const displayEnd = currentEnd || `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`;
         
-        return `${dateStr} de ${startHour}:${startMin} à ${endHour}:${endMin}`;
+        return `${dateStr} de ${displayStart} à ${displayEnd}`;
     };
 
     // ── Mobile handlers ───────────────────────────────────────────
@@ -461,7 +477,7 @@ function PlanningPage() {
                                 <form onSubmit={handleAddEventSubmit} className="modal-form-stack">
                                     <div className="modal-slot-info">
                                         <span className="slot-info-label">Créneau sélectionné :</span>
-                                        <span className="slot-info-val">{formatSlotDateTime(selectedSlot)}</span>
+                                        <span className="slot-info-val">{formatSlotDateTime(selectedSlot, startTime, endTime)}</span>
                                     </div>
                                     {isMobile && (
                                         <div className="modal-field-row" style={{ display: 'flex', gap: '12px' }}>
@@ -485,6 +501,21 @@ function PlanningPage() {
                                                     required 
                                                 />
                                             </div>
+                                        </div>
+                                    )}
+                                    {isMobile && isTimeInvalid && (
+                                        <div style={{
+                                            color: '#f59e0b',
+                                            fontSize: '12.5px',
+                                            fontWeight: 600,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            marginTop: '4px',
+                                            padding: '0 2px'
+                                        }}>
+                                            <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+                                            <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
                                         </div>
                                     )}
                                     <div className="modal-field">
@@ -558,7 +589,7 @@ function PlanningPage() {
                                 <form onSubmit={handleEditEventSubmit} className="modal-form-stack">
                                     <div className="modal-slot-info">
                                         <span className="slot-info-label">Horaire planifié :</span>
-                                        <span className="slot-info-val">{formatSlotDateTime(selectedEvent)}</span>
+                                        <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
                                     </div>
                                     {isMobile && (
                                         <div className="modal-field-row" style={{ display: 'flex', gap: '12px' }}>
@@ -582,6 +613,21 @@ function PlanningPage() {
                                                     required 
                                                 />
                                             </div>
+                                        </div>
+                                    )}
+                                    {isMobile && isTimeInvalid && (
+                                        <div style={{
+                                            color: '#f59e0b',
+                                            fontSize: '12.5px',
+                                            fontWeight: 600,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            marginTop: '4px',
+                                            padding: '0 2px'
+                                        }}>
+                                            <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+                                            <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
                                         </div>
                                     )}
                                     <div className="modal-field">

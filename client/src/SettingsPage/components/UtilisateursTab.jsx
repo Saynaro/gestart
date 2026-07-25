@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Users, UserPlus, Shield, Mail, RefreshCw, Trash2, CheckCircle2, AlertTriangle, X } from "lucide-react";
 
-export default function UtilisateursTab({ isMobileView, triggerToast }) {
+export default function UtilisateursTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [members, setMembers] = useState([
         { id: 1, name: "Khalid Sainaro", email: "khalid.cizdoev777@gmail.com", role: "OWNER", lastActive: "Maintenant", status: "Actif", isSelf: true },
         { id: 2, name: "Jean Dupont", email: "jean.dupont@climpro.fr", role: "TECHNICIAN", lastActive: "Hier à 16:30", status: "Actif", isSelf: false }
@@ -100,28 +100,24 @@ export default function UtilisateursTab({ isMobileView, triggerToast }) {
             {/* Liste des membres actifs */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <h4 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700 }}>Membres actifs</h4>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                <th style={{ padding: '8px' }}>Nom & Email</th>
-                                <th style={{ padding: '8px' }}>Rôle</th>
-                                <th style={{ padding: '8px' }}>Dernière connexion</th>
-                                <th style={{ padding: '8px' }}>Statut</th>
-                                <th style={{ padding: '8px', textAlign: 'right' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {members.map((m) => (
-                                <tr key={m.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '10px 8px' }}>
-                                        <div style={{ fontWeight: 600 }}>{m.name}</div>
-                                        <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>{m.email}</div>
-                                    </td>
-                                    <td style={{ padding: '10px 8px' }}>
+                {isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {members.map((m) => (
+                            <div key={m.id} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--foreground)' }}>{m.name}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>{m.email}</div>
+                                    </div>
+                                    <span style={{ backgroundColor: m.status === 'Actif' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: m.status === 'Actif' ? '#22c55e' : '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                        {m.status}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
+                                    <div>
                                         {m.isSelf ? (
-                                            <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontWeight: 700, fontSize: '11px', padding: '3px 8px', borderRadius: '50px' }}>
-                                                PROPRIÉTAIRE (OWNER)
+                                            <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontWeight: 700, fontSize: '10px', padding: '2px 6px', borderRadius: '50px' }}>
+                                                PROPRIÉTAIRE
                                             </span>
                                         ) : (
                                             <select
@@ -130,33 +126,107 @@ export default function UtilisateursTab({ isMobileView, triggerToast }) {
                                                 onChange={(e) => handleRoleChange(m.id, e.target.value)}
                                                 style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600 }}
                                             >
-                                                <option value="TECHNICIAN">TECHNICIAN (Technicien)</option>
-                                                <option value="MANAGER">MANAGER (Gestionnaire)</option>
+                                                <option value="TECHNICIAN">TECHNICIAN</option>
+                                                <option value="MANAGER">MANAGER</option>
                                             </select>
                                         )}
-                                    </td>
-                                    <td style={{ padding: '10px 8px' }}>{m.lastActive}</td>
-                                    <td style={{ padding: '10px 8px' }}>
-                                        <span style={{ backgroundColor: m.status === 'Actif' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: m.status === 'Actif' ? '#22c55e' : '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                            {m.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                        {!m.isSelf && (
-                                            <button
-                                                type="button"
-                                                onClick={() => handleToggleStatus(m.id)}
-                                                style={{ background: 'none', border: 'none', color: m.status === 'Actif' ? '#ef4444' : '#22c55e', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
-                                            >
-                                                {m.status === 'Actif' ? "Désactiver" : "Réactiver"}
-                                            </button>
-                                        )}
-                                    </td>
+                                    </div>
+                                    {!m.isSelf && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (m.status === 'Actif' && triggerConfirm) {
+                                                    triggerConfirm({
+                                                        title: "Désactiver le membre",
+                                                        message: `Êtes-vous sûr de vouloir désactiver l'accès pour ${m.name} (${m.email}) ?`,
+                                                        confirmText: "Désactiver",
+                                                        cancelText: "Annuler",
+                                                        onConfirm: () => handleToggleStatus(m.id)
+                                                    });
+                                                } else {
+                                                    handleToggleStatus(m.id);
+                                                }
+                                            }}
+                                            style={{ background: 'none', border: 'none', color: m.status === 'Actif' ? '#ef4444' : '#22c55e', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
+                                        >
+                                            {m.status === 'Actif' ? "Désactiver" : "Réactiver"}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                    <th style={{ padding: '8px' }}>Nom & Email</th>
+                                    <th style={{ padding: '8px' }}>Rôle</th>
+                                    <th style={{ padding: '8px' }}>Dernière connexion</th>
+                                    <th style={{ padding: '8px' }}>Statut</th>
+                                    <th style={{ padding: '8px', textAlign: 'right' }}>Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {members.map((m) => (
+                                    <tr key={m.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            <div style={{ fontWeight: 600 }}>{m.name}</div>
+                                            <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>{m.email}</div>
+                                        </td>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            {m.isSelf ? (
+                                                <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontWeight: 700, fontSize: '11px', padding: '3px 8px', borderRadius: '50px' }}>
+                                                    PROPRIÉTAIRE (OWNER)
+                                                </span>
+                                            ) : (
+                                                <select
+                                                    className="form-input"
+                                                    value={m.role}
+                                                    onChange={(e) => handleRoleChange(m.id, e.target.value)}
+                                                    style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600 }}
+                                                >
+                                                    <option value="TECHNICIAN">TECHNICIAN (Technicien)</option>
+                                                    <option value="MANAGER">MANAGER (Gestionnaire)</option>
+                                                </select>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '10px 8px' }}>{m.lastActive}</td>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            <span style={{ backgroundColor: m.status === 'Actif' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: m.status === 'Actif' ? '#22c55e' : '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                                {m.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
+                                            {!m.isSelf && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (m.status === 'Actif' && triggerConfirm) {
+                                                            triggerConfirm({
+                                                                title: "Désactiver le membre",
+                                                                message: `Êtes-vous sûr de vouloir désactiver l'accès pour ${m.name} (${m.email}) ?`,
+                                                                confirmText: "Désactiver",
+                                                                cancelText: "Annuler",
+                                                                onConfirm: () => handleToggleStatus(m.id)
+                                                            });
+                                                        } else {
+                                                            handleToggleStatus(m.id);
+                                                        }
+                                                    }}
+                                                    style={{ background: 'none', border: 'none', color: m.status === 'Actif' ? '#ef4444' : '#22c55e', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
+                                                >
+                                                    {m.status === 'Actif' ? "Désactiver" : "Réactiver"}
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {/* Liste des invitations en attente */}

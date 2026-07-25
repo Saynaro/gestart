@@ -71,32 +71,51 @@ export default function ParrainageTab({ isMobileView, triggerToast }) {
             {/* Historique des parrainages */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <h4 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: 700 }}>Historique de vos parrainages</h4>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                <th style={{ padding: '8px' }}>Email Filleul</th>
-                                <th style={{ padding: '8px' }}>Date d'inscription</th>
-                                <th style={{ padding: '8px' }}>Formule</th>
-                                <th style={{ padding: '8px', textAlign: 'right' }}>Récompense</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {referralsHistory.map((item, idx) => (
-                                <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.email}</td>
-                                    <td style={{ padding: '10px 8px' }}>{item.date}</td>
-                                    <td style={{ padding: '10px 8px' }}>
-                                        <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 700, color: '#22c55e' }}>{item.reward}</td>
+                {isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {referralsHistory.map((item, idx) => (
+                            <div key={idx} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--foreground)' }}>{item.email}</span>
+                                    <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
+                                    <span style={{ color: 'var(--muted-foreground)' }}>{item.date}</span>
+                                    <span style={{ fontWeight: 700, color: '#22c55e' }}>{item.reward}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                    <th style={{ padding: '8px' }}>Email Filleul</th>
+                                    <th style={{ padding: '8px' }}>Date d'inscription</th>
+                                    <th style={{ padding: '8px' }}>Formule</th>
+                                    <th style={{ padding: '8px', textAlign: 'right' }}>Récompense</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {referralsHistory.map((item, idx) => (
+                                    <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.email}</td>
+                                        <td style={{ padding: '10px 8px' }}>{item.date}</td>
+                                        <td style={{ padding: '10px 8px' }}>
+                                            <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 700, color: '#22c55e' }}>{item.reward}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );

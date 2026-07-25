@@ -179,6 +179,8 @@ function SettingsPage() {
         }));
     };
 
+    const [confirmConfig, setConfirmConfig] = useState(null);
+
     const triggerToast = (message, isError = false) => {
         setToastMessage(message);
         setToastIsError(isError);
@@ -186,6 +188,16 @@ function SettingsPage() {
         setTimeout(() => {
             setShowToast(false);
         }, 3000);
+    };
+
+    const triggerConfirm = ({ title, message, confirmText = "Confirmer", cancelText = "Annuler", onConfirm }) => {
+        setConfirmConfig({
+            title: title || "Êtes-vous sûr ?",
+            message: message || "Voulez-vous vraiment effectuer cette action ?",
+            confirmText,
+            cancelText,
+            onConfirm
+        });
     };
 
     // Configuration of Menu Categories (All 21 items)
@@ -357,51 +369,51 @@ function SettingsPage() {
                 {(() => {
                     switch (activeTab) {
                         case "profil":
-                            return <ProfilTab isMobileView={isMobileView} triggerToast={triggerToast} activeSubSheet={activeProfileSubSheet} setActiveSubSheet={setActiveProfileSubSheet} />;
+                            return <ProfilTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} activeSubSheet={activeProfileSubSheet} setActiveSubSheet={setActiveProfileSubSheet} />;
                         case "ma-societe":
-                            return <EntrepriseTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <EntrepriseTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "securite":
-                            return <SecuriteTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <SecuriteTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "rgpd-legal":
-                            return <LegalRgpdTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <LegalRgpdTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "abonnement":
-                            return <AbonnementTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <AbonnementTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "utilisateurs":
-                            return <UtilisateursTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <UtilisateursTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "chiffre-affaires":
-                            return <ChiffreAffairesTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <ChiffreAffairesTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "cotisations":
-                            return <CotisationsTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <CotisationsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "tva-config":
-                            return <TvaTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <TvaTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "connexion-urssaf":
-                            return <UrssafTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <UrssafTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "banques":
-                            return <BanquesTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <BanquesTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "transactions":
-                            return <TransactionsTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <TransactionsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "categories-perso":
-                            return <CategoriesPersoTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <CategoriesPersoTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "facturation":
-                            return <FacturationTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <FacturationTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "sms":
-                            return <SmsTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <SmsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "notifications":
-                            return <NotificationsTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <NotificationsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "premium":
-                            return <PremiumTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <PremiumTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "support":
-                            return <SupportTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <SupportTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "avis":
-                            return <AvisTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <AvisTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "parrainage":
-                            return <ParrainageTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <ParrainageTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "mentions":
                         case "cgu":
                         case "confidentialite":
-                            return <AboutTab activeTab={activeTab} isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <AboutTab activeTab={activeTab} isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         default:
-                            return <ProfilTab isMobileView={isMobileView} triggerToast={triggerToast} />;
+                            return <ProfilTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                     }
                 })()}
             </motion.div>
@@ -539,7 +551,15 @@ function SettingsPage() {
                         {/* Logout Row */}
                         <div className="mobile-group-section" style={{ marginBottom: '50px' }}>
                             <div className="mobile-items-card">
-                                <button className="mobile-settings-row-btn" type="button" onClick={() => triggerToast("Déconnexion...")}>
+                                <button className="mobile-settings-row-btn" type="button" onClick={() => {
+                                    triggerConfirm({
+                                        title: "Déconnexion de GestArt",
+                                        message: "Êtes-vous sûr de vouloir vous déconnecter de votre session actuelle ?",
+                                        confirmText: "Se déconnecter",
+                                        cancelText: "Annuler",
+                                        onConfirm: () => triggerToast("Déconnexion effectuée avec succès.")
+                                    });
+                                }}>
                                     <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
                                     <span className="mobile-row-text-col">
                                         <span className="mobile-row-label" style={{ color: '#ef4444' }}>Déconnexion</span>
@@ -728,7 +748,15 @@ function SettingsPage() {
                                 </label>
                             </div>
                             <button
-                                onClick={() => triggerToast("Déconnexion...")}
+                                onClick={() => {
+                                    triggerConfirm({
+                                        title: "Déconnexion de GestArt",
+                                        message: "Êtes-vous sûr de vouloir vous déconnecter de votre session actuelle ?",
+                                        confirmText: "Se déconnecter",
+                                        cancelText: "Annuler",
+                                        onConfirm: () => triggerToast("Déconnexion effectuée avec succès.")
+                                    });
+                                }}
                                 className="settings-logout-btn"
                             >
                                 <span className="submenu-item-icon">
@@ -753,6 +781,106 @@ function SettingsPage() {
                     </div>
                 </div>
             )}
+
+            {/* Custom Confirmation Dialog Toast for destructive actions */}
+            <AnimatePresence>
+                {confirmConfig && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed',
+                            inset: 0,
+                            zIndex: 999999,
+                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                            backdropFilter: 'blur(4px)',
+                            WebkitBackdropFilter: 'blur(4px)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '20px',
+                            boxSizing: 'border-box'
+                        }}
+                        onClick={() => setConfirmConfig(null)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                backgroundColor: 'var(--card)',
+                                border: '1.5px solid var(--border)',
+                                borderRadius: '16px',
+                                padding: '20px 22px',
+                                maxWidth: '360px',
+                                width: '100%',
+                                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '16px',
+                                boxSizing: 'border-box'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <AlertTriangle size={22} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h4 style={{ margin: '2px 0 0 0', fontSize: '15.5px', fontWeight: 700, color: 'var(--foreground)' }}>{confirmConfig.title}</h4>
+                                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.45 }}>{confirmConfig.message}</p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmConfig(null)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '10px 14px',
+                                        borderRadius: '10px',
+                                        border: '1px solid var(--border)',
+                                        backgroundColor: 'var(--background)',
+                                        color: 'var(--foreground)',
+                                        fontWeight: 600,
+                                        fontSize: '13px',
+                                        cursor: 'pointer',
+                                        textAlign: 'center'
+                                    }}
+                                >
+                                    {confirmConfig.cancelText || "Annuler"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const cb = confirmConfig.onConfirm;
+                                        setConfirmConfig(null);
+                                        if (cb) cb();
+                                    }}
+                                    style={{
+                                        flex: 1,
+                                        padding: '10px 14px',
+                                        borderRadius: '10px',
+                                        border: 'none',
+                                        backgroundColor: '#ef4444',
+                                        color: '#ffffff',
+                                        fontWeight: 700,
+                                        fontSize: '13px',
+                                        cursor: 'pointer',
+                                        textAlign: 'center',
+                                        boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)'
+                                    }}
+                                >
+                                    {confirmConfig.confirmText || "Confirmer"}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Custom confirmation toast */}
             <AnimatePresence>

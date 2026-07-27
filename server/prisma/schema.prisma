@@ -1,68 +1,792 @@
-// TABLES ET LEURS RÔLES:
-//
-// ── ABONNEMENT ──────────────────────────────────────────────
-// Plan              → Les 3 offres Starter/Pro/Unlimited
-// Subscription      → L'abonnement actif de la company
-// Payment           → Historique des paiements Stripe
-//
-// ── SOCIÉTÉ ─────────────────────────────────────────────────
-// Company           → La société de l'installateur (tenant principal)
-// CompanySettings   → Paramètres: SMS, factures, rappels ТО, horaires
-// TradeCategory     → Domaines d'activité (clim, chaudière...) choisis à l'inscription
-//
-// ── UTILISATEURS ────────────────────────────────────────────
-// User              → Owner / Manager / Technicien
-// PushToken         → Tokens FCM pour notifications push
-// Invitation        → Invitations email pour rejoindre la company
-//
-// ── CATALOGUE ───────────────────────────────────────────────
-// CatalogItem       → Matériaux et prestations sauvegardés (réutilisables)
-// InterventionTypeItem → Types d'interventions sauvegardés (réutilisables)
-//
-// ── CLIENTS ─────────────────────────────────────────────────
-// Client            → Les clients de l'installateur
-// Equipment         → Équipements installés chez le client
-//
-// ── INTERVENTIONS ───────────────────────────────────────────
-// Intervention      → Chaque visite chez un client
-// InterventionPhoto → Photos avant/après
-//
-// ── DEVIS & FACTURES ────────────────────────────────────────
-// Quote             → Devis (D-2026-001)
-// QuoteLine         → Lignes du devis → référence CatalogItem
-// Invoice           → Facture (INV-2026-001) + PDF A4
-// InvoiceLine       → Lignes de la facture → référence CatalogItem
-//
-// ── MESSAGERIE ──────────────────────────────────────────────
-// SmsLog            → Historique SMS complet par client
-// SmsUsage          → Compteur SMS mensuel par company
-//
-// ── NOTIFICATIONS ───────────────────────────────────────────
-// Notification      → Toutes les notifs push/email/in-app
-//
-// ── DIVERS ──────────────────────────────────────────────────
-// QuoteRequest      → Demandes depuis le formulaire public
-// AuditLog          → Historique des actions (qui a fait quoi)
-//
-// ============================================================
-
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-// ============================================================
-// ENUMS
-// ============================================================
+model Plan {
+  id                    String         @id @default(cuid())
+  name                  PlanName       @unique
+  displayName           String
+  priceMonthly          Float
+  priceAnnual           Float
+  maxClients            Int
+  maxTechnicians        Int
+  maxSmsPerMonth        Int
+  extraSmsCost          Float          @default(0.10)
+  hasMobileApp          Boolean        @default(false)
+  hasAutoSmsReminders   Boolean        @default(false)
+  hasAdvancedReports    Boolean        @default(false)
+  hasChorusPro          Boolean        @default(false)
+  hasDedicatedSmsNumber Boolean        @default(false)
+  hasAccountManager     Boolean        @default(false)
+  hasPrioritySupport    Boolean        @default(false)
+  hasPremiumSettings    Boolean        @default(false)
+  stripeMonthlyPriceId  String?
+  stripeAnnualPriceId   String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  subscriptions         Subscription[]
+}
+
+model Company {
+  id                    String                 @id @default(cuid())
+  name                  String
+  siret                 String?                @unique
+  siren                 String?                @unique
+  tvaNumber             String?
+  legalForm             String?
+  rcsNumber             String?
+  shareCapital          String?
+  nafCode               String?
+  isTvaFranchise        Boolean                @default(false)
+  isSubcontractor       Boolean                @default(false)
+  phone                 String?
+  email                 String?
+  address               String?
+  city                  String?
+  postalCode            String?
+  logoUrl               String?
+  website               String?
+  slug                  String?                @unique
+  smsNumber             String?
+  stripeAccountId       String?                @unique
+  stripeAccountStatus   String?
+  onlinePaymentEnabled  Boolean                @default(false)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  accountingExports     AccountingExport[]
+  accountingIntegration AccountingIntegration?
+  auditLogs             AuditLog[]
+  catalogItems          CatalogItem[]
+  clients               Client[]
+  settings              CompanySettings?
+  tradeCategories       CompanyTradeCategory[]
+  interventions         Intervention[]
+  interventionTypes     InterventionTypeItem[]
+  invitations           Invitation[]
+  invoices              Invoice[]
+  notifications         Notification[]
+  quotes                Quote[]
+  quoteRequests         QuoteRequest[]
+  smsLogs               SmsLog[]
+  smsUsage              SmsUsage[]
+  subscription          Subscription?
+  tvaSummaries          TvaSummary[]
+  users                 User[]
+}
+
+model CompanyTradeCategory {
+  id              String        @id @default(cuid())
+  companyId       String
+  tradeCategoryId String
+  createdAt       DateTime      @default(now())
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tradeCategory   TradeCategory @relation(fields: [tradeCategoryId], references: [id])
+
+  @@unique([companyId, tradeCategoryId])
+}
+
+model TradeCategory {
+  id          String                 @id @default(cuid())
+  name        String                 @unique
+  slug        String                 @unique
+  description String?
+  icon        String?
+  isActive    Boolean                @default(true)
+  sortOrder   Int                    @default(0)
+  createdAt   DateTime               @default(now())
+  companies   CompanyTradeCategory[]
+}
+
+model Subscription {
+  id                   String           @id @default(cuid())
+  companyId            String           @unique
+  planId               String
+  status               PlanStatus       @default(TRIALING)
+  cycle                PlanBillingCycle @default(MONTHLY)
+  trialEndsAt          DateTime?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelledAt          DateTime?
+  stripeCustomerId     String?          @unique
+  stripeSubscriptionId String?          @unique
+  smsUsedThisMonth     Int              @default(0)
+  smsResetAt           DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  payments             Payment[]
+  company              Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  plan                 Plan             @relation(fields: [planId], references: [id])
+}
+
+model Payment {
+  id                    String         @id @default(cuid())
+  subscriptionId        String
+  amount                Float
+  currency              String         @default("EUR")
+  status                String
+  method                PaymentMethod?
+  stripePaymentIntentId String?        @unique
+  stripeInvoiceUrl      String?
+  paidAt                DateTime?
+  createdAt             DateTime       @default(now())
+  subscription          Subscription   @relation(fields: [subscriptionId], references: [id])
+}
+
+model CompanySettings {
+  id                       String                @id @default(cuid())
+  companyId                String                @unique
+  defaultChannelReminder   PreferredChannel      @default(SMS)
+  defaultChannelQuote      PreferredChannel      @default(EMAIL)
+  defaultChannelInvoice    PreferredChannel      @default(EMAIL)
+  defaultChannelConfirm    PreferredChannel      @default(SMS)
+  smsReminderEnabled       Boolean               @default(true)
+  smsDaysBefore            Int                   @default(30)
+  smsSecondReminderEnabled Boolean               @default(false)
+  smsSecondReminderDays    Int                   @default(7)
+  smsReminderTemplate      String?
+  smsSignature             String?
+  notifyNewClient          Boolean               @default(true)
+  notifyNewMessage         Boolean               @default(true)
+  notifyInterventionDone   Boolean               @default(true)
+  notifyInvoicePaid        Boolean               @default(true)
+  notifyUrgentMaintenance  Boolean               @default(true)
+  notifyQuoteRequest       Boolean               @default(true)
+  notifyPlanExpiring       Boolean               @default(true)
+  notifySmsLimit           Boolean               @default(true)
+  notifyTechAssigned       Boolean               @default(true)
+  notifyTechUpdated        Boolean               @default(true)
+  notifyTechCancelled      Boolean               @default(true)
+  notifyTechReminder24h    Boolean               @default(true)
+  notifyTechReminder1h     Boolean               @default(true)
+  ownerChannels            NotificationChannel[] @default([PUSH, IN_APP])
+  techChannels             NotificationChannel[] @default([PUSH, IN_APP])
+  invoicePrefix            String                @default("INV")
+  invoiceNextNumber        Int                   @default(1)
+  quotePrefix              String                @default("D")
+  quoteNextNumber          Int                   @default(1)
+  invoiceFooter            String?
+  invoiceConditions        String?
+  defaultTvaRate           Float                 @default(20)
+  defaultPaymentDays       Int                   @default(30)
+  defaultValidDays         Int                   @default(30)
+  workStartHour            Int                   @default(8)
+  workEndHour              Int                   @default(18)
+  workDays                 Int[]                 @default([1, 2, 3, 4, 5])
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  company                  Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                   String         @id @default(cuid())
+  companyId            String
+  email                String         @unique
+  password             String
+  firstName            String
+  lastName             String
+  phone                String?
+  avatarUrl            String?
+  role                 UserRole       @default(TECHNICIAN)
+  isActive             Boolean        @default(true)
+  refreshTokenHash     String?
+  emailVerified        Boolean        @default(false)
+  emailVerifyToken     String?
+  passwordResetToken   String?
+  passwordResetExpiry  DateTime?
+  lastLoginAt          DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  auditLogs            AuditLog[]
+  createdClients       Client[]       @relation("ClientCreatedBy")
+  createdInterventions Intervention[] @relation("InterventionCreatedBy")
+  interventions        Intervention[] @relation("TechnicianInterventions")
+  notifications        Notification[]
+  pushTokens           PushToken[]
+  company              Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  device    String?
+  platform  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Invitation {
+  id          String           @id @default(cuid())
+  companyId   String
+  email       String
+  role        UserRole         @default(TECHNICIAN)
+  token       String           @unique @default(cuid())
+  status      InvitationStatus @default(PENDING)
+  invitedById String?
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime         @default(now())
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, email])
+}
+
+model CatalogItem {
+  id           String          @id @default(cuid())
+  companyId    String
+  name         String
+  description  String?
+  reference    String?
+  type         CatalogItemType
+  defaultPrice Float
+  tvaRate      Float           @default(20)
+  unit         ItemUnit        @default(UNITE)
+  isActive     Boolean         @default(true)
+  isFavorite   Boolean         @default(false)
+  usageCount   Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  company      Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoiceLines InvoiceLine[]
+  quoteLines   QuoteLine[]
+
+  @@index([companyId])
+  @@index([companyId, isActive])
+  @@index([companyId, usageCount])
+}
+
+model InterventionTypeItem {
+  id            String         @id @default(cuid())
+  companyId     String
+  name          String
+  isDefault     Boolean        @default(false)
+  isActive      Boolean        @default(true)
+  usageCount    Int            @default(0)
+  sortOrder     Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  interventions Intervention[]
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoices      Invoice[]
+  quotes        Quote[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+}
+
+model Client {
+  id                 String            @id @default(cuid())
+  companyId          String
+  createdById        String?
+  firstName          String
+  lastName           String
+  companyName        String?
+  phone              String
+  email              String?
+  address            String
+  city               String?
+  postalCode         String?
+  notes              String?
+  isActive           Boolean           @default(true)
+  status             ClientStatus      @default(OK)
+  source             String?
+  preferredChannel   PreferredChannel  @default(SMS)
+  channelForReminder PreferredChannel?
+  channelForQuote    PreferredChannel?
+  channelForInvoice  PreferredChannel?
+  channelForConfirm  PreferredChannel?
+  sirenNumber        String?
+  clientTvaNumber    String?
+  clientLegalForm    String?
+  clientNafCode      String?
+  hasDeliveryAddress Boolean           @default(false)
+  deliveryAddress    String?
+  deliveryCity       String?
+  deliveryPostalCode String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  company            Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy          User?             @relation("ClientCreatedBy", fields: [createdById], references: [id])
+  equipment          Equipment[]
+  interventions      Intervention[]
+  invoices           Invoice[]
+  quotes             Quote[]
+  smsLogs            SmsLog[]
+
+  @@index([companyId])
+  @@index([companyId, status])
+  @@index([phone])
+}
+
+model Equipment {
+  id              String         @id @default(cuid())
+  clientId        String
+  brand           String
+  model           String?
+  serialNumber    String?
+  power           String?
+  location        String?
+  tradeSlug       String?
+  installDate     DateTime?
+  warrantyExpiry  DateTime?
+  lastServiceDate DateTime?
+  nextServiceDate DateTime?
+  serviceInterval Int            @default(12)
+  isActive        Boolean        @default(true)
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  client          Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  interventions   Intervention[]
+
+  @@index([clientId])
+  @@index([nextServiceDate])
+}
+
+model Intervention {
+  id                 String                @id @default(cuid())
+  companyId          String
+  clientId           String
+  equipmentId        String?
+  technicianId       String?
+  createdById        String?
+  interventionTypeId String?
+  status             InterventionStatus    @default(PENDING)
+  scheduledAt        DateTime?
+  estimatedDuration  Int?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  title              String
+  description        String?
+  address            String
+  city               String?
+  accessCode         String?
+  techNotes          String?
+  materialsUsed      String?
+  clientSignature    String?
+  clientSignedAt     DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  client             Client                @relation(fields: [clientId], references: [id])
+  company            Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy          User?                 @relation("InterventionCreatedBy", fields: [createdById], references: [id])
+  equipment          Equipment?            @relation(fields: [equipmentId], references: [id])
+  interventionType   InterventionTypeItem? @relation(fields: [interventionTypeId], references: [id])
+  technician         User?                 @relation("TechnicianInterventions", fields: [technicianId], references: [id])
+  photos             InterventionPhoto[]
+  invoice            Invoice?
+  quote              Quote?
+
+  @@index([companyId])
+  @@index([technicianId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([companyId, status])
+}
+
+model InterventionPhoto {
+  id             String       @id @default(cuid())
+  interventionId String
+  url            String
+  type           String       @default("after")
+  caption        String?
+  createdAt      DateTime     @default(now())
+  intervention   Intervention @relation(fields: [interventionId], references: [id], onDelete: Cascade)
+}
+
+model Quote {
+  id                   String                @id @default(cuid())
+  companyId            String
+  clientId             String
+  interventionId       String?               @unique
+  interventionTypeId   String?
+  number               String
+  status               QuoteStatus           @default(DRAFT)
+  amountHT             Float
+  tvaRate              Float                 @default(20)
+  amountTTC            Float
+  subject              String?
+  notes                String?
+  conditions           String?
+  validUntil           DateTime?
+  acceptedAt           DateTime?
+  refusedAt            DateTime?
+  serviceDate          DateTime?
+  operationType        String?               @default("services")
+  depositPercent       Float?
+  depositAmount        Float?
+  paymentConditions    String?
+  signatureToken       String?               @unique
+  signatureTokenExpiry DateTime?
+  signedAt             DateTime?
+  signatureUrl         String?
+  signatureIp          String?
+  emailSentAt          DateTime?
+  emailSentTo          String?
+  reminder1SentAt      DateTime?
+  reminder2SentAt      DateTime?
+  issuedAt             DateTime              @default(now())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  client               Client                @relation(fields: [clientId], references: [id])
+  company              Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  intervention         Intervention?         @relation(fields: [interventionId], references: [id])
+  interventionType     InterventionTypeItem? @relation(fields: [interventionTypeId], references: [id])
+  lines                QuoteLine[]
+
+  @@index([companyId])
+  @@index([clientId])
+  @@index([status])
+}
+
+model QuoteLine {
+  id            String       @id @default(cuid())
+  quoteId       String
+  catalogItemId String?
+  description   String
+  reference     String?
+  quantity      Float        @default(1)
+  unitPrice     Float
+  tvaRate       Float        @default(20)
+  unit          ItemUnit     @default(UNITE)
+  discount      Float        @default(0)
+  total         Float
+  position      Int          @default(0)
+  createdAt     DateTime     @default(now())
+  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id])
+  quote         Quote        @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+  @@index([catalogItemId])
+}
+
+model Invoice {
+  id                      String                @id @default(cuid())
+  companyId               String
+  clientId                String
+  interventionId          String?               @unique
+  sourceQuoteId           String?               @unique
+  interventionTypeId      String?
+  number                  String
+  status                  InvoiceStatus         @default(DRAFT)
+  amountHT                Float
+  tvaRate                 Float                 @default(20)
+  amountTTC               Float
+  amountPaid              Float                 @default(0)
+  serviceDate             DateTime?
+  operationType           String?               @default("services")
+  penaltyRate             Float                 @default(10)
+  recoveryFee             Float                 @default(40)
+  discountTerms           String?               @default("Aucun escompte pour paiement anticipé")
+  tvaOnDebit              Boolean               @default(false)
+  isTvaFranchise          Boolean               @default(false)
+  isAutoLiquidation       Boolean               @default(false)
+  orderNumber             String?
+  workDescription         String?
+  subject                 String?
+  notes                   String?
+  conditions              String?
+  paymentMethod           PaymentMethod?
+  paymentRef              String?
+  pdfUrl                  String?
+  onlinePaymentEnabled    Boolean               @default(false)
+  stripePaymentIntentId   String?               @unique
+  stripeCheckoutUrl       String?
+  stripeCheckoutSessionId String?               @unique
+  paymentToken            String?               @unique
+  paymentTokenExpiry      DateTime?
+  paymentLinkOpenedAt     DateTime?
+  issuedAt                DateTime              @default(now())
+  dueAt                   DateTime?
+  paidAt                  DateTime?
+  emailSentAt             DateTime?
+  emailSentTo             String?
+  reminder1SentAt         DateTime?
+  reminder2SentAt         DateTime?
+  reminderSentAt          DateTime?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  client                  Client                @relation(fields: [clientId], references: [id])
+  company                 Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  intervention            Intervention?         @relation(fields: [interventionId], references: [id])
+  interventionType        InterventionTypeItem? @relation(fields: [interventionTypeId], references: [id])
+  lines                   InvoiceLine[]
+  paymentEvents           InvoicePaymentEvent[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([dueAt])
+  @@index([stripePaymentIntentId])
+  @@index([paymentToken])
+  @@index([companyId, status])
+  @@index([issuedAt])
+}
+
+model InvoiceLine {
+  id            String       @id @default(cuid())
+  invoiceId     String
+  catalogItemId String?
+  description   String
+  reference     String?
+  quantity      Float        @default(1)
+  unitPrice     Float
+  tvaRate       Float        @default(20)
+  unit          ItemUnit     @default(UNITE)
+  discount      Float        @default(0)
+  total         Float
+  position      Int          @default(0)
+  createdAt     DateTime     @default(now())
+  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id])
+  invoice       Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([catalogItemId])
+}
+
+model SmsLog {
+  id         String           @id @default(cuid())
+  companyId  String
+  clientId   String
+  direction  MessageDirection
+  channel    PreferredChannel @default(SMS)
+  body       String
+  subject    String?
+  fromNumber String?
+  toNumber   String?
+  fromEmail  String?
+  toEmail    String?
+  isRead     Boolean          @default(false)
+  readAt     DateTime?
+  twilioSid  String?          @unique
+  status     String?
+  autoType   String?
+  createdAt  DateTime         @default(now())
+  client     Client           @relation(fields: [clientId], references: [id])
+  company    Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([clientId])
+  @@index([clientId, createdAt])
+  @@index([toNumber])
+  @@index([fromNumber])
+  @@index([isRead])
+}
+
+model SmsUsage {
+  id        String   @id @default(cuid())
+  companyId String
+  month     Int
+  year      Int
+  count     Int      @default(0)
+  extraCost Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, month, year])
+}
+
+model Notification {
+  id         String              @id @default(cuid())
+  companyId  String
+  userId     String
+  type       NotificationType
+  channel    NotificationChannel
+  status     NotificationStatus  @default(PENDING)
+  title      String
+  body       String
+  entityType String?
+  entityId   String?
+  data       Json?
+  isRead     Boolean             @default(false)
+  readAt     DateTime?
+  sentAt     DateTime?
+  failedAt   DateTime?
+  failReason String?
+  createdAt  DateTime            @default(now())
+  company    Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model QuoteRequest {
+  id          String    @id @default(cuid())
+  companyId   String
+  firstName   String
+  lastName    String
+  phone       String
+  email       String?
+  address     String?
+  tradeSlug   String?
+  message     String?
+  isProcessed Boolean   @default(false)
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([isProcessed])
+}
+
+model AccountingExport {
+  id                  String               @id @default(cuid())
+  companyId           String
+  periodStart         DateTime
+  periodEnd           DateTime
+  periodLabel         String
+  type                AccountingExportType
+  fileUrl             String?
+  fileName            String?
+  totalHT             Float                @default(0)
+  totalTva0           Float                @default(0)
+  totalTva55          Float                @default(0)
+  totalTva10          Float                @default(0)
+  totalTva20          Float                @default(0)
+  totalTvaAll         Float                @default(0)
+  totalTTC            Float                @default(0)
+  invoiceCount        Int                  @default(0)
+  paidCount           Int                  @default(0)
+  pennylaneExportedAt DateTime?
+  indyExportedAt      DateTime?
+  createdAt           DateTime             @default(now())
+  company             Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([companyId, periodStart])
+}
+
+model TvaSummary {
+  id          String    @id @default(cuid())
+  companyId   String
+  quarter     Int
+  year        Int
+  caHT        Float     @default(0)
+  tva0        Float     @default(0)
+  tva55       Float     @default(0)
+  tva10       Float     @default(0)
+  tva20       Float     @default(0)
+  totalTva    Float     @default(0)
+  isDeclared  Boolean   @default(false)
+  declaredAt  DateTime?
+  declaredBy  String?
+  periodStart DateTime
+  periodEnd   DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, quarter, year])
+  @@index([companyId])
+}
+
+model AccountingIntegration {
+  id             String             @id @default(cuid())
+  companyId      String             @unique
+  provider       AccountingProvider
+  apiKey         String?
+  apiSecret      String?
+  organizationId String?
+  isActive       Boolean            @default(true)
+  lastSyncAt     DateTime?
+  lastSyncError  String?
+  syncOnCreate   Boolean            @default(false)
+  syncOnSend     Boolean            @default(true)
+  syncOnPaid     Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  company        Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model InvoicePaymentEvent {
+  id            String   @id @default(cuid())
+  invoiceId     String
+  event         String
+  amount        Float?
+  currency      String   @default("EUR")
+  stripeEventId String?  @unique
+  stripeData    Json?
+  clientIp      String?
+  createdAt     DateTime @default(now())
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  companyId  String
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  oldData    Json?
+  newData    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([companyId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model AdminUser {
+  id               String          @id @default(cuid())
+  email            String          @unique
+  password         String
+  firstName        String
+  lastName         String
+  systemRole       SystemRole      @default(SUPPORT)
+  isActive         Boolean         @default(true)
+  lastLoginAt      DateTime?
+  refreshTokenHash String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  auditLogs        AdminAuditLog[]
+  sessions         AdminSession[]
+}
+
+model AdminSession {
+  id               String    @id @default(cuid())
+  adminUserId      String
+  refreshTokenHash String
+  device           String?
+  ipAddress        String?
+  expiresAt        DateTime
+  lastUsedAt       DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  adminUser        AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+}
+
+model AdminAuditLog {
+  id          String    @id @default(cuid())
+  adminUserId String
+  action      String
+  targetType  String
+  targetId    String
+  details     Json?
+  ipAddress   String?
+  createdAt   DateTime  @default(now())
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id])
+
+  @@index([adminUserId])
+  @@index([targetType, targetId])
+}
 
 enum PlanName {
-  STARTER // €39/mois
-  PRO // €89/mois
-  UNLIMITED // €149/mois
+  STARTER
+  PRO
+  UNLIMITED
 }
 
 enum PlanBillingCycle {
@@ -86,8 +810,8 @@ enum UserRole {
 
 enum ClientStatus {
   OK
-  WARNING // entretien dans < 60 jours
-  URGENT // entretien en retard
+  WARNING
+  URGENT
 }
 
 enum InterventionStatus {
@@ -120,7 +844,6 @@ enum MessageDirection {
 }
 
 enum NotificationType {
-  // Owner/Manager
   NEW_CLIENT_ADDED
   NEW_MESSAGE_RECEIVED
   INTERVENTION_COMPLETED
@@ -134,7 +857,6 @@ enum NotificationType {
   PLAN_EXPIRING_SOON
   PLAN_EXPIRED
   SMS_LIMIT_WARNING
-  // Technicien
   INTERVENTION_ASSIGNED
   INTERVENTION_UPDATED
   INTERVENTION_CANCELLED
@@ -172,29 +894,29 @@ enum PaymentMethod {
 }
 
 enum AccountingExportType {
-  MONTHLY // export mensuel
-  QUARTERLY // export trimestriel (TVA)
-  ANNUAL // export annuel
-  CUSTOM // période personnalisée
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  CUSTOM
 }
 
 enum AccountingProvider {
-  PENNYLANE // pennylane.com — API disponible
-  INDY // indy.fr — API disponible
-  QUICKBOOKS // quickbooks.intuit.com
-  NONE // pas d'intégration
+  PENNYLANE
+  INDY
+  QUICKBOOKS
+  NONE
 }
 
 enum PreferredChannel {
   SMS
   EMAIL
-  WHATSAPP // V2
+  WHATSAPP
 }
 
 enum CatalogItemType {
-  PRODUCT // article physique: filtre, gaz R410A, tube cuivre
-  SERVICE // prestation: main d'oeuvre, déplacement
-  PACKAGE // forfait: forfait maintenance annuelle
+  PRODUCT
+  SERVICE
+  PACKAGE
 }
 
 enum ItemUnit {
@@ -213,1459 +935,8 @@ enum SystemRole {
 }
 
 enum TvaRate {
-  ZERO // 0%
-  REDUIT // 5.5%
-  INTERMEDIAIRE // 10%
-  NORMAL // 20%
-}
-
-// ============================================================
-// PLAN
-// ─────────────────────────────────────────────────────────────
-// Définit les 3 offres disponibles.
-// Créées en seed, jamais modifiées par l'utilisateur.
-// Liées à Subscription (une company → un plan actif).
-// ============================================================
-
-model Plan {
-  id          String   @id @default(cuid())
-  name        PlanName @unique
-  displayName String // "Starter", "Pro", "Unlimited"
-
-  priceMonthly Float // 39, 89, 149
-  priceAnnual  Float // 31.20, 71.20, 119.20 (-20%)
-
-  // Limites (-1 = illimité)
-  maxClients     Int // 20, 100, -1
-  maxTechnicians Int // 1, 5, -1
-  maxSmsPerMonth Int // 50, 200, 500
-  extraSmsCost   Float @default(0.10)
-
-  // Fonctionnalités
-  hasMobileApp          Boolean @default(false)
-  hasAutoSmsReminders   Boolean @default(false) // rappels ТО automatiques
-  hasAdvancedReports    Boolean @default(false) // rapports détaillés
-  hasChorusPro          Boolean @default(false) // facturation électronique
-  hasDedicatedSmsNumber Boolean @default(false)
-  hasAccountManager     Boolean @default(false)
-  hasPrioritySupport    Boolean @default(false)
-  hasPremiumSettings    Boolean @default(false) // page Premium dans sidebar
-
-  stripeMonthlyPriceId String?
-  stripeAnnualPriceId  String?
-
-  subscriptions Subscription[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ============================================================
-// COMPANY
-// ─────────────────────────────────────────────────────────────
-// La société de l'installateur. C'est le tenant principal.
-// TOUT appartient à une Company (clients, interventions, etc.)
-//
-// RELATIONS:
-// → CompanySettings (1:1) — paramètres
-// → Subscription (1:1) — abonnement actif
-// → TradeCategory (1:N) — domaines d'activité choisis à l'inscription
-// → User (1:N) — équipe
-// → Client (1:N) — clients
-// → CatalogItem (1:N) — catalogue matériaux/prestations
-// → InterventionTypeItem (1:N) — types d'interventions personnalisés
-// ============================================================
-
-model Company {
-  id              String  @id @default(cuid())
-  name            String
-  siret           String? @unique // 14 chiffres
-  siren           String? @unique // 9 chiffres (= siret[0..8])
-  tvaNumber       String? // FR + 11 chiffres (calculé depuis SIREN)
-  legalForm       String? // "SARL", "SAS", "SA", "EI", "Auto-entrepreneur", "SNC"...
-  rcsNumber       String? // Numéro RCS + ville greffe ex: "Paris B 123 456 789"
-  shareCapital    String? // Capital social ex: "10 000€" (obligatoire SARL/SAS/SA)
-  nafCode         String? // Code NAF/APE ex: "4322A" (récupéré depuis API SIRENE)
-  isTvaFranchise  Boolean @default(false) // Auto-entrepreneur sans TVA → mention art.293B CGI
-  isSubcontractor Boolean @default(false) // Sous-traitant BTP → autoliquidation TVA
-  phone           String?
-  email           String?
-  address         String?
-  city            String?
-  postalCode      String?
-  logoUrl         String?
-  website         String?
-  slug            String? @unique // "dupont-climatisation" pour formulaire public
-
-  // Numéro Twilio virtuel pour les SMS
-  smsNumber String?
-
-  // ── STRIPE CONNECT (paiement en ligne factures) ───────────
-  // L'installateur connecte son propre compte Stripe
-  // L'argent va directement sur son compte bancaire
-  stripeAccountId      String? @unique // ex: "acct_1ABC..."
-  stripeAccountStatus  String? // "pending", "active", "restricted"
-  onlinePaymentEnabled Boolean @default(false) // true quand Stripe connecté
-
-  // Relations
-  users             User[]
-  clients           Client[]
-  interventions     Intervention[]
-  invoices          Invoice[]
-  quotes            Quote[]
-  smsLogs           SmsLog[]
-  notifications     Notification[]
-  invitations       Invitation[]
-  subscription      Subscription?
-  settings          CompanySettings?
-  smsUsage          SmsUsage[]
-  auditLogs         AuditLog[]
-  quoteRequests     QuoteRequest[]
-  catalogItems      CatalogItem[]
-  interventionTypes InterventionTypeItem[]
-  tradeCategories   CompanyTradeCategory[]
-
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  accountingExports     AccountingExport[]
-  tvaSummaries          TvaSummary[]
-  accountingIntegration AccountingIntegration?
-}
-
-// ============================================================
-// COMPANY TRADE CATEGORY
-// ─────────────────────────────────────────────────────────────
-// Domaines d'activité choisis par l'installateur à l'inscription.
-// Exemples: Pompe à chaleur, VMC, Chaudière gaz...
-//
-// RELATIONS:
-// → Company (N:1) — appartient à une company
-// → TradeCategory (N:1) — référence le domaine du catalogue global
-//
-// Lors de l'inscription, l'installateur choisit un ou plusieurs
-// domaines depuis la liste prédéfinie dans TradeCategory.
-// ============================================================
-
-model CompanyTradeCategory {
-  id              String        @id @default(cuid())
-  companyId       String
-  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  tradeCategoryId String
-  tradeCategory   TradeCategory @relation(fields: [tradeCategoryId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@unique([companyId, tradeCategoryId])
-}
-
-// ============================================================
-// TRADE CATEGORY
-// ─────────────────────────────────────────────────────────────
-// Liste globale des domaines d'activité disponibles.
-// Créée en seed. L'installateur choisit parmi cette liste.
-//
-// Exemples depuis la liste fournie:
-//   - Pompe à chaleur : chauffage
-//   - Chauffe-Eau Thermodynamique
-//   - Ventilation mécanique (VMC)
-//   - Panneaux solaires photovoltaïques
-//   - Chaudière condensation gaz ou fioul
-//   - Poêle ou insert bois
-//   etc.
-//
-// RELATIONS:
-// → CompanyTradeCategory (1:N) — companies qui ont ce domaine
-// ============================================================
-
-model TradeCategory {
-  id          String  @id @default(cuid())
-  name        String  @unique // "Pompe à chaleur : chauffage"
-  slug        String  @unique // "pompe-a-chaleur-chauffage"
-  description String?
-  icon        String? // emoji ou nom d'icône
-  isActive    Boolean @default(true)
-  sortOrder   Int     @default(0) // ordre d'affichage
-
-  companies CompanyTradeCategory[]
-
-  createdAt DateTime @default(now())
-}
-
-// ============================================================
-// SUBSCRIPTION
-// ─────────────────────────────────────────────────────────────
-// L'abonnement actif de la company. Une seule par company.
-//
-// RELATIONS:
-// → Company (1:1) — appartient à une company
-// → Plan (N:1) — quel plan est actif
-// → Payment (1:N) — historique des paiements
-// ============================================================
-
-model Subscription {
-  id        String  @id @default(cuid())
-  companyId String  @unique
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  planId    String
-  plan      Plan    @relation(fields: [planId], references: [id])
-
-  status PlanStatus       @default(TRIALING)
-  cycle  PlanBillingCycle @default(MONTHLY)
-
-  trialEndsAt        DateTime?
-  currentPeriodStart DateTime?
-  currentPeriodEnd   DateTime?
-  cancelledAt        DateTime?
-
-  stripeCustomerId     String? @unique
-  stripeSubscriptionId String? @unique
-
-  // Compteur SMS mensuel (reset le 1er du mois via cron)
-  smsUsedThisMonth Int       @default(0)
-  smsResetAt       DateTime?
-
-  payments Payment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ============================================================
-// PAYMENT
-// ─────────────────────────────────────────────────────────────
-// Historique des paiements Stripe.
-// Créé automatiquement via webhook Stripe.
-//
-// RELATIONS:
-// → Subscription (N:1) — rattaché à un abonnement
-// ============================================================
-
-model Payment {
-  id             String       @id @default(cuid())
-  subscriptionId String
-  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
-
-  amount   Float
-  currency String         @default("EUR")
-  status   String // succeeded, failed, pending
-  method   PaymentMethod?
-
-  stripePaymentIntentId String? @unique
-  stripeInvoiceUrl      String? // lien vers la facture Stripe
-
-  paidAt    DateTime?
-  createdAt DateTime  @default(now())
-}
-
-// ============================================================
-// COMPANY SETTINGS
-// ─────────────────────────────────────────────────────────────
-// Tous les paramètres de la company. Une seule ligne par company.
-//
-// CONTIENT:
-// - Paramètres SMS (rappels ТО, templates, signature)
-// - Délai de rappel ТО (configurable en Premium)
-// - Notifications (quelles notifs, quels canaux)
-// - Numérotation auto des factures/devis
-// - Paramètres PDF (pied de page, conditions)
-// - Horaires de travail
-//
-// RELATIONS:
-// → Company (1:1) — appartient à une company
-// ============================================================
-
-model CompanySettings {
-  id        String  @id @default(cuid())
-  companyId String  @unique
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  // ── CANAUX PAR TYPE DE MESSAGE ───────────────────────────
-  // Définit quel canal utiliser par défaut selon le type
-  // Peut être écrasé par le canal préféré du client
-  defaultChannelReminder PreferredChannel @default(SMS)
-  defaultChannelQuote    PreferredChannel @default(EMAIL)
-  defaultChannelInvoice  PreferredChannel @default(EMAIL)
-  defaultChannelConfirm  PreferredChannel @default(SMS)
-
-  // ── SMS RAPPELS ТО ────────────────────────────────────────
-  // Configurable uniquement en plan Pro/Unlimited (hasPremiumSettings)
-  smsReminderEnabled       Boolean @default(true)
-  // Délai en jours avant le ТО (configurable en Premium: 7, 14, 30, 60, 90)
-  smsDaysBefore            Int     @default(30)
-  // Deuxième rappel (optionnel, Premium)
-  smsSecondReminderEnabled Boolean @default(false)
-  smsSecondReminderDays    Int     @default(7) // 7 jours avant
-  // Template SMS personnalisé
-  smsReminderTemplate      String?
-  // Signature en fin de SMS
-  smsSignature             String? // "— Dupont Climatisation"
-
-  // ── NOTIFICATIONS OWNER/MANAGER ───────────────────────────
-  notifyNewClient         Boolean @default(true)
-  notifyNewMessage        Boolean @default(true)
-  notifyInterventionDone  Boolean @default(true)
-  notifyInvoicePaid       Boolean @default(true)
-  notifyUrgentMaintenance Boolean @default(true)
-  notifyQuoteRequest      Boolean @default(true)
-  notifyPlanExpiring      Boolean @default(true)
-  notifySmsLimit          Boolean @default(true)
-
-  // ── NOTIFICATIONS TECHNICIEN ──────────────────────────────
-  notifyTechAssigned    Boolean @default(true)
-  notifyTechUpdated     Boolean @default(true)
-  notifyTechCancelled   Boolean @default(true)
-  notifyTechReminder24h Boolean @default(true)
-  notifyTechReminder1h  Boolean @default(true)
-
-  ownerChannels NotificationChannel[] @default([PUSH, IN_APP])
-  techChannels  NotificationChannel[] @default([PUSH, IN_APP])
-
-  // ── NUMÉROTATION AUTO ─────────────────────────────────────
-  invoicePrefix     String @default("INV") // INV-2026-001
-  invoiceNextNumber Int    @default(1)
-  quotePrefix       String @default("D") // D-2026-001
-  quoteNextNumber   Int    @default(1)
-
-  // ── PDF FACTURE ───────────────────────────────────────────
-  invoiceFooter      String? // texte pied de page PDF
-  invoiceConditions  String? // conditions de paiement
-  defaultTvaRate     Float   @default(20)
-  defaultPaymentDays Int     @default(30) // délai paiement facture
-
-  // ── DEVIS ─────────────────────────────────────────────────
-  defaultValidDays Int @default(30) // validité devis en jours
-
-  // ── HORAIRES ─────────────────────────────────────────────
-  workStartHour Int   @default(8)
-  workEndHour   Int   @default(18)
-  workDays      Int[] @default([1, 2, 3, 4, 5]) // 1=Lun, 7=Dim
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ============================================================
-// USER
-// ─────────────────────────────────────────────────────────────
-// Membres de la company: Owner, Manager, Technicien.
-//
-// RELATIONS:
-// → Company (N:1) — appartient à une company
-// → PushToken (1:N) — tokens FCM pour push
-// → Intervention (1:N) — interventions assignées (technicien)
-// → Notification (1:N) — ses notifications
-// ============================================================
-
-model User {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  phone     String?
-  avatarUrl String?
-  role      UserRole @default(TECHNICIAN)
-  isActive  Boolean  @default(true)
-
-  // Auth tokens
-  refreshTokenHash    String?
-  emailVerified       Boolean   @default(false)
-  emailVerifyToken    String?
-  passwordResetToken  String?
-  passwordResetExpiry DateTime?
-  lastLoginAt         DateTime?
-
-  pushTokens           PushToken[]
-  interventions        Intervention[] @relation("TechnicianInterventions")
-  notifications        Notification[]
-  createdClients       Client[]       @relation("ClientCreatedBy")
-  createdInterventions Intervention[] @relation("InterventionCreatedBy")
-  auditLogs            AuditLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ============================================================
-// PUSH TOKEN
-// ─────────────────────────────────────────────────────────────
-// Tokens FCM pour notifications push mobile/web.
-// Un user peut avoir plusieurs tokens (iPhone + Chrome + Android).
-//
-// RELATIONS:
-// → User (N:1) — appartient à un user
-// ============================================================
-
-model PushToken {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
-  device    String? // "iPhone 15 Pro"
-  platform  String? // "ios", "android", "web"
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-}
-
-// ============================================================
-// INVITATION
-// ─────────────────────────────────────────────────────────────
-// Invitation email pour rejoindre la company.
-// Token unique dans le lien, expire après 7 jours.
-//
-// RELATIONS:
-// → Company (N:1) — appartient à une company
-// ============================================================
-
-model Invitation {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  email       String
-  role        UserRole         @default(TECHNICIAN)
-  token       String           @unique @default(cuid())
-  status      InvitationStatus @default(PENDING)
-  invitedById String? // userId de celui qui a invité
-  expiresAt   DateTime // now() + 7 jours
-  acceptedAt  DateTime?
-  revokedAt   DateTime?
-
-  createdAt DateTime @default(now())
-
-  @@unique([companyId, email])
-}
-
-// ============================================================
-// CATALOG ITEM
-// ─────────────────────────────────────────────────────────────
-// Catalogue des matériaux et prestations de la company.
-// Sauvegardé automatiquement quand l'installateur ajoute
-// un nouveau produit/service dans un devis ou une facture.
-//
-// LOGIQUE:
-// - L'installateur crée une facture et tape "Tube cuivre 1/2" à 12€
-// - → CatalogItem est créé automatiquement
-// - La prochaine fois, "Tube cuivre 1/2" apparaît dans la liste
-// - Il peut choisir depuis la liste ou modifier le prix pour cette ligne
-// - usageCount s'incrémente à chaque utilisation
-//
-// RELATIONS:
-// → Company (N:1) — catalogue propre à chaque company
-// → QuoteLine (1:N) — lignes de devis qui utilisent cet article
-// → InvoiceLine (1:N) — lignes de facture qui utilisent cet article
-// ============================================================
-
-model CatalogItem {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  name        String // "Tube cuivre 1/2", "Main d'oeuvre"
-  description String?
-  reference   String? // référence interne "REF-001"
-  type        CatalogItemType // PRODUCT, SERVICE, PACKAGE
-
-  defaultPrice Float // prix unitaire par défaut
-  tvaRate      Float    @default(20)
-  unit         ItemUnit @default(UNITE)
-
-  isActive   Boolean @default(true) // archivable
-  isFavorite Boolean @default(false) // épinglé en haut
-  usageCount Int     @default(0) // tri par popularité
-
-  quoteLines   QuoteLine[]
-  invoiceLines InvoiceLine[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId])
-  @@index([companyId, isActive])
-  @@index([companyId, usageCount])
-}
-
-// ============================================================
-// INTERVENTION TYPE ITEM
-// ─────────────────────────────────────────────────────────────
-// Types d'interventions personnalisés par company.
-// Sauvegardé automatiquement quand l'installateur crée
-// un nouveau type dans un formulaire.
-//
-// TYPES PAR DÉFAUT (créés en seed par company):
-//   Installation, Maintenance annuelle, Dépannage,
-//   Contrôle, Mise en service, Désinstallation
-//
-// LOGIQUE:
-// - L'installateur tape un nouveau type "Mise en route"
-// - → InterventionTypeItem est créé
-// - La prochaine fois, "Mise en route" est dans la liste
-//
-// RELATIONS:
-// → Company (N:1) — types propres à chaque company
-// → Intervention (1:N) — interventions de ce type
-// → Invoice (1:N) — factures de ce type
-// ============================================================
-
-model InterventionTypeItem {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  name       String // "Maintenance annuelle", "Dépannage", "Mise en route"
-  isDefault  Boolean @default(false) // créé par le système, non supprimable
-  isActive   Boolean @default(true)
-  usageCount Int     @default(0)
-  sortOrder  Int     @default(0)
-
-  interventions Intervention[]
-  invoices      Invoice[]
-  quotes        Quote[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([companyId, name])
-  @@index([companyId])
-}
-
-// ============================================================
-// CLIENT
-// ─────────────────────────────────────────────────────────────
-// Les clients de l'installateur.
-//
-// STATUT (calculé chaque nuit par cron):
-//   OK      → prochain entretien dans > 60 jours
-//   WARNING → prochain entretien dans < 60 jours
-//   URGENT  → entretien en retard
-//
-// RELATIONS:
-// → Company (N:1) — appartient à une company
-// → Equipment (1:N) — ses équipements
-// → Intervention (1:N) — ses interventions
-// → Invoice (1:N) — ses factures
-// → Quote (1:N) — ses devis
-// → SmsLog (1:N) — historique SMS
-// ============================================================
-
-model Client {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  createdById String?
-  createdBy   User?   @relation("ClientCreatedBy", fields: [createdById], references: [id])
-
-  firstName   String
-  lastName    String
-  companyName String? // si c'est une société (B2B)
-  phone       String
-  email       String?
-  address     String
-  city        String?
-  postalCode  String?
-  notes       String? // code digicode, remarques
-  isActive    Boolean      @default(true)
-  status      ClientStatus @default(OK)
-  source      String? // "appel", "site_web", "manuel", "parrainage"
-
-  // ── CANAL DE COMMUNICATION PRÉFÉRÉ ──────────────────────
-  // Défini dans la fiche client, utilisé pour tous les messages auto
-  preferredChannel   PreferredChannel  @default(SMS)
-  // Canal spécifique par type de message (optionnel, écrase preferredChannel)
-  channelForReminder PreferredChannel? // rappels ТО → défaut: SMS
-  channelForQuote    PreferredChannel? // devis → défaut: EMAIL
-  channelForInvoice  PreferredChannel? // factures → défaut: EMAIL
-  channelForConfirm  PreferredChannel? // confirmation RDV → défaut: SMS
-
-  // ── DONNÉES B2B (si client professionnel) ────────────────
-  sirenNumber        String? // 🆕 OBLIGATOIRE sur facture B2B depuis sept. 2026
-  clientTvaNumber    String? // N° TVA intracommunautaire du client (B2B UE)
-  clientLegalForm    String? // Forme juridique du client si société
-  clientNafCode      String? // Code NAF (récupéré depuis API SIRENE auto)
-  // Adresse de livraison si différente de l'adresse de facturation
-  hasDeliveryAddress Boolean @default(false)
-  deliveryAddress    String?
-  deliveryCity       String?
-  deliveryPostalCode String?
-
-  equipment     Equipment[]
-  interventions Intervention[]
-  invoices      Invoice[]
-  quotes        Quote[]
-  smsLogs       SmsLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId])
-  @@index([companyId, status])
-  @@index([phone])
-}
-
-// ============================================================
-// EQUIPMENT
-// ─────────────────────────────────────────────────────────────
-// Équipements installés chez le client.
-// Un client peut avoir plusieurs équipements.
-//
-// LOGIQUE ТО:
-// - installDate + serviceInterval mois = nextServiceDate
-// - Quand une intervention COMPLETED → lastServiceDate = now()
-//   → nextServiceDate recalculée automatiquement
-// - Cron nuit → met à jour client.status selon nextServiceDate
-//
-// RELATIONS:
-// → Client (N:1) — appartient à un client
-// → Intervention (1:N) — interventions sur cet équipement
-// ============================================================
-
-model Equipment {
-  id       String @id @default(cuid())
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  // Identification
-  brand        String // "Daikin", "Mitsubishi"
-  model        String? // "3.5kW Inverter"
-  serialNumber String? // "DK-2024-1234"
-  power        String? // "3.5kW"
-  location     String? // "Salon", "Chambre 1"
-
-  // Domaine (lié au TradeCategory slug)
-  tradeSlug String? // "pompe-a-chaleur", "climatisation"...
-
-  // Dates
-  installDate     DateTime?
-  warrantyExpiry  DateTime?
-  lastServiceDate DateTime?
-  nextServiceDate DateTime? // calculé auto
-  serviceInterval Int       @default(12) // mois entre entretiens
-
-  isActive Boolean @default(true)
-  notes    String?
-
-  interventions Intervention[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([clientId])
-  @@index([nextServiceDate]) // utilisé par le cron de rappel
-}
-
-// ============================================================
-// INTERVENTION
-// ─────────────────────────────────────────────────────────────
-// Chaque visite chez un client.
-//
-// CYCLE DE VIE:
-// PENDING → assigné → SCHEDULED → technicien démarre → IN_PROGRESS
-//   → technicien complète → COMPLETED (ou CANCELLED)
-//
-// À COMPLETED:
-// - Met à jour Equipment.lastServiceDate
-// - Recalcule Equipment.nextServiceDate
-// - Envoie notif INTERVENTION_COMPLETED au owner
-//
-// RELATIONS:
-// → Company (N:1)
-// → Client (N:1)
-// → Equipment (N:1) optionnel
-// → User/technicien (N:1) optionnel
-// → InterventionTypeItem (N:1) — type sauvegardé
-// → Invoice (1:1) optionnel
-// → Quote (1:1) optionnel
-// → InterventionPhoto (1:N)
-// ============================================================
-
-model Intervention {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  clientId     String
-  client       Client     @relation(fields: [clientId], references: [id])
-  equipmentId  String?
-  equipment    Equipment? @relation(fields: [equipmentId], references: [id])
-  technicianId String?
-  technician   User?      @relation("TechnicianInterventions", fields: [technicianId], references: [id])
-  createdById  String?
-  createdBy    User?      @relation("InterventionCreatedBy", fields: [createdById], references: [id])
-
-  // Type sauvegardé dans le catalogue de types
-  interventionTypeId String?
-  interventionType   InterventionTypeItem? @relation(fields: [interventionTypeId], references: [id])
-
-  status InterventionStatus @default(PENDING)
-
-  // Planification
-  scheduledAt       DateTime?
-  estimatedDuration Int? // minutes
-  startedAt         DateTime?
-  completedAt       DateTime?
-
-  // Détails
-  title       String
-  description String? // instructions pour le technicien
-  address     String
-  city        String?
-  accessCode  String? // code digicode/portail
-
-  // Compte-rendu technicien (saisi après l'intervention)
-  techNotes     String?
-  materialsUsed String?
-
-  // Signature client
-  clientSignature String? // base64
-  clientSignedAt  DateTime?
-
-  photos  InterventionPhoto[]
-  invoice Invoice?
-  quote   Quote?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId])
-  @@index([technicianId])
-  @@index([scheduledAt])
-  @@index([status])
-  @@index([companyId, status])
-}
-
-// ============================================================
-// INTERVENTION PHOTO
-// ─────────────────────────────────────────────────────────────
-// Photos avant/après prises par le technicien sur place.
-// Stockées sur Cloudinary.
-//
-// RELATIONS:
-// → Intervention (N:1) — appartient à une intervention
-// ============================================================
-
-model InterventionPhoto {
-  id             String       @id @default(cuid())
-  interventionId String
-  intervention   Intervention @relation(fields: [interventionId], references: [id], onDelete: Cascade)
-  url            String // URL Cloudinary
-  type           String       @default("after") // "before" | "after"
-  caption        String?
-  createdAt      DateTime     @default(now())
-}
-
-// ============================================================
-// QUOTE (Devis)
-// ─────────────────────────────────────────────────────────────
-// Document commercial envoyé au client avant les travaux.
-// Numéroté automatiquement: D-2026-001
-// Peut être converti en facture une fois accepté.
-//
-// RELATIONS:
-// → Company (N:1)
-// → Client (N:1)
-// → InterventionTypeItem (N:1) — type d'intervention
-// → Intervention (1:1) optionnel
-// → QuoteLine (1:N) — lignes du devis
-// ============================================================
-
-model Quote {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  clientId       String
-  client         Client        @relation(fields: [clientId], references: [id])
-  interventionId String?       @unique
-  intervention   Intervention? @relation(fields: [interventionId], references: [id])
-
-  // Type d'intervention sauvegardé
-  interventionTypeId String?
-  interventionType   InterventionTypeItem? @relation(fields: [interventionTypeId], references: [id])
-
-  number String // D-2026-001 généré auto
-  status QuoteStatus @default(DRAFT)
-
-  // Montants (calculés depuis les lignes)
-  amountHT  Float
-  tvaRate   Float @default(20)
-  amountTTC Float
-
-  // Métadonnées
-  subject    String? // "Installation clim Daikin salon"
-  notes      String? // notes internes
-  conditions String? // visibles sur le PDF
-
-  validUntil DateTime?
-  acceptedAt DateTime?
-  refusedAt  DateTime?
-
-  // ── MENTIONS LÉGALES DEVIS ────────────────────────────────
-  // Date de réalisation prévue
-  serviceDate       DateTime?
-  operationType     String?   @default("services")
-  // Conditions d'acompte
-  depositPercent    Float? // % d'acompte ex: 30 → "Acompte de 30% à la commande"
-  depositAmount     Float? // Montant calculé auto
-  // Conditions de règlement sur le devis
-  paymentConditions String? // "Solde à la livraison"
-
-  // ── SIGNATURE ÉLECTRONIQUE ────────────────────────────────
-  // Token unique envoyé dans le lien email au client
-  // Ex: climpro.fr/sign/quote/abc123xyz
-  signatureToken       String?   @unique
-  signatureTokenExpiry DateTime? // expire après 30 jours
-  signedAt             DateTime? // quand le client a signé
-  signatureUrl         String? // URL du PDF signé (Cloudinary)
-  signatureIp          String? // IP du client au moment de la signature
-
-  // ── ENVOI EMAIL ───────────────────────────────────────────
-  emailSentAt DateTime? // quand l'email a été envoyé
-  emailSentTo String? // email destinataire
-
-  // ── RAPPELS AUTOMATIQUES (cron) ───────────────────────────
-  // Si devis non signé après X jours → rappel automatique
-  reminder1SentAt DateTime? // J+7 après envoi
-  reminder2SentAt DateTime? // J+14 après envoi
-
-  issuedAt DateTime @default(now())
-
-  lines QuoteLine[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId])
-  @@index([clientId])
-  @@index([status])
-}
-
-// ============================================================
-// QUOTE LINE
-// ─────────────────────────────────────────────────────────────
-// Une ligne dans le devis.
-//
-// LOGIQUE CATALOGUE:
-// catalogItemId = "abc" → article choisi depuis le catalogue
-// catalogItemId = null  → saisi manuellement
-//   → si saveToCtaolog=true (frontend) → bakcend crée CatalogItem
-//
-// Les données (description, prix) sont COPIÉES à la création.
-// Modifier le catalogue ne modifie PAS les devis existants.
-//
-// RELATIONS:
-// → Quote (N:1) — appartient à un devis
-// → CatalogItem (N:1) optionnel — article du catalogue
-// ============================================================
-
-model QuoteLine {
-  id      String @id @default(cuid())
-  quoteId String
-  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
-
-  catalogItemId String?
-  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id])
-
-  // Données copiées (indépendantes du catalogue après création)
-  description String
-  reference   String?
-  quantity    Float    @default(1)
-  unitPrice   Float
-  tvaRate     Float    @default(20)
-  unit        ItemUnit @default(UNITE)
-  discount    Float    @default(0) // remise en %
-  total       Float // quantity * unitPrice * (1 - discount/100)
-
-  position Int @default(0) // ordre des lignes
-
-  createdAt DateTime @default(now())
-
-  @@index([quoteId])
-  @@index([catalogItemId])
-}
-
-// ============================================================
-// INVOICE (Facture)
-// ─────────────────────────────────────────────────────────────
-// Numérotée automatiquement: INV-2026-001
-// PDF A4 généré et stocké sur Cloudinary/S3.
-// Peut être créée depuis un devis (convertToInvoice)
-// ou directement depuis le formulaire.
-//
-// RELATIONS:
-// → Company (N:1)
-// → Client (N:1)
-// → InterventionTypeItem (N:1) — type d'intervention
-// → Intervention (1:1) optionnel
-// → InvoiceLine (1:N) — lignes
-// ============================================================
-
-model Invoice {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  clientId       String
-  client         Client        @relation(fields: [clientId], references: [id])
-  interventionId String?       @unique
-  intervention   Intervention? @relation(fields: [interventionId], references: [id])
-
-  // Lien vers le devis d'origine si convertie
-  sourceQuoteId String? @unique
-
-  // Type d'intervention sauvegardé
-  interventionTypeId String?
-  interventionType   InterventionTypeItem? @relation(fields: [interventionTypeId], references: [id])
-
-  number String // INV-2026-001
-  status InvoiceStatus @default(DRAFT)
-
-  // Montants
-  amountHT   Float
-  tvaRate    Float @default(20)
-  amountTTC  Float
-  amountPaid Float @default(0)
-
-  // ── MENTIONS LÉGALES OBLIGATOIRES (loi française 2026) ──
-  // Date de réalisation de la prestation (≠ date d'émission)
-  serviceDate       DateTime?
-  // 🆕 Nature de l'opération (obligatoire facturation électronique)
-  operationType     String?   @default("services") // "services", "biens", "mixte"
-  // Taux pénalités de retard (obligatoire B2B, minimum 3× taux légal)
-  penaltyRate       Float     @default(10) // % annuel, ex: 10%
-  // Indemnité forfaitaire de recouvrement (obligatoire B2B depuis loi LME)
-  recoveryFee       Float     @default(40) // 40€ fixe par la loi
-  // Conditions d'escompte (obligatoire de mentionner même si absent)
-  discountTerms     String?   @default("Aucun escompte pour paiement anticipé")
-  // Option TVA sur les débits (si applicable)
-  tvaOnDebit        Boolean   @default(false)
-  // Si client auto-entrepreneur → mention art. 293 B CGI
-  isTvaFranchise    Boolean   @default(false)
-  // Si sous-traitant BTP → autoliquidation TVA
-  isAutoLiquidation Boolean   @default(false)
-  // N° bon de commande si établi par le client
-  orderNumber       String?
-
-  // Description libre des travaux effectués
-  workDescription String? // "Nettoyage filtres, vérification circuit frigorigène..."
-
-  subject    String?
-  notes      String? // notes internes (non visibles sur PDF)
-  conditions String? // visibles sur PDF
-
-  paymentMethod PaymentMethod?
-  paymentRef    String?
-
-  // PDF
-  pdfUrl String? // URL du PDF généré (Cloudinary/S3)
-
-  // ── PAIEMENT EN LIGNE (optionnel — Stripe) ───────────────
-  // Activé si owner veut proposer paiement par carte au client
-  onlinePaymentEnabled    Boolean   @default(false)
-  // Stripe Payment Intent créé quand client clique "Payer en ligne"
-  stripePaymentIntentId   String?   @unique
-  // Lien Stripe Checkout envoyé au client
-  stripeCheckoutUrl       String?
-  // Session Stripe Checkout ID
-  stripeCheckoutSessionId String?   @unique
-  // Token unique pour page de paiement public
-  // Ex: climpro.fr/pay/invoice/abc123xyz
-  paymentToken            String?   @unique
-  paymentTokenExpiry      DateTime?
-  // Quand le client a ouvert le lien de paiement
-  paymentLinkOpenedAt     DateTime?
-
-  issuedAt DateTime  @default(now())
-  dueAt    DateTime?
-  paidAt   DateTime?
-
-  // ── ENVOI EMAIL ───────────────────────────────────────────
-  emailSentAt DateTime? // quand l'email a été envoyé
-  emailSentTo String? // email destinataire
-
-  // ── RAPPELS AUTOMATIQUES (cron) ───────────────────────────
-  // Si facture non payée → rappel automatique
-  reminder1SentAt DateTime? // J+7 après dueAt
-  reminder2SentAt DateTime? // J+14 après dueAt
-  reminderSentAt  DateTime? // dernier rappel manuel (bouton "Relancer")
-
-  lines         InvoiceLine[]
-  paymentEvents InvoicePaymentEvent[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId])
-  @@index([status])
-  @@index([dueAt])
-  @@index([stripePaymentIntentId])
-  @@index([paymentToken])
-  @@index([companyId, status])
-  @@index([issuedAt]) // pour les rapports par période
-}
-
-// ============================================================
-// INVOICE LINE
-// ─────────────────────────────────────────────────────────────
-// Une ligne dans la facture. Même logique que QuoteLine.
-//
-// RELATIONS:
-// → Invoice (N:1) — appartient à une facture
-// → CatalogItem (N:1) optionnel — article du catalogue
-// ============================================================
-
-model InvoiceLine {
-  id        String  @id @default(cuid())
-  invoiceId String
-  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-
-  catalogItemId String?
-  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id])
-
-  description String
-  reference   String?
-  quantity    Float    @default(1)
-  unitPrice   Float
-  tvaRate     Float    @default(20)
-  unit        ItemUnit @default(UNITE)
-  discount    Float    @default(0)
-  total       Float
-
-  position Int @default(0)
-
-  createdAt DateTime @default(now())
-
-  @@index([invoiceId])
-  @@index([catalogItemId])
-}
-
-// ============================================================
-// MESSAGE LOG (anciennement SmsLog)
-// ─────────────────────────────────────────────────────────────
-// Historique complet de tous les messages par client.
-// SMS + Email + WhatsApp (V2) dans un seul historique unifié.
-// Groupés par client pour former une conversation.
-//
-// RELATIONS:
-// → Company (N:1)
-// → Client (N:1) — conversation avec ce client
-// ============================================================
-
-model SmsLog {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  clientId  String
-  client    Client  @relation(fields: [clientId], references: [id])
-
-  direction  MessageDirection
-  channel    PreferredChannel @default(SMS) // SMS, EMAIL, WHATSAPP
-  body       String
-  subject    String? // objet email si channel=EMAIL
-  fromNumber String? // null si channel=EMAIL
-  toNumber   String? // null si channel=EMAIL
-  fromEmail  String? // si channel=EMAIL
-  toEmail    String? // si channel=EMAIL
-  isRead     Boolean          @default(false)
-  readAt     DateTime?
-
-  twilioSid String? @unique
-  status    String? // sent, delivered, failed, received
-  // Type de message automatique envoyé par le système
-  autoType  String? // "maintenance_reminder", "appointment_confirm", "manual"
-
-  createdAt DateTime @default(now())
-
-  @@index([companyId])
-  @@index([clientId])
-  @@index([clientId, createdAt]) // pour charger la conversation chronologiquement
-  @@index([toNumber])
-  @@index([fromNumber]) // pour trouver le client à la réception d'un SMS
-  @@index([isRead])
-}
-
-// ============================================================
-// SMS USAGE
-// ─────────────────────────────────────────────────────────────
-// Compteur SMS mensuel par company.
-// Reset automatique chaque 1er du mois (cron).
-// Utilisé pour vérifier les limites du plan.
-//
-// RELATIONS:
-// → Company (N:1)
-// ============================================================
-
-model SmsUsage {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  month     Int // 1-12
-  year      Int
-  count     Int   @default(0) // SMS envoyés ce mois
-  extraCost Float @default(0) // coût SMS hors forfait
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([companyId, month, year])
-}
-
-// ============================================================
-// NOTIFICATION
-// ─────────────────────────────────────────────────────────────
-// Toutes les notifications envoyées aux users.
-// Un enregistrement par notification × canal.
-//
-// entityType + entityId permettent de naviguer vers
-// l'élément concerné en cliquant sur la notif.
-//
-// RELATIONS:
-// → Company (N:1)
-// → User (N:1) — destinataire
-// ============================================================
-
-model Notification {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  type    NotificationType
-  channel NotificationChannel
-  status  NotificationStatus  @default(PENDING)
-
-  title String
-  body  String
-
-  // Pour naviguer vers l'élément concerné
-  entityType String? // "client", "intervention", "invoice", "quote", "sms"
-  entityId   String?
-  data       Json? // données supplémentaires
-
-  isRead     Boolean   @default(false)
-  readAt     DateTime?
-  sentAt     DateTime?
-  failedAt   DateTime?
-  failReason String?
-
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([userId, isRead])
-  @@index([createdAt])
-}
-
-// ============================================================
-// QUOTE REQUEST
-// ─────────────────────────────────────────────────────────────
-// Demandes de devis depuis le formulaire public sur le site
-// de l'installateur. Pas besoin de compte client.
-//
-// RELATIONS:
-// → Company (N:1) — destinataire de la demande
-// ============================================================
-
-model QuoteRequest {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  firstName   String
-  lastName    String
-  phone       String
-  email       String?
-  address     String?
-  tradeSlug   String? // "climatisation", "pompe-a-chaleur"...
-  message     String?
-  isProcessed Boolean   @default(false)
-  processedAt DateTime?
-
-  createdAt DateTime @default(now())
-
-  @@index([companyId])
-  @@index([isProcessed])
-}
-
-// ============================================================
-// ACCOUNTING EXPORT
-// ─────────────────────────────────────────────────────────────
-// Exports comptables générés par la company.
-// Chaque export = un fichier Excel/CSV téléchargeable
-// contenant toutes les factures d'une période.
-//
-// Utilisé par:
-//   - Le comptable de l'installateur
-//   - L'installateur lui-même pour la déclaration TVA
-//   - L'intégration Pennylane/Indy (si activée)
-//
-// RELATIONS:
-// → Company (N:1)
-// ============================================================
-
-model AccountingExport {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  // Période couverte
-  periodStart DateTime
-  periodEnd   DateTime
-  periodLabel String // "T1 2026", "Janvier 2026", "2026"
-  type        AccountingExportType
-
-  // Fichier généré
-  fileUrl  String? // URL du fichier Excel/CSV sur Cloudinary
-  fileName String? // "export-comptable-T1-2026.xlsx"
-
-  // Totaux calculés (snapshot au moment de l'export)
-  totalHT      Float @default(0)
-  totalTva0    Float @default(0) // TVA 0%
-  totalTva55   Float @default(0) // TVA 5.5%
-  totalTva10   Float @default(0) // TVA 10%
-  totalTva20   Float @default(0) // TVA 20%
-  totalTvaAll  Float @default(0) // Total TVA collectée
-  totalTTC     Float @default(0)
-  invoiceCount Int   @default(0) // nb factures incluses
-  paidCount    Int   @default(0) // nb factures payées
-
-  // Intégration externe
-  pennylaneExportedAt DateTime? // si envoyé vers Pennylane
-  indyExportedAt      DateTime? // si envoyé vers Indy
-
-  createdAt DateTime @default(now())
-
-  @@index([companyId])
-  @@index([companyId, periodStart])
-}
-
-// ============================================================
-// TVA SUMMARY
-// ─────────────────────────────────────────────────────────────
-// Résumé TVA calculé automatiquement chaque trimestre.
-// Affiché dans l'interface pour aider l'installateur
-// à remplir sa déclaration sur impots.gouv.fr
-//
-// RELATIONS:
-// → Company (N:1)
-// ============================================================
-
-model TvaSummary {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  // Trimestre: Q1=1, Q2=2, Q3=3, Q4=4
-  quarter Int
-  year    Int
-
-  // Montants TVA collectée (sur factures payées)
-  caHT     Float @default(0) // chiffre d'affaires HT
-  tva0     Float @default(0)
-  tva55    Float @default(0)
-  tva10    Float @default(0)
-  tva20    Float @default(0)
-  totalTva Float @default(0) // total TVA à déclarer
-
-  // Statut déclaration
-  isDeclared Boolean   @default(false)
-  declaredAt DateTime?
-  declaredBy String? // userId
-
-  // Dates du trimestre
-  periodStart DateTime
-  periodEnd   DateTime
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([companyId, quarter, year])
-  @@index([companyId])
-}
-
-// ============================================================
-// ACCOUNTING INTEGRATION
-// ─────────────────────────────────────────────────────────────
-// Connexion avec logiciels comptables tiers (Pennylane, Indy)
-// Chaque company peut connecter un logiciel comptable.
-// Les factures sont envoyées automatiquement après création/paiement.
-//
-// RELATIONS:
-// → Company (1:1)
-// ============================================================
-
-model AccountingIntegration {
-  id        String  @id @default(cuid())
-  companyId String  @unique
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  provider AccountingProvider // PENNYLANE, INDY, QUICKBOOKS, NONE
-
-  // Credentials chiffrées (AES-256)
-  apiKey         String? // clé API chiffrée
-  apiSecret      String? // secret chiffré
-  organizationId String? // ID organisation chez le provider
-
-  isActive      Boolean   @default(true)
-  lastSyncAt    DateTime?
-  lastSyncError String?
-
-  // Mapping: quand envoyer automatiquement
-  syncOnCreate Boolean @default(false) // à la création de la facture
-  syncOnSend   Boolean @default(true) // à l'envoi au client
-  syncOnPaid   Boolean @default(true) // au paiement
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ============================================================
-// INVOICE PAYMENT EVENT
-// ─────────────────────────────────────────────────────────────
-// Historique des événements de paiement en ligne pour chaque facture.
-// Créé automatiquement via webhook Stripe.
-//
-// Permet de tracer tout le cycle de paiement:
-//   checkout.created → link_opened → payment_succeeded/failed
-//
-// RELATIONS:
-// → Invoice (N:1) — appartient à une facture
-// ============================================================
-
-model InvoicePaymentEvent {
-  id        String  @id @default(cuid())
-  invoiceId String
-  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-
-  // Type d'événement Stripe
-  event String // "checkout.created", "checkout.expired",
-  // "payment.succeeded", "payment.failed",
-  // "payment.refunded"
-
-  amount   Float? // montant concerné
-  currency String @default("EUR")
-
-  // Données Stripe brutes
-  stripeEventId String? @unique
-  stripeData    Json?
-
-  // IP du client au moment du paiement
-  clientIp String?
-
-  createdAt DateTime @default(now())
-
-  @@index([invoiceId])
-}
-
-// ============================================================
-// AUDIT LOG
-// ─────────────────────────────────────────────────────────────
-// Historique de toutes les actions importantes.
-// Permet de savoir qui a fait quoi et quand.
-// Conservé pendant 1 an puis archivé.
-//
-// RELATIONS:
-// → Company (N:1)
-// → User (N:1) optionnel — qui a fait l'action
-// ============================================================
-
-model AuditLog {
-  id        String  @id @default(cuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId    String?
-  user      User?   @relation(fields: [userId], references: [id])
-
-  action     String // "client.created", "invoice.paid", "intervention.completed"
-  entityType String // "Client", "Invoice", "Intervention"
-  entityId   String
-  oldData    Json? // état avant modification
-  newData    Json? // état après modification
-  ipAddress  String?
-
-  createdAt DateTime @default(now())
-
-  @@index([companyId])
-  @@index([entityType, entityId])
-  @@index([createdAt])
-}
-
-// ============================================================
-// SUPER ADMIN
-// ─────────────────────────────────────────────────────────────
-// Rôle système pour le créateur de la plateforme.
-// Complètement séparé des Company/User normaux.
-// Accès à /admin/* uniquement.
-//
-// SystemRole:
-//   SUPER_ADMIN → accès total: stats, impersonate, bloquer
-//   SUPPORT     → lecture seule: voir companies, aider clients
-//
-// RELATIONS:
-// → AdminSession (1:N) — sessions actives
-// → AdminAuditLog (1:N) — toutes ses actions
-// ============================================================
-
-model AdminUser {
-  id          String     @id @default(cuid())
-  email       String     @unique
-  password    String // bcrypt hash
-  firstName   String
-  lastName    String
-  systemRole  SystemRole @default(SUPPORT)
-  isActive    Boolean    @default(true)
-  lastLoginAt DateTime?
-
-  refreshTokenHash String?
-
-  sessions  AdminSession[]
-  auditLogs AdminAuditLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ============================================================
-// ADMIN SESSION
-// Sessions actives des admins (refresh tokens)
-// ============================================================
-
-model AdminSession {
-  id          String    @id @default(cuid())
-  adminUserId String
-  adminUser   AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
-
-  refreshTokenHash String
-  device           String?
-  ipAddress        String?
-  expiresAt        DateTime
-  lastUsedAt       DateTime @default(now())
-
-  createdAt DateTime @default(now())
-}
-
-// ============================================================
-// ADMIN AUDIT LOG
-// Toutes les actions des admins (qui a fait quoi sur quelle company)
-// ============================================================
-
-model AdminAuditLog {
-  id          String    @id @default(cuid())
-  adminUserId String
-  adminUser   AdminUser @relation(fields: [adminUserId], references: [id])
-
-  action     String // "company.blocked", "company.impersonated", "plan.changed"
-  targetType String // "Company", "Subscription", "User"
-  targetId   String
-  details    Json?
-  ipAddress  String?
-
-  createdAt DateTime @default(now())
-
-  @@index([adminUserId])
-  @@index([targetType, targetId])
+  ZERO
+  REDUIT
+  INTERMEDIAIRE
+  NORMAL
 }

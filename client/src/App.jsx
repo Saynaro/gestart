@@ -17,6 +17,7 @@ import CataloguePage from './CataloguePage.jsx/CataloguePage'
 import SignatureQuote from './PublicPages/SignatureQuote'
 import PayInvoice from './PublicPages/PayInvoice'
 import PublicContact from './PublicPages/PublicContact'
+import RegisterPage from './AuthPage/RegisterPage'
 import SuperAdminPanel from './AdminPage/AdminPage'
 import './App.css'
 
@@ -87,6 +88,9 @@ function App() {
         <Route path="/catalogue" element={<CataloguePage />} />
         <Route path="/premium" element={<PremiumPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+
+        {/* Auth Pages */}
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Public Pages */}
         <Route path="/sign/quote/:token" element={<SignatureQuote />} />

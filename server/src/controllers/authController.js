@@ -134,7 +134,7 @@ export const register = async (req, res) => {
                     phone: phone || null,
                     role: "OWNER",
                     emailVerifyToken: emailVerifyToken,
-                    emailVerified: false,
+                    emailVerified: true,
                 },
             });
 
@@ -179,6 +179,199 @@ export const register = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de l'inscription",
+        });
+    }
+};
+
+
+
+
+
+/////// LOGIN ////////
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Veuillez saisir votre email et mot de passe"
+            });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: email.toLowerCase().trim() },
+        });
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Email ou mot de passe incorrect"
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: "Email ou mot de passe incorrect"
+            });
+        }
+
+        if (!user.emailVerified) {
+            return res.status(401).json({
+                success: false,
+                message: "Veuillez vérifier votre email"
+            });
+        }
+
+        // Génération des tokens JWT
+        const accessToken = generateAccessToken(user.id, user.role, user.companyId);
+        const refreshToken = await generateRefreshToken(user.id);
+
+        // Cookie de rafraîchissement
+        setRefreshCookie(res, refreshToken);
+
+        // Réponse réussie
+        res.status(200).json({
+            success: true,
+            message: "Connexion réussie",
+            accessToken,
+            data: {
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    role: user.role,
+                    emailVerified: user.emailVerified,
+                },
+                company: {
+                    id: user.companyId,
+                },
+            },
+        });
+    } catch (error) {
+        console.error("Erreur lors de la connexion :", error);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la connexion",
+        });
+    }
+};
+
+
+
+
+////// LOGOUT ///////
+export const logout = async (req, res) => {
+    try {
+        const token = req.cookies?.gestart_refresh;
+
+        if (token) {
+            // jwt.decode extrait le payload même si le token est expiré
+            const decoded = jwt.decode(token);
+
+            if (decoded?.id) {
+                const user = await prisma.user.findUnique({
+                    where: { id: decoded.id },
+                    select: { refreshTokenHash: true },
+                });
+
+                if (user?.refreshTokenHash) {
+                    const match = await bcrypt.compare(token, user.refreshTokenHash);
+                    if (match) {
+                        await prisma.user.update({
+                            where: { id: decoded.id },
+                            data: { refreshTokenHash: null },
+                        });
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Erreur lors de la déconnexion :", error.message);
+    } finally {
+        res.clearCookie("gestart_refresh", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Déconnexion réussie",
+        });
+    }
+};
+
+
+
+
+////// REFRESH TOKEN ///////
+export const refresh = async (req, res) => {
+    const token = req.cookies?.gestart_refresh;
+
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: "Pas de token de rafraîchissement"
+        });
+    }
+
+    try {
+        // 1. Vérifier la signature et l'expiration du token avec JWT_REFRESH_SECRET
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+        // 2. Récupérer l'utilisateur en BDD
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.id },
+            select: {
+                id: true,
+                role: true,
+                companyId: true,
+                refreshTokenHash: true,
+            }
+        });
+
+        if (!user || !user.refreshTokenHash) {
+            return res.status(401).json({
+                success: false,
+                message: "Utilisateur introuvable ou session expirée"
+            });
+        }
+
+        // 3. Comparer le token reçu avec le hash en BDD
+        const match = await bcrypt.compare(token, user.refreshTokenHash);
+        if (!match) {
+            return res.status(401).json({
+                success: false,
+                message: "Token invalide"
+            });
+        }
+
+        // 4. Générer un nouvel Access Token et renouveler le Refresh Token (Rotation)
+        const accessToken = generateAccessToken(user.id, user.role, user.companyId);
+        const refreshToken = await generateRefreshToken(user.id);
+
+        setRefreshCookie(res, refreshToken);
+
+        return res.status(200).json({
+            success: true,
+            message: "Refresh token réussi",
+            accessToken,
+            data: {
+                user: {
+                    id: user.id,
+                    role: user.role,
+                }
+            }
+        });
+    } catch (error) {
+        console.error("REFRESH ERROR:", error.message);
+        return res.status(401).json({
+            success: false,
+            message: "Refresh token invalide ou expiré"
         });
     }
 };

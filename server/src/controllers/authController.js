@@ -375,3 +375,65 @@ export const refresh = async (req, res) => {
         });
     }
 };
+
+
+
+
+////// GET ME //////
+export const getMe = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                phone: true,
+                avatarUrl: true,
+                role: true,
+                isActive: true,
+                companyId: true,
+                createdAt: true,
+                company: {
+                    include: {
+                        subscription: {
+                            include: {
+                                plan: true,
+                            }
+                        },
+                        settings: true,
+                        tradeCategories: {
+                            include: {
+                                tradeCategory: true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Utilisateur introuvable"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Utilisateur trouvé",
+            data: {
+                user,
+            }
+        });
+    } catch (error) {
+        console.error("GET ME ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la récupération de l'utilisateur",
+        });
+    }
+};

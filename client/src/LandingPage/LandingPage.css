@@ -1,0 +1,21 @@
+/* Enforce light theme variables specifically on Landing Page */
+.landing-page-root {
+    color-scheme: light !important;
+    --background: #F2F0EB;
+    --foreground: #1A1A1A;
+    --card: #FAFAF8;
+    --card-foreground: #1A1A1A;
+    --popover: #FAFAF8;
+    --popover-foreground: #1A1A1A;
+    --primary: #556B2F;
+    --primary-foreground: #FFFFFF;
+    --secondary: #7C7B82;
+    --secondary-foreground: #FFFFFF;
+    --muted: #E8E6E0;
+    --muted-foreground: #7C7B82;
+    --accent: #556B2F;
+    --accent-foreground: #FFFFFF;
+    --border: rgba(26, 26, 26, 0.08);
+    background-color: var(--background);
+    color: var(--foreground);
+}

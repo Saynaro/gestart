@@ -60,14 +60,16 @@ function PlaceholderPage({ title, subtitle }) {
 }
 
 function App() {
+  const location = useLocation();
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
+    if (savedTheme === "dark" && location.pathname !== "/") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-  }, []);
+  }, [location.pathname]);
 
   return (
     <>

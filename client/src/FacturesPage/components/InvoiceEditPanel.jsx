@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, ArrowLeft, Plus, Trash2, Search, ChevronRight, Edit2, Eye, MoreHorizontal, Check, ChevronDown } from "lucide-react";
+import { X, ArrowLeft, Plus, Trash2, Search, ChevronRight, Edit2, Eye, MoreHorizontal, Check, ChevronDown, Palette } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
+import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
+import { useDocumentCustomization } from "../../utils/documentCustomization";
 
 // Catalog list matching NewInvoiceModal
 const MOCK_CATALOG = [
@@ -471,6 +473,8 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
 
 
 function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
+    const [docCustomization] = useDocumentCustomization();
+    const [showCustomizer, setShowCustomizer] = useState(false);
     const [inv, setInv] = useState({
         ...invoice,
         lines: invoice.lines ? invoice.lines.map((l, i) => ({ ...l, id: l.id || Date.now() + i })) : [],
@@ -534,20 +538,73 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     // ── Live mini PDF preview ──
     const renderPreview = () => (
         <div className="live-preview-a4-wrapper">
-            <div className="live-preview-a4-sheet">
-                <div className="pdf-header-row">
-                    <div className="pdf-header-left">
-                        <div className="pdf-logo-stub" style={{ fontSize: '11pt', padding: '4pt', width: '80pt' }}>
-                            <span>CLIMPRO</span>
-                        </div>
-                        <h3 className="company-name" style={{ fontSize: '10pt' }}>Dupont Climatisation</h3>
-                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3 }}>
-                            88 Rue de l'Aviation, 75015 Paris<br />
-                            SIRET : 849 203 103 00021
+            <div
+                className="live-preview-a4-sheet"
+                style={{
+                    backgroundColor: docCustomization.bgColor || '#FFFFFF',
+                    color: docCustomization.textColor || '#1A1A1A',
+                    fontSize: docCustomization.fontSize || '9pt',
+                    fontFamily: docCustomization.fontFamily || 'Inter, sans-serif'
+                }}
+            >
+                {docCustomization.structure === 'banner' && (
+                    <div style={{ height: '8px', backgroundColor: docCustomization.primaryColor || '#556B2F', margin: '-24px -20px 14px -20px', borderRadius: '2px 2px 0 0' }} />
+                )}
+
+                <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
+                    <div className="pdf-header-left" style={{ flex: 1 }}>
+                        {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
+                            <div
+                                className="pdf-logo-stub"
+                                style={{
+                                    fontSize: '11pt',
+                                    padding: '4pt 8pt',
+                                    height: `${docCustomization.logoSize || 45}px`,
+                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                    color: '#FFF',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: '700',
+                                    borderRadius: '4px',
+                                    marginBottom: '6pt'
+                                }}
+                            >
+                                <span>CLIMPRO</span>
+                            </div>
+                        )}
+                        <h3 className="company-name" style={{ fontSize: '10pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>Dupont Climatisation</h3>
+                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3, margin: '2pt 0 0 0' }}>
+                            {docCustomization.showAddress && <span>88 Rue de l'Aviation, 75015 Paris<br /></span>}
+                            {docCustomization.showSiret && <span>SIRET : 849 203 103 00021<br /></span>}
+                            {docCustomization.showPhone && <span>Tél : 06 51 60 43 16<br /></span>}
+                            {docCustomization.showEmail && <span>Email : contact@climpro.fr</span>}
                         </p>
                     </div>
-                    <div className="pdf-header-right">
-                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt' }}>FACTURE</h1>
+                    <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                        {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
+                            <div
+                                className="pdf-logo-stub"
+                                style={{
+                                    fontSize: '11pt',
+                                    padding: '4pt 8pt',
+                                    height: `${docCustomization.logoSize || 45}px`,
+                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                    color: '#FFF',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: '700',
+                                    borderRadius: '4px',
+                                    marginBottom: '6pt'
+                                }}
+                            >
+                                <span>CLIMPRO</span>
+                            </div>
+                        )}
+                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>FACTURE</h1>
                         <table className="doc-meta-table" style={{ fontSize: '8pt' }}>
                             <tbody>
                                 <tr>
@@ -562,7 +619,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                                     <td><strong>Date d'exigibilité :</strong></td>
                                     <td>{new Date(calculatedDueDate).toLocaleDateString('fr-FR')}</td>
                                 </tr>
-                                {inv.deliveryDate && (
+                                {docCustomization.showDeliveryDate && inv.deliveryDate && (
                                     <tr>
                                         <td><strong>Date de livraison :</strong></td>
                                         <td>{new Date(inv.deliveryDate).toLocaleDateString('fr-FR')}</td>
@@ -573,11 +630,19 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                     </div>
                 </div>
 
-                <div className="pdf-billing-section" style={{ margin: '10pt 0', paddingTop: '8pt' }}>
+                <div
+                    className="pdf-billing-section"
+                    style={{
+                        margin: '10pt 0',
+                        padding: '8pt 10pt',
+                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
+                        borderRadius: '6px'
+                    }}
+                >
                     <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '7.5pt' }}>FACTURÉ À :</span>
-                        <h4 className="client-name" style={{ fontSize: '10pt' }}>{inv.clientName || 'Client non défini'}</h4>
-                        <p className="client-details" style={{ fontSize: '8.5pt' }}>
+                        <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.6 }}>FACTURÉ À :</span>
+                        <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: '2pt 0' }}>{inv.clientName || 'Client non défini'}</h4>
+                        <p className="client-details" style={{ fontSize: '8.5pt', opacity: 0.85, margin: 0 }}>
                             {inv.clientAddress || ''}<br />
                             {inv.clientEmail || ''}
                         </p>
@@ -585,49 +650,52 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                 </div>
 
                 <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
-                    <thead>
+                    <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
                         <tr>
-                            <th>Description</th>
-                            <th className="text-center" style={{ width: '40px' }}>Qté</th>
-                            <th className="text-right" style={{ width: '80px' }}>Unit. HT</th>
-                            <th className="text-right" style={{ width: '80px' }}>Total HT</th>
+                            <th style={{ textAlign: 'left', padding: '6pt 8pt' }}>Description</th>
+                            <th className="text-center" style={{ width: '40px', padding: '6pt', whiteSpace: 'nowrap' }}>Qté</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Unit. HT</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Total HT</th>
                         </tr>
                     </thead>
                     <tbody>
                         {inv.lines.filter(l => l.description).map((line, idx) => (
                             <tr key={idx}>
                                 <td>{line.description || '—'}</td>
-                                <td className="text-center">{line.qty}</td>
-                                <td className="text-right">{(parseFloat(line.unitPrice) || 0).toLocaleString('fr-FR')} €</td>
-                                <td className="text-right">{((parseFloat(line.unitPrice) || 0) * (parseFloat(line.qty) || 1)).toLocaleString('fr-FR')} €</td>
+                                <td className="text-center" style={{ whiteSpace: 'nowrap' }}>{line.qty}</td>
+                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{(parseFloat(line.unitPrice) || 0).toLocaleString('fr-FR')} €</td>
+                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{((parseFloat(line.unitPrice) || 0) * (parseFloat(line.qty) || 1)).toLocaleString('fr-FR')} €</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
 
                 <div className="pdf-summary-block" style={{ marginBottom: '15pt' }}>
-                    <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: '160pt' }}>
+                    <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: 'auto', minWidth: '180pt' }}>
                         <tbody>
                             <tr>
-                                <td>Sous-total HT :</td>
-                                <td>{subtotalHt.toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>Sous-total HT :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{subtotalHt.toLocaleString('fr-FR')} €</td>
                             </tr>
                             <tr>
-                                <td>TVA ({inv.tvaRate || 20}%) :</td>
-                                <td>{tvaAmt.toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>TVA ({inv.tvaRate || 20}%) :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{tvaAmt.toLocaleString('fr-FR')} €</td>
                             </tr>
-                            <tr className="grand-total-row">
-                                <td><strong>TOTAL TTC :</strong></td>
-                                <td><strong>{totalTtc.toLocaleString('fr-FR')} €</strong></td>
+                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
+                                <td style={{ whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>TOTAL TTC :</strong></td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>{totalTtc.toLocaleString('fr-FR')} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: '12pt', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
-                    <div><strong>Conditions de paiement :</strong> Paiement {echeanceLabel} (Échéance le {new Date(calculatedDueDate).toLocaleDateString('fr-FR')})</div>
-                    <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>
-                </div>
+                {docCustomization.showPaymentConditions && (
+                    <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: '12pt', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
+                        <div><strong>Conditions de paiement :</strong> Paiement {echeanceLabel} (Échéance le {new Date(calculatedDueDate).toLocaleDateString('fr-FR')})</div>
+                        {docCustomization.showIban && <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>}
+                        {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -646,24 +714,23 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                             onClick={onClose}
                             style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", color: "var(--foreground)" }}
                         >
-                            <X size={16} />
+                            <ArrowLeft size={18} />
                         </button>
-                        <span className="fp-edit-title">Modifier la facture</span>
+                        <span style={{ fontWeight: 700, fontSize: "1rem" }}>Modifier la facture {inv.number}</span>
                     </div>
-                    <button className="fp-icon-btn" aria-label="Aperçu">
-                        <Eye size={16} />
+                    <button className="fp-icon-btn" onClick={onClose} aria-label="Fermer">
+                        <X size={16} />
                     </button>
                 </div>
 
-                {/* Body */}
+                {/* Form area */}
                 <div className="fp-edit-body">
-
-                    {/* ── Client ── */}
                     <div className="fp-edit-section">
                         <div className="fp-edit-section-header">
                             <span className="fp-edit-section-title">Client</span>
                         </div>
                         <button
+                            type="button"
                             onClick={() => setShowClientPicker(true)}
                             style={{
                                 display: "flex",
@@ -858,7 +925,11 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                 <div className="fp-detail-right">
                     <div className="preview-side-header">
                         <Eye size={14} />
-                        Aperçu de la facture
+                        <span>Aperçu de la facture</span>
+                        <button className="personnaliser-btn" type="button" onClick={() => setShowCustomizer(true)}>
+                            <Palette size={14} />
+                            Personnaliser
+                        </button>
                     </div>
                     <div className="preview-side-scrollable">
                         {renderPreview()}
@@ -866,6 +937,10 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                 </div>
             </div>
             </div>
+
+            {showCustomizer && (
+                <DocumentCustomizerModal docType="facture" onClose={() => setShowCustomizer(false)} />
+            )}
 
             {/* Client picker overlay */}
             {showClientPicker && (

@@ -854,14 +854,35 @@
 }
 
 @media (max-width: 768px) {
+    .mobile-preview-body {
+        padding: 16px 12px 60px 12px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        background-color: #ECECE8 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+    }
+
+    .mobile-preview-body .live-preview-a4-wrapper {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+    }
+
     .mobile-preview-body .live-preview-a4-sheet {
-        width: 210mm !important;
-        min-width: 210mm !important;
-        min-height: 297mm !important;
-        max-width: none !important;
+        width: 520px !important;
+        min-width: 520px !important;
+        max-width: 520px !important;
+        min-height: 735px !important;
+        padding: 24px 20px !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+        border-radius: 4px !important;
         flex-shrink: 0 !important;
-        zoom: normal !important;
-        transform: none !important;
     }
 }
 
@@ -976,59 +997,9 @@
     border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+/* Live preview A4 sheet inherits user customizer inline styles */
 .live-preview-a4-sheet * {
-    color: inherit;
-}
-
-.live-preview-a4-sheet .company-name,
-.live-preview-a4-sheet .doc-type-label,
-.live-preview-a4-sheet .client-name {
-    color: #1A1A1A !important;
-}
-
-.live-preview-a4-sheet .company-details,
-.live-preview-a4-sheet .client-details,
-.live-preview-a4-sheet .billing-to-card .section-label {
-    color: #4A4A4A !important;
-}
-
-.live-preview-a4-sheet .pdf-billing-section {
-    border-top-color: #E0E0E0 !important;
-}
-
-.live-preview-a4-sheet .pdf-intervention-info {
-    background-color: #FAFAF8 !important;
-    border-color: #EAEAE6 !important;
-    color: #1A1A1A !important;
-}
-
-.live-preview-a4-sheet .pdf-items-table th {
-    background-color: #FAFAF8 !important;
-    color: #1A1A1A !important;
-}
-
-.live-preview-a4-sheet .pdf-items-table th,
-.live-preview-a4-sheet .pdf-items-table td {
-    border-bottom-color: #E0E0E0 !important;
-    color: #1A1A1A !important;
-}
-
-.live-preview-a4-sheet .grand-total-row {
-    background-color: #556B2F !important;
-    color: white !important;
-}
-
-.live-preview-a4-sheet .grand-total-row td {
-    color: white !important;
-}
-
-.live-preview-a4-sheet .pdf-footer-section {
-    border-top-color: #E0E0E0 !important;
-    color: #7C7B82 !important;
-}
-
-.live-preview-a4-sheet .doc-type-label {
-    color: #556B2F !important;
+    box-sizing: border-box;
 }
 
 @keyframes fpScaleIn {

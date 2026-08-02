@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye } from "lucide-react";
+import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette } from "lucide-react";
+import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
+import { useDocumentCustomization } from "../../utils/documentCustomization";
 
 function getStatusLabel(status) {
     switch (status) {
@@ -22,9 +24,13 @@ function InvoiceDetailDrawer({
     onMarkPaid,
     onMarkUnpaid,
     onOpenLinkedDevis,
+    onUpdateInvoiceCustomization,
     overlayStyle
 }) {
     const [showDotsMenu, setShowDotsMenu] = useState(false);
+    const [showCustomizer, setShowCustomizer] = useState(false);
+    const [globalCustomization] = useDocumentCustomization();
+    const docCustomization = getEffectiveCustomization(invoice, globalCustomization);
 
     const isDraft   = invoice.status === "draft";
     const isPaid    = invoice.status === "paid";
@@ -62,23 +68,75 @@ function InvoiceDetailDrawer({
         ? new Date(invoice.dueDate).toLocaleDateString("fr-FR")
         : new Date(new Date(invoice.date).setDate(new Date(invoice.date).getDate() + (invoice.paymentDelay || 30))).toLocaleDateString("fr-FR");
 
-    // ── Live mini PDF preview (same style as NewInvoiceModal) ──
     const renderPreview = () => (
         <div className="live-preview-a4-wrapper">
-            <div className="live-preview-a4-sheet">
-                <div className="pdf-header-row">
-                    <div className="pdf-header-left">
-                        <div className="pdf-logo-stub" style={{ fontSize: '11pt', padding: '4pt', width: '80pt' }}>
-                            <span>CLIMPRO</span>
-                        </div>
-                        <h3 className="company-name" style={{ fontSize: '10pt' }}>Dupont Climatisation</h3>
-                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3 }}>
-                            88 Rue de l'Aviation, 75015 Paris<br />
-                            SIRET : 849 203 103 00021
+            <div
+                className="live-preview-a4-sheet"
+                style={{
+                    backgroundColor: docCustomization.bgColor || '#FFFFFF',
+                    color: docCustomization.textColor || '#1A1A1A',
+                    fontSize: docCustomization.fontSize || '9pt',
+                    fontFamily: docCustomization.fontFamily || 'Inter, sans-serif'
+                }}
+            >
+                {docCustomization.structure === 'banner' && (
+                    <div style={{ height: '8px', backgroundColor: docCustomization.primaryColor || '#556B2F', margin: '-24px -20px 14px -20px', borderRadius: '2px 2px 0 0' }} />
+                )}
+
+                <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
+                    <div className="pdf-header-left" style={{ flex: 1 }}>
+                        {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
+                            <div
+                                className="pdf-logo-stub"
+                                style={{
+                                    fontSize: '11pt',
+                                    padding: '4pt 8pt',
+                                    height: `${docCustomization.logoSize || 45}px`,
+                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                    color: '#FFF',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: '700',
+                                    borderRadius: '4px',
+                                    marginBottom: '6pt'
+                                }}
+                            >
+                                <span>CLIMPRO</span>
+                            </div>
+                        )}
+                        <h3 className="company-name" style={{ fontSize: '10pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>Dupont Climatisation</h3>
+                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3, margin: '2pt 0 0 0' }}>
+                            {docCustomization.showAddress && <span>88 Rue de l'Aviation, 75015 Paris<br /></span>}
+                            {docCustomization.showSiret && <span>SIRET : 849 203 103 00021<br /></span>}
+                            {docCustomization.showPhone && <span>Tél : 06 51 60 43 16<br /></span>}
+                            {docCustomization.showEmail && <span>Email : contact@climpro.fr</span>}
                         </p>
                     </div>
-                    <div className="pdf-header-right">
-                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt' }}>FACTURE</h1>
+                    <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                        {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
+                            <div
+                                className="pdf-logo-stub"
+                                style={{
+                                    fontSize: '11pt',
+                                    padding: '4pt 8pt',
+                                    height: `${docCustomization.logoSize || 45}px`,
+                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                    color: '#FFF',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: '700',
+                                    borderRadius: '4px',
+                                    marginBottom: '6pt'
+                                }}
+                            >
+                                <span>CLIMPRO</span>
+                            </div>
+                        )}
+                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>FACTURE</h1>
                         <table className="doc-meta-table" style={{ fontSize: '8pt' }}>
                             <tbody>
                                 <tr>
@@ -94,11 +152,19 @@ function InvoiceDetailDrawer({
                     </div>
                 </div>
 
-                <div className="pdf-billing-section" style={{ margin: '10pt 0', paddingTop: '8pt' }}>
+                <div
+                    className="pdf-billing-section"
+                    style={{
+                        margin: '10pt 0',
+                        padding: '8pt 10pt',
+                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
+                        borderRadius: '6px'
+                    }}
+                >
                     <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '7.5pt' }}>FACTURÉ À :</span>
-                        <h4 className="client-name" style={{ fontSize: '10pt' }}>{invoice.clientName}</h4>
-                        <p className="client-details" style={{ fontSize: '8.5pt' }}>
+                        <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.6 }}>FACTURÉ À :</span>
+                        <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: '2pt 0' }}>{invoice.clientName}</h4>
+                        <p className="client-details" style={{ fontSize: '8.5pt', opacity: 0.85, margin: 0 }}>
                             {invoice.clientAddress || ''}<br />
                             {invoice.clientEmail || ''}
                         </p>
@@ -115,48 +181,52 @@ function InvoiceDetailDrawer({
                 )}
 
                 <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
-                    <thead>
+                    <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
                         <tr>
-                            <th>Description</th>
-                            <th className="text-center" style={{ width: '40px' }}>Qté</th>
-                            <th className="text-right" style={{ width: '80px' }}>Unit. HT</th>
-                            <th className="text-right" style={{ width: '80px' }}>Total HT</th>
+                            <th style={{ textAlign: 'left', padding: '6pt 8pt' }}>Description</th>
+                            <th className="text-center" style={{ width: '40px', padding: '6pt', whiteSpace: 'nowrap' }}>Qté</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Unit. HT</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Total HT</th>
                         </tr>
                     </thead>
                     <tbody>
                         {(invoice.lines || []).map((line, idx) => (
                             <tr key={idx}>
                                 <td>{line.description || '—'}</td>
-                                <td className="text-center">{line.qty}</td>
-                                <td className="text-right">{(line.unitPrice || 0).toLocaleString('fr-FR')} €</td>
-                                <td className="text-right">{((line.unitPrice || 0) * (line.qty || 1)).toLocaleString('fr-FR')} €</td>
+                                <td className="text-center" style={{ whiteSpace: 'nowrap' }}>{line.qty}</td>
+                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{(line.unitPrice || 0).toLocaleString('fr-FR')} €</td>
+                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{((line.unitPrice || 0) * (line.qty || 1)).toLocaleString('fr-FR')} €</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
 
                 <div className="pdf-summary-block" style={{ marginBottom: '15pt' }}>
-                    <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: '160pt' }}>
+                    <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: 'auto', minWidth: '180pt' }}>
                         <tbody>
                             <tr>
-                                <td>Sous-total HT :</td>
-                                <td>{(invoice.subtotalHt || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>Sous-total HT :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{(invoice.subtotalHt || 0).toLocaleString('fr-FR')} €</td>
                             </tr>
                             <tr>
-                                <td>TVA ({invoice.tvaRate || 20}%) :</td>
-                                <td>{(invoice.tvaAmount || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>TVA ({invoice.tvaRate || 20}%) :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{(invoice.tvaAmount || 0).toLocaleString('fr-FR')} €</td>
                             </tr>
-                            <tr className="grand-total-row">
-                                <td><strong>TOTAL TTC :</strong></td>
-                                <td><strong>{(invoice.totalTtc || 0).toLocaleString('fr-FR')} €</strong></td>
+                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
+                                <td style={{ whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>TOTAL TTC :</strong></td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>{(invoice.totalTtc || 0).toLocaleString('fr-FR')} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt' }}>
-                    <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>
-                </div>
+                {docCustomization.showPaymentConditions && (
+                    <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
+                        <div><strong>Conditions de paiement :</strong> Paiement 30 jours (Échéance le {dueDate})</div>
+                        {docCustomization.showIban && <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>}
+                        {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -167,152 +237,147 @@ function InvoiceDetailDrawer({
                 <div className="fp-detail-wide-container" role="dialog" aria-label="Détails de la facture" onClick={e => e.stopPropagation()}>
                     {/* LEFT: detail panel */}
                     <aside className="fp-drawer fp-detail-left">
-
-                {/* Header */}
-                <div className="fp-drawer-header">
-                    <span className="fp-drawer-title">Détails de la facture</span>
-                    <div className="fp-drawer-header-actions">
-                        <div style={{ position: "relative" }}>
-                            <button
-                                className="fp-icon-btn"
-                                onClick={() => setShowDotsMenu(v => !v)}
-                                aria-label="Options"
-                            >
-                                <MoreVertical size={16} />
-                            </button>
-                            {showDotsMenu && (
-                                <div className="fp-dots-menu" onClick={() => setShowDotsMenu(false)}>
-                                    <button className="fp-dots-menu-item" onClick={onSend}>
-                                        <Send size={15} /> Envoyer
+                        {/* Header */}
+                        <div className="fp-drawer-header">
+                            <span className="fp-drawer-title">Détails de la facture</span>
+                            <div className="fp-drawer-header-actions">
+                                <div style={{ position: "relative" }}>
+                                    <button
+                                        className="fp-icon-btn"
+                                        onClick={() => setShowDotsMenu(v => !v)}
+                                        aria-label="Options"
+                                    >
+                                        <MoreVertical size={16} />
                                     </button>
-                                    <button className="fp-dots-menu-item" onClick={onEdit}>
-                                        <Edit2 size={15} /> Modifier
-                                    </button>
-                                    <button className="fp-dots-menu-item" onClick={() => {}}>
-                                        <Copy size={15} /> Dupliquer
-                                    </button>
-                                    {isPaid && (
-                                        <button className="fp-dots-menu-item" onClick={() => onMarkUnpaid(invoice)}>
-                                            <RotateCcw size={15} /> Marquer comme non payée
-                                        </button>
+                                    {showDotsMenu && (
+                                        <div className="fp-dots-menu" onClick={() => setShowDotsMenu(false)}>
+                                            <button className="fp-dots-menu-item" onClick={onSend}>
+                                                <Send size={15} /> Envoyer la facture
+                                            </button>
+                                            <button className="fp-dots-menu-item" onClick={onEdit}>
+                                                <Edit2 size={15} /> Modifier la facture
+                                            </button>
+                                            <button className="fp-dots-menu-item" onClick={() => setShowCustomizer(true)}>
+                                                <Palette size={15} /> Personnaliser le document
+                                            </button>
+                                        </div>
                                     )}
-                                    <button className="fp-dots-menu-item" onClick={() => {}}>
-                                        <FileText size={15} /> Personnaliser le document
-                                    </button>
                                 </div>
-                            )}
-                        </div>
-                        <button className="fp-icon-btn" onClick={onClose} aria-label="Fermer">
-                            <X size={16} />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Body */}
-                <div className="fp-drawer-body">
-                    {/* Number + status */}
-                    <div className="fp-drawer-doc-id">{invoice.number}</div>
-                    <div className="fp-drawer-status-row">
-                        <span className={`fp-status-badge ${invoice.status}`}>
-                            {getStatusLabel(invoice.status)}
-                        </span>
-                    </div>
-
-                    {/* Preview thumbnail — click opens A4 */}
-                    <div
-                        className="fp-preview-thumbnail"
-                        onClick={onPreview}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={e => e.key === "Enter" && onPreview()}
-                        title="Prévisualiser la facture en A4"
-                        aria-label="Prévisualiser la facture"
-                    >
-                        {/* Fake document lines in the background */}
-                        <div className="fp-preview-doc-lines">
-                            <div className="fp-preview-line" style={{ width: "35%" }} />
-                            <div className="fp-preview-line-sm" style={{ width: "65%" }} />
-                            <div className="fp-preview-line-sm" style={{ width: "50%" }} />
-                            <div style={{ height: "1px", background: "rgba(128,128,128,0.35)", margin: "6px 0" }} />
-                            <div className="fp-preview-line-sm" style={{ width: "90%" }} />
-                            <div className="fp-preview-line-sm" style={{ width: "85%" }} />
-                            <div className="fp-preview-line-sm" style={{ width: "75%" }} />
-                            <div style={{ height: "1px", background: "rgba(128,128,128,0.35)", margin: "6px 0" }} />
-                            <div className="fp-preview-line-sm" style={{ width: "60%" }} />
-                        </div>
-                        {/* Overlay button */}
-                        <button className="fp-preview-btn">
-                            <Eye size={14} style={{ verticalAlign: "middle", marginRight: 6 }} />
-                            Prévisualiser
-                        </button>
-                    </div>
-
-                    {/* Client */}
-                    <div className="fp-drawer-section">
-                        <div className="fp-drawer-section-title">Client</div>
-                        <div className="fp-drawer-row">
-                            <span className="fp-drawer-row-label">Nom du client</span>
-                            <span className="fp-drawer-row-value">{invoice.clientName}</span>
-                        </div>
-                        {invoice.clientEmail && (
-                            <div className="fp-drawer-row">
-                                <span className="fp-drawer-row-label">E-mail</span>
-                                <span className="fp-drawer-row-value" style={{ fontSize: "0.8rem" }}>{invoice.clientEmail}</span>
+                                <button className="fp-icon-btn" onClick={onClose} aria-label="Fermer">
+                                    <X size={16} />
+                                </button>
                             </div>
-                        )}
-                    </div>
+                        </div>
 
-                    {/* Dates */}
-                    <div className="fp-drawer-section">
-                        <div className="fp-drawer-section-title">Dates & Exigibilité</div>
-                        <div className="fp-drawer-row">
-                            <span className="fp-drawer-row-label">Date d'émission</span>
-                            <span className="fp-drawer-row-value">
-                                {new Date(invoice.date).toLocaleDateString("fr-FR")}
-                            </span>
-                        </div>
-                        <div className="fp-drawer-row">
-                            <span className="fp-drawer-row-label">Date d'exigibilité</span>
-                            <span className="fp-drawer-row-value">{dueDate}</span>
-                        </div>
-                        {invoice.deliveryDate && (
-                            <div className="fp-drawer-row">
-                                <span className="fp-drawer-row-label">Date de livraison</span>
-                                <span className="fp-drawer-row-value">{new Date(invoice.deliveryDate).toLocaleDateString("fr-FR")}</span>
+                        {/* Body */}
+                        <div className="fp-drawer-body">
+                            {/* Preview thumbnail */}
+                            <div
+                                className="fp-preview-thumbnail"
+                                onClick={() => {
+                                    if (onPreview) {
+                                        onPreview(invoice);
+                                    } else {
+                                        setShowCustomizer(true);
+                                    }
+                                }}
+                                role="button"
+                                title="Prévisualiser la facture"
+                                style={{
+                                    position: "relative",
+                                    height: "80px",
+                                    backgroundColor: "var(--muted, #F4F3EF)",
+                                    borderRadius: "14px",
+                                    border: "1px solid var(--border)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    padding: "16px 20px",
+                                    marginBottom: "16px",
+                                    cursor: "pointer",
+                                    overflow: "hidden"
+                                }}
+                            >
+                                <div className="fp-preview-doc-lines">
+                                    <div className="fp-preview-line" style={{ width: "35%", height: "5px", background: "var(--sidebar-primary, #556B2F)", borderRadius: "2px", marginBottom: "4px" }} />
+                                    <div className="fp-preview-line-sm" style={{ width: "65%", height: "3px", background: "#7C7B82", borderRadius: "1.5px", marginBottom: "3px" }} />
+                                    <div className="fp-preview-line-sm" style={{ width: "50%", height: "3px", background: "#7C7B82", borderRadius: "1.5px", marginBottom: "3px" }} />
+                                    <div style={{ height: "1px", background: "#ccc", margin: "4px 0" }} />
+                                    <div className="fp-preview-line-sm" style={{ width: "90%", height: "3px", background: "#7C7B82", borderRadius: "1.5px", marginBottom: "3px" }} />
+                                    <div className="fp-preview-line-sm" style={{ width: "80%", height: "3px", background: "#7C7B82", borderRadius: "1.5px" }} />
+                                </div>
+                                <button
+                                    className="fp-preview-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onPreview) {
+                                            onPreview(invoice);
+                                        } else {
+                                            setShowCustomizer(true);
+                                        }
+                                    }}
+                                >
+                                    Prévisualiser
+                                </button>
                             </div>
-                        )}
-                        <div className="fp-drawer-row">
-                            <span className="fp-drawer-row-label">Conditions de paiement</span>
-                            <span className="fp-drawer-row-value">{invoice.paymentConditions || "Paiement à 30 jours"}</span>
-                        </div>
-                    </div>
 
-                    {/* Montant */}
-                    <div className="fp-drawer-section">
-                        <div className="fp-drawer-section-title">Montant</div>
-                        <div className="fp-drawer-row">
-                            <span className="fp-drawer-row-label">Montant HT</span>
-                            <span className="fp-drawer-row-value" style={{ fontSize: "1.05rem", fontWeight: 800 }}>
-                                {invoice.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
-                            </span>
-                        </div>
-                        {invoice.tvaAmount != null && (
-                            <div className="fp-drawer-row">
-                                <span className="fp-drawer-row-label">TVA ({invoice.tvaRate || 20}%)</span>
-                                <span className="fp-drawer-row-value">
-                                    {(invoice.tvaAmount || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
-                                </span>
+                            {/* Client Section */}
+                            <div className="fp-drawer-section">
+                                <div className="fp-drawer-section-title">Client</div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Nom</span>
+                                    <span className="fp-drawer-row-value bold">{invoice.clientName}</span>
+                                </div>
+                                {invoice.clientEmail && (
+                                    <div className="fp-drawer-row">
+                                        <span className="fp-drawer-row-label">Email</span>
+                                        <span className="fp-drawer-row-value">{invoice.clientEmail}</span>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                        {invoice.totalTtc != null && (
-                            <div className="fp-drawer-row" style={{ borderTop: "1px solid var(--border)", marginTop: 4, paddingTop: 6 }}>
-                                <span className="fp-drawer-row-label" style={{ fontWeight: 600, color: "var(--foreground)" }}>Total TTC</span>
-                                <span className="fp-drawer-row-value" style={{ fontSize: "1rem", fontWeight: 800, color: "#556B2F" }}>
-                                    {invoice.totalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
-                                </span>
+
+                            {/* Info Section */}
+                            <div className="fp-drawer-section">
+                                <div className="fp-drawer-section-title">Informations de facturation</div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Numéro</span>
+                                    <span className="fp-drawer-row-value">{invoice.number}</span>
+                                </div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Statut</span>
+                                    <span className={`fp-status-tag ${invoice.status}`}>{getStatusLabel(invoice.status)}</span>
+                                </div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Date d'émission</span>
+                                    <span className="fp-drawer-row-value">{new Date(invoice.date).toLocaleDateString("fr-FR")}</span>
+                                </div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Date d'exigibilité</span>
+                                    <span className="fp-drawer-row-value">{dueDate}</span>
+                                </div>
+                                {invoice.subtotalHt != null && (
+                                    <div className="fp-drawer-row">
+                                        <span className="fp-drawer-row-label">Sous-total HT</span>
+                                        <span className="fp-drawer-row-value">{(invoice.subtotalHt || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>
+                                    </div>
+                                )}
+                                {invoice.tvaAmount != null && (
+                                    <div className="fp-drawer-row">
+                                        <span className="fp-drawer-row-label">TVA ({invoice.tvaRate || 20}%)</span>
+                                        <span className="fp-drawer-row-value">
+                                            {(invoice.tvaAmount || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                                        </span>
+                                    </div>
+                                )}
+                                {invoice.totalTtc != null && (
+                                    <div className="fp-drawer-row" style={{ borderTop: "1px solid var(--border)", marginTop: 4, paddingTop: 6 }}>
+                                        <span className="fp-drawer-row-label" style={{ fontWeight: 600, color: "var(--foreground)" }}>Total TTC</span>
+                                        <span className="fp-drawer-row-value" style={{ fontSize: "1rem", fontWeight: 800, color: "#556B2F" }}>
+                                            {invoice.totalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                                        </span>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
 
                     {/* Encaissement (paid only) */}
                     {isPaid && (
@@ -421,7 +486,11 @@ function InvoiceDetailDrawer({
                 <div className="fp-detail-right">
                     <div className="preview-side-header">
                         <FileText size={14} />
-                        Aperçu de la facture
+                        <span>Aperçu de la facture</span>
+                        <button className="personnaliser-btn" onClick={() => setShowCustomizer(true)}>
+                            <Palette size={14} />
+                            Personnaliser
+                        </button>
                     </div>
                     <div className="preview-side-scrollable">
                         {renderPreview()}
@@ -429,6 +498,18 @@ function InvoiceDetailDrawer({
                 </div>
             </div>
             </div>
+            {showCustomizer && (
+                <DocumentCustomizerModal
+                    docType="facture"
+                    doc={invoice}
+                    onSaveDocCustomization={(newSettings) => {
+                        if (onUpdateInvoiceCustomization) {
+                            onUpdateInvoiceCustomization(invoice.id, newSettings);
+                        }
+                    }}
+                    onClose={() => setShowCustomizer(false)}
+                />
+            )}
         </>
     );
 }

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import "./LandingPage.css";
 import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
 import Functions from "./components/Functions"
@@ -16,9 +17,15 @@ function LandingPage() {
     useEffect(() => {
         document.documentElement.style.overflow = "auto";
         document.body.style.overflow = "auto";
+        document.documentElement.classList.remove("dark");
+
         return () => {
             document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
+            const savedTheme = localStorage.getItem("theme");
+            if (savedTheme === "dark") {
+                document.documentElement.classList.add("dark");
+            }
         };
     }, []);
 

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { X, Printer, Download, ZoomIn, ZoomOut } from "lucide-react";
+import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 
 function InvoicePdfView({ invoice, onClose, onDownload }) {
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-    const [zoom, setZoom] = useState(isMobile ? 0.65 : 1.0);
+    const [zoom, setZoom] = useState(isMobile ? 0.5 : 1.0);
+    const [globalCustomization] = useDocumentCustomization();
+    const docCustomization = getEffectiveCustomization(invoice, globalCustomization);
 
     if (!invoice) return null;
 

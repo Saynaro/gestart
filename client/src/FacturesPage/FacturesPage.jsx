@@ -209,6 +209,11 @@ function FacturesPage() {
         document.body.removeChild(link);
     };
 
+    const handleUpdateInvoiceCustomization = (invId, customSettings) => {
+        setInvoices(prev => prev.map(i => i.id === invId ? { ...i, customization: customSettings } : i));
+        setActiveInvoice(prev => (prev && prev.id === invId ? { ...prev, customization: customSettings } : prev));
+    };
+
     return (
         <div className="home-page factures-page-wrapper">
             <SideBar onFabClick={() => setShowNewModal(true)} />
@@ -264,6 +269,7 @@ function FacturesPage() {
                     onMarkPaid={handleMarkPaid}
                     onMarkUnpaid={handleMarkUnpaid}
                     onOpenLinkedDevis={(quote) => setLinkedQuoteForDrawer(quote)}
+                    onUpdateInvoiceCustomization={handleUpdateInvoiceCustomization}
                 />
             )}
 

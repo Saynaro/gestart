@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useDragControls } from "framer-motion";
-import { Plus, Trash, X, ChevronDown, ChevronRight, Search, Eye, FileText, Check, Edit2, ArrowLeft, MoreHorizontal, ZoomIn, ZoomOut } from "lucide-react";
+import { Plus, Trash, X, ChevronDown, ChevronRight, Search, Eye, FileText, Check, Edit2, ArrowLeft, MoreHorizontal, ZoomIn, ZoomOut, Palette } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
 import MobileEditBottomSheet from "../../ClientPage/components/MobileEditBottomSheet";
 import DesktopEditModal from "../../ClientPage/components/DesktopEditModal";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
+import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
+import { useDocumentCustomization } from "../../utils/documentCustomization";
 
 const initialClientDetails = [
     { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
@@ -169,10 +171,10 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
 
     // Mobile preview overlay toggle and zoom
     const [showMobilePreview, setShowMobilePreview] = useState(false);
-    const [previewZoom, setPreviewZoom] = useState(0.65);
-    const zoomInPreview = () => setPreviewZoom(prev => Math.min(1.6, Math.round((prev + 0.1) * 100) / 100));
-    const zoomOutPreview = () => setPreviewZoom(prev => Math.max(0.35, Math.round((prev - 0.1) * 100) / 100));
-    const resetZoomPreview = () => setPreviewZoom(0.65);
+    const [previewZoom, setPreviewZoom] = useState(0.5);
+    const zoomInPreview = () => setPreviewZoom(prev => Math.min(1.5, Math.round((prev + 0.1) * 100) / 100));
+    const zoomOutPreview = () => setPreviewZoom(prev => Math.max(0.3, Math.round((prev - 0.1) * 100) / 100));
+    const resetZoomPreview = () => setPreviewZoom(0.5);
 
     // Disable scrolling when mobile preview modal is active
     useEffect(() => {
@@ -405,20 +407,73 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
 
     const renderQuoteLivePreviewSheet = () => (
         <div className="live-preview-a4-wrapper">
-            <div className="live-preview-a4-sheet">
-                <div className="pdf-header-row">
-                    <div className="pdf-header-left">
-                        <div className="pdf-logo-stub" style={{ fontSize: '11pt', padding: '4pt', width: '80pt' }}>
-                            <span>CLIMPRO</span>
-                        </div>
-                        <h3 className="company-name" style={{ fontSize: '10pt' }}>Dupont Climatisation</h3>
-                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3 }}>
-                            88 Rue de l'Aviation, 75015 Paris<br />
-                            SIRET : 849 203 103 00021
+            <div
+                className="live-preview-a4-sheet"
+                style={{
+                    backgroundColor: docCustomization.bgColor || '#FFFFFF',
+                    color: docCustomization.textColor || '#1A1A1A',
+                    fontSize: docCustomization.fontSize || '9pt',
+                    fontFamily: docCustomization.fontFamily || 'Inter, sans-serif'
+                }}
+            >
+                {docCustomization.structure === 'banner' && (
+                    <div style={{ height: '8px', backgroundColor: docCustomization.primaryColor || '#556B2F', margin: '-24px -20px 14px -20px', borderRadius: '2px 2px 0 0' }} />
+                )}
+
+                <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
+                    <div className="pdf-header-left" style={{ flex: 1 }}>
+                        {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
+                            <div
+                                className="pdf-logo-stub"
+                                style={{
+                                    fontSize: '11pt',
+                                    padding: '4pt 8pt',
+                                    height: `${docCustomization.logoSize || 45}px`,
+                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                    color: '#FFF',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: '700',
+                                    borderRadius: '4px',
+                                    marginBottom: '6pt'
+                                }}
+                            >
+                                <span>CLIMPRO</span>
+                            </div>
+                        )}
+                        <h3 className="company-name" style={{ fontSize: '10pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>Dupont Climatisation</h3>
+                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3, margin: '2pt 0 0 0' }}>
+                            {docCustomization.showAddress && <span>88 Rue de l'Aviation, 75015 Paris<br /></span>}
+                            {docCustomization.showSiret && <span>SIRET : 849 203 103 00021<br /></span>}
+                            {docCustomization.showPhone && <span>Tél : 06 51 60 43 16<br /></span>}
+                            {docCustomization.showEmail && <span>Email : contact@climpro.fr</span>}
                         </p>
                     </div>
-                    <div className="pdf-header-right">
-                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt', color: '#556B2F' }}>DEVIS</h1>
+                    <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                        {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
+                            <div
+                                className="pdf-logo-stub"
+                                style={{
+                                    fontSize: '11pt',
+                                    padding: '4pt 8pt',
+                                    height: `${docCustomization.logoSize || 45}px`,
+                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                    color: '#FFF',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: '700',
+                                    borderRadius: '4px',
+                                    marginBottom: '6pt'
+                                }}
+                            >
+                                <span>CLIMPRO</span>
+                            </div>
+                        )}
+                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
                         <table className="doc-meta-table" style={{ fontSize: '8pt' }}>
                             <tbody>
                                 <tr>
@@ -433,7 +488,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                     <td><strong>Date d'exigibilité :</strong></td>
                                     <td>{new Date(calculatedDueDate).toLocaleDateString("fr-FR")}</td>
                                 </tr>
-                                {hasDeliveryDate && deliveryDate && (
+                                {docCustomization.showDeliveryDate && hasDeliveryDate && deliveryDate && (
                                     <tr>
                                         <td><strong>Date de livraison :</strong></td>
                                         <td>{new Date(deliveryDate).toLocaleDateString("fr-FR")}</td>
@@ -444,11 +499,19 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     </div>
                 </div>
 
-                <div className="pdf-billing-section" style={{ margin: '10pt 0', paddingTop: '8pt' }}>
+                <div
+                    className="pdf-billing-section"
+                    style={{
+                        margin: '10pt 0',
+                        padding: '8pt 10pt',
+                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
+                        borderRadius: '6px'
+                    }}
+                >
                     <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '7.5pt' }}>DEVIS POUR :</span>
-                        <h4 className="client-name" style={{ fontSize: '10pt' }}>{selectedClient ? selectedClient.name : "Aucun client sélectionné"}</h4>
-                        <p className="client-details" style={{ fontSize: '8.5pt' }}>
+                        <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.6 }}>DEVIS POUR :</span>
+                        <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: '2pt 0' }}>{selectedClient ? selectedClient.name : "Aucun client sélectionné"}</h4>
+                        <p className="client-details" style={{ fontSize: '8.5pt', opacity: 0.85, margin: 0 }}>
                             {selectedClient ? selectedClient.address : "Adresse non définie"}<br />
                             {selectedClient ? selectedClient.email : ""}
                         </p>
@@ -456,49 +519,53 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                 </div>
 
                 <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
-                    <thead>
+                    <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
                         <tr>
-                            <th>Description</th>
-                            <th className="text-center" style={{ width: '40px' }}>Qté</th>
-                            <th className="text-right" style={{ width: '80px' }}>Unit. HT</th>
-                            <th className="text-right" style={{ width: '80px' }}>Total HT</th>
+                            <th style={{ textAlign: 'left', padding: '6pt 8pt' }}>Description</th>
+                            <th className="text-center" style={{ width: '40px', padding: '6pt', whiteSpace: 'nowrap' }}>Qté</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Unit. HT</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Total HT</th>
                         </tr>
                     </thead>
                     <tbody>
                         {lines.filter(l => l.description.trim() !== "").map((line, idx) => (
                             <tr key={idx}>
                                 <td>{line.description || "—"}</td>
-                                <td className="text-center">{line.qty}</td>
-                                <td className="text-right">{(line.unitPrice || 0).toLocaleString("fr-FR")} €</td>
-                                <td className="text-right">{((line.unitPrice || 0) * (line.qty || 1)).toLocaleString("fr-FR")} €</td>
+                                <td className="text-center" style={{ whiteSpace: 'nowrap' }}>{line.qty}</td>
+                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{(line.unitPrice || 0).toLocaleString("fr-FR")} €</td>
+                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{((line.unitPrice || 0) * (line.qty || 1)).toLocaleString("fr-FR")} €</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
 
                 <div className="pdf-summary-block" style={{ marginBottom: '15pt' }}>
-                    <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: '160pt' }}>
+                    <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: 'auto', minWidth: '180pt' }}>
                         <tbody>
                             <tr>
-                                <td>Sous-total HT :</td>
-                                <td>{subtotalHt.toLocaleString("fr-FR")} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>Sous-total HT :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{subtotalHt.toLocaleString("fr-FR")} €</td>
                             </tr>
                             <tr>
-                                <td>TVA ({tvaRate}%) :</td>
-                                <td>{tvaAmount.toLocaleString("fr-FR")} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>TVA ({tvaRate}%) :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{tvaAmount.toLocaleString("fr-FR")} €</td>
                             </tr>
-                            <tr className="grand-total-row">
-                                <td><strong>TOTAL TTC :</strong></td>
-                                <td><strong>{totalTtc.toLocaleString("fr-FR")} €</strong></td>
+                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
+                                <td style={{ whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>TOTAL TTC :</strong></td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>{totalTtc.toLocaleString("fr-FR")} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: '12pt', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
-                    <div><strong>Conditions de paiement :</strong> Paiement {echeanceLabel} (Échéance le {new Date(calculatedDueDate).toLocaleDateString("fr-FR")})</div>
-                    <span>Validité du devis : 30 jours.</span>
-                </div>
+                {docCustomization.showPaymentConditions && (
+                    <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: '12pt', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
+                        <div><strong>Conditions de paiement :</strong> Paiement {echeanceLabel} (Échéance le {new Date(calculatedDueDate).toLocaleDateString("fr-FR")})</div>
+                        <span>Validité du devis : 30 jours.</span>
+                        {docCustomization.showIban && <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>}
+                        {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -988,7 +1055,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                             <button className="top-btn close-x" onClick={() => setShowMobilePreview(false)}><X size={20} /></button>
                         </div>
                         <div className="mobile-preview-body">
-                            <div style={{ zoom: previewZoom, transform: `scale(${previewZoom})`, transformOrigin: 'top center', transition: 'transform 0.15s ease-out, zoom 0.15s ease-out' }}>
+                            <div style={{ transform: `scale(${previewZoom})`, transformOrigin: 'top center', marginBottom: `calc(-1 * (735px * (1 - ${previewZoom})))`, transition: 'transform 0.15s ease-out' }}>
                                 {renderQuoteLivePreviewSheet()}
                             </div>
                         </div>
@@ -1730,6 +1797,10 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                     <div className="preview-side-header">
                         <FileText size={16} />
                         <span>Aperçu du devis</span>
+                        <button className="personnaliser-btn" type="button" onClick={() => setShowCustomizer(true)}>
+                            <Palette size={14} />
+                            Personnaliser
+                        </button>
                     </div>
                     <div className="preview-side-scrollable">
                         {renderQuoteLivePreviewSheet()}
@@ -1737,6 +1808,10 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                 </div>
 
             </div>
+
+            {showCustomizer && (
+                <DocumentCustomizerModal docType="devis" onClose={() => setShowCustomizer(false)} />
+            )}
 
             {/* Client Search Portal */}
             {showClientSearch && createPortal(

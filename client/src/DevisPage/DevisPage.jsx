@@ -232,6 +232,7 @@ function DevisPage() {
                     onChangeStatus={handleChangeStatus}
                     onEdit={() => { setShowDetailDrawer(false); setShowEditPanel(true); }}
                     onOpenLinkedInvoice={(inv) => setLinkedInvoiceForDrawer(inv)}
+                    onUpdateQuoteCustomization={handleUpdateQuoteCustomization}
                 />
             )}
 

@@ -1,4 +1,3 @@
-
 export const checkRole = (...allowedRoles) => {
     return (req, res, next) => {
         if (!req.user || !allowedRoles.includes(req.user.role)) {
@@ -10,3 +9,6 @@ export const checkRole = (...allowedRoles) => {
         next();
     };
 };
+
+export const requireOwner = checkRole("OWNER");
+export const requireManager = checkRole("OWNER", "MANAGER");

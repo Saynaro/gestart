@@ -379,40 +379,37 @@ export const refresh = async (req, res) => {
 
 
 
-////// GET ME //////
-export const getMe = async (req, res) => {
-    const userId = req.user.id;
 
+
+
+
+
+
+
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+////// CHANGE PASSWORD ////////
+export const changePassword = async (req, res) => {
     try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Non autorisé"
+            });
+        }
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Mot de passe actuel et nouveau mot de passe requis"
+            });
+        }
+
         const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                phone: true,
-                avatarUrl: true,
-                role: true,
-                isActive: true,
-                companyId: true,
-                createdAt: true,
-                company: {
-                    include: {
-                        subscription: {
-                            include: {
-                                plan: true,
-                            }
-                        },
-                        settings: true,
-                        tradeCategories: {
-                            include: {
-                                tradeCategory: true,
-                            }
-                        }
-                    }
-                }
-            }
+            where: { id: userId }
         });
 
         if (!user) {
@@ -422,18 +419,252 @@ export const getMe = async (req, res) => {
             });
         }
 
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({
+                success: false,
+                message: "Mot de passe actuel invalide"
+            });
+        }
+
+        if (newPassword.length < 8 || !PASSWORD_REGEX.test(newPassword)) {
+            return res.status(400).json({
+                success: false,
+                message: "Le mot de passe doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule et 1 chiffre"
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: { password: hashedPassword }
+        });
+
         return res.status(200).json({
             success: true,
-            message: "Utilisateur trouvé",
-            data: {
-                user,
-            }
+            message: "Mot de passe mis à jour avec succès"
         });
     } catch (error) {
-        console.error("GET ME ERROR:", error.message);
+        console.error("CHANGE PASSWORD ERROR:", error);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la récupération de l'utilisateur",
+            message: "Erreur serveur lors de la mise à jour du mot de passe"
         });
     }
 };
+
+
+///// GOOGLE AUTH (DIRECT ID TOKEN OR OAUTH) //////
+export const googleLogin = async (req, res) => {
+    const { email, firstName, lastName, googleId } = req.body;
+
+    if (!email) {
+        return res.status(400).json({
+            success: false,
+            message: "Adresse email obligatoire pour la connexion Google"
+        });
+    }
+
+    try {
+        const formattedEmail = email.toLowerCase().trim();
+
+        let user = await prisma.user.findUnique({
+            where: { email: formattedEmail },
+            include: { company: true }
+        });
+
+        // Si l'utilisateur n'existe pas, création de sa société + compte Owner (Période d'essai 14j)
+        if (!user) {
+            const plan = await prisma.plan.findUnique({
+                where: { name: "STARTER" }
+            });
+
+            const trialEndsAt = new Date();
+            trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
+            const result = await prisma.$transaction(async (tx) => {
+                const companyName = `${firstName || "Mon"} Company`;
+                const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+                const company = await tx.company.create({
+                    data: {
+                        name: companyName,
+                        slug: `${slug}-${Date.now()}`,
+                        email: formattedEmail,
+                        settings: { create: {} }
+                    }
+                });
+
+                if (plan) {
+                    await tx.subscription.create({
+                        data: {
+                            companyId: company.id,
+                            planId: plan.id,
+                            status: "TRIALING",
+                            trialEndsAt
+                        }
+                    });
+                }
+
+                const newUser = await tx.user.create({
+                    data: {
+                        companyId: company.id,
+                        email: formattedEmail,
+                        password: "", // Auth sociale sans mot de passe local
+                        firstName: firstName || "Utilisateur",
+                        lastName: lastName || "Google",
+                        role: "OWNER",
+                        emailVerified: true
+                    }
+                });
+
+                return { user: newUser, company };
+            });
+
+            user = result.user;
+            user.company = result.company;
+        }
+
+        const accessToken = generateAccessToken(user.id, user.role, user.companyId);
+        const refreshToken = await generateRefreshToken(user.id);
+        setRefreshCookie(res, refreshToken);
+
+        return res.status(200).json({
+            success: true,
+            message: "Connexion via Google réussie",
+            accessToken,
+            data: {
+                user: {
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role,
+                    companyId: user.companyId
+                },
+                company: user.company
+            }
+        });
+    } catch (error) {
+        console.error("GOOGLE LOGIN ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la connexion Google"
+        });
+    }
+};
+
+///// APPLE SIGN IN //////
+export const appleLogin = async (req, res) => {
+    const { email, firstName, lastName, appleId } = req.body;
+
+    if (!email) {
+        return res.status(400).json({
+            success: false,
+            message: "Adresse email obligatoire pour la connexion Apple"
+        });
+    }
+
+    try {
+        const formattedEmail = email.toLowerCase().trim();
+
+        let user = await prisma.user.findUnique({
+            where: { email: formattedEmail },
+            include: { company: true }
+        });
+
+        if (!user) {
+            const plan = await prisma.plan.findUnique({
+                where: { name: "STARTER" }
+            });
+
+            const trialEndsAt = new Date();
+            trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
+            const result = await prisma.$transaction(async (tx) => {
+                const companyName = `${firstName || "Mon"} Company`;
+                const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+                const company = await tx.company.create({
+                    data: {
+                        name: companyName,
+                        slug: `${slug}-${Date.now()}`,
+                        email: formattedEmail,
+                        settings: { create: {} }
+                    }
+                });
+
+                if (plan) {
+                    await tx.subscription.create({
+                        data: {
+                            companyId: company.id,
+                            planId: plan.id,
+                            status: "TRIALING",
+                            trialEndsAt
+                        }
+                    });
+                }
+
+                const newUser = await tx.user.create({
+                    data: {
+                        companyId: company.id,
+                        email: formattedEmail,
+                        password: "",
+                        firstName: firstName || "Utilisateur",
+                        lastName: lastName || "Apple",
+                        role: "OWNER",
+                        emailVerified: true
+                    }
+                });
+
+                return { user: newUser, company };
+            });
+
+            user = result.user;
+            user.company = result.company;
+        }
+
+        const accessToken = generateAccessToken(user.id, user.role, user.companyId);
+        const refreshToken = await generateRefreshToken(user.id);
+        setRefreshCookie(res, refreshToken);
+
+        return res.status(200).json({
+            success: true,
+            message: "Connexion via Apple réussie",
+            accessToken,
+            data: {
+                user: {
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role,
+                    companyId: user.companyId
+                },
+                company: user.company
+            }
+        });
+    } catch (error) {
+        console.error("APPLE LOGIN ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la connexion Apple"
+        });
+    }
+};
+
+export const googleCallback = async (req, res) => {
+    try {
+        const user = req.user;
+        const accessToken = generateAccessToken(user.id, user.role, user.companyId);
+        const refreshToken = await generateRefreshToken(user.id);
+        setRefreshCookie(res, refreshToken);
+
+        res.redirect(`${process.env.FRONTEND_URL}/oauth/callback?token=${accessToken}`);
+    } catch (error) {
+        res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+};
+

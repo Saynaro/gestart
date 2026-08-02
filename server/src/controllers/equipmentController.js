@@ -11,6 +11,48 @@ const calculateNextServiceDate = (lastServiceDate, installDate, serviceInterval 
     return nextDate;
 };
 
+// Helper pour synchroniser automatiquement le statut santé du client (OK, WARNING, URGENT)
+export const syncClientHealthStatus = async (clientId) => {
+    try {
+        const equipment = await prisma.equipment.findMany({
+            where: { clientId, isActive: true }
+        });
+
+        if (equipment.length === 0) {
+            await prisma.client.update({
+                where: { id: clientId },
+                data: { status: "OK" }
+            });
+            return;
+        }
+
+        const now = new Date();
+        const in30Days = new Date();
+        in30Days.setDate(in30Days.getDate() + 30);
+
+        let newStatus = "OK";
+
+        for (const eq of equipment) {
+            if (eq.nextServiceDate) {
+                const nextDate = new Date(eq.nextServiceDate);
+                if (nextDate <= now) {
+                    newStatus = "URGENT";
+                    break;
+                } else if (nextDate <= in30Days && newStatus !== "URGENT") {
+                    newStatus = "WARNING";
+                }
+            }
+        }
+
+        await prisma.client.update({
+            where: { id: clientId },
+            data: { status: newStatus }
+        });
+    } catch (error) {
+        console.error("SYNC CLIENT HEALTH ERROR:", error.message);
+    }
+};
+
 ////// GET ALL EQUIPMENT WITH FILTERS //////
 export const getEquipment = async (req, res) => {
     const companyId = req.user.companyId;
@@ -233,6 +275,8 @@ export const createEquipment = async (req, res) => {
             }
         });
 
+        await syncClientHealthStatus(clientId);
+
         return res.status(201).json({
             success: true,
             message: "Équipement ajouté avec succès",
@@ -312,6 +356,8 @@ export const updateEquipment = async (req, res) => {
                 }
             }
         });
+
+        await syncClientHealthStatus(existingEquipment.clientId);
 
         return res.status(200).json({
             success: true,

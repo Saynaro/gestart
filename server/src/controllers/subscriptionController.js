@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { stripe } from "../config/stripe.js";
 
 ////// GET CURRENT SUBSCRIPTION //////
 export const getSubscription = async (req, res) => {
@@ -74,29 +75,53 @@ export const createCheckoutSession = async (req, res) => {
             });
         }
 
-        // Si Stripe Secret Key est configurée
-        if (process.env.STRIPE_SECRET_KEY) {
-            // Intégration Stripe dynamique
-            const priceId = cycle === "ANNUAL"
-                ? targetPlan.stripeAnnualPriceId
-                : targetPlan.stripeMonthlyPriceId;
+        if (stripe) {
+            const amount = cycle === "ANNUAL"
+                ? Math.round(targetPlan.priceAnnual * 12 * 100)
+                : Math.round(targetPlan.priceMonthly * 100);
 
-            // Retourne l'URL Stripe Checkout
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [{
+                    price_data: {
+                        currency: 'eur',
+                        product_data: {
+                            name: `Abonnement GestArt CRM — ${targetPlan.displayName} (${cycle === "ANNUAL" ? 'Annuel' : 'Mensuel'})`,
+                            description: `Accès complet au plan ${targetPlan.displayName}`
+                        },
+                        unit_amount: amount,
+                        recurring: {
+                            interval: cycle === "ANNUAL" ? "year" : "month"
+                        }
+                    },
+                    quantity: 1,
+                }],
+                mode: 'subscription',
+                client_reference_id: companyId,
+                customer_email: req.user.email,
+                metadata: {
+                    companyId,
+                    planName: targetPlan.name,
+                    cycle
+                },
+                success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?success=true&session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?canceled=true`,
+            });
+
             return res.status(200).json({
                 success: true,
                 message: "Session de paiement créée avec succès",
                 data: {
-                    checkoutUrl: `${process.env.FRONTEND_URL}/checkout?plan=${targetPlan.name.toLowerCase()}&cycle=${cycle.toLowerCase()}`
+                    checkoutUrl: session.url
                 }
             });
         }
 
-        // Mode Dev / Sandbox sans clé Stripe
         return res.status(200).json({
             success: true,
             message: "Session de démonstration (Stripe non configuré)",
             data: {
-                checkoutUrl: `${process.env.FRONTEND_URL}/billing?success=true&plan=${targetPlan.name.toLowerCase()}`
+                checkoutUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?success=true&plan=${targetPlan.name.toLowerCase()}`
             }
         });
     } catch (error) {

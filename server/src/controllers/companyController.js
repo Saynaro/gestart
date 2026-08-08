@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { stripe } from "../config/stripe.js";
 
 ////// GET COMPANY INFO //////
 export const getCompany = async (req, res) => {
@@ -303,3 +304,131 @@ export const getCompanyStats = async (req, res) => {
         });
     }
 };
+
+////// CREATE STRIPE CONNECT ACCOUNT FOR COMPANY OWNER (IBAN LINKING) //////
+export const createStripeConnectAccount = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        let company = await prisma.company.findUnique({
+            where: { id: companyId }
+        });
+
+        if (!company) {
+            return res.status(404).json({
+                success: false,
+                message: "Société introuvable"
+            });
+        }
+
+        if (!stripe) {
+            return res.status(500).json({
+                success: false,
+                message: "Clés Stripe non configurées sur le serveur"
+            });
+        }
+
+        let stripeAccountId = company.stripeAccountId;
+
+        if (!stripeAccountId) {
+            const account = await stripe.accounts.create({
+                type: "express",
+                country: "FR",
+                email: company.email || req.user.email,
+                business_type: "company",
+                company: { name: company.name }
+            });
+
+            stripeAccountId = account.id;
+
+            await prisma.company.update({
+                where: { id: companyId },
+                data: {
+                    stripeAccountId,
+                    stripeAccountStatus: "pending"
+                }
+            });
+        }
+
+        const accountLink = await stripe.accountLinks.create({
+            account: stripeAccountId,
+            refresh_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings/stripe?refresh=true`,
+            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings/stripe?success=true`,
+            type: "account_onboarding",
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Lien de connexion Stripe Connect généré avec succès",
+            data: { url: accountLink.url }
+        });
+    } catch (error) {
+        console.error("STRIPE CONNECT ACCOUNT ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la connexion Stripe Connect"
+        });
+    }
+};
+
+////// GET STRIPE CONNECT ACCOUNT STATUS //////
+export const getStripeConnectStatus = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        const company = await prisma.company.findUnique({
+            where: { id: companyId }
+        });
+
+        if (!company || !company.stripeAccountId) {
+            return res.status(200).json({
+                success: true,
+                data: {
+                    connected: false,
+                    onlinePaymentEnabled: false,
+                    status: "none"
+                }
+            });
+        }
+
+        if (stripe) {
+            const account = await stripe.accounts.retrieve(company.stripeAccountId);
+            const isEnabled = account.charges_enabled && account.payouts_enabled;
+
+            await prisma.company.update({
+                where: { id: companyId },
+                data: {
+                    onlinePaymentEnabled: isEnabled,
+                    stripeAccountStatus: isEnabled ? "active" : "pending"
+                }
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    connected: true,
+                    onlinePaymentEnabled: isEnabled,
+                    status: isEnabled ? "active" : "pending",
+                    chargesEnabled: account.charges_enabled,
+                    payoutsEnabled: account.payouts_enabled
+                }
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                connected: !!company.stripeAccountId,
+                onlinePaymentEnabled: company.onlinePaymentEnabled,
+                status: company.stripeAccountStatus || "pending"
+            }
+        });
+    } catch (error) {
+        console.error("GET STRIPE CONNECT STATUS ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la vérification du statut Stripe Connect"
+        });
+    }
+};
+

@@ -146,8 +146,7 @@ export const getTodayInterventions = async (req, res) => {
                         lastName: true,
                         phone: true,
                         address: true,
-                        city: true,
-                        accessCode: true
+                        city: true
                     }
                 },
                 equipment: true,

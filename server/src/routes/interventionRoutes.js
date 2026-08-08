@@ -16,6 +16,7 @@ import {
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireManager } from "../middlewares/checkRole.js";
 import { requireActive } from "../middlewares/requireActive.js";
+import { uploadPhotosMiddleware } from "../config/cloudinary.js";
 
 const router = express.Router();
 
@@ -35,8 +36,8 @@ router.patch("/:id/start", startIntervention);
 router.patch("/:id/complete", completeIntervention);
 router.delete("/:id", requireManager, deleteIntervention);
 
-// Photos d'intervention (upload.array("photos", 10) pourra être inséré ici)
-router.post("/:id/photos", uploadInterventionPhotos);
+// Photos d'intervention (avec middleware Cloudinary)
+router.post("/:id/photos", uploadPhotosMiddleware, uploadInterventionPhotos);
 router.delete("/:id/photos/:photoId", deleteInterventionPhoto);
 
 export default router;

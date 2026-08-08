@@ -14,6 +14,7 @@ import {
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
+import { uploadAvatarMiddleware } from "../config/cloudinary.js";
 
 const router = express.Router();
 
@@ -21,12 +22,12 @@ const router = express.Router();
 router.get("/me", authMiddleware, getMe);
 router.patch("/me", authMiddleware, updateMe);
 
-// Avatar Routes (Middleware upload.single("avatar") peut être inséré ici plus tard avec Cloudinary/Multer)
-router.patch("/me/avatar", authMiddleware, uploadAvatar);
+// Avatar Routes (avec middleware Cloudinary)
+router.patch("/me/avatar", authMiddleware, uploadAvatarMiddleware, uploadAvatar);
 router.delete("/me/avatar", authMiddleware, deleteAvatar);
 
 // Company Users Management Routes
-router.get("/", authMiddleware, requireManager, getCompanyUsers);
+router.get("/", authMiddleware, getCompanyUsers);
 router.get("/:id", authMiddleware, requireManager, getUserById);
 router.patch("/:id", authMiddleware, requireOwner, updateUser);
 router.delete("/:id", authMiddleware, requireOwner, deleteUser);

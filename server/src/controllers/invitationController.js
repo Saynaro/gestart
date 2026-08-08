@@ -257,7 +257,7 @@ export const checkInvitationToken = async (req, res) => {
 
 ////// ACCEPT INVITATION & CREATE USER ACCOUNT (PUBLIC POST) //////
 export const acceptInvitation = async (req, res) => {
-    const { token } = req.params;
+    const token = req.params.token || req.body.token;
     const { firstName, lastName, password } = req.body;
 
     if (!firstName || !lastName || !password) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -15,13 +15,21 @@ import {
     Phone,
     Briefcase,
     Zap,
-    AlertCircle
+    AlertCircle,
+    Wrench,
+    Crown,
+    Eye,
+    EyeOff,
+    Check,
+    X,
+    KeyRound
 } from 'lucide-react';
 import './RegisterPage.css';
 
 const TRADE_CATEGORIES_LIST = [
     { id: 'clim', name: 'Climatisation / PAC air-air', icon: '❄️' },
     { id: 'pac', name: 'Pompe à chaleur air-eau', icon: '🔥' },
+    { id: 'plombier', name: 'Plomberie & Chauffage', icon: '🚰' },
     { id: 'cet', name: 'Chauffe-Eau Thermodynamique', icon: '💧' },
     { id: 'vmc', name: 'Ventilation mécanique (VMC)', icon: '🌀' },
     { id: 'solaires', name: 'Panneaux solaires photovoltaïques', icon: '☀️' },
@@ -60,46 +68,88 @@ export default function RegisterPage() {
     const [searchParams] = useSearchParams();
     const invitationToken = searchParams.get('invitation');
 
-    // Modus: 'OWNER' (Новая компания) или 'TECHNICIAN' (Приглашенный сотрудник)
     const [mode, setMode] = useState(invitationToken ? 'TECHNICIAN' : 'OWNER');
-    const [step, setStep] = useState(1); // 1 = Compte, 2 = Société (для Owner)
+    const [step, setStep] = useState(1);
+    const [showPassword, setShowPassword] = useState(false);
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-    // Имитация данных приглашения для демонстрации
-    const [invitationDetails, setInvitationDetails] = useState(null);
+    // Toast System
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+    const showToastNotification = (message, type = 'success') => {
+        setToast({ show: true, message, type });
+        setTimeout(() => {
+            setToast({ show: false, message: '', type: 'success' });
+        }, 4500);
+    };
+
+    // Code à 6 chiffres
+    const [digitCode, setDigitCode] = useState(['', '', '', '', '', '']);
+    const digitRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+    const [devCode, setDevCode] = useState('');
 
     // Form fields
     const [formData, setFormData] = useState({
-        // Данные человека
-        firstName: '',
-        lastName: '',
         email: '',
         password: '',
+        firstName: '',
+        lastName: '',
         phone: '',
         invitationCode: invitationToken || '',
-        // Данные компании (Только для Owner)
         companyName: '',
         legalForm: 'SAS',
-        vatNumber: '',
-        zipCode: '',
-        city: '',
-        tradeCategories: [],
+        tradeCategories: ['clim', 'plombier'],
         planName: 'PRO'
     });
 
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Progression et pourcentages
+    const totalSteps = mode === 'OWNER' ? 4 : 3;
+    const percentage = mode === 'OWNER'
+        ? Math.round((step / 4) * 100)
+        : Math.round((step / 3) * 100);
+
+    // Validation règles mot de passe
+    const password = formData.password;
+    const rules = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+    };
+    const isPasswordValid = rules.length && rules.uppercase && rules.lowercase && rules.number;
+
     useEffect(() => {
         if (invitationToken) {
             setMode('TECHNICIAN');
             setFormData(prev => ({ ...prev, invitationCode: invitationToken }));
-            setInvitationDetails({
-                companyName: 'Dupont Climatisation SAS',
-                email: 'technicien@dupont.fr',
-                role: 'Technicien'
-            });
         }
     }, [invitationToken]);
+
+    const formWrapperRef = useRef(null);
+
+    // Auto-scroll to top on step transition
+    useEffect(() => {
+        if (formWrapperRef.current) {
+            formWrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [step]);
+
+    // Auto smooth-scroll to focused input (ideal for mobile virtual keyboard)
+    useEffect(() => {
+        const handleFocusIn = (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                setTimeout(() => {
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 250);
+            }
+        };
+
+        document.addEventListener('focusin', handleFocusIn);
+        return () => document.removeEventListener('focusin', handleFocusIn);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -119,50 +169,170 @@ export default function RegisterPage() {
         });
     };
 
-    const handleNextStep = (e) => {
+    // ÉTAPE 1 -> ÉTAPE 2
+    const handleStep1Submit = async (e) => {
         e.preventDefault();
-        if (!formData.firstName || !formData.lastName || !formData.companyName || !formData.email || !formData.password) {
-            setError('Veuillez remplir tous les champs obligatoires (*)');
+        if (!formData.email || !formData.password) {
+            const msg = 'Veuillez renseigner votre email et mot de passe';
+            setError(msg);
+            showToastNotification(msg, 'error');
             return;
         }
-        if (formData.password.length < 8) {
-            setError('Le mot de passe doit contenir au moins 8 caractères');
+        if (!isPasswordValid) {
+            const msg = 'Le mot de passe doit respecter les 4 règles de sécurité';
+            setError(msg);
+            showToastNotification(msg, 'error');
             return;
         }
-        setError('');
-        setStep(2);
-    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
         setLoading(true);
         setError('');
 
-        if (mode === 'TECHNICIAN' && !formData.invitationCode) {
-            setError('Veuillez saisir votre code d\'invitation');
-            setLoading(false);
-            return;
-        }
-
         try {
-            const endpoint = mode === 'OWNER'
-                ? '/api/auth/register'
-                : `/api/auth/accept-invitation?token=${formData.invitationCode}`;
-
-            const response = await fetch(endpoint, {
+            const response = await fetch('/api/v1/auth/send-verification-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ email: formData.email })
             });
 
             const text = await response.text();
             let data = {};
-            try {
-                data = text ? JSON.parse(text) : {};
-            } catch (jsonErr) {
-                console.error("Non-JSON response received:", text);
-                throw new Error("Réponse invalide du serveur. Vérifiez que le serveur бэкенд запущен на порту 5001.");
+            try { data = text ? JSON.parse(text) : {}; } catch (err) { }
+
+            if (!response.ok) {
+                const errMsg = data.message || 'Cet email est déjà utilisé ou invalide.';
+                throw new Error(errMsg);
             }
+
+            if (data.data?.devCode) {
+                setDevCode(data.data.devCode);
+                const codeArray = data.data.devCode.split('');
+                setDigitCode(codeArray);
+            }
+
+            showToastNotification(`Code de vérification envoyé à ${formData.email}`, 'success');
+            setStep(2);
+        } catch (err) {
+            setError(err.message || 'Erreur lors de l’envoi du code');
+            showToastNotification(err.message || 'Cet email est déjà utilisé', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ÉTAPE 2 -> ÉTAPE 3
+    const handleDigitChange = (index, value) => {
+        if (!/^\d*$/.test(value)) return;
+        const newCode = [...digitCode];
+        newCode[index] = value.slice(-1);
+        setDigitCode(newCode);
+        setError('');
+
+        if (value && index < 5) {
+            digitRefs[index + 1].current?.focus();
+        }
+    };
+
+    const handleDigitKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !digitCode[index] && index > 0) {
+            digitRefs[index - 1].current?.focus();
+        }
+    };
+
+    const handleStep2Submit = async (e) => {
+        e.preventDefault();
+        const code = digitCode.join('');
+        if (code.length < 6) {
+            const msg = 'Veuillez saisir le code complet à 6 chiffres';
+            setError(msg);
+            showToastNotification(msg, 'error');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch('/api/v1/auth/verify-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email, code })
+            });
+
+            const text = await response.text();
+            let data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch (err) { }
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Code de vérification incorrect.');
+            }
+
+            showToastNotification('Email vérifié avec succès ! 👍', 'success');
+            setStep(3);
+        } catch (err) {
+            setError(err.message || 'Code invalide');
+            showToastNotification(err.message || 'Code de vérification incorrect', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ÉTAPE 3 -> ÉTAPE 4
+    const handleStep3Submit = (e) => {
+        e.preventDefault();
+        if (!formData.firstName || !formData.lastName || !formData.phone) {
+            const msg = 'Veuillez renseigner votre prénom, nom et téléphone portable';
+            setError(msg);
+            showToastNotification(msg, 'error');
+            return;
+        }
+        setError('');
+
+        showToastNotification('Informations personnelles enregistrées !', 'success');
+
+        if (mode === 'TECHNICIAN') {
+            handleFinalRegister();
+        } else {
+            setStep(4);
+        }
+    };
+
+    // ÉTAPE 4 Final
+    const handleFinalRegister = async (e) => {
+        if (e) e.preventDefault();
+
+        if (mode === 'OWNER' && !formData.companyName) {
+            const msg = 'Veuillez indiquer le nom de votre société';
+            setError(msg);
+            showToastNotification(msg, 'error');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const endpoint = mode === 'OWNER'
+                ? '/api/v1/auth/register'
+                : `/api/v1/invitations/accept`;
+
+            const payload = mode === 'OWNER' ? formData : {
+                token: formData.invitationCode,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                password: formData.password,
+                phone: formData.phone
+            };
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const text = await response.text();
+            let data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch (jsonErr) { }
 
             if (!response.ok) {
                 throw new Error(data.message || 'Erreur lors de l’inscription');
@@ -171,17 +341,49 @@ export default function RegisterPage() {
             if (data.accessToken) {
                 localStorage.setItem('accessToken', data.accessToken);
             }
-            navigate(mode === 'TECHNICIAN' ? '/planning' : '/home');
 
+            showToastNotification('Bienvenue sur ClimPro CRM ! Espace créé avec succès. 🎉', 'success');
+            navigate('/home', { state: { openOnboardingModal: true } });
         } catch (err) {
-            setError(err.message || 'Impossible de se connecter au serveur');
+            setError(err.message || 'Impossible de finaliser l’inscription');
+            showToastNotification(err.message || 'Erreur lors de l’inscription', 'error');
         } finally {
             setLoading(false);
         }
     };
 
+    const handleGoogleAuth = () => {
+        try {
+            if (window.top && window.top !== window) {
+                window.top.location.href = 'http://localhost:5001/api/v1/auth/google';
+            } else {
+                window.location.href = 'http://localhost:5001/api/v1/auth/google';
+            }
+        } catch (e) {
+            window.location.href = 'http://localhost:5001/api/v1/auth/google';
+        }
+    };
+
     return (
         <div className="register-container">
+            {/* Toast Banner Notification */}
+            <AnimatePresence>
+                {toast.show && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -30, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -30, scale: 0.95 }}
+                        className={`toast-banner ${toast.type}`}
+                    >
+                        {toast.type === 'success' ? <CheckCircle2 size={20} className="toast-icon" /> : <AlertCircle size={20} className="toast-icon" />}
+                        <span>{toast.message}</span>
+                        <button type="button" onClick={() => setToast({ show: false, message: '', type: 'success' })} className="toast-close-btn">
+                            <X size={16} />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Left Decorative Banner */}
             <div className="register-banner">
                 <div className="banner-glow" />
@@ -193,14 +395,12 @@ export default function RegisterPage() {
 
                     <h1 className="banner-title">
                         {mode === 'OWNER'
-                            ? "Gérez votre activité d'installation en toute simplicité."
+                            ? "Gérez votre entreprise d'installation & dépannage en toute simplicité."
                             : "Rejoignez votre équipe sur l'application mobile ClimPro."}
                     </h1>
 
                     <p className="banner-subtitle">
-                        {mode === 'OWNER'
-                            ? "Rappels d'entretien automatiques, devis, factures A4 et planning technicien dans un seul outil."
-                            : "Consultez vos interventions du jour, uploadez vos photos et faites signer vos clients en 1 clic."}
+                        Devis, factures A4, rappels d'entretien automatiques, plomberie et planning techniciens dans un seul outil.
                     </p>
 
                     <div className="banner-features">
@@ -214,127 +414,117 @@ export default function RegisterPage() {
                         </div>
                         <div className="feature-item">
                             <CheckCircle2 className="feature-icon" />
-                            <span>Support français & données hébergées en France 🇫🇷</span>
+                            <span>Climatisation, Plomberie, Pompes à chaleur & Solaires 🇫🇷</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="banner-footer">
-                    <span>© 2026 ClimPro. Fait avec ❤️ pour les artisans.</span>
+                    <span>© 2026 ClimPro. Fait avec ❤️ pour les installateurs & artisans.</span>
                 </div>
             </div>
 
             {/* Right Form Container */}
-            <div className="register-form-wrapper">
+            <div className="register-form-wrapper" ref={formWrapperRef}>
                 <div className="form-card">
-                    {/* Header tabs for switching mode */}
-                    <div className="mode-tabs">
-                        <button
-                            className={`mode-tab ${mode === 'OWNER' ? 'active' : ''}`}
-                            onClick={() => { setMode('OWNER'); setStep(1); }}
-                        >
-                            <Building2 className="tab-icon" />
-                            Créer une Société (Patron)
-                        </button>
-                        <button
-                            className={`mode-tab ${mode === 'TECHNICIAN' ? 'active' : ''}`}
-                            onClick={() => { setMode('TECHNICIAN'); setStep(1); }}
-                        >
-                            <UserCheck className="tab-icon" />
-                            J'ai une invitation (Technicien)
-                        </button>
+                    <div className="mobile-brand-header">
+                        <div className="mobile-brand-badge">
+                            <Zap size={16} />
+                            <span>ClimPro CRM</span>
+                        </div>
                     </div>
 
-                    {/* Invitation Header Banner for Technician */}
-                    {mode === 'TECHNICIAN' && invitationToken && (
-                        <div className="invitation-badge-box">
-                            <Sparkles className="inv-badge-icon" />
-                            <div>
-                                <h3>Invitation de l'entreprise</h3>
-                                <p>
-                                    Vous rejoignez <strong>{invitationDetails?.companyName || 'votre entreprise'}</strong> en tant que <strong>Technicien</strong>.
-                                </p>
+                    {/* Filling Progress Line with Percentage */}
+                    <div className="progress-bar-container">
+                        <div className="progress-bar-header">
+                            <span className="progress-bar-title">Étape {step} sur {totalSteps}</span>
+                            <span className="progress-bar-percentage">{percentage}% complété</span>
+                        </div>
+                        <div className="progress-bar-track">
+                            <motion.div
+                                className="progress-bar-fill"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${percentage}%` }}
+                                transition={{ duration: 0.4, ease: "easeInOut" }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Role Selection Tabs (Only on Step 1) */}
+                    {step === 1 && (
+                        <div className="mode-tabs">
+                            <button
+                                type="button"
+                                className={`mode-tab ${mode === 'OWNER' ? 'active' : ''}`}
+                                onClick={() => setMode('OWNER')}
+                            >
+                                <Crown className="tab-icon" />
+                                Chef d'entreprise
+                            </button>
+                            <button
+                                type="button"
+                                className={`mode-tab ${mode === 'TECHNICIAN' ? 'active' : ''}`}
+                                onClick={() => setMode('TECHNICIAN')}
+                            >
+                                <Wrench className="tab-icon" />
+                                Technicien
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Error Alert */}
+                    {error && (
+                        <div className="error-alert">
+                            <AlertCircle size={18} />
+                            <div style={{ flex: 1 }}>
+                                <div>{error}</div>
+                                {error.includes("inscrit") && (
+                                    <Link to="/login" style={{ color: 'var(--destructive)', fontWeight: 700, textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}>
+                                        Se connecter maintenant →
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     )}
 
-                    {/* Error Banner */}
-                    {error && (
-                        <div className="error-alert">
-                            <AlertCircle size={18} />
-                            <span>{error}</span>
-                        </div>
-                    )}
-
-                    {/* OWNER FORM - STEP 1 (Compte & Société) */}
-                    {mode === 'OWNER' && step === 1 && (
+                    {/* ÉTAPE 1: Email + MDP (30 sec) */}
+                    {step === 1 && (
                         <motion.form
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             className="form-content"
-                            onSubmit={handleNextStep}
+                            onSubmit={handleStep1Submit}
                         >
                             <div className="form-header">
-                                <span className="step-badge">Étape 1 sur 2</span>
-                                <h2>Créer votre compte & Société</h2>
-                                <p>Vos identifiants de connexion et le nom de votre entreprise</p>
+                                <h2>Créer un compte</h2>
+                                <p>Saisissez votre email et votre mot de passe pour commencer</p>
                             </div>
 
-                            <div className="input-group">
-                                <label>Nom de la Société *</label>
-                                <div className="input-wrapper">
-                                    <Building2 className="input-icon" />
-                                    <input
-                                        type="text"
-                                        name="companyName"
-                                        placeholder="ex: Dupont Climatisation SAS"
-                                        value={formData.companyName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-row">
+                            {mode === 'TECHNICIAN' && (
                                 <div className="input-group">
-                                    <label>Prénom du Gérant *</label>
+                                    <label>Code / Token d'invitation *</label>
                                     <div className="input-wrapper">
-                                        <User className="input-icon" />
+                                        <Lock className="input-icon" />
                                         <input
                                             type="text"
-                                            name="firstName"
-                                            placeholder="ex: Jean"
-                                            value={formData.firstName}
+                                            name="invitationCode"
+                                            placeholder="ex: INV-987654"
+                                            value={formData.invitationCode}
                                             onChange={handleChange}
                                             required
                                         />
                                     </div>
                                 </div>
-
-                                <div className="input-group">
-                                    <label>Nom du Gérant *</label>
-                                    <div className="input-wrapper">
-                                        <User className="input-icon" />
-                                        <input
-                                            type="text"
-                                            name="lastName"
-                                            placeholder="ex: Dupont"
-                                            value={formData.lastName}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                            )}
 
                             <div className="input-group">
-                                <label>Adresse Email professionnelle *</label>
+                                <label>Email Professionnel *</label>
                                 <div className="input-wrapper">
                                     <Mail className="input-icon" />
                                     <input
                                         type="email"
                                         name="email"
-                                        placeholder="jean.dupont@climatisation.fr"
+                                        placeholder="jean.dupont@climpro.fr"
                                         value={formData.email}
                                         onChange={handleChange}
                                         required
@@ -343,158 +533,120 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="input-group">
-                                <label>Mot de passe (min. 8 caractères) *</label>
+                                <label>Mot de passe *</label>
                                 <div className="input-wrapper">
                                     <Lock className="input-icon" />
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         name="password"
-                                        placeholder="••••••••"
+                                        placeholder="••••••••••"
                                         value={formData.password}
                                         onChange={handleChange}
+                                        onFocus={() => setIsPasswordFocused(true)}
+                                        onBlur={() => setIsPasswordFocused(false)}
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        className="password-toggle-btn"
+                                        onClick={() => setShowPassword(prev => !prev)}
+                                        tabIndex="-1"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
                             </div>
 
-                            <div className="input-group">
-                                <label>Téléphone portable *</label>
-                                <div className="input-wrapper">
-                                    <Phone className="input-icon" />
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        placeholder="06 12 34 56 78"
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
+                            {/* Live Password Rules Indicator (Visible on Focus) */}
+                            {isPasswordFocused && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="password-rules-box"
+                                >
+                                    <div className={`rule-item ${rules.length ? 'valid' : ''}`}>
+                                        {rules.length ? <Check size={14} /> : <X size={14} />}
+                                        <span>Au moins 8 caractères</span>
+                                    </div>
+                                    <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`}>
+                                        {rules.uppercase ? <Check size={14} /> : <X size={14} />}
+                                        <span>1 lettre majuscule (A-Z)</span>
+                                    </div>
+                                    <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`}>
+                                        {rules.lowercase ? <Check size={14} /> : <X size={14} />}
+                                        <span>1 lettre minuscule (a-z)</span>
+                                    </div>
+                                    <div className={`rule-item ${rules.number ? 'valid' : ''}`}>
+                                        {rules.number ? <Check size={14} /> : <X size={14} />}
+                                        <span>1 chiffre (0-9)</span>
+                                    </div>
+                                </motion.div>
+                            )}
 
-                            <button type="submit" className="btn-submit">
-                                Étape suivante : Activité & Offre <ArrowRight size={18} />
+                            <button type="submit" className="btn-submit pill-btn" disabled={loading}>
+                                {loading ? 'Envoi du code...' : 'Continuer vers la vérification →'}
                             </button>
                         </motion.form>
                     )}
 
-                    {/* OWNER FORM - STEP 2 (Détails juridiques & Offre) */}
-                    {mode === 'OWNER' && step === 2 && (
+                    {/* ÉTAPE 2: Vérification email (Code 6 chiffres) (15 sec) */}
+                    {step === 2 && (
                         <motion.form
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             className="form-content"
-                            onSubmit={handleSubmit}
+                            onSubmit={handleStep2Submit}
                         >
                             <div className="form-header">
-                                <span className="step-badge">Étape 2 sur 2</span>
-                                <h2>Activité & Formule d'essai</h2>
-                                <p>Complétez votre profil professionnel pour finaliser l'inscription</p>
+                                <h2>Vérification Email</h2>
+                                <p>Saisissez le code à 6 chiffres envoyé à <strong>{formData.email}</strong></p>
                             </div>
 
-                            <div className="form-row">
-                                <div className="input-group">
-                                    <label>Forme juridique</label>
-                                    <select name="legalForm" value={formData.legalForm} onChange={handleChange}>
-                                        <option value="SAS">SAS / SASU</option>
-                                        <option value="SARL">SARL / EURL</option>
-                                        <option value="EI">EI / Micro-Entreprise</option>
-                                        <option value="SA">SA</option>
-                                    </select>
+                            {devCode && (
+                                <div className="dev-code-banner">
+                                    <span>Code de test : <strong>{devCode}</strong> (Auto-rempli)</span>
                                 </div>
-                                <div className="input-group">
-                                    <label>N° TVA intracommunautaire (Optionnel)</label>
+                            )}
+
+                            <div className="digits-input-container">
+                                {digitCode.map((digit, idx) => (
                                     <input
+                                        key={idx}
+                                        ref={digitRefs[idx]}
                                         type="text"
-                                        name="vatNumber"
-                                        placeholder="FR12345678901"
-                                        value={formData.vatNumber}
-                                        onChange={handleChange}
+                                        maxLength="1"
+                                        className="digit-box"
+                                        value={digit}
+                                        onChange={(e) => handleDigitChange(idx, e.target.value)}
+                                        onKeyDown={(e) => handleDigitKeyDown(idx, e)}
+                                        autoFocus={idx === 0}
                                     />
-                                </div>
-                            </div>
-
-                            {/* Trade Categories Selection */}
-                            <div className="input-group">
-                                <label>Domaines d'activité principaux</label>
-                                <div className="categories-grid">
-                                    {TRADE_CATEGORIES_LIST.map(cat => (
-                                        <button
-                                            type="button"
-                                            key={cat.id}
-                                            className={`cat-chip ${formData.tradeCategories.includes(cat.id) ? 'active' : ''}`}
-                                            onClick={() => toggleTradeCategory(cat.id)}
-                                        >
-                                            <span>{cat.icon}</span>
-                                            <span>{cat.name}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Plan Selection */}
-                            <div className="input-group">
-                                <label>Choisissez votre formule d'essai (14 jours gratuits)</label>
-                                <div className="plans-cards">
-                                    {PLANS_LIST.map(plan => (
-                                        <div
-                                            key={plan.id}
-                                            className={`plan-card ${formData.planName === plan.id ? 'selected' : ''}`}
-                                            onClick={() => setFormData(prev => ({ ...prev, planName: plan.id }))}
-                                        >
-                                            {plan.popular && <span className="pop-tag">Recommandé</span>}
-                                            <div className="plan-name">{plan.name}</div>
-                                            <div className="plan-price">{plan.price}<span>{plan.period}</span></div>
-                                        </div>
-                                    ))}
-                                </div>
+                                ))}
                             </div>
 
                             <div className="button-group">
                                 <button type="button" className="btn-back" onClick={() => setStep(1)}>
-                                    <ArrowLeft size={18} /> Retour
+                                    <ArrowLeft size={18} /> Modifier l'email
                                 </button>
-
-                                <button type="submit" className="btn-submit" disabled={loading}>
-                                    {loading ? 'Création en cours...' : 'Lancer mes 14 jours gratuits 🚀'}
+                                <button type="submit" className="btn-submit pill-btn" disabled={loading}>
+                                    {loading ? 'Vérification...' : 'Valider mon email →'}
                                 </button>
                             </div>
                         </motion.form>
                     )}
 
-                    {/* TECHNICIAN FORM (With explicit Code d'invitation) */}
-                    {mode === 'TECHNICIAN' && (
+                    {/* ÉTAPE 3: Nom + Prénom + Téléphone (15 sec) */}
+                    {step === 3 && (
                         <motion.form
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
                             className="form-content"
-                            onSubmit={handleSubmit}
+                            onSubmit={handleStep3Submit}
                         >
                             <div className="form-header">
-                                <span className="step-badge tech">Compte Technicien</span>
-                                <h2>Rejoindre votre entreprise</h2>
-                                <p>Saisissez votre code d'invitation et créez vos identifiants</p>
-                            </div>
-
-                            {/* Code d'invitation Input Field */}
-                            <div className="input-group">
-                                <label>Code / Jeton d'invitation *</label>
-                                <div className={`input-wrapper ${invitationToken ? 'disabled' : ''}`}>
-                                    <Shield className="input-icon" />
-                                    <input
-                                        type="text"
-                                        name="invitationCode"
-                                        placeholder="ex: INV-892374 ou collez le jeton reçu"
-                                        value={formData.invitationCode}
-                                        onChange={handleChange}
-                                        disabled={!!invitationToken}
-                                        required
-                                    />
-                                </div>
-                                {invitationToken && (
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--success)', marginTop: '2px', fontWeight: 600 }}>
-                                        ✓ Code d'invitation détecté depuis le lien
-                                    </span>
-                                )}
+                                <h2>Vos Informations</h2>
+                                <p>Renseignez votre identité et votre téléphone portable</p>
                             </div>
 
                             <div className="form-row">
@@ -505,14 +657,13 @@ export default function RegisterPage() {
                                         <input
                                             type="text"
                                             name="firstName"
-                                            placeholder="ex: Lucas"
+                                            placeholder="Jean"
                                             value={formData.firstName}
                                             onChange={handleChange}
                                             required
                                         />
                                     </div>
                                 </div>
-
                                 <div className="input-group">
                                     <label>Nom *</label>
                                     <div className="input-wrapper">
@@ -520,7 +671,7 @@ export default function RegisterPage() {
                                         <input
                                             type="text"
                                             name="lastName"
-                                            placeholder="ex: Martin"
+                                            placeholder="Dupont"
                                             value={formData.lastName}
                                             onChange={handleChange}
                                             required
@@ -530,58 +681,137 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="input-group">
-                                <label>Adresse Email *</label>
-                                <div className="input-wrapper">
-                                    <Mail className="input-icon" />
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        placeholder="lucas.martin@gmail.com"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="input-group">
-                                <label>Créez votre mot de passe (min. 8 caractères) *</label>
-                                <div className="input-wrapper">
-                                    <Lock className="input-icon" />
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        placeholder="••••••••"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="input-group">
-                                <label>Téléphone portable</label>
+                                <label>Téléphone portable *</label>
                                 <div className="input-wrapper">
                                     <Phone className="input-icon" />
                                     <input
                                         type="tel"
                                         name="phone"
-                                        placeholder="06 99 88 77 66"
+                                        placeholder="+33 6 12 34 56 78"
                                         value={formData.phone}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
 
-                            <button type="submit" className="btn-submit" disabled={loading}>
-                                {loading ? 'Activation...' : 'Rejoindre mon équipe 🛠️'}
+                            <button type="submit" className="btn-submit pill-btn">
+                                {mode === 'OWNER' ? 'Étape suivante : Société →' : 'Finaliser mon compte →'}
                             </button>
                         </motion.form>
                     )}
 
+                    {/* ÉTAPE 4: Nom société + Domaines d'activité (30 sec) */}
+                    {step === 4 && mode === 'OWNER' && (
+                        <motion.form
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="form-content"
+                            onSubmit={handleFinalRegister}
+                        >
+                            <div className="form-header">
+                                <h2>Votre Société & Activités</h2>
+                                <p>Renseignez votre entreprise et vos domaines d'intervention</p>
+                            </div>
+
+                            <div className="input-group">
+                                <label>Nom de la Société *</label>
+                                <div className="input-wrapper">
+                                    <Building2 className="input-icon" />
+                                    <input
+                                        type="text"
+                                        name="companyName"
+                                        placeholder="ex: Dupont Climatisation & Plomberie"
+                                        value={formData.companyName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="input-group">
+                                <label>Secteurs d'activité (Sélectionnez un ou plusieurs) *</label>
+                                <div className="categories-grid">
+                                    {TRADE_CATEGORIES_LIST.map(cat => {
+                                        const isSelected = formData.tradeCategories.includes(cat.id);
+                                        return (
+                                            <button
+                                                key={cat.id}
+                                                type="button"
+                                                className={`cat-chip ${isSelected ? 'active' : ''}`}
+                                                onClick={() => toggleTradeCategory(cat.id)}
+                                            >
+                                                <span>{cat.icon}</span>
+                                                <span>{cat.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="input-group">
+                                <label>Formule choisie (14j d'essai offerts)</label>
+                                <div className="plans-cards">
+                                    {PLANS_LIST.map(plan => {
+                                        const isSelected = formData.planName === plan.id;
+                                        return (
+                                            <div
+                                                key={plan.id}
+                                                className={`plan-card ${isSelected ? 'selected' : ''}`}
+                                                onClick={() => setFormData(prev => ({ ...prev, planName: plan.id }))}
+                                            >
+                                                {plan.popular && <span className="pop-tag">Recommandé</span>}
+                                                <div className="plan-name">{plan.name}</div>
+                                                <div className="plan-price">{plan.price}<span>{plan.period}</span></div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="button-group">
+                                <button type="button" className="btn-back" onClick={() => setStep(3)}>
+                                    <ArrowLeft size={18} /> Retour
+                                </button>
+                                <button type="submit" className="btn-submit pill-btn" disabled={loading}>
+                                    {loading ? 'Accès au Dashboard...' : 'Démarrer mes 14j d\'essai →'}
+                                </button>
+                            </div>
+                        </motion.form>
+                    )}
+
+                    {step === 1 && (
+                        <>
+                            <div className="divider">
+                                <span>Ou s'inscrire avec</span>
+                            </div>
+
+                            <div className="social-login-row">
+                                <button
+                                    type="button"
+                                    className="social-circle-btn"
+                                    onClick={handleGoogleAuth}
+                                    title="Continuer avec Google"
+                                >
+                                    <svg className="google-icon" viewBox="0 0 24 24" width="22" height="22">
+                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </>
+                    )}
+
                     <div className="form-footer">
-                        <span>Vous avez déjà un compte ? </span>
-                        <Link to="/login" className="login-link">Se connecter</Link>
+                        <p className="required-note">(*) Les champs sont obligatoires</p>
+                        <div>
+                            <span>Vous avez déjà un compte ? </span>
+                            <Link to="/login" className="login-link">
+                                Se connecter
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>

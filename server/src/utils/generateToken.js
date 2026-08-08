@@ -8,15 +8,15 @@ export const generateAccessToken = (userId, userRole, companyId) => {
         role: userRole,
         companyId,
     },
-        process.env.JWT_ACCESS_SECRET, {
-        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
+        process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'secret', {
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || (process.env.NODE_ENV === "production" ? "15m" : "7d"),
     });
 };
 
 export const generateRefreshToken = async (userId) => {
     const token = jwt.sign(
         { id: userId },
-        process.env.JWT_REFRESH_SECRET,
+        process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'secret_refresh',
         {
             expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "30d"
         }
@@ -33,11 +33,8 @@ export const generateRefreshToken = async (userId) => {
         },
     });
 
-
-
     return token;
 };
-
 
 export const setRefreshCookie = (res, token) => {
     res.cookie("gestart_refresh", token, {
@@ -47,4 +44,30 @@ export const setRefreshCookie = (res, token) => {
         maxAge: (1000 * 60 * 60 * 24) * 30,
         path: "/",
     });
+};
+
+export const setAuthCookies = (res, accessToken, refreshToken) => {
+    const accessCookieMaxAge = process.env.NODE_ENV === "production"
+        ? 1000 * 60 * 15 // 15 minutes en production
+        : 1000 * 60 * 60 * 24 * 7; // 7 jours en développement pour plus de confort
+
+    if (accessToken) {
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: accessCookieMaxAge,
+            path: "/",
+        });
+    }
+
+    if (refreshToken) {
+        res.cookie("gestart_refresh", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: (1000 * 60 * 60 * 24) * 30, // 30 jours
+            path: "/",
+        });
+    }
 };

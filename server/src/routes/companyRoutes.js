@@ -7,6 +7,8 @@ import {
     getCompanySettings,
     updateCompanySettings,
     getCompanyStats,
+    createStripeConnectAccount,
+    getStripeConnectStatus
 } from "../controllers/companyController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -18,13 +20,17 @@ const router = express.Router();
 router.get("/", authMiddleware, getCompany);
 router.patch("/", authMiddleware, requireOwner, updateCompany);
 
-// Logo Société (upload.single("logo") pourra être inséré ici)
+// Logo Société
 router.patch("/logo", authMiddleware, requireOwner, uploadCompanyLogo);
 router.delete("/logo", authMiddleware, requireOwner, deleteCompanyLogo);
 
 // Paramètres Société (SMS, Factures, PDF...)
 router.get("/settings", authMiddleware, requireOwner, getCompanySettings);
 router.patch("/settings", authMiddleware, requireOwner, updateCompanySettings);
+
+// Stripe Connect (Liaison IBAN propriétaire pour encaissement factures)
+router.post("/stripe-connect/connect", authMiddleware, requireOwner, createStripeConnectAccount);
+router.get("/stripe-connect/status", authMiddleware, requireOwner, getStripeConnectStatus);
 
 // Statistiques Société
 router.get("/stats", authMiddleware, requireManager, getCompanyStats);

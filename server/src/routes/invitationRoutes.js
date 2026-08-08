@@ -13,9 +13,10 @@ import { checkLimits } from "../middlewares/checkLimits.js";
 
 const router = express.Router();
 
-// Routes publiques pour accepter l'invitation
+// Routes publiques pour accepter l'invitation (par paramètre URL ou Body)
 router.get("/accept/:token", checkInvitationToken);
 router.post("/accept/:token", acceptInvitation);
+router.post("/accept", acceptInvitation);
 
 // Routes réservées au Владелец (OWNER) pour gérer l'équipe
 router.get("/", authMiddleware, requireOwner, getInvitations);

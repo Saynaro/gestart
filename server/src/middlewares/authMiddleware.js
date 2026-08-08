@@ -2,19 +2,31 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../config/db.js";
 
 export const authMiddleware = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
+    let token = null;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+    } else if (req.cookies?.accessToken) {
+        token = req.cookies.accessToken;
+    } else if (req.cookies?.token) {
+        token = req.cookies.token;
+    } else if (req.cookies?.gestart_access) {
+        token = req.cookies.gestart_access;
+    }
+
+    if (!token) {
         return res.status(401).json({
             success: false,
             message: "Token manquant ou invalide",
         });
     }
 
-    const token = authHeader.split(" ")[1];
-
     try {
-        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'secret'
+        );
 
         const user = await prisma.user.findUnique({
             where: { id: decoded.id },

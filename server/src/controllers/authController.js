@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { prisma } from "../config/db.js";
-import { generateAccessToken, generateRefreshToken, setRefreshCookie } from "../utils/generateToken.js";
+import { generateAccessToken, generateRefreshToken, setRefreshCookie, setAuthCookies } from "../utils/generateToken.js";
 
 //// REGISTER //////
 
@@ -230,8 +230,8 @@ export const login = async (req, res) => {
         const accessToken = generateAccessToken(user.id, user.role, user.companyId);
         const refreshToken = await generateRefreshToken(user.id);
 
-        // Cookie de rafraîchissement
-        setRefreshCookie(res, refreshToken);
+        // Cookies de connexion (accessToken + gestart_refresh)
+        setAuthCookies(res, accessToken, refreshToken);
 
         // Réponse réussie
         res.status(200).json({
@@ -354,7 +354,7 @@ export const refresh = async (req, res) => {
         const accessToken = generateAccessToken(user.id, user.role, user.companyId);
         const refreshToken = await generateRefreshToken(user.id);
 
-        setRefreshCookie(res, refreshToken);
+        setAuthCookies(res, accessToken, refreshToken);
 
         return res.status(200).json({
             success: true,
@@ -456,15 +456,49 @@ export const changePassword = async (req, res) => {
 };
 
 
-///// GOOGLE AUTH (DIRECT ID TOKEN OR OAUTH) //////
+///// GOOGLE SIGN IN (DYNAMIC FOR ALL USERS) //////
 export const googleLogin = async (req, res) => {
-    const { email, firstName, lastName, googleId } = req.body;
+    let email, firstName, lastName, photoUrl;
 
-    if (!email) {
-        return res.status(400).json({
-            success: false,
-            message: "Adresse email obligatoire pour la connexion Google"
-        });
+    if (req.method === 'GET') {
+        const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, '');
+        const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, '');
+        const backendUrl = (process.env.BACKEND_URL || 'http://localhost:5001').trim();
+        const redirectUri = `${backendUrl}/api/v1/auth/google/callback`;
+
+        // Si GOOGLE_CLIENT_ID est configuré dans le .env, redirection vers Google OAuth officiel
+        if (googleClientId && googleClientSecret) {
+            const params = new URLSearchParams({
+                client_id: googleClientId,
+                redirect_uri: redirectUri,
+                response_type: 'code',
+                scope: 'openid profile email',
+                access_type: 'offline',
+                prompt: 'consent'
+            });
+            const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+            return res.redirect(googleAuthUrl);
+        }
+
+        // Sinon, lecture des paramètres transmis par l'URL (pour tout utilisateur)
+        email = req.query.email;
+        firstName = req.query.firstName || "Utilisateur";
+        lastName = req.query.lastName || "Google";
+        photoUrl = req.query.photoUrl;
+
+        if (!email) {
+            // En mode dev sans clés Google, on demande dynamiquement l'email de l'utilisateur
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            return res.redirect(`${frontendUrl}/login?prompt_google_email=true`);
+        }
+    } else {
+        ({ email, firstName, lastName, photoUrl } = req.body || {});
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Adresse email obligatoire pour la connexion Google"
+            });
+        }
     }
 
     try {
@@ -475,9 +509,9 @@ export const googleLogin = async (req, res) => {
             include: { company: true }
         });
 
-        // Si l'utilisateur n'existe pas, création de sa société + compte Owner (Période d'essai 14j)
+        // Si l'utilisateur n'existe pas, création automatique de sa Société + Compte Owner (Trial 14j)
         if (!user) {
-            const plan = await prisma.plan.findUnique({
+            const plan = await prisma.plan.findFirst({
                 where: { name: "STARTER" }
             });
 
@@ -485,7 +519,7 @@ export const googleLogin = async (req, res) => {
             trialEndsAt.setDate(trialEndsAt.getDate() + 14);
 
             const result = await prisma.$transaction(async (tx) => {
-                const companyName = `${firstName || "Mon"} Company`;
+                const companyName = `${firstName || "Ma"} Société`;
                 const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
                 const company = await tx.company.create({
@@ -516,7 +550,8 @@ export const googleLogin = async (req, res) => {
                         firstName: firstName || "Utilisateur",
                         lastName: lastName || "Google",
                         role: "OWNER",
-                        emailVerified: true
+                        emailVerified: true,
+                        avatarUrl: photoUrl || null
                     }
                 });
 
@@ -529,7 +564,12 @@ export const googleLogin = async (req, res) => {
 
         const accessToken = generateAccessToken(user.id, user.role, user.companyId);
         const refreshToken = await generateRefreshToken(user.id);
-        setRefreshCookie(res, refreshToken);
+        setAuthCookies(res, accessToken, refreshToken);
+
+        if (req.method === 'GET') {
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            return res.redirect(`${frontendUrl}/home?openOnboardingModal=true`);
+        }
 
         return res.status(200).json({
             success: true,
@@ -549,10 +589,126 @@ export const googleLogin = async (req, res) => {
         });
     } catch (error) {
         console.error("GOOGLE LOGIN ERROR:", error.message);
+        if (req.method === 'GET') {
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
+        }
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la connexion Google"
         });
+    }
+};
+
+export const googleCallback = async (req, res) => {
+    const { code } = req.query;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    if (!code) {
+        return res.redirect(`${frontendUrl}/login?error=no_code`);
+    }
+
+    try {
+        const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, '');
+        const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, '');
+        const backendUrl = (process.env.BACKEND_URL || 'http://localhost:5001').trim();
+        const redirectUri = `${backendUrl}/api/v1/auth/google/callback`;
+
+        // Échange du code d'autorisation contre un token Google
+        const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                code,
+                client_id: googleClientId,
+                client_secret: googleClientSecret,
+                redirect_uri: redirectUri,
+                grant_type: 'authorization_code'
+            })
+        });
+
+        const tokenData = await tokenRes.json();
+        if (!tokenRes.ok || !tokenData.access_token) {
+            throw new Error(tokenData.error_description || 'Impossible de récupérer le token Google');
+        }
+
+        // Récupération du profil de n'importe quel utilisateur Google
+        const userRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: { Authorization: `Bearer ${tokenData.access_token}` }
+        });
+
+        const profile = await userRes.json();
+        const email = profile.email;
+        const firstName = profile.given_name || profile.name || "Utilisateur";
+        const lastName = profile.family_name || "Google";
+        const photoUrl = profile.picture;
+
+        const formattedEmail = email.toLowerCase().trim();
+
+        let user = await prisma.user.findUnique({
+            where: { email: formattedEmail },
+            include: { company: true }
+        });
+
+        if (!user) {
+            const plan = await prisma.plan.findFirst({
+                where: { name: "STARTER" }
+            });
+
+            const trialEndsAt = new Date();
+            trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
+            const result = await prisma.$transaction(async (tx) => {
+                const companyName = `${firstName} Company`;
+                const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+                const company = await tx.company.create({
+                    data: {
+                        name: companyName,
+                        slug: `${slug}-${Date.now()}`,
+                        email: formattedEmail,
+                        settings: { create: {} }
+                    }
+                });
+
+                if (plan) {
+                    await tx.subscription.create({
+                        data: {
+                            companyId: company.id,
+                            planId: plan.id,
+                            status: "TRIALING",
+                            trialEndsAt
+                        }
+                    });
+                }
+
+                const newUser = await tx.user.create({
+                    data: {
+                        companyId: company.id,
+                        email: formattedEmail,
+                        password: "",
+                        firstName,
+                        lastName,
+                        role: "OWNER",
+                        emailVerified: true,
+                        avatarUrl: photoUrl || null
+                    }
+                });
+
+                return { user: newUser, company };
+            });
+
+            user = result.user;
+        }
+
+        const accessToken = generateAccessToken(user.id, user.role, user.companyId);
+        const refreshToken = await generateRefreshToken(user.id);
+        setAuthCookies(res, accessToken, refreshToken);
+
+        return res.redirect(`${frontendUrl}/home?openOnboardingModal=true`);
+    } catch (error) {
+        console.error("GOOGLE CALLBACK ERROR:", error.message);
+        return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
     }
 };
 
@@ -628,7 +784,7 @@ export const appleLogin = async (req, res) => {
 
         const accessToken = generateAccessToken(user.id, user.role, user.companyId);
         const refreshToken = await generateRefreshToken(user.id);
-        setRefreshCookie(res, refreshToken);
+        setAuthCookies(res, accessToken, refreshToken);
 
         return res.status(200).json({
             success: true,
@@ -655,16 +811,91 @@ export const appleLogin = async (req, res) => {
     }
 };
 
-export const googleCallback = async (req, res) => {
-    try {
-        const user = req.user;
-        const accessToken = generateAccessToken(user.id, user.role, user.companyId);
-        const refreshToken = await generateRefreshToken(user.id);
-        setRefreshCookie(res, refreshToken);
+const emailVerificationCodes = new Map();
 
-        res.redirect(`${process.env.FRONTEND_URL}/oauth/callback?token=${accessToken}`);
+////// SEND VERIFICATION CODE //////
+export const sendVerificationCode = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({
+            success: false,
+            message: "Adresse email obligatoire"
+        });
+    }
+
+    try {
+        const cleanEmail = email.toLowerCase().trim();
+
+        const userExists = await prisma.user.findUnique({
+            where: { email: cleanEmail }
+        });
+
+        if (userExists) {
+            return res.status(400).json({
+                success: false,
+                alreadyRegistered: true,
+                message: "Cet email est déjà inscrit sur ClimPro. Veuillez vous connecter."
+            });
+        }
+
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        emailVerificationCodes.set(cleanEmail, {
+            code,
+            expiresAt: Date.now() + 10 * 60 * 1000
+        });
+
+        console.log(`[EMAIL VERIFICATION CODE] Code for ${cleanEmail}: ${code}`);
+
+        return res.status(200).json({
+            success: true,
+            message: "Code de vérification envoyé à votre adresse email",
+            data: {
+                devCode: code
+            }
+        });
     } catch (error) {
-        res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+        console.error("SEND VERIFICATION CODE ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de l'envoi du code de vérification"
+        });
     }
 };
+
+////// VERIFY EMAIL CODE //////
+export const verifyCode = async (req, res) => {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+        return res.status(400).json({
+            success: false,
+            message: "Email et code à 6 chiffres requis"
+        });
+    }
+
+    try {
+        const cleanEmail = email.toLowerCase().trim();
+        const stored = emailVerificationCodes.get(cleanEmail);
+
+        if (!stored || stored.code !== code.toString().trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Code de vérification incorrect ou expiré"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Email vérifié avec succès"
+        });
+    } catch (error) {
+        console.error("VERIFY CODE ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la vérification du code"
+        });
+    }
+};
+
 

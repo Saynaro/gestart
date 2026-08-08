@@ -3,38 +3,89 @@ import { CreditCard, Sparkles, Check, Download, AlertCircle, ExternalLink } from
 
 export default function AbonnementTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [billingCycle, setBillingCycle] = useState("mensuel"); // "mensuel" | "annuel"
-    const [currentPlan, setCurrentPlan] = useState("Pro");
-    const [showStripeModal, setShowStripeModal] = useState(false);
-    const [showPortalModal, setShowPortalModal] = useState(false);
+    // Stripe Connect IBAN handler
+    const [connectLoading, setConnectLoading] = useState(false);
+
+    const handleConnectStripeIBAN = async () => {
+        setConnectLoading(true);
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch('/api/v1/company/stripe-connect/connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert(data.message || "Erreur lors de la génération du lien Stripe Connect");
+            }
+        } catch (err) {
+            alert("Erreur lors de la connexion à Stripe");
+        } finally {
+            setConnectLoading(false);
+        }
+    };
+
+    // Stripe Subscription Checkout handler
+    const handleSelectPlanStripe = async (planName) => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch('/api/v1/subscription/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    planName: planName.toUpperCase(),
+                    cycle: billingCycle === 'annuel' ? 'ANNUAL' : 'MONTHLY'
+                })
+            });
+
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert(data.message || "Impossible d'initier l'abonnement Stripe");
+            }
+        } catch (err) {
+            alert("Erreur de communication avec le serveur Stripe");
+        }
+    };
 
     const plans = [
         {
             name: "Starter",
-            priceMonthly: 19,
-            priceAnnual: 15,
+            priceMonthly: 34,
+            priceAnnual: 27,
             clientsLimit: 50,
-            techsLimit: 1,
-            smsLimit: 50,
+            techsLimit: 2,
+            smsLimit: 100,
             features: ["Gestion clients & devis", "Rappels SMS automatiques", "Export comptable basique", "Support email"]
         },
         {
             name: "Pro",
-            priceMonthly: 39,
-            priceAnnual: 31,
-            clientsLimit: 250,
-            techsLimit: 3,
-            smsLimit: 150,
+            priceMonthly: 69,
+            priceAnnual: 55,
+            clientsLimit: 300,
+            techsLimit: 10,
+            smsLimit: 500,
             recommended: true,
-            features: ["Toutes les fonctions Starter", "Intégration Pennylane / Indy", "Rappels 2ème niveau", "Module auto-entrepreneur URSSAF", "Support prioritaire 7j/7"]
+            features: ["Toutes les fonctions Starter", "Intégration Pennylane / Indy", "App Mobile Techniciens", "Module auto-entrepreneur URSSAF", "Support prioritaire 7j/7"]
         },
         {
             name: "Unlimited",
-            priceMonthly: 79,
-            priceAnnual: 63,
+            priceMonthly: 129,
+            priceAnnual: 103,
             clientsLimit: "Illimité",
             techsLimit: "Illimité",
-            smsLimit: 500,
-            features: ["Tout en illimité", "Accès API REST dédié", "Accompagnement DPO personnalisé", "Gestion multi-sociétés"]
+            smsLimit: 1000,
+            features: ["Tout en illimité", "Accès API REST dédié", "Chorus Pro & Numéro dédié", "Gestion multi-sociétés"]
         }
     ];
 
@@ -107,6 +158,43 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             <div style={{ width: '94%', height: '100%', backgroundColor: '#22c55e', borderRadius: '4px' }} />
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Carte Stripe Connect - Virement Bancaire IBAN */}
+            <div style={{ background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(34, 197, 94, 0.02) 100%)', border: '1px solid rgba(34, 197, 94, 0.25)', borderRadius: '14px', padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                            <CreditCard size={20} style={{ color: '#16A34A' }} />
+                            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>Compte Bancaire (IBAN / RIB) — Stripe Connect</h3>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)', maxWidth: '560px', lineHeight: 1.5 }}>
+                            Renseignez votre IBAN d'entreprise pour recevoir les paiements par carte bancaire de vos clients (factures, devis signés, acomptes) directement sur votre compte.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleConnectStripeIBAN}
+                        disabled={connectLoading}
+                        style={{
+                            padding: '12px 22px',
+                            background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '30px',
+                            fontWeight: 700,
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)'
+                        }}
+                    >
+                        <ExternalLink size={16} />
+                        {connectLoading ? 'Connexion Stripe...' : 'Connecter mon IBAN / RIB →'}
+                    </button>
                 </div>
             </div>
 

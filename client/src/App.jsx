@@ -19,6 +19,7 @@ import PayInvoice from './PublicPages/PayInvoice'
 import PublicContact from './PublicPages/PublicContact'
 import RegisterPage from './AuthPage/RegisterPage'
 import LoginPage from './AuthPage/LoginPage'
+import { SubscriptionSuccessPage, SubscriptionCancelPage } from './PublicPages/SubscriptionSuccessPage'
 import SuperAdminPanel from './AdminPage/AdminPage'
 import './App.css'
 
@@ -96,10 +97,9 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Public Pages */}
-        <Route path="/sign/quote/:token" element={<SignatureQuote />} />
-        <Route path="/pay/invoice/:token" element={<PayInvoice />} />
-        <Route path="/contact/:slug" element={<PublicContact />} />
+        {/* Subscription Stripe Pages */}
+        <Route path="/subscription/success" element={<SubscriptionSuccessPage />} />
+        <Route path="/subscription/cancel" element={<SubscriptionCancelPage />} />
 
         {/* Admin Page */}
         <Route path="/admin" element={<SuperAdminPanel />} />

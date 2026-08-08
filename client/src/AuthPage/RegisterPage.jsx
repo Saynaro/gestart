@@ -42,14 +42,14 @@ const PLANS_LIST = [
     {
         id: 'STARTER',
         name: 'Starter',
-        price: '39€',
+        price: '34€',
         period: '/mois',
         features: ['50 clients max', '2 techniciens', '100 SMS/mois', 'Essai 14j gratuit']
     },
     {
         id: 'PRO',
         name: 'Pro',
-        price: '89€',
+        price: '69€',
         period: '/mois',
         popular: true,
         features: ['300 clients max', '10 techniciens', '500 SMS/mois', 'App Mobile Tech', 'Rappels ТО SMS auto']
@@ -57,7 +57,7 @@ const PLANS_LIST = [
     {
         id: 'UNLIMITED',
         name: 'Unlimited',
-        price: '149€',
+        price: '129€',
         period: '/mois',
         features: ['Clients illimités', 'Techniciens illimités', '1000 SMS/mois', 'Chorus Pro & Numéro dédié']
     }

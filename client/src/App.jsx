@@ -1,29 +1,67 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import HomePage from './HomePage/HomePage'
+import { Routes, Route, useLocation } from 'react-router-dom'
+
+// Static imports for instant landing & core components
 import LandingPage from './LandingPage/LandingPage'
-import ClientPage from './ClientPage/ClientPage'
-import PlanningPage from './PlanningPage/PlanningPage'
-import MessagesPage from './MessagesPage/MessagesPage'
 import SideBar from './components/SideBar'
 import Header from './components/Header'
-import SettingsPage from './SettingsPage/SettingsPage'
-import RapportsPage from './RapportsPage/RapportsPage'
-import ComptabilityPage from './ComptabilityPage/ComptabilityPage'
-import FacturesPage from './FacturesPage/FacturesPage'
-import DevisPage from './DevisPage/DevisPage'
-import PremiumPage from './PremiumPage/PremiumPage'
-import CataloguePage from './CataloguePage.jsx/CataloguePage'
-import SignatureQuote from './PublicPages/SignatureQuote'
-import PayInvoice from './PublicPages/PayInvoice'
-import PublicContact from './PublicPages/PublicContact'
-import RegisterPage from './AuthPage/RegisterPage'
-import LoginPage from './AuthPage/LoginPage'
-import { SubscriptionSuccessPage, SubscriptionCancelPage } from './PublicPages/SubscriptionSuccessPage'
-import SuperAdminPanel from './AdminPage/AdminPage'
 import './App.css'
 
-import { Routes, Route, useLocation } from 'react-router-dom'
+// Lazy loaded page routes (Code Splitting for fast initial page load)
+const HomePage = lazy(() => import('./HomePage/HomePage'))
+const ClientPage = lazy(() => import('./ClientPage/ClientPage'))
+const PlanningPage = lazy(() => import('./PlanningPage/PlanningPage'))
+const MessagesPage = lazy(() => import('./MessagesPage/MessagesPage'))
+const SettingsPage = lazy(() => import('./SettingsPage/SettingsPage'))
+const RapportsPage = lazy(() => import('./RapportsPage/RapportsPage'))
+const ComptabilityPage = lazy(() => import('./ComptabilityPage/ComptabilityPage'))
+const FacturesPage = lazy(() => import('./FacturesPage/FacturesPage'))
+const DevisPage = lazy(() => import('./DevisPage/DevisPage'))
+const PremiumPage = lazy(() => import('./PremiumPage/PremiumPage'))
+const CataloguePage = lazy(() => import('./CataloguePage.jsx/CataloguePage'))
+const RegisterPage = lazy(() => import('./AuthPage/RegisterPage'))
+const LoginPage = lazy(() => import('./AuthPage/LoginPage'))
+const SuperAdminPanel = lazy(() => import('./AdminPage/AdminPage'))
+
+// Lazy loaded Stripe & Public pages
+const SubscriptionSuccessPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionSuccessPage })))
+const SubscriptionCancelPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionCancelPage })))
+
+// Smooth Loading Fallback Spinner
+function PageLoader() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      background: 'var(--background, #0F172A)',
+      color: 'var(--foreground, #F8FAFC)',
+      gap: 16
+    }}>
+      <div style={{
+        width: 38,
+        height: 38,
+        border: '3px solid rgba(255,255,255,0.15)',
+        borderTopColor: '#3B82F6',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+      <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--muted-foreground, #94A3B8)' }}>
+        Chargement de l'application...
+      </span>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 // Helper component to scroll to top on route navigation
 function ScrollToTop() {
@@ -76,34 +114,35 @@ function App() {
   return (
     <>
       <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/client" element={<ClientPage />} />
-        <Route path="/planning" element={<PlanningPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/client" element={<ClientPage />} />
+          <Route path="/planning" element={<PlanningPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
 
-        {/* Placeholders for secondary routes to show styling and active states */}
-        {/* Factures, Devis, and Premium Pages */}
-        <Route path="/factures" element={<FacturesPage />} />
-        <Route path="/devis" element={<DevisPage />} />
-        <Route path="/rapports" element={<RapportsPage />} />
-        <Route path="/comptabilite" element={<ComptabilityPage />} />
-        <Route path="/catalogue" element={<CataloguePage />} />
-        <Route path="/premium" element={<PremiumPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+          {/* Factures, Devis, and Premium Pages */}
+          <Route path="/factures" element={<FacturesPage />} />
+          <Route path="/devis" element={<DevisPage />} />
+          <Route path="/rapports" element={<RapportsPage />} />
+          <Route path="/comptabilite" element={<ComptabilityPage />} />
+          <Route path="/catalogue" element={<CataloguePage />} />
+          <Route path="/premium" element={<PremiumPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
 
-        {/* Auth Pages */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+          {/* Auth Pages */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-        {/* Subscription Stripe Pages */}
-        <Route path="/subscription/success" element={<SubscriptionSuccessPage />} />
-        <Route path="/subscription/cancel" element={<SubscriptionCancelPage />} />
+          {/* Subscription Stripe Pages */}
+          <Route path="/subscription/success" element={<SubscriptionSuccessPage />} />
+          <Route path="/subscription/cancel" element={<SubscriptionCancelPage />} />
 
-        {/* Admin Page */}
-        <Route path="/admin" element={<SuperAdminPanel />} />
-      </Routes>
+          {/* Admin Page */}
+          <Route path="/admin" element={<SuperAdminPanel />} />
+        </Routes>
+      </Suspense>
     </>
   )
 }

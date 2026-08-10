@@ -25,6 +25,7 @@ import {
     KeyRound
 } from 'lucide-react';
 import './RegisterPage.css';
+import { API_URL } from '../utils/config';
 
 const TRADE_CATEGORIES_LIST = [
     { id: 'clim', name: 'Climatisation / PAC air-air', icon: '❄️' },
@@ -189,7 +190,7 @@ export default function RegisterPage() {
         setError('');
 
         try {
-            const response = await fetch('/api/v1/auth/send-verification-code', {
+            const response = await fetch(`${API_URL}/v1/auth/send-verification-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email })
@@ -253,7 +254,7 @@ export default function RegisterPage() {
         setError('');
 
         try {
-            const response = await fetch('/api/v1/auth/verify-code', {
+            const response = await fetch(`${API_URL}/v1/auth/verify-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email, code })
@@ -313,8 +314,8 @@ export default function RegisterPage() {
 
         try {
             const endpoint = mode === 'OWNER'
-                ? '/api/v1/auth/register'
-                : `/api/v1/invitations/accept`;
+                ? `${API_URL}/v1/auth/register`
+                : `${API_URL}/v1/invitations/accept`;
 
             const payload = mode === 'OWNER' ? formData : {
                 token: formData.invitationCode,
@@ -353,14 +354,15 @@ export default function RegisterPage() {
     };
 
     const handleGoogleAuth = () => {
+        const googleAuthUrl = `${API_URL}/v1/auth/google`;
         try {
             if (window.top && window.top !== window) {
-                window.top.location.href = 'http://localhost:5001/api/v1/auth/google';
+                window.top.location.href = googleAuthUrl;
             } else {
-                window.location.href = 'http://localhost:5001/api/v1/auth/google';
+                window.location.href = googleAuthUrl;
             }
         } catch (e) {
-            window.location.href = 'http://localhost:5001/api/v1/auth/google';
+            window.location.href = googleAuthUrl;
         }
     };
 

@@ -15,6 +15,7 @@ import {
     X
 } from 'lucide-react';
 import './LoginPage.css';
+import { API_URL } from '../utils/config';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -62,7 +63,7 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const response = await fetch('/api/v1/auth/login', {
+            const response = await fetch(`${API_URL}/v1/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -74,7 +75,7 @@ export default function LoginPage() {
                 data = text ? JSON.parse(text) : {};
             } catch (err) {
                 console.error("Response error:", text);
-                throw new Error("Erreur de connexion avec le serveur бэкенда (port 5001).");
+                throw new Error("Erreur de connexion avec le serveur backend.");
             }
 
             if (!response.ok) {
@@ -99,14 +100,15 @@ export default function LoginPage() {
     };
 
     const handleGoogleAuth = () => {
+        const googleAuthUrl = `${API_URL}/v1/auth/google`;
         try {
             if (window.top && window.top !== window) {
-                window.top.location.href = 'http://localhost:5001/api/v1/auth/google';
+                window.top.location.href = googleAuthUrl;
             } else {
-                window.location.href = 'http://localhost:5001/api/v1/auth/google';
+                window.location.href = googleAuthUrl;
             }
         } catch (e) {
-            window.location.href = 'http://localhost:5001/api/v1/auth/google';
+            window.location.href = googleAuthUrl;
         }
     };
 

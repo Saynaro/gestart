@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CreditCard, Sparkles, Check, Download, AlertCircle, ExternalLink } from "lucide-react";
+import { API_URL } from "../../utils/config";
 
 export default function AbonnementTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [billingCycle, setBillingCycle] = useState("mensuel"); // "mensuel" | "annuel"
@@ -10,7 +11,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
         setConnectLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/v1/company/stripe-connect/connect', {
+            const response = await fetch(`${API_URL}/v1/company/stripe-connect/connect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -35,7 +36,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
     const handleSelectPlanStripe = async (planName) => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/v1/subscription/create-checkout-session', {
+            const response = await fetch(`${API_URL}/v1/subscription/create-checkout-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

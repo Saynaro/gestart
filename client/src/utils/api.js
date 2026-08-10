@@ -1,8 +1,6 @@
 import { API_URL, BACKEND_URL } from './config';
 
 /**
- * Standardized API client helper for making authenticated requests to the backend.
- * Automatically attaches Authorization header if token exists in localStorage.
  *
  * @param {string} endpoint - API route relative to API_URL (e.g. '/v1/quotes' or '/v1/clients')
  * @param {RequestInit} [options] - Standard fetch options
@@ -17,7 +15,7 @@ export async function apiFetch(endpoint, options = {}) {
     };
 
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = cleanEndpoint.startsWith('/api/') 
+    const url = cleanEndpoint.startsWith('/api/')
         ? `${BACKEND_URL}${cleanEndpoint}`
         : `${API_URL}${cleanEndpoint}`;
 

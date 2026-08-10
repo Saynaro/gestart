@@ -1,13 +1,3 @@
-/**
- * Centralized API & Environment Configuration
- * 
- * Supports dynamic configuration via Vite environment variables (.env / .env.production).
- * Example:
- * VITE_BACKEND_URL=http://localhost:5001
- * VITE_FRONTEND_URL=http://localhost:5173
- * VITE_API_URL=http://localhost:5001/api
- */
-
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
 
 export const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173');

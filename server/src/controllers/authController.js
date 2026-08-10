@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { prisma } from "../config/db.js";
 import { generateAccessToken, generateRefreshToken, setRefreshCookie, setAuthCookies } from "../utils/generateToken.js";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../utils/emailService.js";
 
 //// REGISTER //////
 
@@ -835,23 +836,33 @@ export const sendVerificationCode = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 alreadyRegistered: true,
-                message: "Cet email est déjà inscrit sur ClimPro. Veuillez vous connecter."
+                message: "Cet email est déjà inscrit sur GestArt. Veuillez vous connecter."
             });
         }
 
         const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const token = crypto.randomBytes(32).toString("hex");
+
         emailVerificationCodes.set(cleanEmail, {
             code,
-            expiresAt: Date.now() + 10 * 60 * 1000
+            token,
+            expiresAt: Date.now() + 15 * 60 * 1000
         });
 
-        console.log(`[EMAIL VERIFICATION CODE] Code for ${cleanEmail}: ${code}`);
+        // Send Email via Nodemailer or dev fallback
+        await sendVerificationEmail({
+            to: cleanEmail,
+            code,
+            token,
+            firstName: "Nouvel utilisateur"
+        });
 
         return res.status(200).json({
             success: true,
             message: "Code de vérification envoyé à votre adresse email",
             data: {
-                devCode: code
+                devCode: code,
+                token
             }
         });
     } catch (error) {
@@ -885,6 +896,14 @@ export const verifyCode = async (req, res) => {
             });
         }
 
+        if (stored.expiresAt < Date.now()) {
+            emailVerificationCodes.delete(cleanEmail);
+            return res.status(400).json({
+                success: false,
+                message: "Le code de vérification a expiré. Veuillez en demander un nouveau."
+            });
+        }
+
         return res.status(200).json({
             success: true,
             message: "Email vérifié avec succès"
@@ -897,5 +916,253 @@ export const verifyCode = async (req, res) => {
         });
     }
 };
+
+////// VERIFY EMAIL VIA LINK OR CODE //////
+export const verifyEmail = async (req, res) => {
+    const { token, email, code } = req.body || req.query;
+
+    try {
+        let user = null;
+
+        if (token) {
+            user = await prisma.user.findFirst({
+                where: { emailVerifyToken: token }
+            });
+        } else if (email && code) {
+            const cleanEmail = email.toLowerCase().trim();
+            const stored = emailVerificationCodes.get(cleanEmail);
+
+            if (stored && stored.code === code.toString().trim() && stored.expiresAt > Date.now()) {
+                user = await prisma.user.findUnique({
+                    where: { email: cleanEmail }
+                });
+            }
+        }
+
+        if (!user && token) {
+            // Check in memory map for token if user not created yet
+            for (const [mapEmail, val] of emailVerificationCodes.entries()) {
+                if (val.token === token && val.expiresAt > Date.now()) {
+                    user = await prisma.user.findUnique({ where: { email: mapEmail } });
+                    break;
+                }
+            }
+        }
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Lien ou code de vérification invalide ou expiré."
+            });
+        }
+
+        // Update user status
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                emailVerified: true,
+                emailVerifyToken: null
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Votre adresse email a été vérifiée avec succès !",
+            user: {
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName
+            }
+        });
+    } catch (error) {
+        console.error("VERIFY EMAIL ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la vérification de l'email"
+        });
+    }
+};
+
+////// FORGOT PASSWORD //////
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({
+            success: false,
+            message: "Adresse email obligatoire"
+        });
+    }
+
+    try {
+        const cleanEmail = email.toLowerCase().trim();
+
+        const user = await prisma.user.findUnique({
+            where: { email: cleanEmail }
+        });
+
+        // Always return success to prevent email enumeration attack
+        if (!user) {
+            return res.status(200).json({
+                success: true,
+                message: "Si un compte existe avec cet email, un lien de réinitialisation vous a été envoyé."
+            });
+        }
+
+        // Generate reset token and 6-digit code
+        const token = crypto.randomBytes(32).toString("hex");
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 Hour Expiry
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                passwordResetToken: token,
+                passwordResetExpiry: expiry
+            }
+        });
+
+        // Send email with reset token & code
+        await sendPasswordResetEmail({
+            to: cleanEmail,
+            token,
+            code,
+            firstName: user.firstName || "Utilisateur"
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Si un compte existe avec cet email, un lien de réinitialisation vous a été envoyé.",
+            data: {
+                devCode: code,
+                devToken: token
+            }
+        });
+    } catch (error) {
+        console.error("FORGOT PASSWORD ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la demande de réinitialisation du mot de passe"
+        });
+    }
+};
+
+////// VERIFY RESET TOKEN //////
+export const verifyResetToken = async (req, res) => {
+    const { token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({
+            success: false,
+            valid: false,
+            message: "Token de réinitialisation manquant."
+        });
+    }
+
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                passwordResetToken: token,
+                passwordResetExpiry: { gt: new Date() }
+            }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                valid: false,
+                message: "Le lien de réinitialisation est invalide ou expiré."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            valid: true,
+            email: user.email
+        });
+    } catch (error) {
+        console.error("VERIFY RESET TOKEN ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            valid: false,
+            message: "Erreur serveur lors de la vérification du token."
+        });
+    }
+};
+
+////// RESET PASSWORD //////
+export const resetPassword = async (req, res) => {
+    const { token, code, email, newPassword } = req.body;
+
+    if (!newPassword || (!token && (!email || !code))) {
+        return res.status(400).json({
+            success: false,
+            message: "Informations insuffisantes pour réinitialiser le mot de passe."
+        });
+    }
+
+    // Password strength check
+    if (newPassword.length < 8) {
+        return res.status(400).json({
+            success: false,
+            message: "Le mot de passe doit contenir au moins 8 caractères."
+        });
+    }
+
+    try {
+        let user = null;
+
+        if (token) {
+            user = await prisma.user.findFirst({
+                where: {
+                    passwordResetToken: token,
+                    passwordResetExpiry: { gt: new Date() }
+                }
+            });
+        } else if (email) {
+            const cleanEmail = email.toLowerCase().trim();
+            user = await prisma.user.findFirst({
+                where: {
+                    email: cleanEmail,
+                    passwordResetExpiry: { gt: new Date() }
+                }
+            });
+        }
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Le lien ou le code de réinitialisation est invalide ou a expiré."
+            });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update password and clear reset token
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                password: hashedPassword,
+                passwordResetToken: null,
+                passwordResetExpiry: null
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter."
+        });
+    } catch (error) {
+        console.error("RESET PASSWORD ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la réinitialisation du mot de passe."
+        });
+    }
+};
+
 
 

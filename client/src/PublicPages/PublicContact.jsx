@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Send, CheckCircle2, Phone, Mail, User } from "lucide-react";
+import AddressAutocomplete from "../components/AddressAutocomplete";
 import "./PublicContact.css";
 
 function PublicContact() {
@@ -98,12 +99,11 @@ function PublicContact() {
 
                             <div className="form-field">
                                 <label className="form-label">Adresse du chantier / intervention</label>
-                                <input 
-                                    type="text" 
-                                    className="profile-input" 
-                                    value={address} 
-                                    onChange={(e) => setAddress(e.target.value)} 
-                                    placeholder="Adresse complète"
+                                <AddressAutocomplete
+                                    value={address}
+                                    onChange={(val) => setAddress(val)}
+                                    onAddressSelect={(selected) => setAddress(selected.label)}
+                                    placeholder="Adresse complète (ex: 8 bd du palais paris)"
                                 />
                             </div>
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Building, Camera, Search, FileText, CheckCircle } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import AddressAutocomplete from "../../components/AddressAutocomplete";
+import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 
 export default function EntrepriseTab({ isMobileView, triggerToast }) {
     const [companyName, setCompanyName] = useState("SAINARO KHALID CLIM");
@@ -137,8 +139,19 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                 </div>
 
                 <div className="form-field">
-                    <label className="form-label">Nom de la société / Nom commercial</label>
-                    <input type="text" className="form-input" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
+                    <label className="form-label">Nom de la société / Nom commercial (Recherche SIRENE 🇫🇷)</label>
+                    <CompanyAutocomplete
+                        value={companyName}
+                        onChange={(val) => setCompanyName(val)}
+                        onCompanySelect={(company) => {
+                            if (company.nom) setCompanyName(company.nom);
+                            if (company.siret) setSiret(company.siret);
+                            if (company.adresse) setAddress(company.adresse);
+                            if (company.code_ape) setNafCode(`${company.code_ape} - ${company.libelle_ape || ''}`.trim());
+                        }}
+                        placeholder="Rechercher par nom, SIREN ou SIRET..."
+                        required
+                    />
                 </div>
 
                 <div className="form-field">
@@ -186,7 +199,13 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
                 <div className="form-field form-group-full">
                     <label className="form-label">Adresse du siège social</label>
-                    <input type="text" className="form-input" value={address} onChange={(e) => setAddress(e.target.value)} required />
+                    <AddressAutocomplete
+                        value={address}
+                        onChange={(val) => setAddress(val)}
+                        onAddressSelect={(selected) => setAddress(selected.label)}
+                        placeholder="ex: 23 RUE Paganini, 06000 NICE"
+                        required
+                    />
                 </div>
 
                 <div className="form-field">

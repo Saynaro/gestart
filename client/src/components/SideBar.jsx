@@ -124,7 +124,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                 <path d="M16.5 4 12 12 7.5 4"></path>
                             </svg>
                         </div>
-                        <span className="logo-text">ClimPro</span>
+                        <span className="logo-text">GestArt</span>
                         <button 
                             className="sidebar-toggle-btn"
                             onClick={toggleCollapse}

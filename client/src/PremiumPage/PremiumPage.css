@@ -1,8 +1,12 @@
 /* Premium Page Stylesheet */
 
 .premium-page-wrapper {
-    min-height: 100vh;
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
     background-color: var(--background);
+    overflow: hidden;
 }
 
 .premium-header-row {

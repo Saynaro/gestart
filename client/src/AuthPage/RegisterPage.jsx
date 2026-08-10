@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import './RegisterPage.css';
 import { API_URL } from '../utils/config';
+import CompanyAutocomplete from '../components/CompanyAutocomplete';
 
 const TRADE_CATEGORIES_LIST = [
     { id: 'clim', name: 'Climatisation / PAC air-air', icon: '❄️' },
@@ -391,14 +392,14 @@ export default function RegisterPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Zap className="logo-icon" />
-                        <span>ClimPro CRM</span>
+                        <Building2 className="logo-icon" />
+                        <span>GestArt CRM</span>
                     </div>
 
                     <h1 className="banner-title">
                         {mode === 'OWNER'
                             ? "Gérez votre entreprise d'installation & dépannage en toute simplicité."
-                            : "Rejoignez votre équipe sur l'application mobile ClimPro."}
+                            : "Rejoignez votre équipe sur l'application mobile GestArt."}
                     </h1>
 
                     <p className="banner-subtitle">
@@ -422,7 +423,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="banner-footer">
-                    <span>© 2026 ClimPro. Fait avec ❤️ pour les installateurs & artisans.</span>
+                    <span>© 2026 GestArt. Fait avec ❤️ pour les installateurs & artisans.</span>
                 </div>
             </div>
 
@@ -431,8 +432,8 @@ export default function RegisterPage() {
                 <div className="form-card">
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Zap size={16} />
-                            <span>ClimPro CRM</span>
+                            <Building2 size={16} />
+                            <span>GestArt CRM</span>
                         </div>
                     </div>
 
@@ -717,18 +718,22 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="input-group">
-                                <label>Nom de la Société *</label>
-                                <div className="input-wrapper">
-                                    <Building2 className="input-icon" />
-                                    <input
-                                        type="text"
-                                        name="companyName"
-                                        placeholder="ex: Dupont Climatisation & Plomberie"
-                                        value={formData.companyName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
+                                <label>Nom de la Société ou SIRET / SIREN *</label>
+                                <CompanyAutocomplete
+                                    value={formData.companyName}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, companyName: val }))}
+                                    onCompanySelect={(company) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            companyName: company.nom,
+                                            vatNumber: company.siret ? `FR${(12 + parseInt(company.siren || "0") % 97) % 97}${company.siren}` : prev.vatNumber,
+                                            zipCode: company.code_postal || prev.zipCode,
+                                            city: company.ville || prev.city
+                                        }));
+                                    }}
+                                    placeholder="Nom de société, SIREN ou SIRET..."
+                                    required
+                                />
                             </div>
 
                             <div className="input-group">

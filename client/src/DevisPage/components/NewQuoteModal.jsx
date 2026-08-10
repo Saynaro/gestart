@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useDragControls } from "framer-motion";
 import { Plus, Trash, X, ChevronDown, ChevronRight, Search, Eye, FileText, Check, Edit2, ArrowLeft, MoreHorizontal, ZoomIn, ZoomOut, Palette } from "lucide-react";

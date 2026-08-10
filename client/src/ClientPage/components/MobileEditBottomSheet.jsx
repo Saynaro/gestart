@@ -1,6 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronDown, Plus, Search } from "lucide-react";
+import AddressAutocomplete from "../../components/AddressAutocomplete";
+import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 
 const formatDateToISO = (frDate) => {
     if (!frDate) return "";
@@ -152,13 +154,17 @@ function MobileEditBottomSheet({
                             <div className="mobile-sheet-body-stack">
                                 {editingClient.isOrg ? (
                                     <div className="mobile-form-card">
-                                        <span className="mobile-form-card-label">Nom de l'organisation*</span>
-                                        <input
-                                            type="text"
+                                        <span className="mobile-form-card-label">Nom de l'organisation (SIRENE 🇫🇷)*</span>
+                                        <CompanyAutocomplete
                                             value={editFirstName}
-                                            onChange={(e) => setEditFirstName(e.target.value)}
-                                            onFocus={handleInputFocus}
-                                            className="mobile-form-card-input"
+                                            onChange={(val) => setEditFirstName(val)}
+                                            onCompanySelect={(company) => {
+                                                if (company.nom) setEditFirstName(company.nom);
+                                                if (company.adresse) setEditAddress(company.adresse);
+                                                if (company.code_postal) setEditZip(company.code_postal);
+                                                if (company.ville) setEditCity(company.ville);
+                                            }}
+                                            placeholder="Rechercher par nom, SIREN ou SIRET..."
                                         />
                                     </div>
                                 ) : (
@@ -446,13 +452,16 @@ function MobileEditBottomSheet({
 
                                         <div className="mobile-form-card">
                                             <span className="mobile-form-card-label">Adresse</span>
-                                            <input
-                                                type="text"
-                                                placeholder="ex: 12 Rue de la Paix"
+                                            <AddressAutocomplete
                                                 value={editAddress}
-                                                onChange={(e) => setEditAddress(e.target.value)}
-                                                onFocus={handleInputFocus}
-                                                className="mobile-form-card-input"
+                                                onChange={(val) => setEditAddress(val)}
+                                                onAddressSelect={(selected) => {
+                                                    setEditAddress(selected.street || selected.label);
+                                                    if (selected.postcode) setEditZip(selected.postcode);
+                                                    if (selected.city) setEditCity(selected.city);
+                                                }}
+                                                placeholder="ex: 12 Rue de la Paix"
+                                                className="mobile-address-autocomplete"
                                             />
                                         </div>
 

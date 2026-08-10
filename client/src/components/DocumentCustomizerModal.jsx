@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Check, Palette, Type, Layout, Eye, Sliders, Image, Sparkles } from "lucide-react";
-import { useDocumentCustomization } from "../utils/documentCustomization";
+import { useDocumentCustomization, getEffectiveCustomization } from "../utils/documentCustomization";
 import "./DocumentCustomizerModal.css";
 
 const COLOR_PRESETS = [

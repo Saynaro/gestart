@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Zap,
+    Building2,
     Mail,
     Lock,
     ArrowRight,
@@ -26,7 +26,6 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
     // Auto smooth-scroll to focused input (ideal for mobile virtual keyboard)
     useEffect(() => {
@@ -41,15 +40,6 @@ export default function LoginPage() {
         document.addEventListener('focusin', handleFocusIn);
         return () => document.removeEventListener('focusin', handleFocusIn);
     }, []);
-
-    // Validation règles mot de passe
-    const password = formData.password;
-    const rules = {
-        length: password.length >= 8,
-        uppercase: /[A-Z]/.test(password),
-        lowercase: /[a-z]/.test(password),
-        number: /[0-9]/.test(password),
-    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -119,12 +109,12 @@ export default function LoginPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Zap className="logo-icon" />
-                        <span>ClimPro CRM</span>
+                        <Building2 className="logo-icon" />
+                        <span>GestArt CRM</span>
                     </div>
 
                     <h1 className="banner-title">
-                        Ravis de vous revoir sur ClimPro CRM.
+                        Ravis de vous revoir sur GestArt CRM.
                     </h1>
 
                     <p className="banner-subtitle">
@@ -148,7 +138,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="banner-footer">
-                    <span>© 2026 ClimPro. L'outil CRM N°1 des installateurs & artisans.</span>
+                    <span>© 2026 GestArt. L'outil CRM N°1 des installateurs & artisans.</span>
                 </div>
             </div>
 
@@ -162,8 +152,8 @@ export default function LoginPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Zap size={16} />
-                            <span>ClimPro CRM</span>
+                            <Building2 size={16} />
+                            <span>GestArt CRM</span>
                         </div>
                     </div>
 
@@ -206,8 +196,6 @@ export default function LoginPage() {
                                     placeholder="••••••••••"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    onFocus={() => setIsPasswordFocused(true)}
-                                    onBlur={() => setIsPasswordFocused(false)}
                                     required
                                 />
                                 <button
@@ -220,37 +208,10 @@ export default function LoginPage() {
                                 </button>
                             </div>
                             <div className="forgot-password-align">
-                                <a href="#forgot" onClick={(e) => { e.preventDefault(); alert("Un email de réinitialisation vous sera envoyé."); }} className="forgot-link">
+                                <Link to="/forgot-password" className="forgot-link">
                                     Mot de passe oublié ?
-                                </a>
+                                </Link>
                             </div>
-
-                            {/* Live Password Rules Indicator (Visible on Focus) */}
-                            {isPasswordFocused && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="password-rules-box"
-                                >
-                                    <div className={`rule-item ${rules.length ? 'valid' : ''}`}>
-                                        {rules.length ? <Check size={14} /> : <X size={14} />}
-                                        <span>Au moins 8 caractères</span>
-                                    </div>
-                                    <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`}>
-                                        {rules.uppercase ? <Check size={14} /> : <X size={14} />}
-                                        <span>1 lettre majuscule (A-Z)</span>
-                                    </div>
-                                    <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`}>
-                                        {rules.lowercase ? <Check size={14} /> : <X size={14} />}
-                                        <span>1 lettre minuscule (a-z)</span>
-                                    </div>
-                                    <div className={`rule-item ${rules.number ? 'valid' : ''}`}>
-                                        {rules.number ? <Check size={14} /> : <X size={14} />}
-                                        <span>1 chiffre (0-9)</span>
-                                    </div>
-                                </motion.div>
-                            )}
                         </div>
 
                         <button

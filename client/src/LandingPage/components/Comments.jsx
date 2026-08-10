@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useMemo } from "react";
 import "./Comments.css";
 import { Quote } from "lucide-react";
 import { AuroraText } from "@/components/ui/aurora-text";

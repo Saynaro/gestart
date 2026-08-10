@@ -3,10 +3,12 @@
    Primary: #556B2F | Style: card-list + slide drawer
    ===================================================== */
 
-/* ── Page wrapper ── */
 .factures-page-wrapper {
-    min-height: 100vh;
+    display: flex;
+    height: 100vh;
+    width: 100%;
     background-color: var(--background);
+    overflow: hidden;
 }
 
 /* ── Page Header ── */

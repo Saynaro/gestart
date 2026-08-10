@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Printer, Download, ZoomIn, ZoomOut } from "lucide-react";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 

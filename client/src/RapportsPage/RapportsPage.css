@@ -1,9 +1,13 @@
 /* Rapports Page styles */
 
 .rapports-page-wrapper {
-    min-height: 100vh;
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
     background-color: var(--background);
     color: var(--foreground);
+    overflow: hidden;
 }
 
 /* Header and Filter layout */

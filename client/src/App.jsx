@@ -8,21 +8,24 @@ import SideBar from './components/SideBar'
 import Header from './components/Header'
 import './App.css'
 
-// Lazy loaded page routes (Code Splitting for fast initial page load)
-const HomePage = lazy(() => import('./HomePage/HomePage'))
-const ClientPage = lazy(() => import('./ClientPage/ClientPage'))
-const PlanningPage = lazy(() => import('./PlanningPage/PlanningPage'))
-const MessagesPage = lazy(() => import('./MessagesPage/MessagesPage'))
-const SettingsPage = lazy(() => import('./SettingsPage/SettingsPage'))
-const RapportsPage = lazy(() => import('./RapportsPage/RapportsPage'))
-const ComptabilityPage = lazy(() => import('./ComptabilityPage/ComptabilityPage'))
-const FacturesPage = lazy(() => import('./FacturesPage/FacturesPage'))
-const DevisPage = lazy(() => import('./DevisPage/DevisPage'))
-const PremiumPage = lazy(() => import('./PremiumPage/PremiumPage'))
-const CataloguePage = lazy(() => import('./CataloguePage.jsx/CataloguePage'))
-const RegisterPage = lazy(() => import('./AuthPage/RegisterPage'))
-const LoginPage = lazy(() => import('./AuthPage/LoginPage'))
-const SuperAdminPanel = lazy(() => import('./AdminPage/AdminPage'))
+// Core page route imports (Instant load, zero refresh shift)
+import HomePage from './HomePage/HomePage'
+import ClientPage from './ClientPage/ClientPage'
+import PlanningPage from './PlanningPage/PlanningPage'
+import MessagesPage from './MessagesPage/MessagesPage'
+import SettingsPage from './SettingsPage/SettingsPage'
+import RapportsPage from './RapportsPage/RapportsPage'
+import ComptabilityPage from './ComptabilityPage/ComptabilityPage'
+import FacturesPage from './FacturesPage/FacturesPage'
+import DevisPage from './DevisPage/DevisPage'
+import PremiumPage from './PremiumPage/PremiumPage'
+import CataloguePage from './CataloguePage.jsx/CataloguePage'
+import RegisterPage from './AuthPage/RegisterPage'
+import LoginPage from './AuthPage/LoginPage'
+import ForgotPasswordPage from './AuthPage/ForgotPasswordPage'
+import ResetPasswordPage from './AuthPage/ResetPasswordPage'
+import VerifyEmailPage from './AuthPage/VerifyEmailPage'
+import SuperAdminPanel from './AdminPage/AdminPage'
 
 // Lazy loaded Stripe & Public pages
 const SubscriptionSuccessPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionSuccessPage })))
@@ -134,6 +137,9 @@ function App() {
           {/* Auth Pages */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* Subscription Stripe Pages */}
           <Route path="/subscription/success" element={<SubscriptionSuccessPage />} />

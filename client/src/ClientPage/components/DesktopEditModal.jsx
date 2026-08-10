@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import AddressAutocomplete from "../../components/AddressAutocomplete";
+import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 
 const formatDateToISO = (frDate) => {
     if (!frDate) return "";
@@ -88,12 +90,17 @@ function DesktopEditModal({
                         <div className="desktop-modal-body">
                             {editingClient.isOrg ? (
                                 <div className="form-field">
-                                    <label className="form-label">Nom de l'organisation*</label>
-                                    <input
-                                        type="text"
+                                    <label className="form-label">Nom de l'organisation (Recherche SIRENE 🇫🇷)*</label>
+                                    <CompanyAutocomplete
                                         value={editFirstName}
-                                        onChange={(e) => setEditFirstName(e.target.value)}
-                                        className="form-input"
+                                        onChange={(val) => setEditFirstName(val)}
+                                        onCompanySelect={(company) => {
+                                            if (company.nom) setEditFirstName(company.nom);
+                                            if (company.adresse) setEditAddress(company.adresse);
+                                            if (company.code_postal) setEditZip(company.code_postal);
+                                            if (company.ville) setEditCity(company.ville);
+                                        }}
+                                        placeholder="Rechercher par nom, SIREN ou SIRET..."
                                         required
                                     />
                                 </div>
@@ -149,12 +156,16 @@ function DesktopEditModal({
 
                             <div className="form-field" style={{ marginTop: '12px' }}>
                                 <label className="form-label">Adresse</label>
-                                <input
-                                    type="text"
+                                <AddressAutocomplete
                                     value={editAddress}
-                                    onChange={(e) => setEditAddress(e.target.value)}
-                                    className="form-input"
+                                    onChange={(val) => setEditAddress(val)}
+                                    onAddressSelect={(selected) => {
+                                        setEditAddress(selected.street || selected.label);
+                                        if (selected.postcode) setEditZip(selected.postcode);
+                                        if (selected.city) setEditCity(selected.city);
+                                    }}
                                     placeholder="12 Rue de la Paix"
+                                    className="form-input-address-autocomplete"
                                 />
                             </div>
 

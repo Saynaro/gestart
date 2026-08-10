@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, ShieldCheck, FileText, Scale, Lock, Cookie, HelpCircle, CheckCircle2 } from "lucide-react";
 
 export function LegalHelpTooltip({ title, text, lawArticle, positionDirection = "down" }) {

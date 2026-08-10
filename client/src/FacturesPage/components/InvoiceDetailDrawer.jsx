@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
-import { useDocumentCustomization } from "../../utils/documentCustomization";
+import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 
 function getStatusLabel(status) {
     switch (status) {

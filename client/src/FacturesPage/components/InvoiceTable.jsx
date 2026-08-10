@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, Download, MoreVertical, Send, Check, AlertCircle, Trash } from "lucide-react";
 
 function InvoiceTable({ invoices, onView, onDownloadPdf, onMarkPaid, onSend, onRemind, onCancel }) {

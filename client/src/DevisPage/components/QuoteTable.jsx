@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, Download, MoreVertical, FileSignature, RefreshCw, XSquare } from "lucide-react";
 
 function QuoteTable({ quotes, onView, onDownloadPdf, onSendForSignature, onConvertToInvoice, onRejectQuote }) {

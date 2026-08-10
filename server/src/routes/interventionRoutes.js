@@ -32,6 +32,7 @@ router.get("/:id", getInterventionById);
 // CRUD et Actions du technicien
 router.post("/", requireActive, createIntervention);
 router.patch("/:id", updateIntervention);
+router.put("/:id", updateIntervention);
 router.patch("/:id/start", startIntervention);
 router.patch("/:id/complete", completeIntervention);
 router.delete("/:id", requireManager, deleteIntervention);

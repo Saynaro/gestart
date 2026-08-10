@@ -84,6 +84,27 @@ function SettingsPage() {
     const [civility, setCivility] = useState("");
     const [dob, setDob] = useState("");
 
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const token = localStorage.getItem('accessToken');
+                if (!token) return;
+                const data = await apiFetch('/v1/auth/me');
+                const user = data.data?.user || data.user || data;
+                if (user) {
+                    if (user.firstName) setFirstName(user.firstName);
+                    if (user.lastName) setLastName(user.lastName);
+                    if (user.email) setEmail(user.email);
+                    if (user.phone) setPhone(user.phone);
+                    if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
+                }
+            } catch (err) {
+                console.warn("API me non disponible:", err.message);
+            }
+        };
+        fetchUserProfile();
+    }, []);
+
     const [isDarkMode, setIsDarkMode] = useState(() => {
         return document.documentElement.classList.contains("dark") || localStorage.getItem("theme") === "dark";
     });

@@ -19,6 +19,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
+import catalogRoutes from "./routes/catalogRoutes.js";
 import publicRoutes from "./routes/publicRoutes.js";
 
 dotenv.config();
@@ -69,6 +70,7 @@ app.use("/api/v1/sms", smsRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/reports", reportRoutes);
+app.use("/api/v1/catalog", catalogRoutes);
 app.use("/api/v1/public", publicRoutes);
 
 app.use((err, req, res, next) => {

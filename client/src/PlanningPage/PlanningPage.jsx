@@ -107,11 +107,44 @@ const technicianList = [
 ];
 
 // ── Component ─────────────────────────────────────────────────────
+import { apiFetch } from "../utils/api";
+
 function PlanningPage() {
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth <= 768;
 
     const [events, setEvents] = useState(initialEvents);
+    const [loading, setLoading] = useState(true);
+
+    const fetchInterventions = async () => {
+        try {
+            setLoading(true);
+            const data = await apiFetch('/v1/interventions');
+            const rawInterventions = data.data?.interventions || data.interventions || (Array.isArray(data) ? data : []);
+            const mappedEvents = rawInterventions.map(item => ({
+                id: String(item.id),
+                title: item.client ? `${item.client.firstName || ''} ${item.client.lastName || item.client.companyName || ''}`.trim() : (item.title || "Intervention"),
+                start: item.scheduledAt || item.start || new Date().toISOString(),
+                end: item.end || (item.scheduledAt ? new Date(new Date(item.scheduledAt).getTime() + (item.estimatedDuration || 90) * 60000).toISOString() : new Date().toISOString()),
+                extendedProps: {
+                    type: item.interventionType?.name || item.type || "Installation",
+                    technician: item.technician ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() : (item.technicianName || "Non assigné"),
+                    address: item.address || item.client?.address || "",
+                    city: item.city || item.client?.city || ""
+                }
+            }));
+            setEvents(mappedEvents);
+        } catch (err) {
+            console.warn("API interventions non disponible:", err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchInterventions();
+    }, []);
+
     const [mobileSelectedDate, setMobileSelectedDate] = useState(() => new Date());
     const [startTime, setStartTime] = useState("09:00");
     const [endTime, setEndTime] = useState("10:30");
@@ -284,7 +317,8 @@ function PlanningPage() {
     }, [startTime, endTime]);
 
     // Save new event
-    const handleAddEventSubmit = (e) => {
+    // Save new event
+    const handleAddEventSubmit = async (e) => {
         e.preventDefault();
         if (!newClientName || !selectedSlot) return;
 
@@ -294,86 +328,69 @@ function PlanningPage() {
         }
 
         let startStr = selectedSlot.startStr;
-        let endStr = selectedSlot.endStr;
 
-        if (isMobile) {
-            const [startH, startM] = startTime.split(":");
-            const [endH, endM] = endTime.split(":");
-            const startDate = new Date(selectedSlot.start);
-            startDate.setHours(parseInt(startH), parseInt(startM), 0, 0);
-            const endDate = new Date(selectedSlot.end);
-            endDate.setHours(parseInt(endH), parseInt(endM), 0, 0);
-            const pad = (n) => String(n).padStart(2, "0");
-            startStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}T${pad(startDate.getHours())}:${pad(startDate.getMinutes())}:00`;
-            endStr = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}:00`;
+        try {
+            await apiFetch('/v1/interventions', {
+                method: 'POST',
+                body: JSON.stringify({
+                    title: `${newServiceType} - ${newClientName}`,
+                    scheduledAt: startStr,
+                    estimatedDuration: 90,
+                    address: "Adresse du client",
+                    city: "Nice",
+                    description: `Intervention ${newServiceType}`
+                })
+            });
+            await fetchInterventions();
+        } catch (err) {
+            console.error("Create intervention API error:", err);
+            alert(err.message || "Erreur lors de la planification de l'intervention");
+        } finally {
+            setShowAddModal(false);
+            setSelectedSlot(null);
         }
-
-        const newEvent = {
-            id: String(Date.now()),
-            title: newClientName,
-            start: startStr,
-            end: endStr,
-            extendedProps: {
-                type: newServiceType,
-                technician: newTechnician === "Non assigné" ? "" : newTechnician
-            }
-        };
-        setEvents(prev => [...prev, newEvent]);
-        setShowAddModal(false);
-        setSelectedSlot(null);
     };
 
     // Save edit
-    const handleEditEventSubmit = (e) => {
+    const handleEditEventSubmit = async (e) => {
         e.preventDefault();
         if (!editClientName || !selectedEvent) return;
 
-        if (isMobile && isTimeInvalid) {
-            alert("L'heure de fin doit être supérieure à l'heure de début !");
-            return;
+        try {
+            await apiFetch(`/v1/interventions/${selectedEvent.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    title: `${editServiceType} - ${editClientName}`,
+                    description: `Intervention ${editServiceType}`
+                })
+            });
+            await fetchInterventions();
+        } catch (err) {
+            console.error("Update intervention API error:", err);
+            alert(err.message || "Erreur lors de la mise à jour");
+        } finally {
+            setShowEditModal(false);
+            setSelectedEvent(null);
         }
-
-        let startStr = selectedEvent.start;
-        let endStr = selectedEvent.end;
-
-        if (isMobile) {
-            const [startH, startM] = startTime.split(":");
-            const [endH, endM] = endTime.split(":");
-            const startDate = new Date(selectedEvent.start);
-            startDate.setHours(parseInt(startH), parseInt(startM), 0, 0);
-            const endDate = new Date(selectedEvent.end);
-            endDate.setHours(parseInt(endH), parseInt(endM), 0, 0);
-            const pad = (n) => String(n).padStart(2, "0");
-            startStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}T${pad(startDate.getHours())}:${pad(startDate.getMinutes())}:00`;
-            endStr = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}:00`;
-        }
-
-        setEvents(prev => prev.map(evt => {
-            if (evt.id === selectedEvent.id) {
-                return {
-                    ...evt,
-                    title: editClientName,
-                    start: startStr,
-                    end: endStr,
-                    extendedProps: {
-                        ...evt.extendedProps,
-                        type: editServiceType,
-                        technician: editTechnician === "Non assigné" ? "" : editTechnician
-                    }
-                };
-            }
-            return evt;
-        }));
-        setShowEditModal(false);
-        setSelectedEvent(null);
     };
 
     // Delete event
-    const handleDeleteEvent = () => {
+    const handleDeleteEvent = async () => {
         if (!selectedEvent) return;
-        setEvents(prev => prev.filter(evt => evt.id !== selectedEvent.id));
-        setShowEditModal(false);
-        setSelectedEvent(null);
+        if (window.confirm("Voulez-vous vraiment supprimer cette intervention ?")) {
+            try {
+                await apiFetch(`/v1/interventions/${selectedEvent.id}`, {
+                    method: 'DELETE'
+                });
+                await fetchInterventions();
+            } catch (err) {
+                console.error("Delete intervention API error:", err);
+                alert(err.message || "Erreur lors de la suppression");
+            } finally {
+                setShowEditModal(false);
+                setSelectedEvent(null);
+            }
+        }
     };
 
     // Filtered events

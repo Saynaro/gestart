@@ -1,15 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Users, CreditCard, TrendingUp, AlertOctagon, Ban, CheckCircle, Eye, Edit3 } from "lucide-react";
 import "./AdminPage.css";
+import { apiFetch } from "../utils/api";
 
 function AdminPage() {
     const [companies, setCompanies] = useState([
         { id: 1, name: "Dupont Climatisation", email: "dupont.clim@gmail.com", plan: "Pro", status: "Active", clientsCount: 148, date: "15/01/2026" },
         { id: 2, name: "Eco Thermique SAS", email: "contact@ecothermique.fr", plan: "Unlimited", status: "Active", clientsCount: 382, date: "02/02/2026" },
-        { id: 3, name: "Allo Clim Service", email: "climservice@outlook.fr", plan: "Trial", status: "Trial", clientsCount: 12, date: "12/07/2026" },
-        { id: 4, name: "Sud Froid Eurl", email: "sudfroid@gmail.com", plan: "Pro", status: "Past Due", clientsCount: 45, date: "22/03/2026" },
-        { id: 5, name: "Nord Chauffage", email: "nord@chauffage.com", plan: "Pro", status: "Cancelled", clientsCount: 94, date: "10/11/2025" }
+        { id: 3, name: "Allo Clim Service", email: "climservice@outlook.fr", plan: "Trial", status: "Trial", clientsCount: 12, date: "12/07/2026" }
     ]);
+
+    useEffect(() => {
+        const fetchAdminData = async () => {
+            try {
+                const data = await apiFetch('/v1/users');
+                const users = data.data?.users || data.users || (Array.isArray(data) ? data : []);
+                if (users.length > 0) {
+                    const mappedCompanies = users.map(u => ({
+                        id: u.id,
+                        name: u.company?.name || `Entreprise ${u.firstName || ''}`,
+                        email: u.email,
+                        plan: u.company?.subscription?.planName || "Pro",
+                        status: u.isActive !== false ? "Active" : "Blocked",
+                        clientsCount: u.company?._count?.clients || 15,
+                        date: u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : "15/01/2026"
+                    }));
+                    setCompanies(mappedCompanies);
+                }
+            } catch (err) {
+                console.warn("API admin users non disponible, conservation des données locales:", err.message);
+            }
+        };
+
+        fetchAdminData();
+    }, []);
 
     const [statusFilter, setStatusFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");

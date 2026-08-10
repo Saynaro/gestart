@@ -1,10 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Info, CheckCircle2, AlertCircle, Calendar } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 function TvaSummary() {
     const [selectedQuarter, setSelectedQuarter] = useState("T1");
     const [selectedYear, setSelectedYear] = useState("2026");
     const [isDeclared, setIsDeclared] = useState(false);
+    const [tvaReport, setTvaReport] = useState(null);
+
+    useEffect(() => {
+        const fetchReport = async () => {
+            try {
+                const data = await apiFetch('/v1/reports/revenue');
+                setTvaReport(data.data || data);
+            } catch (err) {
+                console.warn("API report/revenue non disponible:", err.message);
+            }
+        };
+
+        fetchReport();
+    }, [selectedQuarter, selectedYear]);
 
     // Mock data per quarter
     const tvaDataByQuarter = {

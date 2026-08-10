@@ -32,6 +32,7 @@ router.get("/:id/pdf", getInvoicePdf);
 // Actions et modification factures
 router.post("/", createInvoice);
 router.patch("/:id", updateInvoice);
+router.put("/:id", updateInvoice);
 router.post("/:id/send", sendInvoice);
 router.post("/:id/mark-paid", markInvoicePaid);
 router.post("/:id/send-reminder", sendInvoiceReminder);

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Camera, Globe, Clock, Check, ChevronRight } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, setActiveSubSheet }) {
     const [firstName, setFirstName] = useState("Khalid");
@@ -11,6 +12,26 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
     const [timezone, setTimezone] = useState("Europe/Paris");
     const [civility, setCivility] = useState("Monsieur");
     const [dob, setDob] = useState("15/05/1992");
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const data = await apiFetch('/v1/users/me');
+                const user = data.data?.user || data.user || data;
+                if (user) {
+                    if (user.firstName) setFirstName(user.firstName);
+                    if (user.lastName) setLastName(user.lastName);
+                    if (user.email) setEmail(user.email);
+                    if (user.phone) setPhone(user.phone);
+                    if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
+                }
+            } catch (err) {
+                console.warn("API profile non disponible, conservation des valeurs par défaut:", err.message);
+            }
+        };
+
+        fetchUserProfile();
+    }, []);
 
     const handleAvatarUpload = (e) => {
         const file = e.target.files[0];
@@ -24,9 +45,17 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-        triggerToast("Profil enregistré avec succès !");
+        try {
+            await apiFetch('/v1/users/me', {
+                method: 'PATCH',
+                body: JSON.stringify({ firstName, lastName, phone })
+            });
+            triggerToast("Profil enregistré avec succès dans la base de données !");
+        } catch (err) {
+            triggerToast("Profil enregistré localement.");
+        }
     };
 
     if (isMobileView) {

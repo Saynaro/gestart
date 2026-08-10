@@ -3,15 +3,15 @@ import { useParams } from "react-router-dom";
 import { Download, CheckCircle, Trash2, ShieldAlert } from "lucide-react";
 import "./SignatureQuote.css";
 
+import { apiFetch } from "../utils/api";
+
 function SignatureQuote() {
     const { token } = useParams();
     const canvasRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasSigned, setHasSigned] = useState(false);
     const [signatureSaved, setSignatureSaved] = useState(false);
-
-    // Mock Quote details
-    const quote = {
+    const [quote, setQuote] = useState({
         number: "DEV-2026-002",
         date: "2026-07-10",
         validity: "10/08/2026",
@@ -26,7 +26,36 @@ function SignatureQuote() {
             { description: "Forfait dépannage et diagnostic", qty: 1, unitPrice: 150 },
             { description: "Recharge de fluide R32 (kg)", qty: 0.8, unitPrice: 85.22 }
         ]
-    };
+    });
+
+    useEffect(() => {
+        if (!token) return;
+        const fetchPublicQuote = async () => {
+            try {
+                const data = await apiFetch(`/v1/public/quotes/${token}`);
+                const q = data.data?.quote || data.quote || data;
+                if (q) {
+                    setQuote({
+                        number: q.number || "DEV-2026-002",
+                        date: q.createdAt ? new Date(q.createdAt).toISOString().split('T')[0] : "2026-07-10",
+                        validity: q.validityDays ? `${q.validityDays} jours` : "30 jours",
+                        companyName: q.company?.name || "ClimPro CRM",
+                        clientName: q.client ? `${q.client.firstName || ''} ${q.client.lastName || q.client.companyName || ''}`.trim() : "Client",
+                        clientEmail: q.client?.email || "",
+                        interventionType: q.subject || "Prestation",
+                        subtotalHt: Number(q.totalHt || 0),
+                        tvaAmount: Number(q.totalTva || 0),
+                        totalTtc: Number(q.totalTtc || 0),
+                        lines: q.lines || []
+                    });
+                }
+            } catch (err) {
+                console.warn("API public quote non disponible, données locales conservées:", err.message);
+            }
+        };
+
+        fetchPublicQuote();
+    }, [token]);
 
     // Canvas drawing setup
     useEffect(() => {

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Building, Camera, Search, FileText, CheckCircle } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 export default function EntrepriseTab({ isMobileView, triggerToast }) {
     const [companyName, setCompanyName] = useState("SAINARO KHALID CLIM");
@@ -15,6 +16,27 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
     const [companyPhone, setCompanyPhone] = useState("04 93 12 34 56");
     const [iban, setIban] = useState("FR76 3000 3020 5001 2345 6789 012");
     const [bic, setBIC] = useState("BNPAFRPPXXX");
+
+    useEffect(() => {
+        const fetchCompany = async () => {
+            try {
+                const data = await apiFetch('/v1/company');
+                const company = data.data?.company || data.company || data;
+                if (company) {
+                    if (company.name) setCompanyName(company.name);
+                    if (company.siret) setSiret(company.siret);
+                    if (company.address) setAddress(company.address);
+                    if (company.email) setCompanyEmail(company.email);
+                    if (company.phone) setCompanyPhone(company.phone);
+                    if (company.logoUrl) setLogoUrl(company.logoUrl);
+                }
+            } catch (err) {
+                console.warn("API company non disponible, conservation des valeurs par défaut:", err.message);
+            }
+        };
+
+        fetchCompany();
+    }, []);
 
     // SIRET Search input state
     const [searchSiretInput, setSearchSiretInput] = useState("");

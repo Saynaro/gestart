@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import "./DevisPage.css";
 import "../PlanningPage/PlanningPage.css";
-
 
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
@@ -15,6 +14,7 @@ import NewQuoteModal from "./components/NewQuoteModal";
 import QuoteEditPanel from "./components/QuoteEditPanel";
 import InvoiceDetailDrawer from "../FacturesPage/components/InvoiceDetailDrawer";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
+import { apiFetch } from "../utils/api";
 
 const FILTERS = [
     { key: "all", label: "Tous" },
@@ -25,68 +25,108 @@ const FILTERS = [
 ];
 
 function DevisPage() {
-    const [quotes, setQuotes] = useState([
-        {
-            id: 1,
-            number: "D-2026-0001",
-            clientName: "Jean Dupont",
-            clientEmail: "jean.dupont@email.com",
-            clientAddress: "12 Rue des Fleurs, 75001 Paris",
-            interventionType: "Entretien annuel",
-            workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
-            date: "2026-07-02",
-            validityDays: 30,
-            tvaRate: 20,
-            subtotalHt: 100,
-            tvaAmount: 20,
-            totalTtc: 120,
-            amountFactured: 0,
-            status: "ACCEPTED",
-            lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
-        },
-        {
-            id: 2,
-            number: "D-2026-0002",
-            clientName: "Marie Martin",
-            clientEmail: "marie.martin@email.com",
-            clientAddress: "45 Avenue Foch, 69006 Lyon",
-            interventionType: "Dépannage d'urgence",
-            workDetails: "Recherche de fuite de fluide frigorigène et réparation sur climatisation.",
-            date: "2026-07-10",
-            validityDays: 30,
-            tvaRate: 10,
-            subtotalHt: 218.18,
-            tvaAmount: 21.82,
-            totalTtc: 240,
-            amountFactured: 0,
-            status: "SENT",
-            lines: [
-                { description: "Forfait dépannage et diagnostic", qty: 1, unitPrice: 150 },
-                { description: "Recharge de fluide R32 (kg)", qty: 0.8, unitPrice: 85.22 }
-            ]
-        },
-        {
-            id: 3,
-            number: "D-2026-0003",
-            clientName: "Marc Leroy",
-            clientEmail: "marc.leroy@outlook.fr",
-            clientAddress: "109 Rue Saint-Dizier, 54000 Nancy",
-            interventionType: "Installation pompe à chaleur",
-            workDetails: "Fourniture et pose d'une pompe à chaleur air-eau Mitsubishi.",
-            date: "2026-07-15",
-            validityDays: 30,
-            tvaRate: 5.5,
-            subtotalHt: 4500,
-            tvaAmount: 247.5,
-            totalTtc: 4747.5,
-            amountFactured: 0,
-            status: "DRAFT",
-            lines: [
-                { description: "Pompe à chaleur air-eau Mitsubishi 10kW", qty: 1, unitPrice: 3800 },
-                { description: "Main d'œuvre pose et raccordement", qty: 1, unitPrice: 700 }
-            ]
-        }
-    ]);
+    const [quotes, setQuotes] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const mapQuoteFromApi = (q) => ({
+        id: q.id,
+        number: q.number || `D-2026-${String(q.id).padStart(4, "0")}`,
+        clientName: q.client ? `${q.client.firstName || ''} ${q.client.lastName || q.client.companyName || ''}`.trim() : (q.clientName || 'Client Inconnu'),
+        clientEmail: q.client?.email || q.clientEmail || '',
+        clientAddress: q.client ? `${q.client.address || ''} ${q.client.city || ''}`.trim() : (q.clientAddress || ''),
+        interventionType: q.subject || q.interventionType || "Prestation",
+        workDetails: q.description || q.workDetails || "",
+        date: q.createdAt ? new Date(q.createdAt).toISOString().split('T')[0] : (q.date || new Date().toISOString().split('T')[0]),
+        validityDays: q.validityDays || 30,
+        tvaRate: q.tvaRate || 20,
+        subtotalHt: Number(q.totalHt || q.subtotalHt || 0),
+        tvaAmount: Number(q.totalTva || q.tvaAmount || 0),
+        totalTtc: Number(q.totalTtc || 0),
+        amountFactured: Number(q.amountFactured || 0),
+        status: q.status || "DRAFT",
+        lines: q.lines || []
+    });
+
+    useEffect(() => {
+        const fetchQuotes = async () => {
+            try {
+                setLoading(true);
+                const data = await apiFetch('/v1/quotes');
+                const rawQuotes = data.data?.quotes || data.quotes || (Array.isArray(data) ? data : []);
+                if (rawQuotes.length > 0) {
+                    setQuotes(rawQuotes.map(mapQuoteFromApi));
+                } else {
+                    setQuotes([
+                        {
+                            id: 1,
+                            number: "D-2026-0001",
+                            clientName: "Jean Dupont",
+                            clientEmail: "jean.dupont@email.com",
+                            clientAddress: "12 Rue des Fleurs, 75001 Paris",
+                            interventionType: "Entretien annuel",
+                            workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
+                            date: "2026-07-02",
+                            validityDays: 30,
+                            tvaRate: 20,
+                            subtotalHt: 100,
+                            tvaAmount: 20,
+                            totalTtc: 120,
+                            amountFactured: 0,
+                            status: "ACCEPTED",
+                            lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
+                        },
+                        {
+                            id: 2,
+                            number: "D-2026-0002",
+                            clientName: "Marie Martin",
+                            clientEmail: "marie.martin@email.com",
+                            clientAddress: "45 Avenue Foch, 69006 Lyon",
+                            interventionType: "Dépannage d'urgence",
+                            workDetails: "Recherche de fuite de fluide frigorigène et réparation sur climatisation.",
+                            date: "2026-07-10",
+                            validityDays: 30,
+                            tvaRate: 10,
+                            subtotalHt: 218.18,
+                            tvaAmount: 21.82,
+                            totalTtc: 240,
+                            amountFactured: 0,
+                            status: "SENT",
+                            lines: [
+                                { description: "Forfait dépannage et diagnostic", qty: 1, unitPrice: 150 },
+                                { description: "Recharge de fluide R32 (kg)", qty: 0.8, unitPrice: 85.22 }
+                            ]
+                        }
+                    ]);
+                }
+            } catch (err) {
+                console.warn("API quotes non disponible, chargement des données locales:", err.message);
+                setQuotes([
+                    {
+                        id: 1,
+                        number: "D-2026-0001",
+                        clientName: "Jean Dupont",
+                        clientEmail: "jean.dupont@email.com",
+                        clientAddress: "12 Rue des Fleurs, 75001 Paris",
+                        interventionType: "Entretien annuel",
+                        workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
+                        date: "2026-07-02",
+                        validityDays: 30,
+                        tvaRate: 20,
+                        subtotalHt: 100,
+                        tvaAmount: 20,
+                        totalTtc: 120,
+                        amountFactured: 0,
+                        status: "ACCEPTED",
+                        lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
+                    }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchQuotes();
+    }, []);
 
     const [activeFilter, setActiveFilter] = useState("all");
     const [activeQuote, setActiveQuote] = useState(null);
@@ -125,30 +165,72 @@ function DevisPage() {
         setShowEditPanel(false);
     };
 
-    const handleSaveEdit = (updatedQuote) => {
-        setQuotes(prev => prev.map(q => q.id === updatedQuote.id ? updatedQuote : q));
-        setActiveQuote(updatedQuote);
-        setShowEditPanel(false);
-        showToast(`✓ Devis ${updatedQuote.number} mis à jour.`);
+    const handleSaveEdit = async (updatedQuote) => {
+        try {
+            await apiFetch(`/v1/quotes/${updatedQuote.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updatedQuote)
+            });
+            showToast(`✓ Devis ${updatedQuote.number} mis à jour.`);
+            fetchQuotes();
+        } catch (err) {
+            console.error("Save quote error:", err);
+            alert(err.message || "Erreur lors de la mise à jour");
+        } finally {
+            setShowEditPanel(false);
+        }
     };
 
-    const handleConvertToInvoice = (q) => {
-        setQuotes(prev => prev.map(item => item.id === q.id ? { ...item, status: "ACCEPTED" } : item));
-        setActiveQuote(prev => ({ ...prev, status: "ACCEPTED" }));
-        closeAll();
-        showToast(`✓ Devis ${q.number} converti en facture ! Retrouvez-la dans Factures.`);
+    const handleConvertToInvoice = async (q) => {
+        try {
+            await apiFetch(`/v1/quotes/${q.id}/convert-to-invoice`, {
+                method: 'POST'
+            });
+            showToast(`✓ Devis ${q.number} converti en facture ! Retrouvez-la dans Factures.`);
+            fetchQuotes();
+        } catch (err) {
+            console.error("Convert quote to invoice error:", err);
+            // Fallback status update
+            try {
+                await apiFetch(`/v1/quotes/${q.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status: "ACCEPTED" })
+                });
+                fetchQuotes();
+            } catch (e) {
+                // Ignore
+            }
+        } finally {
+            closeAll();
+        }
     };
 
-    const handleChangeStatus = (q, newStatus) => {
-        setQuotes(prev => prev.map(item => item.id === q.id ? { ...item, status: newStatus } : item));
-        setActiveQuote(prev => ({ ...prev, status: newStatus }));
-        showToast(`Statut du devis ${q.number} mis à jour.`, "info");
+    const handleChangeStatus = async (q, newStatus) => {
+        try {
+            await apiFetch(`/v1/quotes/${q.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: newStatus })
+            });
+            showToast(`Statut du devis ${q.number} mis à jour.`, "info");
+            fetchQuotes();
+        } catch (err) {
+            console.error("Change quote status error:", err);
+        }
     };
 
-    const handleSend = (q) => {
-        setQuotes(prev => prev.map(item => item.id === q.id ? { ...item, status: "SENT" } : item));
-        setShowSendDrawer(false);
-        showToast(`✓ Devis ${q.number} envoyé à ${q.clientEmail}`);
+    const handleSend = async (q) => {
+        try {
+            await apiFetch(`/v1/quotes/${q.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: "SENT" })
+            });
+            showToast(`✓ Devis ${q.number} envoyé à ${q.clientEmail}`);
+            fetchQuotes();
+        } catch (err) {
+            console.error("Send quote error:", err);
+        } finally {
+            setShowSendDrawer(false);
+        }
     };
 
     const handleAutoSend = (q) => {
@@ -156,15 +238,27 @@ function DevisPage() {
         showToast(`✓ E-mail professionnel envoyé à ${q.clientEmail}`);
     };
 
-    const handleCreateQuote = (newQuote) => {
-        const nextNum = quotes.length + 1;
-        newQuote.number = `D-2026-${String(nextNum).padStart(4, "0")}`;
-        newQuote.status = "DRAFT";
-        newQuote.amountFactured = 0;
-        setQuotes([newQuote, ...quotes]);
-        setShowNewModal(false);
-        openDetail(newQuote);
-        showToast(`✓ Devis ${newQuote.number} créé en brouillon !`);
+    const handleCreateQuote = async (newQuote) => {
+        try {
+            await apiFetch('/v1/quotes', {
+                method: 'POST',
+                body: JSON.stringify({
+                    clientId: newQuote.clientId || newQuote.client?.id,
+                    subject: newQuote.interventionType || newQuote.subject || "Devis Prestation",
+                    amountHT: newQuote.subtotalHt || 100,
+                    amountTTC: newQuote.totalTtc || 120,
+                    tvaRate: newQuote.tvaRate || 20,
+                    lines: newQuote.lines || []
+                })
+            });
+            showToast(`✓ Devis créé avec succès !`);
+            fetchQuotes();
+        } catch (err) {
+            console.error("Create quote API error:", err);
+            alert(err.message || "Erreur lors de la création du devis");
+        } finally {
+            setShowNewModal(false);
+        }
     };
 
     const handleDownloadPdf = (q) => {

@@ -32,6 +32,7 @@ router.get("/urgent", getUrgentClients);
 router.post("/", requireActive, checkLimits("client"), createClient);
 router.get("/:id", getClientById);
 router.patch("/:id", updateClient);
+router.put("/:id", updateClient);
 router.delete("/:id", requireManager, deleteClient);
 
 // Relations Client

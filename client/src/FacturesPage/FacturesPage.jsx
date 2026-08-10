@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import "./FacturesPage.css";
 import "../PlanningPage/PlanningPage.css";
@@ -15,6 +15,7 @@ import NewInvoiceModal from "./components/NewInvoiceModal";
 import PaymentMethodModal from "./components/PaymentMethodModal";
 import QuoteDetailDrawer from "../DevisPage/components/QuoteDetailDrawer";
 import QuotePdfView from "../DevisPage/components/QuotePdfView";
+import { apiFetch } from "../utils/api";
 
 const FILTERS = [
     { key: "all",      label: "Toutes" },
@@ -25,86 +26,108 @@ const FILTERS = [
 ];
 
 function FacturesPage() {
-    const [invoices, setInvoices] = useState([
-        {
-            id: 1,
-            number: "F-2026-0001",
-            clientName: "Jean Dupont",
-            clientEmail: "jean.dupont@email.com",
-            clientAddress: "12 Rue des Fleurs, 75001 Paris",
-            interventionType: "Entretien annuel",
-            workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
-            date: "2026-07-02",
-            dueDate: "2026-08-01",
-            paymentDelay: 30,
-            tvaRate: 20,
-            subtotalHt: 100,
-            tvaAmount: 20,
-            totalTtc: 120,
-            status: "paid",
-            lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
-        },
-        {
-            id: 2,
-            number: "F-2026-0002",
-            clientName: "Marie Martin",
-            clientEmail: "marie.martin@email.com",
-            clientAddress: "45 Avenue Foch, 69006 Lyon",
-            interventionType: "Dépannage d'urgence",
-            workDetails: "Recherche de fuite de fluide frigorigène et réparation sur climatisation.",
-            date: "2026-07-10",
-            dueDate: "2026-08-09",
-            paymentDelay: 30,
-            tvaRate: 10,
-            subtotalHt: 218.18,
-            tvaAmount: 21.82,
-            totalTtc: 240,
-            status: "pending",
-            lines: [
-                { description: "Forfait dépannage et diagnostic", qty: 1, unitPrice: 150 },
-                { description: "Recharge de fluide R32 (kg)", qty: 0.8, unitPrice: 85.22 }
-            ]
-        },
-        {
-            id: 3,
-            number: "F-2026-0003",
-            clientName: "Garage Central",
-            clientEmail: "contact@garagecentral.com",
-            clientAddress: "8 Boulevard de l'Industrie, 44000 Nantes",
-            interventionType: "Installation pompe à chaleur",
-            workDetails: "Installation complète d'une pompe à chaleur air-eau Mitsubishi.",
-            date: "2026-06-15",
-            dueDate: "2026-07-15",
-            paymentDelay: 30,
-            tvaRate: 5.5,
-            subtotalHt: 3981.04,
-            tvaAmount: 218.96,
-            totalTtc: 4200,
-            status: "overdue",
-            lines: [
-                { description: "Pompe à chaleur air-eau 8kW", qty: 1, unitPrice: 3200 },
-                { description: "Main d'œuvre pose et raccordement", qty: 1, unitPrice: 781.04 }
-            ]
-        },
-        {
-            id: 4,
-            number: "F-2026-0004",
-            clientName: "Marc Leroy",
-            clientEmail: "marc.leroy@outlook.fr",
-            clientAddress: "109 Rue Saint-Dizier, 54000 Nancy",
-            interventionType: "Contrôle d'étanchéité",
-            workDetails: "Contrôle réglementaire périodique d'étanchéité du circuit frigorifique.",
-            date: "2026-07-18",
-            dueDate: "2026-08-17",
-            paymentDelay: 30,
-            tvaRate: 20,
-            subtotalHt: 150,
-            tvaAmount: 30,
-            totalTtc: 180,
-            status: "draft",
-            lines: [{ description: "Contrôle d'étanchéité frigorifique", qty: 1, unitPrice: 150 }]
-        }
-    ]);
+    const [invoices, setInvoices] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const mapInvoiceFromApi = (inv) => ({
+        id: inv.id,
+        number: inv.number || `F-2026-${String(inv.id).padStart(4, "0")}`,
+        clientName: inv.client ? `${inv.client.firstName || ''} ${inv.client.lastName || inv.client.companyName || ''}`.trim() : (inv.clientName || 'Client Inconnu'),
+        clientEmail: inv.client?.email || inv.clientEmail || '',
+        clientAddress: inv.client ? `${inv.client.address || ''} ${inv.client.city || ''}`.trim() : (inv.clientAddress || ''),
+        interventionType: inv.subject || inv.interventionType || "Prestation",
+        workDetails: inv.description || inv.workDetails || "",
+        date: inv.createdAt ? new Date(inv.createdAt).toISOString().split('T')[0] : (inv.date || new Date().toISOString().split('T')[0]),
+        dueDate: inv.dueDate ? new Date(inv.dueDate).toISOString().split('T')[0] : (inv.dueDate || new Date().toISOString().split('T')[0]),
+        paymentDelay: inv.paymentDelay || 30,
+        tvaRate: inv.tvaRate || 20,
+        subtotalHt: Number(inv.totalHt || inv.subtotalHt || 0),
+        tvaAmount: Number(inv.totalTva || inv.tvaAmount || 0),
+        totalTtc: Number(inv.totalTtc || 0),
+        status: (inv.status || "draft").toLowerCase(),
+        lines: inv.lines || []
+    });
+
+    useEffect(() => {
+        const fetchInvoices = async () => {
+            try {
+                setLoading(true);
+                const data = await apiFetch('/v1/invoices');
+                const rawInvoices = data.data?.invoices || data.invoices || (Array.isArray(data) ? data : []);
+                if (rawInvoices.length > 0) {
+                    setInvoices(rawInvoices.map(mapInvoiceFromApi));
+                } else {
+                    setInvoices([
+                        {
+                            id: 1,
+                            number: "F-2026-0001",
+                            clientName: "Jean Dupont",
+                            clientEmail: "jean.dupont@email.com",
+                            clientAddress: "12 Rue des Fleurs, 75001 Paris",
+                            interventionType: "Entretien annuel",
+                            workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
+                            date: "2026-07-02",
+                            dueDate: "2026-08-01",
+                            paymentDelay: 30,
+                            tvaRate: 20,
+                            subtotalHt: 100,
+                            tvaAmount: 20,
+                            totalTtc: 120,
+                            status: "paid",
+                            lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
+                        },
+                        {
+                            id: 2,
+                            number: "F-2026-0002",
+                            clientName: "Marie Martin",
+                            clientEmail: "marie.martin@email.com",
+                            clientAddress: "45 Avenue Foch, 69006 Lyon",
+                            interventionType: "Dépannage d'urgence",
+                            workDetails: "Recherche de fuite de fluide frigorigène et réparation sur climatisation.",
+                            date: "2026-07-10",
+                            dueDate: "2026-08-09",
+                            paymentDelay: 30,
+                            tvaRate: 10,
+                            subtotalHt: 218.18,
+                            tvaAmount: 21.82,
+                            totalTtc: 240,
+                            status: "pending",
+                            lines: [
+                                { description: "Forfait dépannage et diagnostic", qty: 1, unitPrice: 150 },
+                                { description: "Recharge de fluide R32 (kg)", qty: 0.8, unitPrice: 85.22 }
+                            ]
+                        }
+                    ]);
+                }
+            } catch (err) {
+                console.warn("API invoices non disponible, chargement des données locales:", err.message);
+                setInvoices([
+                    {
+                        id: 1,
+                        number: "F-2026-0001",
+                        clientName: "Jean Dupont",
+                        clientEmail: "jean.dupont@email.com",
+                        clientAddress: "12 Rue des Fleurs, 75001 Paris",
+                        interventionType: "Entretien annuel",
+                        workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
+                        date: "2026-07-02",
+                        dueDate: "2026-08-01",
+                        paymentDelay: 30,
+                        tvaRate: 20,
+                        subtotalHt: 100,
+                        tvaAmount: 20,
+                        totalTtc: 120,
+                        status: "paid",
+                        lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
+                    }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInvoices();
+    }, []);
 
     const [activeFilter, setActiveFilter] = useState("all");
     const [activeInvoice, setActiveInvoice] = useState(null);
@@ -156,25 +179,49 @@ function FacturesPage() {
         setPaymentModalInvoice(inv);
     };
 
-    const handleConfirmPayment = (inv, paymentMethod) => {
-        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "paid", paymentMethod } : i));
-        setActiveInvoice(prev => ({ ...prev, status: "paid", paymentMethod }));
-        setPaymentModalInvoice(null);
-        showToast(`✓ Facture ${inv.number} encaissée par ${paymentMethod} !`);
+    const handleConfirmPayment = async (inv, paymentMethod) => {
+        try {
+            await apiFetch(`/v1/invoices/${inv.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: "PAID", paymentMethod })
+            });
+            showToast(`✓ Facture ${inv.number} encaissée par ${paymentMethod} !`);
+            fetchInvoices();
+        } catch (err) {
+            console.error("Confirm payment API error:", err);
+            alert(err.message || "Erreur lors du règlement");
+        } finally {
+            setPaymentModalInvoice(null);
+        }
     };
 
-    const handleMarkUnpaid = (inv) => {
-        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "pending" } : i));
-        setActiveInvoice(prev => ({ ...prev, status: "pending" }));
-        showToast(`Facture ${inv.number} marquée comme non payée.`, "info");
+    const handleMarkUnpaid = async (inv) => {
+        try {
+            await apiFetch(`/v1/invoices/${inv.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: "SENT" })
+            });
+            showToast(`Facture ${inv.number} marquée comme non payée.`, "info");
+            fetchInvoices();
+        } catch (err) {
+            console.error("Mark unpaid error:", err);
+        }
     };
 
-    const handleSaveEdit = (updatedInv) => {
-        setInvoices(prev => prev.map(i => i.id === updatedInv.id ? updatedInv : i));
-        setActiveInvoice(updatedInv);
-        setShowEditPanel(false);
-        setShowDetailDrawer(true);
-        showToast(`✓ Facture ${updatedInv.number} modifiée.`);
+    const handleSaveEdit = async (updatedInv) => {
+        try {
+            await apiFetch(`/v1/invoices/${updatedInv.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updatedInv)
+            });
+            showToast(`✓ Facture ${updatedInv.number} modifiée.`);
+            fetchInvoices();
+        } catch (err) {
+            console.error("Save invoice error:", err);
+            alert(err.message || "Erreur lors de la modification");
+        } finally {
+            setShowEditPanel(false);
+        }
     };
 
     const handleSelfSend = (inv) => {
@@ -188,14 +235,27 @@ function FacturesPage() {
         showToast(`✓ E-mail envoyé automatiquement à ${inv.clientEmail}`);
     };
 
-    const handleCreateInvoice = (newInv) => {
-        const nextNum = invoices.length + 1;
-        newInv.number = `F-2026-${String(nextNum).padStart(4, "0")}`;
-        newInv.status = "draft";
-        setInvoices([newInv, ...invoices]);
-        setShowNewModal(false);
-        openDetail(newInv);
-        showToast(`✓ Facture ${newInv.number} créée en brouillon !`);
+    const handleCreateInvoice = async (newInv) => {
+        try {
+            await apiFetch('/v1/invoices', {
+                method: 'POST',
+                body: JSON.stringify({
+                    clientId: newInv.clientId || newInv.client?.id,
+                    subject: newInv.interventionType || newInv.subject || "Facture Prestation",
+                    amountHT: newInv.subtotalHt || 100,
+                    amountTTC: newInv.totalTtc || 120,
+                    tvaRate: newInv.tvaRate || 20,
+                    lines: newInv.lines || []
+                })
+            });
+            showToast(`✓ Facture créée avec succès !`);
+            fetchInvoices();
+        } catch (err) {
+            console.error("Create invoice API error:", err);
+            alert(err.message || "Erreur lors de la création de la facture");
+        } finally {
+            setShowNewModal(false);
+        }
     };
 
     const handleDownloadPdf = (inv) => {

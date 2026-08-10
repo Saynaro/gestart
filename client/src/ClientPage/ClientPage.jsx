@@ -242,11 +242,67 @@ const getClientDetails = (client) => {
     };
 };
 
+import { apiFetch } from "../utils/api";
+
 function ClientPage() {
     const navigate = useNavigate();
     const location = useLocation();
+
     const [contacts, setContacts] = useState(initialContacts);
     const [organisations, setOrganisations] = useState(initialOrganisations);
+    const [loading, setLoading] = useState(true);
+
+    const fetchClients = async () => {
+        try {
+            setLoading(true);
+            const data = await apiFetch('/v1/clients');
+            const clientList = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
+            const mappedParticuliers = [];
+            const mappedOrgs = [];
+
+            clientList.forEach(c => {
+                const isOrg = c.type === 'COMPANY' || !!c.companyName;
+                const clientObj = {
+                    id: c.id,
+                    firstName: c.firstName || '',
+                    lastName: c.lastName || '',
+                    name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                    contact: c.contactName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                    badge: c.notes?.includes('Test') ? 'Test' : null,
+                    email: c.email || '',
+                    phone: c.phone || '',
+                    address: c.address || '',
+                    zip: c.postalCode || c.zip || '',
+                    city: c.city || '',
+                    type: isOrg ? 'organisation' : 'particulier',
+                    equipment: c.equipment?.[0] ? {
+                        model: c.equipment[0].brand ? `${c.equipment[0].brand} ${c.equipment[0].model || ''}` : 'Équipement Standard',
+                        installDate: c.equipment[0].installDate ? new Date(c.equipment[0].installDate).toLocaleDateString('fr-FR') : 'Non renseigné',
+                        serialNumber: c.equipment[0].serialNumber || 'N/A'
+                    } : { model: "Daikin 3.5kW Inverter", installDate: "15/03/2024", serialNumber: "DK-2024-1234" },
+                    maintenance: { status: "OK", nextMaintenance: "15/03/2027" }
+                };
+
+                if (isOrg) {
+                    mappedOrgs.push(clientObj);
+                } else {
+                    mappedParticuliers.push(clientObj);
+                }
+            });
+
+            setContacts(mappedParticuliers);
+            setOrganisations(mappedOrgs);
+        } catch (err) {
+            console.warn("API clients non disponible:", err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchClients();
+    }, []);
+
     const [activeTabType, setActiveTabType] = useState("particulier"); // "particulier" or "organisation"
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("Tous");
@@ -433,95 +489,56 @@ function ClientPage() {
         setEditEquipSerial(client.equipment?.serialNumber || "");
     };
 
-    const handleSaveClient = () => {
+    const handleSaveClient = async () => {
         if (!editingClient) return;
 
-        const equipData = {
-            model: editEquipModel || "Daikin 3.5kW",
-            installDate: editEquipInstallDate || new Date().toLocaleDateString("fr-FR"),
-            serialNumber: editEquipSerial || `SN-${Date.now().toString().slice(-6)}`
+        const payload = {
+            firstName: editFirstName || (editingClient.isOrg ? editFirstName : "Nouveau"),
+            lastName: editLastName || (editingClient.isOrg ? "" : "Client"),
+            companyName: editingClient.isOrg ? (editFirstName || "Nouvelle Organisation") : null,
+            phone: editPhone || "0600000000",
+            email: editEmail || "",
+            address: editAddress || "1 Rue de Paris",
+            city: editCity || "Nice",
+            postalCode: editZip || "06000",
+            type: editingClient.isOrg ? "COMPANY" : "INDIVIDUAL"
         };
 
-        if (editingClient.isNew) {
-            const newId = Date.now();
-            if (editingClient.isOrg) {
-                const newOrg = {
-                    id: newId,
-                    name: editFirstName || "Nouvelle Organisation",
-                    contact: "",
-                    phone: editPhone,
-                    email: editEmail,
-                    address: editAddress,
-                    zip: editZip,
-                    city: editCity,
-                    type: "organisation",
-                    isOrg: true,
-                    equipment: equipData,
-                    maintenance: { status: "OK", nextMaintenance: "10/05/2027" },
-                    interventions: []
-                };
-                setOrganisations(prev => [newOrg, ...prev]);
+        try {
+            if (editingClient.isNew) {
+                await apiFetch('/v1/clients', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
             } else {
-                const newContact = {
-                    id: newId,
-                    firstName: editFirstName || "Nouveau",
-                    lastName: editLastName || "Client",
-                    badge: null,
-                    phone: editPhone,
-                    email: editEmail,
-                    address: editAddress,
-                    zip: editZip,
-                    city: editCity,
-                    type: "particulier",
-                    equipment: equipData,
-                    maintenance: { status: "OK", nextMaintenance: "15/03/2027" },
-                    interventions: []
-                };
-                setContacts(prev => [newContact, ...prev]);
+                await apiFetch(`/v1/clients/${editingClient.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
             }
+            await fetchClients();
+        } catch (err) {
+            console.error("Save client API error:", err);
+            alert(err.message || "Erreur lors de la sauvegarde du client");
+        } finally {
             setEditingClient(null);
-            return;
         }
-
-        const updatedClient = editingClient.isOrg ? {
-            ...editingClient,
-            name: editFirstName,
-            phone: editPhone,
-            email: editEmail,
-            address: editAddress,
-            zip: editZip,
-            city: editCity,
-            equipment: equipData
-        } : {
-            ...editingClient,
-            firstName: editFirstName,
-            lastName: editLastName,
-            phone: editPhone,
-            email: editEmail,
-            address: editAddress,
-            zip: editZip,
-            city: editCity,
-            equipment: equipData
-        };
-
-        if (editingClient.isOrg) {
-            setOrganisations(prev => prev.map(o => o.id === editingClient.id ? updatedClient : o));
-        } else {
-            setContacts(prev => prev.map(c => c.id === editingClient.id ? updatedClient : c));
-        }
-
-        if (selectedClient && selectedClient.id === editingClient.id) {
-            setSelectedClient(updatedClient);
-        }
-
-        setEditingClient(null);
     };
 
-    const handleArchiveClient = (client) => {
-        if (window.confirm(`Voulez-vous vraiment archiver le client ${client.firstName} ${client.lastName} ?`)) {
-            setContacts(prev => prev.filter(c => c.id !== client.id));
-            if (selectedClient && selectedClient.id === client.id) {
-                setSelectedClient(null);
+    const handleArchiveClient = async (client) => {
+        const clientName = client.name || `${client.firstName} ${client.lastName}`;
+        if (window.confirm(`Voulez-vous vraiment archiver le client ${clientName} ?`)) {
+            try {
+                await apiFetch(`/v1/clients/${client.id}`, {
+                    method: 'DELETE'
+                });
+                if (selectedClient && selectedClient.id === client.id) {
+                    setSelectedClient(null);
+                }
+                await fetchClients();
+            } catch (err) {
+                console.error("Delete client error:", err);
+                alert(err.message || "Erreur lors de la suppression");
             }
         }
     };

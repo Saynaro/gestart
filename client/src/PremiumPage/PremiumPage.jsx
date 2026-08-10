@@ -9,6 +9,8 @@ import Header from "../components/Header";
 // Reusable accounting integration
 import AccountingIntegration from "../ComptabilityPage/components/AccountingIntegration";
 
+import { apiFetch } from "../utils/api";
+
 function PremiumPage() {
     // SMS states
     const [reminderDays, setReminderDays] = useState("30");
@@ -21,6 +23,23 @@ function PremiumPage() {
     );
     const [smsPreview, setSmsPreview] = useState("");
 
+    useEffect(() => {
+        const fetchCompanySettings = async () => {
+            try {
+                const data = await apiFetch('/v1/company/settings');
+                const settings = data.data?.settings || data.settings || data;
+                if (settings) {
+                    if (settings.smsSignature) setSmsSignature(settings.smsSignature);
+                    if (settings.smsTemplate) setSmsTemplate(settings.smsTemplate);
+                }
+            } catch (err) {
+                console.warn("API settings non disponible, conservation des valeurs locales:", err.message);
+            }
+        };
+
+        fetchCompanySettings();
+    }, []);
+
     // Update real-time mock preview
     useEffect(() => {
         let text = smsTemplate;
@@ -32,9 +51,22 @@ function PremiumPage() {
         setSmsPreview(`${text}\n\n${smsSignature}`);
     }, [smsTemplate, smsSignature]);
 
-    const handleSaveSmsSettings = (e) => {
+    const handleSaveSmsSettings = async (e) => {
         e.preventDefault();
-        alert("✓ Configuration des rappels SMS enregistrée avec succès !");
+        try {
+            await apiFetch('/v1/company/settings', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    smsSignature,
+                    smsTemplate,
+                    reminderDays: parseInt(reminderDays, 10) || 30
+                })
+            });
+            alert("✓ Configuration des rappels SMS enregistrée avec succès dans la base de données !");
+        } catch (err) {
+            console.error("Save SMS settings error:", err);
+            alert(err.message || "Erreur lors de l'enregistrement des paramètres SMS");
+        }
     };
 
     return (

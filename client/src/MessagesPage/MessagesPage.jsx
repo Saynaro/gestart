@@ -24,6 +24,7 @@ import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import { apiFetch } from "../utils/api";
 
 // Mock data matching screenshot exactly plus detailed client database matching CRM styles
 const mockChatsData = [
@@ -203,6 +204,44 @@ function MessagesPage() {
   const [inputText, setInputText] = useState("");
   const [detailTab, setDetailTab] = useState("interventions");
 
+  useEffect(() => {
+    const fetchSmsMessages = async () => {
+      try {
+        const data = await apiFetch('/v1/sms');
+        const smsList = data.data?.sms || data.sms || (Array.isArray(data) ? data : []);
+        if (smsList.length > 0) {
+          const mappedChats = smsList.map((item, idx) => ({
+            id: item.id || idx + 1,
+            name: item.client ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() : (item.recipient || "Client"),
+            lastMessage: item.message || "Message SMS",
+            time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "11:16",
+            unread: 0,
+            online: true,
+            statusText: item.status || "Envoyé",
+            clientInfo: {
+              phone: item.recipient || item.client?.phone || "+33 6 00 00 00 00",
+              email: item.client?.email || "",
+              address: item.client?.address || "France",
+              zip: item.client?.postalCode || "06000",
+              city: item.client?.city || "NICE",
+              type: "particulier",
+              equipment: { model: "Daikin Inverter", installDate: "12/04/2024", serialNumber: "DK-2024" },
+              maintenance: { status: "OK", nextMaintenance: "12/04/2027" }
+            },
+            messages: [
+              { id: 1, sender: "me", text: item.message, time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "11:16" }
+            ]
+          }));
+          setChats(mappedChats);
+        }
+      } catch (err) {
+        console.warn("API SMS non disponible, utilisation des conversations locales:", err.message);
+      }
+    };
+
+    fetchSmsMessages();
+  }, []);
+
   // Custom dialog selectors
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [modalSearchTerm, setModalSearchTerm] = useState("");
@@ -354,14 +393,15 @@ function MessagesPage() {
     mobileView = isInfoParam ? "info" : "chat";
   }
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputText.trim() || !selectedChat) return;
 
+    const messageText = inputText.trim();
     const newMsg = {
-      id: messages.length + 1,
+      id: Date.now(),
       sender: "agent",
-      text: inputText,
+      text: messageText,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
     };
 
@@ -369,7 +409,7 @@ function MessagesPage() {
       if (c.id === selectedChat.id) {
         return {
           ...c,
-          lastMessage: inputText,
+          lastMessage: messageText,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
           messages: [...(c.messages || []), newMsg]
         };
@@ -378,6 +418,18 @@ function MessagesPage() {
     }));
 
     setInputText("");
+
+    try {
+      await apiFetch('/v1/sms/send', {
+        method: 'POST',
+        body: JSON.stringify({
+          recipient: selectedChat.clientInfo?.phone || "0600000000",
+          message: messageText
+        })
+      });
+    } catch (err) {
+      console.error("Send SMS API error:", err);
+    }
   };
 
   const handleSelectChat = (chatId) => {

@@ -66,24 +66,38 @@ const INITIAL_MOCK_ARTICLES = [
     }
 ];
 
+import { apiFetch } from "../utils/api";
+
 function CataloguePage() {
-    // Articles state (persisted in localStorage)
-    const [articles, setArticles] = useState(() => {
+    // Articles state
+    const [articles, setArticles] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchCatalog = async () => {
         try {
-            const saved = localStorage.getItem("catalogue_articles_v1");
-            return saved ? JSON.parse(saved) : INITIAL_MOCK_ARTICLES;
-        } catch (e) {
-            return INITIAL_MOCK_ARTICLES;
+            setLoading(true);
+            const data = await apiFetch('/v1/catalog');
+            const rawItems = data.data || data.items || (Array.isArray(data) ? data : []);
+            const mappedArticles = rawItems.map(item => ({
+                id: item.id,
+                name: item.name || "Article",
+                reference: item.reference || `REF-${item.id}`,
+                unitPrice: Number(item.defaultPrice || item.unitPrice || 0),
+                tvaRate: Number(item.tvaRate || 20),
+                category: item.type === "PRODUCT" ? "Matériel & Équipement" : "Prestations de services (BIC / BNC)",
+                description: item.description || ""
+            }));
+            setArticles(mappedArticles);
+        } catch (err) {
+            console.warn("API catalogue non disponible:", err.message);
+        } finally {
+            setLoading(false);
         }
-    });
+    };
 
     useEffect(() => {
-        try {
-            localStorage.setItem("catalogue_articles_v1", JSON.stringify(articles));
-        } catch (e) {
-            // Ignore storage errors
-        }
-    }, [articles]);
+        fetchCatalog();
+    }, []);
 
     // Search and Category Filter States
     const [searchQuery, setSearchQuery] = useState("");
@@ -174,21 +188,52 @@ function CataloguePage() {
     };
 
     // Save Article Handler
-    const handleSaveArticle = (articleData) => {
-        if (editingArticle) {
-            setArticles((prev) =>
-                prev.map((item) => (item.id === articleData.id ? articleData : item))
-            );
-        } else {
-            setArticles((prev) => [articleData, ...prev]);
+    const handleSaveArticle = async (articleData) => {
+        try {
+            const payload = {
+                name: articleData.name,
+                reference: articleData.reference,
+                description: articleData.description,
+                unitPrice: articleData.unitPrice,
+                tvaRate: articleData.tvaRate,
+                category: articleData.category,
+                type: articleData.category?.includes("Matériel") ? "PRODUCT" : "SERVICE"
+            };
+
+            if (editingArticle && editingArticle.id) {
+                await apiFetch(`/v1/catalog/${editingArticle.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                await apiFetch('/v1/catalog', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+            }
+            await fetchCatalog();
+        } catch (err) {
+            console.error("Save catalog item API error:", err);
+            alert(err.message || "Erreur lors de la sauvegarde de l'article");
+        } finally {
+            handleCloseArticleModal();
         }
     };
 
     // Delete Article Handler
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (deletingArticleId) {
-            setArticles((prev) => prev.filter((item) => item.id !== deletingArticleId));
-            setDeletingArticleId(null);
+            try {
+                await apiFetch(`/v1/catalog/${deletingArticleId}`, {
+                    method: 'DELETE'
+                });
+                await fetchCatalog();
+            } catch (err) {
+                console.error("Delete catalog item API error:", err);
+                alert(err.message || "Erreur lors de la suppression");
+            } finally {
+                setDeletingArticleId(null);
+            }
         }
     };
 

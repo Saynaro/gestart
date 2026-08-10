@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TrendingUp, DollarSign, PieChart, FileText, Calendar } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 function RevenueWidget({ startDate, endDate }) {
     const [viewMode, setViewMode] = useState("chart"); // 'chart' or 'table'
-
-    // Mock data based on the dynamic date range
-    const monthlyData = [
+    const [monthlyData, setMonthlyData] = useState([
         { period: "Jan 2026", caHT: 12500, caTTC: 15000, paid: 11000, count: 8 },
         { period: "Feb 2026", caHT: 14200, caTTC: 17040, paid: 13500, count: 11 },
         { period: "Mar 2026", caHT: 18500, caTTC: 22200, paid: 16000, count: 15 },
@@ -13,7 +12,21 @@ function RevenueWidget({ startDate, endDate }) {
         { period: "May 2026", caHT: 22000, caTTC: 26400, paid: 21000, count: 19 },
         { period: "Jun 2026", caHT: 25400, caTTC: 30480, paid: 24000, count: 22 },
         { period: "Jul 2026", caHT: 28900, caTTC: 34680, paid: 26500, count: 25 }
-    ];
+    ]);
+
+    useEffect(() => {
+        const fetchRevenue = async () => {
+            try {
+                const data = await apiFetch(`/v1/reports/revenue?startDate=${startDate}&endDate=${endDate}`);
+                if (data.data && Array.isArray(data.data.monthly)) {
+                    setMonthlyData(data.data.monthly);
+                }
+            } catch (err) {
+                console.warn("API reports revenue non disponible:", err.message);
+            }
+        };
+        fetchRevenue();
+    }, [startDate, endDate]);
 
     // Compute totals
     const totalHT = monthlyData.reduce((acc, curr) => acc + curr.caHT, 0);

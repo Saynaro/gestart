@@ -26,6 +26,8 @@ const initialClientDetails = [
     { name: "Bernard SA", type: "Organisation", email: "contact@bernard.sa", address: "45 Avenue Foch, 69006 Lyon" }
 ].sort((a, b) => a.name.localeCompare(b.name));
 
+import { apiFetch } from "../../utils/api";
+
 function NewQuoteModal({ onClose, onCreateQuote }) {
     // Determine screen size dynamically
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -40,6 +42,29 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
 
     // Grouped Clients list matching /planning
     const [clientDetails, setClientDetails] = useState(initialClientDetails);
+
+    useEffect(() => {
+        const fetchClientsForModal = async () => {
+            try {
+                const data = await apiFetch('/v1/clients');
+                const list = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
+                if (list.length > 0) {
+                    const mapped = list.map(c => ({
+                        id: c.id,
+                        name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                        type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
+                        email: c.email || "",
+                        address: `${c.address || ''} ${c.city || ''}`.trim()
+                    }));
+                    setClientDetails(mapped);
+                }
+            } catch (err) {
+                console.warn("API clients non disponible pour NewQuoteModal:", err.message);
+            }
+        };
+
+        fetchClientsForModal();
+    }, []);
 
     // Full Client Edit / New Client BottomSheet states
     const dragControlsMain = useDragControls();

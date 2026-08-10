@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Download, FileSpreadsheet, FileText, CalendarDays } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 function ExportPanel() {
     const [startDate, setStartDate] = useState("2026-01-01");
@@ -14,32 +15,45 @@ function ExportPanel() {
         pendingCount: 3
     };
 
-    const handleExportExcel = () => {
-        // Generate real CSV string
-        const rows = [
-            ["Facture N*", "Client", "Montant HT", "Montant TVA", "Montant TTC", "Statut", "Date de paiement"],
-            ["INV-2026-001", "Garage Central", "1200", "240", "1440", "Payee", "10/01/2026"],
-            ["INV-2026-002", "Jean Valjean", "800", "80", "880", "Payee", "12/01/2026"],
-            ["INV-2026-003", "Sophie Dupont", "2500", "137.5", "2637.5", "En attente", ""],
-            ["INV-2026-004", "Allo Clim Service", "450", "90", "540", "Payee", "18/01/2026"],
-            ["INV-2026-005", "Robert Durand", "3500", "700", "4200", "Payee", "22/01/2026"],
-            ["INV-2026-006", "Lucas Petit", "950", "190", "1140", "En attente", ""],
-            ["INV-2026-007", "Pierre Dubois", "3000", "600", "3600", "Payee", "05/02/2026"]
-        ];
+    const handleExportExcel = async () => {
+        try {
+            const data = await apiFetch('/v1/invoices');
+            const invoicesList = data.data?.invoices || data.invoices || (Array.isArray(data) ? data : []);
 
-        let csvContent = "data:text/csv;charset=utf-8,";
-        rows.forEach(function(rowArray) {
-            let row = rowArray.join(";");
-            csvContent += row + "\r\n";
-        });
+            const rows = [
+                ["Facture N*", "Client", "Montant HT", "Montant TVA", "Montant TTC", "Statut", "Date de creation"]
+            ];
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Export_Comptable_Factures_${startDate}_au_${endDate}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            invoicesList.forEach(inv => {
+                const clientName = inv.client ? `${inv.client.firstName || ''} ${inv.client.lastName || inv.client.companyName || ''}`.trim() : (inv.clientName || 'Client');
+                rows.push([
+                    inv.number || `F-2026-${inv.id}`,
+                    clientName,
+                    inv.totalHt || inv.subtotalHt || 0,
+                    inv.totalTva || inv.tvaAmount || 0,
+                    inv.totalTtc || 0,
+                    inv.status || 'draft',
+                    inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('fr-FR') : ''
+                ]);
+            });
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            rows.forEach(function(rowArray) {
+                let row = rowArray.join(";");
+                csvContent += row + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Export_Comptable_Factures_${startDate}_au_${endDate}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (err) {
+            console.error("Export error:", err);
+            alert("Erreur lors de l'exportation des données");
+        }
     };
 
     const handleExportPDF = () => {

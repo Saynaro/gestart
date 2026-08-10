@@ -26,11 +26,14 @@ import StatsTab from "./components/StatsTab";
 // Productivité widgets
 import ProductivityTab from "./components/ProductivityTab";
 
+import { apiFetch } from "../utils/api";
+
 function HomePage() {
     const location = useLocation();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("comptabilite");
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const [dashboardData, setDashboardData] = useState(null);
 
     useEffect(() => {
         if (location.state?.openOnboardingModal) {
@@ -38,34 +41,51 @@ function HomePage() {
         }
     }, [location.state]);
 
+    useEffect(() => {
+        const fetchDashboard = async () => {
+            try {
+                const data = await apiFetch('/v1/dashboard');
+                setDashboardData(data.data || data);
+            } catch (err) {
+                console.warn("API dashboard non disponible:", err.message);
+            }
+        };
+
+        fetchDashboard();
+    }, []);
+
     // Action Handlers
     const handleConnectUrssaf = () => {
-        alert("Action: Connexion avec votre compte Urssaf...");
+        navigate("/comptabilite");
     };
 
     const handleConfigureTaux = () => {
-        alert("Action: Redirection vers la configuration des taux de cotisations...");
+        navigate("/settings");
     };
 
     const handleCreateFacture = () => {
-        alert("Action: Création d'une nouvelle facture client...");
+        navigate("/factures");
     };
 
     const handleCreateDevis = () => {
-        alert("Action: Création d'un nouveau devis...");
+        navigate("/devis");
     };
 
     const handlePlanIntervention = () => {
-        alert("Action: Planifier une nouvelle intervention...");
+        navigate("/planning");
     };
 
     const handleCreateTask = () => {
-        alert("Action: Créer une nouvelle tâche de productivité...");
+        navigate("/planning");
     };
 
     const handleCreateBoard = () => {
-        alert("Action: Configuration d'un nouveau tableau de suivi...");
+        navigate("/rapports");
     };
+
+    const revenueVal = dashboardData?.stats?.revenueThisMonth || 152.33;
+    const cotisationsVal = Math.round(revenueVal * 0.211 * 100) / 100;
+    const resultatVal = Math.round((revenueVal - cotisationsVal) * 100) / 100;
 
     return (
         <div className="home-page">
@@ -84,10 +104,10 @@ function HomePage() {
                     {/* Top Row: Financial Statistics Cards & Interactive Chart */}
                     <div className="dashboard-top-section">
                         <FinancialStats 
-                            chiffreAffaires={152.33} 
-                            cotisations={31.52} 
-                            resultat={120.81} 
-                            period="Juillet 2026"
+                            chiffreAffaires={revenueVal} 
+                            cotisations={cotisationsVal} 
+                            resultat={resultatVal} 
+                            period="Mois en cours"
                             onConnectUrssaf={handleConnectUrssaf}
                             onConfigureTaux={handleConfigureTaux}
                         />

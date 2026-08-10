@@ -45,10 +45,35 @@ const INTERVENTION_TYPES = [
     "Contrôle d'étanchéité",
 ];
 
+import { apiFetch } from "../../utils/api";
+
 function ClientPickerModal({ currentName, onSelect, onClose }) {
     const [query, setQuery] = useState("");
+    const [clientsList, setClientsList] = useState(CLIENT_LIST);
 
-    const filtered = CLIENT_LIST.filter(c =>
+    useEffect(() => {
+        const fetchClients = async () => {
+            try {
+                const data = await apiFetch('/v1/clients');
+                const list = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
+                if (list.length > 0) {
+                    const mapped = list.map(c => ({
+                        id: c.id,
+                        name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                        type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
+                        email: c.email || "",
+                        address: `${c.address || ''} ${c.city || ''}`.trim()
+                    }));
+                    setClientsList(mapped);
+                }
+            } catch (err) {
+                console.warn("API clients error in InvoiceEditPanel:", err);
+            }
+        };
+        fetchClients();
+    }, []);
+
+    const filtered = clientsList.filter(c =>
         c.name.toLowerCase().includes(query.toLowerCase()) ||
         c.email.toLowerCase().includes(query.toLowerCase())
     );

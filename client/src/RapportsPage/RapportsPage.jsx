@@ -13,9 +13,12 @@ import QuotesWidget from "./components/QuotesWidget";
 import InterventionsWidget from "./components/InterventionsWidget";
 import ClientSmsWidget from "./components/ClientSmsWidget";
 
+import { apiFetch } from "../utils/api";
+
 function RapportsPage() {
     // Shared Date Filter State
     const [datePreset, setDatePreset] = useState("last_3_months");
+    const [reportsData, setReportsData] = useState(null);
     
     // Default: Last 3 months formatted YYYY-MM-DD
     const getDefaultStart = () => {
@@ -32,6 +35,19 @@ function RapportsPage() {
 
     const [startDate, setStartDate] = useState(getDefaultStart());
     const [endDate, setEndDate] = useState(getDefaultEnd());
+
+    useEffect(() => {
+        const fetchReports = async () => {
+            try {
+                const data = await apiFetch(`/v1/reports/revenue?startDate=${startDate}&endDate=${endDate}`);
+                setReportsData(data.data || data);
+            } catch (err) {
+                console.warn("API reports non disponible:", err.message);
+            }
+        };
+
+        fetchReports();
+    }, [startDate, endDate]);
 
     const handleRangeChange = (presetId, start, end) => {
         setDatePreset(presetId);

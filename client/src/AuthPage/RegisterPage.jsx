@@ -141,7 +141,7 @@ export default function RegisterPage() {
                         }
                     }
                 })
-                .catch(() => {});
+                .catch(() => { });
         }
     }, [searchParams]);
 
@@ -409,7 +409,6 @@ export default function RegisterPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Building2 className="logo-icon" />
                         <span>GestArt CRM</span>
                     </div>
 
@@ -440,7 +439,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="banner-footer">
-                    <span>© 2026 GestArt. Fait avec ❤️ pour les installateurs & artisans.</span>
+                    <span>© 2026 GestArt. Fait avec pour les installateurs & artisans.</span>
                 </div>
             </div>
 
@@ -449,7 +448,6 @@ export default function RegisterPage() {
                 <div className="form-card">
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Building2 size={16} />
                             <span>GestArt CRM</span>
                         </div>
                     </div>
@@ -478,8 +476,8 @@ export default function RegisterPage() {
                                 className={`mode-tab ${mode === 'OWNER' ? 'active' : ''}`}
                                 onClick={() => setMode('OWNER')}
                             >
-                                <Crown className="tab-icon" />
-                                Chef d'entreprise
+                                <Building2 className="tab-icon" />
+                                Entreprise
                             </button>
                             <button
                                 type="button"
@@ -533,19 +531,19 @@ export default function RegisterPage() {
                                         </div>
                                     )}
                                     <div className="input-group">
-                                    <label>Code / Token d'invitation *</label>
-                                    <div className="input-wrapper">
-                                        <Lock className="input-icon" />
-                                        <input
-                                            type="text"
-                                            name="invitationCode"
-                                            placeholder="ex: INV-987654"
-                                            value={formData.invitationCode}
-                                            onChange={handleChange}
-                                            required
-                                        />
+                                        <label>Code / Token d'invitation *</label>
+                                        <div className="input-wrapper">
+                                            <Lock className="input-icon" />
+                                            <input
+                                                type="text"
+                                                name="invitationCode"
+                                                placeholder="ex: INV-987654"
+                                                value={formData.invitationCode}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                        </div>
                                     </div>
-                                </div>
                                 </>
                             )}
 

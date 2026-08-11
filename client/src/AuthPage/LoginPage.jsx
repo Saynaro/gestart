@@ -118,7 +118,6 @@ export default function LoginPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Building2 className="logo-icon" />
                         <span>GestArt CRM</span>
                     </div>
 
@@ -161,7 +160,6 @@ export default function LoginPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Building2 size={16} />
                             <span>GestArt CRM</span>
                         </div>
                     </div>
@@ -262,7 +260,7 @@ export default function LoginPage() {
                         <p className="required-note">(*) Les champs sont obligatoires</p>
                         <div>
                             <span>Pas encore de compte ? </span>
-                            <Link to="/register" className="register-link">
+                            <Link to="/register" className="register-link" >
                                 Créer un compte
                             </Link>
                         </div>

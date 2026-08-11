@@ -220,7 +220,7 @@ export const login = async (req, res) => {
             });
         }
 
-        if (!user.emailVerified) {
+        if (!user.emailVerified && user.role !== 'SUPERADMIN') {
             return res.status(401).json({
                 success: false,
                 message: "Veuillez vérifier votre email"

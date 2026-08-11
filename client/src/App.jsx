@@ -1,7 +1,7 @@
 import { useEffect, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
-import { isAuthenticated } from './utils/auth'
+import { isAuthenticated, isSuperAdmin } from './utils/auth'
 
 // Static imports for instant landing & core components
 import LandingPage from './LandingPage/LandingPage'
@@ -36,6 +36,9 @@ const SubscriptionCancelPage = lazy(() => import('./PublicPages/SubscriptionSucc
 function ProtectedRoute({ children }) {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
+  }
+  if (isSuperAdmin()) {
+    return <Navigate to="/admin" replace />;
   }
   return children;
 }

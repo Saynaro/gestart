@@ -2,9 +2,12 @@
 
 .super-admin-page {
     min-height: 100vh;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden;
     background-color: var(--background, #0F172A);
     color: var(--foreground, #F8FAFC);
-    padding-bottom: 60px;
+    padding-bottom: 80px;
 }
 
 /* Topbar Navigation */
@@ -13,9 +16,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 14px 24px;
-    background-color: rgba(15, 23, 42, 0.95);
-    border-bottom: 1px solid var(--border, #1E293B);
-    backdrop-filter: blur(12px);
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -80,8 +83,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border, #334155);
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
     padding: 4px 12px 4px 6px;
     border-radius: 50px;
 }
@@ -135,8 +138,8 @@
 
 /* Tabs Bar */
 .admin-tabs-bar {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid var(--border, #1E293B);
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
     padding: 10px 24px;
 }
 

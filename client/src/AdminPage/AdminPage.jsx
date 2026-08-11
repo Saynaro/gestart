@@ -120,6 +120,21 @@ export default function AdminPage() {
         }
     ]);
 
+    // Force body and html overflow auto to ensure scrolling works smoothly
+    useEffect(() => {
+        document.documentElement.style.overflow = "auto";
+        document.body.style.overflow = "auto";
+        document.documentElement.style.height = "auto";
+        document.body.style.height = "auto";
+
+        return () => {
+            document.documentElement.style.overflow = "";
+            document.body.style.overflow = "";
+            document.documentElement.style.height = "";
+            document.body.style.height = "";
+        };
+    }, []);
+
     // Fetch real backend data if available
     useEffect(() => {
         const fetchAdminData = async () => {
@@ -348,9 +363,6 @@ export default function AdminPage() {
             {/* Top Navigation Bar */}
             <div className="admin-topbar">
                 <div className="left">
-                    <button className="admin-back-btn" onClick={() => navigate('/home')} title="Retour à l'application">
-                        <ArrowLeft size={16} /> <span className="back-text">Retour App</span>
-                    </button>
                     <div className="brand-badge-group">
                         <span className="admin-logo">CLIMPRO</span>
                         <span className="admin-tag">SUPER ADMIN</span>

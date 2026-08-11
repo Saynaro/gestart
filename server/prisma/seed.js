@@ -1,14 +1,30 @@
 import { prisma } from "../src/config/db.js";
-import bcrypt from 'bcryptjs';
-
+import bcrypt from 'bcrypt';
 
 async function main() {
+    console.log(" Initialisation du SuperAdmin...");
+
+    // 1. Chercher une company existante ou en créer une
+    let company = await prisma.company.findFirst();
+    if (!company) {
+        company = await prisma.company.create({
+            data: {
+                name: "GestArt Siège SuperAdmin",
+                email: "khalid.cizdoev777@gmail.com",
+                phone: "0600000000",
+                address: "Paris, France"
+            }
+        });
+    }
+
     const hashedPassword = await bcrypt.hash('Khalid2527@@', 10);
 
-    await prisma.user.upsert({
+    const superAdmin = await prisma.user.upsert({
         where: { email: 'khalid.cizdoev777@gmail.com' },
         update: {
-            role: 'SUPERADMIN'
+            role: 'SUPERADMIN',
+            emailVerified: true,
+            password: hashedPassword
         },
         create: {
             email: 'khalid.cizdoev777@gmail.com',
@@ -16,15 +32,17 @@ async function main() {
             firstName: 'Khalid',
             lastName: 'Sainaro',
             role: 'SUPERADMIN',
-            companyId: '690bb6c2-7a31-411f-9926-9083cd154a16'
+            emailVerified: true,
+            companyId: company.id
         }
     });
-}
 
+    console.log(` SuperAdmin configuré et vérifié : ${superAdmin.email} (Verified: ${superAdmin.emailVerified})`);
+}
 
 main()
     .catch((e) => {
-        console.error("Erreur lors du seeding :", e);
+        console.error(" Erreur lors du seeding :", e);
         process.exit(1);
     })
     .finally(async () => {

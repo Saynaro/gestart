@@ -38,6 +38,7 @@ function SideBar({ onFabClick, hideFab = false }) {
         return stored === null ? false : stored === "false";
     });
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const toggleCollapse = () => {
         const nextState = !isCollapsed;
@@ -247,7 +248,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                     </li>
                                 </ul>
                                 <div className="popover-divider"></div>
-                                <div className="popover-item danger" onClick={() => { setUserMenuOpen(false); handleLogout(navigate); }}>
+                                <div className="popover-item danger" onClick={() => { setUserMenuOpen(false); setShowLogoutModal(true); }}>
                                     <span className="popover-item-icon">
                                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -262,6 +263,56 @@ function SideBar({ onFabClick, hideFab = false }) {
                     </div>
                 </div>
             </div>
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div style={{
+                    position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                    backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', padding: '20px'
+                }}>
+                    <div style={{
+                        backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
+                        borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
+                    }}>
+                        <div style={{
+                            width: '52px', height: '52px', borderRadius: '16px',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#EF4444',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            margin: '0 auto 16px auto'
+                        }}>
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </div>
+                        <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--foreground, #0F172A)' }}>
+                            Déconnexion
+                        </h3>
+                        <p style={{ margin: '0 0 24px 0', fontSize: '0.9rem', color: 'var(--muted-foreground, #64748B)', lineHeight: 1.5 }}>
+                            Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte GestArt CRM ?
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                type="button"
+                                onClick={() => setShowLogoutModal(false)}
+                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--border, #CBD5E1)', backgroundColor: 'transparent', fontWeight: 700, cursor: 'pointer', color: 'var(--foreground, #0F172A)' }}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setShowLogoutModal(false); handleLogout(navigate); }}
+                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontWeight: 800, cursor: 'pointer' }}
+                            >
+                                Oui, me déconnecter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {fabConfig && !hideFab && (
                 <button

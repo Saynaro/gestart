@@ -21,6 +21,8 @@ import FacturesPage from './FacturesPage/FacturesPage'
 import DevisPage from './DevisPage/DevisPage'
 import PremiumPage from './PremiumPage/PremiumPage'
 import CataloguePage from './CataloguePage.jsx/CataloguePage'
+import TechniciensPage from './TechniciensPage/TechniciensPage'
+import TechnicianInterventionsPage from './TechniciensPage/TechnicianInterventionsPage'
 import RegisterPage from './AuthPage/RegisterPage'
 import LoginPage from './AuthPage/LoginPage'
 import ForgotPasswordPage from './AuthPage/ForgotPasswordPage'
@@ -138,6 +140,8 @@ function App() {
           <Route path="/rapports" element={<ProtectedRoute><RapportsPage /></ProtectedRoute>} />
           <Route path="/comptabilite" element={<ProtectedRoute><ComptabilityPage /></ProtectedRoute>} />
           <Route path="/catalogue" element={<ProtectedRoute><CataloguePage /></ProtectedRoute>} />
+          <Route path="/techniciens" element={<ProtectedRoute><TechniciensPage /></ProtectedRoute>} />
+          <Route path="/interventions/today" element={<ProtectedRoute><TechnicianInterventionsPage /></ProtectedRoute>} />
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminProtectedRoute><SuperAdminPanel /></AdminProtectedRoute>} />

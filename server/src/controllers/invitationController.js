@@ -32,26 +32,21 @@ export const createInvitation = async (req, res) => {
     const invitedById = req.user.id;
     const { email, role = "TECHNICIAN" } = req.body;
 
-    if (!email) {
-        return res.status(400).json({
-            success: false,
-            message: "L'adresse email est requise"
-        });
-    }
-
-    const formattedEmail = email.toLowerCase().trim();
+    const formattedEmail = email ? email.toLowerCase().trim() : null;
 
     try {
-        // 1. Vérification si l'utilisateur existe déjà
-        const existingUser = await prisma.user.findUnique({
-            where: { email: formattedEmail }
-        });
-
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: "Cet utilisateur possède déjà un compte"
+        // 1. Vérification si l'utilisateur existe déjà (si email fourni)
+        if (formattedEmail) {
+            const existingUser = await prisma.user.findUnique({
+                where: { email: formattedEmail }
             });
+
+            if (existingUser) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Cet utilisateur possède déjà un compte"
+                });
+            }
         }
 
         // 2. Vérification des limites de techniciens si le rôle est TECHNICIAN
@@ -80,17 +75,20 @@ export const createInvitation = async (req, res) => {
             }
         }
 
-        // 3. Génération du token d'invitation (expire dans 7 jours)
-        const token = crypto.randomBytes(32).toString("hex");
+        // 3. Génération du token/code d'invitation lisible (ex: INV-9F2B4A) (expire dans 7 jours)
+        const codeSuffix = crypto.randomBytes(3).toString("hex").toUpperCase();
+        const token = `INV-${codeSuffix}`;
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 7);
 
-        // 4. Upsert de l'invitation
+        const inviteEmail = formattedEmail || `invitation-${codeSuffix.toLowerCase()}@gestart.link`;
+
+        // 4. Création/mise à jour de l'invitation
         const invitation = await prisma.invitation.upsert({
             where: {
                 companyId_email: {
                     companyId,
-                    email: formattedEmail
+                    email: inviteEmail
                 }
             },
             update: {
@@ -104,7 +102,7 @@ export const createInvitation = async (req, res) => {
             },
             create: {
                 companyId,
-                email: formattedEmail,
+                email: inviteEmail,
                 role: role.toUpperCase(),
                 token,
                 status: "PENDING",
@@ -214,8 +212,13 @@ export const checkInvitationToken = async (req, res) => {
     const { token } = req.params;
 
     try {
-        const invitation = await prisma.invitation.findUnique({
-            where: { token },
+        const invitation = await prisma.invitation.findFirst({
+            where: {
+                OR: [
+                    { token: token },
+                    { token: token?.toUpperCase() }
+                ]
+            },
             include: {
                 company: {
                     select: { name: true }
@@ -257,8 +260,8 @@ export const checkInvitationToken = async (req, res) => {
 
 ////// ACCEPT INVITATION & CREATE USER ACCOUNT (PUBLIC POST) //////
 export const acceptInvitation = async (req, res) => {
-    const token = req.params.token || req.body.token;
-    const { firstName, lastName, password } = req.body;
+    const token = req.params.token || req.body.token || req.body.invitationCode;
+    const { firstName, lastName, password, email, phone } = req.body;
 
     if (!firstName || !lastName || !password) {
         return res.status(400).json({
@@ -275,14 +278,19 @@ export const acceptInvitation = async (req, res) => {
     }
 
     try {
-        const invitation = await prisma.invitation.findUnique({
-            where: { token }
+        const invitation = await prisma.invitation.findFirst({
+            where: {
+                OR: [
+                    { token: token },
+                    { token: token?.toUpperCase() }
+                ]
+            }
         });
 
         if (!invitation) {
             return res.status(404).json({
                 success: false,
-                message: "Lien d'invitation invalide"
+                message: "Code ou lien d'invitation invalide"
             });
         }
 
@@ -290,6 +298,20 @@ export const acceptInvitation = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "L'invitation a expiré ou n'est plus valide"
+            });
+        }
+
+        const finalEmail = (email || invitation.email).toLowerCase().trim();
+
+        // Vérification unicité email si différent
+        const existingUser = await prisma.user.findUnique({
+            where: { email: finalEmail }
+        });
+
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "Un compte existe déjà avec cette adresse email"
             });
         }
 
@@ -302,10 +324,11 @@ export const acceptInvitation = async (req, res) => {
             const newUser = await tx.user.create({
                 data: {
                     companyId: invitation.companyId,
-                    email: invitation.email.toLowerCase().trim(),
+                    email: finalEmail,
                     password: hashedPassword,
                     firstName: firstName.trim(),
                     lastName: lastName.trim(),
+                    phone: phone || null,
                     role: invitation.role,
                     emailVerified: true
                 }
@@ -348,6 +371,102 @@ export const acceptInvitation = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de l'acceptation de l'invitation"
+        });
+    }
+};
+
+////// GET PENDING COMPANY INVITES FOR CURRENT USER //////
+export const getUserPendingCompanyInvites = async (req, res) => {
+    const userEmail = req.user.email?.toLowerCase().trim();
+
+    try {
+        const invites = await prisma.invitation.findMany({
+            where: {
+                email: userEmail,
+                status: "PENDING",
+                expiresAt: { gte: new Date() }
+            },
+            include: {
+                company: {
+                    select: {
+                        id: true,
+                        name: true,
+                        logoUrl: true
+                    }
+                }
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: { invites }
+        });
+    } catch (error) {
+        console.error("GET USER PENDING INVITES ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la récupération des invitations"
+        });
+    }
+};
+
+////// RESPOND TO COMPANY JOIN INVITATION (ACCEPT / REFUSE) //////
+export const respondToCompanyInvite = async (req, res) => {
+    const userId = req.user.id;
+    const { invitationId, action } = req.body; // action: "ACCEPT" | "REFUSE"
+
+    try {
+        const invitation = await prisma.invitation.findUnique({
+            where: { id: invitationId },
+            include: { company: true }
+        });
+
+        if (!invitation || invitation.status !== "PENDING") {
+            return res.status(404).json({
+                success: false,
+                message: "Invitation introuvable ou déjà traitée"
+            });
+        }
+
+        if (action === "ACCEPT") {
+            await prisma.$transaction([
+                prisma.user.update({
+                    where: { id: userId },
+                    data: { companyId: invitation.companyId, role: invitation.role }
+                }),
+                prisma.invitation.update({
+                    where: { id: invitationId },
+                    data: { status: "ACCEPTED", acceptedAt: new Date() }
+                })
+            ]);
+
+            const newAccessToken = generateAccessToken(userId, invitation.role, invitation.companyId);
+
+            return res.status(200).json({
+                success: true,
+                message: `Vous avez rejoint l'entreprise ${invitation.company.name} avec succès !`,
+                accessToken: newAccessToken,
+                data: {
+                    companyName: invitation.company.name,
+                    companyId: invitation.companyId
+                }
+            });
+        } else {
+            await prisma.invitation.update({
+                where: { id: invitationId },
+                data: { status: "REVOKED", revokedAt: new Date() }
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: "Invitation refusée"
+            });
+        }
+    } catch (error) {
+        console.error("RESPOND TO INVITE ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors du traitement de l'invitation"
         });
     }
 };

@@ -5,7 +5,8 @@ import { Bell, MessageSquare, Send, X } from "lucide-react";
 import "./Header.css";
 import { profilePages, DropdownIcons } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
-
+import { apiFetch } from "../utils/api";
+import { setAuthToken } from "../utils/auth";
 
 function Header() {
     const navigate = useNavigate();
@@ -18,6 +19,46 @@ function Header() {
 
     const [smsList, setSmsList] = useState([]);
     const [notificationsList, setNotificationsList] = useState([]);
+    const [pendingInvites, setPendingInvites] = useState([]);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    useEffect(() => {
+        const fetchPendingInvites = async () => {
+            try {
+                const res = await apiFetch("/v1/invitations/pending-user-invites");
+                const list = res.data?.invites || res.invites || [];
+                setPendingInvites(list);
+            } catch (err) {
+                // Ignore silent auth errors
+            }
+        };
+        fetchPendingInvites();
+    }, []);
+
+    const handleRespondInvite = async (invitationId, action) => {
+        try {
+            const res = await apiFetch("/v1/invitations/respond-join", {
+                method: "POST",
+                body: JSON.stringify({ invitationId, action })
+            });
+
+            if (res.accessToken) {
+                setAuthToken(res.accessToken);
+            }
+
+            setSmsSuccessMsg(res.message || (action === "ACCEPT" ? "Rejoint avec succès !" : "Invitation refusée"));
+            setTimeout(() => setSmsSuccessMsg(""), 4000);
+
+            setPendingInvites(prev => prev.filter(i => i.id !== invitationId));
+
+            if (action === "ACCEPT") {
+                window.location.reload();
+            }
+        } catch (err) {
+            setSmsSuccessMsg(err.message || "Erreur lors de la réponse à l'invitation");
+            setTimeout(() => setSmsSuccessMsg(""), 4000);
+        }
+    };
 
     const [activePath, setActivePath] = useState(window.location.pathname || "/dashboard");
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -134,6 +175,7 @@ function Header() {
         if (pathname.startsWith("/comptabilite")) return "Comptabilité";
         if (pathname.startsWith("/catalogue")) return "Catalogue";
         if (pathname.startsWith("/premium")) return "Premium";
+        if (pathname.startsWith("/techniciens")) return "Techniciens";
         if (pathname.startsWith("/settings")) return "Paramètres";
         return "Home";
     };
@@ -190,7 +232,34 @@ function Header() {
                                 <div className="bell-tabs-content">
                                     {bellTab === "notifications" ? (
                                         <div className="notifications-list">
-                                            {notificationsList.length === 0 ? (
+                                            {pendingInvites.map(inv => (
+                                                <div key={inv.id} className="notification-item" style={{ borderLeft: '4px solid #16A34A', background: 'rgba(34, 197, 94, 0.05)', padding: '14px' }}>
+                                                    <div className="meta">
+                                                        <span className="title" style={{ color: '#16A34A', fontWeight: 800 }}>Rejoindre l'entreprise {inv.company.name}</span>
+                                                        <span className="time">Invitation</span>
+                                                    </div>
+                                                    <p className="text" style={{ margin: '6px 0 10px 0' }}>
+                                                        L'entreprise <strong>{inv.company.name}</strong> vous invite à rejoindre son équipe en tant que technicien.
+                                                    </p>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRespondInvite(inv.id, "ACCEPT")}
+                                                            style={{ backgroundColor: '#16A34A', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
+                                                        >
+                                                            Accepter
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRespondInvite(inv.id, "REFUSE")}
+                                                            style={{ backgroundColor: 'transparent', color: '#EF4444', border: '1px solid #EF4444', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
+                                                        >
+                                                            Refuser
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {notificationsList.length === 0 && pendingInvites.length === 0 ? (
                                                 <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
                                                     Aucune notification pour le moment
                                                 </p>
@@ -304,7 +373,7 @@ function Header() {
                                         onClick={(e) => {
                                             e.preventDefault();
                                             setMenuOpen(false);
-                                            handleLogout(navigate);
+                                            setShowLogoutModal(true);
                                         }}
                                         className="dropdown-link"
                                     >
@@ -317,6 +386,52 @@ function Header() {
                     )}
                 </div>
             </div>
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div style={{
+                    position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                    backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', padding: '20px'
+                }}>
+                    <div style={{
+                        backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
+                        borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
+                    }}>
+                        <div style={{
+                            width: '52px', height: '52px', borderRadius: '16px',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#EF4444',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            margin: '0 auto 16px auto'
+                        }}>
+                            <X size={26} />
+                        </div>
+                        <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--foreground, #0F172A)' }}>
+                            Déconnexion
+                        </h3>
+                        <p style={{ margin: '0 0 24px 0', fontSize: '0.9rem', color: 'var(--muted-foreground, #64748B)', lineHeight: 1.5 }}>
+                            Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte GestArt CRM ?
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                type="button"
+                                onClick={() => setShowLogoutModal(false)}
+                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--border, #CBD5E1)', backgroundColor: 'transparent', fontWeight: 700, cursor: 'pointer', color: 'var(--foreground, #0F172A)' }}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setShowLogoutModal(false); handleLogout(navigate); }}
+                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontWeight: 800, cursor: 'pointer' }}
+                            >
+                                Oui, me déconnecter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,0 +1,454 @@
+import React, { useState, useEffect } from "react";
+import {
+    Wrench,
+    UserPlus,
+    Users,
+    Mail,
+    Copy,
+    Check,
+    Share2,
+    MessageSquare,
+    Send,
+    Phone,
+    Shield,
+    Trash2,
+    RefreshCw,
+    X,
+    ExternalLink,
+    Sparkles,
+    CheckCircle2
+} from "lucide-react";
+import SideBar from "../components/SideBar";
+import Header from "../components/Header";
+import { apiFetch } from "../utils/api";
+import "./TechniciensPage.css";
+
+export default function TechniciensPage() {
+    const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobileView(window.innerWidth < 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // State Data
+    const [technicians, setTechnicians] = useState([]);
+    const [invitations, setInvitations] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Toast State
+    const [toast, setToast] = useState({ show: false, message: "", isError: false });
+    const triggerToast = (message, isError = false) => {
+        setToast({ show: true, message, isError });
+        setTimeout(() => setToast({ show: false, message: "", isError: false }), 4000);
+    };
+
+    // Modal State
+    const [showInviteModal, setShowInviteModal] = useState(false);
+    const [inviteEmail, setInviteEmail] = useState("");
+    const [createdInvite, setCreatedInvite] = useState(null);
+    const [copied, setCopied] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Fetch Technicians & Invitations from API
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            // Fetch users
+            const usersData = await apiFetch("/v1/users");
+            const userList = usersData.data?.users || usersData.users || (Array.isArray(usersData) ? usersData : []);
+            
+            // Filter technicians or active team members
+            const techs = userList.filter(u => u.role === "TECHNICIAN" || u.role === "MANAGER" || u.role === "OWNER");
+            setTechnicians(techs);
+
+            // Fetch invitations
+            const invData = await apiFetch("/v1/invitations");
+            const invList = invData.data?.invitations || invData.invitations || [];
+            setInvitations(invList);
+        } catch (err) {
+            console.warn("Erreur chargement techniciens:", err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    // Create Invitation Handler
+    const handleCreateInvitation = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const body = inviteEmail ? { email: inviteEmail, role: "TECHNICIAN" } : { role: "TECHNICIAN" };
+            const res = await apiFetch("/v1/invitations", {
+                method: "POST",
+                body: JSON.stringify(body)
+            });
+
+            const newInv = res.data?.invitation || res.invitation;
+            if (newInv) {
+                setCreatedInvite(newInv);
+                triggerToast("Invitation créée avec succès !");
+                loadData();
+            }
+        } catch (err) {
+            triggerToast(err.message || "Erreur lors de la création de l'invitation", true);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Revoke Invitation
+    const handleRevokeInvitation = async (id) => {
+        try {
+            await apiFetch(`/v1/invitations/${id}`, { method: "DELETE" });
+            triggerToast("Invitation révoquée");
+            loadData();
+        } catch (err) {
+            triggerToast(err.message || "Erreur lors de la révocation", true);
+        }
+    };
+
+    // Helper URLs
+    const getShareableUrl = (token) => {
+        const baseUrl = window.location.origin;
+        return `${baseUrl}/register?invitation=${token}`;
+    };
+
+    const handleCopyUrl = (url) => {
+        navigator.clipboard.writeText(url);
+        setCopied(true);
+        triggerToast("Lien d'inscription copié dans le presse-papier !");
+        setTimeout(() => setCopied(false), 3000);
+    };
+
+    const getWhatsAppShareUrl = (url, code) => {
+        const text = `Bonjour, rejoignez notre équipe sur GestArt CRM en tant que technicien ! Cliquez sur ce lien pour vous inscrire : ${url} (Code d'invitation : ${code})`;
+        return `https://wa.me/?text=${encodeURIComponent(text)}`;
+    };
+
+    const getSmsShareUrl = (url, code) => {
+        const text = `Rejoignez l'équipe sur GestArt CRM. Lien d'inscription: ${url} Code: ${code}`;
+        return `sms:?body=${encodeURIComponent(text)}`;
+    };
+
+    const getMailShareUrl = (email, url, code) => {
+        const subject = "Invitation à rejoindre l'équipe GestArt CRM";
+        const body = `Bonjour,\n\nVous êtes invité(e) à rejoindre notre société sur GestArt CRM en tant que technicien.\n\nCliquez sur ce lien pour vous inscrire : ${url}\n\nCode d'invitation : ${code}\n\nCordialement,`;
+        return `mailto:${email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
+    return (
+        <div className="techniciens-page">
+            <SideBar activePath="/techniciens" />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100vh', overflowY: 'auto' }}>
+                <Header />
+                <main className="techniciens-content">
+
+                    {/* Toast Alert */}
+                    {toast.show && (
+                        <div style={{
+                            position: 'fixed', top: '20px', right: '20px', zIndex: 99999,
+                            backgroundColor: toast.isError ? '#ef4444' : '#22c55e', color: '#fff',
+                            padding: '12px 20px', borderRadius: '12px', fontWeight: 600,
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: '8px'
+                        }}>
+                            {toast.message}
+                        </div>
+                    )}
+
+                    {/* Page Header */}
+                    <div className="techniciens-header-row">
+                        <div className="techniciens-title-group">
+                            <h1>Techniciens & Équipe</h1>
+                            <p>Gérez les accès de vos techniciens et invitez de nouveaux membres dans votre entreprise.</p>
+                        </div>
+                        <button
+                            className="btn-invite-tech"
+                            onClick={() => {
+                                setCreatedInvite(null);
+                                setInviteEmail("");
+                                setShowInviteModal(true);
+                            }}
+                        >
+                            <UserPlus size={18} />
+                            Inviter un technicien
+                        </button>
+                    </div>
+
+                    {/* Stats Metric Cards */}
+                    <div className="tech-stats-grid">
+                        <div className="tech-stat-card">
+                            <div className="tech-stat-icon-wrapper green">
+                                <Wrench size={22} />
+                            </div>
+                            <div className="tech-stat-info">
+                                <span className="tech-stat-val">{technicians.length}</span>
+                                <span className="tech-stat-label">Techniciens actifs</span>
+                            </div>
+                        </div>
+
+                        <div className="tech-stat-card">
+                            <div className="tech-stat-icon-wrapper blue">
+                                <Mail size={22} />
+                            </div>
+                            <div className="tech-stat-info">
+                                <span className="tech-stat-val">{invitations.filter(i => i.status === "PENDING").length}</span>
+                                <span className="tech-stat-label">Invitations en attente</span>
+                            </div>
+                        </div>
+
+                        <div className="tech-stat-card">
+                            <div className="tech-stat-icon-wrapper purple">
+                                <Users size={22} />
+                            </div>
+                            <div className="tech-stat-info">
+                                <span className="tech-stat-val">Illimité</span>
+                                <span className="tech-stat-label">Capacité du plan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Active Technicians Table */}
+                    <div className="tech-section-card">
+                        <div className="tech-section-header">
+                            <h2 className="tech-section-title">
+                                <Wrench size={20} style={{ color: '#556B2F' }} />
+                                Membres & Techniciens de l'entreprise ({technicians.length})
+                            </h2>
+                        </div>
+
+                        {loading ? (
+                            <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '20px' }}>Chargement des membres...</p>
+                        ) : technicians.length === 0 ? (
+                            <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '20px' }}>Aucun technicien enregistré pour le moment.</p>
+                        ) : (
+                            <div className="tech-table-wrapper">
+                                <table className="tech-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Membre</th>
+                                            <th>Rôle</th>
+                                            <th>Téléphone</th>
+                                            <th>Statut</th>
+                                            <th>Date d'ajout</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {technicians.map((t) => {
+                                            const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                            const initials = `${(t.firstName || 'T')[0]}${(t.lastName || 'E')[0]}`.toUpperCase();
+                                            return (
+                                                <tr key={t.id}>
+                                                    <td>
+                                                        <div className="tech-user-row">
+                                                            <div className="tech-avatar">{initials}</div>
+                                                            <div className="tech-user-details">
+                                                                <span className="tech-user-name">{fullName}</span>
+                                                                <span className="tech-user-email">{t.email}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span className="tech-role-badge">
+                                                            {t.role === "OWNER" ? "Propriétaire" : t.role === "MANAGER" ? "Manager" : "Technicien"}
+                                                        </span>
+                                                    </td>
+                                                    <td>{t.phone || "—"}</td>
+                                                    <td>
+                                                        <span className={`tech-status-badge ${t.isActive !== false ? 'active' : 'pending'}`}>
+                                                            <CheckCircle2 size={13} />
+                                                            {t.isActive !== false ? "Actif" : "Inactif"}
+                                                        </span>
+                                                    </td>
+                                                    <td>{t.createdAt ? new Date(t.createdAt).toLocaleDateString('fr-FR') : "Récent"}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Pending Invitations Section */}
+                    {invitations.length > 0 && (
+                        <div className="tech-section-card">
+                            <div className="tech-section-header">
+                                <h2 className="tech-section-title">
+                                    <Mail size={20} style={{ color: '#2563EB' }} />
+                                    Invitations en attente ({invitations.filter(i => i.status === "PENDING").length})
+                                </h2>
+                            </div>
+
+                            <div className="tech-table-wrapper">
+                                <table className="tech-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Email / Destinataire</th>
+                                            <th>Code / Token</th>
+                                            <th>Expire le</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {invitations.map((inv) => {
+                                            const shareUrl = getShareableUrl(inv.token);
+                                            return (
+                                                <tr key={inv.id}>
+                                                    <td style={{ fontWeight: 600 }}>{inv.email.includes('@gestart.link') ? "Lien public généré" : inv.email}</td>
+                                                    <td><code style={{ background: '#F1F5F9', padding: '4px 8px', borderRadius: '6px', fontWeight: 700 }}>{inv.token}</code></td>
+                                                    <td>{new Date(inv.expiresAt).toLocaleDateString('fr-FR')}</td>
+                                                    <td>
+                                                        <span className={`tech-status-badge ${inv.status === 'ACCEPTED' ? 'active' : 'pending'}`}>
+                                                            {inv.status === 'PENDING' ? 'En attente' : inv.status}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                                            <button
+                                                                type="button"
+                                                                className="btn-copy-url"
+                                                                onClick={() => handleCopyUrl(shareUrl)}
+                                                                style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                                                            >
+                                                                <Copy size={13} />
+                                                                Copier lien
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRevokeInvitation(inv.id)}
+                                                                style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: 'none', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer' }}
+                                                                title="Révoquer"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Invite Technician Modal */}
+                    {showInviteModal && (
+                        <div className="tech-modal-overlay" onClick={() => setShowInviteModal(false)}>
+                            <div className="tech-modal-card" onClick={(e) => e.stopPropagation()}>
+                                <div className="tech-modal-header">
+                                    <h2>Inviter un technicien</h2>
+                                    <button className="tech-modal-close-btn" onClick={() => setShowInviteModal(false)}>
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                {!createdInvite ? (
+                                    <form onSubmit={handleCreateInvitation}>
+                                        <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '24px', lineHeight: 1.5 }}>
+                                            Générez directement un lien et un code d'invitation unique à transmettre à votre technicien par WhatsApp, SMS ou Email.
+                                        </p>
+
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowInviteModal(false)}
+                                                style={{ padding: '12px 20px', borderRadius: '12px', border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', fontWeight: 700 }}
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="btn-invite-tech"
+                                                disabled={isSubmitting}
+                                            >
+                                                {isSubmitting ? "Génération..." : "Générer l'invitation"}
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <div>
+                                        <div className="share-code-box">
+                                            <div className="share-code-label">Code d'invitation unique</div>
+                                            <div className="share-code-value">{createdInvite.token}</div>
+                                        </div>
+
+                                        <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', marginBottom: '10px', textAlign: 'center' }}>
+                                            Transmettez ce lien à votre technicien. Il sera automatiquement rattaché à votre entreprise lors de son inscription.
+                                        </p>
+
+                                        <div className="share-url-input-group">
+                                            <input
+                                                type="text"
+                                                readOnly
+                                                value={getShareableUrl(createdInvite.token)}
+                                                className="share-url-input"
+                                            />
+                                            <button
+                                                type="button"
+                                                className="btn-copy-url"
+                                                onClick={() => handleCopyUrl(getShareableUrl(createdInvite.token))}
+                                            >
+                                                {copied ? <Check size={16} /> : <Copy size={16} />}
+                                                {copied ? "Copié !" : "Copier"}
+                                            </button>
+                                        </div>
+
+                                        <div style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '8px' }}>Partager directement via :</div>
+                                        <div className="share-actions-grid">
+                                            <a
+                                                href={getWhatsAppShareUrl(getShareableUrl(createdInvite.token), createdInvite.token)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="share-channel-btn whatsapp"
+                                            >
+                                                <Share2 size={20} />
+                                                WhatsApp
+                                            </a>
+
+                                            <a
+                                                href={getSmsShareUrl(getShareableUrl(createdInvite.token), createdInvite.token)}
+                                                className="share-channel-btn sms"
+                                            >
+                                                <MessageSquare size={20} />
+                                                SMS
+                                            </a>
+
+                                            <a
+                                                href={getMailShareUrl(inviteEmail, getShareableUrl(createdInvite.token), createdInvite.token)}
+                                                className="share-channel-btn email"
+                                            >
+                                                <Mail size={20} />
+                                                Email
+                                            </a>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowInviteModal(false)}
+                                            style={{
+                                                width: '100%', marginTop: '24px', padding: '12px',
+                                                borderRadius: '12px', border: '1px solid var(--border)',
+                                                background: 'var(--card)', fontWeight: 700, cursor: 'pointer'
+                                            }}
+                                        >
+                                            Terminer
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                </main>
+            </div>
+        </div>
+    );
+}

@@ -123,12 +123,27 @@ export default function RegisterPage() {
     };
     const isPasswordValid = rules.length && rules.uppercase && rules.lowercase && rules.number;
 
+    const [invitedCompanyName, setInvitedCompanyName] = useState('');
+
     useEffect(() => {
-        if (invitationToken) {
+        const tokenFromUrl = searchParams.get('invitation') || searchParams.get('code');
+        if (tokenFromUrl) {
             setMode('TECHNICIAN');
-            setFormData(prev => ({ ...prev, invitationCode: invitationToken }));
+            setFormData(prev => ({ ...prev, invitationCode: tokenFromUrl }));
+
+            fetch(`${API_URL}/v1/invitations/check/${tokenFromUrl}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.data?.companyName) {
+                        setInvitedCompanyName(data.data.companyName);
+                        if (data.data.email && !data.data.email.includes('@gestart.link')) {
+                            setFormData(prev => ({ ...prev, email: data.data.email }));
+                        }
+                    }
+                })
+                .catch(() => {});
         }
-    }, [invitationToken]);
+    }, [searchParams]);
 
     const formWrapperRef = useRef(null);
 
@@ -321,6 +336,7 @@ export default function RegisterPage() {
 
             const payload = mode === 'OWNER' ? formData : {
                 token: formData.invitationCode,
+                email: formData.email,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 password: formData.password,
@@ -505,7 +521,18 @@ export default function RegisterPage() {
                             </div>
 
                             {mode === 'TECHNICIAN' && (
-                                <div className="input-group">
+                                <>
+                                    {invitedCompanyName && (
+                                        <div style={{
+                                            background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)',
+                                            borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', color: '#16A34A',
+                                            fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px'
+                                        }}>
+                                            <Sparkles size={18} />
+                                            Vous êtes invité(e) à rejoindre l'entreprise : <strong>{invitedCompanyName}</strong>
+                                        </div>
+                                    )}
+                                    <div className="input-group">
                                     <label>Code / Token d'invitation *</label>
                                     <div className="input-wrapper">
                                         <Lock className="input-icon" />
@@ -519,6 +546,7 @@ export default function RegisterPage() {
                                         />
                                     </div>
                                 </div>
+                                </>
                             )}
 
                             <div className="input-group">

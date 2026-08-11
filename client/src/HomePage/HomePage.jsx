@@ -36,10 +36,22 @@ function HomePage() {
     const [dashboardData, setDashboardData] = useState(null);
 
     useEffect(() => {
-        if (location.state?.openOnboardingModal) {
-            setShowOnboarding(true);
-        }
-    }, [location.state]);
+        const checkRoleAndOnboarding = async () => {
+            if (location.state?.openOnboardingModal) {
+                setShowOnboarding(true);
+            }
+
+            try {
+                const meRes = await apiFetch("/v1/users/me");
+                const userData = meRes.data?.user || meRes.user;
+                if (userData?.role === "TECHNICIAN") {
+                    navigate("/interventions/today", { replace: true });
+                }
+            } catch (e) {}
+        };
+
+        checkRoleAndOnboarding();
+    }, [location, navigate]);
 
     useEffect(() => {
         const fetchDashboard = async () => {

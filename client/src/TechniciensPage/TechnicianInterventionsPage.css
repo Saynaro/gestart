@@ -1,0 +1,385 @@
+.tech-interventions-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--background, #F8FAFC);
+    color: var(--foreground, #0F172A);
+}
+
+.tech-interventions-main {
+    flex: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* 14.1 Header */
+.tech-header-card {
+    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+    color: #FFFFFF;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(49, 46, 129, 0.25);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tech-header-greeting {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+}
+
+.tech-header-date {
+    font-size: 0.88rem;
+    opacity: 0.85;
+    margin: 0;
+    font-weight: 500;
+}
+
+.tech-notif-bell {
+    position: relative;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #FFFFFF;
+    transition: all 0.2s ease;
+}
+
+.tech-notif-bell:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tech-notif-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    background-color: #EF4444;
+    border-radius: 50%;
+    border: 2px solid #312E81;
+}
+
+/* 14.1 Interventions List */
+.tech-list-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--foreground);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tech-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tech-item-card {
+    background: var(--card, #FFFFFF);
+    border: 1px solid var(--border, #E2E8F0);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tech-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border-color: #818CF8;
+}
+
+.tech-time-big {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #6366F1;
+    background: rgba(99, 102, 241, 0.1);
+    padding: 12px 16px;
+    border-radius: 16px;
+    text-align: center;
+    min-width: 80px;
+    line-height: 1;
+}
+
+.tech-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tech-item-client {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--foreground);
+}
+
+.tech-item-address {
+    font-size: 0.85rem;
+    color: #3B82F6;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.tech-item-address:hover {
+    text-decoration: underline;
+}
+
+.tech-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.tech-status-badge.PENDING,
+.tech-status-badge.SCHEDULED {
+    background: rgba(245, 158, 11, 0.12);
+    color: #D97706;
+}
+
+.tech-status-badge.IN_PROGRESS {
+    background: rgba(59, 130, 246, 0.12);
+    color: #2563EB;
+}
+
+.tech-status-badge.COMPLETED {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16A34A;
+}
+
+/* 14.2 Détail Intervention Modal / Full Screen */
+.tech-detail-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background, #F8FAFC);
+    z-index: 99999;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.tech-detail-header {
+    position: sticky;
+    top: 0;
+    background: var(--card, #FFFFFF);
+    border-bottom: 1px solid var(--border, #E2E8F0);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+}
+
+.tech-back-btn {
+    background: transparent;
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.tech-detail-body {
+    flex: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Cards inside detail view */
+.tech-card-box {
+    background: var(--card, #FFFFFF);
+    border: 1px solid var(--border, #E2E8F0);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.tech-card-box-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--foreground);
+}
+
+.code-box-framed {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1.5px dashed rgba(245, 158, 11, 0.4);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.code-box-val {
+    font-family: monospace;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #B45309;
+}
+
+.manager-instructions-box {
+    background: #F1F5F9;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.9rem;
+    color: #334155;
+    line-height: 1.5;
+}
+
+/* Action Buttons */
+.btn-start-intervention {
+    width: 100%;
+    background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+    color: #FFFFFF;
+    border: none;
+    padding: 18px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.btn-start-intervention:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.45);
+}
+
+.btn-complete-intervention {
+    width: 100%;
+    background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+    color: #FFFFFF;
+    border: none;
+    padding: 18px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    margin-top: 10px;
+}
+
+.btn-complete-intervention:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45);
+}
+
+/* Photos Grid 2x2 */
+.photos-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.photo-thumb-wrapper {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.photo-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-take-photo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: rgba(99, 102, 241, 0.1);
+    color: #4F46E5;
+    border: 1px dashed #818CF8;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* Signature Canvas */
+.signature-canvas-wrapper {
+    background: #FFFFFF;
+    border: 2px dashed #CBD5E1;
+    border-radius: 16px;
+    position: relative;
+    touch-action: none;
+}
+
+.signature-canvas-mention {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    font-size: 0.75rem;
+    color: #94A3B8;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+}
+
+.btn-clear-sig {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+}

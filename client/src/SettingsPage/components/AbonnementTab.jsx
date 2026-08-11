@@ -6,6 +6,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
     const [billingCycle, setBillingCycle] = useState("mensuel"); // "mensuel" | "annuel"
     const [currentPlan, setCurrentPlan] = useState("Gratuit");
     const [showPortalModal, setShowPortalModal] = useState(false);
+    const [showStripeModal, setShowStripeModal] = useState(false);
     // Stripe Connect IBAN handler
     const [connectLoading, setConnectLoading] = useState(false);
 

@@ -8,7 +8,7 @@ function DevisCard({
     sentAmount = 0.00,
     draftDevis = [],
     sentDevis = [],
-    onCreateDevis = () => alert("Créer un devis...")
+    onCreateDevis = () => window.location.href = "/devis"
 }) {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(draftCount === 0 && sentCount > 0 ? "sent" : "draft");

@@ -4,6 +4,8 @@ import { API_URL } from "../../utils/config";
 
 export default function AbonnementTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [billingCycle, setBillingCycle] = useState("mensuel"); // "mensuel" | "annuel"
+    const [currentPlan, setCurrentPlan] = useState("Gratuit");
+    const [showPortalModal, setShowPortalModal] = useState(false);
     // Stripe Connect IBAN handler
     const [connectLoading, setConnectLoading] = useState(false);
 

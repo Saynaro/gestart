@@ -37,6 +37,7 @@ function MessagesPage() {
   const [chats, setChats] = useState([]);
   const [inputText, setInputText] = useState("");
   const [detailTab, setDetailTab] = useState("interventions");
+  const [activeCall, setActiveCall] = useState(null);
 
   useEffect(() => {
     const fetchSmsMessages = async () => {
@@ -559,10 +560,10 @@ function MessagesPage() {
             </div>
           </div>
           <div className="chat-pane-header-actions">
-            <button className="pane-header-action-btn" title="Appeler" onClick={() => alert("Appel vers " + selectedChat.name)}>
+            <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: selectedChat.name })}>
               <Phone size={17} />
             </button>
-            <button className="pane-header-action-btn" title="Appel Vidéo" onClick={() => alert("Appel vidéo vers " + selectedChat.name)}>
+            <button className="pane-header-action-btn" title="Appel Vidéo" onClick={() => setActiveCall({ type: "video", contactName: selectedChat.name })}>
               <Video size={18} />
             </button>
             <div className="pane-header-action-btn-wrapper" style={{ position: "relative" }}>
@@ -582,16 +583,16 @@ function MessagesPage() {
                     <Mail size={14} className="dropdown-action-icon" />
                     <span>Détails Client</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); alert("Planifier pour " + selectedChat.name); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/planning', { state: { clientName: selectedChat.name } }); }}>
                     <Calendar size={14} className="dropdown-action-icon" />
                     <span>Planifier</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); alert("Créer facture pour " + selectedChat.name); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/factures', { state: { clientName: selectedChat.name, openNewModal: true } }); }}>
                     <FileText size={14} className="dropdown-action-icon" />
                     <span>Créer facture</span>
                   </button>
                   <div className="chat-action-divider"></div>
-                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); alert("Discussion archivée"); }}>
+                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); setSelectedChat(null); }}>
                     <X size={14} className="dropdown-action-icon" />
                     <span>Archiver chat</span>
                   </button>
@@ -614,10 +615,10 @@ function MessagesPage() {
             </div>
           </div>
           <div className="chat-pane-header-actions">
-            <button className="pane-header-action-btn" title="Appeler" onClick={() => alert("Appel vers " + selectedChat.name)}>
+            <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: selectedChat.name })}>
               <Phone size={17} />
             </button>
-            <button className="pane-header-action-btn" title="Appel Vidéo" onClick={() => alert("Appel vidéo vers " + selectedChat.name)}>
+            <button className="pane-header-action-btn" title="Appel Vidéo" onClick={() => setActiveCall({ type: "video", contactName: selectedChat.name })}>
               <Video size={18} />
             </button>
             <div className="pane-header-action-btn-wrapper" style={{ position: "relative" }}>
@@ -637,16 +638,16 @@ function MessagesPage() {
                     <Mail size={14} className="dropdown-action-icon" />
                     <span>Détails Client</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); alert("Planifier pour " + selectedChat.name); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/planning', { state: { clientName: selectedChat.name } }); }}>
                     <Calendar size={14} className="dropdown-action-icon" />
                     <span>Planifier</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); alert("Créer facture pour " + selectedChat.name); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/factures', { state: { clientName: selectedChat.name, openNewModal: true } }); }}>
                     <FileText size={14} className="dropdown-action-icon" />
                     <span>Créer facture</span>
                   </button>
                   <div className="chat-action-divider"></div>
-                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); alert("Discussion archivée"); }}>
+                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); setSelectedChat(null); }}>
                     <X size={14} className="dropdown-action-icon" />
                     <span>Archiver chat</span>
                   </button>
@@ -830,6 +831,46 @@ function MessagesPage() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Active Call UI Modal */}
+      {activeCall && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(12px)',
+          zIndex: 99999, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', color: '#fff',
+          padding: '24px', textAlign: 'center'
+        }}>
+          <div style={{
+            width: 104, height: 104, borderRadius: '50%', background: 'linear-gradient(135deg, #36451C 0%, #556B2F 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '2.2rem', fontWeight: 800, marginBottom: 24,
+            boxShadow: '0 0 40px rgba(85, 107, 47, 0.4)'
+          }}>
+            {activeCall.contactName ? activeCall.contactName.substring(0, 2).toUpperCase() : 'CS'}
+          </div>
+          <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.02em' }}>
+            {activeCall.contactName}
+          </h3>
+          <p style={{ color: '#94A3B8', fontSize: '1rem', marginBottom: 40 }}>
+            Appel {activeCall.type === 'video' ? 'Vidéo' : 'Audio'} en cours...
+          </p>
+          <button
+            type="button"
+            onClick={() => setActiveCall(null)}
+            style={{
+              width: 64, height: 64, borderRadius: '50%', background: '#EF4444',
+              border: 'none', color: '#fff', cursor: 'pointer', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)',
+              transition: 'transform 0.2s'
+            }}
+            title="Raccrocher"
+          >
+            <X size={28} />
+          </button>
         </div>
       )}
     </div>

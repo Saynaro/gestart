@@ -88,15 +88,15 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                             <Edit3 size={16} />
                             <span>Modifier</span>
                         </button>
-                        <button className="mobile-action-btn planifier" onClick={() => alert("Planification ouverte !")}>
+                        <button className="mobile-action-btn planifier" onClick={() => navigate('/planning', { state: { clientId: selectedClient.id, clientName: displayName } })}>
                             <Calendar size={16} />
                             <span>Planifier</span>
                         </button>
-                        <button className="mobile-action-btn sms" onClick={() => alert("SMS envoyé !")}>
+                        <button className="mobile-action-btn sms" onClick={() => navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName } })}>
                             <MessageSquare size={16} />
                             <span>SMS</span>
                         </button>
-                        <button className="mobile-action-btn facture" onClick={() => alert("Facture créée !")}>
+                        <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, openNewModal: true } })}>
                             <FileText size={16} />
                             <span>Facture</span>
                         </button>

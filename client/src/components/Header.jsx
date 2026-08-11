@@ -14,6 +14,7 @@ function Header() {
     const [bellTab, setBellTab] = useState("notifications");
     const [replyText, setReplyText] = useState("");
     const [activeSmsReplyId, setActiveSmsReplyId] = useState(null);
+    const [smsSuccessMsg, setSmsSuccessMsg] = useState("");
 
     const [smsList, setSmsList] = useState([]);
     const [notificationsList, setNotificationsList] = useState([]);
@@ -233,9 +234,11 @@ function Header() {
                                                                     className="reply-send-btn"
                                                                     onClick={() => {
                                                                         if (!replyText.trim()) return;
-                                                                        alert(`✓ Réponse SMS envoyée à ${s.sender}`);
+                                                                        const targetSender = s.sender;
                                                                         setReplyText("");
                                                                         setActiveSmsReplyId(null);
+                                                                        setSmsSuccessMsg(`✓ SMS envoyé à ${targetSender}`);
+                                                                        setTimeout(() => setSmsSuccessMsg(""), 3500);
                                                                     }}
                                                                 >
                                                                     <Send size={12} />

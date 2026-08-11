@@ -8,7 +8,7 @@ function FacturesCard({
     enAttenteAmount = 0.00,
     pendingInvoices = [],
     overdueInvoices = [],
-    onCreateFacture = () => alert("Créer une facture...")
+    onCreateFacture = () => window.location.href = "/factures"
 }) {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(enRetardCount === 0 && enAttenteCount > 0 ? "attente" : "retard");

@@ -55,8 +55,8 @@ function FinancialStats({
     cotisations = 31.52, 
     resultat = 120.81, 
     period = "Juillet 2026",
-    onConnectUrssaf = () => alert("Connexion Urssaf..."),
-    onConfigureTaux = () => alert("Configuration des taux...")
+    onConnectUrssaf = () => window.location.href = "/comptabilite",
+    onConfigureTaux = () => window.location.href = "/settings"
 }) {
     // Format helper
     const formatCurrency = (val) => {

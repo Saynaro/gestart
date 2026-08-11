@@ -290,8 +290,8 @@ function MobileEditBottomSheet({
                                     <button className="mobile-sheet-save-btn" onClick={handleSaveClient}>
                                         Enregistrer
                                     </button>
-                                    <button className="mobile-sheet-archive-btn" onClick={() => { alert("Archivé !"); setEditingClient(null); }}>
-                                        Archiver
+                                    <button className="mobile-sheet-archive-btn" onClick={() => { setEditingClient(null); }}>
+                                        Fermer
                                     </button>
                                 </div>
                             </div>

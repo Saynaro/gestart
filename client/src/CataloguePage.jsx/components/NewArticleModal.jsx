@@ -18,6 +18,7 @@ function NewArticleModal({
     const [tvaRate, setTvaRate] = useState("20");
     const [category, setCategory] = useState("Prestations de services (BIC / BNC)");
     const [description, setDescription] = useState("");
+    const [showAdvanced, setShowAdvanced] = useState(false);
 
     // Populate form if editing
     useEffect(() => {
@@ -36,7 +37,10 @@ function NewArticleModal({
             setCategory("Prestations de services (BIC / BNC)");
             setDescription("");
         }
+        setShowAdvanced(false);
     }, [editingArticle, isOpen]);
+
+    if (!isOpen) return null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -45,27 +49,24 @@ function NewArticleModal({
             return;
         }
 
-        const numericPrice = parseFloat(unitPrice) || 0;
-
-        onSave({
-            id: editingArticle ? editingArticle.id : Date.now(),
+        const payload = {
+            id: editingArticle?.id || Date.now(),
             name: name.trim(),
             reference: reference.trim(),
-            unitPrice: numericPrice,
+            unitPrice: parseFloat(unitPrice) || 0,
             tvaRate: parseFloat(tvaRate) || 20,
             category: category,
             description: description.trim()
-        });
+        };
 
+        onSave(payload);
         onClose();
     };
-
-    if (!isOpen) return null;
 
     return (
         <>
             <AnimatePresence>
-                <div className="article-modal-backdrop-container">
+                <div className="article-modal-overlay">
                     {/* Blurred Backdrop */}
                     <motion.div
                         className="article-modal-backdrop"
@@ -105,9 +106,9 @@ function NewArticleModal({
 
                             <button
                                 type="button"
-                                className="modal-icon-circle-btn"
-                                onClick={() => alert("Options avancées")}
-                                title="Options"
+                                className={`modal-icon-circle-btn ${showAdvanced ? "active" : ""}`}
+                                onClick={() => setShowAdvanced(!showAdvanced)}
+                                title="Options avancées"
                             >
                                 <MoreHorizontal size={18} />
                             </button>
@@ -208,6 +209,30 @@ function NewArticleModal({
                                     </div>
                                 </div>
                             </div>
+
+                            {/* SECTION 3: OPTIONS AVANCÉES */}
+                            {showAdvanced && (
+                                <div className="form-section-group">
+                                    <h4 className="form-section-title">OPTIONS AVANCÉES</h4>
+                                    <div className="form-section-card">
+                                        <div className="form-field-item">
+                                            <label className="form-field-label">Code-barres / EAN</label>
+                                            <input type="text" className="form-field-input" placeholder="Ex: 3700123456789" />
+                                        </div>
+                                        <div className="form-field-divider" />
+                                        <div className="form-field-item">
+                                            <label className="form-field-label">Unité de mesure</label>
+                                            <select className="form-field-select" defaultValue="Unité">
+                                                <option value="Unité">Unité (u)</option>
+                                                <option value="Heure">Heure (h)</option>
+                                                <option value="Jour">Jour (j)</option>
+                                                <option value="Mètre">Mètre (m)</option>
+                                                <option value="Forfait">Forfait</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Submit Button */}
                             <div className="article-modal-footer">

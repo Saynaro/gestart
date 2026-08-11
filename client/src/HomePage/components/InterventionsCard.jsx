@@ -6,7 +6,7 @@ function InterventionsCard({
     completedCount = 0,
     todayInterventions = [],
     completedInterventions = [],
-    onPlanIntervention = () => alert("Planifier une intervention...")
+    onPlanIntervention = () => window.location.href = "/planning"
 }) {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("planned");

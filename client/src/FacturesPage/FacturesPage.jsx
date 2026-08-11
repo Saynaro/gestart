@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Plus } from "lucide-react";
 import "./FacturesPage.css";
 import "../PlanningPage/PlanningPage.css";
@@ -26,6 +27,7 @@ const FILTERS = [
 ];
 
 function FacturesPage() {
+    const location = useLocation();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -53,6 +55,7 @@ function FacturesPage() {
             try {
                 setLoading(true);
                 const data = await apiFetch('/v1/invoices');
+                const rawInvoices = data.data || data || [];
                 setInvoices(rawInvoices.map(mapInvoiceFromApi));
             } catch (err) {
                 console.warn("API invoices error:", err.message);
@@ -72,6 +75,12 @@ function FacturesPage() {
     const [showEditPanel, setShowEditPanel] = useState(false);
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [showNewModal, setShowNewModal] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.openNewModal) {
+            setShowNewModal(true);
+        }
+    }, [location.state]);
     const [paymentModalInvoice, setPaymentModalInvoice] = useState(null);
     const [linkedQuoteForDrawer, setLinkedQuoteForDrawer] = useState(null);
     const [pdfModalQuote, setPdfModalQuote] = useState(null);
@@ -317,7 +326,7 @@ function FacturesPage() {
                 <QuotePdfView
                     quote={pdfModalQuote}
                     onClose={() => setPdfModalQuote(null)}
-                    onDownload={() => alert("Téléchargement du devis...")}
+                    onDownload={() => window.print()}
                 />
             )}
 

@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 function ProductivityTab({
-    onCreateBoard = () => alert("Créer mon tableau de suivi...")
+    onCreateBoard = () => window.location.href = "/rapports"
 }) {
     const navigate = useNavigate();
 

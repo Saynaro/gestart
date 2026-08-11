@@ -206,7 +206,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                         <span className="popover-plan">Version gratuite</span>
                                     </div>
                                 </div>
-                                <button className="popover-upgrade-btn" onClick={() => alert("Passer au niveau supérieur")}>
+                                <button className="popover-upgrade-btn" onClick={(e) => navigateTo(e, "/premium")}>
                                     Passer au niveau supérieur
                                 </button>
                                 <div className="popover-divider"></div>
@@ -215,7 +215,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                         <span className="popover-item-icon">{Icons.settings}</span>
                                         <span className="popover-item-text">Paramètres</span>
                                     </li>
-                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/profile")}>
+                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=profil")}>
                                         <span className="popover-item-icon">
                                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -224,7 +224,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                         </span>
                                         <span className="popover-item-text">Profil</span>
                                     </li>
-                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/company")}>
+                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=entreprise")}>
                                         <span className="popover-item-icon">
                                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
@@ -236,7 +236,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                         </span>
                                         <span className="popover-item-text">Mon entreprise</span>
                                     </li>
-                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/billing")}>
+                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=abonnement")}>
                                         <span className="popover-item-icon">
                                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
@@ -270,7 +270,11 @@ function SideBar({ onFabClick, hideFab = false }) {
                         if (onFabClick) {
                             onFabClick(e);
                         } else {
-                            alert(`Action: ${fabConfig.label}`);
+                            const path = activePath.toLowerCase();
+                            if (path.includes("client")) navigate("/client", { state: { openNewModal: true } });
+                            else if (path.includes("planning")) navigate("/planning", { state: { openNewModal: true } });
+                            else if (path.includes("factures")) navigate("/factures", { state: { openNewModal: true } });
+                            else if (path.includes("devis")) navigate("/devis", { state: { openNewModal: true } });
                         }
                     }}
                 >

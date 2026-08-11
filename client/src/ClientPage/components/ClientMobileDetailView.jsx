@@ -72,14 +72,10 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                 <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>Installé le</span>
                                 <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment.installDate}</span>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>N° de série</span>
-                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, fontFamily: 'monospace', textAlign: 'right' }}>{details.equipment.serialNumber}</span>
-                            </div>
                         </div>
-                        
+
                         <div className="panel-divider"></div>
-                        
+
                         <h3 className="mobile-section-title">STATUT ENTRETIEN</h3>
                         <div className="mobile-maintenance-box">
                             <div className="maintenance-badge green">
@@ -89,21 +85,21 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                 Prochain entretien: {details.maintenance.nextMaintenance}
                             </div>
                         </div>
-                        
+
                         <div className="mobile-action-grid">
                             <button className="mobile-action-btn modifier" onClick={() => onEdit(selectedClient, selectedClient.isOrg)}>
                                 <Edit3 size={16} />
                                 <span>Modifier</span>
                             </button>
-                            <button className="mobile-action-btn planifier" onClick={() => alert("Planification ouverte !")}>
+                            <button className="mobile-action-btn planifier" onClick={() => navigate('/planning', { state: { clientId: selectedClient.id, clientName: displayName } })}>
                                 <Calendar size={16} />
                                 <span>Planifier</span>
                             </button>
-                            <button className="mobile-action-btn sms" onClick={() => alert("SMS envoyé !")}>
+                            <button className="mobile-action-btn sms" onClick={() => navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName } })}>
                                 <MessageSquare size={16} />
                                 <span>SMS</span>
                             </button>
-                            <button className="mobile-action-btn facture" onClick={() => alert("Facture créée !")}>
+                            <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, openNewModal: true } })}>
                                 <FileText size={16} />
                                 <span>Facture</span>
                             </button>

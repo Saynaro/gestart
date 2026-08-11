@@ -363,7 +363,7 @@ function ClientPage() {
     };
 
     const handlePlanClient = (client) => {
-        alert(`Planification lancée pour ${client.firstName} ${client.lastName} !`);
+        navigate('/planning', { state: { clientId: client.id, clientName: client.name || `${client.firstName} ${client.lastName}` } });
     };
 
     return (
@@ -611,7 +611,7 @@ function ClientPage() {
                 <InvoicePdfView
                     invoice={pdfModalInvoice}
                     onClose={() => setPdfModalInvoice(null)}
-                    onDownload={() => alert("Téléchargement de la facture...")}
+                    onDownload={() => window.print()}
                 />
             )}
 
@@ -619,7 +619,7 @@ function ClientPage() {
                 <QuotePdfView
                     quote={pdfModalQuote}
                     onClose={() => setPdfModalQuote(null)}
-                    onDownload={() => alert("Téléchargement du devis...")}
+                    onDownload={() => window.print()}
                 />
             )}
         </>

@@ -1,4 +1,5 @@
 import { API_URL, BACKEND_URL } from './config';
+import { getAuthToken, clearAuthToken } from './auth';
 
 /**
  *
@@ -7,7 +8,7 @@ import { API_URL, BACKEND_URL } from './config';
  * @returns {Promise<any>} - Parsed JSON response
  */
 export async function apiFetch(endpoint, options = {}) {
-    const token = localStorage.getItem('accessToken');
+    const token = getAuthToken();
     const headers = {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -23,6 +24,14 @@ export async function apiFetch(endpoint, options = {}) {
         ...options,
         headers,
     });
+
+    if (response.status === 401) {
+        clearAuthToken();
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/') {
+            window.location.href = '/login';
+        }
+    }
 
     const text = await response.text();
     let data;

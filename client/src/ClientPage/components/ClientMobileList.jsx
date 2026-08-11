@@ -1,7 +1,57 @@
 import React from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Users } from "lucide-react";
 
-function ClientMobileList({ sortedLetters, groupedItems, onSelect, activeTabType }) {
+function ClientMobileList({ sortedLetters, groupedItems, onSelect, activeTabType, onOpenAddClient }) {
+    if (!sortedLetters || sortedLetters.length === 0) {
+        return (
+            <div 
+                className="client-mobile-empty-state" 
+                style={{ 
+                    width: '92%', 
+                    margin: '24px auto', 
+                    padding: '36px 20px', 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center', 
+                    backgroundColor: 'var(--card, #ffffff)', 
+                    borderRadius: '20px', 
+                    boxShadow: 'rgba(149, 157, 165, 0.08) 0px 4px 12px',
+                    border: '1px solid var(--border, #e2e8f0)' 
+                }}
+            >
+                <Users size={44} style={{ opacity: 0.35, color: 'var(--foreground)', margin: '0 auto 12px auto', display: 'block' }} />
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--foreground)', marginBottom: '6px' }}>
+                    Vous n'avez pas encore de clients
+                </h3>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', lineHeight: '1.4', margin: '0 auto 20px auto', maxWidth: '260px' }}>
+                    {activeTabType === "organisation" 
+                        ? "Ajoutez votre première organisation pour commencer."
+                        : "Ajoutez votre premier client particulier pour commencer à gérer vos fiches et devis."}
+                </p>
+                {onOpenAddClient && (
+                    <button 
+                        onClick={onOpenAddClient}
+                        style={{
+                            padding: '10px 20px',
+                            backgroundColor: 'var(--sidebar-primary, #556B2F)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '50px',
+                            fontWeight: 700,
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
+                        }}
+                    >
+                        + Nouveau client
+                    </button>
+                )}
+            </div>
+        );
+    }
+
     return (
         <>
             {sortedLetters.map((letter) => {

@@ -1,28 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FileText, CheckCircle, XCircle, Clock, Percent } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 function QuotesWidget({ startDate, endDate }) {
     const [viewMode, setViewMode] = useState("funnel"); // 'funnel' or 'stats'
 
-    // Mock quotes data representing the schema state
-    const quotesStats = {
-        draft: 12,
-        sent: 35,
-        accepted: 24,
-        refused: 6,
-        total: 77,
-        totalAmountTTC: 92400,
-        acceptedAmountTTC: 62400
-    };
+    const [quotesStats, setQuotesStats] = useState({
+        draft: 0,
+        sent: 0,
+        accepted: 0,
+        refused: 0,
+        total: 0,
+        totalAmountTTC: 0,
+        acceptedAmountTTC: 0
+    });
 
-    const conversionRate = (quotesStats.accepted / (quotesStats.sent + quotesStats.accepted + quotesStats.refused || 1)) * 100;
+    useEffect(() => {
+        const fetchQuotes = async () => {
+            try {
+                const data = await apiFetch(`/v1/quotes`);
+                const list = data.data?.quotes || data.quotes || (Array.isArray(data) ? data : []);
+                if (list.length > 0) {
+                    const draft = list.filter(q => q.status === 'DRAFT').length;
+                    const sent = list.filter(q => q.status === 'SENT').length;
+                    const accepted = list.filter(q => q.status === 'ACCEPTED').length;
+                    const refused = list.filter(q => q.status === 'REFUSED').length;
+                    const totalAmountTTC = list.reduce((acc, q) => acc + (q.totalTtc || q.subtotalHt || 0), 0);
+                    const acceptedAmountTTC = list.filter(q => q.status === 'ACCEPTED').reduce((acc, q) => acc + (q.totalTtc || q.subtotalHt || 0), 0);
+                    setQuotesStats({ draft, sent, accepted, refused, total: list.length, totalAmountTTC, acceptedAmountTTC });
+                } else {
+                    setQuotesStats({ draft: 0, sent: 0, accepted: 0, refused: 0, total: 0, totalAmountTTC: 0, acceptedAmountTTC: 0 });
+                }
+            } catch (err) {
+                console.warn("API quotes widget error:", err.message);
+                setQuotesStats({ draft: 0, sent: 0, accepted: 0, refused: 0, total: 0, totalAmountTTC: 0, acceptedAmountTTC: 0 });
+            }
+        };
+        fetchQuotes();
+    }, [startDate, endDate]);
+
+    const conversionRate = quotesStats.total > 0 ? (quotesStats.accepted / (quotesStats.sent + quotesStats.accepted + quotesStats.refused || 1)) * 100 : 0;
 
     // Funnel stats
     const funnelSteps = [
-        { label: "Créés / Brouillons", count: quotesStats.total, percentage: 100, color: "#7C7B82" },
-        { label: "Envoyés aux clients", count: quotesStats.sent + quotesStats.accepted + quotesStats.refused, percentage: 84, color: "#D97706" },
-        { label: "Acceptés (Signés)", count: quotesStats.accepted, percentage: 31, color: "var(--primary)" },
-        { label: "Facturés", count: 18, percentage: 23, color: "#1A9E5C" }
+        { label: "Créés / Brouillons", count: quotesStats.total, percentage: quotesStats.total > 0 ? 100 : 0, color: "#7C7B82" },
+        { label: "Envoyés aux clients", count: quotesStats.sent + quotesStats.accepted + quotesStats.refused, percentage: quotesStats.total > 0 ? Math.round(((quotesStats.sent + quotesStats.accepted + quotesStats.refused) / quotesStats.total) * 100) : 0, color: "#D97706" },
+        { label: "Acceptés (Signés)", count: quotesStats.accepted, percentage: quotesStats.total > 0 ? Math.round((quotesStats.accepted / quotesStats.total) * 100) : 0, color: "var(--primary)" },
+        { label: "Facturés", count: quotesStats.accepted, percentage: quotesStats.total > 0 ? Math.round((quotesStats.accepted / quotesStats.total) * 100) : 0, color: "#1A9E5C" }
     ];
 
     return (

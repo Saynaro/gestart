@@ -53,74 +53,10 @@ function FacturesPage() {
             try {
                 setLoading(true);
                 const data = await apiFetch('/v1/invoices');
-                const rawInvoices = data.data?.invoices || data.invoices || (Array.isArray(data) ? data : []);
-                if (rawInvoices.length > 0) {
-                    setInvoices(rawInvoices.map(mapInvoiceFromApi));
-                } else {
-                    setInvoices([
-                        {
-                            id: 1,
-                            number: "F-2026-0001",
-                            clientName: "Jean Dupont",
-                            clientEmail: "jean.dupont@email.com",
-                            clientAddress: "12 Rue des Fleurs, 75001 Paris",
-                            interventionType: "Entretien annuel",
-                            workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
-                            date: "2026-07-02",
-                            dueDate: "2026-08-01",
-                            paymentDelay: 30,
-                            tvaRate: 20,
-                            subtotalHt: 100,
-                            tvaAmount: 20,
-                            totalTtc: 120,
-                            status: "paid",
-                            lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
-                        },
-                        {
-                            id: 2,
-                            number: "F-2026-0002",
-                            clientName: "Marie Martin",
-                            clientEmail: "marie.martin@email.com",
-                            clientAddress: "45 Avenue Foch, 69006 Lyon",
-                            interventionType: "Dépannage d'urgence",
-                            workDetails: "Recherche de fuite de fluide frigorigène et réparation sur climatisation.",
-                            date: "2026-07-10",
-                            dueDate: "2026-08-09",
-                            paymentDelay: 30,
-                            tvaRate: 10,
-                            subtotalHt: 218.18,
-                            tvaAmount: 21.82,
-                            totalTtc: 240,
-                            status: "pending",
-                            lines: [
-                                { description: "Forfait dépannage et diagnostic", qty: 1, unitPrice: 150 },
-                                { description: "Recharge de fluide R32 (kg)", qty: 0.8, unitPrice: 85.22 }
-                            ]
-                        }
-                    ]);
-                }
+                setInvoices(rawInvoices.map(mapInvoiceFromApi));
             } catch (err) {
-                console.warn("API invoices non disponible, chargement des données locales:", err.message);
-                setInvoices([
-                    {
-                        id: 1,
-                        number: "F-2026-0001",
-                        clientName: "Jean Dupont",
-                        clientEmail: "jean.dupont@email.com",
-                        clientAddress: "12 Rue des Fleurs, 75001 Paris",
-                        interventionType: "Entretien annuel",
-                        workDetails: "Entretien annuel complet de la pompe à chaleur air-air Daikin.",
-                        date: "2026-07-02",
-                        dueDate: "2026-08-01",
-                        paymentDelay: 30,
-                        tvaRate: 20,
-                        subtotalHt: 100,
-                        tvaAmount: 20,
-                        totalTtc: 120,
-                        status: "paid",
-                        lines: [{ description: "Forfait Entretien annuel PAC", qty: 1, unitPrice: 100 }]
-                    }
-                ]);
+                console.warn("API invoices error:", err.message);
+                setInvoices([]);
             } finally {
                 setLoading(false);
             }
@@ -313,6 +249,7 @@ function FacturesPage() {
                     <InvoiceList
                         invoices={filteredInvoices}
                         onRowClick={openDetail}
+                        onCreateFacture={() => setShowNewModal(true)}
                     />
                 </div>
             </div>

@@ -39,6 +39,7 @@ export default function CompanyAutocomplete({
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const wrapperRef = useRef(null);
+    const justSelectedRef = useRef(false);
 
     // Keep internal query synchronized with external value
     useEffect(() => {
@@ -58,6 +59,14 @@ export default function CompanyAutocomplete({
 
     // Debounced search to API Recherche Entreprises Data Gouv
     useEffect(() => {
+        if (justSelectedRef.current) {
+            justSelectedRef.current = false;
+            setSuggestions([]);
+            setIsOpen(false);
+            setLoading(false);
+            return;
+        }
+
         if (!query || query.trim().length < 2) {
             setSuggestions([]);
             setIsOpen(false);
@@ -66,6 +75,13 @@ export default function CompanyAutocomplete({
         }
 
         const handler = setTimeout(async () => {
+            if (justSelectedRef.current) {
+                setSuggestions([]);
+                setIsOpen(false);
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
             try {
                 const url = `https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(query.trim())}&per_page=5`;
@@ -76,6 +92,13 @@ export default function CompanyAutocomplete({
                 }
 
                 const data = await response.json();
+
+                if (justSelectedRef.current) {
+                    setSuggestions([]);
+                    setIsOpen(false);
+                    setLoading(false);
+                    return;
+                }
 
                 const results = (data.results || []).map((company) => {
                     const siege = company.siege || {};
@@ -112,15 +135,17 @@ export default function CompanyAutocomplete({
     }, [query]);
 
     const handleInputChange = (e) => {
+        justSelectedRef.current = false;
         const val = e.target.value;
         setQuery(val);
         if (onChange) onChange(val);
     };
 
     const handleSelectSuggestion = (item) => {
+        justSelectedRef.current = true;
         setQuery(item.nom);
-        setIsOpen(false);
         setSuggestions([]);
+        setIsOpen(false);
 
         if (onChange) {
             onChange(item.nom);

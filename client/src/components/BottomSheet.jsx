@@ -1,9 +1,12 @@
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, LogOut } from "lucide-react";
 import { section1Items } from "./navigationConstants";
+import { handleLogout } from "../utils/auth";
 
 const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
+    const navigate = useNavigate();
     const sheetRef = useRef(null);
 
     // Trap focus and handle escape key close
@@ -170,8 +173,8 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                 <li>
                                     <motion.button
                                         onClick={() => {
-                                            alert("Déconnexion");
                                             onClose();
+                                            handleLogout(navigate);
                                         }}
                                         whileTap={{ scale: 0.96 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 15 }}

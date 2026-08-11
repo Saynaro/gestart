@@ -5,12 +5,35 @@ export default function TransactionsTab({ isMobileView, triggerToast }) {
     const [periodFilter, setPeriodFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
 
-    const [transactions, setTransactions] = useState([
-        { id: "TX-901", invoice: "INV-2026-005", date: "22/07/2026", client: "M. Martin Julien", amount: "+ 1 450,00 €", type: "PAID", method: "Virement bancaire", status: "Payé" },
-        { id: "TX-902", invoice: "INV-2026-006", date: "20/07/2026", client: "Mme. Bernard Claire", amount: "+ 890,00 €", type: "PAID", method: "Carte Bancaire (Stripe)", status: "Payé" },
-        { id: "TX-903", invoice: "INV-2026-007", date: "15/07/2026", client: "SCI Horizon Climat", amount: "+ 3 200,00 €", type: "PENDING", method: "Virement à 30 jours", status: "En attente" },
-        { id: "TX-904", invoice: "INV-2026-003", date: "01/07/2026", client: "SARL Batiment Azur", amount: "+ 2 100,00 €", type: "OVERDUE", method: "Chèque non encaissé", status: "En retard" },
-    ]);
+    const [transactions, setTransactions] = useState([]);
+
+    React.useEffect(() => {
+        const fetchTx = async () => {
+            try {
+                const { apiFetch } = await import("../../utils/api");
+                const data = await apiFetch('/v1/invoices');
+                const list = data.data?.invoices || data.invoices || (Array.isArray(data) ? data : []);
+                if (list.length > 0) {
+                    setTransactions(list.map((inv, idx) => ({
+                        id: `TX-${inv.id || idx + 100}`,
+                        invoice: inv.number || `INV-${inv.id}`,
+                        date: inv.date ? new Date(inv.date).toLocaleDateString('fr-FR') : "Aujourd'hui",
+                        client: inv.clientName || inv.client?.companyName || `${inv.client?.firstName || ''} ${inv.client?.lastName || ''}`.trim() || "Client",
+                        amount: `+ ${(inv.totalTtc || inv.subtotalHt || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`,
+                        type: inv.status === 'paid' ? 'PAID' : inv.status === 'pending' ? 'PENDING' : 'OVERDUE',
+                        method: inv.paymentMethod || "Virement",
+                        status: inv.status === 'paid' ? 'Payé' : inv.status === 'pending' ? 'En attente' : 'En retard'
+                    })));
+                } else {
+                    setTransactions([]);
+                }
+            } catch (err) {
+                console.warn("API transactions non disponible:", err.message);
+                setTransactions([]);
+            }
+        };
+        fetchTx();
+    }, []);
 
     const handleExportCsv = () => {
         let csv = "data:text/csv;charset=utf-8,ID,Facture,Date,Client,Montant,Methode,Statut\n";
@@ -84,7 +107,16 @@ export default function TransactionsTab({ isMobileView, triggerToast }) {
 
             {/* Table des transactions */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                {isMobileView ? (
+                {filteredTransactions.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "40px 20px" }}>
+                        <p style={{ fontWeight: 600, fontSize: "14px", color: "var(--foreground)", marginBottom: "4px" }}>
+                            Vous n'avez pas encore de transactions
+                        </p>
+                        <p style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>
+                            Les factures créées et leurs règlements apparaîtront ici.
+                        </p>
+                    </div>
+                ) : isMobileView ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {filteredTransactions.map((tx) => (
                             <div key={tx.id} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>

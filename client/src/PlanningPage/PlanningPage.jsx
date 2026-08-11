@@ -21,68 +21,9 @@ function useWindowWidth() {
 }
 
 // ── Initial data ─────────────────────────────────────────────────
-const initialEvents = [
-    {
-        id: "1",
-        title: "Martin Dupont",
-        start: "2026-05-19T09:00:00",
-        end: "2026-05-19T10:30:00",
-        extendedProps: { type: "Installation", technician: "Marc D." }
-    },
-    {
-        id: "2",
-        title: "Claire Laurent",
-        start: "2026-05-22T09:00:00",
-        end: "2026-05-22T10:30:00",
-        extendedProps: { type: "Contrôle", technician: "" }
-    },
-    {
-        id: "3",
-        title: "Jean Moreau",
-        start: "2026-05-20T10:00:00",
-        end: "2026-05-20T11:30:00",
-        extendedProps: { type: "Dépannage", technician: "Marc D." }
-    },
-    {
-        id: "4",
-        title: "Sophie Martin",
-        start: "2026-05-21T11:00:00",
-        end: "2026-05-21T13:00:00",
-        extendedProps: { type: "Maintenance", technician: "Marc D." }
-    },
-    {
-        id: "5",
-        title: "Pierre Leroy",
-        start: "2026-05-23T14:00:00",
-        end: "2026-05-23T15:30:00",
-        extendedProps: { type: "Dépannage", technician: "Pierre L." }
-    },
-    {
-        id: "6",
-        title: "Marie Dubois",
-        start: "2026-05-25T16:00:00",
-        end: "2026-05-25T17:30:00",
-        extendedProps: { type: "Contrôle", technician: "Marie D." }
-    }
-];
-
-const clientDetails = [
-    { name: "Jane Doe", type: "Particulier" },
-    { name: "John Doe", type: "Particulier" },
-    { name: "Khalid Sainaro", type: "Particulier" },
-    { name: "Martin Dupont", type: "Particulier" },
-    { name: "Sophie Bernard", type: "Particulier" },
-    { name: "Jean Moreau", type: "Particulier" },
-    { name: "Marie Dubois", type: "Particulier" },
-    { name: "Claire Laurent", type: "Particulier" },
-    { name: "Pierre Leroy", type: "Particulier" },
-    { name: "LexCorp", type: "Organisation" },
-    { name: "Acme Corp", type: "Organisation" },
-    { name: "Dupont & Co", type: "Organisation" },
-    { name: "Bernard SA", type: "Organisation" }
-].sort((a, b) => a.name.localeCompare(b.name));
-
-const clientList = clientDetails.map(c => c.name);
+const initialEvents = [];
+const clientDetails = [];
+const clientList = [];
 
 const getGroupedClients = (list) => {
     const grouped = {};
@@ -100,9 +41,6 @@ const getGroupedClients = (list) => {
 };
 
 const technicianList = [
-    "Marc D.",
-    "Pierre L.",
-    "Marie D.",
     "Non assigné"
 ];
 
@@ -113,7 +51,7 @@ function PlanningPage() {
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth <= 768;
 
-    const [events, setEvents] = useState(initialEvents);
+    const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchInterventions = async () => {

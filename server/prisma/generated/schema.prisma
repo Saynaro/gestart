@@ -79,6 +79,7 @@ enum PlanStatus {
 }
 
 enum UserRole {
+  SUPERADMIN
   OWNER
   MANAGER
   TECHNICIAN

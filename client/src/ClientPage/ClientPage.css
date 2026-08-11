@@ -1788,6 +1788,142 @@ input:checked+.toggle-slider:before {
     opacity: 0.9;
 }
 
+/* Step Wizard Modal Styles */
+.step-wizard-modal {
+    max-width: 580px !important;
+}
+
+.wizard-step-indicator-text {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    margin-top: 2px;
+    display: block;
+}
+
+/* Progress bar line top header */
+.wizard-progress-bar-wrapper {
+    position: relative;
+    padding: 16px 36px 14px 36px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-bottom: 1px solid var(--border);
+}
+
+.dark .wizard-progress-bar-wrapper {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.wizard-progress-track {
+    position: absolute;
+    top: 31px;
+    left: 60px;
+    right: 60px;
+    height: 3px;
+    background-color: var(--border);
+    border-radius: 4px;
+    z-index: 1;
+}
+
+.wizard-progress-fill {
+    height: 100%;
+    background-color: var(--sidebar-primary, #556B2F);
+    border-radius: 4px;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wizard-steps-nodes {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wizard-step-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.node-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--card);
+    border: 2px solid var(--border);
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: all 0.25s ease;
+}
+
+.wizard-step-node.active .node-circle {
+    border-color: var(--sidebar-primary, #556B2F);
+    background-color: var(--sidebar-primary, #556B2F);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(85, 107, 47, 0.2);
+}
+
+.wizard-step-node.completed .node-circle {
+    border-color: var(--sidebar-primary, #556B2F);
+    background-color: var(--sidebar-primary, #556B2F);
+    color: white;
+}
+
+.node-label {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    transition: color 0.2s ease;
+}
+
+.wizard-step-node.active .node-label,
+.wizard-step-node.completed .node-label {
+    color: var(--foreground);
+    font-weight: 700;
+}
+
+.wizard-modal-body {
+    padding: 24px;
+    min-height: 210px;
+}
+
+.wizard-section-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0 0 16px 0;
+}
+
+.wizard-input-large {
+    padding: 11px 14px !important;
+    font-size: 0.92rem !important;
+}
+
+.wizard-modal-footer {
+    display: flex;
+    justify-content: space-between !important;
+    align-items: center;
+    padding: 16px 24px !important;
+}
+
+.wizard-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wizard-save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--sidebar-primary, #556B2F) !important;
+}
+
 /* Mobile specific Detail Overrides */
 .mobile-detail-container {
     display: flex;

@@ -12,13 +12,20 @@ function getStatusLabel(status) {
     }
 }
 
-function InvoiceList({ invoices, onRowClick }) {
-    if (invoices.length === 0) {
+function InvoiceList({ invoices, onRowClick, onCreateFacture }) {
+    if (!invoices || invoices.length === 0) {
         return (
-            <div className="fp-empty-state">
-                <FileText size={40} />
-                <h3>Aucune facture trouvée</h3>
-                <p>Aucune facture ne correspond à ce filtre.</p>
+            <div className="fp-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                <FileText size={44} style={{ opacity: 0.4, marginBottom: '12px' }} />
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>Vous n'avez pas encore de factures</h3>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
+                    Créez votre première facture client pour enregistrer vos règlements.
+                </p>
+                {onCreateFacture && (
+                    <button className="fp-new-btn" onClick={onCreateFacture}>
+                        + Nouvelle facture
+                    </button>
+                )}
             </div>
         );
     }

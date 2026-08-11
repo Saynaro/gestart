@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function DevisCard({
-    draftCount = 1,
-    draftAmount = 120.00,
-    sentCount = 2,
-    sentAmount = 450.00,
+    draftCount = 0,
+    draftAmount = 0.00,
+    sentCount = 0,
+    sentAmount = 0.00,
+    draftDevis = [],
+    sentDevis = [],
     onCreateDevis = () => alert("Créer un devis...")
 }) {
     const navigate = useNavigate();
@@ -14,16 +16,6 @@ function DevisCard({
     const formatCurrency = (val) => {
         return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(val);
     };
-
-    // Mock devis lists
-    const draftDevis = [
-        { id: 1, ref: "DV-2026-001", client: "Pierre Leroy", amount: 120.00, date: "19/07/2026" }
-    ];
-
-    const sentDevis = [
-        { id: 2, ref: "DV-2026-002", client: "Sophie Martin", amount: 300.00, date: "15/07/2026" },
-        { id: 3, ref: "DV-2026-003", client: "Jean Dupont", amount: 150.00, date: "10/07/2026" }
-    ];
 
     const activeDevis = activeTab === "draft" ? draftDevis : sentDevis;
     const activeCount = activeTab === "draft" ? draftCount : sentCount;

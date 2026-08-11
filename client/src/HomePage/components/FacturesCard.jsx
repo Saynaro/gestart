@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 function FacturesCard({
     enRetardCount = 0,
     enRetardAmount = 0.00,
-    enAttenteCount = 3,
-    enAttenteAmount = 254.99,
+    enAttenteCount = 0,
+    enAttenteAmount = 0.00,
+    pendingInvoices = [],
+    overdueInvoices = [],
     onCreateFacture = () => alert("Créer une facture...")
 }) {
     const navigate = useNavigate();
@@ -14,15 +16,6 @@ function FacturesCard({
     const formatCurrency = (val) => {
         return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(val);
     };
-
-    // Mock invoices lists
-    const pendingInvoices = [
-        { id: 3, ref: "FC-2026-003", client: "Sophie Martin", amount: 124.99, due: "31/07/2026" },
-        { id: 4, ref: "FC-2026-004", client: "Pierre Leroy", amount: 80.00, due: "15/08/2026" },
-        { id: 5, ref: "FC-2026-005", client: "Jean Dupont", amount: 50.00, due: "22/08/2026" }
-    ];
-
-    const overdueInvoices = []; // empty by default
 
     const activeInvoices = activeTab === "retard" ? overdueInvoices : pendingInvoices;
     const activeCount = activeTab === "retard" ? enRetardCount : enAttenteCount;

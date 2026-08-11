@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, Loader2, Check, Navigation } from 'lucide-react';
+import { MapPin, Loader2, Check } from 'lucide-react';
 import './AddressAutocomplete.css';
 
 /**
@@ -39,6 +39,7 @@ export default function AddressAutocomplete({
     const [selectedIndex, setSelectedIndex] = useState(-1);
     
     const wrapperRef = useRef(null);
+    const justSelectedRef = useRef(false);
 
     // Keep internal query synchronized with external value prop
     useEffect(() => {
@@ -58,6 +59,14 @@ export default function AddressAutocomplete({
 
     // Debounced search to API Adresse (BAN data.gouv.fr)
     useEffect(() => {
+        if (justSelectedRef.current) {
+            justSelectedRef.current = false;
+            setSuggestions([]);
+            setIsOpen(false);
+            setLoading(false);
+            return;
+        }
+
         if (!query || query.trim().length < 3) {
             setSuggestions([]);
             setIsOpen(false);
@@ -66,6 +75,13 @@ export default function AddressAutocomplete({
         }
 
         const handler = setTimeout(async () => {
+            if (justSelectedRef.current) {
+                setSuggestions([]);
+                setIsOpen(false);
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
             try {
                 const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query.trim())}&limit=6&autocomplete=1`;
@@ -77,6 +93,13 @@ export default function AddressAutocomplete({
 
                 const data = await response.json();
                 
+                if (justSelectedRef.current) {
+                    setSuggestions([]);
+                    setIsOpen(false);
+                    setLoading(false);
+                    return;
+                }
+
                 const results = (data.features || []).map((item) => ({
                     label: item.properties.label || '',
                     street: item.properties.name || item.properties.street || '',
@@ -101,16 +124,19 @@ export default function AddressAutocomplete({
     }, [query]);
 
     const handleInputChange = (e) => {
+        justSelectedRef.current = false;
         const val = e.target.value;
         setQuery(val);
         if (onChange) onChange(val);
     };
 
     const handleSelectSuggestion = (item) => {
+        justSelectedRef.current = true;
         const mainAddress = item.street ? `${item.street}, ${item.postcode} ${item.city}`.trim() : item.label;
+        
         setQuery(mainAddress);
-        setIsOpen(false);
         setSuggestions([]);
+        setIsOpen(false);
 
         if (onChange) {
             onChange(mainAddress);
@@ -171,11 +197,6 @@ export default function AddressAutocomplete({
             {/* Suggestions Floating Dropdown */}
             {isOpen && suggestions.length > 0 && (
                 <ul className="address-suggestions-dropdown">
-                    <div className="dropdown-header">
-                        <Navigation size={12} />
-                        <span>Adresses officielles (BAN Data Gouv 🇫🇷)</span>
-                    </div>
-
                     {suggestions.map((item, index) => {
                         const isSelected = index === selectedIndex;
                         return (

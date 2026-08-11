@@ -2,23 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function InterventionsCard({
-    plannedCount = 3,
-    completedCount = 2,
-    todayInterventions = [
-        { id: 1, title: "Entretien climatisation", client: "Jean Dupont", time: "09:00", status: "Confirmé" },
-        { id: 2, title: "Installation pompe à chaleur", client: "Sophie Martin", time: "11:00", status: "Confirmé" },
-        { id: 3, title: "Dépannage d'urgence - Fuite", client: "Pierre Leroy", time: "14:00", status: "En cours" }
-    ],
+    plannedCount = 0,
+    completedCount = 0,
+    todayInterventions = [],
+    completedInterventions = [],
     onPlanIntervention = () => alert("Planifier une intervention...")
 }) {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("planned");
-
-    // Completed mock interventions
-    const completedInterventions = [
-        { id: 4, title: "Remplacement compresseur", client: "Marc Durand", time: "08:00", status: "Terminé" },
-        { id: 5, title: "Maintenance annuelle", client: "Antoine Laurent", time: "10:30", status: "Terminé" }
-    ];
 
     const activeInterventions = activeTab === "planned" ? todayInterventions : completedInterventions;
     const activeCount = activeTab === "planned" ? plannedCount : completedCount;

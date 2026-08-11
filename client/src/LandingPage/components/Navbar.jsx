@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { isAuthenticated } from "../../utils/auth";
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const loggedIn = isAuthenticated();
 
     useEffect(() => {
         if (isOpen) {
@@ -60,14 +62,26 @@ function Navbar() {
                 
                 {/* Dedicated mobile CTAs inside the drawer */}
                 <div className="menu-mobile-ctas">
-                    <Link to="/signup" className="mobile-cta-btn mobile-cta-primary" onClick={closeMenu}>Essai gratuit 14j</Link>
-                    <Link to="/login" className="mobile-cta-btn mobile-cta-secondary" onClick={closeMenu}>Connexion</Link>
+                    {loggedIn ? (
+                        <Link to="/home" className="mobile-cta-btn mobile-cta-primary" onClick={closeMenu}>Mon Espace →</Link>
+                    ) : (
+                        <>
+                            <Link to="/register" className="mobile-cta-btn mobile-cta-primary" onClick={closeMenu}>Essai gratuit 14j</Link>
+                            <Link to="/login" className="mobile-cta-btn mobile-cta-secondary" onClick={closeMenu}>Connexion</Link>
+                        </>
+                    )}
                 </div>
             </ul>
             
             <div className="auth-links-row">
-                <Link to={"/login"} className="auth-link-item" onClick={closeMenu}>Connexion</Link>
-                <Link to={"/signup"} className="auth-link-item auth-link-primary" onClick={closeMenu}>Essai gratuit 14j</Link>
+                {loggedIn ? (
+                    <Link to="/home" className="auth-link-item auth-link-primary" onClick={closeMenu}>Mon Espace (Dashboard) →</Link>
+                ) : (
+                    <>
+                        <Link to="/login" className="auth-link-item" onClick={closeMenu}>Connexion</Link>
+                        <Link to="/register" className="auth-link-item auth-link-primary" onClick={closeMenu}>Essai gratuit 14j</Link>
+                    </>
+                )}
             </div>
         </nav>
     )

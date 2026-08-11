@@ -4,15 +4,7 @@ import { apiFetch } from "../../utils/api";
 
 function RevenueWidget({ startDate, endDate }) {
     const [viewMode, setViewMode] = useState("chart"); // 'chart' or 'table'
-    const [monthlyData, setMonthlyData] = useState([
-        { period: "Jan 2026", caHT: 12500, caTTC: 15000, paid: 11000, count: 8 },
-        { period: "Feb 2026", caHT: 14200, caTTC: 17040, paid: 13500, count: 11 },
-        { period: "Mar 2026", caHT: 18500, caTTC: 22200, paid: 16000, count: 15 },
-        { period: "Apr 2026", caHT: 16000, caTTC: 19200, paid: 15500, count: 12 },
-        { period: "May 2026", caHT: 22000, caTTC: 26400, paid: 21000, count: 19 },
-        { period: "Jun 2026", caHT: 25400, caTTC: 30480, paid: 24000, count: 22 },
-        { period: "Jul 2026", caHT: 28900, caTTC: 34680, paid: 26500, count: 25 }
-    ]);
+    const [monthlyData, setMonthlyData] = useState([]);
 
     useEffect(() => {
         const fetchRevenue = async () => {
@@ -20,9 +12,12 @@ function RevenueWidget({ startDate, endDate }) {
                 const data = await apiFetch(`/v1/reports/revenue?startDate=${startDate}&endDate=${endDate}`);
                 if (data.data && Array.isArray(data.data.monthly)) {
                     setMonthlyData(data.data.monthly);
+                } else {
+                    setMonthlyData([]);
                 }
             } catch (err) {
                 console.warn("API reports revenue non disponible:", err.message);
+                setMonthlyData([]);
             }
         };
         fetchRevenue();
@@ -119,7 +114,16 @@ function RevenueWidget({ startDate, endDate }) {
 
             {/* Viewport content */}
             <div className="widget-content">
-                {viewMode === "table" ? (
+                {monthlyData.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "40px 20px" }}>
+                        <p style={{ fontWeight: 600, fontSize: "14px", color: "var(--foreground)", marginBottom: "4px" }}>
+                            Vous n'avez pas encore de données de chiffre d'affaires
+                        </p>
+                        <p style={{ fontSize: "12.5px", color: "var(--muted-foreground)" }}>
+                            Créez vos premières factures pour visualiser les tendances et statistiques.
+                        </p>
+                    </div>
+                ) : viewMode === "table" ? (
                     <div className="table-responsive">
                         <table className="widget-table">
                             <thead>

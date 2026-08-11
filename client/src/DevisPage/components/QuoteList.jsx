@@ -12,13 +12,20 @@ function getStatusLabel(status) {
     }
 }
 
-function QuoteList({ quotes, onRowClick }) {
-    if (quotes.length === 0) {
+function QuoteList({ quotes, onRowClick, onCreateQuote }) {
+    if (!quotes || quotes.length === 0) {
         return (
-            <div className="dv-empty-state">
-                <FileText size={40} />
-                <h3>Aucun devis trouvé</h3>
-                <p>Aucun devis ne correspond à ce filtre.</p>
+            <div className="dv-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                <FileText size={44} style={{ opacity: 0.4, marginBottom: '12px' }} />
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>Vous n'avez pas encore de devis</h3>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
+                    Créez votre premier devis client pour commencer à chiffrer vos interventions.
+                </p>
+                {onCreateQuote && (
+                    <button className="dv-new-btn" onClick={onCreateQuote}>
+                        + Nouveau devis
+                    </button>
+                )}
             </div>
         );
     }

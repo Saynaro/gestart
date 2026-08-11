@@ -796,6 +796,7 @@ exports.NotificationChannel = exports.$Enums.NotificationChannel = {
 };
 
 exports.UserRole = exports.$Enums.UserRole = {
+  SUPERADMIN: 'SUPERADMIN',
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
   TECHNICIAN: 'TECHNICIAN'

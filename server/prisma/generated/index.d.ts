@@ -207,6 +207,7 @@ export type PlanStatus = (typeof PlanStatus)[keyof typeof PlanStatus]
 
 
 export const UserRole: {
+  SUPERADMIN: 'SUPERADMIN',
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
   TECHNICIAN: 'TECHNICIAN'

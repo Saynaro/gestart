@@ -1,32 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Hammer, CheckCircle2, CalendarDays, Users, ShieldAlert } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 function InterventionsWidget({ startDate, endDate }) {
     const [activeSection, setActiveSection] = useState("overview"); // 'overview', 'techs', 'equipments'
 
-    // Mock interventions data matching schema structures
-    const stats = {
-        completed: 112,
-        scheduled: 45,
-        pending: 18,
-        cancelled: 5,
-        total: 180,
-    };
+    const [stats, setStats] = useState({ completed: 0, scheduled: 0, pending: 0, cancelled: 0, total: 0 });
+    const [techWorkload, setTechWorkload] = useState([]);
+    const [equipmentBreakdown, setEquipmentBreakdown] = useState([]);
 
-    const techWorkload = [
-        { name: "Jean Dupont", completed: 42, planned: 12, role: "TECHNICIAN" },
-        { name: "Lucas Martin", completed: 35, planned: 15, role: "TECHNICIAN" },
-        { name: "Sarah Bernard", completed: 30, planned: 10, role: "TECHNICIAN" },
-        { name: "Marc Leroy", completed: 5, planned: 8, role: "OWNER" }
-    ];
-
-    const equipmentBreakdown = [
-        { brand: "Daikin", count: 68, percentage: 38 },
-        { brand: "Mitsubishi Electric", count: 48, percentage: 27 },
-        { brand: "Atlantic", count: 35, percentage: 19 },
-        { brand: "Panasonic", count: 18, percentage: 10 },
-        { brand: "Autres", count: 11, percentage: 6 }
-    ];
+    useEffect(() => {
+        const fetchInterventions = async () => {
+            try {
+                const data = await apiFetch(`/v1/interventions`);
+                const list = data.data?.interventions || data.interventions || (Array.isArray(data) ? data : []);
+                if (list.length > 0) {
+                    const completed = list.filter(i => i.status === 'COMPLETED' || i.status === 'Terminé').length;
+                    const scheduled = list.filter(i => i.status === 'SCHEDULED' || i.status === 'Planifié' || i.status === 'Confirmé').length;
+                    const pending = list.filter(i => i.status === 'PENDING' || i.status === 'En attente').length;
+                    const cancelled = list.filter(i => i.status === 'CANCELLED' || i.status === 'Annulé').length;
+                    setStats({ completed, scheduled, pending, cancelled, total: list.length });
+                } else {
+                    setStats({ completed: 0, scheduled: 0, pending: 0, cancelled: 0, total: 0 });
+                    setTechWorkload([]);
+                    setEquipmentBreakdown([]);
+                }
+            } catch (err) {
+                console.warn("API interventions widget error:", err.message);
+                setStats({ completed: 0, scheduled: 0, pending: 0, cancelled: 0, total: 0 });
+                setTechWorkload([]);
+                setEquipmentBreakdown([]);
+            }
+        };
+        fetchInterventions();
+    }, [startDate, endDate]);
 
     // Status colors
     const statusConfig = [

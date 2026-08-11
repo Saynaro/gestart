@@ -27,180 +27,14 @@ import Header from "../components/Header";
 import { apiFetch } from "../utils/api";
 
 // Mock data matching screenshot exactly plus detailed client database matching CRM styles
-const mockChatsData = [
-  {
-    id: 1,
-    name: "Jelena Denisova",
-    lastMessage: "Great! Looking forward to it.",
-    time: "11:16",
-    unread: 0,
-    online: true,
-    statusText: "Last seen recently",
-    clientInfo: {
-      phone: "+33 6 12 34 56 78",
-      email: "jelena.denisova@example.com",
-      address: "14 Avenue de la République",
-      zip: "06000",
-      city: "NICE",
-      type: "particulier",
-      equipment: { model: "Daikin 3.5kW Inverter", installDate: "12/04/2024", serialNumber: "DK-2024-9876" },
-      maintenance: { status: "OK", nextMaintenance: "12/04/2027" },
-      interventions: [
-        { title: "Installation Clim", date: "12/04/2024", tech: "Marc D.", status: "Terminé", desc: "Installation complète d'une unité Daikin Inverter." }
-      ],
-      factures: [
-        { id: "FACT-2024-055", date: "12/04/2024", amount: "1 450,00 €", status: "Payé" }
-      ],
-      devis: [
-        { id: "DEV-2024-042", date: "05/04/2024", amount: "1 450,00 €", status: "Accepté" }
-      ]
-    },
-    messages: [
-      { id: 1, sender: "client", isFile: true, fileName: "CryptoCoin-Release.pdf", fileSize: "12 mb", time: "10:57" },
-      { id: 2, sender: "agent", text: "Wait. I'm looking into it!", time: "10:58" },
-      { id: 3, sender: "client", text: "Let me know if it works or not?", time: "11:11" },
-      { id: 4, sender: "agent", text: "I checked it. Yep, that works!", time: "11:13" },
-      { id: 5, sender: "client", text: "Perfect! I'll prepare the next phase then.", time: "11:14" },
-      { id: 6, sender: "agent", text: "Sounds good. When do you think it'll be ready?", time: "11:15" },
-      { id: 7, sender: "client", text: "Should be done by tomorrow morning.", time: "11:15" },
-      { id: 8, sender: "agent", text: "Great! Looking forward to it.", time: "11:16" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Yong Tonghyon",
-    lastMessage: "What makes it different fro...",
-    time: "11:32",
-    unread: 2,
-    online: true,
-    statusText: "En ligne",
-    clientInfo: {
-      phone: "+33 7 98 76 54 32",
-      email: "yong.t@example.com",
-      address: "8 Place Garibaldi",
-      zip: "06300",
-      city: "NICE",
-      type: "particulier",
-      equipment: { model: "Mitsubishi Heavy 5kW", installDate: "18/02/2025", serialNumber: "MS-2025-2244" },
-      maintenance: { status: "Bientôt", nextMaintenance: "18/02/2026" },
-      interventions: [
-        { title: "Mise en service", date: "18/02/2025", tech: "Pierre L.", status: "Terminé", desc: "Raccordement frigorifique et mise en route." }
-      ],
-      factures: [
-        { id: "FACT-2025-019", date: "18/02/2025", amount: "2 100,00 €", status: "Payé" }
-      ],
-      devis: [
-        { id: "DEV-2025-011", date: "10/02/2025", amount: "2 100,00 €", status: "Accepté" }
-      ]
-    },
-    messages: [
-      { id: 1, sender: "client", text: "What makes it different from previous models?", time: "11:30" },
-      { id: 2, sender: "client", text: "What makes it different from other brands on the market?", time: "11:32" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Sarah Miller",
-    lastMessage: "The project deadline is approachi...",
-    time: "10:45",
-    unread: 0,
-    online: false,
-    statusText: "Last seen 2 hours ago",
-    clientInfo: {
-      phone: "+33 6 45 78 12 90",
-      email: "sarah.m@example.com",
-      address: "45 Avenue Jean Médecin",
-      zip: "06000",
-      city: "NICE",
-      type: "particulier",
-      equipment: { model: "Daikin Multi-Split 4.0kW", installDate: "30/06/2023", serialNumber: "DK-2023-4554" },
-      maintenance: { status: "OK", nextMaintenance: "30/06/2026" },
-      interventions: [
-        { title: "Contrôle d'étanchéité", date: "30/06/2024", tech: "Marc D.", status: "Terminé", desc: "Aucune fuite détectée, complément de charge OK." }
-      ],
-      factures: [{ id: "FACT-2024-102", date: "30/06/2024", amount: "180,00 €", status: "Payé" }],
-      devis: [{ id: "DEV-2024-098", date: "20/06/2024", amount: "180,00 €", status: "Accepté" }]
-    },
-    messages: [
-      { id: 1, sender: "agent", text: "Hi Sarah, can you confirm the layout for the office units?", time: "10:15" },
-      { id: 2, sender: "client", text: "The project deadline is approaching, I will check and send it.", time: "10:45" }
-    ]
-  },
-  {
-    id: 4,
-    name: "David Chen",
-    lastMessage: "Can we schedule a meeting ...",
-    time: "09:20",
-    unread: 3,
-    online: true,
-    statusText: "En ligne",
-    clientInfo: {
-      phone: "+33 7 11 22 33 44",
-      email: "d.chen@example.com",
-      address: "102 Rue de France",
-      zip: "06000",
-      city: "NICE",
-      type: "particulier",
-      equipment: { model: "Toshiba Shorai 2.5kW", installDate: "10/01/2024", serialNumber: "TS-2024-8811" },
-      maintenance: { status: "OK", nextMaintenance: "10/01/2027" },
-      interventions: [{ title: "Installation standard", date: "10/01/2024", tech: "Marc D.", status: "Terminé", desc: "Pose et raccordements." }],
-      factures: [{ id: "FACT-2024-001", date: "10/01/2024", amount: "1 250,00 €", status: "Payé" }],
-      devis: [{ id: "DEV-2024-001", date: "02/01/2024", amount: "1 250,00 €", status: "Accepté" }]
-    },
-    messages: [
-      { id: 1, sender: "client", text: "Hi, I have a question about the invoice.", time: "09:15" },
-      { id: 2, sender: "client", text: "Can we schedule a meeting to review the project details?", time: "09:20" }
-    ]
-  },
-  {
-    id: 5,
-    name: "Emma Thompson",
-    lastMessage: "I reviewed the proposal and...",
-    time: "08:15",
-    unread: 0,
-    online: false,
-    statusText: "Last seen 4 hours ago",
-    clientInfo: {
-      phone: "+33 6 89 54 23 11",
-      email: "emma.t@example.com",
-      address: "34 Boulevard Victor Hugo",
-      zip: "06200",
-      city: "NICE",
-      type: "particulier",
-      equipment: { model: "Panasonic Aquarea 6kW", installDate: "05/11/2023", serialNumber: "PA-2023-3321" },
-      maintenance: { status: "Urgent", nextMaintenance: "05/11/2024" },
-      interventions: [{ title: "Dépannage PAC", date: "15/12/2024", tech: "Pierre L.", status: "Terminé", desc: "Remplacement circulateur défectueux." }],
-      factures: [{ id: "FACT-2024-443", date: "15/12/2024", amount: "420,00 €", status: "Payé" }],
-      devis: [{ id: "DEV-2024-399", date: "10/12/2024", amount: "420,00 €", status: "Accepté" }]
-    },
-    messages: [
-      { id: 1, sender: "client", text: "I reviewed the proposal and approved the details.", time: "08:15" }
-    ]
-  }
-];
-
-// Complete CRM contacts database list for the selector modal
-const crmContactsList = [
-  { firstName: "Jane", lastName: "Doe", email: "jane-doe@yopmail.com", phone: "01 23 45 67 89", address: "23 Rue Paganini", zip: "06000", city: "NICE" },
-  { firstName: "John", lastName: "Doe", email: "john-doe@yopmail.com", phone: "06 98 76 54 32", address: "45 Avenue Jean Médecin", zip: "06000", city: "NICE" },
-  { firstName: "Khalid", lastName: "Sainaro", email: "khalidsainaro@gmail.com", phone: "07 12 34 56 78", address: "12 Blvd Victor Hugo", zip: "06200", city: "NICE" },
-  { firstName: "Martin", lastName: "Dupont", email: "martin.dupont@email.com", phone: "06 12 34 56 78", address: "12 Rue de la Paix", zip: "75002", city: "Paris" },
-  { firstName: "Sophie", lastName: "Bernard", email: "sophie.bernard@email.com", phone: "06 98 76 54 32", address: "45 Avenue Victor Hugo", zip: "69000", city: "Lyon" },
-  { firstName: "Jean", lastName: "Moreau", email: "jean.moreau@email.com", phone: "07 12 34 56 78", address: "8 Boulevard Haussmann", zip: "75009", city: "Paris" },
-  { firstName: "Marie", lastName: "Petit", email: "marie.petit@email.com", phone: "06 55 44 33 22", address: "23 Rue Lafayette", zip: "13000", city: "Marseille" },
-  { firstName: "Claire", lastName: "Laurent", email: "claire.laurent@email.com", phone: "06 11 22 33 44", address: "56 Cours Gambetta", zip: "69000", city: "Lyon" },
-  { firstName: "Jelena", lastName: "Denisova", email: "jelena.denisova@example.com", phone: "+33 6 12 34 56 78", address: "14 Avenue de la République", zip: "06000", city: "NICE" },
-  { firstName: "Yong", lastName: "Tonghyon", email: "yong.t@example.com", phone: "+33 7 98 76 54 32", address: "8 Place Garibaldi", zip: "06300", city: "NICE" },
-  { firstName: "Sarah", lastName: "Miller", email: "sarah.m@example.com", phone: "+33 6 45 78 12 90", address: "45 Avenue Jean Médecin", zip: "06000", city: "NICE" },
-  { firstName: "David", lastName: "Chen", email: "d.chen@example.com", phone: "+33 7 11 22 33 44", address: "102 Rue de France", zip: "06000", city: "NICE" },
-  { firstName: "Emma", lastName: "Thompson", email: "emma.t@example.com", phone: "+33 6 89 54 23 11", address: "34 Boulevard Victor Hugo", zip: "06200", city: "NICE" }
-];
+const mockChatsData = [];
+const crmContactsList = [];
 
 function MessagesPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [chats, setChats] = useState(mockChatsData);
+  const [chats, setChats] = useState([]);
   const [inputText, setInputText] = useState("");
   const [detailTab, setDetailTab] = useState("interventions");
 
@@ -214,28 +48,30 @@ function MessagesPage() {
             id: item.id || idx + 1,
             name: item.client ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() : (item.recipient || "Client"),
             lastMessage: item.message || "Message SMS",
-            time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "11:16",
+            time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
             unread: 0,
             online: true,
             statusText: item.status || "Envoyé",
             clientInfo: {
-              phone: item.recipient || item.client?.phone || "+33 6 00 00 00 00",
+              phone: item.recipient || item.client?.phone || "",
               email: item.client?.email || "",
-              address: item.client?.address || "France",
-              zip: item.client?.postalCode || "06000",
-              city: item.client?.city || "NICE",
+              address: item.client?.address || "",
+              zip: item.client?.postalCode || "",
+              city: item.client?.city || "",
               type: "particulier",
-              equipment: { model: "Daikin Inverter", installDate: "12/04/2024", serialNumber: "DK-2024" },
-              maintenance: { status: "OK", nextMaintenance: "12/04/2027" }
+              equipment: null
             },
             messages: [
-              { id: 1, sender: "me", text: item.message, time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "11:16" }
+              { id: 1, sender: "me", text: item.message, time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "" }
             ]
           }));
           setChats(mappedChats);
+        } else {
+          setChats([]);
         }
       } catch (err) {
-        console.warn("API SMS non disponible, utilisation des conversations locales:", err.message);
+        console.warn("API SMS error:", err.message);
+        setChats([]);
       }
     };
 
@@ -648,31 +484,58 @@ function MessagesPage() {
         </div>
       </div>
       <div className="chat-list">
-        {chats.map((chat) => {
-          const isActive = activeChatIdParam ? (selectedChatId === chat.id) : false;
-          return (
-            <div
-              key={chat.id}
-              className={`chat-item ${isActive ? "active" : ""}`}
-              onClick={() => handleSelectChat(chat.id)}
+        {chats.length === 0 ? (
+          <div style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", color: "var(--muted-foreground)", width: "100%", boxSizing: "border-box" }}>
+            <MessageSquare size={36} style={{ opacity: 0.4, margin: "0 auto 12px auto", display: "block" }} />
+            <p style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--foreground)", marginBottom: "4px" }}>
+              Vous n'avez pas encore de messages
+            </p>
+            <p style={{ fontSize: "0.8rem", marginBottom: "16px" }}>
+              Contactez vos clients ou envoyez des SMS directement.
+            </p>
+            <button
+              onClick={() => navigate("/client")}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "var(--sidebar-primary)",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                cursor: "pointer"
+              }}
             >
-              <div className="chat-avatar-wrapper">
-                <div className="chat-avatar">{getInitials(chat.name)}</div>
-                {chat.online && <span className="online-indicator"></span>}
-              </div>
-              <div className="chat-meta">
-                <div className="chat-meta-row">
-                  <span className="chat-name">{chat.name}</span>
-                  <span className="chat-time">{chat.time}</span>
+              Voir mes clients
+            </button>
+          </div>
+        ) : (
+          chats.map((chat) => {
+            const isActive = activeChatIdParam ? (selectedChatId === chat.id) : false;
+            return (
+              <div
+                key={chat.id}
+                className={`chat-item ${isActive ? "active" : ""}`}
+                onClick={() => handleSelectChat(chat.id)}
+              >
+                <div className="chat-avatar-wrapper">
+                  <div className="chat-avatar">{getInitials(chat.name)}</div>
+                  {chat.online && <span className="online-indicator"></span>}
                 </div>
-                <div className="chat-preview-row">
-                  <p className="chat-preview">{chat.lastMessage}</p>
-                  {chat.unread > 0 && <span className="chat-unread-badge">{chat.unread}</span>}
+                <div className="chat-meta">
+                  <div className="chat-meta-row">
+                    <span className="chat-name">{chat.name}</span>
+                    <span className="chat-time">{chat.time}</span>
+                  </div>
+                  <div className="chat-preview-row">
+                    <p className="chat-preview">{chat.lastMessage}</p>
+                    {chat.unread > 0 && <span className="chat-unread-badge">{chat.unread}</span>}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );

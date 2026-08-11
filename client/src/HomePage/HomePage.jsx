@@ -83,7 +83,7 @@ function HomePage() {
         navigate("/rapports");
     };
 
-    const revenueVal = dashboardData?.stats?.revenueThisMonth || 152.33;
+    const revenueVal = dashboardData?.stats?.revenueThisMonth || 0;
     const cotisationsVal = Math.round(revenueVal * 0.211 * 100) / 100;
     const resultatVal = Math.round((revenueVal - cotisationsVal) * 100) / 100;
 

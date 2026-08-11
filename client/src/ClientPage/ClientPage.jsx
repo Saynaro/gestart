@@ -21,190 +21,6 @@ import QuoteDetailDrawer from "../DevisPage/components/QuoteDetailDrawer";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 import QuotePdfView from "../DevisPage/components/QuotePdfView";
 
-// Contacts data matching the user's requirements and screenshots
-const initialContacts = [
-    {
-        id: 100,
-        firstName: "Jane",
-        lastName: "Doe",
-        badge: "Test",
-        email: "jane-doe@yopmail.com",
-        phone: "01 23 45 67 89",
-        address: "23 Rue Paganini",
-        zip: "06000",
-        city: "NICE",
-        type: "particulier",
-        equipment: { model: "Daikin 3.5kW Inverter", installDate: "15/03/2024", serialNumber: "DK-2024-1234" },
-        maintenance: { status: "OK", nextMaintenance: "15/03/2027" }
-    },
-    {
-        id: 101,
-        firstName: "John",
-        lastName: "Doe",
-        badge: "Test",
-        email: "john-doe@yopmail.com",
-        phone: "06 98 76 54 32",
-        address: "45 Avenue Jean Médecin",
-        zip: "06000",
-        city: "NICE",
-        type: "particulier",
-        equipment: { model: "Daikin 3.5kW Inverter", installDate: "15/03/2024", serialNumber: "DK-2024-1234" },
-        maintenance: { status: "OK", nextMaintenance: "15/03/2027" }
-    },
-    {
-        id: 102,
-        firstName: "Khalid",
-        lastName: "Sainaro",
-        badge: null,
-        email: "khalidsainaro@gmail.com",
-        phone: "07 12 34 56 78",
-        address: "12 Blvd Victor Hugo",
-        zip: "06200",
-        city: "NICE",
-        type: "particulier",
-        equipment: { model: "Daikin 3.5kW Inverter", installDate: "15/03/2024", serialNumber: "DK-2024-1234" },
-        maintenance: { status: "OK", nextMaintenance: "15/03/2027" }
-    },
-    {
-        id: 1,
-        firstName: "Martin",
-        lastName: "Dupont",
-        badge: null,
-        email: "martin.dupont@email.com",
-        phone: "06 12 34 56 78",
-        address: "12 Rue de la Paix",
-        zip: "75002",
-        city: "Paris",
-        type: "particulier",
-        equipment: { model: "Daikin 3.5kW", installDate: "15/03/2024", serialNumber: "DK-2024-1234" },
-        maintenance: { status: "OK", nextMaintenance: "15/03/2027" },
-        interventions: [
-            { title: "Maintenance annuelle", date: "15/03/2026", tech: "Marc D.", status: "Terminé", desc: "RAS, système fonctionne parfaitement" },
-            { title: "Installation", date: "15/03/2024", tech: "Marc D.", status: "Terminé", desc: "Installation complète, client formé à l'utilisation" }
-        ]
-    },
-    {
-        id: 2,
-        firstName: "Sophie",
-        lastName: "Bernard",
-        badge: null,
-        email: "sophie.bernard@email.com",
-        phone: "06 98 76 54 32",
-        address: "45 Avenue Victor Hugo",
-        zip: "69000",
-        city: "Lyon",
-        type: "particulier",
-        equipment: { model: "Mitsubishi 2.5kW", installDate: "12/11/2024", serialNumber: "MB-2024-5678" },
-        maintenance: { status: "Urgent", nextMaintenance: "12/11/2025" },
-        interventions: [
-            { title: "Dépannage", date: "12/11/2025", tech: "Pierre L.", status: "Terminé", desc: "Remplacement filtre, nettoyage unité" }
-        ]
-    },
-    {
-        id: 3,
-        firstName: "Jean",
-        lastName: "Moreau",
-        badge: null,
-        email: "jean.moreau@email.com",
-        phone: "07 12 34 56 78",
-        address: "8 Boulevard Haussmann",
-        zip: "75009",
-        city: "Paris",
-        type: "particulier",
-        equipment: { model: "Samsung 4kW", installDate: "28/02/2025", serialNumber: "SM-2025-9012" },
-        maintenance: { status: "Bientôt", nextMaintenance: "28/02/2026" },
-        interventions: [
-            { title: "Maintenance annuelle", date: "28/02/2026", tech: "Marc D.", status: "Terminé", desc: "RAS, système fonctionne parfaitement" }
-        ]
-    },
-    {
-        id: 4,
-        firstName: "Marie",
-        lastName: "Petit",
-        badge: null,
-        email: "marie.petit@email.com",
-        phone: "06 55 44 33 22",
-        address: "23 Rue Lafayette",
-        zip: "13000",
-        city: "Marseille",
-        type: "particulier",
-        equipment: { model: "LG 3kW", installDate: "10/04/2025", serialNumber: "LG-2025-3456" },
-        maintenance: { status: "OK", nextMaintenance: "10/04/2027" },
-        interventions: [
-            { title: "Dépannage", date: "10/04/2026", tech: "Marc D.", status: "Terminé", desc: "RAS" }
-        ]
-    },
-    {
-        id: 5,
-        firstName: "Claire",
-        lastName: "Laurent",
-        badge: null,
-        email: "claire.laurent@email.com",
-        phone: "06 11 22 33 44",
-        address: "56 Cours Gambetta",
-        zip: "69000",
-        city: "Lyon",
-        type: "particulier",
-        equipment: { model: "Panasonic 3.5kW", installDate: "05/01/2025", serialNumber: "PA-2025-7890" },
-        maintenance: { status: "Bientôt", nextMaintenance: "05/01/2026" },
-        interventions: [
-            { title: "Maintenance annuelle", date: "05/01/2026", tech: "Marc D.", status: "Terminé", desc: "RAS" }
-        ]
-    }
-];
-
-// Organization list data
-const initialOrganisations = [
-    {
-        id: 10,
-        name: "LexCorp",
-        contact: "Jane Doe",
-        email: "info@lexcorp.com",
-        phone: "01 02 03 04 05",
-        address: "15 Rue de Paris",
-        zip: "75001",
-        city: "PARIS",
-        type: "organisation",
-        equipment: { model: "Daikin VRV System", installDate: "10/05/2023", serialNumber: "VRV-2023-9999" },
-        maintenance: { status: "OK", nextMaintenance: "10/05/2026" },
-        interventions: [
-            { title: "Contrôle d'étanchéité", date: "10/05/2025", tech: "Pierre L.", status: "Terminé", desc: "Contrôle réglementaire OK" }
-        ]
-    },
-    {
-        id: 11,
-        name: "AluTech SAS",
-        contact: "Jean Dupont",
-        email: "contact@alutech.fr",
-        phone: "04 92 11 22 33",
-        address: "150 Route de Grenoble",
-        zip: "06200",
-        city: "NICE",
-        type: "organisation",
-        equipment: { model: "Daikin VRV System", installDate: "10/05/2023", serialNumber: "VRV-2023-9999" },
-        maintenance: { status: "OK", nextMaintenance: "10/05/2026" },
-        interventions: [
-            { title: "Contrôle d'étanchéité", date: "10/05/2025", tech: "Pierre L.", status: "Terminé", desc: "Contrôle réglementaire OK" }
-        ]
-    },
-    {
-        id: 12,
-        name: "BatiConstruct",
-        contact: "Sophie Martin",
-        email: "s.martin@baticonstruct.fr",
-        phone: "04 93 12 34 56",
-        address: "8 Rue de la Préfecture",
-        zip: "06300",
-        city: "NICE",
-        type: "organisation",
-        equipment: { model: "Daikin VRV System", installDate: "10/05/2023", serialNumber: "VRV-2023-9999" },
-        maintenance: { status: "OK", nextMaintenance: "10/05/2026" },
-        interventions: [
-            { title: "Contrôle d'étanchéité", date: "10/05/2025", tech: "Pierre L.", status: "Terminé", desc: "Contrôle réglementaire OK" }
-        ]
-    }
-];
-
 // Helper to fill mock details if not present
 const getClientDetails = (client) => {
     if (!client) return null;
@@ -242,14 +58,17 @@ const getClientDetails = (client) => {
     };
 };
 
+const initialContacts = [];
+const initialOrganisations = [];
+
 import { apiFetch } from "../utils/api";
 
 function ClientPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [contacts, setContacts] = useState(initialContacts);
-    const [organisations, setOrganisations] = useState(initialOrganisations);
+    const [contacts, setContacts] = useState([]);
+    const [organisations, setOrganisations] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchClients = async () => {
@@ -605,6 +424,7 @@ function ClientPage() {
                                 groupedItems={groupedItems}
                                 onSelect={(client) => navigate("/client?id=" + client.id)}
                                 activeTabType={activeTabType}
+                                onOpenAddClient={handleOpenAddClient}
                             />
                         </div>
 

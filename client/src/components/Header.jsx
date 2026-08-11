@@ -1,29 +1,22 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Bell, MessageSquare, Send, X } from "lucide-react";
 import "./Header.css";
 import { profilePages, DropdownIcons } from "./navigationConstants";
+import { handleLogout } from "../utils/auth";
 
 
 function Header() {
+    const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
     const [bellOpen, setBellOpen] = useState(false);
     const [bellTab, setBellTab] = useState("notifications");
     const [replyText, setReplyText] = useState("");
     const [activeSmsReplyId, setActiveSmsReplyId] = useState(null);
 
-    const [smsList, setSmsList] = useState([
-        { id: 1, sender: "Jean Dupont", phone: "06 12 34 56 78", msg: "J'ai bien signé le devis de maintenance pour la PAC Daikin.", date: "Aujourd'hui 09:12" },
-        { id: 2, sender: "Marie Martin", phone: "06 98 76 54 32", msg: "Pouvez-vous venir à 14h au lieu de 15h pour le dépannage ?", date: "Hier 16:30" },
-        { id: 3, sender: "Sophie Leroy", phone: "07 11 22 33 44", msg: "Merci beaucoup pour votre intervention, tout fonctionne parfaitement.", date: "16 Juillet" }
-    ]);
-
-    const [notificationsList, setNotificationsList] = useState([
-        { id: 1, title: "Nouveau client", text: "Marie Martin a été ajoutée à vos clients", time: "10m" },
-        { id: 2, title: "Devis signé", text: "Jean Dupont a signé DEV-2026-001 électroniquement", time: "1h" },
-        { id: 3, title: "Facture réglée", text: "Règlement reçu pour INV-2026-001 (120,00 €)", time: "2h" },
-        { id: 4, title: "Rappel TO urgent", text: "Entretien climatisation en retard pour Marc Durand", time: "1j" }
-    ]);
+    const [smsList, setSmsList] = useState([]);
+    const [notificationsList, setNotificationsList] = useState([]);
 
     const [activePath, setActivePath] = useState(window.location.pathname || "/dashboard");
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -196,60 +189,72 @@ function Header() {
                                 <div className="bell-tabs-content">
                                     {bellTab === "notifications" ? (
                                         <div className="notifications-list">
-                                            {notificationsList.map(n => (
-                                                <div key={n.id} className="notification-item">
-                                                    <div className="meta">
-                                                        <span className="title">{n.title}</span>
-                                                        <span className="time">{n.time}</span>
+                                            {notificationsList.length === 0 ? (
+                                                <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
+                                                    Aucune notification pour le moment
+                                                </p>
+                                            ) : (
+                                                notificationsList.map(n => (
+                                                    <div key={n.id} className="notification-item">
+                                                        <div className="meta">
+                                                            <span className="title">{n.title}</span>
+                                                            <span className="time">{n.time}</span>
+                                                        </div>
+                                                        <p className="text">{n.text}</p>
                                                     </div>
-                                                    <p className="text">{n.text}</p>
-                                                </div>
-                                            ))}
+                                                ))
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="sms-notifications-list">
-                                            {smsList.map(s => (
-                                                <div key={s.id} className="sms-notification-item">
-                                                    <div className="meta">
-                                                        <span className="sender">{s.sender}</span>
-                                                        <span className="date">{s.date}</span>
-                                                    </div>
-                                                    <p className="msg">{s.msg}</p>
+                                            {smsList.length === 0 ? (
+                                                <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
+                                                    Aucun SMS reçu
+                                                </p>
+                                            ) : (
+                                                smsList.map(s => (
+                                                    <div key={s.id} className="sms-notification-item">
+                                                        <div className="meta">
+                                                            <span className="sender">{s.sender}</span>
+                                                            <span className="date">{s.date}</span>
+                                                        </div>
+                                                        <p className="msg">{s.msg}</p>
 
-                                                    {activeSmsReplyId === s.id ? (
-                                                        <div className="sms-reply-form">
-                                                            <input
-                                                                type="text"
-                                                                className="reply-input"
-                                                                placeholder="Votre réponse..."
-                                                                value={replyText}
-                                                                onChange={(e) => setReplyText(e.target.value)}
-                                                            />
+                                                        {activeSmsReplyId === s.id ? (
+                                                            <div className="sms-reply-form">
+                                                                <input
+                                                                    type="text"
+                                                                    className="reply-input"
+                                                                    placeholder="Votre réponse..."
+                                                                    value={replyText}
+                                                                    onChange={(e) => setReplyText(e.target.value)}
+                                                                />
+                                                                <button
+                                                                    className="reply-send-btn"
+                                                                    onClick={() => {
+                                                                        if (!replyText.trim()) return;
+                                                                        alert(`✓ Réponse SMS envoyée à ${s.sender}`);
+                                                                        setReplyText("");
+                                                                        setActiveSmsReplyId(null);
+                                                                    }}
+                                                                >
+                                                                    <Send size={12} />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
                                                             <button
-                                                                className="reply-send-btn"
+                                                                className="sms-reply-trigger"
                                                                 onClick={() => {
-                                                                    if (!replyText.trim()) return;
-                                                                    alert(`✓ Réponse SMS envoyée à ${s.sender}`);
+                                                                    setActiveSmsReplyId(s.id);
                                                                     setReplyText("");
-                                                                    setActiveSmsReplyId(null);
                                                                 }}
                                                             >
-                                                                <Send size={12} />
+                                                                Répondre par SMS
                                                             </button>
-                                                        </div>
-                                                    ) : (
-                                                        <button
-                                                            className="sms-reply-trigger"
-                                                            onClick={() => {
-                                                                setActiveSmsReplyId(s.id);
-                                                                setReplyText("");
-                                                            }}
-                                                        >
-                                                            Répondre par SMS
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            ))}
+                                                        )}
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -295,8 +300,8 @@ function Header() {
                                         href="/logout"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            alert("Déconnexion");
                                             setMenuOpen(false);
+                                            handleLogout(navigate);
                                         }}
                                         className="dropdown-link"
                                     >

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import './LoginPage.css';
 import { API_URL } from '../utils/config';
+import { setAuthToken } from '../utils/auth';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -73,11 +74,19 @@ export default function LoginPage() {
             }
 
             if (data.accessToken) {
-                localStorage.setItem('accessToken', data.accessToken);
+                setAuthToken(data.accessToken);
+            }
+
+            const userEmail = (formData.email || data.data?.user?.email || '').toLowerCase().trim();
+            localStorage.setItem('userEmail', userEmail);
+            if (data.data?.user) {
+                localStorage.setItem('currentUser', JSON.stringify(data.data.user));
             }
 
             const userRole = data.data?.user?.role;
-            if (userRole === 'TECHNICIAN') {
+            if (userEmail === 'khalid.cizdoev777@gmail.com' || userRole === 'SUPERADMIN') {
+                navigate('/admin');
+            } else if (userRole === 'TECHNICIAN') {
                 navigate('/planning');
             } else {
                 navigate('/home');

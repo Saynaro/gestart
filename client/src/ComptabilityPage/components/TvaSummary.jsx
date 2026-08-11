@@ -21,43 +21,19 @@ function TvaSummary() {
         fetchReport();
     }, [selectedQuarter, selectedYear]);
 
-    // Mock data per quarter
-    const tvaDataByQuarter = {
-        T1: {
-            period: "01 janv → 31 mars 2026",
-            base0: 0, tva0: 0,
-            base5: 1000, tva5: 55,
-            base10: 1200, tva10: 120,
-            base20: 8450, tva20: 1690,
-            totalBase: 10650, totalTva: 1865
-        },
-        T2: {
-            period: "01 avr → 30 juin 2026",
-            base0: 0, tva0: 0,
-            base5: 1800, tva5: 99,
-            base10: 2500, tva10: 250,
-            base20: 14500, tva20: 2900,
-            totalBase: 18800, totalTva: 3249
-        },
-        T3: {
-            period: "01 juil → 30 sept 2026",
-            base0: 0, tva0: 0,
-            base5: 1200, tva5: 66,
-            base10: 1900, tva10: 190,
-            base20: 11200, tva20: 2240,
-            totalBase: 14300, totalTva: 2496
-        },
-        T4: {
-            period: "01 oct → 31 déc 2026",
-            base0: 0, tva0: 0,
-            base5: 2200, tva5: 121,
-            base10: 3100, tva10: 310,
-            base20: 18500, tva20: 3700,
-            totalBase: 23800, totalTva: 4131
-        }
+    const current = {
+        period: selectedQuarter === "T1" ? `01 janv → 31 mars ${selectedYear}` : selectedQuarter === "T2" ? `01 avr → 30 juin ${selectedYear}` : selectedQuarter === "T3" ? `01 juil → 30 sept ${selectedYear}` : `01 oct → 31 déc ${selectedYear}`,
+        base0: tvaReport?.quarters?.[selectedQuarter]?.base0 || 0,
+        tva0: tvaReport?.quarters?.[selectedQuarter]?.tva0 || 0,
+        base5: tvaReport?.quarters?.[selectedQuarter]?.base5 || 0,
+        tva5: tvaReport?.quarters?.[selectedQuarter]?.tva5 || 0,
+        base10: tvaReport?.quarters?.[selectedQuarter]?.base10 || 0,
+        tva10: tvaReport?.quarters?.[selectedQuarter]?.tva10 || 0,
+        base20: tvaReport?.quarters?.[selectedQuarter]?.base20 || 0,
+        tva20: tvaReport?.quarters?.[selectedQuarter]?.tva20 || 0,
+        totalBase: tvaReport?.quarters?.[selectedQuarter]?.totalBase || 0,
+        totalTva: tvaReport?.quarters?.[selectedQuarter]?.totalTva || 0
     };
-
-    const current = tvaDataByQuarter[selectedQuarter];
 
     const quarters = ["T1", "T2", "T3", "T4"];
     const years = ["2026", "2025"];

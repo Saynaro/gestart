@@ -1,11 +1,15 @@
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Hero.css";
 import heroDashboard from "../../assets/hero-dashboard.jpg";
 import { CirclePlay, Calendar, MessageSquare, FileSignature, FileText, CreditCard, BarChart3 } from "lucide-react";
 import { Highlighter } from "@/components/ui/highlighter";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
+import { isAuthenticated } from "../../utils/auth";
 
 function Hero() {
+    const navigate = useNavigate();
+    const loggedIn = isAuthenticated();
     const containerRef = useRef(null);
     const node1Ref = useRef(null);
     const node2Ref = useRef(null);
@@ -118,13 +122,13 @@ function Hero() {
                         </Highlighter>
                     </p>
                     <div className="hero-buttons">
-                        <button className="primary-button">
-                            <span className="desktop-text">Essayer gratuitement 14j</span>
-                            <span className="mobile-text">Essai gratuit 14j</span>
+                        <button className="primary-button" onClick={() => navigate(loggedIn ? '/home' : '/register')}>
+                            <span className="desktop-text">{loggedIn ? 'Accéder à mon espace →' : 'Essayer gratuitement 14j'}</span>
+                            <span className="mobile-text">{loggedIn ? 'Mon Espace' : 'Essai gratuit 14j'}</span>
                         </button>
-                        <button className="secondary-button">
-                            <span className="desktop-text">Voir le demo en 2 minutes</span>
-                            <span className="mobile-text">Voir demo en 2 min.</span>
+                        <button className="secondary-button" onClick={() => navigate(loggedIn ? '/home' : '/login')}>
+                            <span className="desktop-text">{loggedIn ? 'Tableau de bord' : 'Voir le demo en 2 minutes'}</span>
+                            <span className="mobile-text">{loggedIn ? 'Connexion' : 'Voir demo en 2 min.'}</span>
                             <CirclePlay />
                         </button>
                     </div>

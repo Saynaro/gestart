@@ -27,6 +27,7 @@ import {
 import './RegisterPage.css';
 import { API_URL } from '../utils/config';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
+import { setAuthToken } from '../utils/auth';
 
 const TRADE_CATEGORIES_LIST = [
     { id: 'clim', name: 'Climatisation / PAC air-air', icon: '❄️' },
@@ -341,7 +342,7 @@ export default function RegisterPage() {
             }
 
             if (data.accessToken) {
-                localStorage.setItem('accessToken', data.accessToken);
+                setAuthToken(data.accessToken);
             }
 
             showToastNotification('Bienvenue sur ClimPro CRM ! Espace créé avec succès. 🎉', 'success');

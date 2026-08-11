@@ -1,9 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MoreVertical, Eye, Edit3, Calendar, Archive } from "lucide-react";
+import { MoreVertical, Eye, Edit3, Calendar, Archive, Users } from "lucide-react";
 
 function ClientTable({ clients, getClientDetails, onSelect, onEdit, onPlan, onArchive }) {
     const [activeDropdownId, setActiveDropdownId] = useState(null);
     const dropdownRef = useRef(null);
+
+    if (!clients || clients.length === 0) {
+        return (
+            <div className="fp-empty-state" style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)', width: '100%', boxSizing: 'border-box' }}>
+                <Users size={44} style={{ opacity: 0.4, margin: '0 auto 12px auto', display: 'block' }} />
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>Vous n'avez pas encore de clients</h3>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
+                    Ajoutez votre premier client pour commencer à gérer vos interventions et factures.
+                </p>
+                <button className="new-client-btn" onClick={() => onEdit && onEdit(null, false)}>
+                    + Nouveau Client
+                </button>
+            </div>
+        );
+    }
 
     const toggleDropdown = (e, clientId) => {
         e.stopPropagation();

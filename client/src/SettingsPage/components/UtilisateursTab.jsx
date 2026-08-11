@@ -4,8 +4,7 @@ import { apiFetch } from "../../utils/api";
 
 export default function UtilisateursTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [members, setMembers] = useState([
-        { id: 1, name: "Khalid Sainaro", email: "khalid.cizdoev777@gmail.com", role: "OWNER", lastActive: "Maintenant", status: "Actif", isSelf: true },
-        { id: 2, name: "Jean Dupont", email: "jean.dupont@climpro.fr", role: "TECHNICIAN", lastActive: "Hier à 16:30", status: "Actif", isSelf: false }
+        { id: 1, name: "Khalid Sainaro", email: "khalid.cizdoev777@gmail.com", role: "OWNER", lastActive: "Maintenant", status: "Actif", isSelf: true }
     ]);
 
     useEffect(() => {
@@ -21,21 +20,19 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
                         role: u.role || "TECHNICIAN",
                         lastActive: u.updatedAt ? new Date(u.updatedAt).toLocaleDateString('fr-FR') : "Récent",
                         status: u.isActive !== false ? "Actif" : "Désactivé",
-                        isSelf: false
+                        isSelf: u.email === "khalid.cizdoev777@gmail.com"
                     }));
                     setMembers(mappedMembers);
                 }
             } catch (err) {
-                console.warn("API users non disponible, conservation de la liste locale:", err.message);
+                console.warn("API users non disponible:", err.message);
             }
         };
 
         fetchUsers();
     }, []);
 
-    const [invitations, setInvitations] = useState([
-        { id: 1, email: "technicien2@climpro.fr", role: "TECHNICIAN", expiresAt: "28/07/2026", status: "En attente" }
-    ]);
+    const [invitations, setInvitations] = useState([]);
 
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [newInviteEmail, setNewInviteEmail] = useState("");

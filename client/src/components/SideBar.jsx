@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import "./SideBar.css";
 import BottomSheet from "./BottomSheet";
 import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
+import { handleLogout } from "../utils/auth";
 
 function SideBar({ onFabClick, hideFab = false }) {
     const navigate = useNavigate();
@@ -188,7 +189,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                 data-tooltip="Déconnexion"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    alert("Déconnexion");
+                                    handleLogout(navigate);
                                 }}
                             >
                                 {Icons.logout}
@@ -246,7 +247,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                     </li>
                                 </ul>
                                 <div className="popover-divider"></div>
-                                <div className="popover-item danger" onClick={() => { setUserMenuOpen(false); alert("Déconnexion"); }}>
+                                <div className="popover-item danger" onClick={() => { setUserMenuOpen(false); handleLogout(navigate); }}>
                                     <span className="popover-item-icon">
                                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>

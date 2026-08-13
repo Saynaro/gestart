@@ -38,7 +38,7 @@ const giantTextVariant = {
 function Footer() {
     const brandName = "GestArt";
     const description = "Optimisez vos interventions, fidélisez vos clients et automatisez votre facturation en toute simplicité.";
-    const email = "support@gestart.fr";
+    const email = "support.gestart@gmail.com";
     const [activeLegalModal, setActiveLegalModal] = useState(null);
 
     const legalLinks = [
@@ -138,7 +138,13 @@ function Footer() {
                                     <li key={link.id}>
                                         <button
                                             type="button"
-                                            onClick={() => setActiveLegalModal(link.id)}
+                                            onClick={() => {
+                                                if (link.id === 'cookies') {
+                                                    window.dispatchEvent(new Event("openCookieConsent"));
+                                                } else {
+                                                    setActiveLegalModal(link.id);
+                                                }
+                                            }}
                                             className="footer-nav-link"
                                             style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
                                         >

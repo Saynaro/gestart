@@ -5,16 +5,16 @@ import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 
 export default function EntrepriseTab({ isMobileView, triggerToast }) {
-    const [companyName, setCompanyName] = useState("SAINARO KHALID CLIM");
-    const [legalForm, setLegalForm] = useState("Auto-entrepreneur"); // SARL / SAS / EI / Auto-entrepreneur / EURL
-    const [siret, setSiret] = useState("94408772500012");
-    const [rcs, setRcs] = useState("RCS Nice");
+    const [companyName, setCompanyName] = useState("KHALID SAINARO");
+    const [legalForm, setLegalForm] = useState("EI"); // SARL / SAS / EI / Auto-entrepreneur / EURL
+    const [siret, setSiret] = useState("94408772500015");
+    const [rcs, setRcs] = useState("RCS Nice B 944 087 725");
     const [capital, setCapital] = useState("1000");
-    const [address, setAddress] = useState("23 RUE Paganini, 06000 NICE");
+    const [address, setAddress] = useState("23 RUE PAGANINI, 06000 NICE");
     const [nafCode, setNafCode] = useState("4322B - Travaux d'installation d'équipements thermiques et de climatisation");
     const [logoUrl, setLogoUrl] = useState(null);
-    const [website, setWebsite] = useState("https://dupont-clim.fr");
-    const [companyEmail, setCompanyEmail] = useState("contact@dupont-clim.fr");
+    const [website, setWebsite] = useState("https://gestart.fr");
+    const [companyEmail, setCompanyEmail] = useState("support.gestart@gmail.com");
     const [companyPhone, setCompanyPhone] = useState("04 93 12 34 56");
     const [iban, setIban] = useState("FR76 3000 3020 5001 2345 6789 012");
     const [bic, setBIC] = useState("BNPAFRPPXXX");
@@ -64,7 +64,7 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
             return;
         }
         const clean = searchSiretInput.trim().replace(/\s+/g, '');
-        setSiret(clean.length === 9 ? `${clean}00012` : clean);
+        setSiret(clean.length === 9 ? `${clean}00015` : clean);
         triggerToast("Entreprise trouvée via Pappers API ! Données juridiques pré-remplies.");
     };
 
@@ -105,7 +105,7 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                         className="form-input"
                         value={searchSiretInput}
                         onChange={(e) => setSearchSiretInput(e.target.value)}
-                        placeholder="Saisissez un n° SIRET (ex: 944 087 725 00012)"
+                        placeholder="Saisissez un n° SIRET (ex: 944 087 725 00015)"
                         style={{ flex: '1 1 220px', backgroundColor: 'var(--card)', fontWeight: 600 }}
                     />
                     <button

@@ -30,6 +30,8 @@ import ResetPasswordPage from './AuthPage/ResetPasswordPage'
 import VerifyEmailPage from './AuthPage/VerifyEmailPage'
 import SuperAdminPanel from './AdminPage/AdminPage'
 
+import CookieConsentBanner from './components/CookieConsentBanner'
+
 // Lazy loaded Stripe & Public pages
 const SubscriptionSuccessPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionSuccessPage })))
 const SubscriptionCancelPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionCancelPage })))
@@ -125,6 +127,7 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <CookieConsentBanner />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public Landing Page */}

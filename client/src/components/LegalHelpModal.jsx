@@ -77,6 +77,7 @@ export function LegalHelpTooltip({ title, text, lawArticle, positionDirection = 
 
 export default function LegalModal({ type, onClose }) {
     const [activeTab, setActiveTab] = useState(type || "mentions");
+    const activeTabRef = React.useRef(null);
 
     React.useEffect(() => {
         const prevOverflowHtml = document.documentElement.style.overflow;
@@ -92,6 +93,16 @@ export default function LegalModal({ type, onClose }) {
             document.body.classList.remove("modal-open");
         };
     }, []);
+
+    React.useEffect(() => {
+        if (activeTabRef.current) {
+            activeTabRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
+    }, [activeTab]);
 
     return (
         <div style={{
@@ -111,6 +122,7 @@ export default function LegalModal({ type, onClose }) {
                 color: 'var(--foreground, #0f172a)',
                 width: '100%',
                 maxWidth: '780px',
+                height: '640px',
                 maxHeight: '90vh',
                 borderRadius: '16px',
                 display: 'flex',
@@ -121,7 +133,7 @@ export default function LegalModal({ type, onClose }) {
             }}>
                 {/* Modal Header */}
                 <div style={{
-                    padding: '20px 24px',
+                    padding: '16px 20px',
                     borderBottom: '1px solid var(--border, #e2e8f0)',
                     display: 'flex',
                     alignItems: 'center',
@@ -129,10 +141,12 @@ export default function LegalModal({ type, onClose }) {
                     backgroundColor: 'var(--muted, #f8fafc)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Scale style={{ color: '#556B2F' }} size={24} />
+                        <ShieldCheck size={24} style={{ color: '#556B2F' }} />
                         <div>
-                            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Conformité Légale & Mentions</h3>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted-foreground, #64748b)' }}>Cadre juridique et protection des données selon les lois françaises & européennes</p>
+                            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Centre de Conformité &amp; Légal</h3>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--muted-foreground, #64748b)' }}>
+                                GestArt - Conforme aux lois françaises &amp; européennes
+                            </p>
                         </div>
                     </div>
                     <button
@@ -143,13 +157,18 @@ export default function LegalModal({ type, onClose }) {
                     </button>
                 </div>
 
-                {/* Tabs */}
+                {/* Tabs Bar */}
                 <div style={{
                     display: 'flex',
+                    alignItems: 'center',
+                    height: '52px',
+                    minHeight: '52px',
+                    flexShrink: 0,
                     borderBottom: '1px solid var(--border, #e2e8f0)',
                     overflowX: 'auto',
                     backgroundColor: 'var(--card, #ffffff)',
-                    padding: '0 16px'
+                    padding: '0 16px',
+                    boxSizing: 'border-box'
                 }}>
                     {[
                         { id: "mentions", label: "Mentions légales", icon: FileText, law: "art. 6 LCEN" },
@@ -162,23 +181,30 @@ export default function LegalModal({ type, onClose }) {
                         return (
                             <button
                                 key={t.id}
+                                ref={isActive ? activeTabRef : null}
                                 onClick={() => setActiveTab(t.id)}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flex: '1 0 auto',
+                                    minWidth: '140px',
                                     gap: '8px',
-                                    padding: '14px 18px',
+                                    height: '100%',
+                                    padding: '0 12px',
                                     border: 'none',
                                     background: 'none',
                                     borderBottom: isActive ? '3px solid #556B2F' : '3px solid transparent',
                                     color: isActive ? '#556B2F' : 'var(--muted-foreground, #64748b)',
-                                    fontWeight: isActive ? 700 : 500,
+                                    fontWeight: 600,
                                     fontSize: '0.875rem',
                                     cursor: 'pointer',
-                                    whiteSpace: 'nowrap'
+                                    whiteSpace: 'nowrap',
+                                    boxSizing: 'border-box',
+                                    transition: 'color 0.15s ease, border-color 0.15s ease'
                                 }}
                             >
-                                <Icon size={16} />
+                                <Icon size={18} />
                                 {t.label}
                             </button>
                         );
@@ -188,56 +214,76 @@ export default function LegalModal({ type, onClose }) {
                 {/* Content Body */}
                 <div style={{ padding: '24px', overflowY: 'auto', flex: 1, fontSize: '0.875rem', lineHeight: 1.6 }}>
                     {activeTab === "mentions" && (
-                        <div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>Loi N° 2004-575 (LCEN - art. 6)</span>
-                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: '12px', marginBottom: '8px' }}>Mentions Légales du service GestArt</h4>
-                            <p>Conformément aux dispositions de l'article 6 de la Loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN), il est précisé aux utilisateurs du site GestArt l'identité des différents intervenants dans le cadre de sa réalisation et de son suivi :</p>
-                            <ul>
-                                <li><strong>Éditeur de la plateforme :</strong> GestArt SAS / EI Khalid Sainaro, siège social : 23 Rue Paganini, 06000 Nice. SIREN : 944 087 725.</li>
-                                <li><strong>Directeur de la publication :</strong> Khalid Sainaro (Contact : support@gestart.fr).</li>
-                                <li><strong>Hébergement des données :</strong> Plateforme hébergée en Europe (France/Allemagne) avec chiffrement SSL/TLS aux normes bancaires.</li>
-                                <li><strong>Conformité Facturation :</strong> Application des règles d'émission des factures selon l'article 289 du Code Général des Impôts (CGI).</li>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px', alignSelf: 'flex-start' }}>
+                                Conforme à la Loi N° 2004-575 (LCEN - Article 6)
+                            </span>
+                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Mentions Légales du service GestArt</h4>
+                            <p style={{ margin: 0 }}>Conformément à l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN), l'identité des différents intervenants dans le cadre de la réalisation et du suivi du service GestArt est précisée ci-dessous :</p>
+                            <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <li><strong>Éditeur du service :</strong> KHALID SAINARO (Entreprise Individuelle - EI), nom commercial "GestArt".</li>
+                                <li><strong>Siège social :</strong> 23 RUE PAGANINI, 06000 NICE, France.</li>
+                                <li><strong>Numéros d'immatriculation :</strong> SIREN 944 087 725 | SIRET 944 087 725 00015 | Immatriculée au RCS de Nice.</li>
+                                <li><strong>Numéro de TVA Intracommunautaire :</strong> FR12944087725 (Franchise en base de TVA selon l'article 293 B du CGI le cas échéant).</li>
+                                <li><strong>Directeur de la publication & DPO :</strong> Khalid Sainaro (Contact : <strong>support.gestart@gmail.com</strong>).</li>
+                                <li><strong>Hébergement des données & Infrastructure :</strong> Serveurs hautement sécurisés situés dans l'Union Européenne (Paris, France / Allemagne) par Hostinger International Ltd. / Vercel Inc. & Cloudflare Inc. Données chiffrées au repos (AES-256) et en transit (SSL/TLS 1.3).</li>
+                                <li><strong>Propriété Intellectuelle :</strong> L'ensemble de la marque GestArt, du logo, de la charte graphique, des codes sources, bases de données et contenus textuels sont la propriété exclusive de KHALID SAINARO. Toute reproduction, représentation ou exploitation non autorisée constitue une contrefaçon sanctionnée par les articles L.335-2 et suivants du Code de la propriété intellectuelle.</li>
+                                <li><strong>Médiation de la consommation (Art. L612-1 C. conso) :</strong> En cas de litige, le client consommateur a le droit de recourir gratuitement à un médiateur de la consommation agréé en vue de la résolution amiable du litige.</li>
                             </ul>
                         </div>
                     )}
 
                     {activeTab === "cgu" && (
-                        <div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>Code de Commerce (art. L441-1) & Code de la Consommation (art. L111-1)</span>
-                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: '12px', marginBottom: '8px' }}>Conditions Générales d'Utilisation & Vente (CGU / CGV)</h4>
-                            <p>Les présentes CGU/CGV régissent l'utilisation de la plateforme de gestion GestArt ainsi que la délivrance des devis et factures :</p>
-                            <ul>
-                                <li><strong>Obligation de Devis (art. L111-3 C.conso) :</strong> Un devis préalable est fourni pour toute prestation aux particuliers dépassant 150 €. Les devis ont une durée de validité de 30 jours sauf mention contraire.</li>
-                                <li><strong>Pénalités de Retard (art. L441-10 C.com) :</strong> En cas de retard de paiement sur facture, des pénalités sont applicables de plein droit au taux annuel de la BCE majoré de 10 points de pourcentage.</li>
-                                <li><strong>Indemnité Forfaitaire de Recouvrement (art. D441-5 C.com) :</strong> Une indemnité forfaitaire de 40 € est due de plein droit pour tout retard de règlement sur facture B2B.</li>
-                                <li><strong>Escompte (art. L441-9 C.com) :</strong> Aucun escompte n'est accordé en cas de paiement anticipé sauf convention spécifique.</li>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px', alignSelf: 'flex-start' }}>
+                                Code de Commerce (art. L441-1) &amp; Code de la Consommation (art. L111-1)
+                            </span>
+                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Conditions Générales d'Utilisation &amp; de Vente (CGU / CGV)</h4>
+                            <p style={{ margin: 0 }}>Les présentes CGU/CGV régissent l'accès, la souscription et l'utilisation de la plateforme SaaS GestArt pour la gestion de clients, devis, facturation et plannings d'interventions :</p>
+                            <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <li><strong>Objet &amp; Accès au service :</strong> GestArt fournit une solution logicielle B2B/B2C en mode SaaS accessible 24/7. L'accès nécessite la création d'un compte sécurisé avec identifiants personnels stricts.</li>
+                                <li><strong>Essai Gratuit &amp; Abonnements :</strong> Un essai gratuit de 14 jours sans carte bancaire est offert à tout nouveau compte. À l'issue de l'essai, l'utilisateur choisit sa formule (Starter, Pro, Unlimited). Les paiements sont sécurisés par Stripe.</li>
+                                <li><strong>Conformité des Devis &amp; Factures (art. L111-3 C.conso &amp; CGI art. 289) :</strong> GestArt génère des factures et devis conformes aux normes fiscales françaises. Les devis ont une durée de validité standard de 30 jours sauf mention spécifique.</li>
+                                <li><strong>Pénalités de Retard (art. L441-10 C.com) :</strong> En cas de retard de paiement sur abonnement ou prestation, des pénalités de retard s'appliquent de plein droit au taux annuel de la Banque Centrale Européenne majoré de 10 points.</li>
+                                <li><strong>Indemnité Forfaitaire de Recouvrement (art. D441-5 C.com) :</strong> Une indemnité forfaitaire de 40 € est due de plein droit pour frais de recouvrement en cas de retard de paiement B2B. Aucun escompte n'est accordé en cas de paiement anticipé.</li>
+                                <li><strong>Résiliation &amp; Rétractation :</strong> L'utilisateur peut résilier son abonnement sans préavis ni pénalité à tout moment depuis son espace Paramètres. Le droit de rétractation de 14 jours s'applique conformément à l'article L221-18 du Code de la consommation.</li>
+                                <li><strong>Responsabilité &amp; Disponibilité (SLA) :</strong> GestArt s'engage à maintenir une disponibilité minimale du service de 99,9%. Les sauvegardes sont exécutées quotidiennement. GestArt ne saurait être tenu responsable des dommages indirects ou des pertes de données consécutives à une mauvaise utilisation.</li>
+                                <li><strong>Loi applicable &amp; Juridiction :</strong> Les présentes CGU/CGV sont soumises au droit français. Tout litige relatif à leur interprétation ou exécution sera de la compétence exclusive des tribunaux du ressort de Nice (06000).</li>
                             </ul>
                         </div>
                     )}
 
                     {activeTab === "rgpd" && (
-                        <div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>Règlement UE 2016/679 (RGPD) & Loi Informatique et Libertés</span>
-                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: '12px', marginBottom: '8px' }}>Politique de Confidentialité & Protection des Données</h4>
-                            <p>GestArt s'engage à protéger la vie privée et les données personnelles de ses utilisateurs et de leurs clients conformément au RGPD :</p>
-                            <ul>
-                                <li><strong>Principe de minimisation (art. 5 RGPD) :</strong> Seules les données strictly nécessaires à l'établissement des devis, factures et plannings sont collectées.</li>
-                                <li><strong>Droit d'accès et d'exportation (art. 15-20 RGPD) :</strong> Vous pouvez à tout moment exporter l'ensemble de vos données d'entreprise et fiches clients depuis votre espace Paramètres.</li>
-                                <li><strong>Droit à l'effacement (art. 17 RGPD) :</strong> Vous bénéficiez du droit à l'oubli pour supprimer définitivement votre compte et effacer vos données.</li>
-                                <li><strong>Sécurité & Chiffrement (art. 32 RGPD) :</strong> Toutes les données sont transférées via HTTPS avec algorithme SHA-256 / AES et mémorisées dans des serveurs sécurisés.</li>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px', alignSelf: 'flex-start' }}>
+                                Règlement Général sur la Protection des Données (RGPD 2016/679) &amp; Loi n° 78-17
+                            </span>
+                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Politique de Confidentialité &amp; Protection des Données Personnelles</h4>
+                            <p style={{ margin: 0 }}>GestArt s'engage fermement à respecter la vie privée de ses utilisateurs et la confidentialité des données hébergées conformément au RGPD :</p>
+                            <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <li><strong>Responsable du Traitement :</strong> KHALID SAINARO (EI) — DPO : <strong>support.gestart@gmail.com</strong>.</li>
+                                <li><strong>Données collectées &amp; Finalité :</strong> Les données collectées (nom, prénom, email, téléphone, SIRET, adresses d'intervention, factures) sont strictly nécessaires à l'exécution du service, la facturation et l'assistance technique (art. 6.1.b RGPD).</li>
+                                <li><strong>Principe de minimisation &amp; Non-revente :</strong> GestArt ne commercialise, ne loue et ne cède aucune donnée personnelle à des tiers à des fins publicitaires.</li>
+                                <li><strong>Durée de conservation :</strong> Les données du compte sont conservées pendant la durée de la relation contractuelle + 3 ans à des fins de prospection. Les factures et pièces comptables sont archivées 10 ans conformément à l'article L123-22 du Code de commerce.</li>
+                                <li><strong>Vos Droits (art. 15-22 RGPD) :</strong> Vous disposez d'un droit d'accès, de rectification, de portabilité (export JSON/CSV), d'effacement (droit à l'oubli) et d'opposition. Pour exercer ces droits, envoyez un email à <strong>support.gestart@gmail.com</strong>.</li>
+                                <li><strong>Sécurité des données (art. 32 RGPD) :</strong> Les mots de passe sont hachés via bcrypt. L'accès à la base de données est restreint et surveillé. Chiffrement HTTPS/TLS sur tous les flux.</li>
+                                <li><strong>Droit de réclamation auprès de la CNIL :</strong> Si vous estimez que vos droits ne sont pas respectés, vous pouvez soumettre une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés — www.cnil.fr).</li>
                             </ul>
                         </div>
                     )}
 
                     {activeTab === "cookies" && (
-                        <div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>Article 82 de la Loi Informatique et Libertés</span>
-                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: '12px', marginBottom: '8px' }}>Politique de Gestion des Cookies</h4>
-                            <p>Le site GestArt utilise des cookies essentiels au bon fonctionnement de la plateforme :</p>
-                            <ul>
-                                <li><strong>Cookies strictement nécessaires :</strong> Permettent de maintenir votre session de connexion active et vos préférences de thème (clair/sombre). Ces cookies ne nécessitent pas de consentement préalable (exemption CNIL).</li>
-                                <li><strong>Cookies de mesure d'audience :</strong> Utilisés sous forme anonymisée pour améliorer les performances de la plateforme.</li>
-                                <li><strong>Contrôle et désactivation :</strong> Vous pouvez modifier vos préférences de stockage local et cookies depuis les réglages de votre navigateur à tout moment.</li>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#556B2F', backgroundColor: 'rgba(85, 107, 47, 0.1)', padding: '4px 8px', borderRadius: '6px', alignSelf: 'flex-start' }}>
+                                Article 82 de la Loi Informatique et Libertés &amp; Directive Privacy
+                            </span>
+                            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Politique de Gestion des Cookies &amp; Fichiers Témoins</h4>
+                            <p style={{ margin: 0 }}>GestArt utilise des cookies et technologies de stockage local pour assurer un fonctionnement fluide et sécurisé :</p>
+                            <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <li><strong>Cookies strictement nécessaires (Exemptés de consentement) :</strong> Nécessaires au maintien de votre session d'authentification (tokens JWT) et à la sauvegarde de vos préférences d'interface (thème clair/sombre). Conformes aux exemptions de la CNIL.</li>
+                                <li><strong>Cookies de mesure d'audience &amp; performance :</strong> Utilisés de manière strictement anonyme pour analyser l'utilisation de la plateforme et corriger d'éventuels bugs.</li>
+                                <li><strong>Durée de conservation des cookies :</strong> Les cookies et jetons de stockage sont conservés pour une durée maximale de 13 mois.</li>
+                                <li><strong>Gestion et Refus :</strong> Vous pouvez à tout moment désactiver ou vider les cookies depuis le menu de votre navigateur Web (Google Chrome, Firefox, Safari, Edge) ou via l'onglet Paramètres &gt; Légal &amp; RGPD de votre espace GestArt.</li>
                             </ul>
                         </div>
                     )}

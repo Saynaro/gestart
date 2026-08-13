@@ -68,9 +68,9 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             priceMonthly: 34,
             priceAnnual: 27,
             clientsLimit: 50,
-            techsLimit: 2,
-            smsLimit: 100,
-            features: ["Gestion clients & devis", "Rappels SMS automatiques", "Export comptable basique", "Support email"]
+            techsLimit: 1,
+            smsLimit: 50,
+            features: ["1 technicien (le patron lui-même)", "Fiches clients + équipements", "Planning & Signature devis", "50 SMS manuels/mois", "Export comptable Excel", "Support email"]
         },
         {
             name: "Pro",
@@ -80,7 +80,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             techsLimit: 10,
             smsLimit: 500,
             recommended: true,
-            features: ["Toutes les fonctions Starter", "Intégration Pennylane / Indy", "App Mobile Techniciens", "Module auto-entrepreneur URSSAF", "Support prioritaire 7j/7"]
+            features: ["Toutes les fonctions Starter", "Rappels SMS automatiques", "App Mobile Techniciens", "Module auto-entrepreneur URSSAF", "Support prioritaire 7j/7"]
         },
         {
             name: "Unlimited",

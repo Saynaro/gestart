@@ -127,18 +127,18 @@ export default function TechniciensPage() {
     };
 
     const getWhatsAppShareUrl = (url, code) => {
-        const text = `Bonjour, rejoignez notre équipe sur GestArt CRM en tant que technicien ! Cliquez sur ce lien pour vous inscrire : ${url} (Code d'invitation : ${code})`;
+        const text = `Bonjour, rejoignez notre équipe sur GestArt en tant que technicien ! Cliquez sur ce lien pour vous inscrire : ${url} (Code d'invitation : ${code})`;
         return `https://wa.me/?text=${encodeURIComponent(text)}`;
     };
 
     const getSmsShareUrl = (url, code) => {
-        const text = `Rejoignez l'équipe sur GestArt CRM. Lien d'inscription: ${url} Code: ${code}`;
+        const text = `Rejoignez l'équipe sur GestArt. Lien d'inscription: ${url} Code: ${code}`;
         return `sms:?body=${encodeURIComponent(text)}`;
     };
 
     const getMailShareUrl = (email, url, code) => {
-        const subject = "Invitation à rejoindre l'équipe GestArt CRM";
-        const body = `Bonjour,\n\nVous êtes invité(e) à rejoindre notre société sur GestArt CRM en tant que technicien.\n\nCliquez sur ce lien pour vous inscrire : ${url}\n\nCode d'invitation : ${code}\n\nCordialement,`;
+        const subject = "Invitation à rejoindre l'équipe GestArt";
+        const body = `Bonjour,\n\nVous êtes invité(e) à rejoindre notre société sur GestArt en tant que technicien.\n\nCliquez sur ce lien pour vous inscrire : ${url}\n\nCode d'invitation : ${code}\n\nCordialement,`;
         return `mailto:${email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     };
 

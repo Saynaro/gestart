@@ -5,7 +5,7 @@ export default function SupportTab({ isMobileView, triggerToast }) {
     const [copiedEmail, setCopiedEmail] = useState(false);
     const [openFaq, setOpenFaq] = useState(null);
 
-    const supportEmail = "support@gestart.fr";
+    const supportEmail = "support.gestart@gmail.com";
 
     const faqs = [
         {

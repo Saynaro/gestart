@@ -10,7 +10,7 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
     const [defaultPaymentDelay, setDefaultPaymentDelay] = useState("30"); // 15 / 30 / 45 / 60
     const [defaultQuoteValidity, setDefaultQuoteValidity] = useState("30"); // 15 / 30 / 60
     const [defaultTvaRate, setDefaultTvaRate] = useState(20); // 0 / 5.5 / 10 / 20
-    const [pdfFooterText, setPdfFooterText] = useState("SAINARO KHALID CLIM - SIRET 94408772500012 - RCS Nice - IBAN: FR76 3000 3020 5001 2345 6789 012 - BIC: BNPAFRPPXXX");
+    const [pdfFooterText, setPdfFooterText] = useState("KHALID SAINARO - SIRET 94408772500015 - RCS Nice - 23 RUE PAGANINI 06000 NICE");
     const [cgvText, setCgvText] = useState("Conditions Générales de Vente (CGV) : Les paiements s'effectuent à réception de facture sous 30 jours. En cas de retard de paiement, une pénalité minimale de 10% sera appliquée.");
     const [pdfColor, setPdfColor] = useState("#5B4DDB");
     const [penaltyRate, setPenaltyRate] = useState("10");

@@ -118,11 +118,11 @@ export default function LoginPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <span>GestArt CRM</span>
+                        <span>GestArt</span>
                     </div>
 
                     <h1 className="banner-title">
-                        Ravis de vous revoir sur GestArt CRM.
+                        Ravis de vous revoir sur GestArt.
                     </h1>
 
                     <p className="banner-subtitle">
@@ -160,7 +160,7 @@ export default function LoginPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <span>GestArt CRM</span>
+                            <span>GestArt</span>
                         </div>
                     </div>
 

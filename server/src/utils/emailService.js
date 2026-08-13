@@ -10,12 +10,25 @@ import nodemailer from "nodemailer";
  * - EMAIL_FROM (e.g. "GestArt CRM <support.gestart@gmail.com>")
  */
 const createTransporter = () => {
-    const host = process.env.SMTP_HOST;
-    const port = parseInt(process.env.SMTP_PORT || "587", 10);
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
+    const host = process.env.SMTP_HOST || "smtp.gmail.com";
+    const port = parseInt(process.env.SMTP_PORT || "465", 10);
+    const user = process.env.SMTP_USER || "support.gestart@gmail.com";
+    const pass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : "";
 
-    if (host && user && pass) {
+    if (user && pass) {
+        if (host.includes("gmail")) {
+            return nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user,
+                    pass,
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+        }
+
         return nodemailer.createTransport({
             host,
             port,

@@ -4,7 +4,7 @@ import { Lock, Download, Trash2, ShieldCheck, Mail, FileText, CheckCircle2, Info
 export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfirm }) {
     const [cookieConsent, setCookieConsent] = useState(true);
     const [marketingConsent, setMarketingConsent] = useState(false);
-    const [dpoEmail, setDpoEmail] = useState("dpo@gestart.fr");
+    const [dpoEmail, setDpoEmail] = useState("support.gestart@gmail.com");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const registrationDate = "05/05/2025";
@@ -13,7 +13,7 @@ export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfir
     const handleExportJson = () => {
         const data = {
             user: { firstName: "Khalid", lastName: "Sainaro", email: "khalid.cizdoev777@gmail.com", phone: "0651604316" },
-            company: { name: "SAINARO KHALID CLIM", siret: "94408772500012", siren: "944087725", legalForm: "Auto-entrepreneur" },
+            company: { name: "KHALID SAINARO", siret: "94408772500015", siren: "944087725", legalForm: "EI" },
             exportDate: new Date().toISOString(),
             rgpdArticle: "Art. 20 RGPD - Droit à la portabilité"
         };
@@ -28,7 +28,7 @@ export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfir
     };
 
     const handleExportCsv = () => {
-        const csvContent = "data:text/csv;charset=utf-8,Nom,Prénom,Email,SIRET,DateInscription\nSainaro,Khalid,khalid.cizdoev777@gmail.com,94408772500012,05/05/2025\n";
+        const csvContent = "data:text/csv;charset=utf-8,Nom,Prénom,Email,SIRET,DateInscription\nSainaro,Khalid,support.gestart@gmail.com,94408772500015,05/05/2025\n";
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);

@@ -22,23 +22,30 @@ import {
     EyeOff,
     Check,
     X,
-    KeyRound
+    KeyRound,
+    Snowflake,
+    Flame,
+    Droplet,
+    Wind,
+    Sun,
+    TreePine
 } from 'lucide-react';
 import './RegisterPage.css';
 import { API_URL } from '../utils/config';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
 import { setAuthToken } from '../utils/auth';
+import LegalModal from '../components/LegalHelpModal';
 
 const TRADE_CATEGORIES_LIST = [
-    { id: 'clim', name: 'Climatisation / PAC air-air', icon: '❄️' },
-    { id: 'pac', name: 'Pompe à chaleur air-eau', icon: '🔥' },
-    { id: 'plombier', name: 'Plomberie & Chauffage', icon: '🚰' },
-    { id: 'cet', name: 'Chauffe-Eau Thermodynamique', icon: '💧' },
-    { id: 'vmc', name: 'Ventilation mécanique (VMC)', icon: '🌀' },
-    { id: 'solaires', name: 'Panneaux solaires photovoltaïques', icon: '☀️' },
-    { id: 'chaudiere', name: 'Chaudière gaz / fioul', icon: '⚡' },
-    { id: 'poele', name: 'Poêle ou insert bois', icon: '🪵' },
-    { id: 'elec', name: 'Tableau électrique / Bornes', icon: '⚡' },
+    { id: 'clim', name: 'Climatisation / PAC air-air', icon: Snowflake },
+    { id: 'pac', name: 'Pompe à chaleur air-eau', icon: Flame },
+    { id: 'plombier', name: 'Plomberie & Chauffage', icon: Wrench },
+    { id: 'cet', name: 'Chauffe-Eau Thermodynamique', icon: Droplet },
+    { id: 'vmc', name: 'Ventilation mécanique (VMC)', icon: Wind },
+    { id: 'solaires', name: 'Panneaux solaires photovoltaïques', icon: Sun },
+    { id: 'chaudiere', name: 'Chaudière gaz / fioul', icon: Zap },
+    { id: 'poele', name: 'Poêle ou insert bois', icon: TreePine },
+    { id: 'elec', name: 'Tableau électrique / Bornes', icon: Zap },
 ];
 
 const PLANS_LIST = [
@@ -47,7 +54,7 @@ const PLANS_LIST = [
         name: 'Starter',
         price: '34€',
         period: '/mois',
-        features: ['50 clients max', '2 techniciens', '100 SMS/mois', 'Essai 14j gratuit']
+        features: ['50 clients max', '1 technicien (le patron)', '50 SMS manuels/mois', 'Essai 14j gratuit']
     },
     {
         id: 'PRO',
@@ -55,7 +62,7 @@ const PLANS_LIST = [
         price: '69€',
         period: '/mois',
         popular: true,
-        features: ['300 clients max', '10 techniciens', '500 SMS/mois', 'App Mobile Tech', 'Rappels ТО SMS auto']
+        features: ['300 clients max', '10 techniciens', '500 SMS/mois', 'App Mobile Tech', 'Rappels SMS auto']
     },
     {
         id: 'UNLIMITED',
@@ -70,11 +77,16 @@ export default function RegisterPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const invitationToken = searchParams.get('invitation');
+    const requestedPlan = searchParams.get('plan');
+    const initialPlan = (requestedPlan && ['STARTER', 'PRO', 'UNLIMITED'].includes(requestedPlan.toUpperCase()))
+        ? requestedPlan.toUpperCase()
+        : 'PRO';
 
     const [mode, setMode] = useState(invitationToken ? 'TECHNICIAN' : 'OWNER');
     const [step, setStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+    const [activeLegalModal, setActiveLegalModal] = useState(null);
 
     // Toast System
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -101,7 +113,8 @@ export default function RegisterPage() {
         companyName: '',
         legalForm: 'SAS',
         tradeCategories: ['clim', 'plombier'],
-        planName: 'PRO'
+        planName: initialPlan,
+        acceptTerms: false
     });
 
     const [error, setError] = useState('');
@@ -196,6 +209,12 @@ export default function RegisterPage() {
             showToastNotification(msg, 'error');
             return;
         }
+        if (!formData.acceptTerms) {
+            const msg = 'Veuillez accepter les Conditions Générales et les Mentions Légales pour continuer';
+            setError(msg);
+            showToastNotification(msg, 'error');
+            return;
+        }
         if (!isPasswordValid) {
             const msg = 'Le mot de passe doit respecter les 4 règles de sécurité';
             setError(msg);
@@ -222,11 +241,8 @@ export default function RegisterPage() {
                 throw new Error(errMsg);
             }
 
-            if (data.data?.devCode) {
-                setDevCode(data.data.devCode);
-                const codeArray = data.data.devCode.split('');
-                setDigitCode(codeArray);
-            }
+            setDigitCode(['', '', '', '', '', '']);
+            setDevCode('');
 
             showToastNotification(`Code de vérification envoyé à ${formData.email}`, 'success');
             setStep(2);
@@ -409,7 +425,7 @@ export default function RegisterPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <span>GestArt CRM</span>
+                        <span>GestArt</span>
                     </div>
 
                     <h1 className="banner-title">
@@ -448,7 +464,7 @@ export default function RegisterPage() {
                 <div className="form-card">
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <span>GestArt CRM</span>
+                            <span>GestArt</span>
                         </div>
                     </div>
 
@@ -614,6 +630,48 @@ export default function RegisterPage() {
                                 </motion.div>
                             )}
 
+                            <div className="terms-checkbox-group">
+                                <label className="terms-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        name="acceptTerms"
+                                        checked={formData.acceptTerms}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({ ...prev, acceptTerms: e.target.checked }));
+                                            setError('');
+                                        }}
+                                        required
+                                        className="terms-checkbox-input"
+                                    />
+                                    <span className="terms-checkbox-text">
+                                        J'accepte les{' '}
+                                        <button
+                                            type="button"
+                                            className="terms-link-btn"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setActiveLegalModal('cgu');
+                                            }}
+                                        >
+                                            Conditions Générales d'Utilisation
+                                        </button>{' '}
+                                        et les{' '}
+                                        <button
+                                            type="button"
+                                            className="terms-link-btn"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setActiveLegalModal('mentions');
+                                            }}
+                                        >
+                                            Mentions Légales
+                                        </button>
+                                    </span>
+                                </label>
+                            </div>
+
                             <button type="submit" className="btn-submit pill-btn" disabled={loading}>
                                 {loading ? 'Envoi du code...' : 'Continuer vers la vérification →'}
                             </button>
@@ -633,12 +691,6 @@ export default function RegisterPage() {
                                 <p>Saisissez le code à 6 chiffres envoyé à <strong>{formData.email}</strong></p>
                             </div>
 
-                            {devCode && (
-                                <div className="dev-code-banner">
-                                    <span>Code de test : <strong>{devCode}</strong> (Auto-rempli)</span>
-                                </div>
-                            )}
-
                             <div className="digits-input-container">
                                 {digitCode.map((digit, idx) => (
                                     <input
@@ -657,7 +709,7 @@ export default function RegisterPage() {
 
                             <div className="button-group">
                                 <button type="button" className="btn-back" onClick={() => setStep(1)}>
-                                    <ArrowLeft size={18} /> Modifier l'email
+                                    <ArrowLeft size={18} /> Retour
                                 </button>
                                 <button type="submit" className="btn-submit pill-btn" disabled={loading}>
                                     {loading ? 'Vérification...' : 'Valider mon email →'}
@@ -768,6 +820,7 @@ export default function RegisterPage() {
                                 <div className="categories-grid">
                                     {TRADE_CATEGORIES_LIST.map(cat => {
                                         const isSelected = formData.tradeCategories.includes(cat.id);
+                                        const IconComponent = cat.icon;
                                         return (
                                             <button
                                                 key={cat.id}
@@ -775,7 +828,7 @@ export default function RegisterPage() {
                                                 className={`cat-chip ${isSelected ? 'active' : ''}`}
                                                 onClick={() => toggleTradeCategory(cat.id)}
                                             >
-                                                <span>{cat.icon}</span>
+                                                <IconComponent size={16} className="cat-chip-icon" />
                                                 <span>{cat.name}</span>
                                             </button>
                                         );
@@ -839,7 +892,7 @@ export default function RegisterPage() {
                     )}
 
                     <div className="form-footer">
-                        <p className="required-note">(*) Les champs sont obligatoires</p>
+                        {step !== 2 && <p className="required-note">(*) Les champs sont obligatoires</p>}
                         <div>
                             <span>Vous avez déjà un compte ? </span>
                             <Link to="/login" className="login-link">
@@ -849,6 +902,13 @@ export default function RegisterPage() {
                     </div>
                 </div>
             </div>
+
+            {activeLegalModal && (
+                <LegalModal
+                    type={activeLegalModal}
+                    onClose={() => setActiveLegalModal(null)}
+                />
+            )}
         </div>
     );
 }

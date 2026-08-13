@@ -206,11 +206,6 @@ export default function CompanyAutocomplete({
             {/* Suggestions Floating Dropdown */}
             {isOpen && suggestions.length > 0 && (
                 <ul className="company-suggestions-dropdown">
-                    <div className="dropdown-header">
-                        <Building2 size={12} />
-                        <span>Annuaire Officiel des Entreprises (SIRENE Data Gouv 🇫🇷)</span>
-                    </div>
-
                     {suggestions.map((item, index) => {
                         const isSelected = index === selectedIndex;
                         return (

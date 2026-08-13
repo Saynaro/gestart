@@ -1,65 +1,82 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Tarifs.css";
-import { Check, Info, HelpCircle } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { AuroraText } from "@/components/ui/aurora-text";
+import { isAuthenticated } from "../../utils/auth";
 
 function Tarifs() {
     const [isAnnual, setIsAnnual] = useState(false);
+    const navigate = useNavigate();
+    const loggedIn = isAuthenticated();
 
     const plans = [
         {
             name: "STARTER",
-            priceMonthly: 39,
-            priceAnnual: 31,
+            priceMonthly: 34,
+            priceAnnual: 27,
+            badge: "Je gère tout moi-même",
             features: [
-                { text: "50 clients", highlight: true },
-                { text: "2 techniciens", highlight: true },
-                { text: "100 SMS/mois", highlight: true },
-                { text: "Factures", included: true },
-                { text: "Devis", included: true },
-                { text: "Planning", included: true },
-                { text: "Support email", included: true }
+                { text: "50 clients max & 1 technicien (le patron)", highlight: true, included: true },
+                { text: "50 SMS manuels / mois", highlight: true, included: true },
+                { text: "Fiches clients, équipements & Historique", included: true },
+                { text: "Planning, Devis (signature élec.) & Factures", included: true },
+                { text: "Paiement Stripe & Export comptable Excel", included: true },
+                { text: "Notifications statut entretien & Support email", included: true },
+
+                // Excluded items (✗)
+                { text: "Rappels SMS auto & App mobile tech", included: false },
+                { text: "Multi-techniciens & Rapports d'activité", included: false }
             ],
-            cta: "Commencer",
-            popular: false,
-            badge: "Idéal pour démarrer"
+            cta: "Commencer l'essai 14j",
+            popular: false
         },
         {
             name: "PRO",
-            priceMonthly: 89,
-            priceAnnual: 71,
+            priceMonthly: 69,
+            priceAnnual: 55,
+            badge: "Pour les équipes en développement",
             features: [
-                { text: "300 clients", highlight: true },
-                { text: "10 techniciens", highlight: true },
-                { text: "500 SMS/mois", highlight: true },
-                { text: "Tout Starter", included: true },
-                { text: "Rappels SMS", included: true },
-                { text: "App mobile", included: true },
-                { text: "Rapports", included: true },
-                { text: "Support tél.", included: true }
+                { text: "300 clients max & 10 techniciens", highlight: true, included: true },
+                { text: "500 SMS / mois (manuels & auto)", highlight: true, included: true },
+                { text: "Tout le forfait Starter inclus", included: true },
+                { text: "Rappels SMS automatiques clients", included: true },
+                { text: "App Mobile Techniciens (iOS & Android)", included: true },
+                { text: "Rapports d'activité & Module URSSAF", included: true },
+                { text: "Support tél. & prioritaire 7j/7", included: true },
+
+                // Excluded items (✗)
+                { text: "Chorus Pro & Numéro SMS dédié", included: false }
             ],
-            cta: "Commencer",
-            popular: true,
-            badge: "Le choix des artisans"
+            cta: "Commencer l'essai Pro 14j",
+            popular: true
         },
         {
             name: "UNLIMITED",
-            priceMonthly: 149,
-            priceAnnual: 119,
+            priceMonthly: 129,
+            priceAnnual: 103,
+            badge: "Pour les grandes structures",
             features: [
-                { text: "Illimité clients", highlight: true },
-                { text: "Illimité techniciens", highlight: true },
-                { text: "1000 SMS/mois", highlight: true },
-                { text: "Tout Pro", included: true },
-                { text: "Chorus Pro", included: true },
-                { text: "N° SMS dédié", included: true },
-                { text: "Account manager", included: true }
+                { text: "Illimité clients & techniciens", highlight: true, included: true },
+                { text: "1000 SMS / mois (manuels & auto)", highlight: true, included: true },
+                { text: "Tout le forfait Pro inclus", included: true },
+                { text: "App Mobile Techniciens (iOS & Android)", included: true },
+                { text: "Chorus Pro (Mairies & État) & N° SMS dédié", included: true },
+                { text: "Gestion multi-sociétés & API REST", included: true },
+                { text: "Account manager & Support dédié 24/7", included: true }
             ],
-            cta: "Nous contacter",
-            popular: false,
-            badge: "Pour les grandes structures"
+            cta: "Activer le plan Unlimited",
+            popular: false
         }
     ];
+
+    const handlePlanClick = (planName) => {
+        if (loggedIn) {
+            navigate("/settings");
+        } else {
+            navigate(`/register?plan=${planName}`);
+        }
+    };
 
     return (
         <section className="tarifs-section" id="analytics">
@@ -93,7 +110,6 @@ function Tarifs() {
             <div className="pricing-grid">
                 {plans.map((plan, idx) => {
                     const price = isAnnual ? plan.priceAnnual : plan.priceMonthly;
-                    const period = isAnnual ? "/mois, facturé annuellement" : "/mois";
 
                     return (
                         <div
@@ -120,15 +136,29 @@ function Tarifs() {
                             </div>
 
                             <div className="plan-features-list">
-                                {plan.features.map((feat, fIdx) => (
-                                    <div key={fIdx} className={`feature-item ${feat.highlight ? "feature-highlight" : ""}`}>
-                                        <Check size={16} className="feature-check-icon" />
-                                        <span className="feature-text">{feat.text}</span>
-                                    </div>
-                                ))}
+                                {plan.features.map((feat, fIdx) => {
+                                    const isInc = feat.included !== false;
+                                    return (
+                                        <div
+                                            key={fIdx}
+                                            className={`feature-item ${feat.highlight ? "feature-highlight" : ""} ${!isInc ? "feature-excluded" : ""}`}
+                                        >
+                                            {isInc ? (
+                                                <Check size={15} className="feature-check-icon" />
+                                            ) : (
+                                                <X size={15} className="feature-x-icon" />
+                                            )}
+                                            <span className="feature-text">{feat.text}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
 
-                            <button className={`pricing-cta-btn ${plan.popular ? "pricing-cta-primary" : "pricing-cta-secondary"}`}>
+                            <button
+                                type="button"
+                                onClick={() => handlePlanClick(plan.name)}
+                                className={`pricing-cta-btn ${plan.popular ? "pricing-cta-primary" : "pricing-cta-secondary"}`}
+                            >
                                 {plan.cta}
                             </button>
                         </div>
@@ -144,11 +174,11 @@ function Tarifs() {
                 </div>
                 <div className="trust-indicator-item">
                     <Check size={18} className="trust-check-icon" />
-                    <span>Sans carte bancaire</span>
+                    <span>Sans carte bancaire requis</span>
                 </div>
                 <div className="trust-indicator-item">
                     <Check size={18} className="trust-check-icon" />
-                    <span>Résiliable à tout moment</span>
+                    <span>Résiliable à tout moment en 1 clic</span>
                 </div>
             </div>
         </section>

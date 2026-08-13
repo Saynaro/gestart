@@ -411,7 +411,7 @@ function Header() {
                             Déconnexion
                         </h3>
                         <p style={{ margin: '0 0 24px 0', fontSize: '0.9rem', color: 'var(--muted-foreground, #64748B)', lineHeight: 1.5 }}>
-                            Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte GestArt CRM ?
+                            Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte GestArt ?
                         </p>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button

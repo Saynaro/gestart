@@ -163,7 +163,7 @@
   align-items: center;
   gap: 8px;
   background: transparent;
-  color: var(--foreground, #556B2F);
+  color: #FFFFFF;
   padding: 0;
   border-radius: 0;
   font-weight: 800;
@@ -370,20 +370,32 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border, #334155);
   border-radius: 14px;
-  background: var(--card);
+  background: var(--card, #1E293B);
   font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--foreground, #F8FAFC);
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.cat-chip-icon {
+  flex-shrink: 0;
+  color: #556B2F;
 }
 
 .cat-chip.active {
   border-color: #556B2F;
-  background: rgba(85, 107, 47, 0.1);
-  font-weight: 700;
-  color: #36451C;
+  background: rgba(85, 107, 47, 0.2);
+  font-weight: 500;
+  color: #556B2F;
+}
+
+.cat-chip.active .cat-chip-icon {
+  color: #556B2F;
 }
 
 /* Plan Selection Cards */
@@ -401,18 +413,19 @@
 
 .plan-card {
   position: relative;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border, #334155);
   border-radius: 16px;
   padding: 14px 10px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: var(--card);
+  background: var(--card, #1E293B);
+  color: var(--foreground, #F8FAFC);
 }
 
 .plan-card.selected {
   border-color: #556B2F;
-  background: rgba(85, 107, 47, 0.08);
+  background: rgba(85, 107, 47, 0.2);
   box-shadow: 0 0 0 2px #556B2F;
 }
 
@@ -421,7 +434,7 @@
   top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  background: #EAB308;
+  background: #556B2F;
   color: #FFFFFF;
   font-size: 0.65rem;
   font-weight: 700;
@@ -431,40 +444,52 @@
 }
 
 .plan-name {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 700;
   margin-bottom: 4px;
+  color: var(--foreground, #F8FAFC);
+}
+
+.plan-card.selected .plan-name {
+  color: #556B2F;
 }
 
 .plan-price {
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #556B2F;
 }
 
 .plan-price span {
   font-size: 0.75rem;
-  color: var(--muted-foreground);
+  color: var(--muted-foreground, #94A3B8);
 }
 
 /* Buttons & Footer */
 .button-group {
   display: flex;
+  align-items: center;
   gap: 12px;
   margin-top: 10px;
+  width: 100%;
 }
 
 .btn-back {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 14px 20px;
+  height: 50px;
+  padding: 0 20px;
   border: 1px solid var(--border);
   background: var(--card);
   border-radius: 30px;
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
+  box-sizing: border-box;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: background 0.2s;
 }
 
@@ -479,17 +504,19 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 15px 24px;
+  height: 50px;
+  padding: 0 24px;
   background: linear-gradient(135deg, #36451C 0%, #556B2F 100%);
   color: #FFFFFF;
   border: none;
   border-radius: 30px;
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 700;
   cursor: pointer;
+  box-sizing: border-box;
   box-shadow: 0 4px 14px rgba(54, 69, 28, 0.25);
   transition: opacity 0.2s ease, transform 0.1s ease;
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 .btn-submit.pill-btn:hover {
@@ -762,3 +789,61 @@
 .login-link:hover {
   text-decoration: underline;
 }
+
+/* Terms & Conditions Checkbox */
+.terms-checkbox-group {
+  margin-top: 18px;
+  margin-bottom: 22px;
+  padding: 12px 14px;
+  background: var(--muted, rgba(244, 245, 247, 0.6));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+.terms-checkbox-group:hover {
+  border-color: rgba(85, 107, 47, 0.3);
+}
+
+.terms-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.terms-checkbox-input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #556B2F;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.terms-checkbox-text {
+  font-size: 0.85rem;
+  color: var(--muted-foreground, #64748b);
+  line-height: 1.5;
+}
+
+.terms-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary, #556B2F);
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline;
+  transition: color 0.15s ease;
+}
+
+.terms-link-btn:hover {
+  color: #36451C;
+}
+

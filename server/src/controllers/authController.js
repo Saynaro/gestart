@@ -861,7 +861,6 @@ export const sendVerificationCode = async (req, res) => {
             success: true,
             message: "Code de vérification envoyé à votre adresse email",
             data: {
-                devCode: code,
                 token
             }
         });

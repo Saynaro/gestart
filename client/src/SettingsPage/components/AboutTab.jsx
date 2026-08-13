@@ -10,19 +10,19 @@ export default function AboutTab({ activeTab, isMobileView, triggerToast }) {
                     
                     <h4 style={{ margin: '14px 0 4px 0', fontSize: '14px', fontWeight: 700 }}>1. Éditeur de la Plateforme</h4>
                     <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
-                        La plateforme GestArt est éditée par la société SAINARO KHALID CLIM, Entreprise Individuelle immatriculée au RCS de Nice sous le numéro SIREN 944 087 725, dont le siège social est situé au 23 RUE Paganini, 06000 NICE, France.<br />
-                        Directeur de la publication : Khalid Sainaro (Contact : support@gestart.fr / 06 51 60 43 16).
+                        La plateforme GestArt est éditée par l'Entreprise Individuelle (EI) KHALID SAINARO, immatriculée au RCS de Nice sous le numéro SIREN 944 087 725 (SIRET : 944 087 725 00015), dont le siège social est situé au 23 RUE PAGANINI, 06000 NICE, France.<br />
+                        Directeur de la publication & DPO : Khalid Sainaro (Contact : support.gestart@gmail.com).
                     </p>
 
                     <h4 style={{ margin: '14px 0 4px 0', fontSize: '14px', fontWeight: 700 }}>2. Hébergement de la Plateforme</h4>
                     <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
-                        GestArt est hébergée sur des serveurs sécurisés situés au sein de l'Union Européenne (Paris, France) par AWS Europe / Cloudflare Inc.<br />
+                        GestArt est hébergée sur des serveurs sécurisés situés au sein de l'Union Européenne (Paris, France / Allemagne) par Hostinger / Cloudflare Inc.<br />
                         Données sauvegardées quotidiennement avec chiffrement AES-256.
                     </p>
 
                     <h4 style={{ margin: '14px 0 4px 0', fontSize: '14px', fontWeight: 700 }}>3. Propriété Intellectuelle</h4>
                     <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
-                        L'ensemble des éléments graphiques, marques, logos, codes sources et modules CRM de GestArt sont la propriété exclusive de GestArt SAS. Toute reproduction non autorisée constitue une contrefaçon sanctionnée par le Code de la propriété intellectuelle.
+                        L'ensemble des éléments graphiques, marques, logos, codes sources et modules CRM de GestArt sont la propriété exclusive de KHALID SAINARO. Toute reproduction non autorisée constitue une contrefaçon sanctionnée par le Code de la propriété intellectuelle.
                     </p>
                 </div>
 
@@ -56,7 +56,7 @@ export default function AboutTab({ activeTab, isMobileView, triggerToast }) {
                 </div>
 
                 <div style={{ textAlign: 'center', fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '10px' }}>
-                    GestArt v1.0.0 • Mis à jour en Juillet 2026
+                    GestArt v1.0.0 • Mis à jour en 2026
                 </div>
             </div>
         );
@@ -80,7 +80,7 @@ export default function AboutTab({ activeTab, isMobileView, triggerToast }) {
 
                     <h4 style={{ margin: '14px 0 4px 0', fontSize: '14px', fontWeight: 700 }}>3. Vos Droits Informatique et Libertés</h4>
                     <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
-                        Conformément au RGPD, vous bénéficiez à tout moment d'un droit d'accès, d'exportation (JSON/CSV) et de suppression définitive de vos données en contactant notre DPO à dpo@gestart.fr.
+                        Conformément au RGPD, vous bénéficiez à tout moment d'un droit d'accès, d'exportation (JSON/CSV) et de suppression définitive de vos données en contactant notre DPO à support.gestart@gmail.com.
                     </p>
                 </div>
 

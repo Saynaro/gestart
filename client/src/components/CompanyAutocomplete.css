@@ -98,15 +98,15 @@
 
 .suggestion-item:hover,
 .suggestion-item.selected {
-  background: rgba(163, 230, 53, 0.12);
+  background: rgba(85, 107, 47, 0.18);
 }
 
 .company-icon-badge {
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: rgba(163, 230, 53, 0.15);
-  color: #A3E635;
+  background: rgba(85, 107, 47, 0.15);
+  color: #556B2F;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,9 +150,9 @@
 }
 
 .status-badge.active {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ADE80;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(85, 107, 47, 0.2);
+  color: #8BA858;
+  border: 1px solid rgba(85, 107, 47, 0.4);
 }
 
 .status-badge.inactive {
@@ -186,7 +186,7 @@
 }
 
 .suggestion-check {
-  color: #A3E635;
+  color: #556B2F;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDragControls } from "framer-motion";
+import { motion } from "framer-motion";
 import "../HomePage/Homepage.css";
 import "./ClientPage.css";
 
@@ -24,37 +24,14 @@ import QuotePdfView from "../DevisPage/components/QuotePdfView";
 // Helper to fill mock details if not present
 const getClientDetails = (client) => {
     if (!client) return null;
-    const defaultEquipment = {
-        model: "Daikin 3.5kW",
-        installDate: "15/03/2024",
-        serialNumber: "DK-2024-1234"
-    };
-    const defaultMaintenance = {
-        status: "OK",
-        nextMaintenance: "15/03/2027"
-    };
-    const defaultInterventions = [
-        { title: "Maintenance annuelle", date: "15/03/2026", tech: "Marc D.", status: "Terminé", desc: "RAS, système fonctionne parfaitement" }
-    ];
-    const defaultMessages = [
-        { date: "16/03/2026", sender: "Client", text: "Bonjour, merci pour l'intervention d'hier. Tout fonctionne parfaitement." },
-        { date: "14/03/2026", sender: "Technicien", text: "Bonjour, je passerai demain vers 10h pour la maintenance annuelle." }
-    ];
-    const defaultFactures = [
-        { id: "FACT-2026-004", date: "15/03/2026", amount: "120,00 €", status: "Payé" }
-    ];
-    const defaultDevis = [
-        { id: "DEV-2026-012", date: "10/03/2026", amount: "120,00 €", status: "Accepté" }
-    ];
-
     return {
         ...client,
-        equipment: client.equipment || defaultEquipment,
-        maintenance: client.maintenance || defaultMaintenance,
-        interventions: client.interventions || defaultInterventions,
-        messages: client.messages || defaultMessages,
-        factures: client.factures || defaultFactures,
-        devis: client.devis || defaultDevis
+        equipment: client.equipment || { model: "Non renseigné", installDate: "Non renseigné", serialNumber: "N/A" },
+        maintenance: client.maintenance || { status: "OK", nextMaintenance: "Non défini" },
+        interventions: client.interventions || [],
+        messages: client.messages || [],
+        factures: client.factures || [],
+        devis: client.devis || []
     };
 };
 
@@ -81,6 +58,46 @@ function ClientPage() {
 
             clientList.forEach(c => {
                 const isOrg = c.type === 'COMPANY' || !!c.companyName;
+
+                const rawEquip = c.equipment?.[0];
+                const equipObj = rawEquip ? {
+                    model: rawEquip.model || (rawEquip.brand ? `${rawEquip.brand} ${rawEquip.model || ''}`.trim() : "Non renseigné"),
+                    installDate: rawEquip.installDate ? new Date(rawEquip.installDate).toLocaleDateString('fr-FR') : 'Non renseigné',
+                    serialNumber: rawEquip.serialNumber || 'N/A'
+                } : { model: "Non renseigné", installDate: "Non renseigné", serialNumber: "N/A" };
+
+                const mappedInterventions = (c.interventions || []).map(i => ({
+                    id: i.id,
+                    title: i.title || i.type || "Intervention",
+                    date: i.scheduledAt ? new Date(i.scheduledAt).toLocaleDateString('fr-FR') : new Date(i.createdAt).toLocaleDateString('fr-FR'),
+                    tech: i.technician ? `${i.technician.firstName || ''} ${i.technician.lastName || ''}`.trim() || i.technician.email : "Non assigné",
+                    desc: i.description || (i.technician ? `Technicien: ${i.technician.firstName || ''} ${i.technician.lastName || ''}`.trim() : "Planifiée"),
+                    status: i.status === "COMPLETED" ? "Terminé" : i.status === "CANCELLED" ? "Annulé" : "En attente",
+                    raw: i
+                }));
+
+                const mappedFactures = (c.invoices || []).map(inv => ({
+                    id: inv.number || `F-${inv.id.slice(0, 6)}`,
+                    date: inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString('fr-FR') : new Date(inv.createdAt).toLocaleDateString('fr-FR'),
+                    amount: `${(inv.amountTTC || 0).toFixed(2).replace('.', ',')} €`,
+                    status: inv.status === 'PAID' ? 'Payée' : inv.status === 'SENT' ? 'Envoyée' : inv.status === 'CANCELLED' ? 'Annulée' : 'En attente',
+                    raw: inv
+                }));
+
+                const mappedDevis = (c.quotes || []).map(q => ({
+                    id: q.number || `D-${q.id.slice(0, 6)}`,
+                    date: q.issuedAt ? new Date(q.issuedAt).toLocaleDateString('fr-FR') : new Date(q.createdAt).toLocaleDateString('fr-FR'),
+                    amount: `${(q.amountTTC || 0).toFixed(2).replace('.', ',')} €`,
+                    status: q.status === 'ACCEPTED' ? 'Accepté' : q.status === 'REJECTED' ? 'Refusé' : q.status === 'SENT' ? 'Envoyé' : 'En attente',
+                    raw: q
+                }));
+
+                const mappedMessages = (c.smsLogs || []).map(m => ({
+                    author: m.direction === 'INBOUND' ? 'Client' : 'Technicien / Entreprise',
+                    text: m.message,
+                    date: new Date(m.createdAt).toLocaleDateString('fr-FR')
+                }));
+
                 const clientObj = {
                     id: c.id,
                     firstName: c.firstName || '',
@@ -94,12 +111,15 @@ function ClientPage() {
                     zip: c.postalCode || c.zip || '',
                     city: c.city || '',
                     type: isOrg ? 'organisation' : 'particulier',
-                    equipment: c.equipment?.[0] ? {
-                        model: c.equipment[0].brand ? `${c.equipment[0].brand} ${c.equipment[0].model || ''}` : 'Équipement Standard',
-                        installDate: c.equipment[0].installDate ? new Date(c.equipment[0].installDate).toLocaleDateString('fr-FR') : 'Non renseigné',
-                        serialNumber: c.equipment[0].serialNumber || 'N/A'
-                    } : { model: "Daikin 3.5kW Inverter", installDate: "15/03/2024", serialNumber: "DK-2024-1234" },
-                    maintenance: { status: "OK", nextMaintenance: "15/03/2027" }
+                    equipment: equipObj,
+                    maintenance: {
+                        status: c.status === "OK" ? "OK" : c.status === "WARNING" ? "À prévoir" : c.status === "URGENT" ? "Urgent" : "OK",
+                        nextMaintenance: rawEquip?.nextServiceDate ? new Date(rawEquip.nextServiceDate).toLocaleDateString('fr-FR') : "15/03/2027"
+                    },
+                    interventions: mappedInterventions,
+                    factures: mappedFactures,
+                    devis: mappedDevis,
+                    messages: mappedMessages
                 };
 
                 if (isOrg) {
@@ -129,15 +149,14 @@ function ClientPage() {
     const [selectedClient, setSelectedClient] = useState(null);
     const [detailTab, setDetailTab] = useState("interventions");
 
-    // Sync selected client with URL search query parameter (e.g. ?id=123)
+    // Sync selected client with URL search query parameter (e.g. ?id=cmst...)
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const clientId = params.get("id");
         if (clientId) {
-            const parsedId = parseInt(clientId, 10);
-            const foundClient = contacts.find(c => c.id === parsedId) || organisations.find(o => o.id === parsedId);
+            const foundClient = contacts.find(c => String(c.id) === String(clientId)) || organisations.find(o => String(o.id) === String(clientId));
             if (foundClient) {
-                const isOrg = organisations.some(o => o.id === parsedId);
+                const isOrg = organisations.some(o => String(o.id) === String(clientId));
                 setSelectedClient({ ...foundClient, isOrg });
             } else {
                 setSelectedClient(null);
@@ -320,7 +339,9 @@ function ClientPage() {
             address: editAddress || "1 Rue de Paris",
             city: editCity || "Nice",
             postalCode: editZip || "06000",
-            type: editingClient.isOrg ? "COMPANY" : "INDIVIDUAL"
+            equipmentModel: editEquipModel || "",
+            equipmentInstallDate: editEquipInstallDate || "",
+            equipmentSerial: editEquipSerial || ""
         };
 
         try {
@@ -438,7 +459,12 @@ function ClientPage() {
                     <SideBar />
                     <div className="main-content">
                         <Header />
-                        <div className="page-content">
+                        <motion.div 
+                            className="page-content"
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        >
                             {selectedClient ? (
                                 <ClientDetailView
                                     selectedClient={selectedClient}
@@ -506,7 +532,7 @@ function ClientPage() {
                                     />
                                 </>
                             )}
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             )}

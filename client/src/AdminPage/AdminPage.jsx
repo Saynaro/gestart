@@ -139,32 +139,50 @@ export default function AdminPage() {
     useEffect(() => {
         const fetchAdminData = async () => {
             try {
-                const data = await apiFetch('/v1/users');
-                const users = data.data?.users || data.users || (Array.isArray(data) ? data : []);
+                const [usersRes, invoicesRes, quotesRes, clientsRes] = await Promise.allSettled([
+                    apiFetch('/v1/users'),
+                    apiFetch('/v1/invoices'),
+                    apiFetch('/v1/quotes'),
+                    apiFetch('/v1/clients')
+                ]);
+
+                const users = usersRes.status === 'fulfilled' ? (usersRes.value.data?.users || usersRes.value.users || (Array.isArray(usersRes.value) ? usersRes.value : [])) : [];
+                const invoices = invoicesRes.status === 'fulfilled' ? (invoicesRes.value.data || invoicesRes.value || []) : [];
+                const quotes = quotesRes.status === 'fulfilled' ? (quotesRes.value.data || quotesRes.value || []) : [];
+                const clients = clientsRes.status === 'fulfilled' ? (clientsRes.value.data?.clients || clientsRes.value.clients || (Array.isArray(clientsRes.value) ? clientsRes.value : [])) : [];
+
+                const totalRevenue = Array.isArray(invoices) ? invoices.reduce((acc, inv) => acc + (Number(inv.totalTtc || inv.amountTTC || 0)), 0) : 0;
+
                 if (users.length > 0) {
-                    const mappedCompanies = users.map((u, index) => ({
-                        id: u.id || index + 1,
-                        name: u.company?.name || `Entreprise ${u.firstName || ''} ${u.lastName || ''}`.trim(),
-                        ownerName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
-                        email: u.email,
-                        phone: u.phone || "Non renseigné",
-                        plan: u.company?.subscription?.planName || (index % 2 === 0 ? "PRO" : "STARTER"),
-                        monthlyPrice: u.company?.subscription?.planName === "ENTREPRISE" ? 99 : (u.company?.subscription?.planName === "STARTER" ? 29 : 49),
-                        status: u.isActive !== false ? "Active" : "Blocked",
-                        techniciansCount: u.company?._count?.technicians || Math.floor(Math.random() * 4) + 1,
-                        clientsCount: u.company?._count?.clients || Math.floor(Math.random() * 50) + 5,
-                        devisCount: Math.floor(Math.random() * 30) + 2,
-                        facturesCount: Math.floor(Math.random() * 25) + 2,
-                        userTurnover: Math.floor(Math.random() * 30000) + 5000,
-                        paidToSaaS: Math.floor(Math.random() * 200) + 49,
-                        date: u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : "15/01/2026",
-                        renewsAt: "15/09/2026",
-                        trialDaysLeft: u.company?.subscription?.planName === "TRIAL" ? 7 : 0
-                    }));
+                    const mappedCompanies = users.map((u, index) => {
+                        const planName = u.company?.subscription?.planName || "PRO";
+                        const monthlyPrice = planName === "UNLIMITED" ? 149 : (planName === "STARTER" ? 39 : 89);
+                        const techCount = (u.company?.users || []).filter(usr => usr.role === "TECHNICIAN").length || (u.role === "TECHNICIAN" ? 1 : 0);
+
+                        return {
+                            id: u.id || index + 1,
+                            name: u.company?.name || `Entreprise ${u.firstName || ''} ${u.lastName || ''}`.trim() || "Société ClimPro",
+                            ownerName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+                            email: u.email,
+                            phone: u.phone || "Non renseigné",
+                            plan: planName,
+                            monthlyPrice: monthlyPrice,
+                            status: u.isActive !== false ? "Active" : "Blocked",
+                            techniciansCount: techCount,
+                            clientsCount: clients.length,
+                            devisCount: quotes.length,
+                            facturesCount: invoices.length,
+                            userTurnover: totalRevenue,
+                            paidToSaaS: monthlyPrice * 2,
+                            date: u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : "15/01/2026",
+                            renewsAt: "15/09/2026",
+                            trialDaysLeft: planName === "TRIAL" ? 7 : 0
+                        };
+                    });
                     setCompanies(mappedCompanies);
                 }
             } catch (err) {
-                console.warn("API Admin backend non disponible, utilisation des données locales:", err.message);
+                console.warn("API Admin backend fallback:", err.message);
             }
         };
 

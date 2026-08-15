@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { X, Printer, Download, ZoomIn, ZoomOut } from "lucide-react";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
+import { useUser } from "../../utils/useUser";
 
 function QuotePdfView({ quote, onClose, onDownload }) {
+    const { company } = useUser();
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
     const [zoom, setZoom] = useState(isMobile ? 0.5 : 1.0);
     const [globalCustomization] = useDocumentCustomization();
     const docCustomization = getEffectiveCustomization(quote, globalCustomization);
 
     if (!quote) return null;
+
+    const companyDisplayName = company?.name || quote.company?.name || "Mon Entreprise";
+    const companyDisplayAddress = company?.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "Adresse non renseignée";
+    const companyDisplaySiret = company?.siret || "Non renseigné";
+    const companyDisplayTva = company?.tvaNumber || (company?.siren ? `FR ${company.siren}` : "Non renseigné");
+    const companyDisplayPhone = company?.phone || "Non renseigné";
+    const companyDisplayEmail = company?.email || "contact@entreprise.fr";
+    const companyLogo = docCustomization.logoUrl || company?.logoUrl;
 
     const handlePrint = () => {
         window.print();
@@ -76,15 +86,22 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                         {/* Company / Devis details */}
                         <div className="pdf-header-row">
                             <div className="pdf-header-left">
-                                <div className="pdf-logo-stub">
-                                    <span>CLIMPRO</span>
-                                </div>
-                                <h3 className="company-name">Dupont Climatisation</h3>
+                                {companyLogo ? (
+                                    <img
+                                        src={companyLogo}
+                                        alt="Logo"
+                                        style={{ maxHeight: '45px', maxWidth: '120px', objectFit: 'contain', marginBottom: '6pt' }}
+                                    />
+                                ) : (
+                                    <div className="pdf-logo-stub">
+                                        <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                    </div>
+                                )}
+                                <h3 className="company-name">{companyDisplayName}</h3>
                                 <p className="company-details">
-                                    88 Rue de l'Aviation<br />
-                                    75015 Paris, France<br />
-                                    SIRET : 849 203 103 00021<br />
-                                    N° TVA : FR 84 849203103
+                                    {companyDisplayAddress}<br />
+                                    SIRET : {companyDisplaySiret}<br />
+                                    N° TVA : {companyDisplayTva}
                                 </p>
                             </div>
                             <div className="pdf-header-right">

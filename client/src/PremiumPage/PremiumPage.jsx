@@ -10,8 +10,11 @@ import Header from "../components/Header";
 import AccountingIntegration from "../ComptabilityPage/components/AccountingIntegration";
 
 import { apiFetch } from "../utils/api";
+import { useSubscription } from "../utils/useSubscription";
+import FeatureLockBanner from "../components/FeatureLockBanner";
 
 function PremiumPage() {
+    const { isStarter } = useSubscription();
     // SMS states
     const [reminderDays, setReminderDays] = useState("30");
     const [enableSecondReminder, setEnableSecondReminder] = useState(true);
@@ -85,6 +88,21 @@ function PremiumPage() {
                             <p className="content-subtitle">Automatisez vos relances clients et configurez les intégrations avancées.</p>
                         </div>
                     </div>
+
+                    {/* Pro Upgrade Banner for Starter */}
+                    {isStarter && (
+                        <FeatureLockBanner
+                            title="Fonctionnalités avancées & Rappels SMS automatiques (Offre Pro)"
+                            description="Les réglages Premium d'automatisation SMS et d'intégration comptable nécessitent l'offre Pro ou Unlimited."
+                            features={[
+                                "Rappels automatiques d'entretiens par SMS",
+                                "Personnalisation des modèles de SMS et signature",
+                                "Intégrations comptables Pennylane & Indy",
+                                "Facturation électronique Chorus Pro"
+                            ]}
+                            targetPlan="PRO"
+                        />
+                    )}
 
                     <div className="premium-grid-layout">
                         {/* Left column: SMS configuration */}

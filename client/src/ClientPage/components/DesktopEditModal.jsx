@@ -4,19 +4,27 @@ import { X, User, MapPin, Wrench, ChevronRight, ChevronLeft, Check } from "lucid
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 
-const formatDateToISO = (frDate) => {
-    if (!frDate) return "";
-    if (frDate.includes("-")) return frDate;
-    const parts = frDate.split("/");
-    if (parts.length === 3) {
-        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+const formatDateToISO = (dateStr) => {
+    if (!dateStr || dateStr === "Non renseigné" || dateStr === "N/A") return "";
+    const str = String(dateStr).trim();
+    if (str.includes("-")) {
+        const parts = str.split("-");
+        if (parts[0].length === 4) return str;
+        if (parts.length === 3) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
     }
-    return frDate;
+    if (str.includes("/")) {
+        const parts = str.split("/");
+        if (parts.length === 3) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+    if (str.includes(".")) {
+        const parts = str.split(".");
+        if (parts.length === 3) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+    return "";
 };
 
 const formatDateToFR = (isoDate) => {
     if (!isoDate) return "";
-    if (isoDate.includes("/")) return isoDate;
     const parts = isoDate.split("-");
     if (parts.length === 3) {
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
@@ -247,7 +255,7 @@ function DesktopEditModal({
                                         <h3 className="wizard-section-title">Adresse principale</h3>
 
                                         <div className="form-field">
-                                            <label className="form-label">Adresse (Recherche BAN Data Gouv 🇫🇷)</label>
+                                            <label className="form-label">Adresse</label>
                                             <AddressAutocomplete
                                                 value={editAddress}
                                                 onChange={(val) => setEditAddress(val)}

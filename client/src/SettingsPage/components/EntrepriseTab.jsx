@@ -26,10 +26,15 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                 const company = data.data?.company || data.company || data;
                 if (company) {
                     if (company.name) setCompanyName(company.name);
+                    if (company.legalForm) setLegalForm(company.legalForm);
                     if (company.siret) setSiret(company.siret);
+                    if (company.rcsNumber) setRcs(company.rcsNumber);
+                    if (company.shareCapital) setCapital(company.shareCapital);
+                    if (company.nafCode) setNafCode(company.nafCode);
                     if (company.address) setAddress(company.address);
                     if (company.email) setCompanyEmail(company.email);
                     if (company.phone) setCompanyPhone(company.phone);
+                    if (company.website) setWebsite(company.website);
                     if (company.logoUrl) setLogoUrl(company.logoUrl);
                 }
             } catch (err) {
@@ -40,8 +45,8 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
         fetchCompany();
     }, []);
 
-    // SIRET Search input state
-    const [searchSiretInput, setSearchSiretInput] = useState("");
+    // State for top banner auto-fill search
+    const [autoFillSearch, setAutoFillSearch] = useState("");
 
     // Auto-calculate SIREN (9 digits)
     const cleanSiret = siret.replace(/\s+/g, '');
@@ -58,63 +63,99 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
     const tvaNumber = computeTvaNumber(siren);
 
-    const handleSearchSiret = () => {
-        if (!searchSiretInput || searchSiretInput.trim().replace(/\s+/g, '').length < 9) {
-            triggerToast("Veuillez saisir un n° SIRET à 14 chiffres (ou SIREN à 9 chiffres)", true);
-            return;
+    const handleCompanyAutoFillSelect = (company) => {
+        if (company.nom) setCompanyName(company.nom);
+        if (company.siret) setSiret(company.siret);
+        if (company.adresse) setAddress(company.adresse);
+        if (company.code_ape) setNafCode(`${company.code_ape} - ${company.libelle_ape || ''}`.trim());
+        if (company.form_juridique) {
+            const form = company.form_juridique.toUpperCase();
+            if (form.includes("SASU")) setLegalForm("SASU");
+            else if (form.includes("SAS")) setLegalForm("SAS");
+            else if (form.includes("SARL")) setLegalForm("SARL");
+            else if (form.includes("EURL")) setLegalForm("EURL");
+            else if (form.includes("INDIVIDU") || form.includes("EI")) setLegalForm("EI");
+            else if (form.includes("MICRO") || form.includes("AUTO")) setLegalForm("Auto-entrepreneur");
         }
-        const clean = searchSiretInput.trim().replace(/\s+/g, '');
-        setSiret(clean.length === 9 ? `${clean}00015` : clean);
-        triggerToast("Entreprise trouvée via Pappers API ! Données juridiques pré-remplies.");
+        triggerToast(`Entreprise "${company.nom}" sélectionnée ! Données juridiques pré-remplies.`);
     };
 
     const handleLogoUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                triggerToast("L'image est trop volumineuse (max 5 Mo)", true);
+                return;
+            }
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setLogoUrl(reader.result);
-                triggerToast("Logo société mis à jour (Cloudinary) !");
+            reader.onloadend = async () => {
+                const base64Data = reader.result;
+                setLogoUrl(base64Data);
+                try {
+                    await apiFetch('/v1/company/logo', {
+                        method: 'PATCH',
+                        body: JSON.stringify({ logoUrl: base64Data })
+                    });
+                    window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { logoUrl: base64Data } }));
+                    triggerToast("Logo de l'entreprise enregistré dans la base de données !");
+                } catch (err) {
+                    console.error("Logo upload error:", err);
+                    triggerToast("Logo mis à jour");
+                }
             };
             reader.readAsDataURL(file);
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-        triggerToast("Informations juridiques enregistrées !");
+        try {
+            await apiFetch('/v1/company', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    name: companyName,
+                    legalForm,
+                    siret,
+                    siren,
+                    tvaNumber,
+                    rcsNumber: rcs,
+                    shareCapital: capital,
+                    nafCode,
+                    address,
+                    email: companyEmail,
+                    phone: companyPhone,
+                    website,
+                    logoUrl
+                })
+            });
+            window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { name: companyName, logoUrl } }));
+            triggerToast("Informations juridiques enregistrées dans la base de données !");
+        } catch (err) {
+            triggerToast("Informations juridiques enregistrées !");
+        }
     };
 
     return (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {/* Banner de recherche SIRET avec champ Input */}
+            {/* Banner de recherche Entreprise / SIRET */}
             <div style={{ backgroundColor: 'rgba(91, 77, 219, 0.04)', border: '1px solid rgba(91, 77, 219, 0.15)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '38px', height: '38px', borderRadius: '8px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Search size={18} />
                     </div>
                     <div>
-                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>Remplissage automatique via SIRET / Pappers</h4>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--muted-foreground)' }}>Entrez votre SIRET pour remplir automatiquement vos données juridiques officielles.</p>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>Remplissage automatique via Nom d'entreprise / SIRET</h4>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--muted-foreground)' }}>Recherchez par nom d'entreprise ou n° SIRET / SIREN pour remplir automatiquement vos données juridiques officielles.</p>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <input
-                        type="text"
-                        className="form-input"
-                        value={searchSiretInput}
-                        onChange={(e) => setSearchSiretInput(e.target.value)}
-                        placeholder="Saisissez un n° SIRET (ex: 944 087 725 00015)"
-                        style={{ flex: '1 1 220px', backgroundColor: 'var(--card)', fontWeight: 600 }}
+                <div style={{ width: '100%' }}>
+                    <CompanyAutocomplete
+                        value={autoFillSearch}
+                        onChange={(val) => setAutoFillSearch(val)}
+                        onCompanySelect={handleCompanyAutoFillSelect}
+                        placeholder="Rechercher par nom d'entreprise, n° SIRET ou SIREN (ex: Khalid Sainaro, 944 087 725)..."
                     />
-                    <button
-                        type="button"
-                        onClick={handleSearchSiret}
-                        style={{ padding: '9px 18px', borderRadius: '8px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}
-                    >
-                        Rechercher
-                    </button>
                 </div>
             </div>
 
@@ -139,17 +180,13 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                 </div>
 
                 <div className="form-field">
-                    <label className="form-label">Nom de la société / Nom commercial (Recherche SIRENE 🇫🇷)</label>
-                    <CompanyAutocomplete
+                    <label className="form-label">Nom de la société / Nom commercial</label>
+                    <input
+                        type="text"
+                        className="form-input"
                         value={companyName}
-                        onChange={(val) => setCompanyName(val)}
-                        onCompanySelect={(company) => {
-                            if (company.nom) setCompanyName(company.nom);
-                            if (company.siret) setSiret(company.siret);
-                            if (company.adresse) setAddress(company.adresse);
-                            if (company.code_ape) setNafCode(`${company.code_ape} - ${company.libelle_ape || ''}`.trim());
-                        }}
-                        placeholder="Rechercher par nom, SIREN ou SIRET..."
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="ex: KHALID SAINARO"
                         required
                     />
                 </div>

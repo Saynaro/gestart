@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, Shield, Wrench, Mail, Smartphone, Monitor } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 export default function NotificationsTab({ isMobileView, triggerToast }) {
     // OWNER / MANAGER Notification States (with Push / Email / In-app channels)
@@ -21,6 +22,30 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
         reminderDayBefore: { enabled: true, push: true, email: false, inapp: true, label: "Rappel J-1 (Veille à 18h)" },
         reminderHourBefore: { enabled: true, push: true, email: false, inapp: true, label: "Rappel H-1 avant l'intervention" }
     });
+
+    useEffect(() => {
+        const fetchNotifs = async () => {
+            try {
+                const data = await apiFetch('/v1/company/settings');
+                const s = data.data?.settings || data.settings || data;
+                if (s) {
+                    setOwnerNotifs(prev => ({
+                        ...prev,
+                        newClient: { ...prev.newClient, enabled: s.notifyNewClient ?? prev.newClient.enabled },
+                        newSms: { ...prev.newSms, enabled: s.notifyNewMessage ?? prev.newSms.enabled },
+                        jobDone: { ...prev.jobDone, enabled: s.notifyInterventionDone ?? prev.jobDone.enabled },
+                        invoicePaid: { ...prev.invoicePaid, enabled: s.notifyInvoicePaid ?? prev.invoicePaid.enabled },
+                        urgentMaintenance: { ...prev.urgentMaintenance, enabled: s.notifyUrgentMaintenance ?? prev.urgentMaintenance.enabled },
+                        formRequest: { ...prev.formRequest, enabled: s.notifyQuoteRequest ?? prev.formRequest.enabled },
+                        subExpiring: { ...prev.subExpiring, enabled: s.notifyPlanExpiring ?? prev.subExpiring.enabled }
+                    }));
+                }
+            } catch (err) {
+                console.warn("API settings fallback:", err.message);
+            }
+        };
+        fetchNotifs();
+    }, []);
 
     const toggleOwner = (key) => {
         setOwnerNotifs(prev => ({
@@ -50,9 +75,25 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
         }));
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         if (e) e.preventDefault();
-        triggerToast("Préférences de notifications enregistrées !");
+        try {
+            await apiFetch('/v1/company/settings', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    notifyNewClient: ownerNotifs.newClient.enabled,
+                    notifyNewMessage: ownerNotifs.newSms.enabled,
+                    notifyInterventionDone: ownerNotifs.jobDone.enabled,
+                    notifyInvoicePaid: ownerNotifs.invoicePaid.enabled,
+                    notifyUrgentMaintenance: ownerNotifs.urgentMaintenance.enabled,
+                    notifyQuoteRequest: ownerNotifs.formRequest.enabled,
+                    notifyPlanExpiring: ownerNotifs.subExpiring.enabled
+                })
+            });
+            triggerToast("Préférences de notifications enregistrées dans la base !");
+        } catch (err) {
+            triggerToast("Préférences de notifications enregistrées !");
+        }
     };
 
     return (

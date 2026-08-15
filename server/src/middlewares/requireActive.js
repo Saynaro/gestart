@@ -8,6 +8,11 @@ export const requireActive = async (req, res, next) => {
         });
     }
 
+    // SuperAdmin and Owner dev bypass
+    if (req.user.role === "SUPERADMIN") {
+        return next();
+    }
+
     // 1. Vérification si l'utilisateur est actif
     if (!req.user.isActive) {
         return res.status(403).json({

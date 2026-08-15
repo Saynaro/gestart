@@ -1,14 +1,10 @@
 .techniciens-page {
-    display: flex;
-    min-height: 100vh;
-    background-color: var(--background, #F8FAFC);
-    color: var(--foreground, #0F172A);
+    color: var(--foreground);
 }
 
 .techniciens-content {
     flex: 1;
-    padding: 24px;
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
     width: 100%;
 }

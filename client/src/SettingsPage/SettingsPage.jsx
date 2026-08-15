@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
+import { apiFetch } from "../utils/api";
 import "./SettingsPage.css";
 
 // Import Lucide icons
@@ -51,7 +52,6 @@ import UtilisateursTab from "./components/UtilisateursTab";
 import ChiffreAffairesTab from "./components/ChiffreAffairesTab";
 import CotisationsTab from "./components/CotisationsTab";
 import TvaTab from "./components/TvaTab";
-import UrssafTab from "./components/UrssafTab";
 import BanquesTab from "./components/BanquesTab";
 import TransactionsTab from "./components/TransactionsTab";
 import CategoriesPersoTab from "./components/CategoriesPersoTab";
@@ -63,6 +63,7 @@ import SupportTab from "./components/SupportTab";
 import AvisTab from "./components/AvisTab";
 import ParrainageTab from "./components/ParrainageTab";
 import AboutTab from "./components/AboutTab";
+import EInvoicingTab from "./components/EInvoicingTab";
 
 const monthsList = [
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -120,11 +121,26 @@ function SettingsPage() {
     }, [isDarkMode]);
 
     // Layout and Navigation State
-    const [activeTab, setActiveTab] = useState("profil");
+    const [activeTab, setActiveTab] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("tab") || "profil";
+    });
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastIsError, setToastIsError] = useState(false);
     const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
+
+    // Sync tab from URL query params
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tabParam = params.get("tab");
+        if (tabParam) {
+            setActiveTab(tabParam);
+            if (typeof window !== "undefined" && window.innerWidth <= 768) {
+                setMobileScreenState("detail");
+            }
+        }
+    }, []);
 
     // Scroll tracking for iOS-style header title transition
     const [isScrolled, setIsScrolled] = useState(false);
@@ -240,8 +256,7 @@ function SettingsPage() {
                 { id: "chiffre-affaires", label: "Chiffre d'affaires", icon: Calculator, subtitle: "Plafonds et CA annuel" },
                 { id: "cotisations", label: "Cotisations sociales", icon: Percent, subtitle: "Taux et calcul de cotisations" },
                 { id: "tva-config", label: "TVA", icon: Receipt, subtitle: "Taux de TVA et déclarations" },
-                { id: "connexion-urssaf", label: "Connexion Urssaf", icon: Link, subtitle: "Synchronisation de vos comptes" },
-                { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos connexions bancaires" },
+                { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos coordonnées bancaires" },
                 { id: "transactions", label: "Transactions", icon: RefreshCw, subtitle: "Flux de transactions financières" },
                 { id: "categories-perso", label: "Catégories personnalisées", icon: Settings, subtitle: "Gérez vos catégories de dépenses" }
             ]
@@ -250,6 +265,7 @@ function SettingsPage() {
             title: "Config",
             items: [
                 { id: "facturation", label: "Facturation", icon: Receipt, subtitle: "Réglages de facturation" },
+                { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
                 { id: "sms", label: "SMS", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
                 { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" },
                 { id: "premium", label: "Premium", icon: Sparkles, subtitle: "Fonctionnalités Pro avancées", badge: "PRO" }
@@ -407,8 +423,6 @@ function SettingsPage() {
                             return <CotisationsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "tva-config":
                             return <TvaTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
-                        case "connexion-urssaf":
-                            return <UrssafTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "banques":
                             return <BanquesTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "transactions":
@@ -417,6 +431,8 @@ function SettingsPage() {
                             return <CategoriesPersoTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "facturation":
                             return <FacturationTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
+                        case "e-invoicing":
+                            return <EInvoicingTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "sms":
                             return <SmsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "notifications":
@@ -903,33 +919,37 @@ function SettingsPage() {
                 )}
             </AnimatePresence>
 
-            {/* Custom confirmation toast */}
+            {/* Custom confirmation toast - Centered top to bottom animation on PC */}
             <AnimatePresence>
                 {showToast && (
                     <motion.div
                         className="custom-toast"
-                        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        initial={{ opacity: 0, y: -40, x: "-50%", scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+                        exit={{ opacity: 0, y: -20, x: "-50%", scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 450, damping: 25 }}
                         style={{
                             position: 'fixed',
-                            bottom: '24px',
-                            right: '24px',
+                            top: '24px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                             zIndex: 99999,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '10px',
-                            padding: '12px 20px',
-                            borderRadius: '12px',
+                            padding: '14px 24px',
+                            borderRadius: '50px',
                             backgroundColor: toastIsError ? '#ef4444' : '#22c55e',
                             color: '#ffffff',
-                            boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-                            fontWeight: 600,
-                            fontSize: '13.5px'
+                            boxShadow: '0 12px 32px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.1)',
+                            fontWeight: 700,
+                            fontSize: '14px',
+                            maxWidth: '90vw',
+                            textAlign: 'center',
+                            pointerEvents: 'none'
                         }}
                     >
-                        {toastIsError ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
+                        {toastIsError ? <AlertTriangle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} style={{ flexShrink: 0 }} />}
                         <span>{toastMessage}</span>
                     </motion.div>
                 )}

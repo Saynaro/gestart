@@ -5,12 +5,16 @@ import "./SideBar.css";
 import BottomSheet from "./BottomSheet";
 import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
+import { useSubscription } from "../utils/useSubscription";
+import { useUser } from "../utils/useUser";
 
 function SideBar({ onFabClick, hideFab = false }) {
     const navigate = useNavigate();
     const location = useLocation();
     const activePath = location.pathname || "/home";
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+    const { isStarter, displayName } = useSubscription();
+    const { fullName, initials, email, avatarUrl } = useUser();
 
     // Close bottom sheet on route changes (including back navigation)
     useEffect(() => {
@@ -153,6 +157,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                             <ul className="menu-list">
                                 {section.items.map((item, iIndex) => {
                                     const isActive = item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home"));
+                                    const badge = (item.proOnly && isStarter) ? "PRO" : item.badge;
                                     return (
                                         <li key={iIndex} className={`menu-item ${isActive ? "active" : ""}`}>
                                             <a 
@@ -163,9 +168,10 @@ function SideBar({ onFabClick, hideFab = false }) {
                                             >
                                                 <span className="icon-wrapper">{Icons[item.iconKey]}</span>
                                                 <span className="item-title">{item.title}</span>
-                                                {item.badge !== undefined && (
-                                                    <span className={`badge ${typeof item.badge === "number" ? "badge-numeric" : "badge-text"}`}>
-                                                        {item.badge}
+                                                {badge !== undefined && (
+                                                    <span className={`badge ${typeof badge === "number" ? "badge-numeric" : "badge-text"} ${badge === "PRO" ? "badge-pro" : ""}`}
+                                                        style={badge === "PRO" ? { background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)', color: '#FFF', fontSize: '9.5px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px' } : {}}>
+                                                        {badge}
                                                     </span>
                                                 )}
                                             </a>
@@ -178,10 +184,16 @@ function SideBar({ onFabClick, hideFab = false }) {
                 </div>
                 <div className="sidebar-bottom">
                     <div className="user-profile" onClick={toggleUserMenu}>
-                        <div className="avatar" data-tooltip={isCollapsed ? "Khalid Sainaro (Version gratuite)" : undefined}>KS</div>
+                        <div className="avatar" style={{ overflow: 'hidden' }} data-tooltip={isCollapsed ? `${fullName} (Offre ${displayName})` : undefined}>
+                            {avatarUrl ? (
+                                <img src={avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                            ) : (
+                                initials
+                            )}
+                        </div>
                         <div className="user-details">
-                            <span className="username">Khalid Sainaro</span>
-                            <span className="user-plan">Version gratuite</span>
+                            <span className="username">{fullName}</span>
+                            <span className="user-plan">Offre {displayName}</span>
                         </div>
                         {!isCollapsed && (
                             <button 
@@ -200,11 +212,17 @@ function SideBar({ onFabClick, hideFab = false }) {
                         {userMenuOpen && (
                             <div className="user-popover-menu" onClick={(e) => e.stopPropagation()}>
                                 <div className="user-popover-header">
-                                    <div className="popover-avatar">KS</div>
+                                    <div className="popover-avatar" style={{ overflow: 'hidden' }}>
+                                        {avatarUrl ? (
+                                            <img src={avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                                        ) : (
+                                            initials
+                                        )}
+                                    </div>
                                     <div className="popover-user-info">
-                                        <span className="popover-username">Khalid Sainaro</span>
-                                        <span className="popover-email">khalid.cizdoev777@gmail.com</span>
-                                        <span className="popover-plan">Version gratuite</span>
+                                        <span className="popover-username">{fullName}</span>
+                                        <span className="popover-email">{email}</span>
+                                        <span className="popover-plan">Offre {displayName}</span>
                                     </div>
                                 </div>
                                 <button className="popover-upgrade-btn" onClick={(e) => navigateTo(e, "/premium")}>

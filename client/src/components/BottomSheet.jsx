@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Settings, LogOut } from "lucide-react";
 import { section1Items } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
+import { useSubscription } from "../utils/useSubscription";
 
 const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
     const navigate = useNavigate();
+    const { isStarter } = useSubscription();
     const [showLogoutModal, setShowLogoutModal] = React.useState(false);
     const sheetRef = useRef(null);
 
@@ -130,8 +132,8 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                                     }`}
                                                 />
                                                 <span className="text-[17px] font-medium">{item.title}</span>
-                                                {item.isPremium && (
-                                                    <span className="ml-auto bg-sidebar-primary text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
+                                                {(item.isPremium || (item.proOnly && isStarter)) && (
+                                                    <span className="ml-auto bg-sidebar-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)' }}>
                                                         PRO
                                                     </span>
                                                 )}

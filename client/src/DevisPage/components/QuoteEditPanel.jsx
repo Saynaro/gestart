@@ -5,6 +5,7 @@ import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization } from "../../utils/documentCustomization";
+import { useUser } from "../../utils/useUser";
 
 // Catalog list matching NewQuoteModal
 const MOCK_CATALOG = [
@@ -484,6 +485,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
 }
 
 function QuoteEditPanel({ quote, onClose, onSave }) {
+    const { company } = useUser();
     const [docCustomization] = useDocumentCustomization();
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [q, setQ] = useState({
@@ -503,6 +505,13 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
 
     const calculatedDueDate = computeDueDate(q.date, q.echeanceOptionId || '30j', q.echeanceCustomDate || '');
     const echeanceLabel = getEcheanceLabel(q.echeanceOptionId || '30j', q.echeanceCustomDate || '');
+
+    const companyDisplayName = company?.name || quote.company?.name || "Mon Entreprise";
+    const companyDisplayAddress = company?.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "Adresse non renseignée";
+    const companyDisplaySiret = company?.siret || "Non renseigné";
+    const companyDisplayPhone = company?.phone || "Non renseigné";
+    const companyDisplayEmail = company?.email || "contact@entreprise.fr";
+    const companyLogo = docCustomization.logoUrl || company?.logoUrl;
 
     const handleSelectClient = (client) => {
         setQ(p => ({
@@ -560,58 +569,84 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                 <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
                     <div className="pdf-header-left" style={{ flex: 1 }}>
                         {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
-                            <div
-                                className="pdf-logo-stub"
-                                style={{
-                                    fontSize: '11pt',
-                                    padding: '4pt 8pt',
-                                    height: `${docCustomization.logoSize || 45}px`,
-                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                    color: '#FFF',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: '700',
-                                    borderRadius: '4px',
-                                    marginBottom: '6pt'
-                                }}
-                            >
-                                <span>CLIMPRO</span>
-                            </div>
+                            companyLogo ? (
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo"
+                                    style={{
+                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                        objectFit: 'contain',
+                                        marginBottom: '6pt'
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    className="pdf-logo-stub"
+                                    style={{
+                                        fontSize: '1.1em',
+                                        padding: '4px 8px',
+                                        height: `${docCustomization.logoSize || 45}px`,
+                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                        color: '#FFF',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: '700',
+                                        borderRadius: '4px',
+                                        marginBottom: '6pt'
+                                    }}
+                                >
+                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                </div>
+                            )
                         )}
-                        <h3 className="company-name" style={{ fontSize: '10pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>Dupont Climatisation</h3>
-                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3, margin: '2pt 0 0 0' }}>
-                            {docCustomization.showAddress && <span>88 Rue de l'Aviation, 75015 Paris<br /></span>}
-                            {docCustomization.showSiret && <span>SIRET : 849 203 103 00021<br /></span>}
-                            {docCustomization.showPhone && <span>Tél : 06 51 60 43 16<br /></span>}
-                            {docCustomization.showEmail && <span>Email : contact@climpro.fr</span>}
+                        <h3 className="company-name" style={{ fontSize: '1.1em', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>{companyDisplayName}</h3>
+                        <p className="company-details" style={{ fontSize: '0.88em', lineHeight: 1.3, margin: '4px 0 0 0' }}>
+                            {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                            {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
+                            {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                            {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
                         </p>
                     </div>
                     <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
                         {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
-                            <div
-                                className="pdf-logo-stub"
-                                style={{
-                                    fontSize: '11pt',
-                                    padding: '4pt 8pt',
-                                    height: `${docCustomization.logoSize || 45}px`,
-                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                    color: '#FFF',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: '700',
-                                    borderRadius: '4px',
-                                    marginBottom: '6pt'
-                                }}
-                            >
-                                <span>CLIMPRO</span>
-                            </div>
+                            companyLogo ? (
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo"
+                                    style={{
+                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                        objectFit: 'contain',
+                                        marginBottom: '6pt'
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    className="pdf-logo-stub"
+                                    style={{
+                                        fontSize: '1.1em',
+                                        padding: '4px 8px',
+                                        height: `${docCustomization.logoSize || 45}px`,
+                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                        color: '#FFF',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: '700',
+                                        borderRadius: '4px',
+                                        marginBottom: '6pt'
+                                    }}
+                                >
+                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                </div>
+                            )
                         )}
-                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
-                        <table className="doc-meta-table" style={{ fontSize: '8pt' }}>
+                        <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
+                        <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
                             <tbody>
                                 <tr>
                                     <td><strong>Numéro :</strong></td>

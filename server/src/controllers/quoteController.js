@@ -112,8 +112,11 @@ export const getQuoteById = async (req, res) => {
 ////// CREATE QUOTE (AUTO NUMBER D-2026-001) //////
 export const createQuote = async (req, res) => {
     const companyId = req.user.companyId;
-    const {
+    let {
         clientId,
+        clientName,
+        clientEmail,
+        clientAddress,
         interventionId,
         amountHT,
         tvaRate = 20,
@@ -124,14 +127,68 @@ export const createQuote = async (req, res) => {
         lines = []
     } = req.body;
 
-    if (!clientId) {
-        return res.status(400).json({
-            success: false,
-            message: "Le client (clientId) est obligatoire"
-        });
-    }
-
     try {
+        let finalClientId = clientId;
+
+        // If clientId is missing or not provided, try to find or create client by name/email
+        if (!finalClientId && (clientName || clientEmail)) {
+            const nameParts = (clientName || "Client").trim().split(" ");
+            const firstName = nameParts[0] || "Client";
+            const lastName = nameParts.slice(1).join(" ") || "";
+
+            const existing = await prisma.client.findFirst({
+                where: {
+                    companyId,
+                    OR: [
+                        { email: clientEmail ? clientEmail.trim() : undefined },
+                        {
+                            firstName: { equals: firstName, mode: "insensitive" },
+                            lastName: { equals: lastName || firstName, mode: "insensitive" }
+                        },
+                        {
+                            companyName: { equals: clientName, mode: "insensitive" }
+                        }
+                    ].filter(Boolean)
+                }
+            });
+
+            if (existing) {
+                finalClientId = existing.id;
+            } else {
+                const newCreatedClient = await prisma.client.create({
+                    data: {
+                        companyId,
+                        firstName,
+                        lastName: lastName || "Particulier",
+                        companyName: clientName && nameParts.length === 1 ? clientName : null,
+                        phone: "0600000000",
+                        email: clientEmail || null,
+                        address: clientAddress || "Adresse non renseignée"
+                    }
+                });
+                finalClientId = newCreatedClient.id;
+            }
+        }
+
+        // If still no clientId, check if company has any client or create default
+        if (!finalClientId) {
+            const firstClient = await prisma.client.findFirst({ where: { companyId } });
+            if (firstClient) {
+                finalClientId = firstClient.id;
+            } else {
+                const defaultClient = await prisma.client.create({
+                    data: {
+                        companyId,
+                        firstName: clientName ? clientName.split(" ")[0] : "Client",
+                        lastName: clientName && clientName.split(" ").slice(1).join(" ") ? clientName.split(" ").slice(1).join(" ") : "Particulier",
+                        phone: "0600000000",
+                        address: "France"
+                    }
+                });
+                finalClientId = defaultClient.id;
+            }
+        }
+
         // Transaction pour générer le numéro auto et créer le devis
         const result = await prisma.$transaction(async (tx) => {
             const settings = await tx.companySettings.upsert({
@@ -165,13 +222,15 @@ export const createQuote = async (req, res) => {
             const calculatedTVA = parseFloat(tvaRate) || 20;
             const computedTTC = computedHT * (1 + calculatedTVA / 100);
 
+            const targetStatus = req.body.status === "draft" || req.body.status === "DRAFT" ? "DRAFT" : "SENT";
+
             const quote = await tx.quote.create({
                 data: {
                     companyId,
-                    clientId,
+                    clientId: finalClientId,
                     interventionId: interventionId || null,
                     number: numberFormatted,
-                    status: "DRAFT",
+                    status: targetStatus,
                     amountHT: computedHT,
                     tvaRate: calculatedTVA,
                     amountTTC: computedTTC,

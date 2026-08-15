@@ -1,7 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText } from "lucide-react";
 
 function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote }) {
+    const navigate = useNavigate();
     const details = getClientDetails(selectedClient);
     if (!details) return null;
 
@@ -92,11 +94,11 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                             <Calendar size={16} />
                             <span>Planifier</span>
                         </button>
-                        <button className="mobile-action-btn sms" onClick={() => navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName } })}>
+                        <button className="mobile-action-btn sms" onClick={() => navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName, phone: selectedClient.phone, email: selectedClient.email, address: selectedClient.address } })}>
                             <MessageSquare size={16} />
                             <span>SMS</span>
                         </button>
-                        <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, openNewModal: true } })}>
+                        <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, clientEmail: selectedClient.email, clientAddress: selectedClient.address, openNewModal: true } })}>
                             <FileText size={16} />
                             <span>Facture</span>
                         </button>
@@ -120,97 +122,117 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                     <div className="mobile-tabs-content">
                         {detailTab === "interventions" && (
                             <div className="mobile-tab-panel">
-                                {details.interventions.map((item, idx) => (
-                                    <div key={idx} className="mobile-history-card">
-                                        <div className="history-card-header">
-                                            <h4>{item.title}</h4>
-                                            <span className="history-card-date">{item.date}</span>
+                                {details.interventions.length === 0 ? (
+                                    <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '24px', fontSize: '13.5px' }}>
+                                        Aucune intervention enregistrée pour ce client.
+                                    </p>
+                                ) : (
+                                    details.interventions.map((item, idx) => (
+                                        <div key={idx} className="mobile-history-card">
+                                            <div className="history-card-header">
+                                                <h4>{item.title}</h4>
+                                                <span className="history-card-date">{item.date}</span>
+                                            </div>
+                                            <p className="history-card-desc">{item.desc}</p>
                                         </div>
-                                        <p className="history-card-desc">{item.desc}</p>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         )}
 
                         {detailTab === "messages" && (
                             <div className="mobile-tab-panel">
-                                {details.messages.map((item, idx) => (
-                                    <div key={idx} className="mobile-history-card msg">
-                                        <div className="history-card-header">
-                                            <h4>{item.author}</h4>
-                                            <span className="history-card-date">{item.date}</span>
+                                {details.messages.length === 0 ? (
+                                    <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '24px', fontSize: '13.5px' }}>
+                                        Aucun message SMS pour ce client.
+                                    </p>
+                                ) : (
+                                    details.messages.map((item, idx) => (
+                                        <div key={idx} className="mobile-history-card msg">
+                                            <div className="history-card-header">
+                                                <h4>{item.author}</h4>
+                                                <span className="history-card-date">{item.date}</span>
+                                            </div>
+                                            <p className="history-card-desc">"{item.text}"</p>
                                         </div>
-                                        <p className="history-card-desc">"{item.text}"</p>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         )}
 
                         {detailTab === "factures" && (
                             <div className="mobile-tab-panel">
-                                {details.factures.map((item, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="mobile-history-card bill"
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => {
-                                            if (onOpenInvoice) {
-                                                onOpenInvoice({
-                                                    id: idx + 1,
-                                                    number: item.id.replace(/^FACT-/, "F-"),
-                                                    date: item.date || "15/03/2026",
-                                                    clientName: displayName,
-                                                    clientEmail: selectedClient.email || "client@email.com",
-                                                    clientAddress: selectedClient.address || "12 Rue des Fleurs, 75001 Paris",
-                                                    subtotalHt: 100,
-                                                    tvaAmount: 20,
-                                                    totalTtc: parseFloat((item.amount || "120,00 €").replace("€", "").replace(",", ".")) || 120,
-                                                    status: item.status === "PAYÉ" || item.status === "Payée" ? "paid" : "pending"
-                                                });
-                                            }
-                                        }}
-                                    >
-                                        <div className="history-card-header">
-                                            <h4>{item.id}</h4>
-                                            <span className="history-card-date">{item.date}</span>
+                                {details.factures.length === 0 ? (
+                                    <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '24px', fontSize: '13.5px' }}>
+                                        Aucune facture pour ce client.
+                                    </p>
+                                ) : (
+                                    details.factures.map((item, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="mobile-history-card bill"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => {
+                                                if (onOpenInvoice) {
+                                                    onOpenInvoice(item.raw || {
+                                                        id: idx + 1,
+                                                        number: item.id,
+                                                        date: item.date,
+                                                        clientName: displayName,
+                                                        clientEmail: selectedClient.email || "",
+                                                        clientAddress: selectedClient.address || "",
+                                                        totalTtc: parseFloat((item.amount || "0").replace("€", "").replace(",", ".")) || 0,
+                                                        status: item.status === "Payée" ? "paid" : "pending"
+                                                    });
+                                                }
+                                            }}
+                                        >
+                                            <div className="history-card-header">
+                                                <h4>{item.id}</h4>
+                                                <span className="history-card-date">{item.date}</span>
+                                            </div>
+                                            <p><strong>Montant:</strong> {item.amount} · <span className="status-paid">{item.status}</span></p>
                                         </div>
-                                        <p><strong>Montant:</strong> {item.amount} · <span className="status-paid">{item.status}</span></p>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         )}
 
                         {detailTab === "devis" && (
                             <div className="mobile-tab-panel">
-                                {details.devis.map((item, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="mobile-history-card quote"
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => {
-                                            if (onOpenQuote) {
-                                                onOpenQuote({
-                                                    id: idx + 1,
-                                                    number: item.id.replace(/^DEV-/, "D-"),
-                                                    date: item.date || "10/03/2026",
-                                                    clientName: displayName,
-                                                    clientEmail: selectedClient.email || "client@email.com",
-                                                    clientAddress: selectedClient.address || "12 Rue des Fleurs, 75001 Paris",
-                                                    subtotalHt: 100,
-                                                    tvaAmount: 20,
-                                                    totalTtc: parseFloat((item.amount || "120,00 €").replace("€", "").replace(",", ".")) || 120,
-                                                    status: item.status === "ACCEPTÉ" || item.status === "Signé" ? "ACCEPTED" : "SENT"
-                                                });
-                                            }
-                                        }}
-                                    >
-                                        <div className="history-card-header">
-                                            <h4>{item.id}</h4>
-                                            <span className="history-card-date">{item.date}</span>
+                                {details.devis.length === 0 ? (
+                                    <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '24px', fontSize: '13.5px' }}>
+                                        Aucun devis pour ce client.
+                                    </p>
+                                ) : (
+                                    details.devis.map((item, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="mobile-history-card quote"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => {
+                                                if (onOpenQuote) {
+                                                    onOpenQuote(item.raw || {
+                                                        id: idx + 1,
+                                                        number: item.id,
+                                                        date: item.date,
+                                                        clientName: displayName,
+                                                        clientEmail: selectedClient.email || "",
+                                                        clientAddress: selectedClient.address || "",
+                                                        totalTtc: parseFloat((item.amount || "0").replace("€", "").replace(",", ".")) || 0,
+                                                        status: item.status === "Accepté" ? "ACCEPTED" : "SENT"
+                                                    });
+                                                }
+                                            }}
+                                        >
+                                            <div className="history-card-header">
+                                                <h4>{item.id}</h4>
+                                                <span className="history-card-date">{item.date}</span>
+                                            </div>
+                                            <p><strong>Montant:</strong> {item.amount} · <span className="status-accepted">{item.status}</span></p>
                                         </div>
-                                        <p><strong>Montant:</strong> {item.amount} · <span className="status-accepted">{item.status}</span></p>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         )}
                     </div>

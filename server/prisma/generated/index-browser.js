@@ -255,12 +255,17 @@ exports.Prisma.CompanySettingsScalarFieldEnum = {
   quoteNextNumber: 'quoteNextNumber',
   invoiceFooter: 'invoiceFooter',
   invoiceConditions: 'invoiceConditions',
+  invoiceColor: 'invoiceColor',
   defaultTvaRate: 'defaultTvaRate',
   defaultPaymentDays: 'defaultPaymentDays',
   defaultValidDays: 'defaultValidDays',
   workStartHour: 'workStartHour',
   workEndHour: 'workEndHour',
   workDays: 'workDays',
+  bankName: 'bankName',
+  bankIban: 'bankIban',
+  bankBic: 'bankBic',
+  bankAccountOwner: 'bankAccountOwner',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -282,8 +287,35 @@ exports.Prisma.UserScalarFieldEnum = {
   passwordResetToken: 'passwordResetToken',
   passwordResetExpiry: 'passwordResetExpiry',
   lastLoginAt: 'lastLoginAt',
+  twoFactorEnabled: 'twoFactorEnabled',
+  twoFactorSecret: 'twoFactorSecret',
+  twoFactorCode: 'twoFactorCode',
+  twoFactorExpiry: 'twoFactorExpiry',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  device: 'device',
+  browser: 'browser',
+  ip: 'ip',
+  location: 'location',
+  tokenIdentifier: 'tokenIdentifier',
+  isCurrent: 'isCurrent',
+  lastActiveAt: 'lastActiveAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LoginHistoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  ip: 'ip',
+  device: 'device',
+  status: 'status',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.PushTokenScalarFieldEnum = {
@@ -523,6 +555,14 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   reminder1SentAt: 'reminder1SentAt',
   reminder2SentAt: 'reminder2SentAt',
   reminderSentAt: 'reminderSentAt',
+  einvoicingStatus: 'einvoicingStatus',
+  einvoicingProvider: 'einvoicingProvider',
+  providerInvoiceId: 'providerInvoiceId',
+  einvoicingSentAt: 'einvoicingSentAt',
+  einvoicingProcessedAt: 'einvoicingProcessedAt',
+  einvoicingTransmissionId: 'einvoicingTransmissionId',
+  einvoicingError: 'einvoicingError',
+  einvoicingRawPayload: 'einvoicingRawPayload',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -730,6 +770,90 @@ exports.Prisma.AdminAuditLogScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.EInvoicingConnectionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  environment: 'environment',
+  status: 'status',
+  apiKeyEncrypted: 'apiKeyEncrypted',
+  apiSecretEncrypted: 'apiSecretEncrypted',
+  accessTokenEncrypted: 'accessTokenEncrypted',
+  refreshTokenEncrypted: 'refreshTokenEncrypted',
+  tokenExpiresAt: 'tokenExpiresAt',
+  receivingEnabled: 'receivingEnabled',
+  emissionEnabled: 'emissionEnabled',
+  autoSyncIncoming: 'autoSyncIncoming',
+  lastSyncAt: 'lastSyncAt',
+  lastSyncError: 'lastSyncError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReceivedInvoiceScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  provider: 'provider',
+  providerInvoiceId: 'providerInvoiceId',
+  supplierName: 'supplierName',
+  supplierSiren: 'supplierSiren',
+  supplierSiret: 'supplierSiret',
+  supplierVatNumber: 'supplierVatNumber',
+  supplierAddress: 'supplierAddress',
+  supplierCity: 'supplierCity',
+  supplierPostalCode: 'supplierPostalCode',
+  supplierCountry: 'supplierCountry',
+  supplierEmail: 'supplierEmail',
+  invoiceNumber: 'invoiceNumber',
+  issueDate: 'issueDate',
+  dueDate: 'dueDate',
+  currency: 'currency',
+  totalHT: 'totalHT',
+  totalVAT: 'totalVAT',
+  totalTTC: 'totalTTC',
+  status: 'status',
+  structuredData: 'structuredData',
+  documentUrl: 'documentUrl',
+  rawFormat: 'rawFormat',
+  receivedAt: 'receivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EInvoicingEventScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  invoiceId: 'invoiceId',
+  receivedInvoiceId: 'receivedInvoiceId',
+  provider: 'provider',
+  providerInvoiceId: 'providerInvoiceId',
+  eventType: 'eventType',
+  providerStatus: 'providerStatus',
+  idempotencyKey: 'idempotencyKey',
+  payloadJson: 'payloadJson',
+  errorMessage: 'errorMessage',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EInvoicingJobScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  type: 'type',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  maxAttempts: 'maxAttempts',
+  nextRunAt: 'nextRunAt',
+  lockedAt: 'lockedAt',
+  lockedBy: 'lockedBy',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -737,6 +861,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -855,6 +983,25 @@ exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.EInvoicingStatus = exports.$Enums.EInvoicingStatus = {
+  DRAFT: 'DRAFT',
+  PROCESSING: 'PROCESSING',
+  SENT: 'SENT',
+  RECEIVED: 'RECEIVED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED',
+  PAID: 'PAID',
+  ERROR: 'ERROR'
+};
+
+exports.EInvoicingProviderType = exports.$Enums.EInvoicingProviderType = {
+  B2BROUTER: 'B2BROUTER',
+  PENNYLANE: 'PENNYLANE',
+  SAGE: 'SAGE',
+  OTHER: 'OTHER'
+};
+
 exports.MessageDirection = exports.$Enums.MessageDirection = {
   OUTGOING: 'OUTGOING',
   INCOMING: 'INCOMING'
@@ -907,6 +1054,29 @@ exports.SystemRole = exports.$Enums.SystemRole = {
   SUPPORT: 'SUPPORT'
 };
 
+exports.EInvoicingConnectionStatus = exports.$Enums.EInvoicingConnectionStatus = {
+  DISCONNECTED: 'DISCONNECTED',
+  CONNECTED: 'CONNECTED',
+  ERROR: 'ERROR'
+};
+
+exports.EInvoicingJobType = exports.$Enums.EInvoicingJobType = {
+  CREATE_E_INVOICE: 'CREATE_E_INVOICE',
+  SEND_E_INVOICE: 'SEND_E_INVOICE',
+  SYNC_E_INVOICE: 'SYNC_E_INVOICE',
+  PROCESS_WEBHOOK: 'PROCESS_WEBHOOK',
+  DOWNLOAD_RECEIVED_INVOICE: 'DOWNLOAD_RECEIVED_INVOICE',
+  SEND_PAYMENT_STATUS: 'SEND_PAYMENT_STATUS',
+  RECONCILIATION: 'RECONCILIATION'
+};
+
+exports.EInvoicingJobStatus = exports.$Enums.EInvoicingJobStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
 exports.Prisma.ModelName = {
   Plan: 'Plan',
   Company: 'Company',
@@ -916,6 +1086,8 @@ exports.Prisma.ModelName = {
   Payment: 'Payment',
   CompanySettings: 'CompanySettings',
   User: 'User',
+  UserSession: 'UserSession',
+  LoginHistory: 'LoginHistory',
   PushToken: 'PushToken',
   Invitation: 'Invitation',
   CatalogItem: 'CatalogItem',
@@ -939,7 +1111,11 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   AdminUser: 'AdminUser',
   AdminSession: 'AdminSession',
-  AdminAuditLog: 'AdminAuditLog'
+  AdminAuditLog: 'AdminAuditLog',
+  EInvoicingConnection: 'EInvoicingConnection',
+  ReceivedInvoice: 'ReceivedInvoice',
+  EInvoicingEvent: 'EInvoicingEvent',
+  EInvoicingJob: 'EInvoicingJob'
 };
 
 /**

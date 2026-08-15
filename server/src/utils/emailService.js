@@ -179,3 +179,40 @@ export const sendPasswordResetEmail = async ({ to, token, code, firstName = "Uti
 
     return await sendEmail({ to, subject, html, text });
 };
+
+/**
+ * Send 2FA 6-digit verification code email
+ */
+export const sendTwoFactorCodeEmail = async ({ to, code, firstName = "Utilisateur" }) => {
+    const subject = `${code} est votre code de vérification 2FA - GestArt CRM`;
+
+    const html = `
+        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: linear-gradient(135deg, #131C0C 0%, #1C2812 100%); color: #F8FAFC; border-radius: 16px; border: 1px solid #36451C; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #A3E635; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">GestArt CRM</h1>
+                <p style="color: #A3B18A; font-size: 14px; margin-top: 6px; font-weight: 500;">Double Authentification (2FA)</p>
+            </div>
+            
+            <div style="background: #243317; padding: 28px; border-radius: 12px; border: 1px solid #36451C; text-align: center;">
+                <h2 style="font-size: 19px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${firstName},</h2>
+                <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">Voici votre code de sécurité à 6 chiffres pour vous connecter à votre compte GestArt CRM :</p>
+                
+                <div style="margin: 28px 0; padding: 18px 24px; background: #131C0C; border: 2px dashed #A3E635; border-radius: 12px; display: inline-block;">
+                    <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #A3E635;">${code}</span>
+                </div>
+
+                <p style="font-size: 13px; color: #A3B18A; margin-top: 8px;">Ce code expire dans <strong>10 minutes</strong>. Ne le partagez avec personne.</p>
+            </div>
+
+            <div style="text-align: center; margin-top: 24px; color: #A3B18A; font-size: 12px;">
+                <p>Si vous n'êtes pas à l'origine de cette tentative de connexion, nous vous conseillons de changer immédiatement votre mot de passe.</p>
+                <p>© 2026 GestArt CRM.</p>
+            </div>
+        </div>
+    `;
+
+    const text = `Bonjour ${firstName},\n\nVotre code de connexion 2FA GestArt CRM est : ${code}\n\nCe code expire dans 10 minutes.`;
+
+    return await sendEmail({ to, subject, html, text });
+};
+

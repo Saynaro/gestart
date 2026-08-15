@@ -220,6 +220,49 @@ enum TvaRate {
   NORMAL // 20%
 }
 
+// ── FACTURATION ÉLECTRONIQUE (RÉFORME 2026/2027) ─────────
+enum EInvoicingProviderType {
+  B2BROUTER
+  PENNYLANE
+  SAGE
+  OTHER
+}
+
+enum EInvoicingConnectionStatus {
+  DISCONNECTED
+  CONNECTED
+  ERROR
+}
+
+enum EInvoicingStatus {
+  DRAFT
+  PROCESSING
+  SENT
+  RECEIVED
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  PAID
+  ERROR
+}
+
+enum EInvoicingJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum EInvoicingJobType {
+  CREATE_E_INVOICE
+  SEND_E_INVOICE
+  SYNC_E_INVOICE
+  PROCESS_WEBHOOK
+  DOWNLOAD_RECEIVED_INVOICE
+  SEND_PAYMENT_STATUS
+  RECONCILIATION
+}
+
 // ============================================================
 // PLAN
 // ─────────────────────────────────────────────────────────────
@@ -331,6 +374,10 @@ model Company {
   accountingExports     AccountingExport[]
   tvaSummaries          TvaSummary[]
   accountingIntegration AccountingIntegration?
+  einvoicingConnection  EInvoicingConnection?
+  receivedInvoices      ReceivedInvoice[]
+  einvoicingEvents      EInvoicingEvent[]
+  einvoicingJobs        EInvoicingJob[]
 }
 
 // ============================================================
@@ -530,6 +577,7 @@ model CompanySettings {
   // ── PDF FACTURE ───────────────────────────────────────────
   invoiceFooter      String? // texte pied de page PDF
   invoiceConditions  String? // conditions de paiement
+  invoiceColor       String? @default("#556B2F") // couleur principale PDF factures & devis
   defaultTvaRate     Float   @default(20)
   defaultPaymentDays Int     @default(30) // délai paiement facture
 
@@ -540,6 +588,12 @@ model CompanySettings {
   workStartHour Int   @default(8)
   workEndHour   Int   @default(18)
   workDays      Int[] @default([1, 2, 3, 4, 5]) // 1=Lun, 7=Dim
+
+  // ── COORDONNÉES BANCAIRES (RIB / IBAN FACTURES & DEVIS) ──
+  bankName         String? // "La Banque Postale", "BNP Paribas", "Boursorama Pro", etc.
+  bankIban         String? // "FR76 3000 3020 5001 2345 6789 012"
+  bankBic          String? // "BNPAFRPPXXX"
+  bankAccountOwner String? // "Dupont Climatisation SAS"
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -571,7 +625,7 @@ model User {
   role      UserRole @default(TECHNICIAN)
   isActive  Boolean  @default(true)
 
-  // Auth tokens
+  // Auth & Security tokens
   refreshTokenHash    String?
   emailVerified       Boolean   @default(false)
   emailVerifyToken    String?
@@ -579,15 +633,65 @@ model User {
   passwordResetExpiry DateTime?
   lastLoginAt         DateTime?
 
+  // ── DOUBLE AUTHENTIFICATION (2FA) ─────────────
+  twoFactorEnabled Boolean   @default(false)
+  twoFactorSecret  String?
+  twoFactorCode    String?
+  twoFactorExpiry  DateTime?
+
   pushTokens           PushToken[]
   interventions        Intervention[] @relation("TechnicianInterventions")
   notifications        Notification[]
   createdClients       Client[]       @relation("ClientCreatedBy")
   createdInterventions Intervention[] @relation("InterventionCreatedBy")
   auditLogs            AuditLog[]
+  sessions             UserSession[]
+  loginHistories       LoginHistory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ============================================================
+// USER SESSION
+// ─────────────────────────────────────────────────────────────
+// Sessions actives par appareil pour l'utilisateur.
+// ============================================================
+
+model UserSession {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device          String // e.g. "MacBook Pro 16\" (macOS)"
+  browser         String // e.g. "Google Chrome 127.0"
+  ip              String // e.g. "82.64.120.45"
+  location        String? // e.g. "Nice, France"
+  tokenIdentifier String?
+  isCurrent       Boolean  @default(false)
+  lastActiveAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ============================================================
+// LOGIN HISTORY
+// ─────────────────────────────────────────────────────────────
+// Historique des connexions récentes.
+// ============================================================
+
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  ip        String
+  device    String
+  status    String   @default("Succès") // "Succès", "Échec - Mot de passe incorrect", etc.
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([email])
 }
 
 // ============================================================
@@ -1196,6 +1300,18 @@ model Invoice {
   lines         InvoiceLine[]
   paymentEvents InvoicePaymentEvent[]
 
+  // ── FACTURATION ÉLECTRONIQUE (RÉFORME 2026/2027) ─────────
+  einvoicingStatus         EInvoicingStatus?       @default(DRAFT)
+  einvoicingProvider       EInvoicingProviderType?
+  providerInvoiceId        String?
+  einvoicingSentAt         DateTime?
+  einvoicingProcessedAt    DateTime?
+  einvoicingTransmissionId String?
+  einvoicingError          String?
+  einvoicingRawPayload     Json?
+
+  einvoicingEvents EInvoicingEvent[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1669,4 +1785,148 @@ model AdminAuditLog {
 
   @@index([adminUserId])
   @@index([targetType, targetId])
+}
+
+// ============================================================
+// FACTURATION ÉLECTRONIQUE (RÉFORME FR 2026 / 2027)
+// ============================================================
+
+// ── CONNEXION PLATEFORME AGRÉÉE ──────────────────────────────
+model EInvoicingConnection {
+  id        String  @id @default(cuid())
+  companyId String  @unique
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  provider          EInvoicingProviderType     @default(B2BROUTER)
+  providerAccountId String? // Account ID chez le provider (ex: B2Brouter project/account ID)
+  environment       String                     @default("sandbox") // "sandbox" | "production"
+  status            EInvoicingConnectionStatus @default(DISCONNECTED)
+
+  // Credentials chiffrées (AES-256-GCM) — JAMAIS stockées en clair
+  apiKeyEncrypted       String?
+  apiSecretEncrypted    String?
+  accessTokenEncrypted  String?
+  refreshTokenEncrypted String?
+  tokenExpiresAt        DateTime?
+
+  // Paramètres fonctionnels
+  receivingEnabled Boolean @default(true) // Obligatoire à partir du 1er sept 2026
+  emissionEnabled  Boolean @default(false) // B2B outgoing (généralisé 2027)
+  autoSyncIncoming Boolean @default(true)
+
+  lastSyncAt    DateTime?
+  lastSyncError String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+}
+
+// ── FACTURES FOURNISSEURS REÇUES (INCOMING E-INVOICES) ────────
+model ReceivedInvoice {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  provider          EInvoicingProviderType @default(B2BROUTER)
+  providerInvoiceId String // ID facture chez le provider
+
+  // Fournisseur (Émetteur)
+  supplierName       String
+  supplierSiren      String?
+  supplierSiret      String?
+  supplierVatNumber  String?
+  supplierAddress    String?
+  supplierCity       String?
+  supplierPostalCode String?
+  supplierCountry    String? @default("FR")
+  supplierEmail      String?
+
+  // Facture
+  invoiceNumber String
+  issueDate     DateTime
+  dueDate       DateTime?
+  currency      String    @default("EUR")
+
+  // Montants
+  totalHT  Float
+  totalVAT Float
+  totalTTC Float
+
+  // Statut
+  status EInvoicingStatus @default(RECEIVED) // RECEIVED, ACCEPTED, REJECTED, PAID, CANCELLED
+
+  // Données structurées et document PDF / Factur-X
+  structuredData Json? // Données sémantiques normalisées EN 16931 / UBL / CII
+  documentUrl    String? // URL document téléchargeable (PDF / XML / Factur-X)
+  rawFormat      String? // "Factur-X", "UBL", "CII", "JSON"
+
+  receivedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  events EInvoicingEvent[]
+
+  @@unique([companyId, provider, providerInvoiceId])
+  @@index([companyId])
+  @@index([status])
+  @@index([issueDate])
+  @@index([supplierSiret])
+}
+
+// ── JOURNAL D'ÉVÉNEMENTS & WEBHOOKS FACTURATION ÉLECTRONIQUE ───
+model EInvoicingEvent {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  invoiceId         String?
+  invoice           Invoice?         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  receivedInvoiceId String?
+  receivedInvoice   ReceivedInvoice? @relation(fields: [receivedInvoiceId], references: [id], onDelete: Cascade)
+
+  provider          String // "B2BROUTER", etc.
+  providerInvoiceId String?
+  eventType         String // "invoice.received", "invoice.status_changed", "invoice.rejected", "payment.recorded"
+  providerStatus    String?
+
+  idempotencyKey String? @unique // Pour idempotence des webhooks
+  payloadJson    Json?
+  errorMessage   String?
+
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([invoiceId])
+  @@index([receivedInvoiceId])
+  @@index([eventType])
+}
+
+// ── FILE DE TÂCHES ASYNCHRONES PERSISTANTE (JOB QUEUE) ────────
+model EInvoicingJob {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  type    EInvoicingJobType
+  payload Json
+  status  EInvoicingJobStatus @default(PENDING) // PENDING, PROCESSING, COMPLETED, FAILED
+
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(5)
+  nextRunAt   DateTime  @default(now())
+  lockedAt    DateTime?
+  lockedBy    String?
+  lastError   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, nextRunAt])
+  @@index([companyId])
 }

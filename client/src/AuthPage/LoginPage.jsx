@@ -17,6 +17,7 @@ import {
 import './LoginPage.css';
 import { API_URL } from '../utils/config';
 import { setAuthToken } from '../utils/auth';
+import { startProactiveTokenRefresh } from '../utils/api';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -48,6 +49,10 @@ export default function LoginPage() {
         setError('');
     };
 
+    const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+    const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [twoFactorEmail, setTwoFactorEmail] = useState('');
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -57,6 +62,7 @@ export default function LoginPage() {
             const response = await fetch(`${API_URL}/v1/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(formData)
             });
 
@@ -73,8 +79,17 @@ export default function LoginPage() {
                 throw new Error(data.message || 'Email ou mot de passe incorrect.');
             }
 
+            // Check if 2FA code is required
+            if (data.twoFactorRequired) {
+                setTwoFactorRequired(true);
+                setTwoFactorEmail(data.email || formData.email);
+                setLoading(false);
+                return;
+            }
+
             if (data.accessToken) {
                 setAuthToken(data.accessToken);
+                startProactiveTokenRefresh(); // Begin background token refresh
             }
 
             const userEmail = (formData.email || data.data?.user?.email || '').toLowerCase().trim();
@@ -93,6 +108,65 @@ export default function LoginPage() {
             }
         } catch (err) {
             setError(err.message || 'Impossible de se connecter au serveur.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerify2FASubmit = async (e) => {
+        e.preventDefault();
+        if (!twoFactorCode || twoFactorCode.trim().length < 6) {
+            setError("Veuillez saisir le code à 6 chiffres");
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch(`${API_URL}/v1/auth/2fa/verify-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: twoFactorEmail,
+                    code: twoFactorCode.trim()
+                })
+            });
+
+            const text = await response.text();
+            let data = {};
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (err) {
+                throw new Error("Erreur de validation 2FA.");
+            }
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Code de sécurité incorrect.');
+            }
+
+            if (data.accessToken) {
+                setAuthToken(data.accessToken);
+                startProactiveTokenRefresh();
+            }
+
+            const userEmail = (twoFactorEmail || data.data?.user?.email || '').toLowerCase().trim();
+            localStorage.setItem('userEmail', userEmail);
+            if (data.data?.user) {
+                localStorage.setItem('currentUser', JSON.stringify(data.data.user));
+            }
+
+            const userRole = data.data?.user?.role;
+            if (userEmail === 'khalid.cizdoev777@gmail.com' || userRole === 'SUPERADMIN') {
+                navigate('/admin');
+            } else if (userRole === 'TECHNICIAN') {
+                navigate('/planning');
+            } else {
+                navigate('/home');
+            }
+        } catch (err) {
+            setError(err.message || 'Code de vérification invalide.');
         } finally {
             setLoading(false);
         }
@@ -165,8 +239,12 @@ export default function LoginPage() {
                     </div>
 
                     <div className="form-header">
-                        <h2>Se connecter</h2>
-                        <p>Content de vous revoir ! Accédez à votre CRM</p>
+                        <h2>{twoFactorRequired ? "Double Authentification" : "Se connecter"}</h2>
+                        <p>
+                            {twoFactorRequired
+                                ? `Code de sécurité à 6 chiffres envoyé à ${twoFactorEmail}`
+                                : "Content de vous revoir ! Accédez à votre CRM"}
+                        </p>
                     </div>
 
                     {/* Error Alert */}
@@ -177,7 +255,69 @@ export default function LoginPage() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="form-content">
+                    {twoFactorRequired ? (
+                        <form onSubmit={handleVerify2FASubmit} className="form-content">
+                            <div className="input-group">
+                                <label>Code de vérification (6 chiffres) *</label>
+                                <div className="input-wrapper">
+                                    <Shield className="input-icon" />
+                                    <input
+                                        type="text"
+                                        maxLength="6"
+                                        placeholder="123456"
+                                        value={twoFactorCode}
+                                        onChange={(e) => {
+                                            setTwoFactorCode(e.target.value.replace(/\D/g, ''));
+                                            setError('');
+                                        }}
+                                        style={{
+                                            letterSpacing: '6px',
+                                            fontSize: '18px',
+                                            fontWeight: 700,
+                                            textAlign: 'center'
+                                        }}
+                                        autoFocus
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="btn-submit pill-btn"
+                                disabled={loading}
+                            >
+                                {loading ? 'Vérification en cours...' : (
+                                    <>
+                                        Vérifier le code
+                                        <ArrowRight size={18} />
+                                    </>
+                                )}
+                            </button>
+
+                            <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setTwoFactorRequired(false);
+                                        setTwoFactorCode('');
+                                        setError('');
+                                    }}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--muted-foreground, #94a3b8)',
+                                        fontSize: '13px',
+                                        cursor: 'pointer',
+                                        textDecoration: 'underline'
+                                    }}
+                                >
+                                    ← Revenir à la connexion
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="form-content">
                         <div className="input-group">
                             <label>Adresse Email *</label>
                             <div className="input-wrapper">
@@ -234,6 +374,7 @@ export default function LoginPage() {
                             )}
                         </button>
                     </form>
+                    )}
 
                     <div className="divider">
                         <span>Ou se connecter avec</span>

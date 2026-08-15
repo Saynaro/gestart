@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import {
@@ -32,12 +32,57 @@ const crmContactsList = [];
 
 function MessagesPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const [chats, setChats] = useState([]);
   const [inputText, setInputText] = useState("");
   const [detailTab, setDetailTab] = useState("interventions");
   const [activeCall, setActiveCall] = useState(null);
+
+  // Auto-open chat for client passed in navigation state
+  useEffect(() => {
+    if (location.state?.clientName || location.state?.clientId) {
+      const clientName = location.state.clientName || "Client";
+      const clientId = location.state.clientId;
+      const existingChat = chats.find(c =>
+        (clientId && c.clientInfo?.id === clientId) ||
+        (c.name && c.name.toLowerCase() === clientName.toLowerCase())
+      );
+
+      if (existingChat) {
+        navigate(`/messages?chat=${existingChat.id}`, { replace: true });
+      } else {
+        const newChatId = Date.now();
+        const newChat = {
+          id: newChatId,
+          name: clientName,
+          lastMessage: "Nouvelle discussion SMS",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+          unread: 0,
+          online: true,
+          statusText: "En ligne",
+          clientInfo: {
+            id: clientId,
+            phone: location.state.phone || "",
+            email: location.state.email || "",
+            address: location.state.address || "",
+            type: "particulier",
+            equipment: null,
+            maintenance: { status: "OK", nextMaintenance: "N/A" },
+            interventions: [],
+            factures: [],
+            devis: []
+          },
+          messages: [
+            { id: 1, sender: "agent", text: "Bonjour, comment puis-je vous aider ?", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }
+          ]
+        };
+        setChats(prev => [newChat, ...prev]);
+        navigate(`/messages?chat=${newChatId}`, { replace: true });
+      }
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchSmsMessages = async () => {
@@ -592,7 +637,7 @@ function MessagesPage() {
                     <span>Créer facture</span>
                   </button>
                   <div className="chat-action-divider"></div>
-                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); setSelectedChat(null); }}>
+                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); navigate('/messages'); }}>
                     <X size={14} className="dropdown-action-icon" />
                     <span>Archiver chat</span>
                   </button>
@@ -647,7 +692,7 @@ function MessagesPage() {
                     <span>Créer facture</span>
                   </button>
                   <div className="chat-action-divider"></div>
-                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); setSelectedChat(null); }}>
+                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); navigate('/messages'); }}>
                     <X size={14} className="dropdown-action-icon" />
                     <span>Archiver chat</span>
                   </button>

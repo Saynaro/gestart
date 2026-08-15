@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
     Wrench,
     UserPlus,
@@ -21,6 +22,9 @@ import {
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { apiFetch } from "../utils/api";
+import { useSubscription } from "../utils/useSubscription";
+import FeatureLockBanner from "../components/FeatureLockBanner";
+import StripeCheckoutModal from "../SettingsPage/components/StripeCheckoutModal";
 import "./TechniciensPage.css";
 
 export default function TechniciensPage() {
@@ -46,10 +50,12 @@ export default function TechniciensPage() {
 
     // Modal State
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState("");
     const [createdInvite, setCreatedInvite] = useState(null);
     const [copied, setCopied] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { isStarter, isPro, isUnlimited, displayName, refreshSubscription } = useSubscription();
 
     // Fetch Technicians & Invitations from API
     const loadData = async () => {
@@ -105,13 +111,18 @@ export default function TechniciensPage() {
     // Revoke Invitation
     const handleRevokeInvitation = async (id) => {
         try {
+            setInvitations(prev => prev.filter(inv => inv.id !== id));
             await apiFetch(`/v1/invitations/${id}`, { method: "DELETE" });
-            triggerToast("Invitation révoquée");
+            triggerToast("Invitation révoquée avec succès");
             loadData();
         } catch (err) {
             triggerToast(err.message || "Erreur lors de la révocation", true);
+            loadData();
         }
     };
+
+    const activeTechsCount = technicians.filter(t => t.role === "TECHNICIAN" && t.isActive !== false).length;
+    const pendingInvitesCount = invitations.filter(i => i.status === "PENDING").length;
 
     // Helper URLs
     const getShareableUrl = (token) => {
@@ -143,19 +154,25 @@ export default function TechniciensPage() {
     };
 
     return (
-        <div className="techniciens-page">
+        <div className="home-page techniciens-page">
             <SideBar activePath="/techniciens" />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100vh', overflowY: 'auto' }}>
+            <div className="main-content">
                 <Header />
-                <main className="techniciens-content">
+                <motion.main 
+                    className="page-content techniciens-content"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
 
-                    {/* Toast Alert */}
+                    {/* Toast Alert - Centered Top */}
                     {toast.show && (
                         <div style={{
-                            position: 'fixed', top: '20px', right: '20px', zIndex: 99999,
+                            position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 99999,
                             backgroundColor: toast.isError ? '#ef4444' : '#22c55e', color: '#fff',
-                            padding: '12px 20px', borderRadius: '12px', fontWeight: 600,
-                            boxShadow: '0 10px 25px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: '8px'
+                            padding: '14px 24px', borderRadius: '50px', fontWeight: 700, fontSize: '14px',
+                            boxShadow: '0 12px 32px rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', gap: '10px',
+                            maxWidth: '90vw', pointerEvents: 'none'
                         }}>
                             {toast.message}
                         </div>
@@ -170,15 +187,35 @@ export default function TechniciensPage() {
                         <button
                             className="btn-invite-tech"
                             onClick={() => {
+                                if (isStarter) {
+                                    setShowUpgradeModal(true);
+                                    return;
+                                }
                                 setCreatedInvite(null);
                                 setInviteEmail("");
                                 setShowInviteModal(true);
                             }}
+                            style={isStarter ? { opacity: 0.9 } : {}}
                         >
-                            <UserPlus size={18} />
-                            Inviter un technicien
+                            {isStarter ? <Sparkles size={18} /> : <UserPlus size={18} />}
+                            {isStarter ? "Inviter un technicien (Pro)" : "Inviter un technicien"}
                         </button>
                     </div>
+
+                    {/* Pro Paywall / Upgrade Banner if on Starter */}
+                    {isStarter && (
+                        <FeatureLockBanner
+                            title="Gestion d'équipe & multi-techniciens (Offre Pro)"
+                            description="Votre formule Starter inclut 1 seul membre (le dirigeant). Pour inviter vos techniciens, leur attribuer des chantiers et suivre leurs rapports en direct, passez à l'offre Pro."
+                            features={[
+                                "Jusqu'à 10 techniciens inclus dans l'équipe",
+                                "App Mobile Techniciens (iOS & Android)",
+                                "Signature devis et rapports sur place",
+                                "Rappels SMS automatiques des entretiens"
+                            ]}
+                            targetPlan="PRO"
+                        />
+                    )}
 
                     {/* Stats Metric Cards */}
                     <div className="tech-stats-grid">
@@ -187,8 +224,8 @@ export default function TechniciensPage() {
                                 <Wrench size={22} />
                             </div>
                             <div className="tech-stat-info">
-                                <span className="tech-stat-val">{technicians.length}</span>
-                                <span className="tech-stat-label">Techniciens actifs</span>
+                                <span className="tech-stat-val">{activeTechsCount}</span>
+                                <span className="tech-stat-label">Technicien{activeTechsCount > 1 ? 's' : ''} actif{activeTechsCount > 1 ? 's' : ''}</span>
                             </div>
                         </div>
 
@@ -197,8 +234,8 @@ export default function TechniciensPage() {
                                 <Mail size={22} />
                             </div>
                             <div className="tech-stat-info">
-                                <span className="tech-stat-val">{invitations.filter(i => i.status === "PENDING").length}</span>
-                                <span className="tech-stat-label">Invitations en attente</span>
+                                <span className="tech-stat-val">{pendingInvitesCount}</span>
+                                <span className="tech-stat-label">Invitation{pendingInvitesCount > 1 ? 's' : ''} en attente</span>
                             </div>
                         </div>
 
@@ -207,8 +244,8 @@ export default function TechniciensPage() {
                                 <Users size={22} />
                             </div>
                             <div className="tech-stat-info">
-                                <span className="tech-stat-val">Illimité</span>
-                                <span className="tech-stat-label">Capacité du plan</span>
+                                <span className="tech-stat-val">{isStarter ? "1" : isPro ? "5" : "Illimité"}</span>
+                                <span className="tech-stat-label">Capacité ({displayName})</span>
                             </div>
                         </div>
                     </div>
@@ -246,7 +283,13 @@ export default function TechniciensPage() {
                                                 <tr key={t.id}>
                                                     <td>
                                                         <div className="tech-user-row">
-                                                            <div className="tech-avatar">{initials}</div>
+                                                            <div className="tech-avatar" style={{ overflow: 'hidden' }}>
+                                                                {t.avatarUrl ? (
+                                                                    <img src={t.avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                                                                ) : (
+                                                                    initials
+                                                                )}
+                                                            </div>
                                                             <div className="tech-user-details">
                                                                 <span className="tech-user-name">{fullName}</span>
                                                                 <span className="tech-user-email">{t.email}</span>
@@ -281,7 +324,7 @@ export default function TechniciensPage() {
                             <div className="tech-section-header">
                                 <h2 className="tech-section-title">
                                     <Mail size={20} style={{ color: '#2563EB' }} />
-                                    Invitations en attente ({invitations.filter(i => i.status === "PENDING").length})
+                                    Invitations en attente ({pendingInvitesCount})
                                 </h2>
                             </div>
 
@@ -352,9 +395,26 @@ export default function TechniciensPage() {
 
                                 {!createdInvite ? (
                                     <form onSubmit={handleCreateInvitation}>
-                                        <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '24px', lineHeight: 1.5 }}>
-                                            Générez directement un lien et un code d'invitation unique à transmettre à votre technicien par WhatsApp, SMS ou Email.
+                                        <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '16px', lineHeight: 1.5 }}>
+                                            Générez un lien et un code d'invitation unique pour votre technicien, ou saisissez son adresse e-mail pour l'inviter directement.
                                         </p>
+
+                                        <div style={{ marginBottom: '20px', textAlign: 'left' }}>
+                                            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px', color: 'var(--foreground)' }}>
+                                                Adresse e-mail du technicien (Optionnel)
+                                            </label>
+                                            <input
+                                                type="email"
+                                                className="form-input"
+                                                placeholder="technicien@exemple.com"
+                                                value={inviteEmail}
+                                                onChange={(e) => setInviteEmail(e.target.value)}
+                                                style={{ width: '100%', boxSizing: 'border-box' }}
+                                            />
+                                            <p style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', marginTop: '4px', margin: '4px 0 0 0', lineHeight: 1.4 }}>
+                                                S'il a déjà un compte GestArt, il recevra l'invitation directement pour l'accepter en 1 clic.
+                                            </p>
+                                        </div>
 
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                                             <button
@@ -381,7 +441,7 @@ export default function TechniciensPage() {
                                         </div>
 
                                         <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', marginBottom: '10px', textAlign: 'center' }}>
-                                            Transmettez ce lien à votre technicien. Il sera automatiquement rattaché à votre entreprise lors de son inscription.
+                                            Transmettez ce lien à votre technicien. Il sera automatiquement rattaché à votre entreprise lors de son inscription ou acceptation.
                                         </p>
 
                                         <div className="share-url-input-group">
@@ -447,7 +507,19 @@ export default function TechniciensPage() {
                         </div>
                     )}
 
-                </main>
+                    {/* Upgrade Modal for Starter users trying to invite */}
+                    <StripeCheckoutModal
+                        isOpen={showUpgradeModal}
+                        onClose={() => setShowUpgradeModal(false)}
+                        targetPlan="PRO"
+                        onSuccess={() => {
+                            refreshSubscription();
+                            setShowUpgradeModal(false);
+                            triggerToast("Félicitations ! Votre abonnement Pro a été activé.");
+                        }}
+                    />
+
+                </motion.main>
             </div>
         </div>
     );

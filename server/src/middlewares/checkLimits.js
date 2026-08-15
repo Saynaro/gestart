@@ -11,6 +11,10 @@ export const checkLimits = (resourceType) => {
             });
         }
 
+        if (req.user?.role === "SUPERADMIN") {
+            return next();
+        }
+
         try {
             const subscription = await prisma.subscription.findUnique({
                 where: { companyId },

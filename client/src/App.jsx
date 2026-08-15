@@ -2,6 +2,9 @@ import { useEffect, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { isAuthenticated, isSuperAdmin } from './utils/auth'
+import { startProactiveTokenRefresh, stopProactiveTokenRefresh } from './utils/api'
+import { SubscriptionProvider } from './utils/useSubscription'
+import { UserProvider } from './utils/useUser'
 
 // Static imports for instant landing & core components
 import LandingPage from './LandingPage/LandingPage'
@@ -31,8 +34,10 @@ import VerifyEmailPage from './AuthPage/VerifyEmailPage'
 import SuperAdminPanel from './AdminPage/AdminPage'
 
 import CookieConsentBanner from './components/CookieConsentBanner'
+import SubscriptionExpiredModal from './components/SubscriptionExpiredModal'
 
 // Lazy loaded Stripe & Public pages
+const CheckoutSubscriptionPage = lazy(() => import('./PublicPages/CheckoutSubscriptionPage'))
 const SubscriptionSuccessPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionSuccessPage })))
 const SubscriptionCancelPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionCancelPage })))
 
@@ -115,6 +120,14 @@ function ScrollToTop() {
 function App() {
   const location = useLocation();
 
+  // Start proactive token refresh on app load (if already authenticated)
+  useEffect(() => {
+    if (isAuthenticated()) {
+      startProactiveTokenRefresh();
+    }
+    return () => stopProactiveTokenRefresh();
+  }, []);
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark" && location.pathname !== "/") {
@@ -125,46 +138,51 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <>
-      <ScrollToTop />
-      <CookieConsentBanner />
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Public Landing Page */}
-          <Route path="/" element={<LandingPage />} />
+    <SubscriptionProvider>
+      <UserProvider>
+        <ScrollToTop />
+        <CookieConsentBanner />
+        <SubscriptionExpiredModal />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public Landing Page */}
+            <Route path="/" element={<LandingPage />} />
 
-          {/* Protected Private App Routes */}
-          <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-          <Route path="/client" element={<ProtectedRoute><ClientPage /></ProtectedRoute>} />
-          <Route path="/planning" element={<ProtectedRoute><PlanningPage /></ProtectedRoute>} />
-          <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
-          <Route path="/factures" element={<ProtectedRoute><FacturesPage /></ProtectedRoute>} />
-          <Route path="/devis" element={<ProtectedRoute><DevisPage /></ProtectedRoute>} />
-          <Route path="/rapports" element={<ProtectedRoute><RapportsPage /></ProtectedRoute>} />
-          <Route path="/comptabilite" element={<ProtectedRoute><ComptabilityPage /></ProtectedRoute>} />
-          <Route path="/catalogue" element={<ProtectedRoute><CataloguePage /></ProtectedRoute>} />
-          <Route path="/techniciens" element={<ProtectedRoute><TechniciensPage /></ProtectedRoute>} />
-          <Route path="/interventions/today" element={<ProtectedRoute><TechnicianInterventionsPage /></ProtectedRoute>} />
-          <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-          <Route path="/admin" element={<AdminProtectedRoute><SuperAdminPanel /></AdminProtectedRoute>} />
+            {/* Protected Private App Routes */}
+            <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+            <Route path="/client" element={<ProtectedRoute><ClientPage /></ProtectedRoute>} />
+            <Route path="/planning" element={<ProtectedRoute><PlanningPage /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+            <Route path="/factures" element={<ProtectedRoute><FacturesPage /></ProtectedRoute>} />
+            <Route path="/devis" element={<ProtectedRoute><DevisPage /></ProtectedRoute>} />
+            <Route path="/rapports" element={<ProtectedRoute><RapportsPage /></ProtectedRoute>} />
+            <Route path="/comptabilite" element={<ProtectedRoute><ComptabilityPage /></ProtectedRoute>} />
+            <Route path="/catalogue" element={<ProtectedRoute><CataloguePage /></ProtectedRoute>} />
+            <Route path="/techniciens" element={<ProtectedRoute><TechniciensPage /></ProtectedRoute>} />
+            <Route path="/interventions/today" element={<ProtectedRoute><TechnicianInterventionsPage /></ProtectedRoute>} />
+            <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/admin" element={<AdminProtectedRoute><SuperAdminPanel /></AdminProtectedRoute>} />
 
-          {/* Auth Pages (Only accessible if NOT logged in) */}
-          <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
-          <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
-          <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
-          <Route path="/reset-password" element={<PublicOnlyRoute><ResetPasswordPage /></PublicOnlyRoute>} />
-          <Route path="/verify-email" element={<PublicOnlyRoute><VerifyEmailPage /></PublicOnlyRoute>} />
+            {/* Auth Pages (Only accessible if NOT logged in) */}
+            <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
+            <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
+            <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
+            <Route path="/reset-password" element={<PublicOnlyRoute><ResetPasswordPage /></PublicOnlyRoute>} />
+            <Route path="/verify-email" element={<PublicOnlyRoute><VerifyEmailPage /></PublicOnlyRoute>} />
 
-          {/* Subscription Stripe Pages */}
-          <Route path="/subscription/success" element={<ProtectedRoute><SubscriptionSuccessPage /></ProtectedRoute>} />
-          <Route path="/subscription/cancel" element={<ProtectedRoute><SubscriptionCancelPage /></ProtectedRoute>} />
+            {/* Subscription Stripe Pages */}
+            <Route path="/checkout" element={<ProtectedRoute><CheckoutSubscriptionPage /></ProtectedRoute>} />
+            <Route path="/subscription" element={<ProtectedRoute><CheckoutSubscriptionPage /></ProtectedRoute>} />
+            <Route path="/subscription/success" element={<ProtectedRoute><SubscriptionSuccessPage /></ProtectedRoute>} />
+            <Route path="/subscription/cancel" element={<ProtectedRoute><SubscriptionCancelPage /></ProtectedRoute>} />
 
-          {/* Catch-all Fallback */}
-          <Route path="*" element={<Navigate to={isAuthenticated() ? "/home" : "/login"} replace />} />
-        </Routes>
-      </Suspense>
-    </>
+            {/* Catch-all Fallback */}
+            <Route path="*" element={<Navigate to={isAuthenticated() ? "/home" : "/login"} replace />} />
+          </Routes>
+        </Suspense>
+      </UserProvider>
+    </SubscriptionProvider>
   )
 }
 

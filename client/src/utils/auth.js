@@ -42,21 +42,8 @@ export function isAuthenticated() {
     const token = getAuthToken();
     if (!token) return false;
     
-    // Check JWT Expiration if token is in JWT format
-    try {
-        const parts = token.split('.');
-        if (parts.length === 3) {
-            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-            if (payload.exp && payload.exp * 1000 < Date.now()) {
-                clearAuthToken();
-                return false;
-            }
-        }
-        return true;
-    } catch (e) {
-        // If parsing fails but token exists, treat as valid
-        return true;
-    }
+    // As long as a token exists, consider authenticated and let apiFetch perform silent refresh if expired
+    return true;
 }
 
 // Global logout function
@@ -64,6 +51,10 @@ export function handleLogout(navigate) {
     clearAuthToken();
     localStorage.removeItem('userEmail');
     localStorage.removeItem('currentUser');
+    // Stop background token refresh interval
+    import('./api.js').then(({ stopProactiveTokenRefresh }) => {
+        stopProactiveTokenRefresh();
+    }).catch(() => {});
     if (navigate) {
         navigate('/login', { replace: true });
     } else {

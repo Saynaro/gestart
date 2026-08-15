@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Check, Palette, Type, Layout, Eye, Sliders, Image, Sparkles } from "lucide-react";
 import { useDocumentCustomization, getEffectiveCustomization } from "../utils/documentCustomization";
+import { useUser } from "../utils/useUser";
 import "./DocumentCustomizerModal.css";
 
 const COLOR_PRESETS = [
@@ -42,11 +43,19 @@ const STRUCTURE_PRESETS = [
 ];
 
 export default function DocumentCustomizerModal({ onClose, docType = "facture", doc = null, onSaveDocCustomization = null }) {
+  const { company } = useUser();
   const [globalCustomization, updateGlobalCustomization] = useDocumentCustomization();
   const [customization, setCustomization] = useState(() => getEffectiveCustomization(doc, globalCustomization));
   const [activeTab, setActiveTab] = useState("couleurs");
   const [mobileView, setMobileView] = useState("controls");
   const [specimenZoom, setSpecimenZoom] = useState(0.5);
+
+  const companyDisplayName = company?.name || "Mon Entreprise";
+  const companyDisplayAddress = company?.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "88 Rue de l'Aviation, 75015 Paris";
+  const companyDisplaySiret = company?.siret || "849 203 103 00021";
+  const companyDisplayPhone = company?.phone || "06 51 60 43 16";
+  const companyDisplayEmail = company?.email || "contact@entreprise.fr";
+  const companyLogo = customization.logoUrl || company?.logoUrl;
 
   const handleChange = (key, value) => {
     const newSettings = { ...customization, [key]: value };
@@ -571,60 +580,86 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                 >
                   <div style={{ flex: 1 }}>
                     {customization.showLogo && customization.logoPosition !== "right" && (
-                      <div
-                        style={{
-                          backgroundColor: customization.primaryColor,
-                          color: "#FFF",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontWeight: "700",
-                          borderRadius: "4px",
-                          padding: "4px 8px",
-                          height: `${customization.logoSize || 45}px`,
-                          minWidth: `${(customization.logoSize || 45) * 1.8}px`,
-                          marginBottom: "6pt",
-                          fontSize: "10pt",
-                        }}
-                      >
-                        CLIMPRO
-                      </div>
+                      companyLogo ? (
+                        <img
+                          src={companyLogo}
+                          alt="Logo"
+                          style={{
+                            maxHeight: `${customization.logoSize || 45}px`,
+                            maxWidth: `${(customization.logoSize || 45) * 2.5}px`,
+                            objectFit: "contain",
+                            marginBottom: "6pt",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            backgroundColor: customization.primaryColor,
+                            color: "#FFF",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: "700",
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            height: `${customization.logoSize || 45}px`,
+                            minWidth: `${(customization.logoSize || 45) * 1.8}px`,
+                            marginBottom: "6pt",
+                            fontSize: "1.1em",
+                          }}
+                        >
+                          {companyDisplayName.substring(0, 10).toUpperCase()}
+                        </div>
+                      )
                     )}
-                    <div style={{ fontWeight: "700", fontSize: "10pt", color: customization.primaryColor }}>
-                      Dupont Climatisation
+                    <div style={{ fontWeight: "700", fontSize: "1.1em", color: customization.primaryColor }}>
+                      {companyDisplayName}
                     </div>
-                    <div style={{ fontSize: "8pt", opacity: 0.8, lineHeight: 1.3 }}>
-                      {customization.showAddress && <div>88 Rue de l'Aviation, 75015 Paris</div>}
-                      {customization.showSiret && <div>SIRET : 849 203 103 00021</div>}
-                      {customization.showPhone && <div>Tél : 06 51 60 43 16</div>}
-                      {customization.showEmail && <div>Email : contact@climpro.fr</div>}
+                    <div style={{ fontSize: "0.88em", opacity: 0.8, lineHeight: 1.3 }}>
+                      {customization.showAddress && <div>{companyDisplayAddress}</div>}
+                      {customization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                      {customization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                      {customization.showEmail && <div>Email : {companyDisplayEmail}</div>}
                     </div>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
                     {customization.showLogo && customization.logoPosition === "right" && (
-                      <div
-                        style={{
-                          backgroundColor: customization.primaryColor,
-                          color: "#FFF",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontWeight: "700",
-                          borderRadius: "4px",
-                          padding: "4px 8px",
-                          height: `${customization.logoSize || 45}px`,
-                          minWidth: `${(customization.logoSize || 45) * 1.8}px`,
-                          marginBottom: "6pt",
-                          fontSize: "10pt",
-                        }}
-                      >
-                        CLIMPRO
-                      </div>
+                      companyLogo ? (
+                        <img
+                          src={companyLogo}
+                          alt="Logo"
+                          style={{
+                            maxHeight: `${customization.logoSize || 45}px`,
+                            maxWidth: `${(customization.logoSize || 45) * 2.5}px`,
+                            objectFit: "contain",
+                            marginBottom: "6pt",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            backgroundColor: customization.primaryColor,
+                            color: "#FFF",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: "700",
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            height: `${customization.logoSize || 45}px`,
+                            minWidth: `${(customization.logoSize || 45) * 1.8}px`,
+                            marginBottom: "6pt",
+                            fontSize: "1.1em",
+                          }}
+                        >
+                          {companyDisplayName.substring(0, 10).toUpperCase()}
+                        </div>
+                      )
                     )}
                     <h2
                       style={{
-                        fontSize: "16pt",
+                        fontSize: "1.8em",
                         fontWeight: "800",
                         color: customization.primaryColor,
                         margin: 0,
@@ -633,7 +668,7 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     >
                       {docType === "devis" ? "DEVIS" : "FACTURE"}
                     </h2>
-                    <div style={{ fontSize: "8.5pt", marginTop: "4pt" }}>
+                    <div style={{ fontSize: "0.95em", marginTop: "4pt" }}>
                       <div>
                         <strong>N° : </strong> {docType === "devis" ? "DEV-2026-0001" : "INV-2026-0001"}
                       </div>
@@ -653,23 +688,23 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                 <div
                   style={{
                     backgroundColor: customization.structure === "modern" ? `${customization.primaryColor}10` : "#FAFAF8",
-                    padding: "8pt 10pt",
+                    padding: "8px 12px",
                     borderRadius: "6px",
-                    margin: "10pt 0",
+                    margin: "12px 0",
                   }}
                 >
-                  <span style={{ fontSize: "7.5pt", fontWeight: "700", opacity: 0.6 }}>
+                  <span style={{ fontSize: "0.8em", fontWeight: "700", opacity: 0.6 }}>
                     {docType === "devis" ? "DEVIS POUR :" : "FACTURÉ À :"}
                   </span>
-                  <div style={{ fontWeight: "700", fontSize: "10pt" }}>Jean Dupont</div>
-                  <div style={{ fontSize: "8.5pt", opacity: 0.85 }}>
+                  <div style={{ fontWeight: "700", fontSize: "1.1em" }}>Jean Dupont</div>
+                  <div style={{ fontSize: "0.95em", opacity: 0.85 }}>
                     12 Rue des Fleurs, 75001 Paris<br />
                     jean.dupont@email.com
                   </div>
                 </div>
 
                 {/* Items Table */}
-                <table style={{ width: "100%", borderCollapse: "collapse", margin: "12pt 0", fontSize: "8.5pt" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", margin: "14px 0", fontSize: "0.95em" }}>
                   <thead>
                     <tr
                       style={{
@@ -677,33 +712,33 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                         color: "#FFFFFF",
                       }}
                     >
-                      <th style={{ textAlign: "left", padding: "6pt 8pt", borderRadius: "3px 0 0 3px" }}>Description</th>
-                      <th style={{ textAlign: "center", padding: "6pt", width: "40px", whiteSpace: "nowrap" }}>Qté</th>
-                      <th style={{ textAlign: "right", padding: "6pt 8pt", minWidth: "75px", whiteSpace: "nowrap" }}>Unit. HT</th>
-                      <th style={{ textAlign: "right", padding: "6pt 8pt", minWidth: "75px", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap" }}>Total HT</th>
+                      <th style={{ textAlign: "left", padding: "6px 8px", borderRadius: "3px 0 0 3px" }}>Description</th>
+                      <th style={{ textAlign: "center", padding: "6px", width: "40px", whiteSpace: "nowrap" }}>Qté</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", minWidth: "75px", whiteSpace: "nowrap" }}>Unit. HT</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", minWidth: "75px", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap" }}>Total HT</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr style={{ borderBottom: "1px solid #EAEAE6" }}>
-                      <td style={{ padding: "6pt 8pt" }}>Forfait Entretien annuel PAC Daikin</td>
-                      <td style={{ textAlign: "center", padding: "6pt", whiteSpace: "nowrap" }}>1</td>
-                      <td style={{ textAlign: "right", padding: "6pt 8pt", whiteSpace: "nowrap" }}>100,00 €</td>
-                      <td style={{ textAlign: "right", padding: "6pt 8pt", whiteSpace: "nowrap" }}>100,00 €</td>
+                      <td style={{ padding: "6px 8px" }}>Forfait Entretien annuel PAC Daikin</td>
+                      <td style={{ textAlign: "center", padding: "6px", whiteSpace: "nowrap" }}>1</td>
+                      <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>100,00 €</td>
+                      <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>100,00 €</td>
                     </tr>
                   </tbody>
                 </table>
 
                 {/* Total Box */}
-                <div style={{ display: "flex", justifyContent: "flex-end", margin: "10pt 0" }}>
-                  <table style={{ width: "auto", minWidth: "210px", fontSize: "8.5pt" }}>
+                <div style={{ display: "flex", justifyContent: "flex-end", margin: "12px 0" }}>
+                  <table style={{ width: "auto", minWidth: "210px", fontSize: "0.95em" }}>
                     <tbody>
                       <tr>
-                        <td style={{ whiteSpace: "nowrap", padding: "3pt 6pt" }}>Sous-total HT :</td>
-                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "3pt 6pt" }}>100,00 €</td>
+                        <td style={{ whiteSpace: "nowrap", padding: "4px 8px" }}>Sous-total HT :</td>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>100,00 €</td>
                       </tr>
                       <tr>
-                        <td style={{ whiteSpace: "nowrap", padding: "3pt 6pt" }}>TVA (20%) :</td>
-                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "3pt 6pt" }}>20,00 €</td>
+                        <td style={{ whiteSpace: "nowrap", padding: "4px 8px" }}>TVA (20%) :</td>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>20,00 €</td>
                       </tr>
                       <tr
                         style={{
@@ -712,8 +747,8 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                           fontWeight: "700",
                         }}
                       >
-                        <td style={{ padding: "6pt 8pt", borderRadius: "3px 0 0 3px", whiteSpace: "nowrap" }}>TOTAL TTC :</td>
-                        <td style={{ textAlign: "right", padding: "6pt 8pt", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap" }}>120,00 €</td>
+                        <td style={{ padding: "6px 8px", borderRadius: "3px 0 0 3px", whiteSpace: "nowrap", fontSize: "1.05em" }}>TOTAL TTC :</td>
+                        <td style={{ textAlign: "right", padding: "6px 8px", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap", fontSize: "1.05em" }}>120,00 €</td>
                       </tr>
                     </tbody>
                   </table>
@@ -723,9 +758,9 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                 {customization.showPaymentConditions && (
                   <div
                     style={{
-                      fontSize: "7.5pt",
+                      fontSize: "0.85em",
                       borderTop: "1px solid #E5E5E5",
-                      paddingTop: "8pt",
+                      paddingTop: "10px",
                       marginTop: "auto",
                       opacity: 0.8,
                     }}

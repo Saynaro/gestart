@@ -52,12 +52,16 @@ export const updateCompany = async (req, res) => {
         siren,
         legalForm,
         tvaNumber,
+        rcsNumber,
+        shareCapital,
+        nafCode,
         phone,
         email,
         address,
         city,
         postalCode,
         website,
+        logoUrl,
         tradeCategories, // Array of category IDs
     } = req.body;
 
@@ -79,12 +83,16 @@ export const updateCompany = async (req, res) => {
                     ...(siren !== undefined && { siren: siren.trim() }),
                     ...(legalForm !== undefined && { legalForm }),
                     ...(tvaNumber !== undefined && { tvaNumber }),
+                    ...(rcsNumber !== undefined && { rcsNumber: rcsNumber.trim() }),
+                    ...(shareCapital !== undefined && { shareCapital: shareCapital.trim() }),
+                    ...(nafCode !== undefined && { nafCode: nafCode.trim() }),
                     ...(phone !== undefined && { phone }),
                     ...(email !== undefined && { email: email.toLowerCase().trim() }),
                     ...(address !== undefined && { address: address.trim() }),
                     ...(city !== undefined && { city: city.trim() }),
                     ...(postalCode !== undefined && { postalCode: postalCode.trim() }),
                     ...(website !== undefined && { website: website.trim() }),
+                    ...(logoUrl !== undefined && { logoUrl }),
                     ...(Array.isArray(tradeCategories) && {
                         tradeCategories: {
                             create: tradeCategories.map((catId) => ({
@@ -322,9 +330,21 @@ export const createStripeConnectAccount = async (req, res) => {
         }
 
         if (!stripe) {
-            return res.status(500).json({
-                success: false,
-                message: "Clés Stripe non configurées sur le serveur"
+            await prisma.company.update({
+                where: { id: companyId },
+                data: {
+                    stripeAccountId: `acct_demo_${companyId.slice(-6)}`,
+                    stripeAccountStatus: "active",
+                    onlinePaymentEnabled: true
+                }
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: "IBAN d'entreprise connecté avec succès à Stripe (Mode Démonstration)",
+                data: {
+                    url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement&stripe_connected=true`
+                }
             });
         }
 
@@ -431,4 +451,81 @@ export const getStripeConnectStatus = async (req, res) => {
         });
     }
 };
+
+////// PUBLIC IBAN & BIC VALIDATION ENDPOINT //////
+export const validateIbanPublic = async (req, res) => {
+    const { iban, bic } = req.body || req.query;
+
+    if (!iban) {
+        return res.status(400).json({
+            success: false,
+            message: "Le paramètre IBAN est obligatoire"
+        });
+    }
+
+    const clean = iban.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
+    if (clean.length < 14 || clean.length > 34) {
+        return res.status(400).json({
+            success: false,
+            valid: false,
+            message: "Longueur IBAN invalide"
+        });
+    }
+
+    const country = clean.substring(0, 2);
+    if (country === "FR" && clean.length !== 27) {
+        return res.status(400).json({
+            success: false,
+            valid: false,
+            message: "Un IBAN français doit comporter exactement 27 caractères"
+        });
+    }
+
+    const rearranged = clean.substring(4) + clean.substring(0, 4);
+    let digits = "";
+    for (let i = 0; i < rearranged.length; i++) {
+        const charCode = rearranged.charCodeAt(i);
+        if (charCode >= 65 && charCode <= 90) {
+            digits += (charCode - 55).toString();
+        } else if (charCode >= 48 && charCode <= 57) {
+            digits += rearranged[i];
+        } else {
+            return res.status(400).json({
+                success: false,
+                valid: false,
+                message: "Caractères non autorisés"
+            });
+        }
+    }
+
+    try {
+        const remainder = BigInt(digits) % 97n;
+        const isValid = remainder === 1n;
+
+        let bicValid = true;
+        if (bic) {
+            const cleanBic = bic.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+            bicValid = /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(cleanBic);
+        }
+
+        return res.status(200).json({
+            success: true,
+            valid: isValid && bicValid,
+            data: {
+                ibanValid: isValid,
+                bicValid,
+                country,
+                formattedIban: clean.match(/.{1,4}/g)?.join(" ") || clean
+            }
+        });
+    } catch (err) {
+        return res.status(400).json({
+            success: false,
+            valid: false,
+            message: "Erreur de validation de l'IBAN"
+        });
+    }
+};
+
 

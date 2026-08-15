@@ -36,10 +36,25 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
     const handleAvatarUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                triggerToast("L'image est trop volumineuse (max 5 Mo)", true);
+                return;
+            }
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setAvatarUrl(reader.result);
-                triggerToast("Photo de profil mise à jour via Cloudinary !");
+            reader.onloadend = async () => {
+                const base64Data = reader.result;
+                setAvatarUrl(base64Data);
+                try {
+                    await apiFetch('/v1/users/avatar', {
+                        method: 'PATCH',
+                        body: JSON.stringify({ avatarUrl: base64Data })
+                    });
+                    window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl: base64Data } }));
+                    triggerToast("Photo de profil enregistrée dans la base de données !");
+                } catch (err) {
+                    console.error("Avatar upload error:", err);
+                    triggerToast("Photo mise à jour localement");
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -48,12 +63,15 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
         try {
-            await apiFetch('/v1/users/me', {
+            const res = await apiFetch('/v1/users/me', {
                 method: 'PATCH',
-                body: JSON.stringify({ firstName, lastName, phone })
+                body: JSON.stringify({ firstName, lastName, phone, avatarUrl })
             });
-            triggerToast("Profil enregistré avec succès dans la base de données !");
+            const updated = res.data?.user || res.user || { firstName, lastName, phone, email, avatarUrl };
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: updated }));
+            triggerToast("Profil enregistré avec succès !");
         } catch (err) {
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl } }));
             triggerToast("Profil enregistré localement.");
         }
     };

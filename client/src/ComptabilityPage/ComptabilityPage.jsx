@@ -15,9 +15,12 @@ import AccountingIntegration from "./components/AccountingIntegration";
 
 // Icons
 import { ArrowLeft, Landmark, FileSpreadsheet, History, Link2 } from "lucide-react";
+import { useSubscription } from "../utils/useSubscription";
+import FeatureLockBanner from "../components/FeatureLockBanner";
 
 function ComptabilityPage() {
     const navigate = useNavigate();
+    const { isStarter } = useSubscription();
     const [activeSubTab, setActiveSubTab] = useState("tva");
     const [isMobile, setIsMobile] = useState(false);
 

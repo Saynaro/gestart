@@ -66,7 +66,7 @@ function EventCalendar({
             }
             return e;
         });
-        onEventChange(updatedEvents);
+        onEventChange(updatedEvents, changeInfo);
     };
 
     // Handle time slot select

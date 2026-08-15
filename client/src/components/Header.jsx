@@ -7,9 +7,13 @@ import { profilePages, DropdownIcons } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
 import { apiFetch } from "../utils/api";
 import { setAuthToken } from "../utils/auth";
+import { useUser } from "../utils/useUser";
+import { useSubscription } from "../utils/useSubscription";
 
 function Header() {
     const navigate = useNavigate();
+    const { firstName, fullName, initials, avatarUrl } = useUser();
+    const { displayName } = useSubscription();
     const [menuOpen, setMenuOpen] = useState(false);
     const [bellOpen, setBellOpen] = useState(false);
     const [bellTab, setBellTab] = useState("notifications");
@@ -183,7 +187,7 @@ function Header() {
     return (
         <div className="header">
             <div className="header-left">
-                <span className="greeting">{isMobile ? getPageTitle(activePath) : "Bonjour Khalid 👋"}</span>
+                <span className="greeting">{isMobile ? getPageTitle(activePath) : `Bonjour ${firstName} 👋`}</span>
             </div>
             <div className="header-right">
                 <div className="notification-wrapper" onClick={(e) => { e.stopPropagation(); setBellOpen(!bellOpen); setMenuOpen(false); }}>
@@ -337,13 +341,19 @@ function Header() {
                 </div>
 
                 <div className="avatar-wrapper" onClick={handleAvatarClick}>
-                    <div className="header-avatar">KS</div>
+                    <div className="header-avatar" style={{ overflow: 'hidden' }}>
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                        ) : (
+                            initials
+                        )}
+                    </div>
 
                     {menuOpen && (
                         <div className="mobile-dropdown" onClick={(e) => e.stopPropagation()}>
                             <div className="dropdown-header">
-                                <span className="dropdown-user-name">Khalid Sainaro</span>
-                                <span className="dropdown-user-plan">Plan Pro</span>
+                                <span className="dropdown-user-name">{fullName}</span>
+                                <span className="dropdown-user-plan">Offre {displayName}</span>
                             </div>
                             <div className="dropdown-divider"></div>
                             <ul className="dropdown-list">

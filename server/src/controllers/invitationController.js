@@ -9,7 +9,10 @@ export const getInvitations = async (req, res) => {
 
     try {
         const invitations = await prisma.invitation.findMany({
-            where: { companyId },
+            where: {
+                companyId,
+                status: "PENDING"
+            },
             orderBy: { createdAt: "desc" }
         });
 
@@ -36,15 +39,16 @@ export const createInvitation = async (req, res) => {
 
     try {
         // 1. Vérification si l'utilisateur existe déjà (si email fourni)
+        let existingUser = null;
         if (formattedEmail) {
-            const existingUser = await prisma.user.findUnique({
+            existingUser = await prisma.user.findUnique({
                 where: { email: formattedEmail }
             });
 
-            if (existingUser) {
+            if (existingUser && existingUser.companyId === companyId) {
                 return res.status(400).json({
                     success: false,
-                    message: "Cet utilisateur possède déjà un compte"
+                    message: "Cet utilisateur fait déjà partie de votre entreprise."
                 });
             }
         }
@@ -110,10 +114,27 @@ export const createInvitation = async (req, res) => {
                 expiresAt
             }
         });
+        if (existingUser) {
+            await prisma.notification.create({
+                data: {
+                    companyId,
+                    userId: existingUser.id,
+                    type: "IN_APP",
+                    channel: "IN_APP",
+                    status: "SENT",
+                    title: "Invitation d'équipe",
+                    body: "Vous avez reçu une invitation pour rejoindre une entreprise en tant que Technicien.",
+                    entityType: "invitation",
+                    entityId: invitation.id
+                }
+            }).catch(() => {});
+        }
 
         return res.status(201).json({
             success: true,
-            message: "Invitation créée et envoyée avec succès",
+            message: existingUser 
+                ? "Invitation envoyée directement sur le compte du technicien !"
+                : "Invitation créée et envoyée avec succès",
             data: { invitation }
         });
     } catch (error) {
@@ -125,7 +146,7 @@ export const createInvitation = async (req, res) => {
     }
 };
 
-////// REVOKE INVITATION //////
+////// REVOKE / DELETE INVITATION //////
 export const revokeInvitation = async (req, res) => {
     const { id } = req.params;
     const companyId = req.user.companyId;
@@ -142,18 +163,14 @@ export const revokeInvitation = async (req, res) => {
             });
         }
 
-        const revokedInvitation = await prisma.invitation.update({
-            where: { id },
-            data: {
-                status: "REVOKED",
-                revokedAt: new Date()
-            }
+        await prisma.invitation.delete({
+            where: { id }
         });
 
         return res.status(200).json({
             success: true,
-            message: "Invitation révoquée avec succès",
-            data: { invitation: revokedInvitation }
+            message: "Invitation révoquée et supprimée avec succès",
+            data: { id }
         });
     } catch (error) {
         console.error("REVOKE INVITATION ERROR:", error.message);

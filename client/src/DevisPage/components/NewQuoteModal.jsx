@@ -9,6 +9,7 @@ import DesktopEditModal from "../../ClientPage/components/DesktopEditModal";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization } from "../../utils/documentCustomization";
+import { useUser } from "../../utils/useUser";
 
 const initialClientDetails = [
     { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
@@ -28,7 +29,8 @@ const initialClientDetails = [
 
 import { apiFetch } from "../../utils/api";
 
-function NewQuoteModal({ onClose, onCreateQuote }) {
+function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
+    const { company } = useUser();
     // Determine screen size dynamically
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     useEffect(() => {
@@ -51,6 +53,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                 if (list.length > 0) {
                     const mapped = list.map(c => ({
                         id: c.id,
+                        clientId: c.id,
                         name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
                         type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
                         email: c.email || "",
@@ -65,6 +68,30 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
 
         fetchClientsForModal();
     }, []);
+
+    // Auto-select client if initialClient is passed
+    useEffect(() => {
+        if (initialClient && (initialClient.clientId || initialClient.clientName)) {
+            const clientName = initialClient.clientName;
+            const clientId = initialClient.clientId;
+            const found = clientDetails.find(c => (clientId && (c.id === clientId || c.clientId === clientId)) || (clientName && c.name?.toLowerCase() === clientName.toLowerCase()));
+            if (found) {
+                setSelectedClient(found);
+            } else if (clientName) {
+                setSelectedClient({
+                    id: clientId || undefined,
+                    clientId: clientId || undefined,
+                    name: clientName,
+                    email: initialClient.clientEmail || "",
+                    address: initialClient.clientAddress || "",
+                    type: "Particulier"
+                });
+            }
+            if (isMobile) {
+                setStep(2);
+            }
+        }
+    }, [initialClient, clientDetails, isMobile]);
 
     // Full Client Edit / New Client BottomSheet states
     const dragControlsMain = useDragControls();
@@ -197,6 +224,10 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
     // Mobile preview overlay toggle and zoom
     const [showMobilePreview, setShowMobilePreview] = useState(false);
     const [previewZoom, setPreviewZoom] = useState(0.5);
+
+    // Document Customization state
+    const [docCustomization, setDocCustomization] = useDocumentCustomization();
+    const [showCustomizer, setShowCustomizer] = useState(false);
     const zoomInPreview = () => setPreviewZoom(prev => Math.min(1.5, Math.round((prev + 0.1) * 100) / 100));
     const zoomOutPreview = () => setPreviewZoom(prev => Math.max(0.3, Math.round((prev - 0.1) * 100) / 100));
     const resetZoomPreview = () => setPreviewZoom(0.5);
@@ -409,6 +440,8 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
 
         const newQuote = {
             id: Date.now(),
+            clientId: selectedClient.id || selectedClient.clientId || undefined,
+            client: selectedClient,
             clientName: selectedClient.name,
             clientEmail: selectedClient.email || "",
             clientAddress: selectedClient.address || "",
@@ -424,11 +457,45 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
             subtotalHt: subtotalHt,
             tvaAmount: tvaAmount,
             totalTtc: totalTtc,
-            status: "DRAFT"
+            status: "SENT"
         };
 
         onCreateQuote(newQuote);
     };
+
+    const handleSaveDraft = () => {
+        const validLines = lines.filter(l => (l.description || "").trim() !== "");
+        const draftQuote = {
+            id: Date.now(),
+            clientId: selectedClient?.id || selectedClient?.clientId || undefined,
+            client: selectedClient,
+            clientName: selectedClient?.name || "Client Brouillon",
+            clientEmail: selectedClient?.email || "",
+            clientAddress: selectedClient?.address || "",
+            date: quoteDate,
+            dueDate: calculatedDueDate,
+            echeanceOptionId: echeanceOptionId,
+            echeanceCustomDate: echeanceCustomDate,
+            deliveryDate: hasDeliveryDate && deliveryDate ? deliveryDate : null,
+            paymentConditions: echeanceLabel,
+            tvaRate: tvaRate || 20,
+            internalNotes: internalNotes || "",
+            lines: validLines.map(l => ({ description: l.description, qty: parseInt(l.qty) || 1, unitPrice: parseFloat(l.unitPrice) || 0 })),
+            subtotalHt: subtotalHt,
+            tvaAmount: tvaAmount,
+            totalTtc: totalTtc,
+            status: "DRAFT"
+        };
+
+        onCreateQuote(draftQuote);
+    };
+
+    const companyDisplayName = company?.name || "Mon Entreprise";
+    const companyDisplayAddress = company?.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "Adresse non renseignée";
+    const companyDisplaySiret = company?.siret || "Non renseigné";
+    const companyDisplayPhone = company?.phone || "Non renseigné";
+    const companyDisplayEmail = company?.email || "contact@entreprise.fr";
+    const companyLogo = docCustomization.logoUrl || company?.logoUrl;
 
     const renderQuoteLivePreviewSheet = () => (
         <div className="live-preview-a4-wrapper">
@@ -448,58 +515,84 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                 <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
                     <div className="pdf-header-left" style={{ flex: 1 }}>
                         {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
-                            <div
-                                className="pdf-logo-stub"
-                                style={{
-                                    fontSize: '11pt',
-                                    padding: '4pt 8pt',
-                                    height: `${docCustomization.logoSize || 45}px`,
-                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                    color: '#FFF',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: '700',
-                                    borderRadius: '4px',
-                                    marginBottom: '6pt'
-                                }}
-                            >
-                                <span>CLIMPRO</span>
-                            </div>
+                            companyLogo ? (
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo"
+                                    style={{
+                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                        objectFit: 'contain',
+                                        marginBottom: '6pt'
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    className="pdf-logo-stub"
+                                    style={{
+                                        fontSize: '1.1em',
+                                        padding: '4px 8px',
+                                        height: `${docCustomization.logoSize || 45}px`,
+                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                        color: '#FFF',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: '700',
+                                        borderRadius: '4px',
+                                        marginBottom: '6pt'
+                                    }}
+                                >
+                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                </div>
+                            )
                         )}
-                        <h3 className="company-name" style={{ fontSize: '10pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>Dupont Climatisation</h3>
-                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3, margin: '2pt 0 0 0' }}>
-                            {docCustomization.showAddress && <span>88 Rue de l'Aviation, 75015 Paris<br /></span>}
-                            {docCustomization.showSiret && <span>SIRET : 849 203 103 00021<br /></span>}
-                            {docCustomization.showPhone && <span>Tél : 06 51 60 43 16<br /></span>}
-                            {docCustomization.showEmail && <span>Email : contact@climpro.fr</span>}
+                        <h3 className="company-name" style={{ fontSize: '1.1em', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>{companyDisplayName}</h3>
+                        <p className="company-details" style={{ fontSize: '0.88em', lineHeight: 1.3, margin: '4px 0 0 0' }}>
+                            {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                            {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
+                            {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                            {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
                         </p>
                     </div>
                     <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
                         {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
-                            <div
-                                className="pdf-logo-stub"
-                                style={{
-                                    fontSize: '11pt',
-                                    padding: '4pt 8pt',
-                                    height: `${docCustomization.logoSize || 45}px`,
-                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                    color: '#FFF',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: '700',
-                                    borderRadius: '4px',
-                                    marginBottom: '6pt'
-                                }}
-                            >
-                                <span>CLIMPRO</span>
-                            </div>
+                            companyLogo ? (
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo"
+                                    style={{
+                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                        objectFit: 'contain',
+                                        marginBottom: '6pt'
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    className="pdf-logo-stub"
+                                    style={{
+                                        fontSize: '1.1em',
+                                        padding: '4px 8px',
+                                        height: `${docCustomization.logoSize || 45}px`,
+                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                        color: '#FFF',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: '700',
+                                        borderRadius: '4px',
+                                        marginBottom: '6pt'
+                                    }}
+                                >
+                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                </div>
+                            )
                         )}
-                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
-                        <table className="doc-meta-table" style={{ fontSize: '8pt' }}>
+                        <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
+                        <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
                             <tbody>
                                 <tr>
                                     <td><strong>Numéro :</strong></td>
@@ -842,7 +935,7 @@ function NewQuoteModal({ onClose, onCreateQuote }) {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={onClose}
+                                    onClick={handleSaveDraft}
                                     style={{
                                         width: '100%',
                                         height: '48px',

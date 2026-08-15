@@ -40,7 +40,7 @@ export const getInterventions = async (req, res) => {
 
     const where = {
         companyId,
-        ...(status && { status }),
+        status: status ? status : { not: "CANCELLED" },
         ...(technicianId && { technicianId: effectiveTechnicianId }),
         ...(req.user.role === "TECHNICIAN" && { technicianId: req.user.id }),
         ...(clientId && { clientId }),
@@ -78,6 +78,12 @@ export const getInterventions = async (req, res) => {
                             firstName: true,
                             lastName: true,
                             avatarUrl: true,
+                        }
+                    },
+                    interventionType: {
+                        select: {
+                            id: true,
+                            name: true,
                         }
                     },
                     equipment: {
@@ -307,7 +313,9 @@ export const createIntervention = async (req, res) => {
         city,
         scheduledAt,
         estimatedDuration,
-        accessCode
+        accessCode,
+        type,
+        serviceType
     } = req.body;
 
     if (!clientId || !title || !address) {
@@ -318,6 +326,17 @@ export const createIntervention = async (req, res) => {
     }
 
     try {
+        let interventionTypeId = undefined;
+        if (serviceType || type) {
+            const typeName = (serviceType || type).trim();
+            const typeItem = await prisma.interventionTypeItem.upsert({
+                where: { companyId_name: { companyId, name: typeName } },
+                update: {},
+                create: { companyId, name: typeName, isDefault: false }
+            });
+            interventionTypeId = typeItem.id;
+        }
+
         const newIntervention = await prisma.intervention.create({
             data: {
                 companyId,
@@ -325,6 +344,7 @@ export const createIntervention = async (req, res) => {
                 createdById,
                 equipmentId: equipmentId || null,
                 technicianId: technicianId || null,
+                interventionTypeId: interventionTypeId || null,
                 title: title.trim(),
                 description: description || null,
                 address: address.trim(),
@@ -335,8 +355,9 @@ export const createIntervention = async (req, res) => {
                 status: scheduledAt ? "SCHEDULED" : "PENDING",
             },
             include: {
-                client: { select: { firstName: true, lastName: true } },
-                technician: { select: { id: true, firstName: true } }
+                client: { select: { firstName: true, lastName: true, companyName: true } },
+                technician: { select: { id: true, firstName: true, lastName: true } },
+                interventionType: { select: { id: true, name: true } }
             }
         });
 
@@ -383,17 +404,53 @@ export const updateIntervention = async (req, res) => {
             });
         }
 
-        const { technicianId, scheduledAt, status, title, description, techNotes } = req.body;
+        const {
+            clientId,
+            technicianId,
+            scheduledAt,
+            estimatedDuration,
+            status,
+            title,
+            description,
+            techNotes,
+            address,
+            city,
+            type,
+            serviceType
+        } = req.body;
+
+        let interventionTypeId = undefined;
+        if (serviceType || type) {
+            const typeName = (serviceType || type).trim();
+            const typeItem = await prisma.interventionTypeItem.upsert({
+                where: { companyId_name: { companyId, name: typeName } },
+                update: {},
+                create: { companyId, name: typeName, isDefault: false }
+            });
+            interventionTypeId = typeItem.id;
+        }
+
+        const updateData = {};
+        if (clientId !== undefined) updateData.clientId = clientId;
+        if (interventionTypeId !== undefined) updateData.interventionTypeId = interventionTypeId;
+        if (technicianId !== undefined) updateData.technicianId = technicianId || null;
+        if (scheduledAt !== undefined) updateData.scheduledAt = scheduledAt ? new Date(scheduledAt) : null;
+        if (estimatedDuration !== undefined) updateData.estimatedDuration = parseInt(estimatedDuration);
+        if (status !== undefined) updateData.status = status;
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (techNotes !== undefined) updateData.techNotes = techNotes;
+        if (address !== undefined) updateData.address = address;
+        if (city !== undefined) updateData.city = city;
 
         const updatedIntervention = await prisma.intervention.update({
             where: { id },
-            data: {
-                ...(technicianId !== undefined && { technicianId }),
-                ...(scheduledAt !== undefined && { scheduledAt: scheduledAt ? new Date(scheduledAt) : null }),
-                ...(status !== undefined && { status }),
-                ...(title !== undefined && { title }),
-                ...(description !== undefined && { description }),
-                ...(techNotes !== undefined && { techNotes }),
+            data: updateData,
+            include: {
+                client: { select: { firstName: true, lastName: true, companyName: true, phone: true, city: true, address: true } },
+                technician: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
+                interventionType: { select: { id: true, name: true } },
+                equipment: { select: { id: true, brand: true, model: true } }
             }
         });
 
@@ -588,14 +645,15 @@ export const completeIntervention = async (req, res) => {
     }
 };
 
-////// DELETE INTERVENTION (SOFT DELETE / CANCEL) //////
+////// DELETE INTERVENTION //////
 export const deleteIntervention = async (req, res) => {
     const { id } = req.params;
     const companyId = req.user.companyId;
 
     try {
         const intervention = await prisma.intervention.findFirst({
-            where: { id, companyId }
+            where: { id, companyId },
+            include: { photos: true }
         });
 
         if (!intervention) {
@@ -605,31 +663,45 @@ export const deleteIntervention = async (req, res) => {
             });
         }
 
-        await prisma.intervention.update({
-            where: { id },
-            data: { status: "CANCELLED" }
-        });
+        // Delete photos if any
+        if (intervention.photos && intervention.photos.length > 0) {
+            await prisma.interventionPhoto.deleteMany({
+                where: { interventionId: id }
+            });
+        }
+
+        try {
+            await prisma.intervention.delete({
+                where: { id }
+            });
+        } catch (delErr) {
+            // If linked to quote/invoice, fallback to setting status CANCELLED
+            await prisma.intervention.update({
+                where: { id },
+                data: { status: "CANCELLED" }
+            });
+        }
 
         if (intervention.technicianId) {
             await createNotification({
                 companyId,
                 userId: intervention.technicianId,
                 type: "INTERVENTION_CANCELLED",
-                title: "Intervention annulée",
-                body: `L'intervention "${intervention.title}" a été annulée.`,
+                title: "Intervention supprimée",
+                body: `L'intervention "${intervention.title}" a été supprimée.`,
                 entityId: id,
             });
         }
 
         return res.status(200).json({
             success: true,
-            message: "Intervention annulée avec succès"
+            message: "Intervention supprimée avec succès"
         });
     } catch (error) {
         console.error("DELETE INTERVENTION ERROR:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de l'annulation de l'intervention"
+            message: "Erreur serveur lors de la suppression de l'intervention"
         });
     }
 };

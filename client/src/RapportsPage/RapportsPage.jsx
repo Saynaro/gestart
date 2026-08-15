@@ -14,8 +14,11 @@ import InterventionsWidget from "./components/InterventionsWidget";
 import ClientSmsWidget from "./components/ClientSmsWidget";
 
 import { apiFetch } from "../utils/api";
+import { useSubscription } from "../utils/useSubscription";
+import FeatureLockBanner from "../components/FeatureLockBanner";
 
 function RapportsPage() {
+    const { isStarter } = useSubscription();
     // Shared Date Filter State
     const [datePreset, setDatePreset] = useState("last_3_months");
     const [reportsData, setReportsData] = useState(null);

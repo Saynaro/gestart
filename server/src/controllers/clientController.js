@@ -34,24 +34,32 @@ export const getClients = async (req, res) => {
                 skip,
                 take: limit,
                 orderBy: { createdAt: "desc" },
-                select: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                    companyName: true,
-                    phone: true,
-                    email: true,
-                    address: true,
-                    city: true,
-                    postalCode: true,
-                    status: true,
-                    source: true,
-                    preferredChannel: true,
-                    createdAt: true,
+                include: {
+                    equipment: true,
+                    interventions: {
+                        include: {
+                            technician: {
+                                select: { id: true, firstName: true, lastName: true, email: true }
+                            }
+                        },
+                        orderBy: { scheduledAt: "desc" }
+                    },
+                    invoices: {
+                        orderBy: { createdAt: "desc" }
+                    },
+                    quotes: {
+                        orderBy: { createdAt: "desc" }
+                    },
+                    smsLogs: {
+                        orderBy: { createdAt: "desc" }
+                    },
                     _count: {
                         select: {
                             equipment: true,
                             interventions: true,
+                            invoices: true,
+                            quotes: true,
+                            smsLogs: true
                         }
                     }
                 }
@@ -159,7 +167,20 @@ export const getClientById = async (req, res) => {
             include: {
                 equipment: true,
                 interventions: {
-                    take: 5,
+                    include: {
+                        technician: {
+                            select: { id: true, firstName: true, lastName: true, email: true }
+                        }
+                    },
+                    orderBy: { scheduledAt: "desc" }
+                },
+                invoices: {
+                    orderBy: { createdAt: "desc" }
+                },
+                quotes: {
+                    orderBy: { createdAt: "desc" }
+                },
+                smsLogs: {
                     orderBy: { createdAt: "desc" }
                 },
                 _count: {
@@ -254,17 +275,73 @@ export const createClient = async (req, res) => {
                 address: address.trim(),
                 city: city ? city.trim() : null,
                 postalCode: postalCode ? postalCode.trim() : null,
-                companyName: companyName ? companyName.trim() : null,
                 notes: notes || null,
                 source: source || null,
                 preferredChannel: preferredChannel || "SMS",
             }
         });
 
+        const {
+            equipmentModel,
+            equipmentInstallDate,
+            equipmentSerial
+        } = req.body;
+
+        if (equipmentModel || equipmentSerial || equipmentInstallDate) {
+            let parsedDate = null;
+            if (equipmentInstallDate) {
+                const str = String(equipmentInstallDate).trim();
+                if (str.includes("/")) {
+                    const parts = str.split("/");
+                    if (parts.length === 3) {
+                        parsedDate = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                    }
+                } else if (str.includes(".")) {
+                    const parts = str.split(".");
+                    if (parts.length === 3) {
+                        parsedDate = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                    }
+                } else if (str.includes("-")) {
+                    const parts = str.split("-");
+                    if (parts.length === 3) {
+                        if (parts[0].length === 4) {
+                            parsedDate = new Date(str);
+                        } else {
+                            parsedDate = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                        }
+                    }
+                } else {
+                    parsedDate = new Date(str);
+                }
+                if (parsedDate && isNaN(parsedDate.getTime())) parsedDate = null;
+            }
+
+            await prisma.equipment.create({
+                data: {
+                    clientId: newClient.id,
+                    model: equipmentModel ? equipmentModel.trim() : "Climatisation",
+                    brand: "Daikin",
+                    serialNumber: equipmentSerial ? equipmentSerial.trim() : null,
+                    installDate: parsedDate
+                }
+            });
+        }
+
+        const freshClient = await prisma.client.findUnique({
+            where: { id: newClient.id },
+            include: {
+                equipment: true,
+                interventions: { include: { technician: true } },
+                invoices: true,
+                quotes: true,
+                smsLogs: true
+            }
+        });
+
         return res.status(201).json({
             success: true,
             message: "Client créé avec succès",
-            data: { client: newClient }
+            data: { client: freshClient || newClient }
         });
     } catch (error) {
         console.error("CREATE CLIENT ERROR:", error.message);
@@ -282,7 +359,8 @@ export const updateClient = async (req, res) => {
 
     try {
         const client = await prisma.client.findFirst({
-            where: { id, companyId, isActive: true }
+            where: { id, companyId, isActive: true },
+            include: { equipment: true }
         });
 
         if (!client) {
@@ -292,15 +370,127 @@ export const updateClient = async (req, res) => {
             });
         }
 
-        const updatedClient = await prisma.client.update({
+        const {
+            firstName,
+            lastName,
+            companyName,
+            phone,
+            email,
+            address,
+            city,
+            postalCode,
+            notes,
+            status,
+            source,
+            preferredChannel,
+            sirenNumber,
+            clientTvaNumber,
+            clientLegalForm,
+            clientNafCode,
+            hasDeliveryAddress,
+            deliveryAddress,
+            deliveryCity,
+            deliveryPostalCode,
+            equipmentModel,
+            equipmentInstallDate,
+            equipmentSerial
+        } = req.body;
+
+        const updateData = {};
+        if (firstName !== undefined) updateData.firstName = firstName ? firstName.trim() : client.firstName;
+        if (lastName !== undefined) updateData.lastName = lastName !== null && lastName !== undefined ? lastName.trim() : client.lastName;
+        if (companyName !== undefined) updateData.companyName = companyName ? companyName.trim() : null;
+        if (phone !== undefined) updateData.phone = phone ? phone.trim() : client.phone;
+        if (email !== undefined) updateData.email = email ? email.toLowerCase().trim() : null;
+        if (address !== undefined) updateData.address = address ? address.trim() : client.address;
+        if (city !== undefined) updateData.city = city ? city.trim() : null;
+        if (postalCode !== undefined) updateData.postalCode = postalCode ? postalCode.trim() : null;
+        if (notes !== undefined) updateData.notes = notes || null;
+        if (status !== undefined) updateData.status = status;
+        if (source !== undefined) updateData.source = source || null;
+        if (preferredChannel !== undefined) updateData.preferredChannel = preferredChannel;
+        if (sirenNumber !== undefined) updateData.sirenNumber = sirenNumber || null;
+        if (clientTvaNumber !== undefined) updateData.clientTvaNumber = clientTvaNumber || null;
+        if (clientLegalForm !== undefined) updateData.clientLegalForm = clientLegalForm || null;
+        if (clientNafCode !== undefined) updateData.clientNafCode = clientNafCode || null;
+        if (hasDeliveryAddress !== undefined) updateData.hasDeliveryAddress = Boolean(hasDeliveryAddress);
+        if (deliveryAddress !== undefined) updateData.deliveryAddress = deliveryAddress || null;
+        if (deliveryCity !== undefined) updateData.deliveryCity = deliveryCity || null;
+        if (deliveryPostalCode !== undefined) updateData.deliveryPostalCode = deliveryPostalCode || null;
+
+        await prisma.client.update({
             where: { id },
-            data: { ...req.body }
+            data: updateData
+        });
+
+        // Update or create equipment if provided
+        if (equipmentModel || equipmentSerial || equipmentInstallDate) {
+            let parsedDate = null;
+            if (equipmentInstallDate) {
+                const str = String(equipmentInstallDate).trim();
+                if (str.includes("/")) {
+                    const parts = str.split("/");
+                    if (parts.length === 3) {
+                        parsedDate = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                    }
+                } else if (str.includes(".")) {
+                    const parts = str.split(".");
+                    if (parts.length === 3) {
+                        parsedDate = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                    }
+                } else if (str.includes("-")) {
+                    const parts = str.split("-");
+                    if (parts.length === 3) {
+                        if (parts[0].length === 4) {
+                            parsedDate = new Date(str);
+                        } else {
+                            parsedDate = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                        }
+                    }
+                } else {
+                    parsedDate = new Date(str);
+                }
+                if (parsedDate && isNaN(parsedDate.getTime())) parsedDate = null;
+            }
+
+            if (client.equipment && client.equipment.length > 0) {
+                const eqId = client.equipment[0].id;
+                await prisma.equipment.update({
+                    where: { id: eqId },
+                    data: {
+                        ...(equipmentModel && { model: equipmentModel.trim() }),
+                        ...(equipmentSerial !== undefined && { serialNumber: equipmentSerial ? equipmentSerial.trim() : null }),
+                        ...(parsedDate && { installDate: parsedDate })
+                    }
+                });
+            } else if (equipmentModel || equipmentSerial || parsedDate) {
+                await prisma.equipment.create({
+                    data: {
+                        clientId: id,
+                        model: equipmentModel ? equipmentModel.trim() : "Climatisation",
+                        brand: "Daikin",
+                        serialNumber: equipmentSerial ? equipmentSerial.trim() : null,
+                        installDate: parsedDate
+                    }
+                });
+            }
+        }
+
+        const freshUpdatedClient = await prisma.client.findUnique({
+            where: { id },
+            include: {
+                equipment: true,
+                interventions: { include: { technician: true } },
+                invoices: true,
+                quotes: true,
+                smsLogs: true
+            }
         });
 
         return res.status(200).json({
             success: true,
             message: "Fiche client mise à jour avec succès",
-            data: { client: updatedClient }
+            data: { client: freshUpdatedClient }
         });
     } catch (error) {
         console.error("UPDATE CLIENT ERROR:", error.message);

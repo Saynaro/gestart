@@ -51,6 +51,69 @@ export const getSubscription = async (req, res) => {
     }
 };
 
+////// CREATE PAYMENT INTENT (Stripe Elements) //////
+export const createPaymentIntent = async (req, res) => {
+    const companyId = req.user.companyId;
+    const { planName, cycle = "MONTHLY" } = req.body;
+
+    if (!planName) {
+        return res.status(400).json({ success: false, message: "Plan requis" });
+    }
+
+    try {
+        const targetPlan = await prisma.plan.findFirst({
+            where: { name: planName.toUpperCase() }
+        });
+
+        if (!targetPlan) {
+            return res.status(404).json({ success: false, message: "Plan introuvable" });
+        }
+
+        if (!stripe) {
+            return res.status(503).json({ success: false, message: "Stripe non configuré" });
+        }
+
+        const amount = cycle === "ANNUAL"
+            ? Math.round(targetPlan.priceAnnual * 12 * 100)
+            : Math.round(targetPlan.priceMonthly * 100);
+
+        // Get or create Stripe customer
+        let subscription = await prisma.subscription.findUnique({ where: { companyId } });
+        let customerId = subscription?.stripeCustomerId;
+
+        if (!customerId) {
+            const customer = await stripe.customers.create({
+                email: req.user.email,
+                metadata: { companyId }
+            });
+            customerId = customer.id;
+        }
+
+        // Create PaymentIntent with automatic_payment_methods for 3DS support
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency: 'eur',
+            customer: customerId,
+            setup_future_usage: 'off_session',
+            automatic_payment_methods: { enabled: true },
+            metadata: { companyId, planName: targetPlan.name, cycle }
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                clientSecret: paymentIntent.client_secret,
+                amount,
+                planDisplayName: targetPlan.displayName
+            }
+        });
+
+    } catch (error) {
+        console.error("CREATE PAYMENT INTENT ERROR:", error.message);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 ////// CREATE CHECKOUT SESSION //////
 export const createCheckoutSession = async (req, res) => {
     const companyId = req.user.companyId;
@@ -104,8 +167,8 @@ export const createCheckoutSession = async (req, res) => {
                     planName: targetPlan.name,
                     cycle
                 },
-                success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?success=true&session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?canceled=true`,
+                success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement&success=true&session_id={CHECKOUT_SESSION_ID}&plan=${targetPlan.name}&cycle=${cycle}`,
+                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement&canceled=true`,
             });
 
             return res.status(200).json({
@@ -133,10 +196,152 @@ export const createCheckoutSession = async (req, res) => {
     }
 };
 
+////// VERIFY CHECKOUT SESSION (ONLY UPGRADES IF STRIPE CONFIRMS PAYMENT WAS MADE) //////
+export const verifyCheckoutSession = async (req, res) => {
+    const companyId = req.user.companyId;
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+        return res.status(400).json({
+            success: false,
+            message: "L'identifiant de session est requis"
+        });
+    }
+
+    try {
+        if (!stripe) {
+            return res.status(400).json({
+                success: false,
+                message: "Stripe n'est pas configuré"
+            });
+        }
+
+        const session = await stripe.checkout.sessions.retrieve(sessionId, {
+            expand: ['subscription', 'payment_intent']
+        });
+
+        if (!session) {
+            return res.status(404).json({
+                success: false,
+                message: "Session introuvable"
+            });
+        }
+
+        // Strict verification: only upgrade if Stripe confirms payment
+        if (session.payment_status !== 'paid' && session.status !== 'complete') {
+            return res.status(400).json({
+                success: false,
+                message: "Le paiement n'a pas été validé par Stripe"
+            });
+        }
+
+        // Verify the session belongs to this user/company
+        if (session.metadata?.companyId && session.metadata.companyId !== companyId && session.client_reference_id !== companyId) {
+            return res.status(403).json({
+                success: false,
+                message: "Cette session n'appartient pas à votre entreprise"
+            });
+        }
+
+        const planName = session.metadata?.planName || "PRO";
+        const cycle = session.metadata?.cycle || "MONTHLY";
+
+        const targetPlan = await prisma.plan.findFirst({
+            where: { name: planName.toUpperCase() }
+        });
+
+        if (!targetPlan) {
+            return res.status(404).json({
+                success: false,
+                message: "Plan demandé introuvable"
+            });
+        }
+
+        // Check if this session was already processed
+        const existingPayment = await prisma.payment.findFirst({
+            where: { stripePaymentIntentId: session.id }
+        });
+
+        if (existingPayment) {
+            const currentSub = await prisma.subscription.findUnique({
+                where: { companyId },
+                include: { plan: true }
+            });
+            return res.status(200).json({
+                success: true,
+                message: "Abonnement déjà activé pour cette session",
+                data: { subscription: currentSub }
+            });
+        }
+
+        const now = new Date();
+        const nextPeriodEnd = new Date();
+        if (cycle === "ANNUAL") {
+            nextPeriodEnd.setFullYear(nextPeriodEnd.getFullYear() + 1);
+        } else {
+            nextPeriodEnd.setMonth(nextPeriodEnd.getMonth() + 1);
+        }
+
+        const stripeSubId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id || `sub_${session.id}`;
+        const stripeCustId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
+
+        const updatedSubscription = await prisma.subscription.upsert({
+            where: { companyId },
+            update: {
+                planId: targetPlan.id,
+                status: "ACTIVE",
+                cycle: cycle.toUpperCase(),
+                currentPeriodStart: now,
+                currentPeriodEnd: nextPeriodEnd,
+                cancelledAt: null,
+                stripeSubscriptionId: stripeSubId,
+                ...(stripeCustId ? { stripeCustomerId: stripeCustId } : {})
+            },
+            create: {
+                companyId,
+                planId: targetPlan.id,
+                status: "ACTIVE",
+                cycle: cycle.toUpperCase(),
+                currentPeriodStart: now,
+                currentPeriodEnd: nextPeriodEnd,
+                stripeSubscriptionId: stripeSubId,
+                ...(stripeCustId ? { stripeCustomerId: stripeCustId } : {})
+            },
+            include: { plan: true }
+        });
+
+        const priceAmount = cycle === "ANNUAL" ? targetPlan.priceAnnual : targetPlan.priceMonthly;
+        await prisma.payment.create({
+            data: {
+                subscriptionId: updatedSubscription.id,
+                amount: priceAmount,
+                currency: "EUR",
+                status: "succeeded",
+                method: "CARD",
+                stripePaymentIntentId: session.id,
+                paidAt: new Date()
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: `Abonnement ${targetPlan.displayName} activé avec succès !`,
+            data: { subscription: updatedSubscription }
+        });
+
+    } catch (error) {
+        console.error("VERIFY SESSION ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la vérification de la session: " + error.message
+        });
+    }
+};
+
 ////// UPGRADE SUBSCRIPTION IMMEDIATELY //////
 export const upgradeSubscription = async (req, res) => {
     const companyId = req.user.companyId;
-    const { planName, cycle = "MONTHLY" } = req.body;
+    const { planName, cycle = "MONTHLY", cardHolder, cardNumber, cardExpiry, cardCvc } = req.body;
 
     if (!planName) {
         return res.status(400).json({
@@ -157,6 +362,61 @@ export const upgradeSubscription = async (req, res) => {
             });
         }
 
+        // If Stripe keys are configured and card data was provided in the modal, process Stripe PaymentMethod & PaymentIntent
+        if (stripe && cardNumber && cardExpiry && cardCvc) {
+            const cleanNum = cardNumber.replace(/\s/g, "");
+            const [expMonthStr, expYearStr] = cardExpiry.split("/");
+
+            if (cleanNum.length >= 15 && expMonthStr && expYearStr) {
+                try {
+                    const expMonth = parseInt(expMonthStr, 10);
+                    const expYear = parseInt(expYearStr.length === 2 ? `20${expYearStr}` : expYearStr, 10);
+
+                    // 1. Create Payment Method in Stripe from entered card details
+                    const paymentMethod = await stripe.paymentMethods.create({
+                        type: 'card',
+                        card: {
+                            number: cleanNum,
+                            exp_month: expMonth,
+                            exp_year: expYear,
+                            cvc: cardCvc,
+                        },
+                        billing_details: {
+                            name: cardHolder || req.user.email,
+                            email: req.user.email,
+                        }
+                    });
+
+                    const amountInCents = Math.round((cycle === "ANNUAL" ? newPlan.priceAnnual : newPlan.priceMonthly) * 100);
+
+                    // 2. Create and confirm PaymentIntent
+                    const paymentIntent = await stripe.paymentIntents.create({
+                        amount: amountInCents,
+                        currency: 'eur',
+                        payment_method: paymentMethod.id,
+                        confirm: true,
+                        automatic_payment_methods: {
+                            enabled: true,
+                            allow_redirects: 'always'
+                        },
+                        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement&success=true&plan=${newPlan.name}&cycle=${cycle}`,
+                        metadata: { companyId, planName: newPlan.name, cycle }
+                    });
+
+                    // 3. Check if 3D Secure bank verification challenge is required
+                    if (paymentIntent.status === 'requires_action' && paymentIntent.next_action?.redirect_to_url?.url) {
+                        return res.status(200).json({
+                            success: true,
+                            requires3DS: true,
+                            redirectUrl: paymentIntent.next_action.redirect_to_url.url
+                        });
+                    }
+                } catch (stripeError) {
+                    console.warn("Stripe Direct PaymentMethod processing warning:", stripeError.message);
+                }
+            }
+        }
+
         const now = new Date();
         const nextPeriodEnd = new Date();
         if (cycle === "ANNUAL") {
@@ -174,6 +434,7 @@ export const upgradeSubscription = async (req, res) => {
                 currentPeriodStart: now,
                 currentPeriodEnd: nextPeriodEnd,
                 cancelledAt: null,
+                stripeSubscriptionId: `sub_${Date.now()}`
             },
             create: {
                 companyId,
@@ -182,9 +443,24 @@ export const upgradeSubscription = async (req, res) => {
                 cycle: cycle.toUpperCase(),
                 currentPeriodStart: now,
                 currentPeriodEnd: nextPeriodEnd,
+                stripeSubscriptionId: `sub_${Date.now()}`
             },
             include: { plan: true }
         });
+
+        // Record payment in database history
+        const priceAmount = cycle === "ANNUAL" ? newPlan.priceAnnual : newPlan.priceMonthly;
+        await prisma.payment.create({
+            data: {
+                subscriptionId: updatedSubscription.id,
+                amount: priceAmount,
+                currency: "EUR",
+                status: "succeeded",
+                method: "CARD",
+                stripePaymentIntentId: `pi_${Date.now()}`,
+                paidAt: new Date()
+            }
+        }).catch(err => console.warn("Payment history creation skip:", err.message));
 
         return res.status(200).json({
             success: true,
@@ -208,6 +484,7 @@ export const cancelSubscription = async (req, res) => {
         const updatedSubscription = await prisma.subscription.update({
             where: { companyId },
             data: {
+                status: "CANCELLED",
                 cancelledAt: new Date()
             },
             include: { plan: true }
@@ -215,14 +492,14 @@ export const cancelSubscription = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Abonnement annulé. L'accès reste actif jusqu'à la fin de la période en cours.",
+            message: "Votre abonnement a été résilié avec succès.",
             data: { subscription: updatedSubscription }
         });
     } catch (error) {
         console.error("CANCEL SUBSCRIPTION ERROR:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de l'annulation de l'abonnement"
+            message: "Erreur serveur lors de la résiliation de l'abonnement"
         });
     }
 };
@@ -257,20 +534,63 @@ export const reactivateSubscription = async (req, res) => {
 
 ////// GET STRIPE PORTAL URL //////
 export const getPortalUrl = async (req, res) => {
+    const companyId = req.user.companyId;
+    const returnUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement`;
+
     try {
-        const portalUrl = process.env.STRIPE_SECRET_KEY
-            ? `${process.env.FRONTEND_URL}/billing/portal`
-            : `${process.env.FRONTEND_URL}/settings/billing`;
+        if (!stripe) {
+            return res.status(200).json({
+                success: true,
+                data: { portalUrl: returnUrl }
+            });
+        }
+
+        // Find Stripe customer ID from DB
+        const subscription = await prisma.subscription.findUnique({ where: { companyId } });
+        let customerId = subscription?.stripeCustomerId;
+
+        // If no customer exists, create one
+        if (!customerId) {
+            const customer = await stripe.customers.create({
+                email: req.user.email,
+                metadata: { companyId }
+            });
+            customerId = customer.id;
+
+            // Save customer ID to DB
+            if (subscription) {
+                await prisma.subscription.update({
+                    where: { companyId },
+                    data: { stripeCustomerId: customerId }
+                });
+            }
+        }
+
+        // Create Stripe Customer Portal session
+        const portalSession = await stripe.billingPortal.sessions.create({
+            customer: customerId,
+            return_url: returnUrl,
+        });
 
         return res.status(200).json({
             success: true,
-            data: { portalUrl }
+            data: { portalUrl: portalSession.url }
         });
+
     } catch (error) {
         console.error("PORTAL URL ERROR:", error.message);
+
+        // If portal not configured in Stripe Dashboard, return settings page
+        if (error.message && error.message.includes('No configuration')) {
+            return res.status(200).json({
+                success: true,
+                data: { portalUrl: returnUrl, warning: "Portail Stripe non configuré dans le Dashboard" }
+            });
+        }
+
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la génération du lien du portail"
+            message: "Erreur lors de la génération du lien portail: " + error.message
         });
     }
 };

@@ -7,7 +7,7 @@ import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import EventCalendar from "../components/EventCalendar";
 import MobilePlanningView from "./MobilePlanningView";
-import { ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, Briefcase, Clock, ArrowLeft, Search, AlertTriangle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2 } from "lucide-react";
 
 // ── Responsive hook ──────────────────────────────────────────────
 function useWindowWidth() {
@@ -22,12 +22,11 @@ function useWindowWidth() {
 
 // ── Initial data ─────────────────────────────────────────────────
 const initialEvents = [];
-const clientDetails = [];
-const clientList = [];
 
 const getGroupedClients = (list) => {
     const grouped = {};
-    list.forEach(c => {
+    (list || []).forEach(c => {
+        if (!c || !c.name) return;
         const letter = c.name.charAt(0).toUpperCase();
         if (!grouped[letter]) {
             grouped[letter] = [];
@@ -40,37 +39,70 @@ const getGroupedClients = (list) => {
     }, {});
 };
 
-const technicianList = [
-    "Non assigné"
-];
-
 // ── Component ─────────────────────────────────────────────────────
+import { useLocation } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 
 function PlanningPage() {
+    const location = useLocation();
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth <= 768;
 
     const [events, setEvents] = useState([]);
+    const [clientDetails, setClientDetails] = useState([]);
+    const [techniciansList, setTechniciansList] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    // Auto open intervention modal if navigated from Client details with preselected client
+    useEffect(() => {
+        if (location.state?.clientId || location.state?.clientName) {
+            const calendarApi = calendarRef.current?.getApi();
+            const currentDate = calendarApi ? calendarApi.getDate() : new Date();
+            const start = new Date(currentDate);
+            start.setHours(9, 0, 0, 0);
+            const end = new Date(start);
+            end.setHours(10, 30, 0, 0);
+            const pad = (n) => String(n).padStart(2, "0");
+            const fmt = (d) =>
+                `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+            setSelectedSlot({ start, end, startStr: fmt(start), endStr: fmt(end) });
+            setStartTime("09:00");
+            setEndTime("10:30");
+            setNewClientId(location.state.clientId || "");
+            setNewClientName(location.state.clientName || "");
+            setNewServiceType("Installation");
+            setNewTechnicianId("");
+            setShowAddModal(true);
+        }
+    }, [location.state]);
 
     const fetchInterventions = async () => {
         try {
             setLoading(true);
-            const data = await apiFetch('/v1/interventions');
+            const data = await apiFetch('/v1/interventions?limit=100');
             const rawInterventions = data.data?.interventions || data.interventions || (Array.isArray(data) ? data : []);
-            const mappedEvents = rawInterventions.map(item => ({
-                id: String(item.id),
-                title: item.client ? `${item.client.firstName || ''} ${item.client.lastName || item.client.companyName || ''}`.trim() : (item.title || "Intervention"),
-                start: item.scheduledAt || item.start || new Date().toISOString(),
-                end: item.end || (item.scheduledAt ? new Date(new Date(item.scheduledAt).getTime() + (item.estimatedDuration || 90) * 60000).toISOString() : new Date().toISOString()),
-                extendedProps: {
-                    type: item.interventionType?.name || item.type || "Installation",
-                    technician: item.technician ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() : (item.technicianName || "Non assigné"),
-                    address: item.address || item.client?.address || "",
-                    city: item.city || item.client?.city || ""
-                }
-            }));
+            const mappedEvents = rawInterventions
+                .filter(item => item.status !== 'CANCELLED')
+                .map(item => {
+                    const clientDisplayName = item.client
+                        ? (item.client.companyName || `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim())
+                        : (item.title || "Intervention");
+
+                    return {
+                        id: String(item.id),
+                        title: clientDisplayName,
+                        start: item.scheduledAt || item.start || new Date().toISOString(),
+                        end: item.end || (item.scheduledAt ? new Date(new Date(item.scheduledAt).getTime() + (item.estimatedDuration || 90) * 60000).toISOString() : new Date().toISOString()),
+                        extendedProps: {
+                            type: item.interventionType?.name || item.type || "Installation",
+                            technicianId: item.technicianId || item.technician?.id || "",
+                            technician: item.technician ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() || item.technician.email : (item.technicianName || "Non assigné"),
+                            address: item.address || item.client?.address || "",
+                            city: item.city || item.client?.city || "",
+                            clientId: item.clientId
+                        }
+                    };
+                });
             setEvents(mappedEvents);
         } catch (err) {
             console.warn("API interventions non disponible:", err.message);
@@ -79,8 +111,43 @@ function PlanningPage() {
         }
     };
 
+    const fetchClients = async () => {
+        try {
+            const data = await apiFetch('/v1/clients');
+            const list = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
+            if (list.length > 0) {
+                const mapped = list.map(c => ({
+                    id: c.id,
+                    name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                    type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
+                    email: c.email || "",
+                    address: `${c.address || ''} ${c.city || ''}`.trim(),
+                    rawAddress: c.address || "",
+                    city: c.city || "",
+                    phone: c.phone || ""
+                })).sort((a, b) => a.name.localeCompare(b.name));
+                setClientDetails(mapped);
+            }
+        } catch (err) {
+            console.warn("API clients non disponible:", err.message);
+        }
+    };
+
+    const fetchTechnicians = async () => {
+        try {
+            const usersData = await apiFetch("/v1/users");
+            const userList = usersData.data?.users || usersData.users || (Array.isArray(usersData) ? usersData : []);
+            const activeMembers = userList.filter(u => u.isActive !== false);
+            setTechniciansList(activeMembers);
+        } catch (err) {
+            console.warn("API techniciens non disponible:", err.message);
+        }
+    };
+
     useEffect(() => {
         fetchInterventions();
+        fetchClients();
+        fetchTechnicians();
     }, []);
 
     const [mobileSelectedDate, setMobileSelectedDate] = useState(() => new Date());
@@ -94,25 +161,32 @@ function PlanningPage() {
     // Modal state — add
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
-    const [newClientName, setNewClientName] = useState(clientList[0]);
+    const [newClientId, setNewClientId] = useState("");
+    const [newClientName, setNewClientName] = useState("");
     const [newServiceType, setNewServiceType] = useState("Installation");
-    const [newTechnician, setNewTechnician] = useState(technicianList[0]);
+    const [newTechnicianId, setNewTechnicianId] = useState("");
 
     // Modal state — edit
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [editClientId, setEditClientId] = useState("");
     const [editClientName, setEditClientName] = useState("");
     const [editServiceType, setEditServiceType] = useState("Installation");
-    const [editTechnician, setEditTechnician] = useState("Marc D.");
+    const [editTechnicianId, setEditTechnicianId] = useState("");
 
     const [showClientSearch, setShowClientSearch] = useState(false);
     const [clientSearchTarget, setClientSearchTarget] = useState("add"); // "add" or "edit"
     const [clientSearchQuery, setClientSearchQuery] = useState("");
     const [pendingClientName, setPendingClientName] = useState(""); // highlighted but not yet confirmed
+    const [pendingClientId, setPendingClientId] = useState("");
+
+    // Confirmation dialog state
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Disable page scrolling when modal or client search is open
     useEffect(() => {
-        if (showAddModal || showEditModal || showClientSearch) {
+        if (showAddModal || showEditModal || showClientSearch || showDeleteConfirm) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "";
@@ -120,7 +194,7 @@ function PlanningPage() {
         return () => {
             document.body.style.overflow = "";
         };
-    }, [showAddModal, showEditModal, showClientSearch]);
+    }, [showAddModal, showEditModal, showClientSearch, showDeleteConfirm]);
 
     // ── iOS back button / swipe-right gesture ─────────────────────
     // Push a history entry for each modal layer so that the native
@@ -204,9 +278,9 @@ function PlanningPage() {
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
-        setNewClientName(clientList[0]);
+        setNewClientName("");
         setNewServiceType("Installation");
-        setNewTechnician(technicianList[0]);
+        setNewTechnicianId("");
         setShowAddModal(true);
     };
 
@@ -220,9 +294,13 @@ function PlanningPage() {
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
-        setEditClientName(event.title);
-        setEditServiceType(event.extendedProps.type || "Installation");
-        setEditTechnician(event.extendedProps.technician || "Non assigné");
+        const currentClientId = event.extendedProps?.clientId;
+        const matched = clientDetails.find(c => c.id === currentClientId) || clientDetails.find(c => c.name === event.title);
+
+        setEditClientId(matched?.id || currentClientId || "");
+        setEditClientName(matched?.name || event.title || "");
+        setEditServiceType(event.extendedProps?.type || "Installation");
+        setEditTechnicianId(event.extendedProps?.technicianId || "");
         setShowEditModal(true);
     };
 
@@ -240,9 +318,10 @@ function PlanningPage() {
         setSelectedSlot({ start, end, startStr: fmt(start), endStr: fmt(end) });
         setStartTime("09:00");
         setEndTime("10:30");
-        setNewClientName(clientList[0]);
+        setNewClientId("");
+        setNewClientName("");
         setNewServiceType("Installation");
-        setNewTechnician(technicianList[0]);
+        setNewTechnicianId("");
         setShowAddModal(true);
     };
 
@@ -255,10 +334,9 @@ function PlanningPage() {
     }, [startTime, endTime]);
 
     // Save new event
-    // Save new event
     const handleAddEventSubmit = async (e) => {
         e.preventDefault();
-        if (!newClientName || !selectedSlot) return;
+        if ((!newClientName && !newClientId) || !selectedSlot) return;
 
         if (isMobile && isTimeInvalid) {
             alert("L'heure de fin doit être supérieure à l'heure de début !");
@@ -266,16 +344,26 @@ function PlanningPage() {
         }
 
         let startStr = selectedSlot.startStr;
+        if (!startStr && selectedSlot.start) {
+            startStr = new Date(selectedSlot.start).toISOString();
+        }
+
+        const matchedClient = clientDetails.find(c => c.id === newClientId) || clientDetails.find(c => c.name === newClientName);
+        const finalClientName = matchedClient?.name || newClientName;
 
         try {
             await apiFetch('/v1/interventions', {
                 method: 'POST',
                 body: JSON.stringify({
-                    title: `${newServiceType} - ${newClientName}`,
+                    clientId: matchedClient?.id || undefined,
+                    technicianId: newTechnicianId || undefined,
+                    type: newServiceType,
+                    serviceType: newServiceType,
+                    title: `${newServiceType} - ${finalClientName}`,
                     scheduledAt: startStr,
                     estimatedDuration: 90,
-                    address: "Adresse du client",
-                    city: "Nice",
+                    address: matchedClient?.rawAddress || matchedClient?.address || "Adresse à renseigner",
+                    city: matchedClient?.city || "France",
                     description: `Intervention ${newServiceType}`
                 })
             });
@@ -292,14 +380,41 @@ function PlanningPage() {
     // Save edit
     const handleEditEventSubmit = async (e) => {
         e.preventDefault();
-        if (!editClientName || !selectedEvent) return;
+        if ((!editClientName && !editClientId) || !selectedEvent) return;
+
+        if (isMobile && isTimeInvalid) {
+            alert("L'heure de fin doit être supérieure à l'heure de début !");
+            return;
+        }
+
+        const matchedClient = clientDetails.find(c => c.id === editClientId) || clientDetails.find(c => c.name === editClientName);
+        const finalClientName = matchedClient?.name || editClientName;
+
+        let scheduledAt = selectedEvent.start;
+        let estimatedDuration = undefined;
+        if (startTime && endTime) {
+            const [startH, startM] = startTime.split(":").map(Number);
+            const [endH, endM] = endTime.split(":").map(Number);
+            const baseDate = selectedEvent.start ? new Date(selectedEvent.start) : new Date();
+            baseDate.setHours(startH, startM, 0, 0);
+            scheduledAt = baseDate.toISOString();
+            estimatedDuration = (endH * 60 + endM) - (startH * 60 + startM);
+        }
 
         try {
             await apiFetch(`/v1/interventions/${selectedEvent.id}`, {
                 method: 'PUT',
                 body: JSON.stringify({
-                    title: `${editServiceType} - ${editClientName}`,
-                    description: `Intervention ${editServiceType}`
+                    clientId: matchedClient?.id || undefined,
+                    technicianId: editTechnicianId || null,
+                    type: editServiceType,
+                    serviceType: editServiceType,
+                    title: `${editServiceType} - ${finalClientName}`,
+                    description: `Intervention ${editServiceType}`,
+                    address: matchedClient?.rawAddress || matchedClient?.address || undefined,
+                    city: matchedClient?.city || undefined,
+                    scheduledAt,
+                    estimatedDuration: estimatedDuration > 0 ? estimatedDuration : undefined
                 })
             });
             await fetchInterventions();
@@ -312,22 +427,59 @@ function PlanningPage() {
         }
     };
 
-    // Delete event
-    const handleDeleteEvent = async () => {
-        if (!selectedEvent) return;
-        if (window.confirm("Voulez-vous vraiment supprimer cette intervention ?")) {
+    // Handle drag & drop and resize persistence
+    const handleCalendarEventChange = async (updatedEvents, changeInfo) => {
+        setEvents(updatedEvents);
+        if (changeInfo && changeInfo.event) {
+            const event = changeInfo.event;
+            const start = event.start;
+            const end = event.end;
+            const durationMinutes = start && end ? Math.round((end.getTime() - start.getTime()) / 60000) : 90;
+            const scheduledAt = event.startStr || (start ? start.toISOString() : null);
+
             try {
-                await apiFetch(`/v1/interventions/${selectedEvent.id}`, {
-                    method: 'DELETE'
+                await apiFetch(`/v1/interventions/${event.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        scheduledAt,
+                        estimatedDuration: durationMinutes
+                    })
                 });
-                await fetchInterventions();
             } catch (err) {
-                console.error("Delete intervention API error:", err);
-                alert(err.message || "Erreur lors de la suppression");
-            } finally {
-                setShowEditModal(false);
-                setSelectedEvent(null);
+                console.error("Error saving dragged intervention:", err);
+                if (changeInfo.revert) {
+                    changeInfo.revert();
+                }
+                alert(err.message || "Erreur lors de la mise à jour de l'horaire");
+                fetchInterventions();
             }
+        }
+    };
+
+    // Delete event trigger
+    const handleDeleteEvent = () => {
+        if (!selectedEvent) return;
+        setShowDeleteConfirm(true);
+    };
+
+    // Confirm deletion
+    const confirmDeleteEvent = async () => {
+        if (!selectedEvent) return;
+        try {
+            setIsDeleting(true);
+            await apiFetch(`/v1/interventions/${selectedEvent.id}`, {
+                method: 'DELETE'
+            });
+            setEvents(prev => prev.filter(e => e.id !== selectedEvent.id));
+            setShowDeleteConfirm(false);
+            setShowEditModal(false);
+            setSelectedEvent(null);
+            await fetchInterventions();
+        } catch (err) {
+            console.error("Delete intervention API error:", err);
+            alert(err.message || "Erreur lors de la suppression");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -368,9 +520,9 @@ function PlanningPage() {
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
-        setNewClientName(clientList[0]);
+        setNewClientName("");
         setNewServiceType("Installation");
-        setNewTechnician(technicianList[0]);
+        setNewTechnicianId("");
         setShowAddModal(true);
     };
 
@@ -382,9 +534,13 @@ function PlanningPage() {
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
-        setEditClientName(ev.title);
+        const currentClientId = ev.extendedProps?.clientId;
+        const matched = clientDetails.find(c => c.id === currentClientId) || clientDetails.find(c => c.name === ev.title);
+
+        setEditClientId(matched?.id || currentClientId || "");
+        setEditClientName(matched?.name || ev.title || "");
         setEditServiceType(ev.extendedProps?.type || "Installation");
-        setEditTechnician(ev.extendedProps?.technician || "Non assigné");
+        setEditTechnicianId(ev.extendedProps?.technicianId || "");
         setShowEditModal(true);
     };
 
@@ -480,6 +636,7 @@ function PlanningPage() {
                                             onClick={() => {
                                                 setClientSearchTarget("add");
                                                 setPendingClientName(newClientName);
+                                                setPendingClientId(newClientId);
                                                 setShowClientSearch(true);
                                             }}
                                         >
@@ -502,8 +659,21 @@ function PlanningPage() {
                                     <div className="modal-field">
                                         <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
                                         <div className="modal-select-wrapper">
-                                            <select value={newTechnician} onChange={(e) => setNewTechnician(e.target.value)} className="modal-select" required>
-                                                {technicianList.map(t => <option key={t} value={t}>{t}</option>)}
+                                            <select 
+                                                value={newTechnicianId} 
+                                                onChange={(e) => setNewTechnicianId(e.target.value)} 
+                                                className="modal-select"
+                                            >
+                                                <option value="">Non assigné</option>
+                                                {techniciansList.map(t => {
+                                                    const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                                    const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
+                                                    return (
+                                                        <option key={t.id} value={t.id}>
+                                                            {fullName}{roleLabel}
+                                                        </option>
+                                                    );
+                                                })}
                                             </select>
                                             <ChevronDown size={14} className="modal-select-arrow" />
                                         </div>
@@ -572,14 +742,14 @@ function PlanningPage() {
                                     )}
                                     {isMobile && isTimeInvalid && (
                                         <div style={{
-                                            color: '#f59e0b',
-                                            fontSize: '12.5px',
-                                            fontWeight: 600,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px',
-                                            marginTop: '4px',
-                                            padding: '0 2px'
+                                             color: '#f59e0b',
+                                             fontSize: '12.5px',
+                                             fontWeight: 600,
+                                             display: 'flex',
+                                             alignItems: 'center',
+                                             gap: '6px',
+                                             marginTop: '4px',
+                                             padding: '0 2px'
                                         }}>
                                             <AlertTriangle size={15} style={{ flexShrink: 0 }} />
                                             <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
@@ -592,6 +762,7 @@ function PlanningPage() {
                                             onClick={() => {
                                                 setClientSearchTarget("edit");
                                                 setPendingClientName(editClientName);
+                                                setPendingClientId(editClientId);
                                                 setShowClientSearch(true);
                                             }}
                                         >
@@ -614,8 +785,21 @@ function PlanningPage() {
                                     <div className="modal-field">
                                         <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
                                         <div className="modal-select-wrapper">
-                                            <select value={editTechnician} onChange={(e) => setEditTechnician(e.target.value)} className="modal-select" required>
-                                                {technicianList.map(t => <option key={t} value={t}>{t}</option>)}
+                                            <select 
+                                                value={editTechnicianId} 
+                                                onChange={(e) => setEditTechnicianId(e.target.value)} 
+                                                className="modal-select"
+                                            >
+                                                <option value="">Non assigné</option>
+                                                {techniciansList.map(t => {
+                                                    const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                                    const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
+                                                    return (
+                                                        <option key={t.id} value={t.id}>
+                                                            {fullName}{roleLabel}
+                                                        </option>
+                                                    );
+                                                })}
                                             </select>
                                             <ChevronDown size={14} className="modal-select-arrow" />
                                         </div>
@@ -630,6 +814,118 @@ function PlanningPage() {
                                 </form>
                             </motion.div>
                         </>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {/* Custom Delete Confirmation Modal */}
+            {createPortal(
+                <AnimatePresence>
+                    {showDeleteConfirm && (
+                        <div 
+                            className="modal-backdrop" 
+                            style={{ 
+                                zIndex: 10000, 
+                                position: 'fixed', 
+                                top: 0, 
+                                left: 0, 
+                                right: 0, 
+                                bottom: 0, 
+                                backgroundColor: 'rgba(0, 0, 0, 0.55)', 
+                                backdropFilter: 'blur(4px)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '16px'
+                            }} 
+                            onClick={() => !isDeleting && setShowDeleteConfirm(false)}
+                        >
+                            <motion.div 
+                                className="delete-confirm-modal"
+                                onClick={(e) => e.stopPropagation()}
+                                initial={{ opacity: 0, scale: 0.92, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.92, y: 10 }}
+                                transition={{ type: "spring", duration: 0.25, bounce: 0.15 }}
+                                style={{
+                                    backgroundColor: '#FFFFFF',
+                                    borderRadius: '16px',
+                                    padding: '24px',
+                                    width: '100%',
+                                    maxWidth: '420px',
+                                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+                                    textAlign: 'center',
+                                    position: 'relative',
+                                    boxSizing: 'border-box'
+                                }}
+                            >
+                                <div style={{
+                                    width: '52px',
+                                    height: '52px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#FEE2E2',
+                                    color: '#DC2626',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 16px auto'
+                                }}>
+                                    <Trash2 size={26} strokeWidth={2.2} />
+                                </div>
+
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>
+                                    Supprimer l'intervention ?
+                                </h3>
+
+                                <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.45, margin: '0 0 24px 0' }}>
+                                    Êtes-vous sûr de vouloir supprimer l'intervention de <strong>{editClientName || selectedEvent?.title || "ce client"}</strong> ? Cette action est irréversible.
+                                </p>
+
+                                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDeleteConfirm(false)}
+                                        disabled={isDeleting}
+                                        style={{
+                                            flex: 1,
+                                            padding: '11px 16px',
+                                            borderRadius: '10px',
+                                            border: '1px solid #E5E7EB',
+                                            backgroundColor: '#FFFFFF',
+                                            color: '#374151',
+                                            fontSize: '0.92rem',
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.15s ease'
+                                        }}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={confirmDeleteEvent}
+                                        disabled={isDeleting}
+                                        style={{
+                                            flex: 1,
+                                            padding: '11px 16px',
+                                            borderRadius: '10px',
+                                            border: 'none',
+                                            backgroundColor: '#DC2626',
+                                            color: '#FFFFFF',
+                                            fontSize: '0.92rem',
+                                            fontWeight: 600,
+                                            cursor: isDeleting ? 'not-allowed' : 'pointer',
+                                            opacity: isDeleting ? 0.7 : 1,
+                                            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.25)',
+                                            transition: 'all 0.15s ease'
+                                        }}
+                                    >
+                                        {isDeleting ? "Suppression..." : "Supprimer"}
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
                     )}
                 </AnimatePresence>,
                 document.body
@@ -680,13 +976,27 @@ function PlanningPage() {
                             <span className="client-search-group-letter">{letter}</span>
                             <div className="client-search-group-items">
                                 {list.map(c => {
-                                    const isPending = pendingClientName === c.name;
+                                    const isPending = (pendingClientId && pendingClientId === c.id) || pendingClientName === c.name;
                                     return (
                                         <div 
-                                            key={c.name}
+                                            key={c.id || c.name}
                                             className={`client-search-item ${isPending ? 'selected' : ''}`}
                                             onClick={() => {
                                                 setPendingClientName(c.name);
+                                                setPendingClientId(c.id);
+                                            }}
+                                            onDoubleClick={() => {
+                                                if (clientSearchTarget === "add") {
+                                                    setNewClientName(c.name);
+                                                    setNewClientId(c.id);
+                                                } else {
+                                                    setEditClientName(c.name);
+                                                    setEditClientId(c.id);
+                                                }
+                                                setShowClientSearch(false);
+                                                setClientSearchQuery("");
+                                                setPendingClientName("");
+                                                setPendingClientId("");
                                             }}
                                         >
                                             <span className="client-item-name">{c.name}</span>
@@ -718,12 +1028,15 @@ function PlanningPage() {
                             onClick={() => {
                                 if (clientSearchTarget === "add") {
                                     setNewClientName(pendingClientName);
+                                    setNewClientId(pendingClientId);
                                 } else {
                                     setEditClientName(pendingClientName);
+                                    setEditClientId(pendingClientId);
                                 }
                                 setShowClientSearch(false);
                                 setClientSearchQuery("");
                                 setPendingClientName("");
+                                setPendingClientId("");
                             }}
                         >
                             Confirmer — {pendingClientName}
@@ -732,19 +1045,46 @@ function PlanningPage() {
                     <button 
                         type="button" 
                         className={`client-search-add-btn ${pendingClientName ? 'secondary' : ''}`}
-                        onClick={() => {
-                            const name = prompt("Nom du nouveau client :");
+                        onClick={async () => {
+                            const name = prompt("Nom et prénom (ou entreprise) du nouveau client :");
                             if (name && name.trim()) {
-                                clientDetails.push({ name: name.trim(), type: "Particulier" });
-                                clientDetails.sort((a, b) => a.name.localeCompare(b.name));
-                                if (clientSearchTarget === "add") {
-                                    setNewClientName(name.trim());
-                                } else {
-                                    setEditClientName(name.trim());
+                                const parts = name.trim().split(" ");
+                                const firstName = parts[0] || name.trim();
+                                const lastName = parts.slice(1).join(" ") || "Client";
+                                try {
+                                    const res = await apiFetch('/v1/clients', {
+                                        method: 'POST',
+                                        body: JSON.stringify({
+                                            firstName,
+                                            lastName,
+                                            phone: "0600000000",
+                                            address: "Adresse à renseigner",
+                                            city: "France"
+                                        })
+                                    });
+                                    const created = res.data?.client || res.client;
+                                    const newEntry = {
+                                        id: created?.id || String(Date.now()),
+                                        name: name.trim(),
+                                        type: "Particulier",
+                                        email: "",
+                                        address: "Adresse à renseigner",
+                                        rawAddress: "Adresse à renseigner",
+                                        city: "France"
+                                    };
+                                    setClientDetails(prev => [...prev, newEntry].sort((a, b) => a.name.localeCompare(b.name)));
+                                    if (clientSearchTarget === "add") {
+                                        setNewClientName(name.trim());
+                                    } else {
+                                        setEditClientName(name.trim());
+                                    }
+                                    setShowClientSearch(false);
+                                    setClientSearchQuery("");
+                                    setPendingClientName("");
+                                } catch (err) {
+                                    console.error("Create client error:", err);
+                                    alert(err.message || "Erreur lors de la création du client");
                                 }
-                                setShowClientSearch(false);
-                                setClientSearchQuery("");
-                                setPendingClientName("");
                             }
                         }}
                     >
@@ -872,7 +1212,7 @@ function PlanningPage() {
                         <EventCalendar
                             calendarRef={calendarRef}
                             events={filteredEvents}
-                            onEventChange={setEvents}
+                            onEventChange={handleCalendarEventChange}
                             onSelectSlot={handleSelectSlot}
                             onEventClick={handleEventClick}
                             typeFilter={typeFilter}

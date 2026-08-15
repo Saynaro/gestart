@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { Receipt, Palette, FileText, Check, AlertCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Receipt, Palette, FileText, Check, AlertCircle, Loader2 } from "lucide-react";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
+import { apiFetch } from "../../utils/api";
+import { getCustomization, saveCustomization } from "../../utils/documentCustomization";
 
 export default function FacturationTab({ isMobileView, triggerToast }) {
     const [invoicePrefix, setInvoicePrefix] = useState("INV");
@@ -12,17 +14,82 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
     const [defaultTvaRate, setDefaultTvaRate] = useState(20); // 0 / 5.5 / 10 / 20
     const [pdfFooterText, setPdfFooterText] = useState("KHALID SAINARO - SIRET 94408772500015 - RCS Nice - 23 RUE PAGANINI 06000 NICE");
     const [cgvText, setCgvText] = useState("Conditions Générales de Vente (CGV) : Les paiements s'effectuent à réception de facture sous 30 jours. En cas de retard de paiement, une pénalité minimale de 10% sera appliquée.");
-    const [pdfColor, setPdfColor] = useState("#5B4DDB");
+    const [pdfColor, setPdfColor] = useState(() => getCustomization().primaryColor || "#556B2F");
     const [penaltyRate, setPenaltyRate] = useState("10");
     const [noDiscountToggle, setNoDiscountToggle] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const data = await apiFetch('/v1/company/settings');
+                const s = data.data?.settings || data.settings || data;
+                if (s) {
+                    if (s.invoicePrefix) setInvoicePrefix(s.invoicePrefix);
+                    if (s.quotePrefix) setQuotePrefix(s.quotePrefix);
+                    if (s.invoiceNextNumber) setInvoiceNextNumber(s.invoiceNextNumber);
+                    if (s.quoteNextNumber) setQuoteNextNumber(s.quoteNextNumber);
+                    if (s.invoiceFooter) setPdfFooterText(s.invoiceFooter);
+                    if (s.invoiceConditions) setCgvText(s.invoiceConditions);
+                    if (s.defaultPaymentDays) setDefaultPaymentDelay(String(s.defaultPaymentDays));
+                    if (s.defaultValidDays) setDefaultQuoteValidity(String(s.defaultValidDays));
+                    if (s.defaultTvaRate !== undefined) setDefaultTvaRate(Number(s.defaultTvaRate));
+                    if (s.invoiceColor) {
+                        setPdfColor(s.invoiceColor);
+                        saveCustomization({ primaryColor: s.invoiceColor });
+                    }
+                }
+            } catch (err) {
+                console.warn("API company settings fallback:", err.message);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const year = new Date().getFullYear();
     const formattedInvoicePreview = `${invoicePrefix}-${year}-${String(invoiceNextNumber).padStart(3, '0')}`;
     const formattedQuotePreview = `${quotePrefix}-${year}-${String(quoteNextNumber).padStart(3, '0')}`;
 
-    const handleSubmit = (e) => {
+    const colorSwatches = [
+        { name: "Olive GestArt", value: "#556B2F" },
+        { name: "Bleu Océan", value: "#005371" },
+        { name: "Violet Pro", value: "#7C3AED" },
+        { name: "Bleu Royal", value: "#2563EB" },
+        { name: "Émeraude", value: "#059669" },
+        { name: "Ambre", value: "#D97706" },
+        { name: "Rouge", value: "#DC2626" },
+        { name: "Noir Élégant", value: "#1A1A1A" }
+    ];
+
+    const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-        triggerToast("Réglages de facturation et modèle PDF enregistrés !");
+        setSaving(true);
+        try {
+            // Update global document customization in localStorage and dispatch event
+            saveCustomization({ primaryColor: pdfColor });
+
+            // Persist to backend
+            await apiFetch('/v1/company/settings', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    invoicePrefix,
+                    quotePrefix,
+                    invoiceNextNumber: parseInt(invoiceNextNumber, 10) || 1,
+                    quoteNextNumber: parseInt(quoteNextNumber, 10) || 1,
+                    invoiceFooter: pdfFooterText,
+                    invoiceConditions: cgvText,
+                    invoiceColor: pdfColor,
+                    defaultTvaRate: Number(defaultTvaRate),
+                    defaultPaymentDays: parseInt(defaultPaymentDelay, 10) || 30,
+                    defaultValidDays: parseInt(defaultQuoteValidity, 10) || 30
+                })
+            });
+            triggerToast("Réglages de facturation et couleur par défaut des PDF enregistrés !");
+        } catch (err) {
+            triggerToast("Réglages enregistrés localement !");
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -108,7 +175,7 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         <select className="form-input" value={defaultQuoteValidity} onChange={(e) => setDefaultQuoteValidity(e.target.value)}>
                             <option value="15">15 jours</option>
                             <option value="30">30 jours (Conseillé HVAC)</option>
-                            <option value="60">60 jours (Grands projets)</option>
+                            <option value="60">60 jours (Grands chantiers)</option>
                         </select>
                     </div>
 
@@ -128,7 +195,7 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                         fontWeight: 700, fontSize: '13px', cursor: 'pointer'
                                     }}
                                 >
-                                    {rate}%
+                                    {rate}% {rate === 20 ? '(Normal)' : rate === 10 ? '(Rénov.)' : rate === 5.5 ? '(PAC Énergie)' : '(Exonéré)'}
                                 </button>
                             ))}
                         </div>
@@ -207,18 +274,30 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Palette size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                    Personnalisation de la Couleur Principale du PDF
+                    Couleur Principale par Défaut pour les Devis & Factures
                 </h3>
+                <p style={{ margin: '-10px 0 16px 0', fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
+                    Cette couleur sera appliquée par défaut à tous vos devis et factures PDF. Vous pourrez également la modifier individuellement pour un document spécifique depuis l'éditeur.
+                </p>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        {["#5B4DDB", "#2563EB", "#059669", "#D97706", "#DC2626", "#4F46E5"].map((col) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {colorSwatches.map((swatch) => (
                             <button
-                                key={col}
+                                key={swatch.value}
                                 type="button"
-                                onClick={() => setPdfColor(col)}
+                                title={swatch.name}
+                                onClick={() => setPdfColor(swatch.value)}
                                 style={{
-                                    width: '32px', height: '32px', borderRadius: '50%', backgroundColor: col, border: pdfColor === col ? '3px solid var(--foreground)' : 'none', cursor: 'pointer'
+                                    width: '34px',
+                                    height: '34px',
+                                    borderRadius: '50%',
+                                    backgroundColor: swatch.value,
+                                    border: pdfColor.toLowerCase() === swatch.value.toLowerCase() ? '3px solid var(--foreground)' : '2px solid transparent',
+                                    cursor: 'pointer',
+                                    transform: pdfColor.toLowerCase() === swatch.value.toLowerCase() ? 'scale(1.1)' : 'scale(1)',
+                                    transition: 'transform 0.15s',
+                                    boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
                                 }}
                             />
                         ))}
@@ -230,14 +309,20 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             className="form-input"
                             value={pdfColor}
                             onChange={(e) => setPdfColor(e.target.value)}
-                            style={{ width: '90px', fontFamily: 'monospace', fontWeight: 700, textAlign: 'center' }}
+                            style={{ width: '95px', fontFamily: 'monospace', fontWeight: 700, textAlign: 'center' }}
                         />
+                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', backgroundColor: pdfColor, border: '1px solid var(--border)' }} />
                     </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-                    <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                        Enregistrer la Facturation
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="save-profile-btn"
+                        style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                        {saving ? <><Loader2 size={16} className="spin-loader" /> Enregistrement...</> : "Enregistrer la Facturation"}
                     </button>
                 </div>
             </div>

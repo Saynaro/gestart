@@ -362,6 +362,7 @@ export default function RegisterPage() {
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(payload)
             });
 
@@ -375,6 +376,8 @@ export default function RegisterPage() {
 
             if (data.accessToken) {
                 setAuthToken(data.accessToken);
+                const { startProactiveTokenRefresh } = await import('../utils/api.js');
+                startProactiveTokenRefresh();
             }
 
             showToastNotification('Bienvenue sur ClimPro CRM ! Espace créé avec succès. 🎉', 'success');

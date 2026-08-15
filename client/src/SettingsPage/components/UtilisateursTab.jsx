@@ -1,44 +1,67 @@
 import React, { useState, useEffect } from "react";
-import { Users, UserPlus, Shield, Mail, RefreshCw, Trash2, CheckCircle2, AlertTriangle, X } from "lucide-react";
+import { Users, UserPlus, Shield, Mail, RefreshCw, Trash2, CheckCircle2, AlertTriangle, X, Loader2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function UtilisateursTab({ isMobileView, triggerToast, triggerConfirm }) {
-    const [members, setMembers] = useState([
-        { id: 1, name: "Khalid Sainaro", email: "khalid.cizdoev777@gmail.com", role: "OWNER", lastActive: "Maintenant", status: "Actif", isSelf: true }
-    ]);
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const data = await apiFetch('/v1/users');
-                const userList = data.data?.users || data.users || (Array.isArray(data) ? data : []);
-                if (userList.length > 0) {
-                    const mappedMembers = userList.map(u => ({
-                        id: u.id,
-                        name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
-                        email: u.email,
-                        role: u.role || "TECHNICIAN",
-                        lastActive: u.updatedAt ? new Date(u.updatedAt).toLocaleDateString('fr-FR') : "Récent",
-                        status: u.isActive !== false ? "Actif" : "Désactivé",
-                        isSelf: u.email === "khalid.cizdoev777@gmail.com"
-                    }));
-                    setMembers(mappedMembers);
-                }
-            } catch (err) {
-                console.warn("API users non disponible:", err.message);
-            }
-        };
-
-        fetchUsers();
-    }, []);
+    const { isStarter, isPro, isUnlimited, planName } = useSubscription();
+    const [members, setMembers] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const [invitations, setInvitations] = useState([]);
-
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [newInviteEmail, setNewInviteEmail] = useState("");
     const [newInviteRole, setNewInviteRole] = useState("TECHNICIAN");
 
-    const maxUsers = 2; // Plan Pro limit
+    const maxUsers = isStarter ? 1 : isPro ? 10 : 9999;
+
+    const fetchUsers = async () => {
+        setLoading(true);
+        try {
+            const [usersRes, meRes] = await Promise.all([
+                apiFetch('/v1/users').catch(() => null),
+                apiFetch('/v1/auth/me').catch(() => null)
+            ]);
+
+            const me = meRes?.data?.user || meRes?.user;
+            if (me) {
+                setCurrentUserId(me.id);
+            }
+
+            const userList = usersRes?.data?.users || usersRes?.users || (Array.isArray(usersRes) ? usersRes : []);
+            if (userList.length > 0) {
+                const mappedMembers = userList.map(u => ({
+                    id: u.id,
+                    name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+                    email: u.email,
+                    role: u.role || "TECHNICIAN",
+                    lastActive: u.updatedAt ? new Date(u.updatedAt).toLocaleDateString('fr-FR') : "Récent",
+                    status: u.isActive !== false ? "Actif" : "Désactivé",
+                    isSelf: u.id === me?.id || u.email === me?.email
+                }));
+                setMembers(mappedMembers);
+            } else if (me) {
+                setMembers([{
+                    id: me.id,
+                    name: `${me.firstName || ''} ${me.lastName || ''}`.trim() || me.email,
+                    email: me.email,
+                    role: me.role || "OWNER",
+                    lastActive: "Maintenant",
+                    status: "Actif",
+                    isSelf: true
+                }]);
+            }
+        } catch (err) {
+            console.warn("API users non disponible:", err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
     const handleInviteSubmit = (e) => {
         e.preventDefault();
@@ -46,16 +69,24 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
             triggerToast("Veuillez saisir une adresse email", true);
             return;
         }
-        if (members.length + invitations.length >= maxUsers) {
-            triggerToast(`Limite de votre plan atteinte (${maxUsers}/${maxUsers}). Passez au plan Unlimited pour ajouter d'autres membres.`, true);
+
+        if (isStarter) {
+            triggerToast("L'offre Starter inclut 1 seul membre (le patron). Passez à l'offre Pro pour inviter des techniciens !", true);
             setShowInviteModal(false);
             return;
         }
+
+        if (members.length + invitations.length >= maxUsers) {
+            triggerToast(`Limite de votre offre atteinte (${maxUsers} membres). Passez à l'offre Unlimited pour ajouter des membres illimités.`, true);
+            setShowInviteModal(false);
+            return;
+        }
+
         const newInv = {
             id: Date.now(),
             email: newInviteEmail,
             role: newInviteRole,
-            expiresAt: "31/07/2026",
+            expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toLocaleDateString('fr-FR'),
             status: "En attente"
         };
         setInvitations(prev => [...prev, newInv]);
@@ -64,9 +95,18 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
         triggerToast(`Invitation envoyée à ${newInviteEmail} !`);
     };
 
-    const handleRoleChange = (id, newRole) => {
-        setMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
-        triggerToast("Rôle du membre mis à jour !");
+    const handleRoleChange = async (id, newRole) => {
+        try {
+            await apiFetch(`/v1/users/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ role: newRole })
+            }).catch(() => null);
+
+            setMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
+            triggerToast("Rôle du membre mis à jour !");
+        } catch (err) {
+            triggerToast(err.message || "Erreur lors de la modification du rôle", true);
+        }
     };
 
     const handleToggleStatus = (id) => {
@@ -80,10 +120,6 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
         }));
     };
 
-    const handleResendInvite = (email) => {
-        triggerToast(`Invitation ré-envoyée à ${email} !`);
-    };
-
     const handleRevokeInvite = (id) => {
         setInvitations(prev => prev.filter(inv => inv.id !== id));
         triggerToast("Invitation révoquée !");
@@ -91,255 +127,192 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Header & Limite Plan */}
-            <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                <div>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Users size={20} style={{ color: 'var(--sidebar-primary)' }} />
-                        Membres de l'équipe
-                    </h3>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
-                        Limite de votre formule Pro : <strong>{members.length}/{maxUsers} utilisateurs actifs</strong>
-                    </p>
+            {/* Header & Capacité Équipe */}
+            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>Membres & Rôles de l'Entreprise</h3>
+                            <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '50px' }}>
+                                {members.length} / {isUnlimited ? "Illimité" : `${maxUsers} membres max (${planName})`}
+                            </span>
+                        </div>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
+                            Gérez les accès de vos techniciens et collaborateurs à votre espace de gestion.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => setShowInviteModal(true)}
+                        style={{ padding: '9px 16px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                        <UserPlus size={15} />
+                        Inviter un collaborateur
+                    </button>
                 </div>
-                <button
-                    type="button"
-                    onClick={() => setShowInviteModal(true)}
-                    style={{ padding: '9px 16px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                    <UserPlus size={15} />
-                    Inviter un membre
-                </button>
             </div>
 
-            {/* Warning if limit reached */}
-            {members.length >= maxUsers && (
-                <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '10px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px' }}>
-                    <AlertTriangle size={18} style={{ color: '#f59e0b', flexShrink: 0 }} />
-                    <span>Vous avez atteint la limite de votre plan Pro ({maxUsers}/{maxUsers} membres). Pour ajouter plus de techniciens, passez à l'offre <strong>Unlimited</strong>.</span>
-                </div>
-            )}
-
-            {/* Liste des membres actifs */}
+            {/* Liste des Membres Actifs */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h4 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700 }}>Membres actifs</h4>
-                {isMobileView ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {members.map((m) => (
-                            <div key={m.id} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--foreground)' }}>{m.name}</div>
-                                        <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>{m.email}</div>
-                                    </div>
-                                    <span style={{ backgroundColor: m.status === 'Actif' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: m.status === 'Actif' ? '#22c55e' : '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                        {m.status}
-                                    </span>
+                <h4 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Users size={16} style={{ color: 'var(--sidebar-primary)' }} />
+                    Membres Actifs ({members.length})
+                </h4>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {members.map((member) => (
+                        <div
+                            key={member.id}
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '12px 16px',
+                                border: '1px solid var(--border)',
+                                borderRadius: '10px',
+                                backgroundColor: 'var(--background)',
+                                flexWrap: 'wrap',
+                                gap: '10px'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                    width: '38px',
+                                    height: '38px',
+                                    borderRadius: '50%',
+                                    backgroundColor: member.role === 'OWNER' ? 'var(--sidebar-primary)' : 'rgba(91,77,219,0.15)',
+                                    color: member.role === 'OWNER' ? '#fff' : 'var(--sidebar-primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 800,
+                                    fontSize: '13px'
+                                }}>
+                                    {member.name.charAt(0).toUpperCase()}
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
-                                    <div>
-                                        {m.isSelf ? (
-                                            <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontWeight: 700, fontSize: '10px', padding: '2px 6px', borderRadius: '50px' }}>
-                                                PROPRIÉTAIRE
-                                            </span>
-                                        ) : (
-                                            <select
-                                                className="form-input"
-                                                value={m.role}
-                                                onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                                                style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600 }}
-                                            >
-                                                <option value="TECHNICIAN">TECHNICIAN</option>
-                                                <option value="MANAGER">MANAGER</option>
-                                            </select>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span style={{ fontWeight: 700, fontSize: '13.5px' }}>{member.name}</span>
+                                        {member.isSelf && (
+                                            <span style={{ backgroundColor: 'rgba(0,0,0,0.06)', fontSize: '10.5px', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>Vous</span>
                                         )}
                                     </div>
-                                    {!m.isSelf && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                if (m.status === 'Actif' && triggerConfirm) {
-                                                    triggerConfirm({
-                                                        title: "Désactiver le membre",
-                                                        message: `Êtes-vous sûr de vouloir désactiver l'accès pour ${m.name} (${m.email}) ?`,
-                                                        confirmText: "Désactiver",
-                                                        cancelText: "Annuler",
-                                                        onConfirm: () => handleToggleStatus(m.id)
-                                                    });
-                                                } else {
-                                                    handleToggleStatus(m.id);
-                                                }
-                                            }}
-                                            style={{ background: 'none', border: 'none', color: m.status === 'Actif' ? '#ef4444' : '#22c55e', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
-                                        >
-                                            {m.status === 'Actif' ? "Désactiver" : "Réactiver"}
-                                        </button>
-                                    )}
+                                    <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>{member.email}</span>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <select
+                                    value={member.role}
+                                    onChange={(e) => handleRoleChange(member.id, e.target.value)}
+                                    disabled={member.isSelf}
+                                    style={{
+                                        padding: '6px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid var(--border)',
+                                        backgroundColor: 'var(--card)',
+                                        color: 'var(--foreground)',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        cursor: member.isSelf ? 'default' : 'pointer'
+                                    }}
+                                >
+                                    <option value="OWNER">Dirigeant / Admin</option>
+                                    <option value="MANAGER">Gestionnaire / Secrétariat</option>
+                                    <option value="TECHNICIAN">Technicien terrain</option>
+                                </select>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Invitations en attente */}
+            {invitations.length > 0 && (
+                <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
+                    <h4 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Mail size={16} style={{ color: '#f59e0b' }} />
+                        Invitations en attente ({invitations.length})
+                    </h4>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {invitations.map((inv) => (
+                            <div
+                                key={inv.id}
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    padding: '12px 16px',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '10px',
+                                    backgroundColor: 'var(--background)'
+                                }}
+                            >
+                                <div>
+                                    <span style={{ fontWeight: 700, fontSize: '13.5px', display: 'block' }}>{inv.email}</span>
+                                    <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>Rôle : {inv.role} • Expire le : {inv.expiresAt}</span>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRevokeInvite(inv.id)}
+                                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(239,68,68,0.2)', backgroundColor: 'rgba(239,68,68,0.05)', color: '#ef4444', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                        Révoquer
+                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                    <th style={{ padding: '8px' }}>Nom & Email</th>
-                                    <th style={{ padding: '8px' }}>Rôle</th>
-                                    <th style={{ padding: '8px' }}>Dernière connexion</th>
-                                    <th style={{ padding: '8px' }}>Statut</th>
-                                    <th style={{ padding: '8px', textAlign: 'right' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {members.map((m) => (
-                                    <tr key={m.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            <div style={{ fontWeight: 600 }}>{m.name}</div>
-                                            <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>{m.email}</div>
-                                        </td>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            {m.isSelf ? (
-                                                <span style={{ backgroundColor: 'rgba(91, 77, 219, 0.1)', color: 'var(--sidebar-primary)', fontWeight: 700, fontSize: '11px', padding: '3px 8px', borderRadius: '50px' }}>
-                                                    PROPRIÉTAIRE (OWNER)
-                                                </span>
-                                            ) : (
-                                                <select
-                                                    className="form-input"
-                                                    value={m.role}
-                                                    onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                                                    style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600 }}
-                                                >
-                                                    <option value="TECHNICIAN">TECHNICIAN (Technicien)</option>
-                                                    <option value="MANAGER">MANAGER (Gestionnaire)</option>
-                                                </select>
-                                            )}
-                                        </td>
-                                        <td style={{ padding: '10px 8px' }}>{m.lastActive}</td>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            <span style={{ backgroundColor: m.status === 'Actif' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: m.status === 'Actif' ? '#22c55e' : '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                                {m.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                            {!m.isSelf && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        if (m.status === 'Actif' && triggerConfirm) {
-                                                            triggerConfirm({
-                                                                title: "Désactiver le membre",
-                                                                message: `Êtes-vous sûr de vouloir désactiver l'accès pour ${m.name} (${m.email}) ?`,
-                                                                confirmText: "Désactiver",
-                                                                cancelText: "Annuler",
-                                                                onConfirm: () => handleToggleStatus(m.id)
-                                                            });
-                                                        } else {
-                                                            handleToggleStatus(m.id);
-                                                        }
-                                                    }}
-                                                    style={{ background: 'none', border: 'none', color: m.status === 'Actif' ? '#ef4444' : '#22c55e', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
-                                                >
-                                                    {m.status === 'Actif' ? "Désactiver" : "Réactiver"}
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
-
-            {/* Liste des invitations en attente */}
-            {invitations.length > 0 && (
-                <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                    <h4 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700 }}>Invitations en attente ({invitations.length})</h4>
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                    <th style={{ padding: '8px' }}>Email</th>
-                                    <th style={{ padding: '8px' }}>Rôle invité</th>
-                                    <th style={{ padding: '8px' }}>Expire le</th>
-                                    <th style={{ padding: '8px', textAlign: 'right' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {invitations.map((inv) => (
-                                    <tr key={inv.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{inv.email}</td>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            <span style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: 'var(--foreground)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
-                                                {inv.role}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '10px 8px' }}>{inv.expiresAt}</td>
-                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleResendInvite(inv.email)}
-                                                style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '12px', marginRight: '12px' }}
-                                            >
-                                                Renvoyer
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRevokeInvite(inv.id)}
-                                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
-                                            >
-                                                Révoquer
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             )}
 
-            {/* Modal d'invitation d'un nouveau membre */}
+            {/* Modal Inviter */}
             {showInviteModal && (
                 <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-                    <form onSubmit={handleInviteSubmit} style={{ backgroundColor: 'var(--card)', borderRadius: '14px', padding: '24px', maxWidth: '420px', width: '100%', border: '1px solid var(--border)' }}>
+                    <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', padding: '24px', maxWidth: '420px', width: '100%', border: '1px solid var(--border)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 700 }}>Inviter un membre à l'équipe</h4>
-                            <button type="button" onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
+                            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>Inviter un collaborateur</h4>
+                            <button type="button" onClick={() => setShowInviteModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--muted-foreground)' }}>
+                                <X size={18} />
+                            </button>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                            <div className="form-field">
-                                <label className="form-label">Adresse email du collaborateur</label>
+                        <form onSubmit={handleInviteSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <div>
+                                <label className="form-label">Adresse email professionnelle</label>
                                 <input
                                     type="email"
                                     className="form-input"
                                     value={newInviteEmail}
                                     onChange={(e) => setNewInviteEmail(e.target.value)}
-                                    placeholder="technicien@dupont-clim.fr"
+                                    placeholder="technicien@climpro.fr"
+                                    autoFocus
                                     required
                                 />
                             </div>
 
-                            <div className="form-field">
+                            <div>
                                 <label className="form-label">Rôle attribué</label>
-                                <select
-                                    className="form-input"
-                                    value={newInviteRole}
-                                    onChange={(e) => setNewInviteRole(e.target.value)}
-                                >
-                                    <option value="TECHNICIAN">TECHNICIAN (Accès interventions & planning)</option>
-                                    <option value="MANAGER">MANAGER (Accès clients & facturation)</option>
+                                <select className="form-input" value={newInviteRole} onChange={(e) => setNewInviteRole(e.target.value)}>
+                                    <option value="TECHNICIAN">Technicien terrain (Planning & Interventions)</option>
+                                    <option value="MANAGER">Gestionnaire (Clients, Devis, Factures)</option>
                                 </select>
                             </div>
-                        </div>
 
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
-                            <button type="button" onClick={() => setShowInviteModal(false)} style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', fontWeight: 600 }}>Annuler</button>
-                            <button type="submit" style={{ padding: '9px 16px', borderRadius: '8px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600 }}>Envoyer l'invitation</button>
-                        </div>
-                    </form>
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
+                                <button type="button" onClick={() => setShowInviteModal(false)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'transparent', fontWeight: 600, fontSize: '13px' }}>
+                                    Annuler
+                                </button>
+                                <button type="submit" style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--sidebar-primary)', color: '#fff', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+                                    Envoyer l'invitation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

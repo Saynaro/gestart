@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
+import { useUser } from "../../utils/useUser";
 
 function getStatusLabel(status) {
     switch (status) {
@@ -34,6 +35,7 @@ function QuoteDetailDrawer({
     onUpdateQuoteCustomization,
     overlayStyle
 }) {
+    const { company } = useUser();
     const [showDotsMenu, setShowDotsMenu] = useState(false);
     const [showStatusPicker, setShowStatusPicker] = useState(false);
     const [showCustomizer, setShowCustomizer] = useState(false);
@@ -80,6 +82,13 @@ function QuoteDetailDrawer({
         };
     }, [showStatusPicker]);
 
+    const companyDisplayName = company?.name || quote.company?.name || "Mon Entreprise";
+    const companyDisplayAddress = company?.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "Adresse non renseignée";
+    const companyDisplaySiret = company?.siret || "Non renseigné";
+    const companyDisplayPhone = company?.phone || "Non renseigné";
+    const companyDisplayEmail = company?.email || "contact@entreprise.fr";
+    const companyLogo = docCustomization.logoUrl || company?.logoUrl;
+
     // ── Live mini PDF preview (same style as NewQuoteModal) ──
     const renderPreview = () => (
         <div className="live-preview-a4-wrapper">
@@ -99,58 +108,84 @@ function QuoteDetailDrawer({
                 <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
                     <div className="pdf-header-left" style={{ flex: 1 }}>
                         {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
-                            <div
-                                className="pdf-logo-stub"
-                                style={{
-                                    fontSize: '11pt',
-                                    padding: '4pt 8pt',
-                                    height: `${docCustomization.logoSize || 45}px`,
-                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                    color: '#FFF',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: '700',
-                                    borderRadius: '4px',
-                                    marginBottom: '6pt'
-                                }}
-                            >
-                                <span>CLIMPRO</span>
-                            </div>
+                            companyLogo ? (
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo"
+                                    style={{
+                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                        objectFit: 'contain',
+                                        marginBottom: '6pt'
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    className="pdf-logo-stub"
+                                    style={{
+                                        fontSize: '1.1em',
+                                        padding: '4px 8px',
+                                        height: `${docCustomization.logoSize || 45}px`,
+                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                        color: '#FFF',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: '700',
+                                        borderRadius: '4px',
+                                        marginBottom: '6pt'
+                                    }}
+                                >
+                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                </div>
+                            )
                         )}
-                        <h3 className="company-name" style={{ fontSize: '10pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>Dupont Climatisation</h3>
-                        <p className="company-details" style={{ fontSize: '8pt', lineHeight: 1.3, margin: '2pt 0 0 0' }}>
-                            {docCustomization.showAddress && <span>88 Rue de l'Aviation, 75015 Paris<br /></span>}
-                            {docCustomization.showSiret && <span>SIRET : 849 203 103 00021<br /></span>}
-                            {docCustomization.showPhone && <span>Tél : 06 51 60 43 16<br /></span>}
-                            {docCustomization.showEmail && <span>Email : contact@climpro.fr</span>}
+                        <h3 className="company-name" style={{ fontSize: '1.1em', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>{companyDisplayName}</h3>
+                        <p className="company-details" style={{ fontSize: '0.88em', lineHeight: 1.3, margin: '4px 0 0 0' }}>
+                            {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                            {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
+                            {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                            {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
                         </p>
                     </div>
                     <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
                         {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
-                            <div
-                                className="pdf-logo-stub"
-                                style={{
-                                    fontSize: '11pt',
-                                    padding: '4pt 8pt',
-                                    height: `${docCustomization.logoSize || 45}px`,
-                                    minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                    backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                    color: '#FFF',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: '700',
-                                    borderRadius: '4px',
-                                    marginBottom: '6pt'
-                                }}
-                            >
-                                <span>CLIMPRO</span>
-                            </div>
+                            companyLogo ? (
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo"
+                                    style={{
+                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                        objectFit: 'contain',
+                                        marginBottom: '6pt'
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    className="pdf-logo-stub"
+                                    style={{
+                                        fontSize: '1.1em',
+                                        padding: '4px 8px',
+                                        height: `${docCustomization.logoSize || 45}px`,
+                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                        color: '#FFF',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: '700',
+                                        borderRadius: '4px',
+                                        marginBottom: '6pt'
+                                    }}
+                                >
+                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                </div>
+                            )
                         )}
-                        <h1 className="doc-type-label" style={{ fontSize: '18pt', marginBottom: '4pt', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
-                        <table className="doc-meta-table" style={{ fontSize: '8pt' }}>
+                        <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
+                        <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
                             <tbody>
                                 <tr>
                                     <td><strong>Numéro :</strong></td>
@@ -168,16 +203,16 @@ function QuoteDetailDrawer({
                 <div
                     className="pdf-billing-section"
                     style={{
-                        margin: '10pt 0',
-                        padding: '8pt 10pt',
+                        margin: '12px 0',
+                        padding: '8px 12px',
                         backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
                         borderRadius: '6px'
                     }}
                 >
                     <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.6 }}>DEVIS POUR :</span>
-                        <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: '2pt 0' }}>{quote.clientName}</h4>
-                        <p className="client-details" style={{ fontSize: '8.5pt', opacity: 0.85, margin: 0 }}>
+                        <span className="section-label" style={{ fontSize: '0.8em', fontWeight: 700, opacity: 0.6 }}>DEVIS POUR :</span>
+                        <h4 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: '2px 0' }}>{quote.clientName}</h4>
+                        <p className="client-details" style={{ fontSize: '0.95em', opacity: 0.85, margin: 0 }}>
                             {quote.clientAddress || ''}<br />
                             {quote.clientEmail || ''}
                         </p>
@@ -185,21 +220,21 @@ function QuoteDetailDrawer({
                 </div>
 
                 {quote.interventionType && (
-                    <div className="pdf-intervention-info" style={{ padding: '6pt 8pt', marginBottom: '10pt', fontSize: '8.5pt' }}>
+                    <div className="pdf-intervention-info" style={{ padding: '6px 10px', marginBottom: '12px', fontSize: '0.95em' }}>
                         <span>Objet : <strong>{quote.interventionType}</strong></span>
                         {quote.workDetails && (
-                            <p className="work-details" style={{ fontSize: '8pt', marginTop: '4pt', paddingTop: '4pt' }}>{quote.workDetails}</p>
+                            <p className="work-details" style={{ fontSize: '0.9em', marginTop: '4px', paddingTop: '4px' }}>{quote.workDetails}</p>
                         )}
                     </div>
                 )}
 
-                <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
+                <table className="pdf-items-table" style={{ fontSize: '0.95em', marginBottom: '15px' }}>
                     <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
                         <tr>
-                            <th style={{ textAlign: 'left', padding: '6pt 8pt' }}>Description</th>
-                            <th className="text-center" style={{ width: '40px', padding: '6pt', whiteSpace: 'nowrap' }}>Qté</th>
-                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Unit. HT</th>
-                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Total HT</th>
+                            <th style={{ textAlign: 'left', padding: '6px 8px' }}>Description</th>
+                            <th className="text-center" style={{ width: '40px', padding: '6px', whiteSpace: 'nowrap' }}>Qté</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6px 8px', whiteSpace: 'nowrap' }}>Unit. HT</th>
+                            <th className="text-right" style={{ minWidth: '75px', padding: '6px 8px', whiteSpace: 'nowrap' }}>Total HT</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -214,29 +249,28 @@ function QuoteDetailDrawer({
                     </tbody>
                 </table>
 
-                <div className="pdf-summary-block" style={{ marginBottom: '15pt' }}>
-                    <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: 'auto', minWidth: '180pt' }}>
+                <div className="pdf-summary-block" style={{ marginBottom: '15px' }}>
+                    <table className="pdf-summary-table" style={{ fontSize: '0.95em', width: 'auto', minWidth: '180pt' }}>
                         <tbody>
                             <tr>
-                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>Sous-total HT :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{(quote.subtotalHt || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>Sous-total HT :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(quote.subtotalHt || 0).toLocaleString('fr-FR')} €</td>
                             </tr>
                             <tr>
-                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>TVA ({quote.tvaRate || 20}%) :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{(quote.tvaAmount || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>TVA ({quote.tvaRate || 20}%) :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(quote.tvaAmount || 0).toLocaleString('fr-FR')} €</td>
                             </tr>
                             <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
-                                <td style={{ whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>TOTAL TTC :</strong></td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>{(quote.totalTtc || 0).toLocaleString('fr-FR')} €</strong></td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>TOTAL TTC :</strong></td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{(quote.totalTtc || 0).toLocaleString('fr-FR')} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 {docCustomization.showPaymentConditions && (
-                    <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
-                        <div><strong>Validité du devis :</strong> 30 jours</div>
-                        {docCustomization.showIban && <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>}
+                    <div className="pdf-footer-section" style={{ fontSize: '0.85em', paddingTop: '10px', borderTop: '1px solid #E0E0E0', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div><strong>Validité du devis :</strong> 30 jours (Date d'expiration : {new Date(new Date(quote.date).setDate(new Date(quote.date).getDate() + 30)).toLocaleDateString('fr-FR')})</div>
                         {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
                     </div>
                 )}

@@ -194,3 +194,22 @@ export const handleTwilioWebhook = async (req, res) => {
         return res.status(500).send("<Response><Message>Erreur serveur</Message></Response>");
     }
 };
+
+////// B2BROUTER E-INVOICING WEBHOOK HANDLER //////
+export const handleB2brouterWebhook = async (req, res) => {
+    try {
+        const { B2brouterWebhookHandler } = await import("../modules/e-invoicing/providers/b2brouter/B2brouterWebhookHandler.js");
+        
+        const payload = req.body;
+        const headers = req.headers;
+        
+        console.log(`[B2BROUTER WEBHOOK] Received event: ${payload?.event || payload?.type || 'unknown'}`);
+        
+        const result = await B2brouterWebhookHandler.handleWebhook(payload, headers);
+        return res.status(200).json({ success: true, ...result });
+    } catch (error) {
+        console.error("B2BROUTER WEBHOOK ERROR:", error.message);
+        return res.status(500).json({ success: false, error: error.message });
+    }
+};
+

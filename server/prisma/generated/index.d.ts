@@ -54,6 +54,16 @@ export type CompanySettings = $Result.DefaultSelection<Prisma.$CompanySettingsPa
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model UserSession
+ * 
+ */
+export type UserSession = $Result.DefaultSelection<Prisma.$UserSessionPayload>
+/**
+ * Model LoginHistory
+ * 
+ */
+export type LoginHistory = $Result.DefaultSelection<Prisma.$LoginHistoryPayload>
+/**
  * Model PushToken
  * 
  */
@@ -173,6 +183,26 @@ export type AdminSession = $Result.DefaultSelection<Prisma.$AdminSessionPayload>
  * 
  */
 export type AdminAuditLog = $Result.DefaultSelection<Prisma.$AdminAuditLogPayload>
+/**
+ * Model EInvoicingConnection
+ * 
+ */
+export type EInvoicingConnection = $Result.DefaultSelection<Prisma.$EInvoicingConnectionPayload>
+/**
+ * Model ReceivedInvoice
+ * 
+ */
+export type ReceivedInvoice = $Result.DefaultSelection<Prisma.$ReceivedInvoicePayload>
+/**
+ * Model EInvoicingEvent
+ * 
+ */
+export type EInvoicingEvent = $Result.DefaultSelection<Prisma.$EInvoicingEventPayload>
+/**
+ * Model EInvoicingJob
+ * 
+ */
+export type EInvoicingJob = $Result.DefaultSelection<Prisma.$EInvoicingJobPayload>
 
 /**
  * Enums
@@ -399,6 +429,63 @@ export const TvaRate: {
 
 export type TvaRate = (typeof TvaRate)[keyof typeof TvaRate]
 
+
+export const EInvoicingProviderType: {
+  B2BROUTER: 'B2BROUTER',
+  PENNYLANE: 'PENNYLANE',
+  SAGE: 'SAGE',
+  OTHER: 'OTHER'
+};
+
+export type EInvoicingProviderType = (typeof EInvoicingProviderType)[keyof typeof EInvoicingProviderType]
+
+
+export const EInvoicingConnectionStatus: {
+  DISCONNECTED: 'DISCONNECTED',
+  CONNECTED: 'CONNECTED',
+  ERROR: 'ERROR'
+};
+
+export type EInvoicingConnectionStatus = (typeof EInvoicingConnectionStatus)[keyof typeof EInvoicingConnectionStatus]
+
+
+export const EInvoicingStatus: {
+  DRAFT: 'DRAFT',
+  PROCESSING: 'PROCESSING',
+  SENT: 'SENT',
+  RECEIVED: 'RECEIVED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED',
+  PAID: 'PAID',
+  ERROR: 'ERROR'
+};
+
+export type EInvoicingStatus = (typeof EInvoicingStatus)[keyof typeof EInvoicingStatus]
+
+
+export const EInvoicingJobStatus: {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+export type EInvoicingJobStatus = (typeof EInvoicingJobStatus)[keyof typeof EInvoicingJobStatus]
+
+
+export const EInvoicingJobType: {
+  CREATE_E_INVOICE: 'CREATE_E_INVOICE',
+  SEND_E_INVOICE: 'SEND_E_INVOICE',
+  SYNC_E_INVOICE: 'SYNC_E_INVOICE',
+  PROCESS_WEBHOOK: 'PROCESS_WEBHOOK',
+  DOWNLOAD_RECEIVED_INVOICE: 'DOWNLOAD_RECEIVED_INVOICE',
+  SEND_PAYMENT_STATUS: 'SEND_PAYMENT_STATUS',
+  RECONCILIATION: 'RECONCILIATION'
+};
+
+export type EInvoicingJobType = (typeof EInvoicingJobType)[keyof typeof EInvoicingJobType]
+
 }
 
 export type PlanName = $Enums.PlanName
@@ -484,6 +571,26 @@ export const SystemRole: typeof $Enums.SystemRole
 export type TvaRate = $Enums.TvaRate
 
 export const TvaRate: typeof $Enums.TvaRate
+
+export type EInvoicingProviderType = $Enums.EInvoicingProviderType
+
+export const EInvoicingProviderType: typeof $Enums.EInvoicingProviderType
+
+export type EInvoicingConnectionStatus = $Enums.EInvoicingConnectionStatus
+
+export const EInvoicingConnectionStatus: typeof $Enums.EInvoicingConnectionStatus
+
+export type EInvoicingStatus = $Enums.EInvoicingStatus
+
+export const EInvoicingStatus: typeof $Enums.EInvoicingStatus
+
+export type EInvoicingJobStatus = $Enums.EInvoicingJobStatus
+
+export const EInvoicingJobStatus: typeof $Enums.EInvoicingJobStatus
+
+export type EInvoicingJobType = $Enums.EInvoicingJobType
+
+export const EInvoicingJobType: typeof $Enums.EInvoicingJobType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -685,6 +792,26 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userSession`: Exposes CRUD operations for the **UserSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserSessions
+    * const userSessions = await prisma.userSession.findMany()
+    * ```
+    */
+  get userSession(): Prisma.UserSessionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.loginHistory`: Exposes CRUD operations for the **LoginHistory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LoginHistories
+    * const loginHistories = await prisma.loginHistory.findMany()
+    * ```
+    */
+  get loginHistory(): Prisma.LoginHistoryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.pushToken`: Exposes CRUD operations for the **PushToken** model.
@@ -925,6 +1052,46 @@ export class PrismaClient<
     * ```
     */
   get adminAuditLog(): Prisma.AdminAuditLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eInvoicingConnection`: Exposes CRUD operations for the **EInvoicingConnection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EInvoicingConnections
+    * const eInvoicingConnections = await prisma.eInvoicingConnection.findMany()
+    * ```
+    */
+  get eInvoicingConnection(): Prisma.EInvoicingConnectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.receivedInvoice`: Exposes CRUD operations for the **ReceivedInvoice** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReceivedInvoices
+    * const receivedInvoices = await prisma.receivedInvoice.findMany()
+    * ```
+    */
+  get receivedInvoice(): Prisma.ReceivedInvoiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eInvoicingEvent`: Exposes CRUD operations for the **EInvoicingEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EInvoicingEvents
+    * const eInvoicingEvents = await prisma.eInvoicingEvent.findMany()
+    * ```
+    */
+  get eInvoicingEvent(): Prisma.EInvoicingEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eInvoicingJob`: Exposes CRUD operations for the **EInvoicingJob** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EInvoicingJobs
+    * const eInvoicingJobs = await prisma.eInvoicingJob.findMany()
+    * ```
+    */
+  get eInvoicingJob(): Prisma.EInvoicingJobDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1367,6 +1534,8 @@ export namespace Prisma {
     Payment: 'Payment',
     CompanySettings: 'CompanySettings',
     User: 'User',
+    UserSession: 'UserSession',
+    LoginHistory: 'LoginHistory',
     PushToken: 'PushToken',
     Invitation: 'Invitation',
     CatalogItem: 'CatalogItem',
@@ -1390,7 +1559,11 @@ export namespace Prisma {
     AuditLog: 'AuditLog',
     AdminUser: 'AdminUser',
     AdminSession: 'AdminSession',
-    AdminAuditLog: 'AdminAuditLog'
+    AdminAuditLog: 'AdminAuditLog',
+    EInvoicingConnection: 'EInvoicingConnection',
+    ReceivedInvoice: 'ReceivedInvoice',
+    EInvoicingEvent: 'EInvoicingEvent',
+    EInvoicingJob: 'EInvoicingJob'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1406,7 +1579,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog"
+      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1999,6 +2172,154 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserSession: {
+        payload: Prisma.$UserSessionPayload<ExtArgs>
+        fields: Prisma.UserSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.UserSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          findMany: {
+            args: Prisma.UserSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>[]
+          }
+          create: {
+            args: Prisma.UserSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          createMany: {
+            args: Prisma.UserSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.UserSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          update: {
+            args: Prisma.UserSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserSessionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.UserSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserSession>
+          }
+          groupBy: {
+            args: Prisma.UserSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<UserSessionCountAggregateOutputType> | number
+          }
+        }
+      }
+      LoginHistory: {
+        payload: Prisma.$LoginHistoryPayload<ExtArgs>
+        fields: Prisma.LoginHistoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LoginHistoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LoginHistoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>
+          }
+          findFirst: {
+            args: Prisma.LoginHistoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LoginHistoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>
+          }
+          findMany: {
+            args: Prisma.LoginHistoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>[]
+          }
+          create: {
+            args: Prisma.LoginHistoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>
+          }
+          createMany: {
+            args: Prisma.LoginHistoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LoginHistoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>[]
+          }
+          delete: {
+            args: Prisma.LoginHistoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>
+          }
+          update: {
+            args: Prisma.LoginHistoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.LoginHistoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LoginHistoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LoginHistoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.LoginHistoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginHistoryPayload>
+          }
+          aggregate: {
+            args: Prisma.LoginHistoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLoginHistory>
+          }
+          groupBy: {
+            args: Prisma.LoginHistoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LoginHistoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LoginHistoryCountArgs<ExtArgs>
+            result: $Utils.Optional<LoginHistoryCountAggregateOutputType> | number
           }
         }
       }
@@ -3778,6 +4099,302 @@ export namespace Prisma {
           }
         }
       }
+      EInvoicingConnection: {
+        payload: Prisma.$EInvoicingConnectionPayload<ExtArgs>
+        fields: Prisma.EInvoicingConnectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EInvoicingConnectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EInvoicingConnectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>
+          }
+          findFirst: {
+            args: Prisma.EInvoicingConnectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EInvoicingConnectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>
+          }
+          findMany: {
+            args: Prisma.EInvoicingConnectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>[]
+          }
+          create: {
+            args: Prisma.EInvoicingConnectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>
+          }
+          createMany: {
+            args: Prisma.EInvoicingConnectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EInvoicingConnectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>[]
+          }
+          delete: {
+            args: Prisma.EInvoicingConnectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>
+          }
+          update: {
+            args: Prisma.EInvoicingConnectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.EInvoicingConnectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EInvoicingConnectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EInvoicingConnectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.EInvoicingConnectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingConnectionPayload>
+          }
+          aggregate: {
+            args: Prisma.EInvoicingConnectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEInvoicingConnection>
+          }
+          groupBy: {
+            args: Prisma.EInvoicingConnectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EInvoicingConnectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EInvoicingConnectionCountArgs<ExtArgs>
+            result: $Utils.Optional<EInvoicingConnectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      ReceivedInvoice: {
+        payload: Prisma.$ReceivedInvoicePayload<ExtArgs>
+        fields: Prisma.ReceivedInvoiceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReceivedInvoiceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReceivedInvoiceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>
+          }
+          findFirst: {
+            args: Prisma.ReceivedInvoiceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReceivedInvoiceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>
+          }
+          findMany: {
+            args: Prisma.ReceivedInvoiceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>[]
+          }
+          create: {
+            args: Prisma.ReceivedInvoiceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>
+          }
+          createMany: {
+            args: Prisma.ReceivedInvoiceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReceivedInvoiceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>[]
+          }
+          delete: {
+            args: Prisma.ReceivedInvoiceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>
+          }
+          update: {
+            args: Prisma.ReceivedInvoiceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>
+          }
+          deleteMany: {
+            args: Prisma.ReceivedInvoiceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReceivedInvoiceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReceivedInvoiceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>[]
+          }
+          upsert: {
+            args: Prisma.ReceivedInvoiceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReceivedInvoicePayload>
+          }
+          aggregate: {
+            args: Prisma.ReceivedInvoiceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReceivedInvoice>
+          }
+          groupBy: {
+            args: Prisma.ReceivedInvoiceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReceivedInvoiceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReceivedInvoiceCountArgs<ExtArgs>
+            result: $Utils.Optional<ReceivedInvoiceCountAggregateOutputType> | number
+          }
+        }
+      }
+      EInvoicingEvent: {
+        payload: Prisma.$EInvoicingEventPayload<ExtArgs>
+        fields: Prisma.EInvoicingEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EInvoicingEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EInvoicingEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>
+          }
+          findFirst: {
+            args: Prisma.EInvoicingEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EInvoicingEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>
+          }
+          findMany: {
+            args: Prisma.EInvoicingEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>[]
+          }
+          create: {
+            args: Prisma.EInvoicingEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>
+          }
+          createMany: {
+            args: Prisma.EInvoicingEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EInvoicingEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>[]
+          }
+          delete: {
+            args: Prisma.EInvoicingEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>
+          }
+          update: {
+            args: Prisma.EInvoicingEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.EInvoicingEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EInvoicingEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EInvoicingEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.EInvoicingEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingEventPayload>
+          }
+          aggregate: {
+            args: Prisma.EInvoicingEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEInvoicingEvent>
+          }
+          groupBy: {
+            args: Prisma.EInvoicingEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EInvoicingEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EInvoicingEventCountArgs<ExtArgs>
+            result: $Utils.Optional<EInvoicingEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      EInvoicingJob: {
+        payload: Prisma.$EInvoicingJobPayload<ExtArgs>
+        fields: Prisma.EInvoicingJobFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EInvoicingJobFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EInvoicingJobFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>
+          }
+          findFirst: {
+            args: Prisma.EInvoicingJobFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EInvoicingJobFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>
+          }
+          findMany: {
+            args: Prisma.EInvoicingJobFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>[]
+          }
+          create: {
+            args: Prisma.EInvoicingJobCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>
+          }
+          createMany: {
+            args: Prisma.EInvoicingJobCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EInvoicingJobCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>[]
+          }
+          delete: {
+            args: Prisma.EInvoicingJobDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>
+          }
+          update: {
+            args: Prisma.EInvoicingJobUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>
+          }
+          deleteMany: {
+            args: Prisma.EInvoicingJobDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EInvoicingJobUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EInvoicingJobUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>[]
+          }
+          upsert: {
+            args: Prisma.EInvoicingJobUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EInvoicingJobPayload>
+          }
+          aggregate: {
+            args: Prisma.EInvoicingJobAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEInvoicingJob>
+          }
+          groupBy: {
+            args: Prisma.EInvoicingJobGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EInvoicingJobGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EInvoicingJobCountArgs<ExtArgs>
+            result: $Utils.Optional<EInvoicingJobCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3894,6 +4511,8 @@ export namespace Prisma {
     payment?: PaymentOmit
     companySettings?: CompanySettingsOmit
     user?: UserOmit
+    userSession?: UserSessionOmit
+    loginHistory?: LoginHistoryOmit
     pushToken?: PushTokenOmit
     invitation?: InvitationOmit
     catalogItem?: CatalogItemOmit
@@ -3918,6 +4537,10 @@ export namespace Prisma {
     adminUser?: AdminUserOmit
     adminSession?: AdminSessionOmit
     adminAuditLog?: AdminAuditLogOmit
+    eInvoicingConnection?: EInvoicingConnectionOmit
+    receivedInvoice?: ReceivedInvoiceOmit
+    eInvoicingEvent?: EInvoicingEventOmit
+    eInvoicingJob?: EInvoicingJobOmit
   }
 
   /* Types for Logging */
@@ -4045,6 +4668,9 @@ export namespace Prisma {
     tradeCategories: number
     accountingExports: number
     tvaSummaries: number
+    receivedInvoices: number
+    einvoicingEvents: number
+    einvoicingJobs: number
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4064,6 +4690,9 @@ export namespace Prisma {
     tradeCategories?: boolean | CompanyCountOutputTypeCountTradeCategoriesArgs
     accountingExports?: boolean | CompanyCountOutputTypeCountAccountingExportsArgs
     tvaSummaries?: boolean | CompanyCountOutputTypeCountTvaSummariesArgs
+    receivedInvoices?: boolean | CompanyCountOutputTypeCountReceivedInvoicesArgs
+    einvoicingEvents?: boolean | CompanyCountOutputTypeCountEinvoicingEventsArgs
+    einvoicingJobs?: boolean | CompanyCountOutputTypeCountEinvoicingJobsArgs
   }
 
   // Custom InputTypes
@@ -4189,6 +4818,27 @@ export namespace Prisma {
     where?: TvaSummaryWhereInput
   }
 
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountReceivedInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReceivedInvoiceWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountEinvoicingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EInvoicingEventWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountEinvoicingJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EInvoicingJobWhereInput
+  }
+
 
   /**
    * Count Type TradeCategoryCountOutputType
@@ -4263,6 +4913,8 @@ export namespace Prisma {
     createdClients: number
     createdInterventions: number
     auditLogs: number
+    sessions: number
+    loginHistories: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4272,6 +4924,8 @@ export namespace Prisma {
     createdClients?: boolean | UserCountOutputTypeCountCreatedClientsArgs
     createdInterventions?: boolean | UserCountOutputTypeCountCreatedInterventionsArgs
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+    sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+    loginHistories?: boolean | UserCountOutputTypeCountLoginHistoriesArgs
   }
 
   // Custom InputTypes
@@ -4325,6 +4979,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AuditLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSessionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLoginHistoriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LoginHistoryWhereInput
   }
 
 
@@ -4584,11 +5252,13 @@ export namespace Prisma {
   export type InvoiceCountOutputType = {
     lines: number
     paymentEvents: number
+    einvoicingEvents: number
   }
 
   export type InvoiceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     lines?: boolean | InvoiceCountOutputTypeCountLinesArgs
     paymentEvents?: boolean | InvoiceCountOutputTypeCountPaymentEventsArgs
+    einvoicingEvents?: boolean | InvoiceCountOutputTypeCountEinvoicingEventsArgs
   }
 
   // Custom InputTypes
@@ -4614,6 +5284,13 @@ export namespace Prisma {
    */
   export type InvoiceCountOutputTypeCountPaymentEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InvoicePaymentEventWhereInput
+  }
+
+  /**
+   * InvoiceCountOutputType without action
+   */
+  export type InvoiceCountOutputTypeCountEinvoicingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EInvoicingEventWhereInput
   }
 
 
@@ -4654,6 +5331,37 @@ export namespace Prisma {
    */
   export type AdminUserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AdminAuditLogWhereInput
+  }
+
+
+  /**
+   * Count Type ReceivedInvoiceCountOutputType
+   */
+
+  export type ReceivedInvoiceCountOutputType = {
+    events: number
+  }
+
+  export type ReceivedInvoiceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    events?: boolean | ReceivedInvoiceCountOutputTypeCountEventsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ReceivedInvoiceCountOutputType without action
+   */
+  export type ReceivedInvoiceCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoiceCountOutputType
+     */
+    select?: ReceivedInvoiceCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ReceivedInvoiceCountOutputType without action
+   */
+  export type ReceivedInvoiceCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EInvoicingEventWhereInput
   }
 
 
@@ -6341,6 +7049,10 @@ export namespace Prisma {
     accountingExports?: boolean | Company$accountingExportsArgs<ExtArgs>
     tvaSummaries?: boolean | Company$tvaSummariesArgs<ExtArgs>
     accountingIntegration?: boolean | Company$accountingIntegrationArgs<ExtArgs>
+    einvoicingConnection?: boolean | Company$einvoicingConnectionArgs<ExtArgs>
+    receivedInvoices?: boolean | Company$receivedInvoicesArgs<ExtArgs>
+    einvoicingEvents?: boolean | Company$einvoicingEventsArgs<ExtArgs>
+    einvoicingJobs?: boolean | Company$einvoicingJobsArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -6449,6 +7161,10 @@ export namespace Prisma {
     accountingExports?: boolean | Company$accountingExportsArgs<ExtArgs>
     tvaSummaries?: boolean | Company$tvaSummariesArgs<ExtArgs>
     accountingIntegration?: boolean | Company$accountingIntegrationArgs<ExtArgs>
+    einvoicingConnection?: boolean | Company$einvoicingConnectionArgs<ExtArgs>
+    receivedInvoices?: boolean | Company$receivedInvoicesArgs<ExtArgs>
+    einvoicingEvents?: boolean | Company$einvoicingEventsArgs<ExtArgs>
+    einvoicingJobs?: boolean | Company$einvoicingJobsArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6476,6 +7192,10 @@ export namespace Prisma {
       accountingExports: Prisma.$AccountingExportPayload<ExtArgs>[]
       tvaSummaries: Prisma.$TvaSummaryPayload<ExtArgs>[]
       accountingIntegration: Prisma.$AccountingIntegrationPayload<ExtArgs> | null
+      einvoicingConnection: Prisma.$EInvoicingConnectionPayload<ExtArgs> | null
+      receivedInvoices: Prisma.$ReceivedInvoicePayload<ExtArgs>[]
+      einvoicingEvents: Prisma.$EInvoicingEventPayload<ExtArgs>[]
+      einvoicingJobs: Prisma.$EInvoicingJobPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6916,6 +7636,10 @@ export namespace Prisma {
     accountingExports<T extends Company$accountingExportsArgs<ExtArgs> = {}>(args?: Subset<T, Company$accountingExportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountingExportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tvaSummaries<T extends Company$tvaSummariesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tvaSummariesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TvaSummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accountingIntegration<T extends Company$accountingIntegrationArgs<ExtArgs> = {}>(args?: Subset<T, Company$accountingIntegrationArgs<ExtArgs>>): Prisma__AccountingIntegrationClient<$Result.GetResult<Prisma.$AccountingIntegrationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    einvoicingConnection<T extends Company$einvoicingConnectionArgs<ExtArgs> = {}>(args?: Subset<T, Company$einvoicingConnectionArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    receivedInvoices<T extends Company$receivedInvoicesArgs<ExtArgs> = {}>(args?: Subset<T, Company$receivedInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    einvoicingEvents<T extends Company$einvoicingEventsArgs<ExtArgs> = {}>(args?: Subset<T, Company$einvoicingEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    einvoicingJobs<T extends Company$einvoicingJobsArgs<ExtArgs> = {}>(args?: Subset<T, Company$einvoicingJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7801,6 +8525,97 @@ export namespace Prisma {
      */
     include?: AccountingIntegrationInclude<ExtArgs> | null
     where?: AccountingIntegrationWhereInput
+  }
+
+  /**
+   * Company.einvoicingConnection
+   */
+  export type Company$einvoicingConnectionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    where?: EInvoicingConnectionWhereInput
+  }
+
+  /**
+   * Company.receivedInvoices
+   */
+  export type Company$receivedInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    where?: ReceivedInvoiceWhereInput
+    orderBy?: ReceivedInvoiceOrderByWithRelationInput | ReceivedInvoiceOrderByWithRelationInput[]
+    cursor?: ReceivedInvoiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReceivedInvoiceScalarFieldEnum | ReceivedInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Company.einvoicingEvents
+   */
+  export type Company$einvoicingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    where?: EInvoicingEventWhereInput
+    orderBy?: EInvoicingEventOrderByWithRelationInput | EInvoicingEventOrderByWithRelationInput[]
+    cursor?: EInvoicingEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EInvoicingEventScalarFieldEnum | EInvoicingEventScalarFieldEnum[]
+  }
+
+  /**
+   * Company.einvoicingJobs
+   */
+  export type Company$einvoicingJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    where?: EInvoicingJobWhereInput
+    orderBy?: EInvoicingJobOrderByWithRelationInput | EInvoicingJobOrderByWithRelationInput[]
+    cursor?: EInvoicingJobWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EInvoicingJobScalarFieldEnum | EInvoicingJobScalarFieldEnum[]
   }
 
   /**
@@ -12525,11 +13340,16 @@ export namespace Prisma {
     quoteNextNumber: number | null
     invoiceFooter: string | null
     invoiceConditions: string | null
+    invoiceColor: string | null
     defaultTvaRate: number | null
     defaultPaymentDays: number | null
     defaultValidDays: number | null
     workStartHour: number | null
     workEndHour: number | null
+    bankName: string | null
+    bankIban: string | null
+    bankBic: string | null
+    bankAccountOwner: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12566,11 +13386,16 @@ export namespace Prisma {
     quoteNextNumber: number | null
     invoiceFooter: string | null
     invoiceConditions: string | null
+    invoiceColor: string | null
     defaultTvaRate: number | null
     defaultPaymentDays: number | null
     defaultValidDays: number | null
     workStartHour: number | null
     workEndHour: number | null
+    bankName: string | null
+    bankIban: string | null
+    bankBic: string | null
+    bankAccountOwner: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12609,12 +13434,17 @@ export namespace Prisma {
     quoteNextNumber: number
     invoiceFooter: number
     invoiceConditions: number
+    invoiceColor: number
     defaultTvaRate: number
     defaultPaymentDays: number
     defaultValidDays: number
     workStartHour: number
     workEndHour: number
     workDays: number
+    bankName: number
+    bankIban: number
+    bankBic: number
+    bankAccountOwner: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -12679,11 +13509,16 @@ export namespace Prisma {
     quoteNextNumber?: true
     invoiceFooter?: true
     invoiceConditions?: true
+    invoiceColor?: true
     defaultTvaRate?: true
     defaultPaymentDays?: true
     defaultValidDays?: true
     workStartHour?: true
     workEndHour?: true
+    bankName?: true
+    bankIban?: true
+    bankBic?: true
+    bankAccountOwner?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12720,11 +13555,16 @@ export namespace Prisma {
     quoteNextNumber?: true
     invoiceFooter?: true
     invoiceConditions?: true
+    invoiceColor?: true
     defaultTvaRate?: true
     defaultPaymentDays?: true
     defaultValidDays?: true
     workStartHour?: true
     workEndHour?: true
+    bankName?: true
+    bankIban?: true
+    bankBic?: true
+    bankAccountOwner?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12763,12 +13603,17 @@ export namespace Prisma {
     quoteNextNumber?: true
     invoiceFooter?: true
     invoiceConditions?: true
+    invoiceColor?: true
     defaultTvaRate?: true
     defaultPaymentDays?: true
     defaultValidDays?: true
     workStartHour?: true
     workEndHour?: true
     workDays?: true
+    bankName?: true
+    bankIban?: true
+    bankBic?: true
+    bankAccountOwner?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -12894,12 +13739,17 @@ export namespace Prisma {
     quoteNextNumber: number
     invoiceFooter: string | null
     invoiceConditions: string | null
+    invoiceColor: string | null
     defaultTvaRate: number
     defaultPaymentDays: number
     defaultValidDays: number
     workStartHour: number
     workEndHour: number
     workDays: number[]
+    bankName: string | null
+    bankIban: string | null
+    bankBic: string | null
+    bankAccountOwner: string | null
     createdAt: Date
     updatedAt: Date
     _count: CompanySettingsCountAggregateOutputType | null
@@ -12957,12 +13807,17 @@ export namespace Prisma {
     quoteNextNumber?: boolean
     invoiceFooter?: boolean
     invoiceConditions?: boolean
+    invoiceColor?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
     workStartHour?: boolean
     workEndHour?: boolean
     workDays?: boolean
+    bankName?: boolean
+    bankIban?: boolean
+    bankBic?: boolean
+    bankAccountOwner?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -13002,12 +13857,17 @@ export namespace Prisma {
     quoteNextNumber?: boolean
     invoiceFooter?: boolean
     invoiceConditions?: boolean
+    invoiceColor?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
     workStartHour?: boolean
     workEndHour?: boolean
     workDays?: boolean
+    bankName?: boolean
+    bankIban?: boolean
+    bankBic?: boolean
+    bankAccountOwner?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -13047,12 +13907,17 @@ export namespace Prisma {
     quoteNextNumber?: boolean
     invoiceFooter?: boolean
     invoiceConditions?: boolean
+    invoiceColor?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
     workStartHour?: boolean
     workEndHour?: boolean
     workDays?: boolean
+    bankName?: boolean
+    bankIban?: boolean
+    bankBic?: boolean
+    bankAccountOwner?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -13092,17 +13957,22 @@ export namespace Prisma {
     quoteNextNumber?: boolean
     invoiceFooter?: boolean
     invoiceConditions?: boolean
+    invoiceColor?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
     workStartHour?: boolean
     workEndHour?: boolean
     workDays?: boolean
+    bankName?: boolean
+    bankIban?: boolean
+    bankBic?: boolean
+    bankAccountOwner?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -13152,12 +14022,17 @@ export namespace Prisma {
       quoteNextNumber: number
       invoiceFooter: string | null
       invoiceConditions: string | null
+      invoiceColor: string | null
       defaultTvaRate: number
       defaultPaymentDays: number
       defaultValidDays: number
       workStartHour: number
       workEndHour: number
       workDays: number[]
+      bankName: string | null
+      bankIban: string | null
+      bankBic: string | null
+      bankAccountOwner: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["companySettings"]>
@@ -13617,12 +14492,17 @@ export namespace Prisma {
     readonly quoteNextNumber: FieldRef<"CompanySettings", 'Int'>
     readonly invoiceFooter: FieldRef<"CompanySettings", 'String'>
     readonly invoiceConditions: FieldRef<"CompanySettings", 'String'>
+    readonly invoiceColor: FieldRef<"CompanySettings", 'String'>
     readonly defaultTvaRate: FieldRef<"CompanySettings", 'Float'>
     readonly defaultPaymentDays: FieldRef<"CompanySettings", 'Int'>
     readonly defaultValidDays: FieldRef<"CompanySettings", 'Int'>
     readonly workStartHour: FieldRef<"CompanySettings", 'Int'>
     readonly workEndHour: FieldRef<"CompanySettings", 'Int'>
     readonly workDays: FieldRef<"CompanySettings", 'Int[]'>
+    readonly bankName: FieldRef<"CompanySettings", 'String'>
+    readonly bankIban: FieldRef<"CompanySettings", 'String'>
+    readonly bankBic: FieldRef<"CompanySettings", 'String'>
+    readonly bankAccountOwner: FieldRef<"CompanySettings", 'String'>
     readonly createdAt: FieldRef<"CompanySettings", 'DateTime'>
     readonly updatedAt: FieldRef<"CompanySettings", 'DateTime'>
   }
@@ -14071,6 +14951,10 @@ export namespace Prisma {
     passwordResetToken: string | null
     passwordResetExpiry: Date | null
     lastLoginAt: Date | null
+    twoFactorEnabled: boolean | null
+    twoFactorSecret: string | null
+    twoFactorCode: string | null
+    twoFactorExpiry: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14092,6 +14976,10 @@ export namespace Prisma {
     passwordResetToken: string | null
     passwordResetExpiry: Date | null
     lastLoginAt: Date | null
+    twoFactorEnabled: boolean | null
+    twoFactorSecret: string | null
+    twoFactorCode: string | null
+    twoFactorExpiry: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14113,6 +15001,10 @@ export namespace Prisma {
     passwordResetToken: number
     passwordResetExpiry: number
     lastLoginAt: number
+    twoFactorEnabled: number
+    twoFactorSecret: number
+    twoFactorCode: number
+    twoFactorExpiry: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -14136,6 +15028,10 @@ export namespace Prisma {
     passwordResetToken?: true
     passwordResetExpiry?: true
     lastLoginAt?: true
+    twoFactorEnabled?: true
+    twoFactorSecret?: true
+    twoFactorCode?: true
+    twoFactorExpiry?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14157,6 +15053,10 @@ export namespace Prisma {
     passwordResetToken?: true
     passwordResetExpiry?: true
     lastLoginAt?: true
+    twoFactorEnabled?: true
+    twoFactorSecret?: true
+    twoFactorCode?: true
+    twoFactorExpiry?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14178,6 +15078,10 @@ export namespace Prisma {
     passwordResetToken?: true
     passwordResetExpiry?: true
     lastLoginAt?: true
+    twoFactorEnabled?: true
+    twoFactorSecret?: true
+    twoFactorCode?: true
+    twoFactorExpiry?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -14272,6 +15176,10 @@ export namespace Prisma {
     passwordResetToken: string | null
     passwordResetExpiry: Date | null
     lastLoginAt: Date | null
+    twoFactorEnabled: boolean
+    twoFactorSecret: string | null
+    twoFactorCode: string | null
+    twoFactorExpiry: Date | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -14310,6 +15218,10 @@ export namespace Prisma {
     passwordResetToken?: boolean
     passwordResetExpiry?: boolean
     lastLoginAt?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorCode?: boolean
+    twoFactorExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -14319,6 +15231,8 @@ export namespace Prisma {
     createdClients?: boolean | User$createdClientsArgs<ExtArgs>
     createdInterventions?: boolean | User$createdInterventionsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    sessions?: boolean | User$sessionsArgs<ExtArgs>
+    loginHistories?: boolean | User$loginHistoriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -14339,6 +15253,10 @@ export namespace Prisma {
     passwordResetToken?: boolean
     passwordResetExpiry?: boolean
     lastLoginAt?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorCode?: boolean
+    twoFactorExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -14361,6 +15279,10 @@ export namespace Prisma {
     passwordResetToken?: boolean
     passwordResetExpiry?: boolean
     lastLoginAt?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorCode?: boolean
+    twoFactorExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -14383,11 +15305,15 @@ export namespace Prisma {
     passwordResetToken?: boolean
     passwordResetExpiry?: boolean
     lastLoginAt?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorCode?: boolean
+    twoFactorExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "email" | "password" | "firstName" | "lastName" | "phone" | "avatarUrl" | "role" | "isActive" | "refreshTokenHash" | "emailVerified" | "emailVerifyToken" | "passwordResetToken" | "passwordResetExpiry" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "email" | "password" | "firstName" | "lastName" | "phone" | "avatarUrl" | "role" | "isActive" | "refreshTokenHash" | "emailVerified" | "emailVerifyToken" | "passwordResetToken" | "passwordResetExpiry" | "lastLoginAt" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorCode" | "twoFactorExpiry" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     pushTokens?: boolean | User$pushTokensArgs<ExtArgs>
@@ -14396,6 +15322,8 @@ export namespace Prisma {
     createdClients?: boolean | User$createdClientsArgs<ExtArgs>
     createdInterventions?: boolean | User$createdInterventionsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    sessions?: boolean | User$sessionsArgs<ExtArgs>
+    loginHistories?: boolean | User$loginHistoriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14415,6 +15343,8 @@ export namespace Prisma {
       createdClients: Prisma.$ClientPayload<ExtArgs>[]
       createdInterventions: Prisma.$InterventionPayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+      sessions: Prisma.$UserSessionPayload<ExtArgs>[]
+      loginHistories: Prisma.$LoginHistoryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -14433,6 +15363,10 @@ export namespace Prisma {
       passwordResetToken: string | null
       passwordResetExpiry: Date | null
       lastLoginAt: Date | null
+      twoFactorEnabled: boolean
+      twoFactorSecret: string | null
+      twoFactorCode: string | null
+      twoFactorExpiry: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -14836,6 +15770,8 @@ export namespace Prisma {
     createdClients<T extends User$createdClientsArgs<ExtArgs> = {}>(args?: Subset<T, User$createdClientsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     createdInterventions<T extends User$createdInterventionsArgs<ExtArgs> = {}>(args?: Subset<T, User$createdInterventionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    loginHistories<T extends User$loginHistoriesArgs<ExtArgs> = {}>(args?: Subset<T, User$loginHistoriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14881,6 +15817,10 @@ export namespace Prisma {
     readonly passwordResetToken: FieldRef<"User", 'String'>
     readonly passwordResetExpiry: FieldRef<"User", 'DateTime'>
     readonly lastLoginAt: FieldRef<"User", 'DateTime'>
+    readonly twoFactorEnabled: FieldRef<"User", 'Boolean'>
+    readonly twoFactorSecret: FieldRef<"User", 'String'>
+    readonly twoFactorCode: FieldRef<"User", 'String'>
+    readonly twoFactorExpiry: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -15428,6 +16368,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.sessions
+   */
+  export type User$sessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    where?: UserSessionWhereInput
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    cursor?: UserSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.loginHistories
+   */
+  export type User$loginHistoriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    where?: LoginHistoryWhereInput
+    orderBy?: LoginHistoryOrderByWithRelationInput | LoginHistoryOrderByWithRelationInput[]
+    cursor?: LoginHistoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LoginHistoryScalarFieldEnum | LoginHistoryScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15443,6 +16431,2242 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserSession
+   */
+
+  export type AggregateUserSession = {
+    _count: UserSessionCountAggregateOutputType | null
+    _min: UserSessionMinAggregateOutputType | null
+    _max: UserSessionMaxAggregateOutputType | null
+  }
+
+  export type UserSessionMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    device: string | null
+    browser: string | null
+    ip: string | null
+    location: string | null
+    tokenIdentifier: string | null
+    isCurrent: boolean | null
+    lastActiveAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type UserSessionMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    device: string | null
+    browser: string | null
+    ip: string | null
+    location: string | null
+    tokenIdentifier: string | null
+    isCurrent: boolean | null
+    lastActiveAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type UserSessionCountAggregateOutputType = {
+    id: number
+    userId: number
+    device: number
+    browser: number
+    ip: number
+    location: number
+    tokenIdentifier: number
+    isCurrent: number
+    lastActiveAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type UserSessionMinAggregateInputType = {
+    id?: true
+    userId?: true
+    device?: true
+    browser?: true
+    ip?: true
+    location?: true
+    tokenIdentifier?: true
+    isCurrent?: true
+    lastActiveAt?: true
+    createdAt?: true
+  }
+
+  export type UserSessionMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    device?: true
+    browser?: true
+    ip?: true
+    location?: true
+    tokenIdentifier?: true
+    isCurrent?: true
+    lastActiveAt?: true
+    createdAt?: true
+  }
+
+  export type UserSessionCountAggregateInputType = {
+    id?: true
+    userId?: true
+    device?: true
+    browser?: true
+    ip?: true
+    location?: true
+    tokenIdentifier?: true
+    isCurrent?: true
+    lastActiveAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type UserSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSession to aggregate.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserSessions
+    **/
+    _count?: true | UserSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserSessionMaxAggregateInputType
+  }
+
+  export type GetUserSessionAggregateType<T extends UserSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserSession[P]>
+      : GetScalarType<T[P], AggregateUserSession[P]>
+  }
+
+
+
+
+  export type UserSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSessionWhereInput
+    orderBy?: UserSessionOrderByWithAggregationInput | UserSessionOrderByWithAggregationInput[]
+    by: UserSessionScalarFieldEnum[] | UserSessionScalarFieldEnum
+    having?: UserSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserSessionCountAggregateInputType | true
+    _min?: UserSessionMinAggregateInputType
+    _max?: UserSessionMaxAggregateInputType
+  }
+
+  export type UserSessionGroupByOutputType = {
+    id: string
+    userId: string
+    device: string
+    browser: string
+    ip: string
+    location: string | null
+    tokenIdentifier: string | null
+    isCurrent: boolean
+    lastActiveAt: Date
+    createdAt: Date
+    _count: UserSessionCountAggregateOutputType | null
+    _min: UserSessionMinAggregateOutputType | null
+    _max: UserSessionMaxAggregateOutputType | null
+  }
+
+  type GetUserSessionGroupByPayload<T extends UserSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], UserSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    device?: boolean
+    browser?: boolean
+    ip?: boolean
+    location?: boolean
+    tokenIdentifier?: boolean
+    isCurrent?: boolean
+    lastActiveAt?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSession"]>
+
+  export type UserSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    device?: boolean
+    browser?: boolean
+    ip?: boolean
+    location?: boolean
+    tokenIdentifier?: boolean
+    isCurrent?: boolean
+    lastActiveAt?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSession"]>
+
+  export type UserSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    device?: boolean
+    browser?: boolean
+    ip?: boolean
+    location?: boolean
+    tokenIdentifier?: boolean
+    isCurrent?: boolean
+    lastActiveAt?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSession"]>
+
+  export type UserSessionSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    device?: boolean
+    browser?: boolean
+    ip?: boolean
+    location?: boolean
+    tokenIdentifier?: boolean
+    isCurrent?: boolean
+    lastActiveAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type UserSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "device" | "browser" | "ip" | "location" | "tokenIdentifier" | "isCurrent" | "lastActiveAt" | "createdAt", ExtArgs["result"]["userSession"]>
+  export type UserSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserSession"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      device: string
+      browser: string
+      ip: string
+      location: string | null
+      tokenIdentifier: string | null
+      isCurrent: boolean
+      lastActiveAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["userSession"]>
+    composites: {}
+  }
+
+  type UserSessionGetPayload<S extends boolean | null | undefined | UserSessionDefaultArgs> = $Result.GetResult<Prisma.$UserSessionPayload, S>
+
+  type UserSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserSessionCountAggregateInputType | true
+    }
+
+  export interface UserSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserSession'], meta: { name: 'UserSession' } }
+    /**
+     * Find zero or one UserSession that matches the filter.
+     * @param {UserSessionFindUniqueArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserSessionFindUniqueArgs>(args: SelectSubset<T, UserSessionFindUniqueArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserSession that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserSessionFindUniqueOrThrowArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, UserSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionFindFirstArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserSessionFindFirstArgs>(args?: SelectSubset<T, UserSessionFindFirstArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionFindFirstOrThrowArgs} args - Arguments to find a UserSession
+     * @example
+     * // Get one UserSession
+     * const userSession = await prisma.userSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, UserSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserSessions
+     * const userSessions = await prisma.userSession.findMany()
+     * 
+     * // Get first 10 UserSessions
+     * const userSessions = await prisma.userSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userSessionWithIdOnly = await prisma.userSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserSessionFindManyArgs>(args?: SelectSubset<T, UserSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserSession.
+     * @param {UserSessionCreateArgs} args - Arguments to create a UserSession.
+     * @example
+     * // Create one UserSession
+     * const UserSession = await prisma.userSession.create({
+     *   data: {
+     *     // ... data to create a UserSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserSessionCreateArgs>(args: SelectSubset<T, UserSessionCreateArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserSessions.
+     * @param {UserSessionCreateManyArgs} args - Arguments to create many UserSessions.
+     * @example
+     * // Create many UserSessions
+     * const userSession = await prisma.userSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserSessionCreateManyArgs>(args?: SelectSubset<T, UserSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserSessions and returns the data saved in the database.
+     * @param {UserSessionCreateManyAndReturnArgs} args - Arguments to create many UserSessions.
+     * @example
+     * // Create many UserSessions
+     * const userSession = await prisma.userSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserSessions and only return the `id`
+     * const userSessionWithIdOnly = await prisma.userSession.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, UserSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserSession.
+     * @param {UserSessionDeleteArgs} args - Arguments to delete one UserSession.
+     * @example
+     * // Delete one UserSession
+     * const UserSession = await prisma.userSession.delete({
+     *   where: {
+     *     // ... filter to delete one UserSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserSessionDeleteArgs>(args: SelectSubset<T, UserSessionDeleteArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserSession.
+     * @param {UserSessionUpdateArgs} args - Arguments to update one UserSession.
+     * @example
+     * // Update one UserSession
+     * const userSession = await prisma.userSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserSessionUpdateArgs>(args: SelectSubset<T, UserSessionUpdateArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserSessions.
+     * @param {UserSessionDeleteManyArgs} args - Arguments to filter UserSessions to delete.
+     * @example
+     * // Delete a few UserSessions
+     * const { count } = await prisma.userSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserSessionDeleteManyArgs>(args?: SelectSubset<T, UserSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserSessions
+     * const userSession = await prisma.userSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserSessionUpdateManyArgs>(args: SelectSubset<T, UserSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSessions and returns the data updated in the database.
+     * @param {UserSessionUpdateManyAndReturnArgs} args - Arguments to update many UserSessions.
+     * @example
+     * // Update many UserSessions
+     * const userSession = await prisma.userSession.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserSessions and only return the `id`
+     * const userSessionWithIdOnly = await prisma.userSession.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserSessionUpdateManyAndReturnArgs>(args: SelectSubset<T, UserSessionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserSession.
+     * @param {UserSessionUpsertArgs} args - Arguments to update or create a UserSession.
+     * @example
+     * // Update or create a UserSession
+     * const userSession = await prisma.userSession.upsert({
+     *   create: {
+     *     // ... data to create a UserSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserSessionUpsertArgs>(args: SelectSubset<T, UserSessionUpsertArgs<ExtArgs>>): Prisma__UserSessionClient<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionCountArgs} args - Arguments to filter UserSessions to count.
+     * @example
+     * // Count the number of UserSessions
+     * const count = await prisma.userSession.count({
+     *   where: {
+     *     // ... the filter for the UserSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserSessionCountArgs>(
+      args?: Subset<T, UserSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserSessionAggregateArgs>(args: Subset<T, UserSessionAggregateArgs>): Prisma.PrismaPromise<GetUserSessionAggregateType<T>>
+
+    /**
+     * Group by UserSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserSessionGroupByArgs['orderBy'] }
+        : { orderBy?: UserSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserSession model
+   */
+  readonly fields: UserSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserSession model
+   */
+  interface UserSessionFieldRefs {
+    readonly id: FieldRef<"UserSession", 'String'>
+    readonly userId: FieldRef<"UserSession", 'String'>
+    readonly device: FieldRef<"UserSession", 'String'>
+    readonly browser: FieldRef<"UserSession", 'String'>
+    readonly ip: FieldRef<"UserSession", 'String'>
+    readonly location: FieldRef<"UserSession", 'String'>
+    readonly tokenIdentifier: FieldRef<"UserSession", 'String'>
+    readonly isCurrent: FieldRef<"UserSession", 'Boolean'>
+    readonly lastActiveAt: FieldRef<"UserSession", 'DateTime'>
+    readonly createdAt: FieldRef<"UserSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserSession findUnique
+   */
+  export type UserSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession findUniqueOrThrow
+   */
+  export type UserSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession findFirst
+   */
+  export type UserSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSessions.
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSessions.
+     */
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
+  }
+
+  /**
+   * UserSession findFirstOrThrow
+   */
+  export type UserSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSession to fetch.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSessions.
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSessions.
+     */
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
+  }
+
+  /**
+   * UserSession findMany
+   */
+  export type UserSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSessions to fetch.
+     */
+    where?: UserSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSessions to fetch.
+     */
+    orderBy?: UserSessionOrderByWithRelationInput | UserSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserSessions.
+     */
+    cursor?: UserSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSessions.
+     */
+    distinct?: UserSessionScalarFieldEnum | UserSessionScalarFieldEnum[]
+  }
+
+  /**
+   * UserSession create
+   */
+  export type UserSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserSession.
+     */
+    data: XOR<UserSessionCreateInput, UserSessionUncheckedCreateInput>
+  }
+
+  /**
+   * UserSession createMany
+   */
+  export type UserSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserSessions.
+     */
+    data: UserSessionCreateManyInput | UserSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserSession createManyAndReturn
+   */
+  export type UserSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserSessions.
+     */
+    data: UserSessionCreateManyInput | UserSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSession update
+   */
+  export type UserSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserSession.
+     */
+    data: XOR<UserSessionUpdateInput, UserSessionUncheckedUpdateInput>
+    /**
+     * Choose, which UserSession to update.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession updateMany
+   */
+  export type UserSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserSessions.
+     */
+    data: XOR<UserSessionUpdateManyMutationInput, UserSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSessions to update
+     */
+    where?: UserSessionWhereInput
+    /**
+     * Limit how many UserSessions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSession updateManyAndReturn
+   */
+  export type UserSessionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * The data used to update UserSessions.
+     */
+    data: XOR<UserSessionUpdateManyMutationInput, UserSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSessions to update
+     */
+    where?: UserSessionWhereInput
+    /**
+     * Limit how many UserSessions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSession upsert
+   */
+  export type UserSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserSession to update in case it exists.
+     */
+    where: UserSessionWhereUniqueInput
+    /**
+     * In case the UserSession found by the `where` argument doesn't exist, create a new UserSession with this data.
+     */
+    create: XOR<UserSessionCreateInput, UserSessionUncheckedCreateInput>
+    /**
+     * In case the UserSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserSessionUpdateInput, UserSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * UserSession delete
+   */
+  export type UserSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+    /**
+     * Filter which UserSession to delete.
+     */
+    where: UserSessionWhereUniqueInput
+  }
+
+  /**
+   * UserSession deleteMany
+   */
+  export type UserSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSessions to delete
+     */
+    where?: UserSessionWhereInput
+    /**
+     * Limit how many UserSessions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSession without action
+   */
+  export type UserSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSession
+     */
+    select?: UserSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSession
+     */
+    omit?: UserSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LoginHistory
+   */
+
+  export type AggregateLoginHistory = {
+    _count: LoginHistoryCountAggregateOutputType | null
+    _min: LoginHistoryMinAggregateOutputType | null
+    _max: LoginHistoryMaxAggregateOutputType | null
+  }
+
+  export type LoginHistoryMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    email: string | null
+    ip: string | null
+    device: string | null
+    status: string | null
+    createdAt: Date | null
+  }
+
+  export type LoginHistoryMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    email: string | null
+    ip: string | null
+    device: string | null
+    status: string | null
+    createdAt: Date | null
+  }
+
+  export type LoginHistoryCountAggregateOutputType = {
+    id: number
+    userId: number
+    email: number
+    ip: number
+    device: number
+    status: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type LoginHistoryMinAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    ip?: true
+    device?: true
+    status?: true
+    createdAt?: true
+  }
+
+  export type LoginHistoryMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    ip?: true
+    device?: true
+    status?: true
+    createdAt?: true
+  }
+
+  export type LoginHistoryCountAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    ip?: true
+    device?: true
+    status?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type LoginHistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LoginHistory to aggregate.
+     */
+    where?: LoginHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginHistories to fetch.
+     */
+    orderBy?: LoginHistoryOrderByWithRelationInput | LoginHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LoginHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LoginHistories
+    **/
+    _count?: true | LoginHistoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LoginHistoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LoginHistoryMaxAggregateInputType
+  }
+
+  export type GetLoginHistoryAggregateType<T extends LoginHistoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateLoginHistory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLoginHistory[P]>
+      : GetScalarType<T[P], AggregateLoginHistory[P]>
+  }
+
+
+
+
+  export type LoginHistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LoginHistoryWhereInput
+    orderBy?: LoginHistoryOrderByWithAggregationInput | LoginHistoryOrderByWithAggregationInput[]
+    by: LoginHistoryScalarFieldEnum[] | LoginHistoryScalarFieldEnum
+    having?: LoginHistoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LoginHistoryCountAggregateInputType | true
+    _min?: LoginHistoryMinAggregateInputType
+    _max?: LoginHistoryMaxAggregateInputType
+  }
+
+  export type LoginHistoryGroupByOutputType = {
+    id: string
+    userId: string | null
+    email: string
+    ip: string
+    device: string
+    status: string
+    createdAt: Date
+    _count: LoginHistoryCountAggregateOutputType | null
+    _min: LoginHistoryMinAggregateOutputType | null
+    _max: LoginHistoryMaxAggregateOutputType | null
+  }
+
+  type GetLoginHistoryGroupByPayload<T extends LoginHistoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LoginHistoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LoginHistoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LoginHistoryGroupByOutputType[P]>
+            : GetScalarType<T[P], LoginHistoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LoginHistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    ip?: boolean
+    device?: boolean
+    status?: boolean
+    createdAt?: boolean
+    user?: boolean | LoginHistory$userArgs<ExtArgs>
+  }, ExtArgs["result"]["loginHistory"]>
+
+  export type LoginHistorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    ip?: boolean
+    device?: boolean
+    status?: boolean
+    createdAt?: boolean
+    user?: boolean | LoginHistory$userArgs<ExtArgs>
+  }, ExtArgs["result"]["loginHistory"]>
+
+  export type LoginHistorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    ip?: boolean
+    device?: boolean
+    status?: boolean
+    createdAt?: boolean
+    user?: boolean | LoginHistory$userArgs<ExtArgs>
+  }, ExtArgs["result"]["loginHistory"]>
+
+  export type LoginHistorySelectScalar = {
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    ip?: boolean
+    device?: boolean
+    status?: boolean
+    createdAt?: boolean
+  }
+
+  export type LoginHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "email" | "ip" | "device" | "status" | "createdAt", ExtArgs["result"]["loginHistory"]>
+  export type LoginHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | LoginHistory$userArgs<ExtArgs>
+  }
+  export type LoginHistoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | LoginHistory$userArgs<ExtArgs>
+  }
+  export type LoginHistoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | LoginHistory$userArgs<ExtArgs>
+  }
+
+  export type $LoginHistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LoginHistory"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string | null
+      email: string
+      ip: string
+      device: string
+      status: string
+      createdAt: Date
+    }, ExtArgs["result"]["loginHistory"]>
+    composites: {}
+  }
+
+  type LoginHistoryGetPayload<S extends boolean | null | undefined | LoginHistoryDefaultArgs> = $Result.GetResult<Prisma.$LoginHistoryPayload, S>
+
+  type LoginHistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LoginHistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LoginHistoryCountAggregateInputType | true
+    }
+
+  export interface LoginHistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LoginHistory'], meta: { name: 'LoginHistory' } }
+    /**
+     * Find zero or one LoginHistory that matches the filter.
+     * @param {LoginHistoryFindUniqueArgs} args - Arguments to find a LoginHistory
+     * @example
+     * // Get one LoginHistory
+     * const loginHistory = await prisma.loginHistory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LoginHistoryFindUniqueArgs>(args: SelectSubset<T, LoginHistoryFindUniqueArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LoginHistory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LoginHistoryFindUniqueOrThrowArgs} args - Arguments to find a LoginHistory
+     * @example
+     * // Get one LoginHistory
+     * const loginHistory = await prisma.loginHistory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LoginHistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, LoginHistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LoginHistory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginHistoryFindFirstArgs} args - Arguments to find a LoginHistory
+     * @example
+     * // Get one LoginHistory
+     * const loginHistory = await prisma.loginHistory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LoginHistoryFindFirstArgs>(args?: SelectSubset<T, LoginHistoryFindFirstArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LoginHistory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginHistoryFindFirstOrThrowArgs} args - Arguments to find a LoginHistory
+     * @example
+     * // Get one LoginHistory
+     * const loginHistory = await prisma.loginHistory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LoginHistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, LoginHistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LoginHistories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginHistoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LoginHistories
+     * const loginHistories = await prisma.loginHistory.findMany()
+     * 
+     * // Get first 10 LoginHistories
+     * const loginHistories = await prisma.loginHistory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const loginHistoryWithIdOnly = await prisma.loginHistory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LoginHistoryFindManyArgs>(args?: SelectSubset<T, LoginHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LoginHistory.
+     * @param {LoginHistoryCreateArgs} args - Arguments to create a LoginHistory.
+     * @example
+     * // Create one LoginHistory
+     * const LoginHistory = await prisma.loginHistory.create({
+     *   data: {
+     *     // ... data to create a LoginHistory
+     *   }
+     * })
+     * 
+     */
+    create<T extends LoginHistoryCreateArgs>(args: SelectSubset<T, LoginHistoryCreateArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LoginHistories.
+     * @param {LoginHistoryCreateManyArgs} args - Arguments to create many LoginHistories.
+     * @example
+     * // Create many LoginHistories
+     * const loginHistory = await prisma.loginHistory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LoginHistoryCreateManyArgs>(args?: SelectSubset<T, LoginHistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LoginHistories and returns the data saved in the database.
+     * @param {LoginHistoryCreateManyAndReturnArgs} args - Arguments to create many LoginHistories.
+     * @example
+     * // Create many LoginHistories
+     * const loginHistory = await prisma.loginHistory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LoginHistories and only return the `id`
+     * const loginHistoryWithIdOnly = await prisma.loginHistory.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LoginHistoryCreateManyAndReturnArgs>(args?: SelectSubset<T, LoginHistoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LoginHistory.
+     * @param {LoginHistoryDeleteArgs} args - Arguments to delete one LoginHistory.
+     * @example
+     * // Delete one LoginHistory
+     * const LoginHistory = await prisma.loginHistory.delete({
+     *   where: {
+     *     // ... filter to delete one LoginHistory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LoginHistoryDeleteArgs>(args: SelectSubset<T, LoginHistoryDeleteArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LoginHistory.
+     * @param {LoginHistoryUpdateArgs} args - Arguments to update one LoginHistory.
+     * @example
+     * // Update one LoginHistory
+     * const loginHistory = await prisma.loginHistory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LoginHistoryUpdateArgs>(args: SelectSubset<T, LoginHistoryUpdateArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LoginHistories.
+     * @param {LoginHistoryDeleteManyArgs} args - Arguments to filter LoginHistories to delete.
+     * @example
+     * // Delete a few LoginHistories
+     * const { count } = await prisma.loginHistory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LoginHistoryDeleteManyArgs>(args?: SelectSubset<T, LoginHistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LoginHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginHistoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LoginHistories
+     * const loginHistory = await prisma.loginHistory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LoginHistoryUpdateManyArgs>(args: SelectSubset<T, LoginHistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LoginHistories and returns the data updated in the database.
+     * @param {LoginHistoryUpdateManyAndReturnArgs} args - Arguments to update many LoginHistories.
+     * @example
+     * // Update many LoginHistories
+     * const loginHistory = await prisma.loginHistory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LoginHistories and only return the `id`
+     * const loginHistoryWithIdOnly = await prisma.loginHistory.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LoginHistoryUpdateManyAndReturnArgs>(args: SelectSubset<T, LoginHistoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LoginHistory.
+     * @param {LoginHistoryUpsertArgs} args - Arguments to update or create a LoginHistory.
+     * @example
+     * // Update or create a LoginHistory
+     * const loginHistory = await prisma.loginHistory.upsert({
+     *   create: {
+     *     // ... data to create a LoginHistory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LoginHistory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LoginHistoryUpsertArgs>(args: SelectSubset<T, LoginHistoryUpsertArgs<ExtArgs>>): Prisma__LoginHistoryClient<$Result.GetResult<Prisma.$LoginHistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LoginHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginHistoryCountArgs} args - Arguments to filter LoginHistories to count.
+     * @example
+     * // Count the number of LoginHistories
+     * const count = await prisma.loginHistory.count({
+     *   where: {
+     *     // ... the filter for the LoginHistories we want to count
+     *   }
+     * })
+    **/
+    count<T extends LoginHistoryCountArgs>(
+      args?: Subset<T, LoginHistoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LoginHistoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LoginHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginHistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LoginHistoryAggregateArgs>(args: Subset<T, LoginHistoryAggregateArgs>): Prisma.PrismaPromise<GetLoginHistoryAggregateType<T>>
+
+    /**
+     * Group by LoginHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginHistoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LoginHistoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LoginHistoryGroupByArgs['orderBy'] }
+        : { orderBy?: LoginHistoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LoginHistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLoginHistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LoginHistory model
+   */
+  readonly fields: LoginHistoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LoginHistory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LoginHistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends LoginHistory$userArgs<ExtArgs> = {}>(args?: Subset<T, LoginHistory$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LoginHistory model
+   */
+  interface LoginHistoryFieldRefs {
+    readonly id: FieldRef<"LoginHistory", 'String'>
+    readonly userId: FieldRef<"LoginHistory", 'String'>
+    readonly email: FieldRef<"LoginHistory", 'String'>
+    readonly ip: FieldRef<"LoginHistory", 'String'>
+    readonly device: FieldRef<"LoginHistory", 'String'>
+    readonly status: FieldRef<"LoginHistory", 'String'>
+    readonly createdAt: FieldRef<"LoginHistory", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LoginHistory findUnique
+   */
+  export type LoginHistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginHistory to fetch.
+     */
+    where: LoginHistoryWhereUniqueInput
+  }
+
+  /**
+   * LoginHistory findUniqueOrThrow
+   */
+  export type LoginHistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginHistory to fetch.
+     */
+    where: LoginHistoryWhereUniqueInput
+  }
+
+  /**
+   * LoginHistory findFirst
+   */
+  export type LoginHistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginHistory to fetch.
+     */
+    where?: LoginHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginHistories to fetch.
+     */
+    orderBy?: LoginHistoryOrderByWithRelationInput | LoginHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LoginHistories.
+     */
+    cursor?: LoginHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoginHistories.
+     */
+    distinct?: LoginHistoryScalarFieldEnum | LoginHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * LoginHistory findFirstOrThrow
+   */
+  export type LoginHistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginHistory to fetch.
+     */
+    where?: LoginHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginHistories to fetch.
+     */
+    orderBy?: LoginHistoryOrderByWithRelationInput | LoginHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LoginHistories.
+     */
+    cursor?: LoginHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoginHistories.
+     */
+    distinct?: LoginHistoryScalarFieldEnum | LoginHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * LoginHistory findMany
+   */
+  export type LoginHistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginHistories to fetch.
+     */
+    where?: LoginHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginHistories to fetch.
+     */
+    orderBy?: LoginHistoryOrderByWithRelationInput | LoginHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LoginHistories.
+     */
+    cursor?: LoginHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoginHistories.
+     */
+    distinct?: LoginHistoryScalarFieldEnum | LoginHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * LoginHistory create
+   */
+  export type LoginHistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LoginHistory.
+     */
+    data: XOR<LoginHistoryCreateInput, LoginHistoryUncheckedCreateInput>
+  }
+
+  /**
+   * LoginHistory createMany
+   */
+  export type LoginHistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LoginHistories.
+     */
+    data: LoginHistoryCreateManyInput | LoginHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LoginHistory createManyAndReturn
+   */
+  export type LoginHistoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many LoginHistories.
+     */
+    data: LoginHistoryCreateManyInput | LoginHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LoginHistory update
+   */
+  export type LoginHistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LoginHistory.
+     */
+    data: XOR<LoginHistoryUpdateInput, LoginHistoryUncheckedUpdateInput>
+    /**
+     * Choose, which LoginHistory to update.
+     */
+    where: LoginHistoryWhereUniqueInput
+  }
+
+  /**
+   * LoginHistory updateMany
+   */
+  export type LoginHistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LoginHistories.
+     */
+    data: XOR<LoginHistoryUpdateManyMutationInput, LoginHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which LoginHistories to update
+     */
+    where?: LoginHistoryWhereInput
+    /**
+     * Limit how many LoginHistories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LoginHistory updateManyAndReturn
+   */
+  export type LoginHistoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to update LoginHistories.
+     */
+    data: XOR<LoginHistoryUpdateManyMutationInput, LoginHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which LoginHistories to update
+     */
+    where?: LoginHistoryWhereInput
+    /**
+     * Limit how many LoginHistories to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LoginHistory upsert
+   */
+  export type LoginHistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LoginHistory to update in case it exists.
+     */
+    where: LoginHistoryWhereUniqueInput
+    /**
+     * In case the LoginHistory found by the `where` argument doesn't exist, create a new LoginHistory with this data.
+     */
+    create: XOR<LoginHistoryCreateInput, LoginHistoryUncheckedCreateInput>
+    /**
+     * In case the LoginHistory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LoginHistoryUpdateInput, LoginHistoryUncheckedUpdateInput>
+  }
+
+  /**
+   * LoginHistory delete
+   */
+  export type LoginHistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
+    /**
+     * Filter which LoginHistory to delete.
+     */
+    where: LoginHistoryWhereUniqueInput
+  }
+
+  /**
+   * LoginHistory deleteMany
+   */
+  export type LoginHistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LoginHistories to delete
+     */
+    where?: LoginHistoryWhereInput
+    /**
+     * Limit how many LoginHistories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LoginHistory.user
+   */
+  export type LoginHistory$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * LoginHistory without action
+   */
+  export type LoginHistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginHistory
+     */
+    select?: LoginHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginHistory
+     */
+    omit?: LoginHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginHistoryInclude<ExtArgs> | null
   }
 
 
@@ -28525,6 +31749,13 @@ export namespace Prisma {
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
     reminderSentAt: Date | null
+    einvoicingStatus: $Enums.EInvoicingStatus | null
+    einvoicingProvider: $Enums.EInvoicingProviderType | null
+    providerInvoiceId: string | null
+    einvoicingSentAt: Date | null
+    einvoicingProcessedAt: Date | null
+    einvoicingTransmissionId: string | null
+    einvoicingError: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -28573,6 +31804,13 @@ export namespace Prisma {
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
     reminderSentAt: Date | null
+    einvoicingStatus: $Enums.EInvoicingStatus | null
+    einvoicingProvider: $Enums.EInvoicingProviderType | null
+    providerInvoiceId: string | null
+    einvoicingSentAt: Date | null
+    einvoicingProcessedAt: Date | null
+    einvoicingTransmissionId: string | null
+    einvoicingError: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -28621,6 +31859,14 @@ export namespace Prisma {
     reminder1SentAt: number
     reminder2SentAt: number
     reminderSentAt: number
+    einvoicingStatus: number
+    einvoicingProvider: number
+    providerInvoiceId: number
+    einvoicingSentAt: number
+    einvoicingProcessedAt: number
+    einvoicingTransmissionId: number
+    einvoicingError: number
+    einvoicingRawPayload: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -28689,6 +31935,13 @@ export namespace Prisma {
     reminder1SentAt?: true
     reminder2SentAt?: true
     reminderSentAt?: true
+    einvoicingStatus?: true
+    einvoicingProvider?: true
+    providerInvoiceId?: true
+    einvoicingSentAt?: true
+    einvoicingProcessedAt?: true
+    einvoicingTransmissionId?: true
+    einvoicingError?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -28737,6 +31990,13 @@ export namespace Prisma {
     reminder1SentAt?: true
     reminder2SentAt?: true
     reminderSentAt?: true
+    einvoicingStatus?: true
+    einvoicingProvider?: true
+    providerInvoiceId?: true
+    einvoicingSentAt?: true
+    einvoicingProcessedAt?: true
+    einvoicingTransmissionId?: true
+    einvoicingError?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -28785,6 +32045,14 @@ export namespace Prisma {
     reminder1SentAt?: true
     reminder2SentAt?: true
     reminderSentAt?: true
+    einvoicingStatus?: true
+    einvoicingProvider?: true
+    providerInvoiceId?: true
+    einvoicingSentAt?: true
+    einvoicingProcessedAt?: true
+    einvoicingTransmissionId?: true
+    einvoicingError?: true
+    einvoicingRawPayload?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -28920,6 +32188,14 @@ export namespace Prisma {
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
     reminderSentAt: Date | null
+    einvoicingStatus: $Enums.EInvoicingStatus | null
+    einvoicingProvider: $Enums.EInvoicingProviderType | null
+    providerInvoiceId: string | null
+    einvoicingSentAt: Date | null
+    einvoicingProcessedAt: Date | null
+    einvoicingTransmissionId: string | null
+    einvoicingError: string | null
+    einvoicingRawPayload: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: InvoiceCountAggregateOutputType | null
@@ -28987,6 +32263,14 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    einvoicingStatus?: boolean
+    einvoicingProvider?: boolean
+    providerInvoiceId?: boolean
+    einvoicingSentAt?: boolean
+    einvoicingProcessedAt?: boolean
+    einvoicingTransmissionId?: boolean
+    einvoicingError?: boolean
+    einvoicingRawPayload?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -28995,6 +32279,7 @@ export namespace Prisma {
     interventionType?: boolean | Invoice$interventionTypeArgs<ExtArgs>
     lines?: boolean | Invoice$linesArgs<ExtArgs>
     paymentEvents?: boolean | Invoice$paymentEventsArgs<ExtArgs>
+    einvoicingEvents?: boolean | Invoice$einvoicingEventsArgs<ExtArgs>
     _count?: boolean | InvoiceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["invoice"]>
 
@@ -29042,6 +32327,14 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    einvoicingStatus?: boolean
+    einvoicingProvider?: boolean
+    providerInvoiceId?: boolean
+    einvoicingSentAt?: boolean
+    einvoicingProcessedAt?: boolean
+    einvoicingTransmissionId?: boolean
+    einvoicingError?: boolean
+    einvoicingRawPayload?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -29094,6 +32387,14 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    einvoicingStatus?: boolean
+    einvoicingProvider?: boolean
+    providerInvoiceId?: boolean
+    einvoicingSentAt?: boolean
+    einvoicingProcessedAt?: boolean
+    einvoicingTransmissionId?: boolean
+    einvoicingError?: boolean
+    einvoicingRawPayload?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -29146,11 +32447,19 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    einvoicingStatus?: boolean
+    einvoicingProvider?: boolean
+    providerInvoiceId?: boolean
+    einvoicingSentAt?: boolean
+    einvoicingProcessedAt?: boolean
+    einvoicingTransmissionId?: boolean
+    einvoicingError?: boolean
+    einvoicingRawPayload?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "paymentMethod" | "paymentRef" | "pdfUrl" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "paymentMethod" | "paymentRef" | "pdfUrl" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "einvoicingStatus" | "einvoicingProvider" | "providerInvoiceId" | "einvoicingSentAt" | "einvoicingProcessedAt" | "einvoicingTransmissionId" | "einvoicingError" | "einvoicingRawPayload" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
   export type InvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
@@ -29158,6 +32467,7 @@ export namespace Prisma {
     interventionType?: boolean | Invoice$interventionTypeArgs<ExtArgs>
     lines?: boolean | Invoice$linesArgs<ExtArgs>
     paymentEvents?: boolean | Invoice$paymentEventsArgs<ExtArgs>
+    einvoicingEvents?: boolean | Invoice$einvoicingEventsArgs<ExtArgs>
     _count?: boolean | InvoiceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type InvoiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -29182,6 +32492,7 @@ export namespace Prisma {
       interventionType: Prisma.$InterventionTypeItemPayload<ExtArgs> | null
       lines: Prisma.$InvoiceLinePayload<ExtArgs>[]
       paymentEvents: Prisma.$InvoicePaymentEventPayload<ExtArgs>[]
+      einvoicingEvents: Prisma.$EInvoicingEventPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -29227,6 +32538,14 @@ export namespace Prisma {
       reminder1SentAt: Date | null
       reminder2SentAt: Date | null
       reminderSentAt: Date | null
+      einvoicingStatus: $Enums.EInvoicingStatus | null
+      einvoicingProvider: $Enums.EInvoicingProviderType | null
+      providerInvoiceId: string | null
+      einvoicingSentAt: Date | null
+      einvoicingProcessedAt: Date | null
+      einvoicingTransmissionId: string | null
+      einvoicingError: string | null
+      einvoicingRawPayload: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["invoice"]>
@@ -29629,6 +32948,7 @@ export namespace Prisma {
     interventionType<T extends Invoice$interventionTypeArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$interventionTypeArgs<ExtArgs>>): Prisma__InterventionTypeItemClient<$Result.GetResult<Prisma.$InterventionTypeItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     lines<T extends Invoice$linesArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$linesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoiceLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     paymentEvents<T extends Invoice$paymentEventsArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$paymentEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePaymentEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    einvoicingEvents<T extends Invoice$einvoicingEventsArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$einvoicingEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -29701,6 +33021,14 @@ export namespace Prisma {
     readonly reminder1SentAt: FieldRef<"Invoice", 'DateTime'>
     readonly reminder2SentAt: FieldRef<"Invoice", 'DateTime'>
     readonly reminderSentAt: FieldRef<"Invoice", 'DateTime'>
+    readonly einvoicingStatus: FieldRef<"Invoice", 'EInvoicingStatus'>
+    readonly einvoicingProvider: FieldRef<"Invoice", 'EInvoicingProviderType'>
+    readonly providerInvoiceId: FieldRef<"Invoice", 'String'>
+    readonly einvoicingSentAt: FieldRef<"Invoice", 'DateTime'>
+    readonly einvoicingProcessedAt: FieldRef<"Invoice", 'DateTime'>
+    readonly einvoicingTransmissionId: FieldRef<"Invoice", 'String'>
+    readonly einvoicingError: FieldRef<"Invoice", 'String'>
+    readonly einvoicingRawPayload: FieldRef<"Invoice", 'Json'>
     readonly createdAt: FieldRef<"Invoice", 'DateTime'>
     readonly updatedAt: FieldRef<"Invoice", 'DateTime'>
   }
@@ -30187,6 +33515,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: InvoicePaymentEventScalarFieldEnum | InvoicePaymentEventScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice.einvoicingEvents
+   */
+  export type Invoice$einvoicingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    where?: EInvoicingEventWhereInput
+    orderBy?: EInvoicingEventOrderByWithRelationInput | EInvoicingEventOrderByWithRelationInput[]
+    cursor?: EInvoicingEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EInvoicingEventScalarFieldEnum | EInvoicingEventScalarFieldEnum[]
   }
 
   /**
@@ -45667,6 +49019,5086 @@ export namespace Prisma {
 
 
   /**
+   * Model EInvoicingConnection
+   */
+
+  export type AggregateEInvoicingConnection = {
+    _count: EInvoicingConnectionCountAggregateOutputType | null
+    _min: EInvoicingConnectionMinAggregateOutputType | null
+    _max: EInvoicingConnectionMaxAggregateOutputType | null
+  }
+
+  export type EInvoicingConnectionMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: $Enums.EInvoicingProviderType | null
+    providerAccountId: string | null
+    environment: string | null
+    status: $Enums.EInvoicingConnectionStatus | null
+    apiKeyEncrypted: string | null
+    apiSecretEncrypted: string | null
+    accessTokenEncrypted: string | null
+    refreshTokenEncrypted: string | null
+    tokenExpiresAt: Date | null
+    receivingEnabled: boolean | null
+    emissionEnabled: boolean | null
+    autoSyncIncoming: boolean | null
+    lastSyncAt: Date | null
+    lastSyncError: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EInvoicingConnectionMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: $Enums.EInvoicingProviderType | null
+    providerAccountId: string | null
+    environment: string | null
+    status: $Enums.EInvoicingConnectionStatus | null
+    apiKeyEncrypted: string | null
+    apiSecretEncrypted: string | null
+    accessTokenEncrypted: string | null
+    refreshTokenEncrypted: string | null
+    tokenExpiresAt: Date | null
+    receivingEnabled: boolean | null
+    emissionEnabled: boolean | null
+    autoSyncIncoming: boolean | null
+    lastSyncAt: Date | null
+    lastSyncError: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EInvoicingConnectionCountAggregateOutputType = {
+    id: number
+    companyId: number
+    provider: number
+    providerAccountId: number
+    environment: number
+    status: number
+    apiKeyEncrypted: number
+    apiSecretEncrypted: number
+    accessTokenEncrypted: number
+    refreshTokenEncrypted: number
+    tokenExpiresAt: number
+    receivingEnabled: number
+    emissionEnabled: number
+    autoSyncIncoming: number
+    lastSyncAt: number
+    lastSyncError: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EInvoicingConnectionMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    providerAccountId?: true
+    environment?: true
+    status?: true
+    apiKeyEncrypted?: true
+    apiSecretEncrypted?: true
+    accessTokenEncrypted?: true
+    refreshTokenEncrypted?: true
+    tokenExpiresAt?: true
+    receivingEnabled?: true
+    emissionEnabled?: true
+    autoSyncIncoming?: true
+    lastSyncAt?: true
+    lastSyncError?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EInvoicingConnectionMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    providerAccountId?: true
+    environment?: true
+    status?: true
+    apiKeyEncrypted?: true
+    apiSecretEncrypted?: true
+    accessTokenEncrypted?: true
+    refreshTokenEncrypted?: true
+    tokenExpiresAt?: true
+    receivingEnabled?: true
+    emissionEnabled?: true
+    autoSyncIncoming?: true
+    lastSyncAt?: true
+    lastSyncError?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EInvoicingConnectionCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    providerAccountId?: true
+    environment?: true
+    status?: true
+    apiKeyEncrypted?: true
+    apiSecretEncrypted?: true
+    accessTokenEncrypted?: true
+    refreshTokenEncrypted?: true
+    tokenExpiresAt?: true
+    receivingEnabled?: true
+    emissionEnabled?: true
+    autoSyncIncoming?: true
+    lastSyncAt?: true
+    lastSyncError?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EInvoicingConnectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EInvoicingConnection to aggregate.
+     */
+    where?: EInvoicingConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingConnections to fetch.
+     */
+    orderBy?: EInvoicingConnectionOrderByWithRelationInput | EInvoicingConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EInvoicingConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EInvoicingConnections
+    **/
+    _count?: true | EInvoicingConnectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EInvoicingConnectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EInvoicingConnectionMaxAggregateInputType
+  }
+
+  export type GetEInvoicingConnectionAggregateType<T extends EInvoicingConnectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateEInvoicingConnection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEInvoicingConnection[P]>
+      : GetScalarType<T[P], AggregateEInvoicingConnection[P]>
+  }
+
+
+
+
+  export type EInvoicingConnectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EInvoicingConnectionWhereInput
+    orderBy?: EInvoicingConnectionOrderByWithAggregationInput | EInvoicingConnectionOrderByWithAggregationInput[]
+    by: EInvoicingConnectionScalarFieldEnum[] | EInvoicingConnectionScalarFieldEnum
+    having?: EInvoicingConnectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EInvoicingConnectionCountAggregateInputType | true
+    _min?: EInvoicingConnectionMinAggregateInputType
+    _max?: EInvoicingConnectionMaxAggregateInputType
+  }
+
+  export type EInvoicingConnectionGroupByOutputType = {
+    id: string
+    companyId: string
+    provider: $Enums.EInvoicingProviderType
+    providerAccountId: string | null
+    environment: string
+    status: $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted: string | null
+    apiSecretEncrypted: string | null
+    accessTokenEncrypted: string | null
+    refreshTokenEncrypted: string | null
+    tokenExpiresAt: Date | null
+    receivingEnabled: boolean
+    emissionEnabled: boolean
+    autoSyncIncoming: boolean
+    lastSyncAt: Date | null
+    lastSyncError: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EInvoicingConnectionCountAggregateOutputType | null
+    _min: EInvoicingConnectionMinAggregateOutputType | null
+    _max: EInvoicingConnectionMaxAggregateOutputType | null
+  }
+
+  type GetEInvoicingConnectionGroupByPayload<T extends EInvoicingConnectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EInvoicingConnectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EInvoicingConnectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EInvoicingConnectionGroupByOutputType[P]>
+            : GetScalarType<T[P], EInvoicingConnectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EInvoicingConnectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerAccountId?: boolean
+    environment?: boolean
+    status?: boolean
+    apiKeyEncrypted?: boolean
+    apiSecretEncrypted?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: boolean
+    lastSyncError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingConnection"]>
+
+  export type EInvoicingConnectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerAccountId?: boolean
+    environment?: boolean
+    status?: boolean
+    apiKeyEncrypted?: boolean
+    apiSecretEncrypted?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: boolean
+    lastSyncError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingConnection"]>
+
+  export type EInvoicingConnectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerAccountId?: boolean
+    environment?: boolean
+    status?: boolean
+    apiKeyEncrypted?: boolean
+    apiSecretEncrypted?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: boolean
+    lastSyncError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingConnection"]>
+
+  export type EInvoicingConnectionSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerAccountId?: boolean
+    environment?: boolean
+    status?: boolean
+    apiKeyEncrypted?: boolean
+    apiSecretEncrypted?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: boolean
+    lastSyncError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EInvoicingConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "provider" | "providerAccountId" | "environment" | "status" | "apiKeyEncrypted" | "apiSecretEncrypted" | "accessTokenEncrypted" | "refreshTokenEncrypted" | "tokenExpiresAt" | "receivingEnabled" | "emissionEnabled" | "autoSyncIncoming" | "lastSyncAt" | "lastSyncError" | "createdAt" | "updatedAt", ExtArgs["result"]["eInvoicingConnection"]>
+  export type EInvoicingConnectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type EInvoicingConnectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type EInvoicingConnectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $EInvoicingConnectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EInvoicingConnection"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      provider: $Enums.EInvoicingProviderType
+      providerAccountId: string | null
+      environment: string
+      status: $Enums.EInvoicingConnectionStatus
+      apiKeyEncrypted: string | null
+      apiSecretEncrypted: string | null
+      accessTokenEncrypted: string | null
+      refreshTokenEncrypted: string | null
+      tokenExpiresAt: Date | null
+      receivingEnabled: boolean
+      emissionEnabled: boolean
+      autoSyncIncoming: boolean
+      lastSyncAt: Date | null
+      lastSyncError: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["eInvoicingConnection"]>
+    composites: {}
+  }
+
+  type EInvoicingConnectionGetPayload<S extends boolean | null | undefined | EInvoicingConnectionDefaultArgs> = $Result.GetResult<Prisma.$EInvoicingConnectionPayload, S>
+
+  type EInvoicingConnectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EInvoicingConnectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EInvoicingConnectionCountAggregateInputType | true
+    }
+
+  export interface EInvoicingConnectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EInvoicingConnection'], meta: { name: 'EInvoicingConnection' } }
+    /**
+     * Find zero or one EInvoicingConnection that matches the filter.
+     * @param {EInvoicingConnectionFindUniqueArgs} args - Arguments to find a EInvoicingConnection
+     * @example
+     * // Get one EInvoicingConnection
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EInvoicingConnectionFindUniqueArgs>(args: SelectSubset<T, EInvoicingConnectionFindUniqueArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EInvoicingConnection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EInvoicingConnectionFindUniqueOrThrowArgs} args - Arguments to find a EInvoicingConnection
+     * @example
+     * // Get one EInvoicingConnection
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EInvoicingConnectionFindUniqueOrThrowArgs>(args: SelectSubset<T, EInvoicingConnectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EInvoicingConnection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingConnectionFindFirstArgs} args - Arguments to find a EInvoicingConnection
+     * @example
+     * // Get one EInvoicingConnection
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EInvoicingConnectionFindFirstArgs>(args?: SelectSubset<T, EInvoicingConnectionFindFirstArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EInvoicingConnection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingConnectionFindFirstOrThrowArgs} args - Arguments to find a EInvoicingConnection
+     * @example
+     * // Get one EInvoicingConnection
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EInvoicingConnectionFindFirstOrThrowArgs>(args?: SelectSubset<T, EInvoicingConnectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EInvoicingConnections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingConnectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EInvoicingConnections
+     * const eInvoicingConnections = await prisma.eInvoicingConnection.findMany()
+     * 
+     * // Get first 10 EInvoicingConnections
+     * const eInvoicingConnections = await prisma.eInvoicingConnection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eInvoicingConnectionWithIdOnly = await prisma.eInvoicingConnection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EInvoicingConnectionFindManyArgs>(args?: SelectSubset<T, EInvoicingConnectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EInvoicingConnection.
+     * @param {EInvoicingConnectionCreateArgs} args - Arguments to create a EInvoicingConnection.
+     * @example
+     * // Create one EInvoicingConnection
+     * const EInvoicingConnection = await prisma.eInvoicingConnection.create({
+     *   data: {
+     *     // ... data to create a EInvoicingConnection
+     *   }
+     * })
+     * 
+     */
+    create<T extends EInvoicingConnectionCreateArgs>(args: SelectSubset<T, EInvoicingConnectionCreateArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EInvoicingConnections.
+     * @param {EInvoicingConnectionCreateManyArgs} args - Arguments to create many EInvoicingConnections.
+     * @example
+     * // Create many EInvoicingConnections
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EInvoicingConnectionCreateManyArgs>(args?: SelectSubset<T, EInvoicingConnectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EInvoicingConnections and returns the data saved in the database.
+     * @param {EInvoicingConnectionCreateManyAndReturnArgs} args - Arguments to create many EInvoicingConnections.
+     * @example
+     * // Create many EInvoicingConnections
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EInvoicingConnections and only return the `id`
+     * const eInvoicingConnectionWithIdOnly = await prisma.eInvoicingConnection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EInvoicingConnectionCreateManyAndReturnArgs>(args?: SelectSubset<T, EInvoicingConnectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EInvoicingConnection.
+     * @param {EInvoicingConnectionDeleteArgs} args - Arguments to delete one EInvoicingConnection.
+     * @example
+     * // Delete one EInvoicingConnection
+     * const EInvoicingConnection = await prisma.eInvoicingConnection.delete({
+     *   where: {
+     *     // ... filter to delete one EInvoicingConnection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EInvoicingConnectionDeleteArgs>(args: SelectSubset<T, EInvoicingConnectionDeleteArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EInvoicingConnection.
+     * @param {EInvoicingConnectionUpdateArgs} args - Arguments to update one EInvoicingConnection.
+     * @example
+     * // Update one EInvoicingConnection
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EInvoicingConnectionUpdateArgs>(args: SelectSubset<T, EInvoicingConnectionUpdateArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EInvoicingConnections.
+     * @param {EInvoicingConnectionDeleteManyArgs} args - Arguments to filter EInvoicingConnections to delete.
+     * @example
+     * // Delete a few EInvoicingConnections
+     * const { count } = await prisma.eInvoicingConnection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EInvoicingConnectionDeleteManyArgs>(args?: SelectSubset<T, EInvoicingConnectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EInvoicingConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingConnectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EInvoicingConnections
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EInvoicingConnectionUpdateManyArgs>(args: SelectSubset<T, EInvoicingConnectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EInvoicingConnections and returns the data updated in the database.
+     * @param {EInvoicingConnectionUpdateManyAndReturnArgs} args - Arguments to update many EInvoicingConnections.
+     * @example
+     * // Update many EInvoicingConnections
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EInvoicingConnections and only return the `id`
+     * const eInvoicingConnectionWithIdOnly = await prisma.eInvoicingConnection.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EInvoicingConnectionUpdateManyAndReturnArgs>(args: SelectSubset<T, EInvoicingConnectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EInvoicingConnection.
+     * @param {EInvoicingConnectionUpsertArgs} args - Arguments to update or create a EInvoicingConnection.
+     * @example
+     * // Update or create a EInvoicingConnection
+     * const eInvoicingConnection = await prisma.eInvoicingConnection.upsert({
+     *   create: {
+     *     // ... data to create a EInvoicingConnection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EInvoicingConnection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EInvoicingConnectionUpsertArgs>(args: SelectSubset<T, EInvoicingConnectionUpsertArgs<ExtArgs>>): Prisma__EInvoicingConnectionClient<$Result.GetResult<Prisma.$EInvoicingConnectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EInvoicingConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingConnectionCountArgs} args - Arguments to filter EInvoicingConnections to count.
+     * @example
+     * // Count the number of EInvoicingConnections
+     * const count = await prisma.eInvoicingConnection.count({
+     *   where: {
+     *     // ... the filter for the EInvoicingConnections we want to count
+     *   }
+     * })
+    **/
+    count<T extends EInvoicingConnectionCountArgs>(
+      args?: Subset<T, EInvoicingConnectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EInvoicingConnectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EInvoicingConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingConnectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EInvoicingConnectionAggregateArgs>(args: Subset<T, EInvoicingConnectionAggregateArgs>): Prisma.PrismaPromise<GetEInvoicingConnectionAggregateType<T>>
+
+    /**
+     * Group by EInvoicingConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingConnectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EInvoicingConnectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EInvoicingConnectionGroupByArgs['orderBy'] }
+        : { orderBy?: EInvoicingConnectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EInvoicingConnectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEInvoicingConnectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EInvoicingConnection model
+   */
+  readonly fields: EInvoicingConnectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EInvoicingConnection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EInvoicingConnectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EInvoicingConnection model
+   */
+  interface EInvoicingConnectionFieldRefs {
+    readonly id: FieldRef<"EInvoicingConnection", 'String'>
+    readonly companyId: FieldRef<"EInvoicingConnection", 'String'>
+    readonly provider: FieldRef<"EInvoicingConnection", 'EInvoicingProviderType'>
+    readonly providerAccountId: FieldRef<"EInvoicingConnection", 'String'>
+    readonly environment: FieldRef<"EInvoicingConnection", 'String'>
+    readonly status: FieldRef<"EInvoicingConnection", 'EInvoicingConnectionStatus'>
+    readonly apiKeyEncrypted: FieldRef<"EInvoicingConnection", 'String'>
+    readonly apiSecretEncrypted: FieldRef<"EInvoicingConnection", 'String'>
+    readonly accessTokenEncrypted: FieldRef<"EInvoicingConnection", 'String'>
+    readonly refreshTokenEncrypted: FieldRef<"EInvoicingConnection", 'String'>
+    readonly tokenExpiresAt: FieldRef<"EInvoicingConnection", 'DateTime'>
+    readonly receivingEnabled: FieldRef<"EInvoicingConnection", 'Boolean'>
+    readonly emissionEnabled: FieldRef<"EInvoicingConnection", 'Boolean'>
+    readonly autoSyncIncoming: FieldRef<"EInvoicingConnection", 'Boolean'>
+    readonly lastSyncAt: FieldRef<"EInvoicingConnection", 'DateTime'>
+    readonly lastSyncError: FieldRef<"EInvoicingConnection", 'String'>
+    readonly createdAt: FieldRef<"EInvoicingConnection", 'DateTime'>
+    readonly updatedAt: FieldRef<"EInvoicingConnection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EInvoicingConnection findUnique
+   */
+  export type EInvoicingConnectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingConnection to fetch.
+     */
+    where: EInvoicingConnectionWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingConnection findUniqueOrThrow
+   */
+  export type EInvoicingConnectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingConnection to fetch.
+     */
+    where: EInvoicingConnectionWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingConnection findFirst
+   */
+  export type EInvoicingConnectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingConnection to fetch.
+     */
+    where?: EInvoicingConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingConnections to fetch.
+     */
+    orderBy?: EInvoicingConnectionOrderByWithRelationInput | EInvoicingConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EInvoicingConnections.
+     */
+    cursor?: EInvoicingConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingConnections.
+     */
+    distinct?: EInvoicingConnectionScalarFieldEnum | EInvoicingConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingConnection findFirstOrThrow
+   */
+  export type EInvoicingConnectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingConnection to fetch.
+     */
+    where?: EInvoicingConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingConnections to fetch.
+     */
+    orderBy?: EInvoicingConnectionOrderByWithRelationInput | EInvoicingConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EInvoicingConnections.
+     */
+    cursor?: EInvoicingConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingConnections.
+     */
+    distinct?: EInvoicingConnectionScalarFieldEnum | EInvoicingConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingConnection findMany
+   */
+  export type EInvoicingConnectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingConnections to fetch.
+     */
+    where?: EInvoicingConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingConnections to fetch.
+     */
+    orderBy?: EInvoicingConnectionOrderByWithRelationInput | EInvoicingConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EInvoicingConnections.
+     */
+    cursor?: EInvoicingConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingConnections.
+     */
+    distinct?: EInvoicingConnectionScalarFieldEnum | EInvoicingConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingConnection create
+   */
+  export type EInvoicingConnectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EInvoicingConnection.
+     */
+    data: XOR<EInvoicingConnectionCreateInput, EInvoicingConnectionUncheckedCreateInput>
+  }
+
+  /**
+   * EInvoicingConnection createMany
+   */
+  export type EInvoicingConnectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EInvoicingConnections.
+     */
+    data: EInvoicingConnectionCreateManyInput | EInvoicingConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EInvoicingConnection createManyAndReturn
+   */
+  export type EInvoicingConnectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many EInvoicingConnections.
+     */
+    data: EInvoicingConnectionCreateManyInput | EInvoicingConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EInvoicingConnection update
+   */
+  export type EInvoicingConnectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EInvoicingConnection.
+     */
+    data: XOR<EInvoicingConnectionUpdateInput, EInvoicingConnectionUncheckedUpdateInput>
+    /**
+     * Choose, which EInvoicingConnection to update.
+     */
+    where: EInvoicingConnectionWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingConnection updateMany
+   */
+  export type EInvoicingConnectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EInvoicingConnections.
+     */
+    data: XOR<EInvoicingConnectionUpdateManyMutationInput, EInvoicingConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which EInvoicingConnections to update
+     */
+    where?: EInvoicingConnectionWhereInput
+    /**
+     * Limit how many EInvoicingConnections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EInvoicingConnection updateManyAndReturn
+   */
+  export type EInvoicingConnectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to update EInvoicingConnections.
+     */
+    data: XOR<EInvoicingConnectionUpdateManyMutationInput, EInvoicingConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which EInvoicingConnections to update
+     */
+    where?: EInvoicingConnectionWhereInput
+    /**
+     * Limit how many EInvoicingConnections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EInvoicingConnection upsert
+   */
+  export type EInvoicingConnectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EInvoicingConnection to update in case it exists.
+     */
+    where: EInvoicingConnectionWhereUniqueInput
+    /**
+     * In case the EInvoicingConnection found by the `where` argument doesn't exist, create a new EInvoicingConnection with this data.
+     */
+    create: XOR<EInvoicingConnectionCreateInput, EInvoicingConnectionUncheckedCreateInput>
+    /**
+     * In case the EInvoicingConnection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EInvoicingConnectionUpdateInput, EInvoicingConnectionUncheckedUpdateInput>
+  }
+
+  /**
+   * EInvoicingConnection delete
+   */
+  export type EInvoicingConnectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+    /**
+     * Filter which EInvoicingConnection to delete.
+     */
+    where: EInvoicingConnectionWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingConnection deleteMany
+   */
+  export type EInvoicingConnectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EInvoicingConnections to delete
+     */
+    where?: EInvoicingConnectionWhereInput
+    /**
+     * Limit how many EInvoicingConnections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EInvoicingConnection without action
+   */
+  export type EInvoicingConnectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingConnection
+     */
+    select?: EInvoicingConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingConnection
+     */
+    omit?: EInvoicingConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingConnectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReceivedInvoice
+   */
+
+  export type AggregateReceivedInvoice = {
+    _count: ReceivedInvoiceCountAggregateOutputType | null
+    _avg: ReceivedInvoiceAvgAggregateOutputType | null
+    _sum: ReceivedInvoiceSumAggregateOutputType | null
+    _min: ReceivedInvoiceMinAggregateOutputType | null
+    _max: ReceivedInvoiceMaxAggregateOutputType | null
+  }
+
+  export type ReceivedInvoiceAvgAggregateOutputType = {
+    totalHT: number | null
+    totalVAT: number | null
+    totalTTC: number | null
+  }
+
+  export type ReceivedInvoiceSumAggregateOutputType = {
+    totalHT: number | null
+    totalVAT: number | null
+    totalTTC: number | null
+  }
+
+  export type ReceivedInvoiceMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: $Enums.EInvoicingProviderType | null
+    providerInvoiceId: string | null
+    supplierName: string | null
+    supplierSiren: string | null
+    supplierSiret: string | null
+    supplierVatNumber: string | null
+    supplierAddress: string | null
+    supplierCity: string | null
+    supplierPostalCode: string | null
+    supplierCountry: string | null
+    supplierEmail: string | null
+    invoiceNumber: string | null
+    issueDate: Date | null
+    dueDate: Date | null
+    currency: string | null
+    totalHT: number | null
+    totalVAT: number | null
+    totalTTC: number | null
+    status: $Enums.EInvoicingStatus | null
+    documentUrl: string | null
+    rawFormat: string | null
+    receivedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReceivedInvoiceMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: $Enums.EInvoicingProviderType | null
+    providerInvoiceId: string | null
+    supplierName: string | null
+    supplierSiren: string | null
+    supplierSiret: string | null
+    supplierVatNumber: string | null
+    supplierAddress: string | null
+    supplierCity: string | null
+    supplierPostalCode: string | null
+    supplierCountry: string | null
+    supplierEmail: string | null
+    invoiceNumber: string | null
+    issueDate: Date | null
+    dueDate: Date | null
+    currency: string | null
+    totalHT: number | null
+    totalVAT: number | null
+    totalTTC: number | null
+    status: $Enums.EInvoicingStatus | null
+    documentUrl: string | null
+    rawFormat: string | null
+    receivedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReceivedInvoiceCountAggregateOutputType = {
+    id: number
+    companyId: number
+    provider: number
+    providerInvoiceId: number
+    supplierName: number
+    supplierSiren: number
+    supplierSiret: number
+    supplierVatNumber: number
+    supplierAddress: number
+    supplierCity: number
+    supplierPostalCode: number
+    supplierCountry: number
+    supplierEmail: number
+    invoiceNumber: number
+    issueDate: number
+    dueDate: number
+    currency: number
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status: number
+    structuredData: number
+    documentUrl: number
+    rawFormat: number
+    receivedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ReceivedInvoiceAvgAggregateInputType = {
+    totalHT?: true
+    totalVAT?: true
+    totalTTC?: true
+  }
+
+  export type ReceivedInvoiceSumAggregateInputType = {
+    totalHT?: true
+    totalVAT?: true
+    totalTTC?: true
+  }
+
+  export type ReceivedInvoiceMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    providerInvoiceId?: true
+    supplierName?: true
+    supplierSiren?: true
+    supplierSiret?: true
+    supplierVatNumber?: true
+    supplierAddress?: true
+    supplierCity?: true
+    supplierPostalCode?: true
+    supplierCountry?: true
+    supplierEmail?: true
+    invoiceNumber?: true
+    issueDate?: true
+    dueDate?: true
+    currency?: true
+    totalHT?: true
+    totalVAT?: true
+    totalTTC?: true
+    status?: true
+    documentUrl?: true
+    rawFormat?: true
+    receivedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReceivedInvoiceMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    providerInvoiceId?: true
+    supplierName?: true
+    supplierSiren?: true
+    supplierSiret?: true
+    supplierVatNumber?: true
+    supplierAddress?: true
+    supplierCity?: true
+    supplierPostalCode?: true
+    supplierCountry?: true
+    supplierEmail?: true
+    invoiceNumber?: true
+    issueDate?: true
+    dueDate?: true
+    currency?: true
+    totalHT?: true
+    totalVAT?: true
+    totalTTC?: true
+    status?: true
+    documentUrl?: true
+    rawFormat?: true
+    receivedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReceivedInvoiceCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    providerInvoiceId?: true
+    supplierName?: true
+    supplierSiren?: true
+    supplierSiret?: true
+    supplierVatNumber?: true
+    supplierAddress?: true
+    supplierCity?: true
+    supplierPostalCode?: true
+    supplierCountry?: true
+    supplierEmail?: true
+    invoiceNumber?: true
+    issueDate?: true
+    dueDate?: true
+    currency?: true
+    totalHT?: true
+    totalVAT?: true
+    totalTTC?: true
+    status?: true
+    structuredData?: true
+    documentUrl?: true
+    rawFormat?: true
+    receivedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ReceivedInvoiceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReceivedInvoice to aggregate.
+     */
+    where?: ReceivedInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReceivedInvoices to fetch.
+     */
+    orderBy?: ReceivedInvoiceOrderByWithRelationInput | ReceivedInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReceivedInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReceivedInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReceivedInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReceivedInvoices
+    **/
+    _count?: true | ReceivedInvoiceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReceivedInvoiceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReceivedInvoiceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReceivedInvoiceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReceivedInvoiceMaxAggregateInputType
+  }
+
+  export type GetReceivedInvoiceAggregateType<T extends ReceivedInvoiceAggregateArgs> = {
+        [P in keyof T & keyof AggregateReceivedInvoice]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReceivedInvoice[P]>
+      : GetScalarType<T[P], AggregateReceivedInvoice[P]>
+  }
+
+
+
+
+  export type ReceivedInvoiceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReceivedInvoiceWhereInput
+    orderBy?: ReceivedInvoiceOrderByWithAggregationInput | ReceivedInvoiceOrderByWithAggregationInput[]
+    by: ReceivedInvoiceScalarFieldEnum[] | ReceivedInvoiceScalarFieldEnum
+    having?: ReceivedInvoiceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReceivedInvoiceCountAggregateInputType | true
+    _avg?: ReceivedInvoiceAvgAggregateInputType
+    _sum?: ReceivedInvoiceSumAggregateInputType
+    _min?: ReceivedInvoiceMinAggregateInputType
+    _max?: ReceivedInvoiceMaxAggregateInputType
+  }
+
+  export type ReceivedInvoiceGroupByOutputType = {
+    id: string
+    companyId: string
+    provider: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren: string | null
+    supplierSiret: string | null
+    supplierVatNumber: string | null
+    supplierAddress: string | null
+    supplierCity: string | null
+    supplierPostalCode: string | null
+    supplierCountry: string | null
+    supplierEmail: string | null
+    invoiceNumber: string
+    issueDate: Date
+    dueDate: Date | null
+    currency: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status: $Enums.EInvoicingStatus
+    structuredData: JsonValue | null
+    documentUrl: string | null
+    rawFormat: string | null
+    receivedAt: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: ReceivedInvoiceCountAggregateOutputType | null
+    _avg: ReceivedInvoiceAvgAggregateOutputType | null
+    _sum: ReceivedInvoiceSumAggregateOutputType | null
+    _min: ReceivedInvoiceMinAggregateOutputType | null
+    _max: ReceivedInvoiceMaxAggregateOutputType | null
+  }
+
+  type GetReceivedInvoiceGroupByPayload<T extends ReceivedInvoiceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReceivedInvoiceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReceivedInvoiceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReceivedInvoiceGroupByOutputType[P]>
+            : GetScalarType<T[P], ReceivedInvoiceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReceivedInvoiceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    supplierName?: boolean
+    supplierSiren?: boolean
+    supplierSiret?: boolean
+    supplierVatNumber?: boolean
+    supplierAddress?: boolean
+    supplierCity?: boolean
+    supplierPostalCode?: boolean
+    supplierCountry?: boolean
+    supplierEmail?: boolean
+    invoiceNumber?: boolean
+    issueDate?: boolean
+    dueDate?: boolean
+    currency?: boolean
+    totalHT?: boolean
+    totalVAT?: boolean
+    totalTTC?: boolean
+    status?: boolean
+    structuredData?: boolean
+    documentUrl?: boolean
+    rawFormat?: boolean
+    receivedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    events?: boolean | ReceivedInvoice$eventsArgs<ExtArgs>
+    _count?: boolean | ReceivedInvoiceCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["receivedInvoice"]>
+
+  export type ReceivedInvoiceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    supplierName?: boolean
+    supplierSiren?: boolean
+    supplierSiret?: boolean
+    supplierVatNumber?: boolean
+    supplierAddress?: boolean
+    supplierCity?: boolean
+    supplierPostalCode?: boolean
+    supplierCountry?: boolean
+    supplierEmail?: boolean
+    invoiceNumber?: boolean
+    issueDate?: boolean
+    dueDate?: boolean
+    currency?: boolean
+    totalHT?: boolean
+    totalVAT?: boolean
+    totalTTC?: boolean
+    status?: boolean
+    structuredData?: boolean
+    documentUrl?: boolean
+    rawFormat?: boolean
+    receivedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["receivedInvoice"]>
+
+  export type ReceivedInvoiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    supplierName?: boolean
+    supplierSiren?: boolean
+    supplierSiret?: boolean
+    supplierVatNumber?: boolean
+    supplierAddress?: boolean
+    supplierCity?: boolean
+    supplierPostalCode?: boolean
+    supplierCountry?: boolean
+    supplierEmail?: boolean
+    invoiceNumber?: boolean
+    issueDate?: boolean
+    dueDate?: boolean
+    currency?: boolean
+    totalHT?: boolean
+    totalVAT?: boolean
+    totalTTC?: boolean
+    status?: boolean
+    structuredData?: boolean
+    documentUrl?: boolean
+    rawFormat?: boolean
+    receivedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["receivedInvoice"]>
+
+  export type ReceivedInvoiceSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    supplierName?: boolean
+    supplierSiren?: boolean
+    supplierSiret?: boolean
+    supplierVatNumber?: boolean
+    supplierAddress?: boolean
+    supplierCity?: boolean
+    supplierPostalCode?: boolean
+    supplierCountry?: boolean
+    supplierEmail?: boolean
+    invoiceNumber?: boolean
+    issueDate?: boolean
+    dueDate?: boolean
+    currency?: boolean
+    totalHT?: boolean
+    totalVAT?: boolean
+    totalTTC?: boolean
+    status?: boolean
+    structuredData?: boolean
+    documentUrl?: boolean
+    rawFormat?: boolean
+    receivedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ReceivedInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "provider" | "providerInvoiceId" | "supplierName" | "supplierSiren" | "supplierSiret" | "supplierVatNumber" | "supplierAddress" | "supplierCity" | "supplierPostalCode" | "supplierCountry" | "supplierEmail" | "invoiceNumber" | "issueDate" | "dueDate" | "currency" | "totalHT" | "totalVAT" | "totalTTC" | "status" | "structuredData" | "documentUrl" | "rawFormat" | "receivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["receivedInvoice"]>
+  export type ReceivedInvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    events?: boolean | ReceivedInvoice$eventsArgs<ExtArgs>
+    _count?: boolean | ReceivedInvoiceCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ReceivedInvoiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type ReceivedInvoiceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $ReceivedInvoicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReceivedInvoice"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      events: Prisma.$EInvoicingEventPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      provider: $Enums.EInvoicingProviderType
+      providerInvoiceId: string
+      supplierName: string
+      supplierSiren: string | null
+      supplierSiret: string | null
+      supplierVatNumber: string | null
+      supplierAddress: string | null
+      supplierCity: string | null
+      supplierPostalCode: string | null
+      supplierCountry: string | null
+      supplierEmail: string | null
+      invoiceNumber: string
+      issueDate: Date
+      dueDate: Date | null
+      currency: string
+      totalHT: number
+      totalVAT: number
+      totalTTC: number
+      status: $Enums.EInvoicingStatus
+      structuredData: Prisma.JsonValue | null
+      documentUrl: string | null
+      rawFormat: string | null
+      receivedAt: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["receivedInvoice"]>
+    composites: {}
+  }
+
+  type ReceivedInvoiceGetPayload<S extends boolean | null | undefined | ReceivedInvoiceDefaultArgs> = $Result.GetResult<Prisma.$ReceivedInvoicePayload, S>
+
+  type ReceivedInvoiceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReceivedInvoiceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReceivedInvoiceCountAggregateInputType | true
+    }
+
+  export interface ReceivedInvoiceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReceivedInvoice'], meta: { name: 'ReceivedInvoice' } }
+    /**
+     * Find zero or one ReceivedInvoice that matches the filter.
+     * @param {ReceivedInvoiceFindUniqueArgs} args - Arguments to find a ReceivedInvoice
+     * @example
+     * // Get one ReceivedInvoice
+     * const receivedInvoice = await prisma.receivedInvoice.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReceivedInvoiceFindUniqueArgs>(args: SelectSubset<T, ReceivedInvoiceFindUniqueArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReceivedInvoice that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReceivedInvoiceFindUniqueOrThrowArgs} args - Arguments to find a ReceivedInvoice
+     * @example
+     * // Get one ReceivedInvoice
+     * const receivedInvoice = await prisma.receivedInvoice.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReceivedInvoiceFindUniqueOrThrowArgs>(args: SelectSubset<T, ReceivedInvoiceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReceivedInvoice that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReceivedInvoiceFindFirstArgs} args - Arguments to find a ReceivedInvoice
+     * @example
+     * // Get one ReceivedInvoice
+     * const receivedInvoice = await prisma.receivedInvoice.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReceivedInvoiceFindFirstArgs>(args?: SelectSubset<T, ReceivedInvoiceFindFirstArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReceivedInvoice that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReceivedInvoiceFindFirstOrThrowArgs} args - Arguments to find a ReceivedInvoice
+     * @example
+     * // Get one ReceivedInvoice
+     * const receivedInvoice = await prisma.receivedInvoice.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReceivedInvoiceFindFirstOrThrowArgs>(args?: SelectSubset<T, ReceivedInvoiceFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReceivedInvoices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReceivedInvoiceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReceivedInvoices
+     * const receivedInvoices = await prisma.receivedInvoice.findMany()
+     * 
+     * // Get first 10 ReceivedInvoices
+     * const receivedInvoices = await prisma.receivedInvoice.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const receivedInvoiceWithIdOnly = await prisma.receivedInvoice.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReceivedInvoiceFindManyArgs>(args?: SelectSubset<T, ReceivedInvoiceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReceivedInvoice.
+     * @param {ReceivedInvoiceCreateArgs} args - Arguments to create a ReceivedInvoice.
+     * @example
+     * // Create one ReceivedInvoice
+     * const ReceivedInvoice = await prisma.receivedInvoice.create({
+     *   data: {
+     *     // ... data to create a ReceivedInvoice
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReceivedInvoiceCreateArgs>(args: SelectSubset<T, ReceivedInvoiceCreateArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReceivedInvoices.
+     * @param {ReceivedInvoiceCreateManyArgs} args - Arguments to create many ReceivedInvoices.
+     * @example
+     * // Create many ReceivedInvoices
+     * const receivedInvoice = await prisma.receivedInvoice.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReceivedInvoiceCreateManyArgs>(args?: SelectSubset<T, ReceivedInvoiceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReceivedInvoices and returns the data saved in the database.
+     * @param {ReceivedInvoiceCreateManyAndReturnArgs} args - Arguments to create many ReceivedInvoices.
+     * @example
+     * // Create many ReceivedInvoices
+     * const receivedInvoice = await prisma.receivedInvoice.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReceivedInvoices and only return the `id`
+     * const receivedInvoiceWithIdOnly = await prisma.receivedInvoice.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReceivedInvoiceCreateManyAndReturnArgs>(args?: SelectSubset<T, ReceivedInvoiceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReceivedInvoice.
+     * @param {ReceivedInvoiceDeleteArgs} args - Arguments to delete one ReceivedInvoice.
+     * @example
+     * // Delete one ReceivedInvoice
+     * const ReceivedInvoice = await prisma.receivedInvoice.delete({
+     *   where: {
+     *     // ... filter to delete one ReceivedInvoice
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReceivedInvoiceDeleteArgs>(args: SelectSubset<T, ReceivedInvoiceDeleteArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReceivedInvoice.
+     * @param {ReceivedInvoiceUpdateArgs} args - Arguments to update one ReceivedInvoice.
+     * @example
+     * // Update one ReceivedInvoice
+     * const receivedInvoice = await prisma.receivedInvoice.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReceivedInvoiceUpdateArgs>(args: SelectSubset<T, ReceivedInvoiceUpdateArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReceivedInvoices.
+     * @param {ReceivedInvoiceDeleteManyArgs} args - Arguments to filter ReceivedInvoices to delete.
+     * @example
+     * // Delete a few ReceivedInvoices
+     * const { count } = await prisma.receivedInvoice.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReceivedInvoiceDeleteManyArgs>(args?: SelectSubset<T, ReceivedInvoiceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReceivedInvoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReceivedInvoiceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReceivedInvoices
+     * const receivedInvoice = await prisma.receivedInvoice.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReceivedInvoiceUpdateManyArgs>(args: SelectSubset<T, ReceivedInvoiceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReceivedInvoices and returns the data updated in the database.
+     * @param {ReceivedInvoiceUpdateManyAndReturnArgs} args - Arguments to update many ReceivedInvoices.
+     * @example
+     * // Update many ReceivedInvoices
+     * const receivedInvoice = await prisma.receivedInvoice.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReceivedInvoices and only return the `id`
+     * const receivedInvoiceWithIdOnly = await prisma.receivedInvoice.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReceivedInvoiceUpdateManyAndReturnArgs>(args: SelectSubset<T, ReceivedInvoiceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReceivedInvoice.
+     * @param {ReceivedInvoiceUpsertArgs} args - Arguments to update or create a ReceivedInvoice.
+     * @example
+     * // Update or create a ReceivedInvoice
+     * const receivedInvoice = await prisma.receivedInvoice.upsert({
+     *   create: {
+     *     // ... data to create a ReceivedInvoice
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReceivedInvoice we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReceivedInvoiceUpsertArgs>(args: SelectSubset<T, ReceivedInvoiceUpsertArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReceivedInvoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReceivedInvoiceCountArgs} args - Arguments to filter ReceivedInvoices to count.
+     * @example
+     * // Count the number of ReceivedInvoices
+     * const count = await prisma.receivedInvoice.count({
+     *   where: {
+     *     // ... the filter for the ReceivedInvoices we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReceivedInvoiceCountArgs>(
+      args?: Subset<T, ReceivedInvoiceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReceivedInvoiceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReceivedInvoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReceivedInvoiceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReceivedInvoiceAggregateArgs>(args: Subset<T, ReceivedInvoiceAggregateArgs>): Prisma.PrismaPromise<GetReceivedInvoiceAggregateType<T>>
+
+    /**
+     * Group by ReceivedInvoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReceivedInvoiceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReceivedInvoiceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReceivedInvoiceGroupByArgs['orderBy'] }
+        : { orderBy?: ReceivedInvoiceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReceivedInvoiceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReceivedInvoiceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReceivedInvoice model
+   */
+  readonly fields: ReceivedInvoiceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReceivedInvoice.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReceivedInvoiceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    events<T extends ReceivedInvoice$eventsArgs<ExtArgs> = {}>(args?: Subset<T, ReceivedInvoice$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReceivedInvoice model
+   */
+  interface ReceivedInvoiceFieldRefs {
+    readonly id: FieldRef<"ReceivedInvoice", 'String'>
+    readonly companyId: FieldRef<"ReceivedInvoice", 'String'>
+    readonly provider: FieldRef<"ReceivedInvoice", 'EInvoicingProviderType'>
+    readonly providerInvoiceId: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierName: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierSiren: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierSiret: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierVatNumber: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierAddress: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierCity: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierPostalCode: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierCountry: FieldRef<"ReceivedInvoice", 'String'>
+    readonly supplierEmail: FieldRef<"ReceivedInvoice", 'String'>
+    readonly invoiceNumber: FieldRef<"ReceivedInvoice", 'String'>
+    readonly issueDate: FieldRef<"ReceivedInvoice", 'DateTime'>
+    readonly dueDate: FieldRef<"ReceivedInvoice", 'DateTime'>
+    readonly currency: FieldRef<"ReceivedInvoice", 'String'>
+    readonly totalHT: FieldRef<"ReceivedInvoice", 'Float'>
+    readonly totalVAT: FieldRef<"ReceivedInvoice", 'Float'>
+    readonly totalTTC: FieldRef<"ReceivedInvoice", 'Float'>
+    readonly status: FieldRef<"ReceivedInvoice", 'EInvoicingStatus'>
+    readonly structuredData: FieldRef<"ReceivedInvoice", 'Json'>
+    readonly documentUrl: FieldRef<"ReceivedInvoice", 'String'>
+    readonly rawFormat: FieldRef<"ReceivedInvoice", 'String'>
+    readonly receivedAt: FieldRef<"ReceivedInvoice", 'DateTime'>
+    readonly createdAt: FieldRef<"ReceivedInvoice", 'DateTime'>
+    readonly updatedAt: FieldRef<"ReceivedInvoice", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReceivedInvoice findUnique
+   */
+  export type ReceivedInvoiceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReceivedInvoice to fetch.
+     */
+    where: ReceivedInvoiceWhereUniqueInput
+  }
+
+  /**
+   * ReceivedInvoice findUniqueOrThrow
+   */
+  export type ReceivedInvoiceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReceivedInvoice to fetch.
+     */
+    where: ReceivedInvoiceWhereUniqueInput
+  }
+
+  /**
+   * ReceivedInvoice findFirst
+   */
+  export type ReceivedInvoiceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReceivedInvoice to fetch.
+     */
+    where?: ReceivedInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReceivedInvoices to fetch.
+     */
+    orderBy?: ReceivedInvoiceOrderByWithRelationInput | ReceivedInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReceivedInvoices.
+     */
+    cursor?: ReceivedInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReceivedInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReceivedInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReceivedInvoices.
+     */
+    distinct?: ReceivedInvoiceScalarFieldEnum | ReceivedInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * ReceivedInvoice findFirstOrThrow
+   */
+  export type ReceivedInvoiceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReceivedInvoice to fetch.
+     */
+    where?: ReceivedInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReceivedInvoices to fetch.
+     */
+    orderBy?: ReceivedInvoiceOrderByWithRelationInput | ReceivedInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReceivedInvoices.
+     */
+    cursor?: ReceivedInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReceivedInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReceivedInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReceivedInvoices.
+     */
+    distinct?: ReceivedInvoiceScalarFieldEnum | ReceivedInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * ReceivedInvoice findMany
+   */
+  export type ReceivedInvoiceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReceivedInvoices to fetch.
+     */
+    where?: ReceivedInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReceivedInvoices to fetch.
+     */
+    orderBy?: ReceivedInvoiceOrderByWithRelationInput | ReceivedInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReceivedInvoices.
+     */
+    cursor?: ReceivedInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReceivedInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReceivedInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReceivedInvoices.
+     */
+    distinct?: ReceivedInvoiceScalarFieldEnum | ReceivedInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * ReceivedInvoice create
+   */
+  export type ReceivedInvoiceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReceivedInvoice.
+     */
+    data: XOR<ReceivedInvoiceCreateInput, ReceivedInvoiceUncheckedCreateInput>
+  }
+
+  /**
+   * ReceivedInvoice createMany
+   */
+  export type ReceivedInvoiceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReceivedInvoices.
+     */
+    data: ReceivedInvoiceCreateManyInput | ReceivedInvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReceivedInvoice createManyAndReturn
+   */
+  export type ReceivedInvoiceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReceivedInvoices.
+     */
+    data: ReceivedInvoiceCreateManyInput | ReceivedInvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReceivedInvoice update
+   */
+  export type ReceivedInvoiceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReceivedInvoice.
+     */
+    data: XOR<ReceivedInvoiceUpdateInput, ReceivedInvoiceUncheckedUpdateInput>
+    /**
+     * Choose, which ReceivedInvoice to update.
+     */
+    where: ReceivedInvoiceWhereUniqueInput
+  }
+
+  /**
+   * ReceivedInvoice updateMany
+   */
+  export type ReceivedInvoiceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReceivedInvoices.
+     */
+    data: XOR<ReceivedInvoiceUpdateManyMutationInput, ReceivedInvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which ReceivedInvoices to update
+     */
+    where?: ReceivedInvoiceWhereInput
+    /**
+     * Limit how many ReceivedInvoices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReceivedInvoice updateManyAndReturn
+   */
+  export type ReceivedInvoiceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to update ReceivedInvoices.
+     */
+    data: XOR<ReceivedInvoiceUpdateManyMutationInput, ReceivedInvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which ReceivedInvoices to update
+     */
+    where?: ReceivedInvoiceWhereInput
+    /**
+     * Limit how many ReceivedInvoices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReceivedInvoice upsert
+   */
+  export type ReceivedInvoiceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReceivedInvoice to update in case it exists.
+     */
+    where: ReceivedInvoiceWhereUniqueInput
+    /**
+     * In case the ReceivedInvoice found by the `where` argument doesn't exist, create a new ReceivedInvoice with this data.
+     */
+    create: XOR<ReceivedInvoiceCreateInput, ReceivedInvoiceUncheckedCreateInput>
+    /**
+     * In case the ReceivedInvoice was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReceivedInvoiceUpdateInput, ReceivedInvoiceUncheckedUpdateInput>
+  }
+
+  /**
+   * ReceivedInvoice delete
+   */
+  export type ReceivedInvoiceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter which ReceivedInvoice to delete.
+     */
+    where: ReceivedInvoiceWhereUniqueInput
+  }
+
+  /**
+   * ReceivedInvoice deleteMany
+   */
+  export type ReceivedInvoiceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReceivedInvoices to delete
+     */
+    where?: ReceivedInvoiceWhereInput
+    /**
+     * Limit how many ReceivedInvoices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReceivedInvoice.events
+   */
+  export type ReceivedInvoice$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    where?: EInvoicingEventWhereInput
+    orderBy?: EInvoicingEventOrderByWithRelationInput | EInvoicingEventOrderByWithRelationInput[]
+    cursor?: EInvoicingEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EInvoicingEventScalarFieldEnum | EInvoicingEventScalarFieldEnum[]
+  }
+
+  /**
+   * ReceivedInvoice without action
+   */
+  export type ReceivedInvoiceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EInvoicingEvent
+   */
+
+  export type AggregateEInvoicingEvent = {
+    _count: EInvoicingEventCountAggregateOutputType | null
+    _min: EInvoicingEventMinAggregateOutputType | null
+    _max: EInvoicingEventMaxAggregateOutputType | null
+  }
+
+  export type EInvoicingEventMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    invoiceId: string | null
+    receivedInvoiceId: string | null
+    provider: string | null
+    providerInvoiceId: string | null
+    eventType: string | null
+    providerStatus: string | null
+    idempotencyKey: string | null
+    errorMessage: string | null
+    receivedAt: Date | null
+    processedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type EInvoicingEventMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    invoiceId: string | null
+    receivedInvoiceId: string | null
+    provider: string | null
+    providerInvoiceId: string | null
+    eventType: string | null
+    providerStatus: string | null
+    idempotencyKey: string | null
+    errorMessage: string | null
+    receivedAt: Date | null
+    processedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type EInvoicingEventCountAggregateOutputType = {
+    id: number
+    companyId: number
+    invoiceId: number
+    receivedInvoiceId: number
+    provider: number
+    providerInvoiceId: number
+    eventType: number
+    providerStatus: number
+    idempotencyKey: number
+    payloadJson: number
+    errorMessage: number
+    receivedAt: number
+    processedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EInvoicingEventMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    invoiceId?: true
+    receivedInvoiceId?: true
+    provider?: true
+    providerInvoiceId?: true
+    eventType?: true
+    providerStatus?: true
+    idempotencyKey?: true
+    errorMessage?: true
+    receivedAt?: true
+    processedAt?: true
+    createdAt?: true
+  }
+
+  export type EInvoicingEventMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    invoiceId?: true
+    receivedInvoiceId?: true
+    provider?: true
+    providerInvoiceId?: true
+    eventType?: true
+    providerStatus?: true
+    idempotencyKey?: true
+    errorMessage?: true
+    receivedAt?: true
+    processedAt?: true
+    createdAt?: true
+  }
+
+  export type EInvoicingEventCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    invoiceId?: true
+    receivedInvoiceId?: true
+    provider?: true
+    providerInvoiceId?: true
+    eventType?: true
+    providerStatus?: true
+    idempotencyKey?: true
+    payloadJson?: true
+    errorMessage?: true
+    receivedAt?: true
+    processedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EInvoicingEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EInvoicingEvent to aggregate.
+     */
+    where?: EInvoicingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingEvents to fetch.
+     */
+    orderBy?: EInvoicingEventOrderByWithRelationInput | EInvoicingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EInvoicingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EInvoicingEvents
+    **/
+    _count?: true | EInvoicingEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EInvoicingEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EInvoicingEventMaxAggregateInputType
+  }
+
+  export type GetEInvoicingEventAggregateType<T extends EInvoicingEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateEInvoicingEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEInvoicingEvent[P]>
+      : GetScalarType<T[P], AggregateEInvoicingEvent[P]>
+  }
+
+
+
+
+  export type EInvoicingEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EInvoicingEventWhereInput
+    orderBy?: EInvoicingEventOrderByWithAggregationInput | EInvoicingEventOrderByWithAggregationInput[]
+    by: EInvoicingEventScalarFieldEnum[] | EInvoicingEventScalarFieldEnum
+    having?: EInvoicingEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EInvoicingEventCountAggregateInputType | true
+    _min?: EInvoicingEventMinAggregateInputType
+    _max?: EInvoicingEventMaxAggregateInputType
+  }
+
+  export type EInvoicingEventGroupByOutputType = {
+    id: string
+    companyId: string
+    invoiceId: string | null
+    receivedInvoiceId: string | null
+    provider: string
+    providerInvoiceId: string | null
+    eventType: string
+    providerStatus: string | null
+    idempotencyKey: string | null
+    payloadJson: JsonValue | null
+    errorMessage: string | null
+    receivedAt: Date
+    processedAt: Date | null
+    createdAt: Date
+    _count: EInvoicingEventCountAggregateOutputType | null
+    _min: EInvoicingEventMinAggregateOutputType | null
+    _max: EInvoicingEventMaxAggregateOutputType | null
+  }
+
+  type GetEInvoicingEventGroupByPayload<T extends EInvoicingEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EInvoicingEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EInvoicingEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EInvoicingEventGroupByOutputType[P]>
+            : GetScalarType<T[P], EInvoicingEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EInvoicingEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    invoiceId?: boolean
+    receivedInvoiceId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    eventType?: boolean
+    providerStatus?: boolean
+    idempotencyKey?: boolean
+    payloadJson?: boolean
+    errorMessage?: boolean
+    receivedAt?: boolean
+    processedAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    invoice?: boolean | EInvoicingEvent$invoiceArgs<ExtArgs>
+    receivedInvoice?: boolean | EInvoicingEvent$receivedInvoiceArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingEvent"]>
+
+  export type EInvoicingEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    invoiceId?: boolean
+    receivedInvoiceId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    eventType?: boolean
+    providerStatus?: boolean
+    idempotencyKey?: boolean
+    payloadJson?: boolean
+    errorMessage?: boolean
+    receivedAt?: boolean
+    processedAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    invoice?: boolean | EInvoicingEvent$invoiceArgs<ExtArgs>
+    receivedInvoice?: boolean | EInvoicingEvent$receivedInvoiceArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingEvent"]>
+
+  export type EInvoicingEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    invoiceId?: boolean
+    receivedInvoiceId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    eventType?: boolean
+    providerStatus?: boolean
+    idempotencyKey?: boolean
+    payloadJson?: boolean
+    errorMessage?: boolean
+    receivedAt?: boolean
+    processedAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    invoice?: boolean | EInvoicingEvent$invoiceArgs<ExtArgs>
+    receivedInvoice?: boolean | EInvoicingEvent$receivedInvoiceArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingEvent"]>
+
+  export type EInvoicingEventSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    invoiceId?: boolean
+    receivedInvoiceId?: boolean
+    provider?: boolean
+    providerInvoiceId?: boolean
+    eventType?: boolean
+    providerStatus?: boolean
+    idempotencyKey?: boolean
+    payloadJson?: boolean
+    errorMessage?: boolean
+    receivedAt?: boolean
+    processedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type EInvoicingEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "invoiceId" | "receivedInvoiceId" | "provider" | "providerInvoiceId" | "eventType" | "providerStatus" | "idempotencyKey" | "payloadJson" | "errorMessage" | "receivedAt" | "processedAt" | "createdAt", ExtArgs["result"]["eInvoicingEvent"]>
+  export type EInvoicingEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    invoice?: boolean | EInvoicingEvent$invoiceArgs<ExtArgs>
+    receivedInvoice?: boolean | EInvoicingEvent$receivedInvoiceArgs<ExtArgs>
+  }
+  export type EInvoicingEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    invoice?: boolean | EInvoicingEvent$invoiceArgs<ExtArgs>
+    receivedInvoice?: boolean | EInvoicingEvent$receivedInvoiceArgs<ExtArgs>
+  }
+  export type EInvoicingEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    invoice?: boolean | EInvoicingEvent$invoiceArgs<ExtArgs>
+    receivedInvoice?: boolean | EInvoicingEvent$receivedInvoiceArgs<ExtArgs>
+  }
+
+  export type $EInvoicingEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EInvoicingEvent"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      invoice: Prisma.$InvoicePayload<ExtArgs> | null
+      receivedInvoice: Prisma.$ReceivedInvoicePayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      invoiceId: string | null
+      receivedInvoiceId: string | null
+      provider: string
+      providerInvoiceId: string | null
+      eventType: string
+      providerStatus: string | null
+      idempotencyKey: string | null
+      payloadJson: Prisma.JsonValue | null
+      errorMessage: string | null
+      receivedAt: Date
+      processedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["eInvoicingEvent"]>
+    composites: {}
+  }
+
+  type EInvoicingEventGetPayload<S extends boolean | null | undefined | EInvoicingEventDefaultArgs> = $Result.GetResult<Prisma.$EInvoicingEventPayload, S>
+
+  type EInvoicingEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EInvoicingEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EInvoicingEventCountAggregateInputType | true
+    }
+
+  export interface EInvoicingEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EInvoicingEvent'], meta: { name: 'EInvoicingEvent' } }
+    /**
+     * Find zero or one EInvoicingEvent that matches the filter.
+     * @param {EInvoicingEventFindUniqueArgs} args - Arguments to find a EInvoicingEvent
+     * @example
+     * // Get one EInvoicingEvent
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EInvoicingEventFindUniqueArgs>(args: SelectSubset<T, EInvoicingEventFindUniqueArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EInvoicingEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EInvoicingEventFindUniqueOrThrowArgs} args - Arguments to find a EInvoicingEvent
+     * @example
+     * // Get one EInvoicingEvent
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EInvoicingEventFindUniqueOrThrowArgs>(args: SelectSubset<T, EInvoicingEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EInvoicingEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingEventFindFirstArgs} args - Arguments to find a EInvoicingEvent
+     * @example
+     * // Get one EInvoicingEvent
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EInvoicingEventFindFirstArgs>(args?: SelectSubset<T, EInvoicingEventFindFirstArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EInvoicingEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingEventFindFirstOrThrowArgs} args - Arguments to find a EInvoicingEvent
+     * @example
+     * // Get one EInvoicingEvent
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EInvoicingEventFindFirstOrThrowArgs>(args?: SelectSubset<T, EInvoicingEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EInvoicingEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EInvoicingEvents
+     * const eInvoicingEvents = await prisma.eInvoicingEvent.findMany()
+     * 
+     * // Get first 10 EInvoicingEvents
+     * const eInvoicingEvents = await prisma.eInvoicingEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eInvoicingEventWithIdOnly = await prisma.eInvoicingEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EInvoicingEventFindManyArgs>(args?: SelectSubset<T, EInvoicingEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EInvoicingEvent.
+     * @param {EInvoicingEventCreateArgs} args - Arguments to create a EInvoicingEvent.
+     * @example
+     * // Create one EInvoicingEvent
+     * const EInvoicingEvent = await prisma.eInvoicingEvent.create({
+     *   data: {
+     *     // ... data to create a EInvoicingEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends EInvoicingEventCreateArgs>(args: SelectSubset<T, EInvoicingEventCreateArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EInvoicingEvents.
+     * @param {EInvoicingEventCreateManyArgs} args - Arguments to create many EInvoicingEvents.
+     * @example
+     * // Create many EInvoicingEvents
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EInvoicingEventCreateManyArgs>(args?: SelectSubset<T, EInvoicingEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EInvoicingEvents and returns the data saved in the database.
+     * @param {EInvoicingEventCreateManyAndReturnArgs} args - Arguments to create many EInvoicingEvents.
+     * @example
+     * // Create many EInvoicingEvents
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EInvoicingEvents and only return the `id`
+     * const eInvoicingEventWithIdOnly = await prisma.eInvoicingEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EInvoicingEventCreateManyAndReturnArgs>(args?: SelectSubset<T, EInvoicingEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EInvoicingEvent.
+     * @param {EInvoicingEventDeleteArgs} args - Arguments to delete one EInvoicingEvent.
+     * @example
+     * // Delete one EInvoicingEvent
+     * const EInvoicingEvent = await prisma.eInvoicingEvent.delete({
+     *   where: {
+     *     // ... filter to delete one EInvoicingEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EInvoicingEventDeleteArgs>(args: SelectSubset<T, EInvoicingEventDeleteArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EInvoicingEvent.
+     * @param {EInvoicingEventUpdateArgs} args - Arguments to update one EInvoicingEvent.
+     * @example
+     * // Update one EInvoicingEvent
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EInvoicingEventUpdateArgs>(args: SelectSubset<T, EInvoicingEventUpdateArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EInvoicingEvents.
+     * @param {EInvoicingEventDeleteManyArgs} args - Arguments to filter EInvoicingEvents to delete.
+     * @example
+     * // Delete a few EInvoicingEvents
+     * const { count } = await prisma.eInvoicingEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EInvoicingEventDeleteManyArgs>(args?: SelectSubset<T, EInvoicingEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EInvoicingEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EInvoicingEvents
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EInvoicingEventUpdateManyArgs>(args: SelectSubset<T, EInvoicingEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EInvoicingEvents and returns the data updated in the database.
+     * @param {EInvoicingEventUpdateManyAndReturnArgs} args - Arguments to update many EInvoicingEvents.
+     * @example
+     * // Update many EInvoicingEvents
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EInvoicingEvents and only return the `id`
+     * const eInvoicingEventWithIdOnly = await prisma.eInvoicingEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EInvoicingEventUpdateManyAndReturnArgs>(args: SelectSubset<T, EInvoicingEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EInvoicingEvent.
+     * @param {EInvoicingEventUpsertArgs} args - Arguments to update or create a EInvoicingEvent.
+     * @example
+     * // Update or create a EInvoicingEvent
+     * const eInvoicingEvent = await prisma.eInvoicingEvent.upsert({
+     *   create: {
+     *     // ... data to create a EInvoicingEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EInvoicingEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EInvoicingEventUpsertArgs>(args: SelectSubset<T, EInvoicingEventUpsertArgs<ExtArgs>>): Prisma__EInvoicingEventClient<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EInvoicingEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingEventCountArgs} args - Arguments to filter EInvoicingEvents to count.
+     * @example
+     * // Count the number of EInvoicingEvents
+     * const count = await prisma.eInvoicingEvent.count({
+     *   where: {
+     *     // ... the filter for the EInvoicingEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends EInvoicingEventCountArgs>(
+      args?: Subset<T, EInvoicingEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EInvoicingEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EInvoicingEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EInvoicingEventAggregateArgs>(args: Subset<T, EInvoicingEventAggregateArgs>): Prisma.PrismaPromise<GetEInvoicingEventAggregateType<T>>
+
+    /**
+     * Group by EInvoicingEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EInvoicingEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EInvoicingEventGroupByArgs['orderBy'] }
+        : { orderBy?: EInvoicingEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EInvoicingEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEInvoicingEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EInvoicingEvent model
+   */
+  readonly fields: EInvoicingEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EInvoicingEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EInvoicingEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    invoice<T extends EInvoicingEvent$invoiceArgs<ExtArgs> = {}>(args?: Subset<T, EInvoicingEvent$invoiceArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    receivedInvoice<T extends EInvoicingEvent$receivedInvoiceArgs<ExtArgs> = {}>(args?: Subset<T, EInvoicingEvent$receivedInvoiceArgs<ExtArgs>>): Prisma__ReceivedInvoiceClient<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EInvoicingEvent model
+   */
+  interface EInvoicingEventFieldRefs {
+    readonly id: FieldRef<"EInvoicingEvent", 'String'>
+    readonly companyId: FieldRef<"EInvoicingEvent", 'String'>
+    readonly invoiceId: FieldRef<"EInvoicingEvent", 'String'>
+    readonly receivedInvoiceId: FieldRef<"EInvoicingEvent", 'String'>
+    readonly provider: FieldRef<"EInvoicingEvent", 'String'>
+    readonly providerInvoiceId: FieldRef<"EInvoicingEvent", 'String'>
+    readonly eventType: FieldRef<"EInvoicingEvent", 'String'>
+    readonly providerStatus: FieldRef<"EInvoicingEvent", 'String'>
+    readonly idempotencyKey: FieldRef<"EInvoicingEvent", 'String'>
+    readonly payloadJson: FieldRef<"EInvoicingEvent", 'Json'>
+    readonly errorMessage: FieldRef<"EInvoicingEvent", 'String'>
+    readonly receivedAt: FieldRef<"EInvoicingEvent", 'DateTime'>
+    readonly processedAt: FieldRef<"EInvoicingEvent", 'DateTime'>
+    readonly createdAt: FieldRef<"EInvoicingEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EInvoicingEvent findUnique
+   */
+  export type EInvoicingEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingEvent to fetch.
+     */
+    where: EInvoicingEventWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingEvent findUniqueOrThrow
+   */
+  export type EInvoicingEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingEvent to fetch.
+     */
+    where: EInvoicingEventWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingEvent findFirst
+   */
+  export type EInvoicingEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingEvent to fetch.
+     */
+    where?: EInvoicingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingEvents to fetch.
+     */
+    orderBy?: EInvoicingEventOrderByWithRelationInput | EInvoicingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EInvoicingEvents.
+     */
+    cursor?: EInvoicingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingEvents.
+     */
+    distinct?: EInvoicingEventScalarFieldEnum | EInvoicingEventScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingEvent findFirstOrThrow
+   */
+  export type EInvoicingEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingEvent to fetch.
+     */
+    where?: EInvoicingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingEvents to fetch.
+     */
+    orderBy?: EInvoicingEventOrderByWithRelationInput | EInvoicingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EInvoicingEvents.
+     */
+    cursor?: EInvoicingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingEvents.
+     */
+    distinct?: EInvoicingEventScalarFieldEnum | EInvoicingEventScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingEvent findMany
+   */
+  export type EInvoicingEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingEvents to fetch.
+     */
+    where?: EInvoicingEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingEvents to fetch.
+     */
+    orderBy?: EInvoicingEventOrderByWithRelationInput | EInvoicingEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EInvoicingEvents.
+     */
+    cursor?: EInvoicingEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingEvents.
+     */
+    distinct?: EInvoicingEventScalarFieldEnum | EInvoicingEventScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingEvent create
+   */
+  export type EInvoicingEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EInvoicingEvent.
+     */
+    data: XOR<EInvoicingEventCreateInput, EInvoicingEventUncheckedCreateInput>
+  }
+
+  /**
+   * EInvoicingEvent createMany
+   */
+  export type EInvoicingEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EInvoicingEvents.
+     */
+    data: EInvoicingEventCreateManyInput | EInvoicingEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EInvoicingEvent createManyAndReturn
+   */
+  export type EInvoicingEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many EInvoicingEvents.
+     */
+    data: EInvoicingEventCreateManyInput | EInvoicingEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EInvoicingEvent update
+   */
+  export type EInvoicingEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EInvoicingEvent.
+     */
+    data: XOR<EInvoicingEventUpdateInput, EInvoicingEventUncheckedUpdateInput>
+    /**
+     * Choose, which EInvoicingEvent to update.
+     */
+    where: EInvoicingEventWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingEvent updateMany
+   */
+  export type EInvoicingEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EInvoicingEvents.
+     */
+    data: XOR<EInvoicingEventUpdateManyMutationInput, EInvoicingEventUncheckedUpdateManyInput>
+    /**
+     * Filter which EInvoicingEvents to update
+     */
+    where?: EInvoicingEventWhereInput
+    /**
+     * Limit how many EInvoicingEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EInvoicingEvent updateManyAndReturn
+   */
+  export type EInvoicingEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * The data used to update EInvoicingEvents.
+     */
+    data: XOR<EInvoicingEventUpdateManyMutationInput, EInvoicingEventUncheckedUpdateManyInput>
+    /**
+     * Filter which EInvoicingEvents to update
+     */
+    where?: EInvoicingEventWhereInput
+    /**
+     * Limit how many EInvoicingEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EInvoicingEvent upsert
+   */
+  export type EInvoicingEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EInvoicingEvent to update in case it exists.
+     */
+    where: EInvoicingEventWhereUniqueInput
+    /**
+     * In case the EInvoicingEvent found by the `where` argument doesn't exist, create a new EInvoicingEvent with this data.
+     */
+    create: XOR<EInvoicingEventCreateInput, EInvoicingEventUncheckedCreateInput>
+    /**
+     * In case the EInvoicingEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EInvoicingEventUpdateInput, EInvoicingEventUncheckedUpdateInput>
+  }
+
+  /**
+   * EInvoicingEvent delete
+   */
+  export type EInvoicingEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+    /**
+     * Filter which EInvoicingEvent to delete.
+     */
+    where: EInvoicingEventWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingEvent deleteMany
+   */
+  export type EInvoicingEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EInvoicingEvents to delete
+     */
+    where?: EInvoicingEventWhereInput
+    /**
+     * Limit how many EInvoicingEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EInvoicingEvent.invoice
+   */
+  export type EInvoicingEvent$invoiceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    where?: InvoiceWhereInput
+  }
+
+  /**
+   * EInvoicingEvent.receivedInvoice
+   */
+  export type EInvoicingEvent$receivedInvoiceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReceivedInvoice
+     */
+    select?: ReceivedInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReceivedInvoice
+     */
+    omit?: ReceivedInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReceivedInvoiceInclude<ExtArgs> | null
+    where?: ReceivedInvoiceWhereInput
+  }
+
+  /**
+   * EInvoicingEvent without action
+   */
+  export type EInvoicingEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingEvent
+     */
+    select?: EInvoicingEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingEvent
+     */
+    omit?: EInvoicingEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingEventInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EInvoicingJob
+   */
+
+  export type AggregateEInvoicingJob = {
+    _count: EInvoicingJobCountAggregateOutputType | null
+    _avg: EInvoicingJobAvgAggregateOutputType | null
+    _sum: EInvoicingJobSumAggregateOutputType | null
+    _min: EInvoicingJobMinAggregateOutputType | null
+    _max: EInvoicingJobMaxAggregateOutputType | null
+  }
+
+  export type EInvoicingJobAvgAggregateOutputType = {
+    attempts: number | null
+    maxAttempts: number | null
+  }
+
+  export type EInvoicingJobSumAggregateOutputType = {
+    attempts: number | null
+    maxAttempts: number | null
+  }
+
+  export type EInvoicingJobMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    type: $Enums.EInvoicingJobType | null
+    status: $Enums.EInvoicingJobStatus | null
+    attempts: number | null
+    maxAttempts: number | null
+    nextRunAt: Date | null
+    lockedAt: Date | null
+    lockedBy: string | null
+    lastError: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EInvoicingJobMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    type: $Enums.EInvoicingJobType | null
+    status: $Enums.EInvoicingJobStatus | null
+    attempts: number | null
+    maxAttempts: number | null
+    nextRunAt: Date | null
+    lockedAt: Date | null
+    lockedBy: string | null
+    lastError: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EInvoicingJobCountAggregateOutputType = {
+    id: number
+    companyId: number
+    type: number
+    payload: number
+    status: number
+    attempts: number
+    maxAttempts: number
+    nextRunAt: number
+    lockedAt: number
+    lockedBy: number
+    lastError: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EInvoicingJobAvgAggregateInputType = {
+    attempts?: true
+    maxAttempts?: true
+  }
+
+  export type EInvoicingJobSumAggregateInputType = {
+    attempts?: true
+    maxAttempts?: true
+  }
+
+  export type EInvoicingJobMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    type?: true
+    status?: true
+    attempts?: true
+    maxAttempts?: true
+    nextRunAt?: true
+    lockedAt?: true
+    lockedBy?: true
+    lastError?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EInvoicingJobMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    type?: true
+    status?: true
+    attempts?: true
+    maxAttempts?: true
+    nextRunAt?: true
+    lockedAt?: true
+    lockedBy?: true
+    lastError?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EInvoicingJobCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    type?: true
+    payload?: true
+    status?: true
+    attempts?: true
+    maxAttempts?: true
+    nextRunAt?: true
+    lockedAt?: true
+    lockedBy?: true
+    lastError?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EInvoicingJobAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EInvoicingJob to aggregate.
+     */
+    where?: EInvoicingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingJobs to fetch.
+     */
+    orderBy?: EInvoicingJobOrderByWithRelationInput | EInvoicingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EInvoicingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EInvoicingJobs
+    **/
+    _count?: true | EInvoicingJobCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EInvoicingJobAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EInvoicingJobSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EInvoicingJobMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EInvoicingJobMaxAggregateInputType
+  }
+
+  export type GetEInvoicingJobAggregateType<T extends EInvoicingJobAggregateArgs> = {
+        [P in keyof T & keyof AggregateEInvoicingJob]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEInvoicingJob[P]>
+      : GetScalarType<T[P], AggregateEInvoicingJob[P]>
+  }
+
+
+
+
+  export type EInvoicingJobGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EInvoicingJobWhereInput
+    orderBy?: EInvoicingJobOrderByWithAggregationInput | EInvoicingJobOrderByWithAggregationInput[]
+    by: EInvoicingJobScalarFieldEnum[] | EInvoicingJobScalarFieldEnum
+    having?: EInvoicingJobScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EInvoicingJobCountAggregateInputType | true
+    _avg?: EInvoicingJobAvgAggregateInputType
+    _sum?: EInvoicingJobSumAggregateInputType
+    _min?: EInvoicingJobMinAggregateInputType
+    _max?: EInvoicingJobMaxAggregateInputType
+  }
+
+  export type EInvoicingJobGroupByOutputType = {
+    id: string
+    companyId: string
+    type: $Enums.EInvoicingJobType
+    payload: JsonValue
+    status: $Enums.EInvoicingJobStatus
+    attempts: number
+    maxAttempts: number
+    nextRunAt: Date
+    lockedAt: Date | null
+    lockedBy: string | null
+    lastError: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EInvoicingJobCountAggregateOutputType | null
+    _avg: EInvoicingJobAvgAggregateOutputType | null
+    _sum: EInvoicingJobSumAggregateOutputType | null
+    _min: EInvoicingJobMinAggregateOutputType | null
+    _max: EInvoicingJobMaxAggregateOutputType | null
+  }
+
+  type GetEInvoicingJobGroupByPayload<T extends EInvoicingJobGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EInvoicingJobGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EInvoicingJobGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EInvoicingJobGroupByOutputType[P]>
+            : GetScalarType<T[P], EInvoicingJobGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EInvoicingJobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    type?: boolean
+    payload?: boolean
+    status?: boolean
+    attempts?: boolean
+    maxAttempts?: boolean
+    nextRunAt?: boolean
+    lockedAt?: boolean
+    lockedBy?: boolean
+    lastError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingJob"]>
+
+  export type EInvoicingJobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    type?: boolean
+    payload?: boolean
+    status?: boolean
+    attempts?: boolean
+    maxAttempts?: boolean
+    nextRunAt?: boolean
+    lockedAt?: boolean
+    lockedBy?: boolean
+    lastError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingJob"]>
+
+  export type EInvoicingJobSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    type?: boolean
+    payload?: boolean
+    status?: boolean
+    attempts?: boolean
+    maxAttempts?: boolean
+    nextRunAt?: boolean
+    lockedAt?: boolean
+    lockedBy?: boolean
+    lastError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eInvoicingJob"]>
+
+  export type EInvoicingJobSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    type?: boolean
+    payload?: boolean
+    status?: boolean
+    attempts?: boolean
+    maxAttempts?: boolean
+    nextRunAt?: boolean
+    lockedAt?: boolean
+    lockedBy?: boolean
+    lastError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EInvoicingJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "type" | "payload" | "status" | "attempts" | "maxAttempts" | "nextRunAt" | "lockedAt" | "lockedBy" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["eInvoicingJob"]>
+  export type EInvoicingJobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type EInvoicingJobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type EInvoicingJobIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $EInvoicingJobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EInvoicingJob"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      type: $Enums.EInvoicingJobType
+      payload: Prisma.JsonValue
+      status: $Enums.EInvoicingJobStatus
+      attempts: number
+      maxAttempts: number
+      nextRunAt: Date
+      lockedAt: Date | null
+      lockedBy: string | null
+      lastError: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["eInvoicingJob"]>
+    composites: {}
+  }
+
+  type EInvoicingJobGetPayload<S extends boolean | null | undefined | EInvoicingJobDefaultArgs> = $Result.GetResult<Prisma.$EInvoicingJobPayload, S>
+
+  type EInvoicingJobCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EInvoicingJobFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EInvoicingJobCountAggregateInputType | true
+    }
+
+  export interface EInvoicingJobDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EInvoicingJob'], meta: { name: 'EInvoicingJob' } }
+    /**
+     * Find zero or one EInvoicingJob that matches the filter.
+     * @param {EInvoicingJobFindUniqueArgs} args - Arguments to find a EInvoicingJob
+     * @example
+     * // Get one EInvoicingJob
+     * const eInvoicingJob = await prisma.eInvoicingJob.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EInvoicingJobFindUniqueArgs>(args: SelectSubset<T, EInvoicingJobFindUniqueArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EInvoicingJob that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EInvoicingJobFindUniqueOrThrowArgs} args - Arguments to find a EInvoicingJob
+     * @example
+     * // Get one EInvoicingJob
+     * const eInvoicingJob = await prisma.eInvoicingJob.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EInvoicingJobFindUniqueOrThrowArgs>(args: SelectSubset<T, EInvoicingJobFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EInvoicingJob that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingJobFindFirstArgs} args - Arguments to find a EInvoicingJob
+     * @example
+     * // Get one EInvoicingJob
+     * const eInvoicingJob = await prisma.eInvoicingJob.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EInvoicingJobFindFirstArgs>(args?: SelectSubset<T, EInvoicingJobFindFirstArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EInvoicingJob that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingJobFindFirstOrThrowArgs} args - Arguments to find a EInvoicingJob
+     * @example
+     * // Get one EInvoicingJob
+     * const eInvoicingJob = await prisma.eInvoicingJob.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EInvoicingJobFindFirstOrThrowArgs>(args?: SelectSubset<T, EInvoicingJobFindFirstOrThrowArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EInvoicingJobs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingJobFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EInvoicingJobs
+     * const eInvoicingJobs = await prisma.eInvoicingJob.findMany()
+     * 
+     * // Get first 10 EInvoicingJobs
+     * const eInvoicingJobs = await prisma.eInvoicingJob.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eInvoicingJobWithIdOnly = await prisma.eInvoicingJob.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EInvoicingJobFindManyArgs>(args?: SelectSubset<T, EInvoicingJobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EInvoicingJob.
+     * @param {EInvoicingJobCreateArgs} args - Arguments to create a EInvoicingJob.
+     * @example
+     * // Create one EInvoicingJob
+     * const EInvoicingJob = await prisma.eInvoicingJob.create({
+     *   data: {
+     *     // ... data to create a EInvoicingJob
+     *   }
+     * })
+     * 
+     */
+    create<T extends EInvoicingJobCreateArgs>(args: SelectSubset<T, EInvoicingJobCreateArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EInvoicingJobs.
+     * @param {EInvoicingJobCreateManyArgs} args - Arguments to create many EInvoicingJobs.
+     * @example
+     * // Create many EInvoicingJobs
+     * const eInvoicingJob = await prisma.eInvoicingJob.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EInvoicingJobCreateManyArgs>(args?: SelectSubset<T, EInvoicingJobCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EInvoicingJobs and returns the data saved in the database.
+     * @param {EInvoicingJobCreateManyAndReturnArgs} args - Arguments to create many EInvoicingJobs.
+     * @example
+     * // Create many EInvoicingJobs
+     * const eInvoicingJob = await prisma.eInvoicingJob.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EInvoicingJobs and only return the `id`
+     * const eInvoicingJobWithIdOnly = await prisma.eInvoicingJob.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EInvoicingJobCreateManyAndReturnArgs>(args?: SelectSubset<T, EInvoicingJobCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EInvoicingJob.
+     * @param {EInvoicingJobDeleteArgs} args - Arguments to delete one EInvoicingJob.
+     * @example
+     * // Delete one EInvoicingJob
+     * const EInvoicingJob = await prisma.eInvoicingJob.delete({
+     *   where: {
+     *     // ... filter to delete one EInvoicingJob
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EInvoicingJobDeleteArgs>(args: SelectSubset<T, EInvoicingJobDeleteArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EInvoicingJob.
+     * @param {EInvoicingJobUpdateArgs} args - Arguments to update one EInvoicingJob.
+     * @example
+     * // Update one EInvoicingJob
+     * const eInvoicingJob = await prisma.eInvoicingJob.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EInvoicingJobUpdateArgs>(args: SelectSubset<T, EInvoicingJobUpdateArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EInvoicingJobs.
+     * @param {EInvoicingJobDeleteManyArgs} args - Arguments to filter EInvoicingJobs to delete.
+     * @example
+     * // Delete a few EInvoicingJobs
+     * const { count } = await prisma.eInvoicingJob.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EInvoicingJobDeleteManyArgs>(args?: SelectSubset<T, EInvoicingJobDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EInvoicingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingJobUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EInvoicingJobs
+     * const eInvoicingJob = await prisma.eInvoicingJob.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EInvoicingJobUpdateManyArgs>(args: SelectSubset<T, EInvoicingJobUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EInvoicingJobs and returns the data updated in the database.
+     * @param {EInvoicingJobUpdateManyAndReturnArgs} args - Arguments to update many EInvoicingJobs.
+     * @example
+     * // Update many EInvoicingJobs
+     * const eInvoicingJob = await prisma.eInvoicingJob.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EInvoicingJobs and only return the `id`
+     * const eInvoicingJobWithIdOnly = await prisma.eInvoicingJob.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EInvoicingJobUpdateManyAndReturnArgs>(args: SelectSubset<T, EInvoicingJobUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EInvoicingJob.
+     * @param {EInvoicingJobUpsertArgs} args - Arguments to update or create a EInvoicingJob.
+     * @example
+     * // Update or create a EInvoicingJob
+     * const eInvoicingJob = await prisma.eInvoicingJob.upsert({
+     *   create: {
+     *     // ... data to create a EInvoicingJob
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EInvoicingJob we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EInvoicingJobUpsertArgs>(args: SelectSubset<T, EInvoicingJobUpsertArgs<ExtArgs>>): Prisma__EInvoicingJobClient<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EInvoicingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingJobCountArgs} args - Arguments to filter EInvoicingJobs to count.
+     * @example
+     * // Count the number of EInvoicingJobs
+     * const count = await prisma.eInvoicingJob.count({
+     *   where: {
+     *     // ... the filter for the EInvoicingJobs we want to count
+     *   }
+     * })
+    **/
+    count<T extends EInvoicingJobCountArgs>(
+      args?: Subset<T, EInvoicingJobCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EInvoicingJobCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EInvoicingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingJobAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EInvoicingJobAggregateArgs>(args: Subset<T, EInvoicingJobAggregateArgs>): Prisma.PrismaPromise<GetEInvoicingJobAggregateType<T>>
+
+    /**
+     * Group by EInvoicingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EInvoicingJobGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EInvoicingJobGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EInvoicingJobGroupByArgs['orderBy'] }
+        : { orderBy?: EInvoicingJobGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EInvoicingJobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEInvoicingJobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EInvoicingJob model
+   */
+  readonly fields: EInvoicingJobFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EInvoicingJob.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EInvoicingJobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EInvoicingJob model
+   */
+  interface EInvoicingJobFieldRefs {
+    readonly id: FieldRef<"EInvoicingJob", 'String'>
+    readonly companyId: FieldRef<"EInvoicingJob", 'String'>
+    readonly type: FieldRef<"EInvoicingJob", 'EInvoicingJobType'>
+    readonly payload: FieldRef<"EInvoicingJob", 'Json'>
+    readonly status: FieldRef<"EInvoicingJob", 'EInvoicingJobStatus'>
+    readonly attempts: FieldRef<"EInvoicingJob", 'Int'>
+    readonly maxAttempts: FieldRef<"EInvoicingJob", 'Int'>
+    readonly nextRunAt: FieldRef<"EInvoicingJob", 'DateTime'>
+    readonly lockedAt: FieldRef<"EInvoicingJob", 'DateTime'>
+    readonly lockedBy: FieldRef<"EInvoicingJob", 'String'>
+    readonly lastError: FieldRef<"EInvoicingJob", 'String'>
+    readonly createdAt: FieldRef<"EInvoicingJob", 'DateTime'>
+    readonly updatedAt: FieldRef<"EInvoicingJob", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EInvoicingJob findUnique
+   */
+  export type EInvoicingJobFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingJob to fetch.
+     */
+    where: EInvoicingJobWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingJob findUniqueOrThrow
+   */
+  export type EInvoicingJobFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingJob to fetch.
+     */
+    where: EInvoicingJobWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingJob findFirst
+   */
+  export type EInvoicingJobFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingJob to fetch.
+     */
+    where?: EInvoicingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingJobs to fetch.
+     */
+    orderBy?: EInvoicingJobOrderByWithRelationInput | EInvoicingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EInvoicingJobs.
+     */
+    cursor?: EInvoicingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingJobs.
+     */
+    distinct?: EInvoicingJobScalarFieldEnum | EInvoicingJobScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingJob findFirstOrThrow
+   */
+  export type EInvoicingJobFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingJob to fetch.
+     */
+    where?: EInvoicingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingJobs to fetch.
+     */
+    orderBy?: EInvoicingJobOrderByWithRelationInput | EInvoicingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EInvoicingJobs.
+     */
+    cursor?: EInvoicingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingJobs.
+     */
+    distinct?: EInvoicingJobScalarFieldEnum | EInvoicingJobScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingJob findMany
+   */
+  export type EInvoicingJobFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which EInvoicingJobs to fetch.
+     */
+    where?: EInvoicingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EInvoicingJobs to fetch.
+     */
+    orderBy?: EInvoicingJobOrderByWithRelationInput | EInvoicingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EInvoicingJobs.
+     */
+    cursor?: EInvoicingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EInvoicingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EInvoicingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EInvoicingJobs.
+     */
+    distinct?: EInvoicingJobScalarFieldEnum | EInvoicingJobScalarFieldEnum[]
+  }
+
+  /**
+   * EInvoicingJob create
+   */
+  export type EInvoicingJobCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EInvoicingJob.
+     */
+    data: XOR<EInvoicingJobCreateInput, EInvoicingJobUncheckedCreateInput>
+  }
+
+  /**
+   * EInvoicingJob createMany
+   */
+  export type EInvoicingJobCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EInvoicingJobs.
+     */
+    data: EInvoicingJobCreateManyInput | EInvoicingJobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EInvoicingJob createManyAndReturn
+   */
+  export type EInvoicingJobCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * The data used to create many EInvoicingJobs.
+     */
+    data: EInvoicingJobCreateManyInput | EInvoicingJobCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EInvoicingJob update
+   */
+  export type EInvoicingJobUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EInvoicingJob.
+     */
+    data: XOR<EInvoicingJobUpdateInput, EInvoicingJobUncheckedUpdateInput>
+    /**
+     * Choose, which EInvoicingJob to update.
+     */
+    where: EInvoicingJobWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingJob updateMany
+   */
+  export type EInvoicingJobUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EInvoicingJobs.
+     */
+    data: XOR<EInvoicingJobUpdateManyMutationInput, EInvoicingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which EInvoicingJobs to update
+     */
+    where?: EInvoicingJobWhereInput
+    /**
+     * Limit how many EInvoicingJobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EInvoicingJob updateManyAndReturn
+   */
+  export type EInvoicingJobUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * The data used to update EInvoicingJobs.
+     */
+    data: XOR<EInvoicingJobUpdateManyMutationInput, EInvoicingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which EInvoicingJobs to update
+     */
+    where?: EInvoicingJobWhereInput
+    /**
+     * Limit how many EInvoicingJobs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EInvoicingJob upsert
+   */
+  export type EInvoicingJobUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EInvoicingJob to update in case it exists.
+     */
+    where: EInvoicingJobWhereUniqueInput
+    /**
+     * In case the EInvoicingJob found by the `where` argument doesn't exist, create a new EInvoicingJob with this data.
+     */
+    create: XOR<EInvoicingJobCreateInput, EInvoicingJobUncheckedCreateInput>
+    /**
+     * In case the EInvoicingJob was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EInvoicingJobUpdateInput, EInvoicingJobUncheckedUpdateInput>
+  }
+
+  /**
+   * EInvoicingJob delete
+   */
+  export type EInvoicingJobDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+    /**
+     * Filter which EInvoicingJob to delete.
+     */
+    where: EInvoicingJobWhereUniqueInput
+  }
+
+  /**
+   * EInvoicingJob deleteMany
+   */
+  export type EInvoicingJobDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EInvoicingJobs to delete
+     */
+    where?: EInvoicingJobWhereInput
+    /**
+     * Limit how many EInvoicingJobs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EInvoicingJob without action
+   */
+  export type EInvoicingJobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EInvoicingJob
+     */
+    select?: EInvoicingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EInvoicingJob
+     */
+    omit?: EInvoicingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EInvoicingJobInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -45833,12 +54265,17 @@ export namespace Prisma {
     quoteNextNumber: 'quoteNextNumber',
     invoiceFooter: 'invoiceFooter',
     invoiceConditions: 'invoiceConditions',
+    invoiceColor: 'invoiceColor',
     defaultTvaRate: 'defaultTvaRate',
     defaultPaymentDays: 'defaultPaymentDays',
     defaultValidDays: 'defaultValidDays',
     workStartHour: 'workStartHour',
     workEndHour: 'workEndHour',
     workDays: 'workDays',
+    bankName: 'bankName',
+    bankIban: 'bankIban',
+    bankBic: 'bankBic',
+    bankAccountOwner: 'bankAccountOwner',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -45863,11 +54300,44 @@ export namespace Prisma {
     passwordResetToken: 'passwordResetToken',
     passwordResetExpiry: 'passwordResetExpiry',
     lastLoginAt: 'lastLoginAt',
+    twoFactorEnabled: 'twoFactorEnabled',
+    twoFactorSecret: 'twoFactorSecret',
+    twoFactorCode: 'twoFactorCode',
+    twoFactorExpiry: 'twoFactorExpiry',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const UserSessionScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    device: 'device',
+    browser: 'browser',
+    ip: 'ip',
+    location: 'location',
+    tokenIdentifier: 'tokenIdentifier',
+    isCurrent: 'isCurrent',
+    lastActiveAt: 'lastActiveAt',
+    createdAt: 'createdAt'
+  };
+
+  export type UserSessionScalarFieldEnum = (typeof UserSessionScalarFieldEnum)[keyof typeof UserSessionScalarFieldEnum]
+
+
+  export const LoginHistoryScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    email: 'email',
+    ip: 'ip',
+    device: 'device',
+    status: 'status',
+    createdAt: 'createdAt'
+  };
+
+  export type LoginHistoryScalarFieldEnum = (typeof LoginHistoryScalarFieldEnum)[keyof typeof LoginHistoryScalarFieldEnum]
 
 
   export const PushTokenScalarFieldEnum: {
@@ -46137,6 +54607,14 @@ export namespace Prisma {
     reminder1SentAt: 'reminder1SentAt',
     reminder2SentAt: 'reminder2SentAt',
     reminderSentAt: 'reminderSentAt',
+    einvoicingStatus: 'einvoicingStatus',
+    einvoicingProvider: 'einvoicingProvider',
+    providerInvoiceId: 'providerInvoiceId',
+    einvoicingSentAt: 'einvoicingSentAt',
+    einvoicingProcessedAt: 'einvoicingProcessedAt',
+    einvoicingTransmissionId: 'einvoicingTransmissionId',
+    einvoicingError: 'einvoicingError',
+    einvoicingRawPayload: 'einvoicingRawPayload',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -46386,6 +54864,102 @@ export namespace Prisma {
   export type AdminAuditLogScalarFieldEnum = (typeof AdminAuditLogScalarFieldEnum)[keyof typeof AdminAuditLogScalarFieldEnum]
 
 
+  export const EInvoicingConnectionScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    provider: 'provider',
+    providerAccountId: 'providerAccountId',
+    environment: 'environment',
+    status: 'status',
+    apiKeyEncrypted: 'apiKeyEncrypted',
+    apiSecretEncrypted: 'apiSecretEncrypted',
+    accessTokenEncrypted: 'accessTokenEncrypted',
+    refreshTokenEncrypted: 'refreshTokenEncrypted',
+    tokenExpiresAt: 'tokenExpiresAt',
+    receivingEnabled: 'receivingEnabled',
+    emissionEnabled: 'emissionEnabled',
+    autoSyncIncoming: 'autoSyncIncoming',
+    lastSyncAt: 'lastSyncAt',
+    lastSyncError: 'lastSyncError',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EInvoicingConnectionScalarFieldEnum = (typeof EInvoicingConnectionScalarFieldEnum)[keyof typeof EInvoicingConnectionScalarFieldEnum]
+
+
+  export const ReceivedInvoiceScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    provider: 'provider',
+    providerInvoiceId: 'providerInvoiceId',
+    supplierName: 'supplierName',
+    supplierSiren: 'supplierSiren',
+    supplierSiret: 'supplierSiret',
+    supplierVatNumber: 'supplierVatNumber',
+    supplierAddress: 'supplierAddress',
+    supplierCity: 'supplierCity',
+    supplierPostalCode: 'supplierPostalCode',
+    supplierCountry: 'supplierCountry',
+    supplierEmail: 'supplierEmail',
+    invoiceNumber: 'invoiceNumber',
+    issueDate: 'issueDate',
+    dueDate: 'dueDate',
+    currency: 'currency',
+    totalHT: 'totalHT',
+    totalVAT: 'totalVAT',
+    totalTTC: 'totalTTC',
+    status: 'status',
+    structuredData: 'structuredData',
+    documentUrl: 'documentUrl',
+    rawFormat: 'rawFormat',
+    receivedAt: 'receivedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ReceivedInvoiceScalarFieldEnum = (typeof ReceivedInvoiceScalarFieldEnum)[keyof typeof ReceivedInvoiceScalarFieldEnum]
+
+
+  export const EInvoicingEventScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    invoiceId: 'invoiceId',
+    receivedInvoiceId: 'receivedInvoiceId',
+    provider: 'provider',
+    providerInvoiceId: 'providerInvoiceId',
+    eventType: 'eventType',
+    providerStatus: 'providerStatus',
+    idempotencyKey: 'idempotencyKey',
+    payloadJson: 'payloadJson',
+    errorMessage: 'errorMessage',
+    receivedAt: 'receivedAt',
+    processedAt: 'processedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type EInvoicingEventScalarFieldEnum = (typeof EInvoicingEventScalarFieldEnum)[keyof typeof EInvoicingEventScalarFieldEnum]
+
+
+  export const EInvoicingJobScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    type: 'type',
+    payload: 'payload',
+    status: 'status',
+    attempts: 'attempts',
+    maxAttempts: 'maxAttempts',
+    nextRunAt: 'nextRunAt',
+    lockedAt: 'lockedAt',
+    lockedBy: 'lockedBy',
+    lastError: 'lastError',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EInvoicingJobScalarFieldEnum = (typeof EInvoicingJobScalarFieldEnum)[keyof typeof EInvoicingJobScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -46400,6 +54974,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -46692,6 +55273,48 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'EInvoicingStatus'
+   */
+  export type EnumEInvoicingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingStatus[]'
+   */
+  export type ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingProviderType'
+   */
+  export type EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingProviderType'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingProviderType[]'
+   */
+  export type ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingProviderType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'MessageDirection'
    */
   export type EnumMessageDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageDirection'>
@@ -46734,20 +55357,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
    * Reference to a field of type 'AccountingExportType'
    */
   export type EnumAccountingExportTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccountingExportType'>
@@ -46786,6 +55395,48 @@ export namespace Prisma {
    * Reference to a field of type 'SystemRole[]'
    */
   export type ListEnumSystemRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SystemRole[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingConnectionStatus'
+   */
+  export type EnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingConnectionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingConnectionStatus[]'
+   */
+  export type ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingConnectionStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingJobType'
+   */
+  export type EnumEInvoicingJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingJobType'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingJobType[]'
+   */
+  export type ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingJobType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingJobStatus'
+   */
+  export type EnumEInvoicingJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingJobStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'EInvoicingJobStatus[]'
+   */
+  export type ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingJobStatus[]'>
     
   /**
    * Deep Input Types
@@ -46977,6 +55628,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportListRelationFilter
     tvaSummaries?: TvaSummaryListRelationFilter
     accountingIntegration?: XOR<AccountingIntegrationNullableScalarRelationFilter, AccountingIntegrationWhereInput> | null
+    einvoicingConnection?: XOR<EInvoicingConnectionNullableScalarRelationFilter, EInvoicingConnectionWhereInput> | null
+    receivedInvoices?: ReceivedInvoiceListRelationFilter
+    einvoicingEvents?: EInvoicingEventListRelationFilter
+    einvoicingJobs?: EInvoicingJobListRelationFilter
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -47024,6 +55679,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportOrderByRelationAggregateInput
     tvaSummaries?: TvaSummaryOrderByRelationAggregateInput
     accountingIntegration?: AccountingIntegrationOrderByWithRelationInput
+    einvoicingConnection?: EInvoicingConnectionOrderByWithRelationInput
+    receivedInvoices?: ReceivedInvoiceOrderByRelationAggregateInput
+    einvoicingEvents?: EInvoicingEventOrderByRelationAggregateInput
+    einvoicingJobs?: EInvoicingJobOrderByRelationAggregateInput
   }
 
   export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -47074,6 +55733,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportListRelationFilter
     tvaSummaries?: TvaSummaryListRelationFilter
     accountingIntegration?: XOR<AccountingIntegrationNullableScalarRelationFilter, AccountingIntegrationWhereInput> | null
+    einvoicingConnection?: XOR<EInvoicingConnectionNullableScalarRelationFilter, EInvoicingConnectionWhereInput> | null
+    receivedInvoices?: ReceivedInvoiceListRelationFilter
+    einvoicingEvents?: EInvoicingEventListRelationFilter
+    einvoicingJobs?: EInvoicingJobListRelationFilter
   }, "id" | "siret" | "siren" | "slug" | "stripeAccountId">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -47496,12 +56159,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFilter<"CompanySettings"> | number
     invoiceFooter?: StringNullableFilter<"CompanySettings"> | string | null
     invoiceConditions?: StringNullableFilter<"CompanySettings"> | string | null
+    invoiceColor?: StringNullableFilter<"CompanySettings"> | string | null
     defaultTvaRate?: FloatFilter<"CompanySettings"> | number
     defaultPaymentDays?: IntFilter<"CompanySettings"> | number
     defaultValidDays?: IntFilter<"CompanySettings"> | number
     workStartHour?: IntFilter<"CompanySettings"> | number
     workEndHour?: IntFilter<"CompanySettings"> | number
     workDays?: IntNullableListFilter<"CompanySettings">
+    bankName?: StringNullableFilter<"CompanySettings"> | string | null
+    bankIban?: StringNullableFilter<"CompanySettings"> | string | null
+    bankBic?: StringNullableFilter<"CompanySettings"> | string | null
+    bankAccountOwner?: StringNullableFilter<"CompanySettings"> | string | null
     createdAt?: DateTimeFilter<"CompanySettings"> | Date | string
     updatedAt?: DateTimeFilter<"CompanySettings"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -47541,12 +56209,17 @@ export namespace Prisma {
     quoteNextNumber?: SortOrder
     invoiceFooter?: SortOrderInput | SortOrder
     invoiceConditions?: SortOrderInput | SortOrder
+    invoiceColor?: SortOrderInput | SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
     workStartHour?: SortOrder
     workEndHour?: SortOrder
     workDays?: SortOrder
+    bankName?: SortOrderInput | SortOrder
+    bankIban?: SortOrderInput | SortOrder
+    bankBic?: SortOrderInput | SortOrder
+    bankAccountOwner?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
@@ -47589,12 +56262,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFilter<"CompanySettings"> | number
     invoiceFooter?: StringNullableFilter<"CompanySettings"> | string | null
     invoiceConditions?: StringNullableFilter<"CompanySettings"> | string | null
+    invoiceColor?: StringNullableFilter<"CompanySettings"> | string | null
     defaultTvaRate?: FloatFilter<"CompanySettings"> | number
     defaultPaymentDays?: IntFilter<"CompanySettings"> | number
     defaultValidDays?: IntFilter<"CompanySettings"> | number
     workStartHour?: IntFilter<"CompanySettings"> | number
     workEndHour?: IntFilter<"CompanySettings"> | number
     workDays?: IntNullableListFilter<"CompanySettings">
+    bankName?: StringNullableFilter<"CompanySettings"> | string | null
+    bankIban?: StringNullableFilter<"CompanySettings"> | string | null
+    bankBic?: StringNullableFilter<"CompanySettings"> | string | null
+    bankAccountOwner?: StringNullableFilter<"CompanySettings"> | string | null
     createdAt?: DateTimeFilter<"CompanySettings"> | Date | string
     updatedAt?: DateTimeFilter<"CompanySettings"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -47634,12 +56312,17 @@ export namespace Prisma {
     quoteNextNumber?: SortOrder
     invoiceFooter?: SortOrderInput | SortOrder
     invoiceConditions?: SortOrderInput | SortOrder
+    invoiceColor?: SortOrderInput | SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
     workStartHour?: SortOrder
     workEndHour?: SortOrder
     workDays?: SortOrder
+    bankName?: SortOrderInput | SortOrder
+    bankIban?: SortOrderInput | SortOrder
+    bankBic?: SortOrderInput | SortOrder
+    bankAccountOwner?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CompanySettingsCountOrderByAggregateInput
@@ -47686,12 +56369,17 @@ export namespace Prisma {
     quoteNextNumber?: IntWithAggregatesFilter<"CompanySettings"> | number
     invoiceFooter?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     invoiceConditions?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    invoiceColor?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     defaultTvaRate?: FloatWithAggregatesFilter<"CompanySettings"> | number
     defaultPaymentDays?: IntWithAggregatesFilter<"CompanySettings"> | number
     defaultValidDays?: IntWithAggregatesFilter<"CompanySettings"> | number
     workStartHour?: IntWithAggregatesFilter<"CompanySettings"> | number
     workEndHour?: IntWithAggregatesFilter<"CompanySettings"> | number
     workDays?: IntNullableListFilter<"CompanySettings">
+    bankName?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    bankIban?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    bankBic?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    bankAccountOwner?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CompanySettings"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CompanySettings"> | Date | string
   }
@@ -47716,6 +56404,10 @@ export namespace Prisma {
     passwordResetToken?: StringNullableFilter<"User"> | string | null
     passwordResetExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    twoFactorEnabled?: BoolFilter<"User"> | boolean
+    twoFactorSecret?: StringNullableFilter<"User"> | string | null
+    twoFactorCode?: StringNullableFilter<"User"> | string | null
+    twoFactorExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -47725,6 +56417,8 @@ export namespace Prisma {
     createdClients?: ClientListRelationFilter
     createdInterventions?: InterventionListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    sessions?: UserSessionListRelationFilter
+    loginHistories?: LoginHistoryListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -47744,6 +56438,10 @@ export namespace Prisma {
     passwordResetToken?: SortOrderInput | SortOrder
     passwordResetExpiry?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrderInput | SortOrder
+    twoFactorCode?: SortOrderInput | SortOrder
+    twoFactorExpiry?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
@@ -47753,6 +56451,8 @@ export namespace Prisma {
     createdClients?: ClientOrderByRelationAggregateInput
     createdInterventions?: InterventionOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
+    sessions?: UserSessionOrderByRelationAggregateInput
+    loginHistories?: LoginHistoryOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -47775,6 +56475,10 @@ export namespace Prisma {
     passwordResetToken?: StringNullableFilter<"User"> | string | null
     passwordResetExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    twoFactorEnabled?: BoolFilter<"User"> | boolean
+    twoFactorSecret?: StringNullableFilter<"User"> | string | null
+    twoFactorCode?: StringNullableFilter<"User"> | string | null
+    twoFactorExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -47784,6 +56488,8 @@ export namespace Prisma {
     createdClients?: ClientListRelationFilter
     createdInterventions?: InterventionListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    sessions?: UserSessionListRelationFilter
+    loginHistories?: LoginHistoryListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -47803,6 +56509,10 @@ export namespace Prisma {
     passwordResetToken?: SortOrderInput | SortOrder
     passwordResetExpiry?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrderInput | SortOrder
+    twoFactorCode?: SortOrderInput | SortOrder
+    twoFactorExpiry?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -47830,8 +56540,157 @@ export namespace Prisma {
     passwordResetToken?: StringNullableWithAggregatesFilter<"User"> | string | null
     passwordResetExpiry?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    twoFactorEnabled?: BoolWithAggregatesFilter<"User"> | boolean
+    twoFactorSecret?: StringNullableWithAggregatesFilter<"User"> | string | null
+    twoFactorCode?: StringNullableWithAggregatesFilter<"User"> | string | null
+    twoFactorExpiry?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type UserSessionWhereInput = {
+    AND?: UserSessionWhereInput | UserSessionWhereInput[]
+    OR?: UserSessionWhereInput[]
+    NOT?: UserSessionWhereInput | UserSessionWhereInput[]
+    id?: StringFilter<"UserSession"> | string
+    userId?: StringFilter<"UserSession"> | string
+    device?: StringFilter<"UserSession"> | string
+    browser?: StringFilter<"UserSession"> | string
+    ip?: StringFilter<"UserSession"> | string
+    location?: StringNullableFilter<"UserSession"> | string | null
+    tokenIdentifier?: StringNullableFilter<"UserSession"> | string | null
+    isCurrent?: BoolFilter<"UserSession"> | boolean
+    lastActiveAt?: DateTimeFilter<"UserSession"> | Date | string
+    createdAt?: DateTimeFilter<"UserSession"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    ip?: SortOrder
+    location?: SortOrderInput | SortOrder
+    tokenIdentifier?: SortOrderInput | SortOrder
+    isCurrent?: SortOrder
+    lastActiveAt?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: UserSessionWhereInput | UserSessionWhereInput[]
+    OR?: UserSessionWhereInput[]
+    NOT?: UserSessionWhereInput | UserSessionWhereInput[]
+    userId?: StringFilter<"UserSession"> | string
+    device?: StringFilter<"UserSession"> | string
+    browser?: StringFilter<"UserSession"> | string
+    ip?: StringFilter<"UserSession"> | string
+    location?: StringNullableFilter<"UserSession"> | string | null
+    tokenIdentifier?: StringNullableFilter<"UserSession"> | string | null
+    isCurrent?: BoolFilter<"UserSession"> | boolean
+    lastActiveAt?: DateTimeFilter<"UserSession"> | Date | string
+    createdAt?: DateTimeFilter<"UserSession"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type UserSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    ip?: SortOrder
+    location?: SortOrderInput | SortOrder
+    tokenIdentifier?: SortOrderInput | SortOrder
+    isCurrent?: SortOrder
+    lastActiveAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: UserSessionCountOrderByAggregateInput
+    _max?: UserSessionMaxOrderByAggregateInput
+    _min?: UserSessionMinOrderByAggregateInput
+  }
+
+  export type UserSessionScalarWhereWithAggregatesInput = {
+    AND?: UserSessionScalarWhereWithAggregatesInput | UserSessionScalarWhereWithAggregatesInput[]
+    OR?: UserSessionScalarWhereWithAggregatesInput[]
+    NOT?: UserSessionScalarWhereWithAggregatesInput | UserSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserSession"> | string
+    userId?: StringWithAggregatesFilter<"UserSession"> | string
+    device?: StringWithAggregatesFilter<"UserSession"> | string
+    browser?: StringWithAggregatesFilter<"UserSession"> | string
+    ip?: StringWithAggregatesFilter<"UserSession"> | string
+    location?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    tokenIdentifier?: StringNullableWithAggregatesFilter<"UserSession"> | string | null
+    isCurrent?: BoolWithAggregatesFilter<"UserSession"> | boolean
+    lastActiveAt?: DateTimeWithAggregatesFilter<"UserSession"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"UserSession"> | Date | string
+  }
+
+  export type LoginHistoryWhereInput = {
+    AND?: LoginHistoryWhereInput | LoginHistoryWhereInput[]
+    OR?: LoginHistoryWhereInput[]
+    NOT?: LoginHistoryWhereInput | LoginHistoryWhereInput[]
+    id?: StringFilter<"LoginHistory"> | string
+    userId?: StringNullableFilter<"LoginHistory"> | string | null
+    email?: StringFilter<"LoginHistory"> | string
+    ip?: StringFilter<"LoginHistory"> | string
+    device?: StringFilter<"LoginHistory"> | string
+    status?: StringFilter<"LoginHistory"> | string
+    createdAt?: DateTimeFilter<"LoginHistory"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type LoginHistoryOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrder
+    ip?: SortOrder
+    device?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type LoginHistoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LoginHistoryWhereInput | LoginHistoryWhereInput[]
+    OR?: LoginHistoryWhereInput[]
+    NOT?: LoginHistoryWhereInput | LoginHistoryWhereInput[]
+    userId?: StringNullableFilter<"LoginHistory"> | string | null
+    email?: StringFilter<"LoginHistory"> | string
+    ip?: StringFilter<"LoginHistory"> | string
+    device?: StringFilter<"LoginHistory"> | string
+    status?: StringFilter<"LoginHistory"> | string
+    createdAt?: DateTimeFilter<"LoginHistory"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type LoginHistoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrder
+    ip?: SortOrder
+    device?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    _count?: LoginHistoryCountOrderByAggregateInput
+    _max?: LoginHistoryMaxOrderByAggregateInput
+    _min?: LoginHistoryMinOrderByAggregateInput
+  }
+
+  export type LoginHistoryScalarWhereWithAggregatesInput = {
+    AND?: LoginHistoryScalarWhereWithAggregatesInput | LoginHistoryScalarWhereWithAggregatesInput[]
+    OR?: LoginHistoryScalarWhereWithAggregatesInput[]
+    NOT?: LoginHistoryScalarWhereWithAggregatesInput | LoginHistoryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LoginHistory"> | string
+    userId?: StringNullableWithAggregatesFilter<"LoginHistory"> | string | null
+    email?: StringWithAggregatesFilter<"LoginHistory"> | string
+    ip?: StringWithAggregatesFilter<"LoginHistory"> | string
+    device?: StringWithAggregatesFilter<"LoginHistory"> | string
+    status?: StringWithAggregatesFilter<"LoginHistory"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"LoginHistory"> | Date | string
   }
 
   export type PushTokenWhereInput = {
@@ -49085,6 +57944,14 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingStatus?: EnumEInvoicingStatusNullableFilter<"Invoice"> | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: EnumEInvoicingProviderTypeNullableFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingProcessedAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingTransmissionId?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingError?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingRawPayload?: JsonNullableFilter<"Invoice">
     createdAt?: DateTimeFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeFilter<"Invoice"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -49093,6 +57960,7 @@ export namespace Prisma {
     interventionType?: XOR<InterventionTypeItemNullableScalarRelationFilter, InterventionTypeItemWhereInput> | null
     lines?: InvoiceLineListRelationFilter
     paymentEvents?: InvoicePaymentEventListRelationFilter
+    einvoicingEvents?: EInvoicingEventListRelationFilter
   }
 
   export type InvoiceOrderByWithRelationInput = {
@@ -49139,6 +58007,14 @@ export namespace Prisma {
     reminder1SentAt?: SortOrderInput | SortOrder
     reminder2SentAt?: SortOrderInput | SortOrder
     reminderSentAt?: SortOrderInput | SortOrder
+    einvoicingStatus?: SortOrderInput | SortOrder
+    einvoicingProvider?: SortOrderInput | SortOrder
+    providerInvoiceId?: SortOrderInput | SortOrder
+    einvoicingSentAt?: SortOrderInput | SortOrder
+    einvoicingProcessedAt?: SortOrderInput | SortOrder
+    einvoicingTransmissionId?: SortOrderInput | SortOrder
+    einvoicingError?: SortOrderInput | SortOrder
+    einvoicingRawPayload?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
@@ -49147,6 +58023,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemOrderByWithRelationInput
     lines?: InvoiceLineOrderByRelationAggregateInput
     paymentEvents?: InvoicePaymentEventOrderByRelationAggregateInput
+    einvoicingEvents?: EInvoicingEventOrderByRelationAggregateInput
   }
 
   export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
@@ -49196,6 +58073,14 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingStatus?: EnumEInvoicingStatusNullableFilter<"Invoice"> | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: EnumEInvoicingProviderTypeNullableFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingProcessedAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingTransmissionId?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingError?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingRawPayload?: JsonNullableFilter<"Invoice">
     createdAt?: DateTimeFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeFilter<"Invoice"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -49204,6 +58089,7 @@ export namespace Prisma {
     interventionType?: XOR<InterventionTypeItemNullableScalarRelationFilter, InterventionTypeItemWhereInput> | null
     lines?: InvoiceLineListRelationFilter
     paymentEvents?: InvoicePaymentEventListRelationFilter
+    einvoicingEvents?: EInvoicingEventListRelationFilter
   }, "id" | "interventionId" | "sourceQuoteId" | "stripePaymentIntentId" | "stripeCheckoutSessionId" | "paymentToken">
 
   export type InvoiceOrderByWithAggregationInput = {
@@ -49250,6 +58136,14 @@ export namespace Prisma {
     reminder1SentAt?: SortOrderInput | SortOrder
     reminder2SentAt?: SortOrderInput | SortOrder
     reminderSentAt?: SortOrderInput | SortOrder
+    einvoicingStatus?: SortOrderInput | SortOrder
+    einvoicingProvider?: SortOrderInput | SortOrder
+    providerInvoiceId?: SortOrderInput | SortOrder
+    einvoicingSentAt?: SortOrderInput | SortOrder
+    einvoicingProcessedAt?: SortOrderInput | SortOrder
+    einvoicingTransmissionId?: SortOrderInput | SortOrder
+    einvoicingError?: SortOrderInput | SortOrder
+    einvoicingRawPayload?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: InvoiceCountOrderByAggregateInput
@@ -49306,6 +58200,14 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
+    einvoicingStatus?: EnumEInvoicingStatusNullableWithAggregatesFilter<"Invoice"> | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: EnumEInvoicingProviderTypeNullableWithAggregatesFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    einvoicingSentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
+    einvoicingProcessedAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
+    einvoicingTransmissionId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    einvoicingError?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    einvoicingRawPayload?: JsonNullableWithAggregatesFilter<"Invoice">
     createdAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
   }
@@ -50547,6 +59449,500 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"AdminAuditLog"> | Date | string
   }
 
+  export type EInvoicingConnectionWhereInput = {
+    AND?: EInvoicingConnectionWhereInput | EInvoicingConnectionWhereInput[]
+    OR?: EInvoicingConnectionWhereInput[]
+    NOT?: EInvoicingConnectionWhereInput | EInvoicingConnectionWhereInput[]
+    id?: StringFilter<"EInvoicingConnection"> | string
+    companyId?: StringFilter<"EInvoicingConnection"> | string
+    provider?: EnumEInvoicingProviderTypeFilter<"EInvoicingConnection"> | $Enums.EInvoicingProviderType
+    providerAccountId?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    environment?: StringFilter<"EInvoicingConnection"> | string
+    status?: EnumEInvoicingConnectionStatusFilter<"EInvoicingConnection"> | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    apiSecretEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    accessTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    refreshTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableFilter<"EInvoicingConnection"> | Date | string | null
+    receivingEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
+    emissionEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
+    autoSyncIncoming?: BoolFilter<"EInvoicingConnection"> | boolean
+    lastSyncAt?: DateTimeNullableFilter<"EInvoicingConnection"> | Date | string | null
+    lastSyncError?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    createdAt?: DateTimeFilter<"EInvoicingConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"EInvoicingConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }
+
+  export type EInvoicingConnectionOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerAccountId?: SortOrderInput | SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    apiKeyEncrypted?: SortOrderInput | SortOrder
+    apiSecretEncrypted?: SortOrderInput | SortOrder
+    accessTokenEncrypted?: SortOrderInput | SortOrder
+    refreshTokenEncrypted?: SortOrderInput | SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    receivingEnabled?: SortOrder
+    emissionEnabled?: SortOrder
+    autoSyncIncoming?: SortOrder
+    lastSyncAt?: SortOrderInput | SortOrder
+    lastSyncError?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+  }
+
+  export type EInvoicingConnectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    companyId?: string
+    AND?: EInvoicingConnectionWhereInput | EInvoicingConnectionWhereInput[]
+    OR?: EInvoicingConnectionWhereInput[]
+    NOT?: EInvoicingConnectionWhereInput | EInvoicingConnectionWhereInput[]
+    provider?: EnumEInvoicingProviderTypeFilter<"EInvoicingConnection"> | $Enums.EInvoicingProviderType
+    providerAccountId?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    environment?: StringFilter<"EInvoicingConnection"> | string
+    status?: EnumEInvoicingConnectionStatusFilter<"EInvoicingConnection"> | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    apiSecretEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    accessTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    refreshTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableFilter<"EInvoicingConnection"> | Date | string | null
+    receivingEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
+    emissionEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
+    autoSyncIncoming?: BoolFilter<"EInvoicingConnection"> | boolean
+    lastSyncAt?: DateTimeNullableFilter<"EInvoicingConnection"> | Date | string | null
+    lastSyncError?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    createdAt?: DateTimeFilter<"EInvoicingConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"EInvoicingConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }, "id" | "companyId">
+
+  export type EInvoicingConnectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerAccountId?: SortOrderInput | SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    apiKeyEncrypted?: SortOrderInput | SortOrder
+    apiSecretEncrypted?: SortOrderInput | SortOrder
+    accessTokenEncrypted?: SortOrderInput | SortOrder
+    refreshTokenEncrypted?: SortOrderInput | SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    receivingEnabled?: SortOrder
+    emissionEnabled?: SortOrder
+    autoSyncIncoming?: SortOrder
+    lastSyncAt?: SortOrderInput | SortOrder
+    lastSyncError?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EInvoicingConnectionCountOrderByAggregateInput
+    _max?: EInvoicingConnectionMaxOrderByAggregateInput
+    _min?: EInvoicingConnectionMinOrderByAggregateInput
+  }
+
+  export type EInvoicingConnectionScalarWhereWithAggregatesInput = {
+    AND?: EInvoicingConnectionScalarWhereWithAggregatesInput | EInvoicingConnectionScalarWhereWithAggregatesInput[]
+    OR?: EInvoicingConnectionScalarWhereWithAggregatesInput[]
+    NOT?: EInvoicingConnectionScalarWhereWithAggregatesInput | EInvoicingConnectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EInvoicingConnection"> | string
+    companyId?: StringWithAggregatesFilter<"EInvoicingConnection"> | string
+    provider?: EnumEInvoicingProviderTypeWithAggregatesFilter<"EInvoicingConnection"> | $Enums.EInvoicingProviderType
+    providerAccountId?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
+    environment?: StringWithAggregatesFilter<"EInvoicingConnection"> | string
+    status?: EnumEInvoicingConnectionStatusWithAggregatesFilter<"EInvoicingConnection"> | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
+    apiSecretEncrypted?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
+    accessTokenEncrypted?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
+    refreshTokenEncrypted?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"EInvoicingConnection"> | Date | string | null
+    receivingEnabled?: BoolWithAggregatesFilter<"EInvoicingConnection"> | boolean
+    emissionEnabled?: BoolWithAggregatesFilter<"EInvoicingConnection"> | boolean
+    autoSyncIncoming?: BoolWithAggregatesFilter<"EInvoicingConnection"> | boolean
+    lastSyncAt?: DateTimeNullableWithAggregatesFilter<"EInvoicingConnection"> | Date | string | null
+    lastSyncError?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EInvoicingConnection"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EInvoicingConnection"> | Date | string
+  }
+
+  export type ReceivedInvoiceWhereInput = {
+    AND?: ReceivedInvoiceWhereInput | ReceivedInvoiceWhereInput[]
+    OR?: ReceivedInvoiceWhereInput[]
+    NOT?: ReceivedInvoiceWhereInput | ReceivedInvoiceWhereInput[]
+    id?: StringFilter<"ReceivedInvoice"> | string
+    companyId?: StringFilter<"ReceivedInvoice"> | string
+    provider?: EnumEInvoicingProviderTypeFilter<"ReceivedInvoice"> | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFilter<"ReceivedInvoice"> | string
+    supplierName?: StringFilter<"ReceivedInvoice"> | string
+    supplierSiren?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierSiret?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierVatNumber?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierAddress?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierCity?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierPostalCode?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierCountry?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierEmail?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    invoiceNumber?: StringFilter<"ReceivedInvoice"> | string
+    issueDate?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    dueDate?: DateTimeNullableFilter<"ReceivedInvoice"> | Date | string | null
+    currency?: StringFilter<"ReceivedInvoice"> | string
+    totalHT?: FloatFilter<"ReceivedInvoice"> | number
+    totalVAT?: FloatFilter<"ReceivedInvoice"> | number
+    totalTTC?: FloatFilter<"ReceivedInvoice"> | number
+    status?: EnumEInvoicingStatusFilter<"ReceivedInvoice"> | $Enums.EInvoicingStatus
+    structuredData?: JsonNullableFilter<"ReceivedInvoice">
+    documentUrl?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    rawFormat?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    receivedAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    createdAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    updatedAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    events?: EInvoicingEventListRelationFilter
+  }
+
+  export type ReceivedInvoiceOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    supplierName?: SortOrder
+    supplierSiren?: SortOrderInput | SortOrder
+    supplierSiret?: SortOrderInput | SortOrder
+    supplierVatNumber?: SortOrderInput | SortOrder
+    supplierAddress?: SortOrderInput | SortOrder
+    supplierCity?: SortOrderInput | SortOrder
+    supplierPostalCode?: SortOrderInput | SortOrder
+    supplierCountry?: SortOrderInput | SortOrder
+    supplierEmail?: SortOrderInput | SortOrder
+    invoiceNumber?: SortOrder
+    issueDate?: SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    totalHT?: SortOrder
+    totalVAT?: SortOrder
+    totalTTC?: SortOrder
+    status?: SortOrder
+    structuredData?: SortOrderInput | SortOrder
+    documentUrl?: SortOrderInput | SortOrder
+    rawFormat?: SortOrderInput | SortOrder
+    receivedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    events?: EInvoicingEventOrderByRelationAggregateInput
+  }
+
+  export type ReceivedInvoiceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    companyId_provider_providerInvoiceId?: ReceivedInvoiceCompanyIdProviderProviderInvoiceIdCompoundUniqueInput
+    AND?: ReceivedInvoiceWhereInput | ReceivedInvoiceWhereInput[]
+    OR?: ReceivedInvoiceWhereInput[]
+    NOT?: ReceivedInvoiceWhereInput | ReceivedInvoiceWhereInput[]
+    companyId?: StringFilter<"ReceivedInvoice"> | string
+    provider?: EnumEInvoicingProviderTypeFilter<"ReceivedInvoice"> | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFilter<"ReceivedInvoice"> | string
+    supplierName?: StringFilter<"ReceivedInvoice"> | string
+    supplierSiren?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierSiret?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierVatNumber?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierAddress?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierCity?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierPostalCode?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierCountry?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierEmail?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    invoiceNumber?: StringFilter<"ReceivedInvoice"> | string
+    issueDate?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    dueDate?: DateTimeNullableFilter<"ReceivedInvoice"> | Date | string | null
+    currency?: StringFilter<"ReceivedInvoice"> | string
+    totalHT?: FloatFilter<"ReceivedInvoice"> | number
+    totalVAT?: FloatFilter<"ReceivedInvoice"> | number
+    totalTTC?: FloatFilter<"ReceivedInvoice"> | number
+    status?: EnumEInvoicingStatusFilter<"ReceivedInvoice"> | $Enums.EInvoicingStatus
+    structuredData?: JsonNullableFilter<"ReceivedInvoice">
+    documentUrl?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    rawFormat?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    receivedAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    createdAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    updatedAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    events?: EInvoicingEventListRelationFilter
+  }, "id" | "companyId_provider_providerInvoiceId">
+
+  export type ReceivedInvoiceOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    supplierName?: SortOrder
+    supplierSiren?: SortOrderInput | SortOrder
+    supplierSiret?: SortOrderInput | SortOrder
+    supplierVatNumber?: SortOrderInput | SortOrder
+    supplierAddress?: SortOrderInput | SortOrder
+    supplierCity?: SortOrderInput | SortOrder
+    supplierPostalCode?: SortOrderInput | SortOrder
+    supplierCountry?: SortOrderInput | SortOrder
+    supplierEmail?: SortOrderInput | SortOrder
+    invoiceNumber?: SortOrder
+    issueDate?: SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    totalHT?: SortOrder
+    totalVAT?: SortOrder
+    totalTTC?: SortOrder
+    status?: SortOrder
+    structuredData?: SortOrderInput | SortOrder
+    documentUrl?: SortOrderInput | SortOrder
+    rawFormat?: SortOrderInput | SortOrder
+    receivedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ReceivedInvoiceCountOrderByAggregateInput
+    _avg?: ReceivedInvoiceAvgOrderByAggregateInput
+    _max?: ReceivedInvoiceMaxOrderByAggregateInput
+    _min?: ReceivedInvoiceMinOrderByAggregateInput
+    _sum?: ReceivedInvoiceSumOrderByAggregateInput
+  }
+
+  export type ReceivedInvoiceScalarWhereWithAggregatesInput = {
+    AND?: ReceivedInvoiceScalarWhereWithAggregatesInput | ReceivedInvoiceScalarWhereWithAggregatesInput[]
+    OR?: ReceivedInvoiceScalarWhereWithAggregatesInput[]
+    NOT?: ReceivedInvoiceScalarWhereWithAggregatesInput | ReceivedInvoiceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReceivedInvoice"> | string
+    companyId?: StringWithAggregatesFilter<"ReceivedInvoice"> | string
+    provider?: EnumEInvoicingProviderTypeWithAggregatesFilter<"ReceivedInvoice"> | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringWithAggregatesFilter<"ReceivedInvoice"> | string
+    supplierName?: StringWithAggregatesFilter<"ReceivedInvoice"> | string
+    supplierSiren?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    supplierSiret?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    supplierVatNumber?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    supplierAddress?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    supplierCity?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    supplierPostalCode?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    supplierCountry?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    supplierEmail?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    invoiceNumber?: StringWithAggregatesFilter<"ReceivedInvoice"> | string
+    issueDate?: DateTimeWithAggregatesFilter<"ReceivedInvoice"> | Date | string
+    dueDate?: DateTimeNullableWithAggregatesFilter<"ReceivedInvoice"> | Date | string | null
+    currency?: StringWithAggregatesFilter<"ReceivedInvoice"> | string
+    totalHT?: FloatWithAggregatesFilter<"ReceivedInvoice"> | number
+    totalVAT?: FloatWithAggregatesFilter<"ReceivedInvoice"> | number
+    totalTTC?: FloatWithAggregatesFilter<"ReceivedInvoice"> | number
+    status?: EnumEInvoicingStatusWithAggregatesFilter<"ReceivedInvoice"> | $Enums.EInvoicingStatus
+    structuredData?: JsonNullableWithAggregatesFilter<"ReceivedInvoice">
+    documentUrl?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    rawFormat?: StringNullableWithAggregatesFilter<"ReceivedInvoice"> | string | null
+    receivedAt?: DateTimeWithAggregatesFilter<"ReceivedInvoice"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ReceivedInvoice"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ReceivedInvoice"> | Date | string
+  }
+
+  export type EInvoicingEventWhereInput = {
+    AND?: EInvoicingEventWhereInput | EInvoicingEventWhereInput[]
+    OR?: EInvoicingEventWhereInput[]
+    NOT?: EInvoicingEventWhereInput | EInvoicingEventWhereInput[]
+    id?: StringFilter<"EInvoicingEvent"> | string
+    companyId?: StringFilter<"EInvoicingEvent"> | string
+    invoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    receivedInvoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    provider?: StringFilter<"EInvoicingEvent"> | string
+    providerInvoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    eventType?: StringFilter<"EInvoicingEvent"> | string
+    providerStatus?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    idempotencyKey?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    payloadJson?: JsonNullableFilter<"EInvoicingEvent">
+    errorMessage?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    receivedAt?: DateTimeFilter<"EInvoicingEvent"> | Date | string
+    processedAt?: DateTimeNullableFilter<"EInvoicingEvent"> | Date | string | null
+    createdAt?: DateTimeFilter<"EInvoicingEvent"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    invoice?: XOR<InvoiceNullableScalarRelationFilter, InvoiceWhereInput> | null
+    receivedInvoice?: XOR<ReceivedInvoiceNullableScalarRelationFilter, ReceivedInvoiceWhereInput> | null
+  }
+
+  export type EInvoicingEventOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    invoiceId?: SortOrderInput | SortOrder
+    receivedInvoiceId?: SortOrderInput | SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrderInput | SortOrder
+    eventType?: SortOrder
+    providerStatus?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    payloadJson?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    receivedAt?: SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    invoice?: InvoiceOrderByWithRelationInput
+    receivedInvoice?: ReceivedInvoiceOrderByWithRelationInput
+  }
+
+  export type EInvoicingEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    idempotencyKey?: string
+    AND?: EInvoicingEventWhereInput | EInvoicingEventWhereInput[]
+    OR?: EInvoicingEventWhereInput[]
+    NOT?: EInvoicingEventWhereInput | EInvoicingEventWhereInput[]
+    companyId?: StringFilter<"EInvoicingEvent"> | string
+    invoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    receivedInvoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    provider?: StringFilter<"EInvoicingEvent"> | string
+    providerInvoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    eventType?: StringFilter<"EInvoicingEvent"> | string
+    providerStatus?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    payloadJson?: JsonNullableFilter<"EInvoicingEvent">
+    errorMessage?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    receivedAt?: DateTimeFilter<"EInvoicingEvent"> | Date | string
+    processedAt?: DateTimeNullableFilter<"EInvoicingEvent"> | Date | string | null
+    createdAt?: DateTimeFilter<"EInvoicingEvent"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    invoice?: XOR<InvoiceNullableScalarRelationFilter, InvoiceWhereInput> | null
+    receivedInvoice?: XOR<ReceivedInvoiceNullableScalarRelationFilter, ReceivedInvoiceWhereInput> | null
+  }, "id" | "idempotencyKey">
+
+  export type EInvoicingEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    invoiceId?: SortOrderInput | SortOrder
+    receivedInvoiceId?: SortOrderInput | SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrderInput | SortOrder
+    eventType?: SortOrder
+    providerStatus?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    payloadJson?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    receivedAt?: SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: EInvoicingEventCountOrderByAggregateInput
+    _max?: EInvoicingEventMaxOrderByAggregateInput
+    _min?: EInvoicingEventMinOrderByAggregateInput
+  }
+
+  export type EInvoicingEventScalarWhereWithAggregatesInput = {
+    AND?: EInvoicingEventScalarWhereWithAggregatesInput | EInvoicingEventScalarWhereWithAggregatesInput[]
+    OR?: EInvoicingEventScalarWhereWithAggregatesInput[]
+    NOT?: EInvoicingEventScalarWhereWithAggregatesInput | EInvoicingEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EInvoicingEvent"> | string
+    companyId?: StringWithAggregatesFilter<"EInvoicingEvent"> | string
+    invoiceId?: StringNullableWithAggregatesFilter<"EInvoicingEvent"> | string | null
+    receivedInvoiceId?: StringNullableWithAggregatesFilter<"EInvoicingEvent"> | string | null
+    provider?: StringWithAggregatesFilter<"EInvoicingEvent"> | string
+    providerInvoiceId?: StringNullableWithAggregatesFilter<"EInvoicingEvent"> | string | null
+    eventType?: StringWithAggregatesFilter<"EInvoicingEvent"> | string
+    providerStatus?: StringNullableWithAggregatesFilter<"EInvoicingEvent"> | string | null
+    idempotencyKey?: StringNullableWithAggregatesFilter<"EInvoicingEvent"> | string | null
+    payloadJson?: JsonNullableWithAggregatesFilter<"EInvoicingEvent">
+    errorMessage?: StringNullableWithAggregatesFilter<"EInvoicingEvent"> | string | null
+    receivedAt?: DateTimeWithAggregatesFilter<"EInvoicingEvent"> | Date | string
+    processedAt?: DateTimeNullableWithAggregatesFilter<"EInvoicingEvent"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EInvoicingEvent"> | Date | string
+  }
+
+  export type EInvoicingJobWhereInput = {
+    AND?: EInvoicingJobWhereInput | EInvoicingJobWhereInput[]
+    OR?: EInvoicingJobWhereInput[]
+    NOT?: EInvoicingJobWhereInput | EInvoicingJobWhereInput[]
+    id?: StringFilter<"EInvoicingJob"> | string
+    companyId?: StringFilter<"EInvoicingJob"> | string
+    type?: EnumEInvoicingJobTypeFilter<"EInvoicingJob"> | $Enums.EInvoicingJobType
+    payload?: JsonFilter<"EInvoicingJob">
+    status?: EnumEInvoicingJobStatusFilter<"EInvoicingJob"> | $Enums.EInvoicingJobStatus
+    attempts?: IntFilter<"EInvoicingJob"> | number
+    maxAttempts?: IntFilter<"EInvoicingJob"> | number
+    nextRunAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    lockedAt?: DateTimeNullableFilter<"EInvoicingJob"> | Date | string | null
+    lockedBy?: StringNullableFilter<"EInvoicingJob"> | string | null
+    lastError?: StringNullableFilter<"EInvoicingJob"> | string | null
+    createdAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    updatedAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }
+
+  export type EInvoicingJobOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    payload?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    maxAttempts?: SortOrder
+    nextRunAt?: SortOrder
+    lockedAt?: SortOrderInput | SortOrder
+    lockedBy?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+  }
+
+  export type EInvoicingJobWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EInvoicingJobWhereInput | EInvoicingJobWhereInput[]
+    OR?: EInvoicingJobWhereInput[]
+    NOT?: EInvoicingJobWhereInput | EInvoicingJobWhereInput[]
+    companyId?: StringFilter<"EInvoicingJob"> | string
+    type?: EnumEInvoicingJobTypeFilter<"EInvoicingJob"> | $Enums.EInvoicingJobType
+    payload?: JsonFilter<"EInvoicingJob">
+    status?: EnumEInvoicingJobStatusFilter<"EInvoicingJob"> | $Enums.EInvoicingJobStatus
+    attempts?: IntFilter<"EInvoicingJob"> | number
+    maxAttempts?: IntFilter<"EInvoicingJob"> | number
+    nextRunAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    lockedAt?: DateTimeNullableFilter<"EInvoicingJob"> | Date | string | null
+    lockedBy?: StringNullableFilter<"EInvoicingJob"> | string | null
+    lastError?: StringNullableFilter<"EInvoicingJob"> | string | null
+    createdAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    updatedAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }, "id">
+
+  export type EInvoicingJobOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    payload?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    maxAttempts?: SortOrder
+    nextRunAt?: SortOrder
+    lockedAt?: SortOrderInput | SortOrder
+    lockedBy?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EInvoicingJobCountOrderByAggregateInput
+    _avg?: EInvoicingJobAvgOrderByAggregateInput
+    _max?: EInvoicingJobMaxOrderByAggregateInput
+    _min?: EInvoicingJobMinOrderByAggregateInput
+    _sum?: EInvoicingJobSumOrderByAggregateInput
+  }
+
+  export type EInvoicingJobScalarWhereWithAggregatesInput = {
+    AND?: EInvoicingJobScalarWhereWithAggregatesInput | EInvoicingJobScalarWhereWithAggregatesInput[]
+    OR?: EInvoicingJobScalarWhereWithAggregatesInput[]
+    NOT?: EInvoicingJobScalarWhereWithAggregatesInput | EInvoicingJobScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EInvoicingJob"> | string
+    companyId?: StringWithAggregatesFilter<"EInvoicingJob"> | string
+    type?: EnumEInvoicingJobTypeWithAggregatesFilter<"EInvoicingJob"> | $Enums.EInvoicingJobType
+    payload?: JsonWithAggregatesFilter<"EInvoicingJob">
+    status?: EnumEInvoicingJobStatusWithAggregatesFilter<"EInvoicingJob"> | $Enums.EInvoicingJobStatus
+    attempts?: IntWithAggregatesFilter<"EInvoicingJob"> | number
+    maxAttempts?: IntWithAggregatesFilter<"EInvoicingJob"> | number
+    nextRunAt?: DateTimeWithAggregatesFilter<"EInvoicingJob"> | Date | string
+    lockedAt?: DateTimeNullableWithAggregatesFilter<"EInvoicingJob"> | Date | string | null
+    lockedBy?: StringNullableWithAggregatesFilter<"EInvoicingJob"> | string | null
+    lastError?: StringNullableWithAggregatesFilter<"EInvoicingJob"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EInvoicingJob"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EInvoicingJob"> | Date | string
+  }
+
   export type PlanCreateInput = {
     id?: string
     name: $Enums.PlanName
@@ -50764,6 +60160,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -50811,6 +60211,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUpdateInput = {
@@ -50858,6 +60262,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -50905,6 +60313,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateManyInput = {
@@ -51370,12 +60782,17 @@ export namespace Prisma {
     quoteNextNumber?: number
     invoiceFooter?: string | null
     invoiceConditions?: string | null
+    invoiceColor?: string | null
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
     workStartHour?: number
     workEndHour?: number
     workDays?: CompanySettingsCreateworkDaysInput | number[]
+    bankName?: string | null
+    bankIban?: string | null
+    bankBic?: string | null
+    bankAccountOwner?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutSettingsInput
@@ -51415,12 +60832,17 @@ export namespace Prisma {
     quoteNextNumber?: number
     invoiceFooter?: string | null
     invoiceConditions?: string | null
+    invoiceColor?: string | null
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
     workStartHour?: number
     workEndHour?: number
     workDays?: CompanySettingsCreateworkDaysInput | number[]
+    bankName?: string | null
+    bankIban?: string | null
+    bankBic?: string | null
+    bankAccountOwner?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -51458,12 +60880,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFieldUpdateOperationsInput | number
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
     workStartHour?: IntFieldUpdateOperationsInput | number
     workEndHour?: IntFieldUpdateOperationsInput | number
     workDays?: CompanySettingsUpdateworkDaysInput | number[]
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankIban?: NullableStringFieldUpdateOperationsInput | string | null
+    bankBic?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutSettingsNestedInput
@@ -51503,12 +60930,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFieldUpdateOperationsInput | number
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
     workStartHour?: IntFieldUpdateOperationsInput | number
     workEndHour?: IntFieldUpdateOperationsInput | number
     workDays?: CompanySettingsUpdateworkDaysInput | number[]
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankIban?: NullableStringFieldUpdateOperationsInput | string | null
+    bankBic?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51547,12 +60979,17 @@ export namespace Prisma {
     quoteNextNumber?: number
     invoiceFooter?: string | null
     invoiceConditions?: string | null
+    invoiceColor?: string | null
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
     workStartHour?: number
     workEndHour?: number
     workDays?: CompanySettingsCreateworkDaysInput | number[]
+    bankName?: string | null
+    bankIban?: string | null
+    bankBic?: string | null
+    bankAccountOwner?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -51590,12 +61027,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFieldUpdateOperationsInput | number
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
     workStartHour?: IntFieldUpdateOperationsInput | number
     workEndHour?: IntFieldUpdateOperationsInput | number
     workDays?: CompanySettingsUpdateworkDaysInput | number[]
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankIban?: NullableStringFieldUpdateOperationsInput | string | null
+    bankBic?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51634,12 +61076,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFieldUpdateOperationsInput | number
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
     workStartHour?: IntFieldUpdateOperationsInput | number
     workEndHour?: IntFieldUpdateOperationsInput | number
     workDays?: CompanySettingsUpdateworkDaysInput | number[]
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankIban?: NullableStringFieldUpdateOperationsInput | string | null
+    bankBic?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51660,6 +61107,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -51669,6 +61120,8 @@ export namespace Prisma {
     createdClients?: ClientCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -51688,6 +61141,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
@@ -51696,6 +61153,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -51714,6 +61173,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -51723,6 +61186,8 @@ export namespace Prisma {
     createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -51742,6 +61207,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -51750,6 +61219,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -51769,6 +61240,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -51789,6 +61264,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51810,8 +61289,171 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSessionCreateInput = {
+    id?: string
+    device: string
+    browser: string
+    ip: string
+    location?: string | null
+    tokenIdentifier?: string | null
+    isCurrent?: boolean
+    lastActiveAt?: Date | string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutSessionsInput
+  }
+
+  export type UserSessionUncheckedCreateInput = {
+    id?: string
+    userId: string
+    device: string
+    browser: string
+    ip: string
+    location?: string | null
+    tokenIdentifier?: string | null
+    isCurrent?: boolean
+    lastActiveAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type UserSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    browser?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenIdentifier?: NullableStringFieldUpdateOperationsInput | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSessionsNestedInput
+  }
+
+  export type UserSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    browser?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenIdentifier?: NullableStringFieldUpdateOperationsInput | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSessionCreateManyInput = {
+    id?: string
+    userId: string
+    device: string
+    browser: string
+    ip: string
+    location?: string | null
+    tokenIdentifier?: string | null
+    isCurrent?: boolean
+    lastActiveAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type UserSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    browser?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenIdentifier?: NullableStringFieldUpdateOperationsInput | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    browser?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenIdentifier?: NullableStringFieldUpdateOperationsInput | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginHistoryCreateInput = {
+    id?: string
+    email: string
+    ip: string
+    device: string
+    status?: string
+    createdAt?: Date | string
+    user?: UserCreateNestedOneWithoutLoginHistoriesInput
+  }
+
+  export type LoginHistoryUncheckedCreateInput = {
+    id?: string
+    userId?: string | null
+    email: string
+    ip: string
+    device: string
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type LoginHistoryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutLoginHistoriesNestedInput
+  }
+
+  export type LoginHistoryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginHistoryCreateManyInput = {
+    id?: string
+    userId?: string | null
+    email: string
+    ip: string
+    device: string
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type LoginHistoryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginHistoryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PushTokenCreateInput = {
@@ -53245,6 +62887,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutInvoicesInput
@@ -53253,6 +62903,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUncheckedCreateInput = {
@@ -53299,10 +62950,19 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUpdateInput = {
@@ -53345,6 +63005,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
@@ -53353,6 +63021,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateInput = {
@@ -53399,10 +63068,19 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceCreateManyInput = {
@@ -53449,6 +63127,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -53493,6 +63179,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -53541,6 +63235,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -54958,6 +64660,592 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EInvoicingConnectionCreateInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerAccountId?: string | null
+    environment?: string
+    status?: $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: string | null
+    apiSecretEncrypted?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: Date | string | null
+    lastSyncError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEinvoicingConnectionInput
+  }
+
+  export type EInvoicingConnectionUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    provider?: $Enums.EInvoicingProviderType
+    providerAccountId?: string | null
+    environment?: string
+    status?: $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: string | null
+    apiSecretEncrypted?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: Date | string | null
+    lastSyncError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingConnectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    environment?: StringFieldUpdateOperationsInput | string
+    status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    apiSecretEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
+    autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEinvoicingConnectionNestedInput
+  }
+
+  export type EInvoicingConnectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    environment?: StringFieldUpdateOperationsInput | string
+    status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    apiSecretEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
+    autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingConnectionCreateManyInput = {
+    id?: string
+    companyId: string
+    provider?: $Enums.EInvoicingProviderType
+    providerAccountId?: string | null
+    environment?: string
+    status?: $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: string | null
+    apiSecretEncrypted?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: Date | string | null
+    lastSyncError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingConnectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    environment?: StringFieldUpdateOperationsInput | string
+    status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    apiSecretEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
+    autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingConnectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    environment?: StringFieldUpdateOperationsInput | string
+    status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    apiSecretEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
+    autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReceivedInvoiceCreateInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReceivedInvoicesInput
+    events?: EInvoicingEventCreateNestedManyWithoutReceivedInvoiceInput
+  }
+
+  export type ReceivedInvoiceUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: EInvoicingEventUncheckedCreateNestedManyWithoutReceivedInvoiceInput
+  }
+
+  export type ReceivedInvoiceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReceivedInvoicesNestedInput
+    events?: EInvoicingEventUpdateManyWithoutReceivedInvoiceNestedInput
+  }
+
+  export type ReceivedInvoiceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: EInvoicingEventUncheckedUpdateManyWithoutReceivedInvoiceNestedInput
+  }
+
+  export type ReceivedInvoiceCreateManyInput = {
+    id?: string
+    companyId: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReceivedInvoiceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReceivedInvoiceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventCreateInput = {
+    id?: string
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEinvoicingEventsInput
+    invoice?: InvoiceCreateNestedOneWithoutEinvoicingEventsInput
+    receivedInvoice?: ReceivedInvoiceCreateNestedOneWithoutEventsInput
+  }
+
+  export type EInvoicingEventUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    invoiceId?: string | null
+    receivedInvoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EInvoicingEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEinvoicingEventsNestedInput
+    invoice?: InvoiceUpdateOneWithoutEinvoicingEventsNestedInput
+    receivedInvoice?: ReceivedInvoiceUpdateOneWithoutEventsNestedInput
+  }
+
+  export type EInvoicingEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventCreateManyInput = {
+    id?: string
+    companyId: string
+    invoiceId?: string | null
+    receivedInvoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EInvoicingEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingJobCreateInput = {
+    id?: string
+    type: $Enums.EInvoicingJobType
+    payload: JsonNullValueInput | InputJsonValue
+    status?: $Enums.EInvoicingJobStatus
+    attempts?: number
+    maxAttempts?: number
+    nextRunAt?: Date | string
+    lockedAt?: Date | string | null
+    lockedBy?: string | null
+    lastError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEinvoicingJobsInput
+  }
+
+  export type EInvoicingJobUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    type: $Enums.EInvoicingJobType
+    payload: JsonNullValueInput | InputJsonValue
+    status?: $Enums.EInvoicingJobStatus
+    attempts?: number
+    maxAttempts?: number
+    nextRunAt?: Date | string
+    lockedAt?: Date | string | null
+    lockedBy?: string | null
+    lastError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingJobUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumEInvoicingJobTypeFieldUpdateOperationsInput | $Enums.EInvoicingJobType
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: EnumEInvoicingJobStatusFieldUpdateOperationsInput | $Enums.EInvoicingJobStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    maxAttempts?: IntFieldUpdateOperationsInput | number
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEinvoicingJobsNestedInput
+  }
+
+  export type EInvoicingJobUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: EnumEInvoicingJobTypeFieldUpdateOperationsInput | $Enums.EInvoicingJobType
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: EnumEInvoicingJobStatusFieldUpdateOperationsInput | $Enums.EInvoicingJobStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    maxAttempts?: IntFieldUpdateOperationsInput | number
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingJobCreateManyInput = {
+    id?: string
+    companyId: string
+    type: $Enums.EInvoicingJobType
+    payload: JsonNullValueInput | InputJsonValue
+    status?: $Enums.EInvoicingJobStatus
+    attempts?: number
+    maxAttempts?: number
+    nextRunAt?: Date | string
+    lockedAt?: Date | string | null
+    lockedBy?: string | null
+    lastError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingJobUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumEInvoicingJobTypeFieldUpdateOperationsInput | $Enums.EInvoicingJobType
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: EnumEInvoicingJobStatusFieldUpdateOperationsInput | $Enums.EInvoicingJobStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    maxAttempts?: IntFieldUpdateOperationsInput | number
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingJobUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: EnumEInvoicingJobTypeFieldUpdateOperationsInput | $Enums.EInvoicingJobType
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: EnumEInvoicingJobStatusFieldUpdateOperationsInput | $Enums.EInvoicingJobStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    maxAttempts?: IntFieldUpdateOperationsInput | number
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -55349,6 +65637,29 @@ export namespace Prisma {
     isNot?: AccountingIntegrationWhereInput | null
   }
 
+  export type EInvoicingConnectionNullableScalarRelationFilter = {
+    is?: EInvoicingConnectionWhereInput | null
+    isNot?: EInvoicingConnectionWhereInput | null
+  }
+
+  export type ReceivedInvoiceListRelationFilter = {
+    every?: ReceivedInvoiceWhereInput
+    some?: ReceivedInvoiceWhereInput
+    none?: ReceivedInvoiceWhereInput
+  }
+
+  export type EInvoicingEventListRelationFilter = {
+    every?: EInvoicingEventWhereInput
+    some?: EInvoicingEventWhereInput
+    none?: EInvoicingEventWhereInput
+  }
+
+  export type EInvoicingJobListRelationFilter = {
+    every?: EInvoicingJobWhereInput
+    some?: EInvoicingJobWhereInput
+    none?: EInvoicingJobWhereInput
+  }
+
   export type UserOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -55410,6 +65721,18 @@ export namespace Prisma {
   }
 
   export type TvaSummaryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReceivedInvoiceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EInvoicingEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EInvoicingJobOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -55836,12 +66159,17 @@ export namespace Prisma {
     quoteNextNumber?: SortOrder
     invoiceFooter?: SortOrder
     invoiceConditions?: SortOrder
+    invoiceColor?: SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
     workStartHour?: SortOrder
     workEndHour?: SortOrder
     workDays?: SortOrder
+    bankName?: SortOrder
+    bankIban?: SortOrder
+    bankBic?: SortOrder
+    bankAccountOwner?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -55891,11 +66219,16 @@ export namespace Prisma {
     quoteNextNumber?: SortOrder
     invoiceFooter?: SortOrder
     invoiceConditions?: SortOrder
+    invoiceColor?: SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
     workStartHour?: SortOrder
     workEndHour?: SortOrder
+    bankName?: SortOrder
+    bankIban?: SortOrder
+    bankBic?: SortOrder
+    bankAccountOwner?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -55932,11 +66265,16 @@ export namespace Prisma {
     quoteNextNumber?: SortOrder
     invoiceFooter?: SortOrder
     invoiceConditions?: SortOrder
+    invoiceColor?: SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
     workStartHour?: SortOrder
     workEndHour?: SortOrder
+    bankName?: SortOrder
+    bankIban?: SortOrder
+    bankBic?: SortOrder
+    bankAccountOwner?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -55977,7 +66315,27 @@ export namespace Prisma {
     none?: PushTokenWhereInput
   }
 
+  export type UserSessionListRelationFilter = {
+    every?: UserSessionWhereInput
+    some?: UserSessionWhereInput
+    none?: UserSessionWhereInput
+  }
+
+  export type LoginHistoryListRelationFilter = {
+    every?: LoginHistoryWhereInput
+    some?: LoginHistoryWhereInput
+    none?: LoginHistoryWhereInput
+  }
+
   export type PushTokenOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LoginHistoryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -55998,6 +66356,10 @@ export namespace Prisma {
     passwordResetToken?: SortOrder
     passwordResetExpiry?: SortOrder
     lastLoginAt?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrder
+    twoFactorCode?: SortOrder
+    twoFactorExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -56019,6 +66381,10 @@ export namespace Prisma {
     passwordResetToken?: SortOrder
     passwordResetExpiry?: SortOrder
     lastLoginAt?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrder
+    twoFactorCode?: SortOrder
+    twoFactorExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -56040,6 +66406,10 @@ export namespace Prisma {
     passwordResetToken?: SortOrder
     passwordResetExpiry?: SortOrder
     lastLoginAt?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrder
+    twoFactorCode?: SortOrder
+    twoFactorExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -56057,6 +66427,80 @@ export namespace Prisma {
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
+  }
+
+  export type UserSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    ip?: SortOrder
+    location?: SortOrder
+    tokenIdentifier?: SortOrder
+    isCurrent?: SortOrder
+    lastActiveAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    ip?: SortOrder
+    location?: SortOrder
+    tokenIdentifier?: SortOrder
+    isCurrent?: SortOrder
+    lastActiveAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    ip?: SortOrder
+    location?: SortOrder
+    tokenIdentifier?: SortOrder
+    isCurrent?: SortOrder
+    lastActiveAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type LoginHistoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    ip?: SortOrder
+    device?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type LoginHistoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    ip?: SortOrder
+    device?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type LoginHistoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    ip?: SortOrder
+    device?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type PushTokenCountOrderByAggregateInput = {
@@ -56333,11 +66777,6 @@ export namespace Prisma {
     in?: $Enums.PreferredChannel[] | ListEnumPreferredChannelFieldRefInput<$PrismaModel> | null
     notIn?: $Enums.PreferredChannel[] | ListEnumPreferredChannelFieldRefInput<$PrismaModel> | null
     not?: NestedEnumPreferredChannelNullableFilter<$PrismaModel> | $Enums.PreferredChannel | null
-  }
-
-  export type UserNullableScalarRelationFilter = {
-    is?: UserWhereInput | null
-    isNot?: UserWhereInput | null
   }
 
   export type EquipmentListRelationFilter = {
@@ -56990,6 +67429,43 @@ export namespace Prisma {
     not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
   }
 
+  export type EnumEInvoicingStatusNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingStatusNullableFilter<$PrismaModel> | $Enums.EInvoicingStatus | null
+  }
+
+  export type EnumEInvoicingProviderTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel> | $Enums.EInvoicingProviderType | null
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type InvoicePaymentEventListRelationFilter = {
     every?: InvoicePaymentEventWhereInput
     some?: InvoicePaymentEventWhereInput
@@ -57044,6 +67520,14 @@ export namespace Prisma {
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
     reminderSentAt?: SortOrder
+    einvoicingStatus?: SortOrder
+    einvoicingProvider?: SortOrder
+    providerInvoiceId?: SortOrder
+    einvoicingSentAt?: SortOrder
+    einvoicingProcessedAt?: SortOrder
+    einvoicingTransmissionId?: SortOrder
+    einvoicingError?: SortOrder
+    einvoicingRawPayload?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -57101,6 +67585,13 @@ export namespace Prisma {
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
     reminderSentAt?: SortOrder
+    einvoicingStatus?: SortOrder
+    einvoicingProvider?: SortOrder
+    providerInvoiceId?: SortOrder
+    einvoicingSentAt?: SortOrder
+    einvoicingProcessedAt?: SortOrder
+    einvoicingTransmissionId?: SortOrder
+    einvoicingError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -57149,6 +67640,13 @@ export namespace Prisma {
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
     reminderSentAt?: SortOrder
+    einvoicingStatus?: SortOrder
+    einvoicingProvider?: SortOrder
+    providerInvoiceId?: SortOrder
+    einvoicingSentAt?: SortOrder
+    einvoicingProcessedAt?: SortOrder
+    einvoicingTransmissionId?: SortOrder
+    einvoicingError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -57170,6 +67668,52 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInvoiceStatusFilter<$PrismaModel>
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+  }
+
+  export type EnumEInvoicingStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingStatus | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingStatusNullableFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingStatusNullableFilter<$PrismaModel>
+  }
+
+  export type EnumEInvoicingProviderTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingProviderTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingProviderType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type InvoiceScalarRelationFilter = {
@@ -57393,29 +67937,6 @@ export namespace Prisma {
     notIn?: $Enums.NotificationStatus[] | ListEnumNotificationStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumNotificationStatusFilter<$PrismaModel> | $Enums.NotificationStatus
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NotificationCountOrderByAggregateInput = {
     id?: SortOrder
@@ -57503,32 +68024,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNotificationStatusFilter<$PrismaModel>
     _max?: NestedEnumNotificationStatusFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type QuoteRequestCountOrderByAggregateInput = {
@@ -58067,6 +68562,419 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type EnumEInvoicingProviderTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingProviderTypeFilter<$PrismaModel> | $Enums.EInvoicingProviderType
+  }
+
+  export type EnumEInvoicingConnectionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingConnectionStatus | EnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingConnectionStatusFilter<$PrismaModel> | $Enums.EInvoicingConnectionStatus
+  }
+
+  export type EInvoicingConnectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerAccountId?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    apiKeyEncrypted?: SortOrder
+    apiSecretEncrypted?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    tokenExpiresAt?: SortOrder
+    receivingEnabled?: SortOrder
+    emissionEnabled?: SortOrder
+    autoSyncIncoming?: SortOrder
+    lastSyncAt?: SortOrder
+    lastSyncError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EInvoicingConnectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerAccountId?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    apiKeyEncrypted?: SortOrder
+    apiSecretEncrypted?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    tokenExpiresAt?: SortOrder
+    receivingEnabled?: SortOrder
+    emissionEnabled?: SortOrder
+    autoSyncIncoming?: SortOrder
+    lastSyncAt?: SortOrder
+    lastSyncError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EInvoicingConnectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerAccountId?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    apiKeyEncrypted?: SortOrder
+    apiSecretEncrypted?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    tokenExpiresAt?: SortOrder
+    receivingEnabled?: SortOrder
+    emissionEnabled?: SortOrder
+    autoSyncIncoming?: SortOrder
+    lastSyncAt?: SortOrder
+    lastSyncError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumEInvoicingProviderTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingProviderTypeWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingProviderType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingProviderTypeFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingProviderTypeFilter<$PrismaModel>
+  }
+
+  export type EnumEInvoicingConnectionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingConnectionStatus | EnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingConnectionStatusWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingConnectionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingConnectionStatusFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingConnectionStatusFilter<$PrismaModel>
+  }
+
+  export type EnumEInvoicingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingStatusFilter<$PrismaModel> | $Enums.EInvoicingStatus
+  }
+
+  export type ReceivedInvoiceCompanyIdProviderProviderInvoiceIdCompoundUniqueInput = {
+    companyId: string
+    provider: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+  }
+
+  export type ReceivedInvoiceCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    supplierName?: SortOrder
+    supplierSiren?: SortOrder
+    supplierSiret?: SortOrder
+    supplierVatNumber?: SortOrder
+    supplierAddress?: SortOrder
+    supplierCity?: SortOrder
+    supplierPostalCode?: SortOrder
+    supplierCountry?: SortOrder
+    supplierEmail?: SortOrder
+    invoiceNumber?: SortOrder
+    issueDate?: SortOrder
+    dueDate?: SortOrder
+    currency?: SortOrder
+    totalHT?: SortOrder
+    totalVAT?: SortOrder
+    totalTTC?: SortOrder
+    status?: SortOrder
+    structuredData?: SortOrder
+    documentUrl?: SortOrder
+    rawFormat?: SortOrder
+    receivedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReceivedInvoiceAvgOrderByAggregateInput = {
+    totalHT?: SortOrder
+    totalVAT?: SortOrder
+    totalTTC?: SortOrder
+  }
+
+  export type ReceivedInvoiceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    supplierName?: SortOrder
+    supplierSiren?: SortOrder
+    supplierSiret?: SortOrder
+    supplierVatNumber?: SortOrder
+    supplierAddress?: SortOrder
+    supplierCity?: SortOrder
+    supplierPostalCode?: SortOrder
+    supplierCountry?: SortOrder
+    supplierEmail?: SortOrder
+    invoiceNumber?: SortOrder
+    issueDate?: SortOrder
+    dueDate?: SortOrder
+    currency?: SortOrder
+    totalHT?: SortOrder
+    totalVAT?: SortOrder
+    totalTTC?: SortOrder
+    status?: SortOrder
+    documentUrl?: SortOrder
+    rawFormat?: SortOrder
+    receivedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReceivedInvoiceMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    supplierName?: SortOrder
+    supplierSiren?: SortOrder
+    supplierSiret?: SortOrder
+    supplierVatNumber?: SortOrder
+    supplierAddress?: SortOrder
+    supplierCity?: SortOrder
+    supplierPostalCode?: SortOrder
+    supplierCountry?: SortOrder
+    supplierEmail?: SortOrder
+    invoiceNumber?: SortOrder
+    issueDate?: SortOrder
+    dueDate?: SortOrder
+    currency?: SortOrder
+    totalHT?: SortOrder
+    totalVAT?: SortOrder
+    totalTTC?: SortOrder
+    status?: SortOrder
+    documentUrl?: SortOrder
+    rawFormat?: SortOrder
+    receivedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReceivedInvoiceSumOrderByAggregateInput = {
+    totalHT?: SortOrder
+    totalVAT?: SortOrder
+    totalTTC?: SortOrder
+  }
+
+  export type EnumEInvoicingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingStatusWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingStatusFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingStatusFilter<$PrismaModel>
+  }
+
+  export type ReceivedInvoiceNullableScalarRelationFilter = {
+    is?: ReceivedInvoiceWhereInput | null
+    isNot?: ReceivedInvoiceWhereInput | null
+  }
+
+  export type EInvoicingEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    invoiceId?: SortOrder
+    receivedInvoiceId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    eventType?: SortOrder
+    providerStatus?: SortOrder
+    idempotencyKey?: SortOrder
+    payloadJson?: SortOrder
+    errorMessage?: SortOrder
+    receivedAt?: SortOrder
+    processedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EInvoicingEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    invoiceId?: SortOrder
+    receivedInvoiceId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    eventType?: SortOrder
+    providerStatus?: SortOrder
+    idempotencyKey?: SortOrder
+    errorMessage?: SortOrder
+    receivedAt?: SortOrder
+    processedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EInvoicingEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    invoiceId?: SortOrder
+    receivedInvoiceId?: SortOrder
+    provider?: SortOrder
+    providerInvoiceId?: SortOrder
+    eventType?: SortOrder
+    providerStatus?: SortOrder
+    idempotencyKey?: SortOrder
+    errorMessage?: SortOrder
+    receivedAt?: SortOrder
+    processedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumEInvoicingJobTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobType | EnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobTypeFilter<$PrismaModel> | $Enums.EInvoicingJobType
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type EnumEInvoicingJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobStatus | EnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel> | $Enums.EInvoicingJobStatus
+  }
+
+  export type EInvoicingJobCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    payload?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    maxAttempts?: SortOrder
+    nextRunAt?: SortOrder
+    lockedAt?: SortOrder
+    lockedBy?: SortOrder
+    lastError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EInvoicingJobAvgOrderByAggregateInput = {
+    attempts?: SortOrder
+    maxAttempts?: SortOrder
+  }
+
+  export type EInvoicingJobMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    maxAttempts?: SortOrder
+    nextRunAt?: SortOrder
+    lockedAt?: SortOrder
+    lockedBy?: SortOrder
+    lastError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EInvoicingJobMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    maxAttempts?: SortOrder
+    nextRunAt?: SortOrder
+    lockedAt?: SortOrder
+    lockedBy?: SortOrder
+    lastError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EInvoicingJobSumOrderByAggregateInput = {
+    attempts?: SortOrder
+    maxAttempts?: SortOrder
+  }
+
+  export type EnumEInvoicingJobTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobType | EnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobTypeWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingJobType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingJobTypeFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingJobTypeFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type EnumEInvoicingJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobStatus | EnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingJobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel>
+  }
+
   export type SubscriptionCreateNestedManyWithoutPlanInput = {
     create?: XOR<SubscriptionCreateWithoutPlanInput, SubscriptionUncheckedCreateWithoutPlanInput> | SubscriptionCreateWithoutPlanInput[] | SubscriptionUncheckedCreateWithoutPlanInput[]
     connectOrCreate?: SubscriptionCreateOrConnectWithoutPlanInput | SubscriptionCreateOrConnectWithoutPlanInput[]
@@ -58275,6 +69183,33 @@ export namespace Prisma {
     connect?: AccountingIntegrationWhereUniqueInput
   }
 
+  export type EInvoicingConnectionCreateNestedOneWithoutCompanyInput = {
+    create?: XOR<EInvoicingConnectionCreateWithoutCompanyInput, EInvoicingConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: EInvoicingConnectionCreateOrConnectWithoutCompanyInput
+    connect?: EInvoicingConnectionWhereUniqueInput
+  }
+
+  export type ReceivedInvoiceCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ReceivedInvoiceCreateWithoutCompanyInput, ReceivedInvoiceUncheckedCreateWithoutCompanyInput> | ReceivedInvoiceCreateWithoutCompanyInput[] | ReceivedInvoiceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReceivedInvoiceCreateOrConnectWithoutCompanyInput | ReceivedInvoiceCreateOrConnectWithoutCompanyInput[]
+    createMany?: ReceivedInvoiceCreateManyCompanyInputEnvelope
+    connect?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+  }
+
+  export type EInvoicingEventCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EInvoicingEventCreateWithoutCompanyInput, EInvoicingEventUncheckedCreateWithoutCompanyInput> | EInvoicingEventCreateWithoutCompanyInput[] | EInvoicingEventUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutCompanyInput | EInvoicingEventCreateOrConnectWithoutCompanyInput[]
+    createMany?: EInvoicingEventCreateManyCompanyInputEnvelope
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+  }
+
+  export type EInvoicingJobCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EInvoicingJobCreateWithoutCompanyInput, EInvoicingJobUncheckedCreateWithoutCompanyInput> | EInvoicingJobCreateWithoutCompanyInput[] | EInvoicingJobUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingJobCreateOrConnectWithoutCompanyInput | EInvoicingJobCreateOrConnectWithoutCompanyInput[]
+    createMany?: EInvoicingJobCreateManyCompanyInputEnvelope
+    connect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -58403,6 +69338,33 @@ export namespace Prisma {
     create?: XOR<AccountingIntegrationCreateWithoutCompanyInput, AccountingIntegrationUncheckedCreateWithoutCompanyInput>
     connectOrCreate?: AccountingIntegrationCreateOrConnectWithoutCompanyInput
     connect?: AccountingIntegrationWhereUniqueInput
+  }
+
+  export type EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput = {
+    create?: XOR<EInvoicingConnectionCreateWithoutCompanyInput, EInvoicingConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: EInvoicingConnectionCreateOrConnectWithoutCompanyInput
+    connect?: EInvoicingConnectionWhereUniqueInput
+  }
+
+  export type ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ReceivedInvoiceCreateWithoutCompanyInput, ReceivedInvoiceUncheckedCreateWithoutCompanyInput> | ReceivedInvoiceCreateWithoutCompanyInput[] | ReceivedInvoiceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReceivedInvoiceCreateOrConnectWithoutCompanyInput | ReceivedInvoiceCreateOrConnectWithoutCompanyInput[]
+    createMany?: ReceivedInvoiceCreateManyCompanyInputEnvelope
+    connect?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+  }
+
+  export type EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EInvoicingEventCreateWithoutCompanyInput, EInvoicingEventUncheckedCreateWithoutCompanyInput> | EInvoicingEventCreateWithoutCompanyInput[] | EInvoicingEventUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutCompanyInput | EInvoicingEventCreateOrConnectWithoutCompanyInput[]
+    createMany?: EInvoicingEventCreateManyCompanyInputEnvelope
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+  }
+
+  export type EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EInvoicingJobCreateWithoutCompanyInput, EInvoicingJobUncheckedCreateWithoutCompanyInput> | EInvoicingJobCreateWithoutCompanyInput[] | EInvoicingJobUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingJobCreateOrConnectWithoutCompanyInput | EInvoicingJobCreateOrConnectWithoutCompanyInput[]
+    createMany?: EInvoicingJobCreateManyCompanyInputEnvelope
+    connect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
   }
 
   export type UserUpdateManyWithoutCompanyNestedInput = {
@@ -58659,6 +69621,58 @@ export namespace Prisma {
     update?: XOR<XOR<AccountingIntegrationUpdateToOneWithWhereWithoutCompanyInput, AccountingIntegrationUpdateWithoutCompanyInput>, AccountingIntegrationUncheckedUpdateWithoutCompanyInput>
   }
 
+  export type EInvoicingConnectionUpdateOneWithoutCompanyNestedInput = {
+    create?: XOR<EInvoicingConnectionCreateWithoutCompanyInput, EInvoicingConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: EInvoicingConnectionCreateOrConnectWithoutCompanyInput
+    upsert?: EInvoicingConnectionUpsertWithoutCompanyInput
+    disconnect?: EInvoicingConnectionWhereInput | boolean
+    delete?: EInvoicingConnectionWhereInput | boolean
+    connect?: EInvoicingConnectionWhereUniqueInput
+    update?: XOR<XOR<EInvoicingConnectionUpdateToOneWithWhereWithoutCompanyInput, EInvoicingConnectionUpdateWithoutCompanyInput>, EInvoicingConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ReceivedInvoiceUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ReceivedInvoiceCreateWithoutCompanyInput, ReceivedInvoiceUncheckedCreateWithoutCompanyInput> | ReceivedInvoiceCreateWithoutCompanyInput[] | ReceivedInvoiceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReceivedInvoiceCreateOrConnectWithoutCompanyInput | ReceivedInvoiceCreateOrConnectWithoutCompanyInput[]
+    upsert?: ReceivedInvoiceUpsertWithWhereUniqueWithoutCompanyInput | ReceivedInvoiceUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ReceivedInvoiceCreateManyCompanyInputEnvelope
+    set?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    disconnect?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    delete?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    connect?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    update?: ReceivedInvoiceUpdateWithWhereUniqueWithoutCompanyInput | ReceivedInvoiceUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ReceivedInvoiceUpdateManyWithWhereWithoutCompanyInput | ReceivedInvoiceUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ReceivedInvoiceScalarWhereInput | ReceivedInvoiceScalarWhereInput[]
+  }
+
+  export type EInvoicingEventUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EInvoicingEventCreateWithoutCompanyInput, EInvoicingEventUncheckedCreateWithoutCompanyInput> | EInvoicingEventCreateWithoutCompanyInput[] | EInvoicingEventUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutCompanyInput | EInvoicingEventCreateOrConnectWithoutCompanyInput[]
+    upsert?: EInvoicingEventUpsertWithWhereUniqueWithoutCompanyInput | EInvoicingEventUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EInvoicingEventCreateManyCompanyInputEnvelope
+    set?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    disconnect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    delete?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    update?: EInvoicingEventUpdateWithWhereUniqueWithoutCompanyInput | EInvoicingEventUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EInvoicingEventUpdateManyWithWhereWithoutCompanyInput | EInvoicingEventUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
+  }
+
+  export type EInvoicingJobUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EInvoicingJobCreateWithoutCompanyInput, EInvoicingJobUncheckedCreateWithoutCompanyInput> | EInvoicingJobCreateWithoutCompanyInput[] | EInvoicingJobUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingJobCreateOrConnectWithoutCompanyInput | EInvoicingJobCreateOrConnectWithoutCompanyInput[]
+    upsert?: EInvoicingJobUpsertWithWhereUniqueWithoutCompanyInput | EInvoicingJobUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EInvoicingJobCreateManyCompanyInputEnvelope
+    set?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    disconnect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    delete?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    connect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    update?: EInvoicingJobUpdateWithWhereUniqueWithoutCompanyInput | EInvoicingJobUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EInvoicingJobUpdateManyWithWhereWithoutCompanyInput | EInvoicingJobUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EInvoicingJobScalarWhereInput | EInvoicingJobScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -58911,6 +69925,58 @@ export namespace Prisma {
     delete?: AccountingIntegrationWhereInput | boolean
     connect?: AccountingIntegrationWhereUniqueInput
     update?: XOR<XOR<AccountingIntegrationUpdateToOneWithWhereWithoutCompanyInput, AccountingIntegrationUpdateWithoutCompanyInput>, AccountingIntegrationUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput = {
+    create?: XOR<EInvoicingConnectionCreateWithoutCompanyInput, EInvoicingConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: EInvoicingConnectionCreateOrConnectWithoutCompanyInput
+    upsert?: EInvoicingConnectionUpsertWithoutCompanyInput
+    disconnect?: EInvoicingConnectionWhereInput | boolean
+    delete?: EInvoicingConnectionWhereInput | boolean
+    connect?: EInvoicingConnectionWhereUniqueInput
+    update?: XOR<XOR<EInvoicingConnectionUpdateToOneWithWhereWithoutCompanyInput, EInvoicingConnectionUpdateWithoutCompanyInput>, EInvoicingConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ReceivedInvoiceCreateWithoutCompanyInput, ReceivedInvoiceUncheckedCreateWithoutCompanyInput> | ReceivedInvoiceCreateWithoutCompanyInput[] | ReceivedInvoiceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReceivedInvoiceCreateOrConnectWithoutCompanyInput | ReceivedInvoiceCreateOrConnectWithoutCompanyInput[]
+    upsert?: ReceivedInvoiceUpsertWithWhereUniqueWithoutCompanyInput | ReceivedInvoiceUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ReceivedInvoiceCreateManyCompanyInputEnvelope
+    set?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    disconnect?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    delete?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    connect?: ReceivedInvoiceWhereUniqueInput | ReceivedInvoiceWhereUniqueInput[]
+    update?: ReceivedInvoiceUpdateWithWhereUniqueWithoutCompanyInput | ReceivedInvoiceUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ReceivedInvoiceUpdateManyWithWhereWithoutCompanyInput | ReceivedInvoiceUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ReceivedInvoiceScalarWhereInput | ReceivedInvoiceScalarWhereInput[]
+  }
+
+  export type EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EInvoicingEventCreateWithoutCompanyInput, EInvoicingEventUncheckedCreateWithoutCompanyInput> | EInvoicingEventCreateWithoutCompanyInput[] | EInvoicingEventUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutCompanyInput | EInvoicingEventCreateOrConnectWithoutCompanyInput[]
+    upsert?: EInvoicingEventUpsertWithWhereUniqueWithoutCompanyInput | EInvoicingEventUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EInvoicingEventCreateManyCompanyInputEnvelope
+    set?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    disconnect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    delete?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    update?: EInvoicingEventUpdateWithWhereUniqueWithoutCompanyInput | EInvoicingEventUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EInvoicingEventUpdateManyWithWhereWithoutCompanyInput | EInvoicingEventUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
+  }
+
+  export type EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EInvoicingJobCreateWithoutCompanyInput, EInvoicingJobUncheckedCreateWithoutCompanyInput> | EInvoicingJobCreateWithoutCompanyInput[] | EInvoicingJobUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EInvoicingJobCreateOrConnectWithoutCompanyInput | EInvoicingJobCreateOrConnectWithoutCompanyInput[]
+    upsert?: EInvoicingJobUpsertWithWhereUniqueWithoutCompanyInput | EInvoicingJobUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EInvoicingJobCreateManyCompanyInputEnvelope
+    set?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    disconnect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    delete?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    connect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+    update?: EInvoicingJobUpdateWithWhereUniqueWithoutCompanyInput | EInvoicingJobUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EInvoicingJobUpdateManyWithWhereWithoutCompanyInput | EInvoicingJobUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EInvoicingJobScalarWhereInput | EInvoicingJobScalarWhereInput[]
   }
 
   export type CompanyCreateNestedOneWithoutTradeCategoriesInput = {
@@ -59176,6 +70242,20 @@ export namespace Prisma {
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
+  export type UserSessionCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+  }
+
+  export type LoginHistoryCreateNestedManyWithoutUserInput = {
+    create?: XOR<LoginHistoryCreateWithoutUserInput, LoginHistoryUncheckedCreateWithoutUserInput> | LoginHistoryCreateWithoutUserInput[] | LoginHistoryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginHistoryCreateOrConnectWithoutUserInput | LoginHistoryCreateOrConnectWithoutUserInput[]
+    createMany?: LoginHistoryCreateManyUserInputEnvelope
+    connect?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+  }
+
   export type PushTokenUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<PushTokenCreateWithoutUserInput, PushTokenUncheckedCreateWithoutUserInput> | PushTokenCreateWithoutUserInput[] | PushTokenUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PushTokenCreateOrConnectWithoutUserInput | PushTokenCreateOrConnectWithoutUserInput[]
@@ -59216,6 +70296,20 @@ export namespace Prisma {
     connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
     createMany?: AuditLogCreateManyUserInputEnvelope
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
+  export type UserSessionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+  }
+
+  export type LoginHistoryUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<LoginHistoryCreateWithoutUserInput, LoginHistoryUncheckedCreateWithoutUserInput> | LoginHistoryCreateWithoutUserInput[] | LoginHistoryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginHistoryCreateOrConnectWithoutUserInput | LoginHistoryCreateOrConnectWithoutUserInput[]
+    createMany?: LoginHistoryCreateManyUserInputEnvelope
+    connect?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
   }
 
   export type EnumUserRoleFieldUpdateOperationsInput = {
@@ -59314,6 +70408,34 @@ export namespace Prisma {
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
+  export type UserSessionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    upsert?: UserSessionUpsertWithWhereUniqueWithoutUserInput | UserSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    set?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    disconnect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    delete?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    update?: UserSessionUpdateWithWhereUniqueWithoutUserInput | UserSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSessionUpdateManyWithWhereWithoutUserInput | UserSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
+  }
+
+  export type LoginHistoryUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LoginHistoryCreateWithoutUserInput, LoginHistoryUncheckedCreateWithoutUserInput> | LoginHistoryCreateWithoutUserInput[] | LoginHistoryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginHistoryCreateOrConnectWithoutUserInput | LoginHistoryCreateOrConnectWithoutUserInput[]
+    upsert?: LoginHistoryUpsertWithWhereUniqueWithoutUserInput | LoginHistoryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LoginHistoryCreateManyUserInputEnvelope
+    set?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    disconnect?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    delete?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    connect?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    update?: LoginHistoryUpdateWithWhereUniqueWithoutUserInput | LoginHistoryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LoginHistoryUpdateManyWithWhereWithoutUserInput | LoginHistoryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LoginHistoryScalarWhereInput | LoginHistoryScalarWhereInput[]
+  }
+
   export type PushTokenUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<PushTokenCreateWithoutUserInput, PushTokenUncheckedCreateWithoutUserInput> | PushTokenCreateWithoutUserInput[] | PushTokenUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PushTokenCreateOrConnectWithoutUserInput | PushTokenCreateOrConnectWithoutUserInput[]
@@ -59396,6 +70518,64 @@ export namespace Prisma {
     update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type UserSessionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput> | UserSessionCreateWithoutUserInput[] | UserSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSessionCreateOrConnectWithoutUserInput | UserSessionCreateOrConnectWithoutUserInput[]
+    upsert?: UserSessionUpsertWithWhereUniqueWithoutUserInput | UserSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSessionCreateManyUserInputEnvelope
+    set?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    disconnect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    delete?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    connect?: UserSessionWhereUniqueInput | UserSessionWhereUniqueInput[]
+    update?: UserSessionUpdateWithWhereUniqueWithoutUserInput | UserSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSessionUpdateManyWithWhereWithoutUserInput | UserSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
+  }
+
+  export type LoginHistoryUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LoginHistoryCreateWithoutUserInput, LoginHistoryUncheckedCreateWithoutUserInput> | LoginHistoryCreateWithoutUserInput[] | LoginHistoryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginHistoryCreateOrConnectWithoutUserInput | LoginHistoryCreateOrConnectWithoutUserInput[]
+    upsert?: LoginHistoryUpsertWithWhereUniqueWithoutUserInput | LoginHistoryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LoginHistoryCreateManyUserInputEnvelope
+    set?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    disconnect?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    delete?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    connect?: LoginHistoryWhereUniqueInput | LoginHistoryWhereUniqueInput[]
+    update?: LoginHistoryUpdateWithWhereUniqueWithoutUserInput | LoginHistoryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LoginHistoryUpdateManyWithWhereWithoutUserInput | LoginHistoryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LoginHistoryScalarWhereInput | LoginHistoryScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutSessionsInput = {
+    create?: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSessionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
+    create?: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSessionsInput
+    upsert?: UserUpsertWithoutSessionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSessionsInput, UserUpdateWithoutSessionsInput>, UserUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type UserCreateNestedOneWithoutLoginHistoriesInput = {
+    create?: XOR<UserCreateWithoutLoginHistoriesInput, UserUncheckedCreateWithoutLoginHistoriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLoginHistoriesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutLoginHistoriesNestedInput = {
+    create?: XOR<UserCreateWithoutLoginHistoriesInput, UserUncheckedCreateWithoutLoginHistoriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLoginHistoriesInput
+    upsert?: UserUpsertWithoutLoginHistoriesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLoginHistoriesInput, UserUpdateWithoutLoginHistoriesInput>, UserUncheckedUpdateWithoutLoginHistoriesInput>
   }
 
   export type UserCreateNestedOneWithoutPushTokensInput = {
@@ -60386,6 +71566,13 @@ export namespace Prisma {
     connect?: InvoicePaymentEventWhereUniqueInput | InvoicePaymentEventWhereUniqueInput[]
   }
 
+  export type EInvoicingEventCreateNestedManyWithoutInvoiceInput = {
+    create?: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput> | EInvoicingEventCreateWithoutInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutInvoiceInput | EInvoicingEventCreateOrConnectWithoutInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyInvoiceInputEnvelope
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+  }
+
   export type InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput = {
     create?: XOR<InvoiceLineCreateWithoutInvoiceInput, InvoiceLineUncheckedCreateWithoutInvoiceInput> | InvoiceLineCreateWithoutInvoiceInput[] | InvoiceLineUncheckedCreateWithoutInvoiceInput[]
     connectOrCreate?: InvoiceLineCreateOrConnectWithoutInvoiceInput | InvoiceLineCreateOrConnectWithoutInvoiceInput[]
@@ -60400,8 +71587,23 @@ export namespace Prisma {
     connect?: InvoicePaymentEventWhereUniqueInput | InvoicePaymentEventWhereUniqueInput[]
   }
 
+  export type EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput = {
+    create?: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput> | EInvoicingEventCreateWithoutInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutInvoiceInput | EInvoicingEventCreateOrConnectWithoutInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyInvoiceInputEnvelope
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+  }
+
   export type EnumInvoiceStatusFieldUpdateOperationsInput = {
     set?: $Enums.InvoiceStatus
+  }
+
+  export type NullableEnumEInvoicingStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EInvoicingStatus | null
+  }
+
+  export type NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput = {
+    set?: $Enums.EInvoicingProviderType | null
   }
 
   export type CompanyUpdateOneRequiredWithoutInvoicesNestedInput = {
@@ -60468,6 +71670,20 @@ export namespace Prisma {
     deleteMany?: InvoicePaymentEventScalarWhereInput | InvoicePaymentEventScalarWhereInput[]
   }
 
+  export type EInvoicingEventUpdateManyWithoutInvoiceNestedInput = {
+    create?: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput> | EInvoicingEventCreateWithoutInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutInvoiceInput | EInvoicingEventCreateOrConnectWithoutInvoiceInput[]
+    upsert?: EInvoicingEventUpsertWithWhereUniqueWithoutInvoiceInput | EInvoicingEventUpsertWithWhereUniqueWithoutInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyInvoiceInputEnvelope
+    set?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    disconnect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    delete?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    update?: EInvoicingEventUpdateWithWhereUniqueWithoutInvoiceInput | EInvoicingEventUpdateWithWhereUniqueWithoutInvoiceInput[]
+    updateMany?: EInvoicingEventUpdateManyWithWhereWithoutInvoiceInput | EInvoicingEventUpdateManyWithWhereWithoutInvoiceInput[]
+    deleteMany?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
+  }
+
   export type InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput = {
     create?: XOR<InvoiceLineCreateWithoutInvoiceInput, InvoiceLineUncheckedCreateWithoutInvoiceInput> | InvoiceLineCreateWithoutInvoiceInput[] | InvoiceLineUncheckedCreateWithoutInvoiceInput[]
     connectOrCreate?: InvoiceLineCreateOrConnectWithoutInvoiceInput | InvoiceLineCreateOrConnectWithoutInvoiceInput[]
@@ -60494,6 +71710,20 @@ export namespace Prisma {
     update?: InvoicePaymentEventUpdateWithWhereUniqueWithoutInvoiceInput | InvoicePaymentEventUpdateWithWhereUniqueWithoutInvoiceInput[]
     updateMany?: InvoicePaymentEventUpdateManyWithWhereWithoutInvoiceInput | InvoicePaymentEventUpdateManyWithWhereWithoutInvoiceInput[]
     deleteMany?: InvoicePaymentEventScalarWhereInput | InvoicePaymentEventScalarWhereInput[]
+  }
+
+  export type EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput = {
+    create?: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput> | EInvoicingEventCreateWithoutInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutInvoiceInput | EInvoicingEventCreateOrConnectWithoutInvoiceInput[]
+    upsert?: EInvoicingEventUpsertWithWhereUniqueWithoutInvoiceInput | EInvoicingEventUpsertWithWhereUniqueWithoutInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyInvoiceInputEnvelope
+    set?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    disconnect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    delete?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    update?: EInvoicingEventUpdateWithWhereUniqueWithoutInvoiceInput | EInvoicingEventUpdateWithWhereUniqueWithoutInvoiceInput[]
+    updateMany?: EInvoicingEventUpdateManyWithWhereWithoutInvoiceInput | EInvoicingEventUpdateManyWithWhereWithoutInvoiceInput[]
+    deleteMany?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
   }
 
   export type InvoiceCreateNestedOneWithoutLinesInput = {
@@ -60834,6 +72064,156 @@ export namespace Prisma {
     upsert?: AdminUserUpsertWithoutAuditLogsInput
     connect?: AdminUserWhereUniqueInput
     update?: XOR<XOR<AdminUserUpdateToOneWithWhereWithoutAuditLogsInput, AdminUserUpdateWithoutAuditLogsInput>, AdminUserUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutEinvoicingConnectionInput = {
+    create?: XOR<CompanyCreateWithoutEinvoicingConnectionInput, CompanyUncheckedCreateWithoutEinvoicingConnectionInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEinvoicingConnectionInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type EnumEInvoicingProviderTypeFieldUpdateOperationsInput = {
+    set?: $Enums.EInvoicingProviderType
+  }
+
+  export type EnumEInvoicingConnectionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EInvoicingConnectionStatus
+  }
+
+  export type CompanyUpdateOneRequiredWithoutEinvoicingConnectionNestedInput = {
+    create?: XOR<CompanyCreateWithoutEinvoicingConnectionInput, CompanyUncheckedCreateWithoutEinvoicingConnectionInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEinvoicingConnectionInput
+    upsert?: CompanyUpsertWithoutEinvoicingConnectionInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutEinvoicingConnectionInput, CompanyUpdateWithoutEinvoicingConnectionInput>, CompanyUncheckedUpdateWithoutEinvoicingConnectionInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutReceivedInvoicesInput = {
+    create?: XOR<CompanyCreateWithoutReceivedInvoicesInput, CompanyUncheckedCreateWithoutReceivedInvoicesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutReceivedInvoicesInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type EInvoicingEventCreateNestedManyWithoutReceivedInvoiceInput = {
+    create?: XOR<EInvoicingEventCreateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput> | EInvoicingEventCreateWithoutReceivedInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput | EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyReceivedInvoiceInputEnvelope
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+  }
+
+  export type EInvoicingEventUncheckedCreateNestedManyWithoutReceivedInvoiceInput = {
+    create?: XOR<EInvoicingEventCreateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput> | EInvoicingEventCreateWithoutReceivedInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput | EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyReceivedInvoiceInputEnvelope
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+  }
+
+  export type EnumEInvoicingStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EInvoicingStatus
+  }
+
+  export type CompanyUpdateOneRequiredWithoutReceivedInvoicesNestedInput = {
+    create?: XOR<CompanyCreateWithoutReceivedInvoicesInput, CompanyUncheckedCreateWithoutReceivedInvoicesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutReceivedInvoicesInput
+    upsert?: CompanyUpsertWithoutReceivedInvoicesInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutReceivedInvoicesInput, CompanyUpdateWithoutReceivedInvoicesInput>, CompanyUncheckedUpdateWithoutReceivedInvoicesInput>
+  }
+
+  export type EInvoicingEventUpdateManyWithoutReceivedInvoiceNestedInput = {
+    create?: XOR<EInvoicingEventCreateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput> | EInvoicingEventCreateWithoutReceivedInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput | EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput[]
+    upsert?: EInvoicingEventUpsertWithWhereUniqueWithoutReceivedInvoiceInput | EInvoicingEventUpsertWithWhereUniqueWithoutReceivedInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyReceivedInvoiceInputEnvelope
+    set?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    disconnect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    delete?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    update?: EInvoicingEventUpdateWithWhereUniqueWithoutReceivedInvoiceInput | EInvoicingEventUpdateWithWhereUniqueWithoutReceivedInvoiceInput[]
+    updateMany?: EInvoicingEventUpdateManyWithWhereWithoutReceivedInvoiceInput | EInvoicingEventUpdateManyWithWhereWithoutReceivedInvoiceInput[]
+    deleteMany?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
+  }
+
+  export type EInvoicingEventUncheckedUpdateManyWithoutReceivedInvoiceNestedInput = {
+    create?: XOR<EInvoicingEventCreateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput> | EInvoicingEventCreateWithoutReceivedInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput[]
+    connectOrCreate?: EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput | EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput[]
+    upsert?: EInvoicingEventUpsertWithWhereUniqueWithoutReceivedInvoiceInput | EInvoicingEventUpsertWithWhereUniqueWithoutReceivedInvoiceInput[]
+    createMany?: EInvoicingEventCreateManyReceivedInvoiceInputEnvelope
+    set?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    disconnect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    delete?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    connect?: EInvoicingEventWhereUniqueInput | EInvoicingEventWhereUniqueInput[]
+    update?: EInvoicingEventUpdateWithWhereUniqueWithoutReceivedInvoiceInput | EInvoicingEventUpdateWithWhereUniqueWithoutReceivedInvoiceInput[]
+    updateMany?: EInvoicingEventUpdateManyWithWhereWithoutReceivedInvoiceInput | EInvoicingEventUpdateManyWithWhereWithoutReceivedInvoiceInput[]
+    deleteMany?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
+  }
+
+  export type CompanyCreateNestedOneWithoutEinvoicingEventsInput = {
+    create?: XOR<CompanyCreateWithoutEinvoicingEventsInput, CompanyUncheckedCreateWithoutEinvoicingEventsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEinvoicingEventsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type InvoiceCreateNestedOneWithoutEinvoicingEventsInput = {
+    create?: XOR<InvoiceCreateWithoutEinvoicingEventsInput, InvoiceUncheckedCreateWithoutEinvoicingEventsInput>
+    connectOrCreate?: InvoiceCreateOrConnectWithoutEinvoicingEventsInput
+    connect?: InvoiceWhereUniqueInput
+  }
+
+  export type ReceivedInvoiceCreateNestedOneWithoutEventsInput = {
+    create?: XOR<ReceivedInvoiceCreateWithoutEventsInput, ReceivedInvoiceUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: ReceivedInvoiceCreateOrConnectWithoutEventsInput
+    connect?: ReceivedInvoiceWhereUniqueInput
+  }
+
+  export type CompanyUpdateOneRequiredWithoutEinvoicingEventsNestedInput = {
+    create?: XOR<CompanyCreateWithoutEinvoicingEventsInput, CompanyUncheckedCreateWithoutEinvoicingEventsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEinvoicingEventsInput
+    upsert?: CompanyUpsertWithoutEinvoicingEventsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutEinvoicingEventsInput, CompanyUpdateWithoutEinvoicingEventsInput>, CompanyUncheckedUpdateWithoutEinvoicingEventsInput>
+  }
+
+  export type InvoiceUpdateOneWithoutEinvoicingEventsNestedInput = {
+    create?: XOR<InvoiceCreateWithoutEinvoicingEventsInput, InvoiceUncheckedCreateWithoutEinvoicingEventsInput>
+    connectOrCreate?: InvoiceCreateOrConnectWithoutEinvoicingEventsInput
+    upsert?: InvoiceUpsertWithoutEinvoicingEventsInput
+    disconnect?: InvoiceWhereInput | boolean
+    delete?: InvoiceWhereInput | boolean
+    connect?: InvoiceWhereUniqueInput
+    update?: XOR<XOR<InvoiceUpdateToOneWithWhereWithoutEinvoicingEventsInput, InvoiceUpdateWithoutEinvoicingEventsInput>, InvoiceUncheckedUpdateWithoutEinvoicingEventsInput>
+  }
+
+  export type ReceivedInvoiceUpdateOneWithoutEventsNestedInput = {
+    create?: XOR<ReceivedInvoiceCreateWithoutEventsInput, ReceivedInvoiceUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: ReceivedInvoiceCreateOrConnectWithoutEventsInput
+    upsert?: ReceivedInvoiceUpsertWithoutEventsInput
+    disconnect?: ReceivedInvoiceWhereInput | boolean
+    delete?: ReceivedInvoiceWhereInput | boolean
+    connect?: ReceivedInvoiceWhereUniqueInput
+    update?: XOR<XOR<ReceivedInvoiceUpdateToOneWithWhereWithoutEventsInput, ReceivedInvoiceUpdateWithoutEventsInput>, ReceivedInvoiceUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutEinvoicingJobsInput = {
+    create?: XOR<CompanyCreateWithoutEinvoicingJobsInput, CompanyUncheckedCreateWithoutEinvoicingJobsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEinvoicingJobsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type EnumEInvoicingJobTypeFieldUpdateOperationsInput = {
+    set?: $Enums.EInvoicingJobType
+  }
+
+  export type EnumEInvoicingJobStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EInvoicingJobStatus
+  }
+
+  export type CompanyUpdateOneRequiredWithoutEinvoicingJobsNestedInput = {
+    create?: XOR<CompanyCreateWithoutEinvoicingJobsInput, CompanyUncheckedCreateWithoutEinvoicingJobsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEinvoicingJobsInput
+    upsert?: CompanyUpsertWithoutEinvoicingJobsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutEinvoicingJobsInput, CompanyUpdateWithoutEinvoicingJobsInput>, CompanyUncheckedUpdateWithoutEinvoicingJobsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -61297,6 +72677,20 @@ export namespace Prisma {
     not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
   }
 
+  export type NestedEnumEInvoicingStatusNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingStatusNullableFilter<$PrismaModel> | $Enums.EInvoicingStatus | null
+  }
+
+  export type NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel> | $Enums.EInvoicingProviderType | null
+  }
+
   export type NestedEnumInvoiceStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.InvoiceStatus | EnumInvoiceStatusFieldRefInput<$PrismaModel>
     in?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
@@ -61305,6 +72699,49 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInvoiceStatusFilter<$PrismaModel>
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEInvoicingStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingStatus | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingStatusNullableFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingStatusNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEInvoicingProviderTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEInvoicingProviderTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingProviderType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumMessageDirectionFilter<$PrismaModel = never> = {
@@ -61374,29 +72811,6 @@ export namespace Prisma {
     _min?: NestedEnumNotificationStatusFilter<$PrismaModel>
     _max?: NestedEnumNotificationStatusFilter<$PrismaModel>
   }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NestedEnumAccountingExportTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.AccountingExportType | EnumAccountingExportTypeFieldRefInput<$PrismaModel>
@@ -61447,6 +72861,114 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumSystemRoleFilter<$PrismaModel>
     _max?: NestedEnumSystemRoleFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEInvoicingProviderTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingProviderTypeFilter<$PrismaModel> | $Enums.EInvoicingProviderType
+  }
+
+  export type NestedEnumEInvoicingConnectionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingConnectionStatus | EnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingConnectionStatusFilter<$PrismaModel> | $Enums.EInvoicingConnectionStatus
+  }
+
+  export type NestedEnumEInvoicingProviderTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingProviderType | EnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingProviderTypeWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingProviderType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingProviderTypeFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingProviderTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEInvoicingConnectionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingConnectionStatus | EnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingConnectionStatus[] | ListEnumEInvoicingConnectionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingConnectionStatusWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingConnectionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingConnectionStatusFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingConnectionStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEInvoicingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingStatusFilter<$PrismaModel> | $Enums.EInvoicingStatus
+  }
+
+  export type NestedEnumEInvoicingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingStatusWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingStatusFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEInvoicingJobTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobType | EnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobTypeFilter<$PrismaModel> | $Enums.EInvoicingJobType
+  }
+
+  export type NestedEnumEInvoicingJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobStatus | EnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel> | $Enums.EInvoicingJobStatus
+  }
+
+  export type NestedEnumEInvoicingJobTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobType | EnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobType[] | ListEnumEInvoicingJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobTypeWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingJobType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingJobTypeFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingJobTypeFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumEInvoicingJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EInvoicingJobStatus | EnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EInvoicingJobStatus[] | ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEInvoicingJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.EInvoicingJobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel>
   }
 
   export type SubscriptionCreateWithoutPlanInput = {
@@ -61548,6 +73070,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenCreateNestedManyWithoutUserInput
@@ -61556,6 +73082,8 @@ export namespace Prisma {
     createdClients?: ClientCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCompanyInput = {
@@ -61574,6 +73102,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
@@ -61582,6 +73114,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCompanyInput = {
@@ -61784,6 +73318,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     client: ClientCreateNestedOneWithoutInvoicesInput
@@ -61791,6 +73333,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUncheckedCreateWithoutCompanyInput = {
@@ -61836,10 +73379,19 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceCreateOrConnectWithoutCompanyInput = {
@@ -62140,12 +73692,17 @@ export namespace Prisma {
     quoteNextNumber?: number
     invoiceFooter?: string | null
     invoiceConditions?: string | null
+    invoiceColor?: string | null
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
     workStartHour?: number
     workEndHour?: number
     workDays?: CompanySettingsCreateworkDaysInput | number[]
+    bankName?: string | null
+    bankIban?: string | null
+    bankBic?: string | null
+    bankAccountOwner?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -62183,12 +73740,17 @@ export namespace Prisma {
     quoteNextNumber?: number
     invoiceFooter?: string | null
     invoiceConditions?: string | null
+    invoiceColor?: string | null
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
     workStartHour?: number
     workEndHour?: number
     workDays?: CompanySettingsCreateworkDaysInput | number[]
+    bankName?: string | null
+    bankIban?: string | null
+    bankBic?: string | null
+    bankAccountOwner?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -62545,6 +74107,203 @@ export namespace Prisma {
     create: XOR<AccountingIntegrationCreateWithoutCompanyInput, AccountingIntegrationUncheckedCreateWithoutCompanyInput>
   }
 
+  export type EInvoicingConnectionCreateWithoutCompanyInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerAccountId?: string | null
+    environment?: string
+    status?: $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: string | null
+    apiSecretEncrypted?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: Date | string | null
+    lastSyncError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingConnectionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerAccountId?: string | null
+    environment?: string
+    status?: $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: string | null
+    apiSecretEncrypted?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    receivingEnabled?: boolean
+    emissionEnabled?: boolean
+    autoSyncIncoming?: boolean
+    lastSyncAt?: Date | string | null
+    lastSyncError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingConnectionCreateOrConnectWithoutCompanyInput = {
+    where: EInvoicingConnectionWhereUniqueInput
+    create: XOR<EInvoicingConnectionCreateWithoutCompanyInput, EInvoicingConnectionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ReceivedInvoiceCreateWithoutCompanyInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: EInvoicingEventCreateNestedManyWithoutReceivedInvoiceInput
+  }
+
+  export type ReceivedInvoiceUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: EInvoicingEventUncheckedCreateNestedManyWithoutReceivedInvoiceInput
+  }
+
+  export type ReceivedInvoiceCreateOrConnectWithoutCompanyInput = {
+    where: ReceivedInvoiceWhereUniqueInput
+    create: XOR<ReceivedInvoiceCreateWithoutCompanyInput, ReceivedInvoiceUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ReceivedInvoiceCreateManyCompanyInputEnvelope = {
+    data: ReceivedInvoiceCreateManyCompanyInput | ReceivedInvoiceCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EInvoicingEventCreateWithoutCompanyInput = {
+    id?: string
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    invoice?: InvoiceCreateNestedOneWithoutEinvoicingEventsInput
+    receivedInvoice?: ReceivedInvoiceCreateNestedOneWithoutEventsInput
+  }
+
+  export type EInvoicingEventUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    invoiceId?: string | null
+    receivedInvoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EInvoicingEventCreateOrConnectWithoutCompanyInput = {
+    where: EInvoicingEventWhereUniqueInput
+    create: XOR<EInvoicingEventCreateWithoutCompanyInput, EInvoicingEventUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EInvoicingEventCreateManyCompanyInputEnvelope = {
+    data: EInvoicingEventCreateManyCompanyInput | EInvoicingEventCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EInvoicingJobCreateWithoutCompanyInput = {
+    id?: string
+    type: $Enums.EInvoicingJobType
+    payload: JsonNullValueInput | InputJsonValue
+    status?: $Enums.EInvoicingJobStatus
+    attempts?: number
+    maxAttempts?: number
+    nextRunAt?: Date | string
+    lockedAt?: Date | string | null
+    lockedBy?: string | null
+    lastError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingJobUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    type: $Enums.EInvoicingJobType
+    payload: JsonNullValueInput | InputJsonValue
+    status?: $Enums.EInvoicingJobStatus
+    attempts?: number
+    maxAttempts?: number
+    nextRunAt?: Date | string
+    lockedAt?: Date | string | null
+    lockedBy?: string | null
+    lastError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingJobCreateOrConnectWithoutCompanyInput = {
+    where: EInvoicingJobWhereUniqueInput
+    create: XOR<EInvoicingJobCreateWithoutCompanyInput, EInvoicingJobUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EInvoicingJobCreateManyCompanyInputEnvelope = {
+    data: EInvoicingJobCreateManyCompanyInput | EInvoicingJobCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithWhereUniqueWithoutCompanyInput = {
     where: UserWhereUniqueInput
     update: XOR<UserUpdateWithoutCompanyInput, UserUncheckedUpdateWithoutCompanyInput>
@@ -62581,6 +74340,10 @@ export namespace Prisma {
     passwordResetToken?: StringNullableFilter<"User"> | string | null
     passwordResetExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    twoFactorEnabled?: BoolFilter<"User"> | boolean
+    twoFactorSecret?: StringNullableFilter<"User"> | string | null
+    twoFactorCode?: StringNullableFilter<"User"> | string | null
+    twoFactorExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
   }
@@ -62745,6 +74508,14 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingStatus?: EnumEInvoicingStatusNullableFilter<"Invoice"> | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: EnumEInvoicingProviderTypeNullableFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingProcessedAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    einvoicingTransmissionId?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingError?: StringNullableFilter<"Invoice"> | string | null
+    einvoicingRawPayload?: JsonNullableFilter<"Invoice">
     createdAt?: DateTimeFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeFilter<"Invoice"> | Date | string
   }
@@ -63006,12 +74777,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFieldUpdateOperationsInput | number
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
     workStartHour?: IntFieldUpdateOperationsInput | number
     workEndHour?: IntFieldUpdateOperationsInput | number
     workDays?: CompanySettingsUpdateworkDaysInput | number[]
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankIban?: NullableStringFieldUpdateOperationsInput | string | null
+    bankBic?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -63049,12 +74825,17 @@ export namespace Prisma {
     quoteNextNumber?: IntFieldUpdateOperationsInput | number
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
     workStartHour?: IntFieldUpdateOperationsInput | number
     workEndHour?: IntFieldUpdateOperationsInput | number
     workDays?: CompanySettingsUpdateworkDaysInput | number[]
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankIban?: NullableStringFieldUpdateOperationsInput | string | null
+    bankBic?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -63372,6 +75153,177 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EInvoicingConnectionUpsertWithoutCompanyInput = {
+    update: XOR<EInvoicingConnectionUpdateWithoutCompanyInput, EInvoicingConnectionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<EInvoicingConnectionCreateWithoutCompanyInput, EInvoicingConnectionUncheckedCreateWithoutCompanyInput>
+    where?: EInvoicingConnectionWhereInput
+  }
+
+  export type EInvoicingConnectionUpdateToOneWithWhereWithoutCompanyInput = {
+    where?: EInvoicingConnectionWhereInput
+    data: XOR<EInvoicingConnectionUpdateWithoutCompanyInput, EInvoicingConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type EInvoicingConnectionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    environment?: StringFieldUpdateOperationsInput | string
+    status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    apiSecretEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
+    autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingConnectionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    environment?: StringFieldUpdateOperationsInput | string
+    status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
+    apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    apiSecretEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
+    autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReceivedInvoiceUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: ReceivedInvoiceWhereUniqueInput
+    update: XOR<ReceivedInvoiceUpdateWithoutCompanyInput, ReceivedInvoiceUncheckedUpdateWithoutCompanyInput>
+    create: XOR<ReceivedInvoiceCreateWithoutCompanyInput, ReceivedInvoiceUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ReceivedInvoiceUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: ReceivedInvoiceWhereUniqueInput
+    data: XOR<ReceivedInvoiceUpdateWithoutCompanyInput, ReceivedInvoiceUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ReceivedInvoiceUpdateManyWithWhereWithoutCompanyInput = {
+    where: ReceivedInvoiceScalarWhereInput
+    data: XOR<ReceivedInvoiceUpdateManyMutationInput, ReceivedInvoiceUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type ReceivedInvoiceScalarWhereInput = {
+    AND?: ReceivedInvoiceScalarWhereInput | ReceivedInvoiceScalarWhereInput[]
+    OR?: ReceivedInvoiceScalarWhereInput[]
+    NOT?: ReceivedInvoiceScalarWhereInput | ReceivedInvoiceScalarWhereInput[]
+    id?: StringFilter<"ReceivedInvoice"> | string
+    companyId?: StringFilter<"ReceivedInvoice"> | string
+    provider?: EnumEInvoicingProviderTypeFilter<"ReceivedInvoice"> | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFilter<"ReceivedInvoice"> | string
+    supplierName?: StringFilter<"ReceivedInvoice"> | string
+    supplierSiren?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierSiret?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierVatNumber?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierAddress?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierCity?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierPostalCode?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierCountry?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    supplierEmail?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    invoiceNumber?: StringFilter<"ReceivedInvoice"> | string
+    issueDate?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    dueDate?: DateTimeNullableFilter<"ReceivedInvoice"> | Date | string | null
+    currency?: StringFilter<"ReceivedInvoice"> | string
+    totalHT?: FloatFilter<"ReceivedInvoice"> | number
+    totalVAT?: FloatFilter<"ReceivedInvoice"> | number
+    totalTTC?: FloatFilter<"ReceivedInvoice"> | number
+    status?: EnumEInvoicingStatusFilter<"ReceivedInvoice"> | $Enums.EInvoicingStatus
+    structuredData?: JsonNullableFilter<"ReceivedInvoice">
+    documentUrl?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    rawFormat?: StringNullableFilter<"ReceivedInvoice"> | string | null
+    receivedAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    createdAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+    updatedAt?: DateTimeFilter<"ReceivedInvoice"> | Date | string
+  }
+
+  export type EInvoicingEventUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: EInvoicingEventWhereUniqueInput
+    update: XOR<EInvoicingEventUpdateWithoutCompanyInput, EInvoicingEventUncheckedUpdateWithoutCompanyInput>
+    create: XOR<EInvoicingEventCreateWithoutCompanyInput, EInvoicingEventUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EInvoicingEventUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: EInvoicingEventWhereUniqueInput
+    data: XOR<EInvoicingEventUpdateWithoutCompanyInput, EInvoicingEventUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type EInvoicingEventUpdateManyWithWhereWithoutCompanyInput = {
+    where: EInvoicingEventScalarWhereInput
+    data: XOR<EInvoicingEventUpdateManyMutationInput, EInvoicingEventUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type EInvoicingEventScalarWhereInput = {
+    AND?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
+    OR?: EInvoicingEventScalarWhereInput[]
+    NOT?: EInvoicingEventScalarWhereInput | EInvoicingEventScalarWhereInput[]
+    id?: StringFilter<"EInvoicingEvent"> | string
+    companyId?: StringFilter<"EInvoicingEvent"> | string
+    invoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    receivedInvoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    provider?: StringFilter<"EInvoicingEvent"> | string
+    providerInvoiceId?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    eventType?: StringFilter<"EInvoicingEvent"> | string
+    providerStatus?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    idempotencyKey?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    payloadJson?: JsonNullableFilter<"EInvoicingEvent">
+    errorMessage?: StringNullableFilter<"EInvoicingEvent"> | string | null
+    receivedAt?: DateTimeFilter<"EInvoicingEvent"> | Date | string
+    processedAt?: DateTimeNullableFilter<"EInvoicingEvent"> | Date | string | null
+    createdAt?: DateTimeFilter<"EInvoicingEvent"> | Date | string
+  }
+
+  export type EInvoicingJobUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: EInvoicingJobWhereUniqueInput
+    update: XOR<EInvoicingJobUpdateWithoutCompanyInput, EInvoicingJobUncheckedUpdateWithoutCompanyInput>
+    create: XOR<EInvoicingJobCreateWithoutCompanyInput, EInvoicingJobUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EInvoicingJobUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: EInvoicingJobWhereUniqueInput
+    data: XOR<EInvoicingJobUpdateWithoutCompanyInput, EInvoicingJobUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type EInvoicingJobUpdateManyWithWhereWithoutCompanyInput = {
+    where: EInvoicingJobScalarWhereInput
+    data: XOR<EInvoicingJobUpdateManyMutationInput, EInvoicingJobUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type EInvoicingJobScalarWhereInput = {
+    AND?: EInvoicingJobScalarWhereInput | EInvoicingJobScalarWhereInput[]
+    OR?: EInvoicingJobScalarWhereInput[]
+    NOT?: EInvoicingJobScalarWhereInput | EInvoicingJobScalarWhereInput[]
+    id?: StringFilter<"EInvoicingJob"> | string
+    companyId?: StringFilter<"EInvoicingJob"> | string
+    type?: EnumEInvoicingJobTypeFilter<"EInvoicingJob"> | $Enums.EInvoicingJobType
+    payload?: JsonFilter<"EInvoicingJob">
+    status?: EnumEInvoicingJobStatusFilter<"EInvoicingJob"> | $Enums.EInvoicingJobStatus
+    attempts?: IntFilter<"EInvoicingJob"> | number
+    maxAttempts?: IntFilter<"EInvoicingJob"> | number
+    nextRunAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    lockedAt?: DateTimeNullableFilter<"EInvoicingJob"> | Date | string | null
+    lockedBy?: StringNullableFilter<"EInvoicingJob"> | string | null
+    lastError?: StringNullableFilter<"EInvoicingJob"> | string | null
+    createdAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+    updatedAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
+  }
+
   export type CompanyCreateWithoutTradeCategoriesInput = {
     id?: string
     name: string
@@ -63416,6 +75368,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutTradeCategoriesInput = {
@@ -63462,6 +75418,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutTradeCategoriesInput = {
@@ -63551,6 +75511,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutTradeCategoriesInput = {
@@ -63597,6 +75561,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type TradeCategoryUpsertWithoutCompaniesInput = {
@@ -63714,6 +75682,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSubscriptionInput = {
@@ -63760,6 +75732,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSubscriptionInput = {
@@ -63909,6 +75885,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSubscriptionInput = {
@@ -63955,6 +75935,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type PlanUpsertWithoutSubscriptionsInput = {
@@ -64180,6 +76164,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSettingsInput = {
@@ -64226,6 +76214,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSettingsInput = {
@@ -64288,6 +76280,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSettingsInput = {
@@ -64334,6 +76330,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutUsersInput = {
@@ -64380,6 +76380,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -64426,6 +76430,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -64759,6 +76767,68 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserSessionCreateWithoutUserInput = {
+    id?: string
+    device: string
+    browser: string
+    ip: string
+    location?: string | null
+    tokenIdentifier?: string | null
+    isCurrent?: boolean
+    lastActiveAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type UserSessionUncheckedCreateWithoutUserInput = {
+    id?: string
+    device: string
+    browser: string
+    ip: string
+    location?: string | null
+    tokenIdentifier?: string | null
+    isCurrent?: boolean
+    lastActiveAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type UserSessionCreateOrConnectWithoutUserInput = {
+    where: UserSessionWhereUniqueInput
+    create: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSessionCreateManyUserInputEnvelope = {
+    data: UserSessionCreateManyUserInput | UserSessionCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LoginHistoryCreateWithoutUserInput = {
+    id?: string
+    email: string
+    ip: string
+    device: string
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type LoginHistoryUncheckedCreateWithoutUserInput = {
+    id?: string
+    email: string
+    ip: string
+    device: string
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type LoginHistoryCreateOrConnectWithoutUserInput = {
+    where: LoginHistoryWhereUniqueInput
+    create: XOR<LoginHistoryCreateWithoutUserInput, LoginHistoryUncheckedCreateWithoutUserInput>
+  }
+
+  export type LoginHistoryCreateManyUserInputEnvelope = {
+    data: LoginHistoryCreateManyUserInput | LoginHistoryCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutUsersInput = {
     update: XOR<CompanyUpdateWithoutUsersInput, CompanyUncheckedUpdateWithoutUsersInput>
     create: XOR<CompanyCreateWithoutUsersInput, CompanyUncheckedCreateWithoutUsersInput>
@@ -64814,6 +76884,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -64860,6 +76934,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type PushTokenUpsertWithWhereUniqueWithoutUserInput = {
@@ -64971,6 +77049,355 @@ export namespace Prisma {
     data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type UserSessionUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserSessionWhereUniqueInput
+    update: XOR<UserSessionUpdateWithoutUserInput, UserSessionUncheckedUpdateWithoutUserInput>
+    create: XOR<UserSessionCreateWithoutUserInput, UserSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSessionUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserSessionWhereUniqueInput
+    data: XOR<UserSessionUpdateWithoutUserInput, UserSessionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserSessionUpdateManyWithWhereWithoutUserInput = {
+    where: UserSessionScalarWhereInput
+    data: XOR<UserSessionUpdateManyMutationInput, UserSessionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserSessionScalarWhereInput = {
+    AND?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
+    OR?: UserSessionScalarWhereInput[]
+    NOT?: UserSessionScalarWhereInput | UserSessionScalarWhereInput[]
+    id?: StringFilter<"UserSession"> | string
+    userId?: StringFilter<"UserSession"> | string
+    device?: StringFilter<"UserSession"> | string
+    browser?: StringFilter<"UserSession"> | string
+    ip?: StringFilter<"UserSession"> | string
+    location?: StringNullableFilter<"UserSession"> | string | null
+    tokenIdentifier?: StringNullableFilter<"UserSession"> | string | null
+    isCurrent?: BoolFilter<"UserSession"> | boolean
+    lastActiveAt?: DateTimeFilter<"UserSession"> | Date | string
+    createdAt?: DateTimeFilter<"UserSession"> | Date | string
+  }
+
+  export type LoginHistoryUpsertWithWhereUniqueWithoutUserInput = {
+    where: LoginHistoryWhereUniqueInput
+    update: XOR<LoginHistoryUpdateWithoutUserInput, LoginHistoryUncheckedUpdateWithoutUserInput>
+    create: XOR<LoginHistoryCreateWithoutUserInput, LoginHistoryUncheckedCreateWithoutUserInput>
+  }
+
+  export type LoginHistoryUpdateWithWhereUniqueWithoutUserInput = {
+    where: LoginHistoryWhereUniqueInput
+    data: XOR<LoginHistoryUpdateWithoutUserInput, LoginHistoryUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LoginHistoryUpdateManyWithWhereWithoutUserInput = {
+    where: LoginHistoryScalarWhereInput
+    data: XOR<LoginHistoryUpdateManyMutationInput, LoginHistoryUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type LoginHistoryScalarWhereInput = {
+    AND?: LoginHistoryScalarWhereInput | LoginHistoryScalarWhereInput[]
+    OR?: LoginHistoryScalarWhereInput[]
+    NOT?: LoginHistoryScalarWhereInput | LoginHistoryScalarWhereInput[]
+    id?: StringFilter<"LoginHistory"> | string
+    userId?: StringNullableFilter<"LoginHistory"> | string | null
+    email?: StringFilter<"LoginHistory"> | string
+    ip?: StringFilter<"LoginHistory"> | string
+    device?: StringFilter<"LoginHistory"> | string
+    status?: StringFilter<"LoginHistory"> | string
+    createdAt?: DateTimeFilter<"LoginHistory"> | Date | string
+  }
+
+  export type UserCreateWithoutSessionsInput = {
+    id?: string
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    avatarUrl?: string | null
+    role?: $Enums.UserRole
+    isActive?: boolean
+    refreshTokenHash?: string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    passwordResetToken?: string | null
+    passwordResetExpiry?: Date | string | null
+    lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    pushTokens?: PushTokenCreateNestedManyWithoutUserInput
+    interventions?: InterventionCreateNestedManyWithoutTechnicianInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    createdClients?: ClientCreateNestedManyWithoutCreatedByInput
+    createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSessionsInput = {
+    id?: string
+    companyId: string
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    avatarUrl?: string | null
+    role?: $Enums.UserRole
+    isActive?: boolean
+    refreshTokenHash?: string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    passwordResetToken?: string | null
+    passwordResetExpiry?: Date | string | null
+    lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutTechnicianInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
+    createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSessionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
+  }
+
+  export type UserUpsertWithoutSessionsInput = {
+    update: XOR<UserUpdateWithoutSessionsInput, UserUncheckedUpdateWithoutSessionsInput>
+    create: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSessionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSessionsInput, UserUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type UserUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    pushTokens?: PushTokenUpdateManyWithoutUserNestedInput
+    interventions?: InterventionUpdateManyWithoutTechnicianNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
+    createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutTechnicianNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutLoginHistoriesInput = {
+    id?: string
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    avatarUrl?: string | null
+    role?: $Enums.UserRole
+    isActive?: boolean
+    refreshTokenHash?: string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    passwordResetToken?: string | null
+    passwordResetExpiry?: Date | string | null
+    lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    pushTokens?: PushTokenCreateNestedManyWithoutUserInput
+    interventions?: InterventionCreateNestedManyWithoutTechnicianInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    createdClients?: ClientCreateNestedManyWithoutCreatedByInput
+    createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLoginHistoriesInput = {
+    id?: string
+    companyId: string
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    phone?: string | null
+    avatarUrl?: string | null
+    role?: $Enums.UserRole
+    isActive?: boolean
+    refreshTokenHash?: string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    passwordResetToken?: string | null
+    passwordResetExpiry?: Date | string | null
+    lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutTechnicianInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
+    createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLoginHistoriesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLoginHistoriesInput, UserUncheckedCreateWithoutLoginHistoriesInput>
+  }
+
+  export type UserUpsertWithoutLoginHistoriesInput = {
+    update: XOR<UserUpdateWithoutLoginHistoriesInput, UserUncheckedUpdateWithoutLoginHistoriesInput>
+    create: XOR<UserCreateWithoutLoginHistoriesInput, UserUncheckedCreateWithoutLoginHistoriesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLoginHistoriesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLoginHistoriesInput, UserUncheckedUpdateWithoutLoginHistoriesInput>
+  }
+
+  export type UserUpdateWithoutLoginHistoriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    pushTokens?: PushTokenUpdateManyWithoutUserNestedInput
+    interventions?: InterventionUpdateManyWithoutTechnicianNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
+    createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLoginHistoriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutTechnicianNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type UserCreateWithoutPushTokensInput = {
     id?: string
     email: string
@@ -64987,6 +77414,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -64995,6 +77426,8 @@ export namespace Prisma {
     createdClients?: ClientCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPushTokensInput = {
@@ -65014,6 +77447,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     interventions?: InterventionUncheckedCreateNestedManyWithoutTechnicianInput
@@ -65021,6 +77458,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPushTokensInput = {
@@ -65055,6 +77494,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -65063,6 +77506,8 @@ export namespace Prisma {
     createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPushTokensInput = {
@@ -65082,6 +77527,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     interventions?: InterventionUncheckedUpdateManyWithoutTechnicianNestedInput
@@ -65089,6 +77538,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CompanyCreateWithoutInvitationsInput = {
@@ -65135,6 +77586,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInvitationsInput = {
@@ -65181,6 +77636,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInvitationsInput = {
@@ -65243,6 +77702,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInvitationsInput = {
@@ -65289,6 +77752,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutCatalogItemsInput = {
@@ -65335,6 +77802,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutCatalogItemsInput = {
@@ -65381,6 +77852,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutCatalogItemsInput = {
@@ -65523,6 +77998,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutCatalogItemsInput = {
@@ -65569,6 +78048,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type QuoteLineUpsertWithWhereUniqueWithoutCatalogItemInput = {
@@ -65685,6 +78168,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInterventionTypesInput = {
@@ -65731,6 +78218,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInterventionTypesInput = {
@@ -65844,6 +78335,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutInvoicesInput
@@ -65851,6 +78350,7 @@ export namespace Prisma {
     intervention?: InterventionCreateNestedOneWithoutInvoiceInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUncheckedCreateWithoutInterventionTypeInput = {
@@ -65896,10 +78396,19 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceCreateOrConnectWithoutInterventionTypeInput = {
@@ -66049,6 +78558,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInterventionTypesInput = {
@@ -66095,6 +78608,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InterventionUpsertWithWhereUniqueWithoutInterventionTypeInput = {
@@ -66189,6 +78706,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutClientsInput = {
@@ -66235,6 +78756,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutClientsInput = {
@@ -66258,6 +78783,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -66266,6 +78795,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedClientsInput = {
@@ -66285,6 +78816,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
@@ -66292,6 +78827,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedClientsInput = {
@@ -66455,6 +78992,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutInvoicesInput
@@ -66462,6 +79007,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUncheckedCreateWithoutClientInput = {
@@ -66507,10 +79053,19 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceCreateOrConnectWithoutClientInput = {
@@ -66708,6 +79263,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutClientsInput = {
@@ -66754,6 +79313,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutCreatedClientsInput = {
@@ -66783,6 +79346,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -66791,6 +79358,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedClientsInput = {
@@ -66810,6 +79379,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -66817,6 +79390,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type EquipmentUpsertWithWhereUniqueWithoutClientInput = {
@@ -67212,6 +79787,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInterventionsInput = {
@@ -67258,6 +79837,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInterventionsInput = {
@@ -67405,6 +79988,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -67413,6 +80000,8 @@ export namespace Prisma {
     createdClients?: ClientCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInterventionsInput = {
@@ -67432,6 +80021,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
@@ -67439,6 +80032,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInterventionsInput = {
@@ -67462,6 +80057,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -67470,6 +80069,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     createdClients?: ClientCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedInterventionsInput = {
@@ -67489,6 +80090,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
@@ -67496,6 +80101,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedInterventionsInput = {
@@ -67602,6 +80209,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutInvoicesInput
@@ -67609,6 +80224,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUncheckedCreateWithoutInterventionInput = {
@@ -67654,10 +80270,19 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceCreateOrConnectWithoutInterventionInput = {
@@ -67797,6 +80422,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInterventionsInput = {
@@ -67843,6 +80472,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutInterventionsInput = {
@@ -68008,6 +80641,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -68016,6 +80653,8 @@ export namespace Prisma {
     createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInterventionsInput = {
@@ -68035,6 +80674,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -68042,6 +80685,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutCreatedInterventionsInput = {
@@ -68071,6 +80716,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -68079,6 +80728,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedInterventionsInput = {
@@ -68098,6 +80749,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -68105,6 +80760,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type InterventionTypeItemUpsertWithoutInterventionsInput = {
@@ -68225,6 +80882,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
@@ -68232,6 +80897,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateWithoutInterventionInput = {
@@ -68277,10 +80943,19 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type QuoteUpsertWithoutInterventionInput = {
@@ -68538,6 +81213,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutQuotesInput = {
@@ -68584,6 +81263,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutQuotesInput = {
@@ -68859,6 +81542,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutQuotesInput = {
@@ -68905,6 +81592,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutQuotesInput = {
@@ -69406,6 +82097,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInvoicesInput = {
@@ -69452,6 +82147,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInvoicesInput = {
@@ -69704,6 +82403,48 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type EInvoicingEventCreateWithoutInvoiceInput = {
+    id?: string
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEinvoicingEventsInput
+    receivedInvoice?: ReceivedInvoiceCreateNestedOneWithoutEventsInput
+  }
+
+  export type EInvoicingEventUncheckedCreateWithoutInvoiceInput = {
+    id?: string
+    companyId: string
+    receivedInvoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EInvoicingEventCreateOrConnectWithoutInvoiceInput = {
+    where: EInvoicingEventWhereUniqueInput
+    create: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput>
+  }
+
+  export type EInvoicingEventCreateManyInvoiceInputEnvelope = {
+    data: EInvoicingEventCreateManyInvoiceInput | EInvoicingEventCreateManyInvoiceInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutInvoicesInput = {
     update: XOR<CompanyUpdateWithoutInvoicesInput, CompanyUncheckedUpdateWithoutInvoicesInput>
     create: XOR<CompanyCreateWithoutInvoicesInput, CompanyUncheckedCreateWithoutInvoicesInput>
@@ -69759,6 +82500,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInvoicesInput = {
@@ -69805,6 +82550,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutInvoicesInput = {
@@ -70045,6 +82794,22 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"InvoicePaymentEvent"> | Date | string
   }
 
+  export type EInvoicingEventUpsertWithWhereUniqueWithoutInvoiceInput = {
+    where: EInvoicingEventWhereUniqueInput
+    update: XOR<EInvoicingEventUpdateWithoutInvoiceInput, EInvoicingEventUncheckedUpdateWithoutInvoiceInput>
+    create: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput>
+  }
+
+  export type EInvoicingEventUpdateWithWhereUniqueWithoutInvoiceInput = {
+    where: EInvoicingEventWhereUniqueInput
+    data: XOR<EInvoicingEventUpdateWithoutInvoiceInput, EInvoicingEventUncheckedUpdateWithoutInvoiceInput>
+  }
+
+  export type EInvoicingEventUpdateManyWithWhereWithoutInvoiceInput = {
+    where: EInvoicingEventScalarWhereInput
+    data: XOR<EInvoicingEventUpdateManyMutationInput, EInvoicingEventUncheckedUpdateManyWithoutInvoiceInput>
+  }
+
   export type InvoiceCreateWithoutLinesInput = {
     id?: string
     sourceQuoteId?: string | null
@@ -70085,6 +82850,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutInvoicesInput
@@ -70092,6 +82865,7 @@ export namespace Prisma {
     intervention?: InterventionCreateNestedOneWithoutInvoiceInput
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUncheckedCreateWithoutLinesInput = {
@@ -70138,9 +82912,18 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceCreateOrConnectWithoutLinesInput = {
@@ -70240,6 +83023,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
@@ -70247,6 +83038,7 @@ export namespace Prisma {
     intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateWithoutLinesInput = {
@@ -70293,9 +83085,18 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type CatalogItemUpsertWithoutInvoiceLinesInput = {
@@ -70389,6 +83190,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSmsLogsInput = {
@@ -70435,6 +83240,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSmsLogsInput = {
@@ -70576,6 +83385,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSmsLogsInput = {
@@ -70622,6 +83435,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutSmsLogsInput = {
@@ -70753,6 +83570,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSmsUsageInput = {
@@ -70799,6 +83620,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSmsUsageInput = {
@@ -70861,6 +83686,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSmsUsageInput = {
@@ -70907,6 +83736,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutNotificationsInput = {
@@ -70953,6 +83786,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutNotificationsInput = {
@@ -70999,6 +83836,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutNotificationsInput = {
@@ -71022,6 +83863,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -71030,6 +83875,8 @@ export namespace Prisma {
     createdClients?: ClientCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -71049,6 +83896,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
@@ -71056,6 +83907,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -71118,6 +83971,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutNotificationsInput = {
@@ -71164,6 +84021,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutNotificationsInput = {
@@ -71193,6 +84054,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -71201,6 +84066,8 @@ export namespace Prisma {
     createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -71220,6 +84087,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -71227,6 +84098,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CompanyCreateWithoutQuoteRequestsInput = {
@@ -71273,6 +84146,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutQuoteRequestsInput = {
@@ -71319,6 +84196,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutQuoteRequestsInput = {
@@ -71381,6 +84262,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutQuoteRequestsInput = {
@@ -71427,6 +84312,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutAccountingExportsInput = {
@@ -71473,6 +84362,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutAccountingExportsInput = {
@@ -71519,6 +84412,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutAccountingExportsInput = {
@@ -71581,6 +84478,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutAccountingExportsInput = {
@@ -71627,6 +84528,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutTvaSummariesInput = {
@@ -71673,6 +84578,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutTvaSummariesInput = {
@@ -71719,6 +84628,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutTvaSummariesInput = {
@@ -71781,6 +84694,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutTvaSummariesInput = {
@@ -71827,6 +84744,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutAccountingIntegrationInput = {
@@ -71873,6 +84794,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutAccountingIntegrationInput = {
@@ -71919,6 +84844,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutAccountingIntegrationInput = {
@@ -71981,6 +84910,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutAccountingIntegrationInput = {
@@ -72027,6 +84960,10 @@ export namespace Prisma {
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InvoiceCreateWithoutPaymentEventsInput = {
@@ -72069,6 +85006,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutInvoicesInput
@@ -72076,6 +85021,7 @@ export namespace Prisma {
     intervention?: InterventionCreateNestedOneWithoutInvoiceInput
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceUncheckedCreateWithoutPaymentEventsInput = {
@@ -72122,9 +85068,18 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
   export type InvoiceCreateOrConnectWithoutPaymentEventsInput = {
@@ -72183,6 +85138,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
@@ -72190,6 +85153,7 @@ export namespace Prisma {
     intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateWithoutPaymentEventsInput = {
@@ -72236,9 +85200,18 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type CompanyCreateWithoutAuditLogsInput = {
@@ -72285,6 +85258,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutAuditLogsInput = {
@@ -72331,6 +85308,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutAuditLogsInput = {
@@ -72354,6 +85335,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -72362,6 +85347,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     createdClients?: ClientCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionCreateNestedManyWithoutCreatedByInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -72381,6 +85368,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     pushTokens?: PushTokenUncheckedCreateNestedManyWithoutUserInput
@@ -72388,6 +85379,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     createdClients?: ClientUncheckedCreateNestedManyWithoutCreatedByInput
     createdInterventions?: InterventionUncheckedCreateNestedManyWithoutCreatedByInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -72450,6 +85443,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutAuditLogsInput = {
@@ -72496,6 +85493,10 @@ export namespace Prisma {
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutAuditLogsInput = {
@@ -72525,6 +85526,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -72533,6 +85538,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -72552,6 +85559,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -72559,6 +85570,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AdminSessionCreateWithoutAdminUserInput = {
@@ -72833,6 +85846,1312 @@ export namespace Prisma {
     sessions?: AdminSessionUncheckedUpdateManyWithoutAdminUserNestedInput
   }
 
+  export type CompanyCreateWithoutEinvoicingConnectionInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutEinvoicingConnectionInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutEinvoicingConnectionInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutEinvoicingConnectionInput, CompanyUncheckedCreateWithoutEinvoicingConnectionInput>
+  }
+
+  export type CompanyUpsertWithoutEinvoicingConnectionInput = {
+    update: XOR<CompanyUpdateWithoutEinvoicingConnectionInput, CompanyUncheckedUpdateWithoutEinvoicingConnectionInput>
+    create: XOR<CompanyCreateWithoutEinvoicingConnectionInput, CompanyUncheckedCreateWithoutEinvoicingConnectionInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutEinvoicingConnectionInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutEinvoicingConnectionInput, CompanyUncheckedUpdateWithoutEinvoicingConnectionInput>
+  }
+
+  export type CompanyUpdateWithoutEinvoicingConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutEinvoicingConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyCreateWithoutReceivedInvoicesInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutReceivedInvoicesInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutReceivedInvoicesInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutReceivedInvoicesInput, CompanyUncheckedCreateWithoutReceivedInvoicesInput>
+  }
+
+  export type EInvoicingEventCreateWithoutReceivedInvoiceInput = {
+    id?: string
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEinvoicingEventsInput
+    invoice?: InvoiceCreateNestedOneWithoutEinvoicingEventsInput
+  }
+
+  export type EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput = {
+    id?: string
+    companyId: string
+    invoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EInvoicingEventCreateOrConnectWithoutReceivedInvoiceInput = {
+    where: EInvoicingEventWhereUniqueInput
+    create: XOR<EInvoicingEventCreateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput>
+  }
+
+  export type EInvoicingEventCreateManyReceivedInvoiceInputEnvelope = {
+    data: EInvoicingEventCreateManyReceivedInvoiceInput | EInvoicingEventCreateManyReceivedInvoiceInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutReceivedInvoicesInput = {
+    update: XOR<CompanyUpdateWithoutReceivedInvoicesInput, CompanyUncheckedUpdateWithoutReceivedInvoicesInput>
+    create: XOR<CompanyCreateWithoutReceivedInvoicesInput, CompanyUncheckedCreateWithoutReceivedInvoicesInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutReceivedInvoicesInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutReceivedInvoicesInput, CompanyUncheckedUpdateWithoutReceivedInvoicesInput>
+  }
+
+  export type CompanyUpdateWithoutReceivedInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutReceivedInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type EInvoicingEventUpsertWithWhereUniqueWithoutReceivedInvoiceInput = {
+    where: EInvoicingEventWhereUniqueInput
+    update: XOR<EInvoicingEventUpdateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedUpdateWithoutReceivedInvoiceInput>
+    create: XOR<EInvoicingEventCreateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedCreateWithoutReceivedInvoiceInput>
+  }
+
+  export type EInvoicingEventUpdateWithWhereUniqueWithoutReceivedInvoiceInput = {
+    where: EInvoicingEventWhereUniqueInput
+    data: XOR<EInvoicingEventUpdateWithoutReceivedInvoiceInput, EInvoicingEventUncheckedUpdateWithoutReceivedInvoiceInput>
+  }
+
+  export type EInvoicingEventUpdateManyWithWhereWithoutReceivedInvoiceInput = {
+    where: EInvoicingEventScalarWhereInput
+    data: XOR<EInvoicingEventUpdateManyMutationInput, EInvoicingEventUncheckedUpdateManyWithoutReceivedInvoiceInput>
+  }
+
+  export type CompanyCreateWithoutEinvoicingEventsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutEinvoicingEventsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutEinvoicingEventsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutEinvoicingEventsInput, CompanyUncheckedCreateWithoutEinvoicingEventsInput>
+  }
+
+  export type InvoiceCreateWithoutEinvoicingEventsInput = {
+    id?: string
+    sourceQuoteId?: string | null
+    number: string
+    status?: $Enums.InvoiceStatus
+    amountHT: number
+    tvaRate?: number
+    amountTTC: number
+    amountPaid?: number
+    serviceDate?: Date | string | null
+    operationType?: string | null
+    penaltyRate?: number
+    recoveryFee?: number
+    discountTerms?: string | null
+    tvaOnDebit?: boolean
+    isTvaFranchise?: boolean
+    isAutoLiquidation?: boolean
+    orderNumber?: string | null
+    workDescription?: string | null
+    subject?: string | null
+    notes?: string | null
+    conditions?: string | null
+    paymentMethod?: $Enums.PaymentMethod | null
+    paymentRef?: string | null
+    pdfUrl?: string | null
+    onlinePaymentEnabled?: boolean
+    stripePaymentIntentId?: string | null
+    stripeCheckoutUrl?: string | null
+    stripeCheckoutSessionId?: string | null
+    paymentToken?: string | null
+    paymentTokenExpiry?: Date | string | null
+    paymentLinkOpenedAt?: Date | string | null
+    issuedAt?: Date | string
+    dueAt?: Date | string | null
+    paidAt?: Date | string | null
+    emailSentAt?: Date | string | null
+    emailSentTo?: string | null
+    reminder1SentAt?: Date | string | null
+    reminder2SentAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInvoicesInput
+    client: ClientCreateNestedOneWithoutInvoicesInput
+    intervention?: InterventionCreateNestedOneWithoutInvoiceInput
+    interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
+    lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
+    paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+  }
+
+  export type InvoiceUncheckedCreateWithoutEinvoicingEventsInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    interventionId?: string | null
+    sourceQuoteId?: string | null
+    interventionTypeId?: string | null
+    number: string
+    status?: $Enums.InvoiceStatus
+    amountHT: number
+    tvaRate?: number
+    amountTTC: number
+    amountPaid?: number
+    serviceDate?: Date | string | null
+    operationType?: string | null
+    penaltyRate?: number
+    recoveryFee?: number
+    discountTerms?: string | null
+    tvaOnDebit?: boolean
+    isTvaFranchise?: boolean
+    isAutoLiquidation?: boolean
+    orderNumber?: string | null
+    workDescription?: string | null
+    subject?: string | null
+    notes?: string | null
+    conditions?: string | null
+    paymentMethod?: $Enums.PaymentMethod | null
+    paymentRef?: string | null
+    pdfUrl?: string | null
+    onlinePaymentEnabled?: boolean
+    stripePaymentIntentId?: string | null
+    stripeCheckoutUrl?: string | null
+    stripeCheckoutSessionId?: string | null
+    paymentToken?: string | null
+    paymentTokenExpiry?: Date | string | null
+    paymentLinkOpenedAt?: Date | string | null
+    issuedAt?: Date | string
+    dueAt?: Date | string | null
+    paidAt?: Date | string | null
+    emailSentAt?: Date | string | null
+    emailSentTo?: string | null
+    reminder1SentAt?: Date | string | null
+    reminder2SentAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
+    paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+  }
+
+  export type InvoiceCreateOrConnectWithoutEinvoicingEventsInput = {
+    where: InvoiceWhereUniqueInput
+    create: XOR<InvoiceCreateWithoutEinvoicingEventsInput, InvoiceUncheckedCreateWithoutEinvoicingEventsInput>
+  }
+
+  export type ReceivedInvoiceCreateWithoutEventsInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReceivedInvoicesInput
+  }
+
+  export type ReceivedInvoiceUncheckedCreateWithoutEventsInput = {
+    id?: string
+    companyId: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReceivedInvoiceCreateOrConnectWithoutEventsInput = {
+    where: ReceivedInvoiceWhereUniqueInput
+    create: XOR<ReceivedInvoiceCreateWithoutEventsInput, ReceivedInvoiceUncheckedCreateWithoutEventsInput>
+  }
+
+  export type CompanyUpsertWithoutEinvoicingEventsInput = {
+    update: XOR<CompanyUpdateWithoutEinvoicingEventsInput, CompanyUncheckedUpdateWithoutEinvoicingEventsInput>
+    create: XOR<CompanyCreateWithoutEinvoicingEventsInput, CompanyUncheckedCreateWithoutEinvoicingEventsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutEinvoicingEventsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutEinvoicingEventsInput, CompanyUncheckedUpdateWithoutEinvoicingEventsInput>
+  }
+
+  export type CompanyUpdateWithoutEinvoicingEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutEinvoicingEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type InvoiceUpsertWithoutEinvoicingEventsInput = {
+    update: XOR<InvoiceUpdateWithoutEinvoicingEventsInput, InvoiceUncheckedUpdateWithoutEinvoicingEventsInput>
+    create: XOR<InvoiceCreateWithoutEinvoicingEventsInput, InvoiceUncheckedCreateWithoutEinvoicingEventsInput>
+    where?: InvoiceWhereInput
+  }
+
+  export type InvoiceUpdateToOneWithWhereWithoutEinvoicingEventsInput = {
+    where?: InvoiceWhereInput
+    data: XOR<InvoiceUpdateWithoutEinvoicingEventsInput, InvoiceUncheckedUpdateWithoutEinvoicingEventsInput>
+  }
+
+  export type InvoiceUpdateWithoutEinvoicingEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceQuoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    number?: StringFieldUpdateOperationsInput | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    amountHT?: FloatFieldUpdateOperationsInput | number
+    tvaRate?: FloatFieldUpdateOperationsInput | number
+    amountTTC?: FloatFieldUpdateOperationsInput | number
+    amountPaid?: FloatFieldUpdateOperationsInput | number
+    serviceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    operationType?: NullableStringFieldUpdateOperationsInput | string | null
+    penaltyRate?: FloatFieldUpdateOperationsInput | number
+    recoveryFee?: FloatFieldUpdateOperationsInput | number
+    discountTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaOnDebit?: BoolFieldUpdateOperationsInput | boolean
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isAutoLiquidation?: BoolFieldUpdateOperationsInput | boolean
+    orderNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    workDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentLinkOpenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
+    client?: ClientUpdateOneRequiredWithoutInvoicesNestedInput
+    intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
+    interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
+    lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
+    paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateWithoutEinvoicingEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceQuoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    interventionTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    number?: StringFieldUpdateOperationsInput | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    amountHT?: FloatFieldUpdateOperationsInput | number
+    tvaRate?: FloatFieldUpdateOperationsInput | number
+    amountTTC?: FloatFieldUpdateOperationsInput | number
+    amountPaid?: FloatFieldUpdateOperationsInput | number
+    serviceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    operationType?: NullableStringFieldUpdateOperationsInput | string | null
+    penaltyRate?: FloatFieldUpdateOperationsInput | number
+    recoveryFee?: FloatFieldUpdateOperationsInput | number
+    discountTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaOnDebit?: BoolFieldUpdateOperationsInput | boolean
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isAutoLiquidation?: BoolFieldUpdateOperationsInput | boolean
+    orderNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    workDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentLinkOpenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
+    paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+  }
+
+  export type ReceivedInvoiceUpsertWithoutEventsInput = {
+    update: XOR<ReceivedInvoiceUpdateWithoutEventsInput, ReceivedInvoiceUncheckedUpdateWithoutEventsInput>
+    create: XOR<ReceivedInvoiceCreateWithoutEventsInput, ReceivedInvoiceUncheckedCreateWithoutEventsInput>
+    where?: ReceivedInvoiceWhereInput
+  }
+
+  export type ReceivedInvoiceUpdateToOneWithWhereWithoutEventsInput = {
+    where?: ReceivedInvoiceWhereInput
+    data: XOR<ReceivedInvoiceUpdateWithoutEventsInput, ReceivedInvoiceUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type ReceivedInvoiceUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReceivedInvoicesNestedInput
+  }
+
+  export type ReceivedInvoiceUncheckedUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyCreateWithoutEinvoicingJobsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutEinvoicingJobsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutEinvoicingJobsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutEinvoicingJobsInput, CompanyUncheckedCreateWithoutEinvoicingJobsInput>
+  }
+
+  export type CompanyUpsertWithoutEinvoicingJobsInput = {
+    update: XOR<CompanyUpdateWithoutEinvoicingJobsInput, CompanyUncheckedUpdateWithoutEinvoicingJobsInput>
+    create: XOR<CompanyCreateWithoutEinvoicingJobsInput, CompanyUncheckedCreateWithoutEinvoicingJobsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutEinvoicingJobsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutEinvoicingJobsInput, CompanyUncheckedUpdateWithoutEinvoicingJobsInput>
+  }
+
+  export type CompanyUpdateWithoutEinvoicingJobsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutEinvoicingJobsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
   export type SubscriptionCreateManyPlanInput = {
     id?: string
     companyId: string
@@ -72919,6 +87238,10 @@ export namespace Prisma {
     passwordResetToken?: string | null
     passwordResetExpiry?: Date | string | null
     lastLoginAt?: Date | string | null
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorCode?: string | null
+    twoFactorExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -73023,6 +87346,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -73223,6 +87554,66 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ReceivedInvoiceCreateManyCompanyInput = {
+    id?: string
+    provider?: $Enums.EInvoicingProviderType
+    providerInvoiceId: string
+    supplierName: string
+    supplierSiren?: string | null
+    supplierSiret?: string | null
+    supplierVatNumber?: string | null
+    supplierAddress?: string | null
+    supplierCity?: string | null
+    supplierPostalCode?: string | null
+    supplierCountry?: string | null
+    supplierEmail?: string | null
+    invoiceNumber: string
+    issueDate: Date | string
+    dueDate?: Date | string | null
+    currency?: string
+    totalHT: number
+    totalVAT: number
+    totalTTC: number
+    status?: $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: string | null
+    rawFormat?: string | null
+    receivedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EInvoicingEventCreateManyCompanyInput = {
+    id?: string
+    invoiceId?: string | null
+    receivedInvoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EInvoicingJobCreateManyCompanyInput = {
+    id?: string
+    type: $Enums.EInvoicingJobType
+    payload: JsonNullValueInput | InputJsonValue
+    status?: $Enums.EInvoicingJobStatus
+    attempts?: number
+    maxAttempts?: number
+    nextRunAt?: Date | string
+    lockedAt?: Date | string | null
+    lockedBy?: string | null
+    lastError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UserUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -73239,6 +87630,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUpdateManyWithoutUserNestedInput
@@ -73247,6 +87642,8 @@ export namespace Prisma {
     createdClients?: ClientUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -73265,6 +87662,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     pushTokens?: PushTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -73273,6 +87674,8 @@ export namespace Prisma {
     createdClients?: ClientUncheckedUpdateManyWithoutCreatedByNestedInput
     createdInterventions?: InterventionUncheckedUpdateManyWithoutCreatedByNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -73291,6 +87694,10 @@ export namespace Prisma {
     passwordResetToken?: NullableStringFieldUpdateOperationsInput | string | null
     passwordResetExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -73522,6 +87929,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutInvoicesNestedInput
@@ -73529,6 +87944,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateWithoutCompanyInput = {
@@ -73574,10 +87990,19 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateManyWithoutCompanyInput = {
@@ -73623,6 +88048,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -74227,6 +88660,188 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ReceivedInvoiceUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: EInvoicingEventUpdateManyWithoutReceivedInvoiceNestedInput
+  }
+
+  export type ReceivedInvoiceUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: EInvoicingEventUncheckedUpdateManyWithoutReceivedInvoiceNestedInput
+  }
+
+  export type ReceivedInvoiceUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    providerInvoiceId?: StringFieldUpdateOperationsInput | string
+    supplierName?: StringFieldUpdateOperationsInput | string
+    supplierSiren?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierSiret?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierVatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCity?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    totalHT?: FloatFieldUpdateOperationsInput | number
+    totalVAT?: FloatFieldUpdateOperationsInput | number
+    totalTTC?: FloatFieldUpdateOperationsInput | number
+    status?: EnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus
+    structuredData?: NullableJsonNullValueInput | InputJsonValue
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFormat?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoice?: InvoiceUpdateOneWithoutEinvoicingEventsNestedInput
+    receivedInvoice?: ReceivedInvoiceUpdateOneWithoutEventsNestedInput
+  }
+
+  export type EInvoicingEventUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingJobUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumEInvoicingJobTypeFieldUpdateOperationsInput | $Enums.EInvoicingJobType
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: EnumEInvoicingJobStatusFieldUpdateOperationsInput | $Enums.EInvoicingJobStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    maxAttempts?: IntFieldUpdateOperationsInput | number
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingJobUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumEInvoicingJobTypeFieldUpdateOperationsInput | $Enums.EInvoicingJobType
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: EnumEInvoicingJobStatusFieldUpdateOperationsInput | $Enums.EInvoicingJobStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    maxAttempts?: IntFieldUpdateOperationsInput | number
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingJobUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumEInvoicingJobTypeFieldUpdateOperationsInput | $Enums.EInvoicingJobType
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: EnumEInvoicingJobStatusFieldUpdateOperationsInput | $Enums.EInvoicingJobStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    maxAttempts?: IntFieldUpdateOperationsInput | number
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CompanyTradeCategoryCreateManyTradeCategoryInput = {
     id?: string
     companyId: string
@@ -74418,6 +89033,27 @@ export namespace Prisma {
     oldData?: NullableJsonNullValueInput | InputJsonValue
     newData?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserSessionCreateManyUserInput = {
+    id?: string
+    device: string
+    browser: string
+    ip: string
+    location?: string | null
+    tokenIdentifier?: string | null
+    isCurrent?: boolean
+    lastActiveAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type LoginHistoryCreateManyUserInput = {
+    id?: string
+    email: string
+    ip: string
+    device: string
+    status?: string
     createdAt?: Date | string
   }
 
@@ -74809,6 +89445,69 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserSessionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    browser?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenIdentifier?: NullableStringFieldUpdateOperationsInput | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSessionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    browser?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenIdentifier?: NullableStringFieldUpdateOperationsInput | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSessionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    browser?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenIdentifier?: NullableStringFieldUpdateOperationsInput | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginHistoryUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginHistoryUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginHistoryUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    ip?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type QuoteLineCreateManyCatalogItemInput = {
     id?: string
     quoteId: string
@@ -74997,6 +89696,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -75157,6 +89864,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
@@ -75164,6 +89879,7 @@ export namespace Prisma {
     intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateWithoutInterventionTypeInput = {
@@ -75209,10 +89925,19 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateManyWithoutInterventionTypeInput = {
@@ -75258,6 +89983,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75456,6 +90189,14 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -75694,6 +90435,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
@@ -75701,6 +90450,7 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateWithoutClientInput = {
@@ -75746,10 +90496,19 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateManyWithoutClientInput = {
@@ -75795,6 +90554,14 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76187,6 +90954,22 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type EInvoicingEventCreateManyInvoiceInput = {
+    id?: string
+    companyId: string
+    receivedInvoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
   export type InvoiceLineUpdateWithoutInvoiceInput = {
     id?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
@@ -76262,6 +91045,54 @@ export namespace Prisma {
     stripeEventId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeData?: NullableJsonNullValueInput | InputJsonValue
     clientIp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventUpdateWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEinvoicingEventsNestedInput
+    receivedInvoice?: ReceivedInvoiceUpdateOneWithoutEventsNestedInput
+  }
+
+  export type EInvoicingEventUncheckedUpdateWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    receivedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventUncheckedUpdateManyWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    receivedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -76342,6 +91173,70 @@ export namespace Prisma {
     targetId?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventCreateManyReceivedInvoiceInput = {
+    id?: string
+    companyId: string
+    invoiceId?: string | null
+    provider: string
+    providerInvoiceId?: string | null
+    eventType: string
+    providerStatus?: string | null
+    idempotencyKey?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    receivedAt?: Date | string
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EInvoicingEventUpdateWithoutReceivedInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEinvoicingEventsNestedInput
+    invoice?: InvoiceUpdateOneWithoutEinvoicingEventsNestedInput
+  }
+
+  export type EInvoicingEventUncheckedUpdateWithoutReceivedInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EInvoicingEventUncheckedUpdateManyWithoutReceivedInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    providerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

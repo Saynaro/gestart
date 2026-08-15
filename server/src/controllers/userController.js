@@ -62,7 +62,7 @@ export const getMe = async (req, res) => {
 ////// UPDATE ME //////
 export const updateMe = async (req, res) => {
     const userId = req.user.id;
-    const { firstName, lastName, phone } = req.body;
+    const { firstName, lastName, phone, avatarUrl } = req.body;
 
     try {
         const user = await prisma.user.update({
@@ -71,6 +71,7 @@ export const updateMe = async (req, res) => {
                 ...(firstName !== undefined && { firstName: firstName.trim() }),
                 ...(lastName !== undefined && { lastName: lastName.trim() }),
                 ...(phone !== undefined && { phone }),
+                ...(avatarUrl !== undefined && { avatarUrl }),
             },
             select: {
                 id: true,

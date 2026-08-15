@@ -2,6 +2,8 @@ import express from "express";
 import {
     getSubscription,
     createCheckoutSession,
+    verifyCheckoutSession,
+    createPaymentIntent,
     upgradeSubscription,
     cancelSubscription,
     reactivateSubscription,
@@ -23,6 +25,8 @@ router.get("/", getSubscription);
 
 // Checkout & Upgrades
 router.post("/checkout", createCheckoutSession);
+router.post("/verify-session", verifyCheckoutSession);
+router.post("/payment-intent", createPaymentIntent);
 router.post("/upgrade", upgradeSubscription);
 
 // Annulation & Réactivation

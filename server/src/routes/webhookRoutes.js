@@ -1,5 +1,5 @@
 import express from "express";
-import { handleStripeWebhook, handleTwilioWebhook } from "../controllers/webhookController.js";
+import { handleStripeWebhook, handleTwilioWebhook, handleB2brouterWebhook } from "../controllers/webhookController.js";
 
 const router = express.Router();
 
@@ -9,4 +9,8 @@ router.post("/stripe", express.raw({ type: "application/json" }), handleStripeWe
 // Webhook Twilio pour les SMS entrants (urlencoded ou json)
 router.post("/twilio", express.urlencoded({ extended: true }), handleTwilioWebhook);
 
+// Webhook B2Brouter pour la Facturation Électronique (JSON)
+router.post("/b2brouter", express.json(), handleB2brouterWebhook);
+
 export default router;
+

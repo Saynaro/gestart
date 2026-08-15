@@ -49,23 +49,28 @@ function DevisPage() {
         lines: q.lines || []
     });
 
-    useEffect(() => {
-        const fetchQuotes = async () => {
-            try {
-                setLoading(true);
-                const data = await apiFetch('/v1/quotes');
-                const rawQuotes = data.data || data || [];
-                setQuotes(rawQuotes.map(mapQuoteFromApi));
-            } catch (err) {
-                console.warn("API quotes error:", err.message);
-                setQuotes([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchQuotes = async () => {
+        try {
+            setLoading(true);
+            const data = await apiFetch('/v1/quotes');
+            const rawQuotes = data.data || data || [];
+            setQuotes(rawQuotes.map(mapQuoteFromApi));
+        } catch (err) {
+            console.warn("API quotes error:", err.message);
+            setQuotes([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchQuotes();
     }, []);
+
+    const handleUpdateQuoteCustomization = async (customization) => {
+        showToast("Personnalisation enregistrée.");
+        fetchQuotes();
+    };
 
     const [activeFilter, setActiveFilter] = useState("all");
     const [activeQuote, setActiveQuote] = useState(null);
@@ -189,6 +194,9 @@ function DevisPage() {
                 method: 'POST',
                 body: JSON.stringify({
                     clientId: newQuote.clientId || newQuote.client?.id,
+                    clientName: newQuote.clientName || newQuote.client?.name,
+                    clientEmail: newQuote.clientEmail || newQuote.client?.email,
+                    clientAddress: newQuote.clientAddress || newQuote.client?.address,
                     subject: newQuote.interventionType || newQuote.subject || "Devis Prestation",
                     amountHT: newQuote.subtotalHt || 100,
                     amountTTC: newQuote.totalTtc || 120,
@@ -332,6 +340,7 @@ function DevisPage() {
                 <NewQuoteModal
                     onClose={() => setShowNewModal(false)}
                     onCreateQuote={handleCreateQuote}
+                    initialClient={location.state}
                 />
             )}
 

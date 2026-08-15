@@ -37,26 +37,27 @@ export const generateRefreshToken = async (userId) => {
 };
 
 export const setRefreshCookie = (res, token) => {
+    const isProd = process.env.NODE_ENV === "production";
     res.cookie("gestart_refresh", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: (1000 * 60 * 60 * 24) * 30,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        maxAge: (1000 * 60 * 60 * 24) * 30, // 30 jours
         path: "/",
     });
 };
 
 export const setAuthCookies = (res, accessToken, refreshToken) => {
-    const accessCookieMaxAge = process.env.NODE_ENV === "production"
-        ? 1000 * 60 * 15 // 15 minutes en production
-        : 1000 * 60 * 60 * 24 * 7; // 7 jours en développement pour plus de confort
+    const isProd = process.env.NODE_ENV === "production";
+    const sameSite = isProd ? "none" : "lax";
+    const secure = isProd;
 
     if (accessToken) {
         res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: accessCookieMaxAge,
+            httpOnly: false,
+            secure,
+            sameSite,
+            maxAge: isProd ? 1000 * 60 * 15 : 1000 * 60 * 60 * 24 * 7,
             path: "/",
         });
     }
@@ -64,8 +65,8 @@ export const setAuthCookies = (res, accessToken, refreshToken) => {
     if (refreshToken) {
         res.cookie("gestart_refresh", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            secure,
+            sameSite,
             maxAge: (1000 * 60 * 60 * 24) * 30, // 30 jours
             path: "/",
         });

@@ -1,10 +1,13 @@
-import React, { useState } from "react";
-import { Percent, Calendar, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Percent, Calendar, CheckCircle2, AlertCircle, FileText, Loader2 } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 export default function CotisationsTab({ isMobileView, triggerToast }) {
-    const [activityType, setActivityType] = useState("BNC"); // "BIC" | "BNC" | "VENTE"
+    const [activityType, setActivityType] = useState("BIC"); // "BIC" | "BNC" | "VENTE"
     const [declarationPeriodicity, setDeclarationPeriodicity] = useState("Trimestrielle");
     const [isAcreBeneficiary, setIsAcreBeneficiary] = useState(false);
+    const [invoices, setInvoices] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     // Taux cotisations sociales auto-entrepreneur 2026
     const rateMap = {
@@ -15,16 +18,60 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
 
     const currentRate = isAcreBeneficiary ? (rateMap[activityType].rate / 2).toFixed(1) : rateMap[activityType].rate;
 
-    const caQuarter2 = 14200;
-    const dueQuarter2 = Math.round(caQuarter2 * (currentRate / 100));
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [invRes, compRes] = await Promise.all([
+                    apiFetch('/v1/invoices').catch(() => null),
+                    apiFetch('/v1/company').catch(() => null)
+                ]);
 
-    const urssafDeclarations = [
-        { period: "T2 2026 (Avr - Juin)", ca: "14 200 €", rate: `${currentRate}%`, due: `${dueQuarter2} €`, status: "Payé", datePayed: "18/07/2026" },
-        { period: "T1 2026 (Jan - Mars)", ca: "8 400 €", rate: `${currentRate}%`, due: `${Math.round(8400 * (currentRate / 100))} €`, status: "Payé", datePayed: "20/04/2026" },
-        { period: "T4 2025 (Oct - Déc)", ca: "11 500 €", rate: "21.1%", due: "2 426 €", status: "Payé", datePayed: "22/01/2026" }
-    ];
+                const invList = invRes?.data?.invoices || invRes?.invoices || (Array.isArray(invRes) ? invRes : []);
+                setInvoices(invList);
 
-    const nextDeclarationDate = "31 Octobre 2026 (T3 2026)";
+                const comp = compRes?.data?.company || compRes?.company;
+                if (comp?.legalForm?.includes("Auto") || comp?.isTvaFranchise) {
+                    setActivityType("BIC");
+                }
+            } catch (err) {
+                console.warn("Could not load invoices for cotisations:", err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    // Calculate real quarter CA from paid invoices
+    const { t1CA, t2CA, t3CA, t4CA, totalYearCA } = useMemo(() => {
+        let t1 = 0, t2 = 0, t3 = 0, t4 = 0;
+        invoices.forEach(inv => {
+            if (inv.status === "PAID" || inv.status === "paid") {
+                const amt = Number(inv.totalHt || inv.subtotalHt || inv.totalTtc || 0);
+                const d = new Date(inv.date || inv.createdAt);
+                const m = d.getMonth();
+                if (m >= 0 && m <= 2) t1 += amt;
+                else if (m >= 3 && m <= 5) t2 += amt;
+                else if (m >= 6 && m <= 8) t3 += amt;
+                else t4 += amt;
+            }
+        });
+        return { t1CA: t1, t2CA: t2, t3CA: t3, t4CA: t4, totalYearCA: t1 + t2 + t3 + t4 };
+    }, [invoices]);
+
+    const currentMonth = new Date().getMonth();
+    const activeQuarterCA = currentMonth <= 2 ? t1CA : currentMonth <= 5 ? t2CA : currentMonth <= 8 ? t3CA : t4CA;
+    const currentDue = Math.round(activeQuarterCA * (Number(currentRate) / 100));
+
+    const urssafDeclarations = useMemo(() => {
+        const rateNum = Number(currentRate);
+        return [
+            { period: "T3 2026 (Juil - Sept)", ca: `${t3CA.toLocaleString("fr-FR")} €`, rate: `${currentRate}%`, due: `${Math.round(t3CA * (rateNum / 100)).toLocaleString("fr-FR")} €`, status: t3CA > 0 ? "À déclarer" : "Période en cours", datePayed: "Échéance 31/10/2026" },
+            { period: "T2 2026 (Avr - Juin)", ca: `${t2CA.toLocaleString("fr-FR")} €`, rate: `${currentRate}%`, due: `${Math.round(t2CA * (rateNum / 100)).toLocaleString("fr-FR")} €`, status: t2CA > 0 ? "Déclaré" : "—", datePayed: "Échéance 31/07/2026" },
+            { period: "T1 2026 (Jan - Mars)", ca: `${t1CA.toLocaleString("fr-FR")} €`, rate: `${currentRate}%`, due: `${Math.round(t1CA * (rateNum / 100)).toLocaleString("fr-FR")} €`, status: t1CA > 0 ? "Déclaré" : "—", datePayed: "Échéance 30/04/2026" }
+        ];
+    }, [t1CA, t2CA, t3CA, currentRate]);
 
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
@@ -40,8 +87,10 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                         <Calendar size={20} />
                     </div>
                     <div>
-                        <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Prochaine déclaration URSSAF</span>
-                        <h4 style={{ margin: '2px 0 0 0', fontSize: '15px', fontWeight: 800 }}>{nextDeclarationDate}</h4>
+                        <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Estimation cotisations du trimestre en cours</span>
+                        <h4 style={{ margin: '2px 0 0 0', fontSize: '16px', fontWeight: 800 }}>
+                            {currentDue.toLocaleString("fr-FR")} € <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--muted-foreground)' }}>(sur {activeQuarterCA.toLocaleString("fr-FR")} € HT encaissés)</span>
+                        </h4>
                     </div>
                 </div>
                 <button
@@ -98,76 +147,60 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                                 setIsAcreBeneficiary(e.target.checked);
                                 triggerToast(e.target.checked ? "ACRE Activée : Taux réduit appliqué (-50%) !" : "ACRE Désactivée.");
                             }}
-                            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                            style={{ width: '16px', height: '16px', accentColor: 'var(--sidebar-primary)' }}
                         />
-                        <label htmlFor="acre-checkbox" style={{ fontSize: '13.5px', fontWeight: 600, cursor: 'pointer' }}>
-                            Bénéficiaire de l'ACRE (Aide aux Créateurs et Repreneurs d'Entreprise - 50% de réduction la 1ère année)
+                        <label htmlFor="acre-checkbox" style={{ fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                            Bénéficiaire de l'ACRE (Aide aux Créateurs et Repreneurs d'Entreprise — exonération 50% première année)
                         </label>
                     </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
                     <button type="submit" className="save-profile-btn" style={{ padding: '9px 20px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                        Enregistrer la configuration
+                        Enregistrer les taux
                     </button>
                 </div>
             </div>
 
-            {/* Historique des déclarations URSSAF */}
+            {/* Historique des déclarations trimestrielles */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h4 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: 700 }}>Historique des déclarations & Cotisations réglées</h4>
-                {isMobileView ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {urssafDeclarations.map((item, idx) => (
-                            <div key={idx} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--foreground)' }}>{item.period}</span>
-                                    <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                        {item.status}
-                                    </span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px' }}>
-                                    <div>CA: <strong>{item.ca}</strong> <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>({item.rate})</span></div>
-                                    <div>Dues: <strong style={{ fontSize: '13.5px', color: 'var(--foreground)' }}>{item.due}</strong></div>
-                                </div>
-                                <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', textAlign: 'right' }}>
-                                    Réglé le {item.datePayed}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                    <th style={{ padding: '8px' }}>Période</th>
-                                    <th style={{ padding: '8px' }}>CA Déclaré</th>
-                                    <th style={{ padding: '8px' }}>Taux</th>
-                                    <th style={{ padding: '8px' }}>Cotisations dues</th>
-                                    <th style={{ padding: '8px' }}>Statut</th>
-                                    <th style={{ padding: '8px', textAlign: 'right' }}>Date règlement</th>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FileText size={18} style={{ color: 'var(--sidebar-primary)' }} />
+                    Déclarations et Cotisations Calculées
+                </h3>
+
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                <th style={{ padding: '8px' }}>Période</th>
+                                <th style={{ padding: '8px' }}>CA Encaissé</th>
+                                <th style={{ padding: '8px' }}>Taux</th>
+                                <th style={{ padding: '8px' }}>Cotisations Dues</th>
+                                <th style={{ padding: '8px' }}>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {urssafDeclarations.map((decl, index) => (
+                                <tr key={index} style={{ borderBottom: '1px solid var(--border)' }}>
+                                    <td style={{ padding: '12px 8px', fontWeight: 600 }}>{decl.period}</td>
+                                    <td style={{ padding: '12px 8px', fontWeight: 700 }}>{decl.ca}</td>
+                                    <td style={{ padding: '12px 8px', color: 'var(--muted-foreground)' }}>{decl.rate}</td>
+                                    <td style={{ padding: '12px 8px', fontWeight: 800, color: 'var(--sidebar-primary)' }}>{decl.due}</td>
+                                    <td style={{ padding: '12px 8px' }}>
+                                        <span style={{
+                                            backgroundColor: decl.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                            color: decl.status === 'Déclaré' ? '#22c55e' : '#f59e0b',
+                                            fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700
+                                        }}>
+                                            {decl.status}
+                                        </span>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {urssafDeclarations.map((item, idx) => (
-                                    <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.period}</td>
-                                        <td style={{ padding: '10px 8px' }}>{item.ca}</td>
-                                        <td style={{ padding: '10px 8px' }}>{item.rate}</td>
-                                        <td style={{ padding: '10px 8px', fontWeight: 700, color: 'var(--foreground)' }}>{item.due}</td>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '10px 8px', textAlign: 'right', color: 'var(--muted-foreground)' }}>{item.datePayed}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </form>
     );

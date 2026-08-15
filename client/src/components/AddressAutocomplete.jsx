@@ -36,6 +36,7 @@ export default function AddressAutocomplete({
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     
     const wrapperRef = useRef(null);
@@ -51,6 +52,7 @@ export default function AddressAutocomplete({
         const handleClickOutside = (e) => {
             if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
                 setIsOpen(false);
+                setIsFocused(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -71,6 +73,11 @@ export default function AddressAutocomplete({
             setSuggestions([]);
             setIsOpen(false);
             setLoading(false);
+            return;
+        }
+
+        // Do not search/open dropdown if not focused
+        if (!isFocused) {
             return;
         }
 
@@ -111,7 +118,9 @@ export default function AddressAutocomplete({
                 }));
 
                 setSuggestions(results);
-                setIsOpen(results.length > 0);
+                if (isFocused && results.length > 0) {
+                    setIsOpen(true);
+                }
             } catch (err) {
                 console.error("Address Autocomplete Error:", err);
                 setSuggestions([]);
@@ -121,7 +130,7 @@ export default function AddressAutocomplete({
         }, 220); // 220ms debounce
 
         return () => clearTimeout(handler);
-    }, [query]);
+    }, [query, isFocused]);
 
     const handleInputChange = (e) => {
         justSelectedRef.current = false;
@@ -164,6 +173,21 @@ export default function AddressAutocomplete({
         }
     };
 
+    const handleFocus = () => {
+        setIsFocused(true);
+        if (suggestions.length > 0) {
+            setIsOpen(true);
+        }
+    };
+
+    const handleBlur = (e) => {
+        if (wrapperRef.current && wrapperRef.current.contains(e.relatedTarget)) {
+            return;
+        }
+        setIsFocused(false);
+        setIsOpen(false);
+    };
+
     return (
         <div ref={wrapperRef} className={`address-autocomplete-container ${className}`} style={style}>
             <div className="address-input-wrapper">
@@ -174,9 +198,8 @@ export default function AddressAutocomplete({
                     value={query}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    onFocus={() => {
-                        if (suggestions.length > 0) setIsOpen(true);
-                    }}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     placeholder={placeholder}
                     required={required}
                     disabled={disabled}
@@ -194,8 +217,8 @@ export default function AddressAutocomplete({
                 </div>
             </div>
 
-            {/* Suggestions Floating Dropdown */}
-            {isOpen && suggestions.length > 0 && (
+            {/* Suggestions Floating Dropdown - Only visible when focused and open */}
+            {isOpen && isFocused && suggestions.length > 0 && (
                 <ul className="address-suggestions-dropdown">
                     {suggestions.map((item, index) => {
                         const isSelected = index === selectedIndex;
@@ -203,7 +226,14 @@ export default function AddressAutocomplete({
                             <li
                                 key={index}
                                 className={`suggestion-item ${isSelected ? 'selected' : ''}`}
-                                onClick={() => handleSelectSuggestion(item)}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    handleSelectSuggestion(item);
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleSelectSuggestion(item);
+                                }}
                                 onMouseEnter={() => setSelectedIndex(index)}
                             >
                                 <div className="suggestion-icon">

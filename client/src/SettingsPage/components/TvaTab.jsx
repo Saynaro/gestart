@@ -1,29 +1,97 @@
-import React, { useState } from "react";
-import { Receipt, Check, FileText, HelpCircle, ArrowRight } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Receipt, Check, FileText, HelpCircle, ArrowRight, Loader2 } from "lucide-react";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
+import { apiFetch } from "../../utils/api";
 
 export default function TvaTab({ isMobileView, triggerToast }) {
     const [tvaRegime, setTvaRegime] = useState("franchise"); // "franchise" | "simplifie" | "normal"
     const [defaultTvaRate, setDefaultTvaRate] = useState(20);
     const [declarationPeriodicity, setDeclarationPeriodicity] = useState("trimestrielle");
-    const [isTvaOnDebits, setIsTvaOnDebits] = useState(false);
-
-    const [tvaQuarters, setTvaQuarters] = useState([
-        { quarter: "T2 2026 (Avr-Juin)", collected: "2 840 €", deductible: "620 €", netPayable: "2 220 €", status: "Déclaré", dateDeclared: "15/07/2026" },
-        { quarter: "T1 2026 (Jan-Mars)", collected: "1 680 €", deductible: "410 €", netPayable: "1 270 €", status: "Déclaré", dateDeclared: "14/04/2026" },
-        { quarter: "T3 2026 (Juil-Sept)", collected: "2 940 €", deductible: "780 €", netPayable: "2 160 €", status: "À déclarer", dateDeclared: "—" }
-    ]);
+    const [invoices, setInvoices] = useState([]);
+    const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const ratesOptions = [0, 5.5, 10, 20];
 
-    const handleMarkDeclared = (quarterName) => {
-        setTvaQuarters(prev => prev.map(q => q.quarter === quarterName ? { ...q, status: "Déclaré", dateDeclared: "24/07/2026" } : q));
-        triggerToast(`Trimestre ${quarterName} marqué comme Déclaré sur impots.gouv.fr !`);
-    };
+    useEffect(() => {
+        const loadSettings = async () => {
+            try {
+                const [setRes, compRes, invRes] = await Promise.all([
+                    apiFetch('/v1/company/settings').catch(() => null),
+                    apiFetch('/v1/company').catch(() => null),
+                    apiFetch('/v1/invoices').catch(() => null)
+                ]);
 
-    const handleSubmit = (e) => {
+                const s = setRes?.data?.settings || setRes?.settings;
+                if (s && s.defaultTvaRate !== undefined) {
+                    setDefaultTvaRate(Number(s.defaultTvaRate));
+                }
+
+                const c = compRes?.data?.company || compRes?.company;
+                if (c) {
+                    if (c.isTvaFranchise) {
+                        setTvaRegime("franchise");
+                    } else {
+                        setTvaRegime("simplifie");
+                    }
+                }
+
+                const invList = invRes?.data?.invoices || invRes?.invoices || (Array.isArray(invRes) ? invRes : []);
+                setInvoices(invList);
+            } catch (err) {
+                console.warn("Could not load TVA settings:", err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadSettings();
+    }, []);
+
+    // Calculate real collected TVA by quarter
+    const tvaQuarters = useMemo(() => {
+        let t1Tva = 0, t2Tva = 0, t3Tva = 0, t4Tva = 0;
+
+        invoices.forEach((inv) => {
+            const isPaid = inv.status === "PAID" || inv.status === "paid";
+            if (isPaid) {
+                const tva = Number(inv.totalTva || (inv.totalTtc - inv.totalHt) || 0);
+                const d = new Date(inv.date || inv.createdAt);
+                const m = d.getMonth();
+                if (m >= 0 && m <= 2) t1Tva += tva;
+                else if (m >= 3 && m <= 5) t2Tva += tva;
+                else if (m >= 6 && m <= 8) t3Tva += tva;
+                else t4Tva += tva;
+            }
+        });
+
+        return [
+            { quarter: "T3 2026 (Juil-Sept)", collected: `${t3Tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`, deductible: "0,00 €", netPayable: `${t3Tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`, status: t3Tva > 0 ? "À déclarer" : "Période en cours" },
+            { quarter: "T2 2026 (Avr-Juin)", collected: `${t2Tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`, deductible: "0,00 €", netPayable: `${t2Tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`, status: t2Tva > 0 ? "Déclaré" : "—" },
+            { quarter: "T1 2026 (Jan-Mars)", collected: `${t1Tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`, deductible: "0,00 €", netPayable: `${t1Tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`, status: t1Tva > 0 ? "Déclaré" : "—" }
+        ];
+    }, [invoices]);
+
+    const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-        triggerToast("Paramètres TVA enregistrés avec succès !");
+        setSaving(true);
+        try {
+            await Promise.all([
+                apiFetch('/v1/company/settings', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ defaultTvaRate })
+                }),
+                apiFetch('/v1/company', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ isTvaFranchise: tvaRegime === "franchise" })
+                })
+            ]);
+            triggerToast("Paramètres TVA enregistrés avec succès !");
+        } catch (err) {
+            triggerToast(err.message || "Erreur lors de l'enregistrement", true);
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -42,7 +110,7 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                         <div>
                             <span style={{ fontSize: '14px', fontWeight: 700, display: 'block' }}>Franchise en base de TVA (Art. 293 B du CGI)</span>
                             <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
-                                Vous ne facturez pas la TVA à vos clients et vous ne la récupérez pas sur vos achats outillage. Mention imprimée sur vos factures.
+                                Vous ne facturez pas la TVA à vos clients et vous ne la récupérez pas sur vos achats outillage. Mention légale imprimée automatiquement sur vos factures.
                             </span>
                         </div>
                     </label>
@@ -71,12 +139,12 @@ export default function TvaTab({ isMobileView, triggerToast }) {
 
             {/* Taux TVA par défaut & Options */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700 }}>Taux de TVA par défaut (Pills)</h3>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700 }}>Taux de TVA par défaut</h3>
 
                 <div className="profile-form-grid">
                     <div className="form-field form-group-full">
                         <label className="form-label">Sélectionnez le taux de TVA pré-appliqué sur les devis</label>
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
                             {ratesOptions.map((rate) => (
                                 <button
                                     key={rate}
@@ -84,135 +152,74 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                                     onClick={() => setDefaultTvaRate(rate)}
                                     style={{
                                         flex: 1,
+                                        minWidth: '120px',
                                         padding: '10px',
                                         borderRadius: '8px',
                                         border: defaultTvaRate === rate ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
                                         backgroundColor: defaultTvaRate === rate ? 'var(--sidebar-primary)' : 'var(--background)',
                                         color: defaultTvaRate === rate ? '#fff' : 'var(--foreground)',
                                         fontWeight: 800,
-                                        fontSize: '14px',
+                                        fontSize: '13.5px',
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    {rate}% {rate === 20 ? '(Taux normal)' : rate === 10 ? '(Rénovation)' : rate === 5.5 ? '(Énergie)' : '(Exonéré)'}
+                                    {rate}% {rate === 20 ? '(Normal)' : rate === 10 ? '(Rénovation)' : rate === 5.5 ? '(Énergie)' : '(Exonéré)'}
                                 </button>
                             ))}
                         </div>
                     </div>
-
-                    <div className="form-field form-group-full" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', padding: '12px', border: '1px solid var(--border)', borderRadius: '8px', backgroundColor: 'var(--background)' }}>
-                        <div>
-                            <span style={{ fontSize: '13.5px', fontWeight: 600 }}>TVA sur les débits (Option d'exigibilité)</span>
-                            <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block' }}>Exigibilité de la TVA dès l'émission de la facture au lieu du paiement client.</span>
-                        </div>
-                        <label className="mobile-toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={isTvaOnDebits}
-                                onChange={(e) => {
-                                    setIsTvaOnDebits(e.target.checked);
-                                    triggerToast(e.target.checked ? "Option TVA sur les débits activée." : "TVA sur les encaissements.");
-                                }}
-                            />
-                            <span className="toggle-slider" />
-                        </label>
-                    </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-                    <button type="submit" className="save-profile-btn" style={{ padding: '9px 20px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                        Enregistrer la TVA
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="save-profile-btn"
+                        style={{ padding: '9px 20px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}
+                    >
+                        {saving ? "Enregistrement..." : "Enregistrer la TVA"}
                     </button>
                 </div>
             </div>
 
-            {/* Résumé TVA Trimestriel & Guide CA3 */}
+            {/* Historique Déclarations TVA */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h4 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: 700 }}>Résumé TVA par trimestre & Aide à la déclaration CA3</h4>
-                {isMobileView ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {tvaQuarters.map((q, idx) => (
-                            <div key={idx} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--foreground)' }}>{q.quarter}</span>
-                                    <span style={{ backgroundColor: q.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: q.status === 'Déclaré' ? '#22c55e' : '#f59e0b', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                        {q.status}
-                                    </span>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '12px' }}>
-                                    <div>Collectée: <strong style={{ color: '#22c55e' }}>+ {q.collected}</strong></div>
-                                    <div>Déductible: <strong style={{ color: '#ef4444' }}>- {q.deductible}</strong></div>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
-                                    <div>Net à payer: <strong style={{ fontSize: '14px', color: 'var(--foreground)' }}>{q.netPayable}</strong></div>
-                                    {q.status !== 'Déclaré' ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => handleMarkDeclared(q.quarter)}
-                                            style={{ padding: '6px 10px', borderRadius: '6px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '11px', cursor: 'pointer' }}
-                                        >
-                                            Déclarer
-                                        </button>
-                                    ) : (
-                                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{q.dateDeclared}</span>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                    <th style={{ padding: '8px' }}>Période</th>
-                                    <th style={{ padding: '8px' }}>TVA Collectée (Ventes)</th>
-                                    <th style={{ padding: '8px' }}>TVA Déductible (Achats)</th>
-                                    <th style={{ padding: '8px' }}>TVA Net à payer</th>
-                                    <th style={{ padding: '8px' }}>Statut</th>
-                                    <th style={{ padding: '8px', textAlign: 'right' }}>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tvaQuarters.map((q, idx) => (
-                                    <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{q.quarter}</td>
-                                        <td style={{ padding: '10px 8px', color: '#22c55e', fontWeight: 600 }}>+ {q.collected}</td>
-                                        <td style={{ padding: '10px 8px', color: '#ef4444', fontWeight: 600 }}>- {q.deductible}</td>
-                                        <td style={{ padding: '10px 8px', fontWeight: 800, color: 'var(--foreground)' }}>{q.netPayable}</td>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            <span style={{ backgroundColor: q.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: q.status === 'Déclaré' ? '#22c55e' : '#f59e0b', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                                {q.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                            {q.status !== 'Déclaré' ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleMarkDeclared(q.quarter)}
-                                                    style={{ padding: '6px 12px', borderRadius: '6px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '12px', cursor: 'pointer' }}
-                                                >
-                                                    Marquer comme Déclaré
-                                                </button>
-                                            ) : (
-                                                <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Le {q.dateDeclared}</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FileText size={18} style={{ color: 'var(--sidebar-primary)' }} />
+                    TVA Collectée sur Factures Réglées
+                </h3>
 
-                {/* Guide cases impots.gouv.fr */}
-                <div style={{ marginTop: '16px', padding: '14px', backgroundColor: 'rgba(91, 77, 219, 0.04)', borderRadius: '8px', border: '1px dashed rgba(91, 77, 219, 0.2)', fontSize: '12.5px' }}>
-                    <span style={{ fontWeight: 700, color: 'var(--sidebar-primary)', display: 'block', marginBottom: '4px' }}>💡 Guide remplissage des cases CA3 impots.gouv.fr :</span>
-                    <ul style={{ margin: 0, paddingLeft: '18px', color: 'var(--muted-foreground)' }}>
-                        <li><strong>Case 08 (Taux normal 20%) :</strong> Inscrire la base HT des prestations de services.</li>
-                        <li><strong>Case 09 (Taux réduit 10%) :</strong> Inscrire la base HT pour la rénovation thermique.</li>
-                        <li><strong>Case 20 (TVA déductible sur autres biens et services) :</strong> Inscrire le montant de TVA déductible sur vos achats.</li>
-                    </ul>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
+                                <th style={{ padding: '8px' }}>Période</th>
+                                <th style={{ padding: '8px' }}>TVA Collectée</th>
+                                <th style={{ padding: '8px' }}>TVA Déductible</th>
+                                <th style={{ padding: '8px' }}>TVA Nette à payer</th>
+                                <th style={{ padding: '8px' }}>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tvaQuarters.map((q, idx) => (
+                                <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                                    <td style={{ padding: '12px 8px', fontWeight: 600 }}>{q.quarter}</td>
+                                    <td style={{ padding: '12px 8px', fontWeight: 700 }}>{q.collected}</td>
+                                    <td style={{ padding: '12px 8px', color: 'var(--muted-foreground)' }}>{q.deductible}</td>
+                                    <td style={{ padding: '12px 8px', fontWeight: 800, color: 'var(--sidebar-primary)' }}>{q.netPayable}</td>
+                                    <td style={{ padding: '12px 8px' }}>
+                                        <span style={{
+                                            backgroundColor: q.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                            color: q.status === 'Déclaré' ? '#22c55e' : '#f59e0b',
+                                            fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700
+                                        }}>
+                                            {q.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </form>

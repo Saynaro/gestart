@@ -1,0 +1,297 @@
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Lock, ShieldCheck, Loader2, AlertCircle, Sparkles, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
+import { apiFetch } from "../../utils/api";
+
+const PLANS_INFO = {
+    STARTER: { name: "STARTER", displayName: "Starter", priceMonthly: 1, priceAnnual: 1, description: "1 technicien, 50 clients max, devis & facturation illimités", features: ["1 technicien", "50 clients max", "Devis & facturation illimités", "Support email"] },
+    PRO: { name: "PRO", displayName: "Pro", priceMonthly: 1, priceAnnual: 1, description: "10 techniciens, 300 clients, rappels SMS & App mobile", features: ["10 techniciens", "300 clients", "App mobile incluse", "Rappels SMS auto", "Support prioritaire"] },
+    UNLIMITED: { name: "UNLIMITED", displayName: "Unlimited", priceMonthly: 1, priceAnnual: 1, description: "Clients & techniciens illimités, API REST & Chorus Pro", features: ["Illimité tout", "API REST", "Chorus Pro", "Manager dédié", "SLA garanti"] }
+};
+
+export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO", initialCycle = "MONTHLY", onSuccess, mode = "checkout" }) {
+    const [plan, setPlan] = useState(targetPlan.toUpperCase());
+    const [billingCycle, setBillingCycle] = useState(initialCycle);
+    const [vatNumber, setVatNumber] = useState("");
+    const [agreeTerms, setAgreeTerms] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+
+    useEffect(() => { setPlan(targetPlan.toUpperCase()); }, [targetPlan]);
+    useEffect(() => { setBillingCycle(initialCycle); }, [initialCycle]);
+
+    useEffect(() => {
+        if (isOpen) {
+            setErrorMsg("");
+            setLoading(false);
+            try {
+                const saved = localStorage.getItem("crm_saved_card");
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.vatNumber) setVatNumber(parsed.vatNumber);
+                }
+            } catch (e) {}
+        }
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+
+    const currentPlanObj = PLANS_INFO[plan] || PLANS_INFO.PRO;
+    const currentPriceMonthly = billingCycle === "ANNUAL" ? currentPlanObj.priceAnnual : currentPlanObj.priceMonthly;
+
+    const handleCheckout = async () => {
+        if (!agreeTerms) {
+            setErrorMsg("Veuillez accepter les conditions de renouvellement pour continuer.");
+            return;
+        }
+
+        setLoading(true);
+        setErrorMsg("");
+
+        // Save VAT for later
+        if (vatNumber) {
+            try {
+                const saved = JSON.parse(localStorage.getItem("crm_saved_card") || "{}");
+                localStorage.setItem("crm_saved_card", JSON.stringify({ ...saved, vatNumber }));
+            } catch (e) {}
+        }
+
+        try {
+            const res = await apiFetch("/v1/subscription/checkout", {
+                method: "POST",
+                body: JSON.stringify({ planName: plan, cycle: billingCycle })
+            });
+
+            const checkoutUrl = res.data?.checkoutUrl;
+            if (checkoutUrl) {
+                // Redirect to Stripe Checkout (works in all browsers including Safari)
+                window.location.href = checkoutUrl;
+                return;
+            }
+
+            setErrorMsg("Impossible de créer la session de paiement. Réessayez.");
+        } catch (err) {
+            setErrorMsg(err.message || "Erreur de connexion. Vérifiez votre connexion internet.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCardOnly = async () => {
+        setLoading(true);
+        setErrorMsg("");
+        try {
+            const res = await apiFetch("/v1/subscription/portal");
+            const portalUrl = res.data?.portalUrl;
+            if (portalUrl) {
+                window.location.href = portalUrl;
+                return;
+            }
+            setErrorMsg("Impossible d'accéder au portail Stripe.");
+        } catch (err) {
+            setErrorMsg(err.message || "Erreur lors de l'ouverture du portail.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <AnimatePresence>
+            <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15,23,42,0.8)", backdropFilter: "blur(10px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto" }}>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ backgroundColor: "var(--card, #1E293B)", color: "var(--foreground, #F8FAFC)", borderRadius: "22px", maxWidth: mode === "card_only" ? "460px" : "860px", width: "100%", border: "1px solid var(--border, rgba(255,255,255,0.1))", boxShadow: "0 32px 64px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)", overflow: "hidden", position: "relative", maxHeight: "92vh", display: "flex", flexDirection: "column" }}
+                >
+                    {/* Header */}
+                    <div style={{ padding: "24px 28px 18px 28px", borderBottom: "1px solid var(--border, rgba(255,255,255,0.07))", display: "flex", alignItems: "flex-start", justifyContent: "space-between", background: "linear-gradient(180deg, rgba(91,77,219,0.06) 0%, transparent 100%)" }}>
+                        <div>
+                            <h2 style={{ fontSize: "20px", fontWeight: 800, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: "10px" }}>
+                                <span style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #5B4DDB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <Sparkles size={18} color="#FFF" />
+                                </span>
+                                {mode === "card_only" ? "Gérer ma carte bancaire" : `Passer à l'offre ${currentPlanObj.displayName}`}
+                            </h2>
+                            <p style={{ margin: 0, fontSize: "13px", color: "var(--muted-foreground, #94A3B8)" }}>
+                                {mode === "card_only" ? "Vos données sont sécurisées par Stripe" : "Paiement 100% sécurisé · Annulable à tout moment · Facture automatique"}
+                            </p>
+                        </div>
+                        <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "var(--muted-foreground, #94A3B8)", cursor: "pointer", padding: "8px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    {/* Body */}
+                    <div style={{ padding: "24px 28px", overflowY: "auto", display: mode === "card_only" ? "block" : "grid", gridTemplateColumns: mode === "card_only" ? "1fr" : "repeat(auto-fit, minmax(300px, 1fr))", gap: "28px" }}>
+
+                        {/* Left column: Form */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            {errorMsg && (
+                                <div style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ef4444", padding: "12px 14px", borderRadius: "12px", fontSize: "13px", display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <AlertCircle size={16} style={{ flexShrink: 0 }} /><span>{errorMsg}</span>
+                                </div>
+                            )}
+
+                            {/* VAT */}
+                            <div>
+                                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px", color: "var(--muted-foreground, #94A3B8)", textTransform: "uppercase", letterSpacing: "0.5px" }}>N° TVA / SIRET (optionnel)</label>
+                                <input type="text" placeholder="FR71944102805" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)}
+                                    style={{ width: "100%", padding: "11px 14px", backgroundColor: "var(--background, #0F172A)", border: "1px solid var(--border, rgba(255,255,255,0.12))", borderRadius: "10px", color: "var(--foreground, #F8FAFC)", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }} />
+                            </div>
+
+                            {/* Stripe redirect info box */}
+                            {mode !== "card_only" && (
+                                <div style={{ background: "linear-gradient(135deg, rgba(91,77,219,0.08), rgba(124,58,237,0.06))", border: "1px solid rgba(91,77,219,0.2)", borderRadius: "14px", padding: "18px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                        <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #5B4DDB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                            <CreditCard size={18} color="#FFF" />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: "14px" }}>Paiement via Stripe Checkout</div>
+                                            <div style={{ fontSize: "12px", color: "var(--muted-foreground, #94A3B8)" }}>Vous serez redirigé vers la page sécurisée de Stripe</div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        {[
+                                            { icon: "🔒", text: "Connexion chiffrée TLS / SSL 256 bits" },
+                                            { icon: "🛡️", text: "3D Secure automatique selon votre banque" },
+                                            { icon: "💳", text: "Visa, Mastercard, American Express, Apple Pay" },
+                                            { icon: "🔁", text: "Annulable à tout moment depuis les réglages" }
+                                        ].map((item, i) => (
+                                            <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--muted-foreground, #94A3B8)" }}>
+                                                <span style={{ fontSize: "14px" }}>{item.icon}</span>
+                                                <span>{item.text}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {mode === "card_only" && (
+                                <div style={{ background: "linear-gradient(135deg, rgba(91,77,219,0.08), rgba(124,58,237,0.06))", border: "1px solid rgba(91,77,219,0.2)", borderRadius: "14px", padding: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                        <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg, #5B4DDB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                            <CreditCard size={20} color="#FFF" />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: "14px" }}>Portail de gestion Stripe</div>
+                                            <div style={{ fontSize: "12px", color: "var(--muted-foreground, #94A3B8)" }}>Gérez votre carte et abonnement en toute sécurité</div>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                                        {[
+                                            { icon: "💳", text: "Changer ou ajouter une carte bancaire" },
+                                            { icon: "🧾", text: "Télécharger vos factures et reçus" },
+                                            { icon: "🔄", text: "Mettre à jour vos informations de facturation" },
+                                            { icon: "❌", text: "Annuler votre abonnement si nécessaire" }
+                                        ].map((item, i) => (
+                                            <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--muted-foreground, #94A3B8)" }}>
+                                                <span style={{ fontSize: "14px" }}>{item.icon}</span><span>{item.text}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {mode === "card_only" && (
+                                <button onClick={handleCardOnly} disabled={loading}
+                                    style={{ width: "100%", padding: "14px", background: loading ? "#374151" : "linear-gradient(135deg, #5B4DDB, #7C3AED)", color: "#FFF", border: "none", borderRadius: "12px", fontSize: "15px", fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", boxShadow: loading ? "none" : "0 10px 25px rgba(91,77,219,0.35)", transition: "all 0.2s ease" }}>
+                                    {loading ? <><Loader2 size={17} className="spin-loader" /> Ouverture...</> : <><CreditCard size={16} /> Gérer ma carte sur Stripe <ArrowRight size={16} /></>}
+                                </button>
+                            )}
+
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "11px", color: "#22C55E", fontWeight: 700 }}>
+                                <ShieldCheck size={14} /> Cryptage SSL 256 bits · Stripe Verified · PCI DSS
+                            </div>
+                        </div>
+
+                        {/* Right column: Order Summary */}
+                        {mode !== "card_only" && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                {/* Billing toggle */}
+                                <div>
+                                    <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "8px", color: "var(--muted-foreground, #94A3B8)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Fréquence de facturation</label>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        {[
+                                            { value: "MONTHLY", label: "Paiement mensuel", sub: "Sans engagement", price: currentPlanObj.priceMonthly, badge: null },
+                                            { value: "ANNUAL", label: "Paiement annuel", sub: "Économisez 20%", price: currentPlanObj.priceAnnual, badge: "-20%" }
+                                        ].map(opt => (
+                                            <div key={opt.value} onClick={() => setBillingCycle(opt.value)}
+                                                style={{ padding: "14px 16px", borderRadius: "12px", border: billingCycle === opt.value ? "2px solid var(--sidebar-primary, #5B4DDB)" : "1px solid var(--border, rgba(255,255,255,0.1))", backgroundColor: billingCycle === opt.value ? "rgba(91,77,219,0.1)" : "transparent", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", transition: "all 0.15s" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+                                                    <div style={{ width: "18px", height: "18px", borderRadius: "50%", border: billingCycle === opt.value ? "5px solid var(--sidebar-primary, #5B4DDB)" : "2px solid var(--muted-foreground, #64748B)", backgroundColor: "#FFF", flexShrink: 0, transition: "border 0.15s" }} />
+                                                    <div style={{ minWidth: 0 }}>
+                                                        <span style={{ fontWeight: 700, fontSize: "14px", display: "block" }}>{opt.label}</span>
+                                                        <div style={{ fontSize: "12px", color: opt.value === "ANNUAL" ? "#22C55E" : "var(--muted-foreground, #94A3B8)", fontWeight: opt.value === "ANNUAL" ? 600 : 400 }}>{opt.sub}</div>
+                                                    </div>
+                                                </div>
+                                                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                                                    <span style={{ fontWeight: 800, fontSize: "15px", whiteSpace: "nowrap" }}>{opt.price} € <span style={{ fontSize: "11px", fontWeight: 500 }}>HT/mois</span></span>
+                                                    {opt.badge && <span style={{ display: "block", fontSize: "10px", backgroundColor: "#22C55E", color: "#FFF", padding: "2px 7px", borderRadius: "20px", fontWeight: 800, marginTop: "3px" }}>{opt.badge}</span>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Summary + features */}
+                                <div style={{ backgroundColor: "var(--background, #0F172A)", border: "1px solid var(--border, rgba(255,255,255,0.1))", borderRadius: "16px", padding: "20px" }}>
+                                    <div style={{ fontSize: "11px", color: "var(--muted-foreground, #94A3B8)", fontWeight: 700, marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.8px" }}>RÉCAPITULATIF</div>
+                                    <div style={{ fontSize: "28px", fontWeight: 900, marginBottom: "2px", color: "var(--sidebar-primary, #5B4DDB)" }}>
+                                        {currentPriceMonthly} € <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #F8FAFC)" }}>HT / mois</span>
+                                    </div>
+                                    <div style={{ fontSize: "12px", color: "var(--muted-foreground, #94A3B8)", marginBottom: "14px" }}>
+                                        Offre {currentPlanObj.displayName} · {billingCycle === "ANNUAL" ? "Facturation annuelle" : "Facturation mensuelle"}
+                                    </div>
+
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "16px" }}>
+                                        {currentPlanObj.features.map((f, i) => (
+                                            <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px" }}>
+                                                <CheckCircle2 size={14} color="#22C55E" style={{ flexShrink: 0 }} />
+                                                <span>{f}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", fontSize: "12px", color: "var(--muted-foreground, #94A3B8)", cursor: "pointer", lineHeight: "1.45", marginBottom: "16px" }}>
+                                        <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} style={{ marginTop: "2px", accentColor: "var(--sidebar-primary, #5B4DDB)", flexShrink: 0 }} />
+                                        <span>Votre abonnement sera renouvelé automatiquement. Annulable à tout moment depuis les réglages.</span>
+                                    </label>
+
+                                    <button
+                                        onClick={handleCheckout}
+                                        disabled={loading || !agreeTerms}
+                                        style={{
+                                            width: "100%", padding: "15px",
+                                            background: (loading || !agreeTerms) ? "#374151" : "linear-gradient(135deg, #5B4DDB, #7C3AED)",
+                                            color: "#FFF", border: "none", borderRadius: "12px",
+                                            fontSize: "15px", fontWeight: 800,
+                                            cursor: (loading || !agreeTerms) ? "not-allowed" : "pointer",
+                                            display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                                            boxShadow: (loading || !agreeTerms) ? "none" : "0 10px 25px rgba(91,77,219,0.4)",
+                                            opacity: !agreeTerms ? 0.55 : 1,
+                                            transition: "all 0.2s ease"
+                                        }}
+                                    >
+                                        {loading ? (
+                                            <><Loader2 size={17} className="spin-loader" /> Création de la session...</>
+                                        ) : (
+                                            <><Lock size={16} /> Payer {currentPriceMonthly} € · Continuer sur Stripe <ArrowRight size={16} /></>
+                                        )}
+                                    </button>
+
+                                    <p style={{ fontSize: "11px", color: "var(--muted-foreground, #64748B)", textAlign: "center", margin: "10px 0 0 0", lineHeight: "1.5" }}>
+                                        Vous serez redirigé vers <strong>checkout.stripe.com</strong> — page de paiement officielle Stripe, compatible tous navigateurs.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            </div>
+        </AnimatePresence>
+    );
+}

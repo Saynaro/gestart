@@ -1,39 +1,117 @@
-import React, { useState } from "react";
-import { CreditCard, Sparkles, Check, Download, AlertCircle, ExternalLink } from "lucide-react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import {
+    CreditCard,
+    Sparkles,
+    Check,
+    Download,
+    AlertCircle,
+    ExternalLink,
+    AlertTriangle,
+    RefreshCw,
+    Shield,
+    Loader2
+} from "lucide-react";
 import { API_URL } from "../../utils/config";
+import { apiFetch } from "../../utils/api";
+import StripeCheckoutModal from "./StripeCheckoutModal";
 
 export default function AbonnementTab({ isMobileView, triggerToast, triggerConfirm }) {
+    const comparisonRef = useRef(null);
+
+    // Subscription & Usage States
     const [billingCycle, setBillingCycle] = useState("mensuel"); // "mensuel" | "annuel"
-    const [currentPlan, setCurrentPlan] = useState("Gratuit");
-    const [showPortalModal, setShowPortalModal] = useState(false);
-    const [showStripeModal, setShowStripeModal] = useState(false);
-    // Stripe Connect IBAN handler
-    const [connectLoading, setConnectLoading] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState("Starter");
+    const [subDetails, setSubDetails] = useState(null);
+    const [usage, setUsage] = useState({
+        clients: { current: 0, max: 50 },
+        technicians: { current: 1, max: 1 },
+        sms: { current: 0, max: 50 }
+    });
+    const [paymentHistory, setPaymentHistory] = useState([]);
+    const [loadingData, setLoadingData] = useState(true);
 
-    const handleConnectStripeIBAN = async () => {
-        setConnectLoading(true);
+    // Stripe Checkout Modal state
+    const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+    const [selectedTargetPlan, setSelectedTargetPlan] = useState("PRO");
+    const [checkoutMode, setCheckoutMode] = useState("checkout"); // "checkout" | "card_only"
+    const [actionLoading, setActionLoading] = useState(false);
+
+    // Fetch subscription, usage, and payments history
+    const loadAllSubscriptionData = async () => {
+        setLoadingData(true);
         try {
-            const token = localStorage.getItem('accessToken');
-            const response = await fetch(`${API_URL}/v1/company/stripe-connect/connect`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const [subRes, usageRes, invRes] = await Promise.all([
+                apiFetch('/v1/subscription').catch(() => null),
+                apiFetch('/v1/subscription/usage').catch(() => null),
+                apiFetch('/v1/subscription/invoices').catch(() => null)
+            ]);
 
-            const data = await response.json();
-            if (data.url) {
-                window.location.href = data.url;
-            } else {
-                alert(data.message || "Erreur lors de la génération du lien Stripe Connect");
+            const sub = subRes?.data?.subscription || subRes?.subscription;
+            if (sub) {
+                setSubDetails(sub);
+                const planName = sub.plan?.displayName || sub.plan?.name || "Starter";
+                setCurrentPlan(planName);
+                if (sub.cycle === "ANNUAL") {
+                    setBillingCycle("annuel");
+                }
+            }
+
+            const u = usageRes?.data?.usage || usageRes?.usage;
+            if (u) {
+                setUsage(u);
+            }
+
+            const invoices = invRes?.data?.invoices || invRes?.invoices;
+            if (Array.isArray(invoices)) {
+                setPaymentHistory(invoices);
             }
         } catch (err) {
-            alert("Erreur lors de la connexion à Stripe");
+            console.warn("Error fetching subscription details:", err.message);
         } finally {
-            setConnectLoading(false);
+            setLoadingData(false);
         }
     };
+
+    useEffect(() => {
+        const handleSuccessRedirect = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const isSuccess = params.get("success") === "true";
+            const sessionId = params.get("session_id");
+            const isCanceled = params.get("canceled") === "true";
+
+            // Clean up query parameters immediately from URL to avoid re-triggering on back/refresh
+            if (isSuccess || isCanceled || sessionId) {
+                window.history.replaceState({}, document.title, window.location.pathname + '?tab=abonnement');
+            }
+
+            if (isCanceled) {
+                if (triggerToast) triggerToast("Paiement annulé. Aucun prélèvement n'a été effectué.", true);
+                return;
+            }
+
+            // ONLY verify if we have a real Stripe session_id
+            if (isSuccess && sessionId) {
+                try {
+                    const verifyRes = await apiFetch('/v1/subscription/verify-session', {
+                        method: 'POST',
+                        body: JSON.stringify({ sessionId })
+                    });
+                    if (verifyRes.success) {
+                        const newPlanName = verifyRes.data?.subscription?.plan?.displayName || "Pro";
+                        setCurrentPlan(newPlanName);
+                        if (triggerToast) triggerToast(`Paiement validé avec succès ! Abonnement ${newPlanName} activé.`);
+                    }
+                } catch (e) {
+                    console.warn("Session verification failed:", e);
+                    if (triggerToast) triggerToast("Le paiement n'a pas pu être validé.", true);
+                }
+            }
+        };
+
+        handleSuccessRedirect().then(() => {
+            loadAllSubscriptionData();
+        });
+    }, []);
 
     // Stripe Subscription Checkout handler
     const handleSelectPlanStripe = async (planName) => {
@@ -62,361 +140,515 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
         }
     };
 
+    const isCancelled = subDetails?.status === "CANCELLED" || Boolean(subDetails?.cancelledAt);
+
+    // Cancel Subscription with real prompt
+    const handleCancelSubscription = () => {
+        const confirmMsg = "Êtes-vous sûr de vouloir résilier votre abonnement ? Vous conserverez l'accès complet à vos fonctionnalités jusqu'à la fin de la période de facturation en cours.";
+
+        if (triggerConfirm) {
+            triggerConfirm({
+                title: "Résilier l'abonnement ?",
+                message: confirmMsg,
+                confirmText: "Oui, résilier",
+                cancelText: "Garder mon offre",
+                onConfirm: async () => {
+                    executeCancel();
+                }
+            });
+        } else if (window.confirm(confirmMsg)) {
+            executeCancel();
+        }
+    };
+
+    const executeCancel = async () => {
+        setActionLoading(true);
+        try {
+            const res = await apiFetch('/v1/subscription/cancel', { method: 'POST' });
+            if (triggerToast) triggerToast(res.message || "Abonnement résilié avec succès.", true);
+            await loadAllSubscriptionData();
+        } catch (err) {
+            if (triggerToast) triggerToast(err.message || "Erreur lors de la résiliation", true);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    // Reactivate subscription
+    const handleReactivateSubscription = async () => {
+        setActionLoading(true);
+        try {
+            const res = await apiFetch('/v1/subscription/reactivate', { method: 'POST' });
+            if (triggerToast) triggerToast("Votre abonnement a été réactivé avec succès !");
+            await loadAllSubscriptionData();
+        } catch (err) {
+            if (triggerToast) triggerToast(err.message || "Erreur lors de la réactivation", true);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    // Pricing definition
     const plans = [
         {
             name: "Starter",
-            priceMonthly: 34,
-            priceAnnual: 27,
+            priceMonthly: 1,
+            priceAnnual: 1,
             clientsLimit: 50,
             techsLimit: 1,
             smsLimit: 50,
-            features: ["1 technicien (le patron lui-même)", "Fiches clients + équipements", "Planning & Signature devis", "50 SMS manuels/mois", "Export comptable Excel", "Support email"]
+            features: [
+                "1 technicien (le patron lui-même)",
+                "Fiches clients + équipements",
+                "Planning & Signature devis",
+                "50 SMS manuels/mois",
+                "Export comptable Excel",
+                "Support email"
+            ]
         },
         {
             name: "Pro",
-            priceMonthly: 69,
-            priceAnnual: 55,
+            priceMonthly: 1,
+            priceAnnual: 1,
             clientsLimit: 300,
             techsLimit: 10,
             smsLimit: 500,
             recommended: true,
-            features: ["Toutes les fonctions Starter", "Rappels SMS automatiques", "App Mobile Techniciens", "Module auto-entrepreneur URSSAF", "Support prioritaire 7j/7"]
+            features: [
+                "Toutes les fonctions Starter",
+                "Jusqu'à 10 techniciens inclus",
+                "Rappels SMS automatiques",
+                "App Mobile Techniciens",
+                "Module auto-entrepreneur URSSAF",
+                "Support prioritaire 7j/7"
+            ]
         },
         {
             name: "Unlimited",
-            priceMonthly: 129,
-            priceAnnual: 103,
+            priceMonthly: 1,
+            priceAnnual: 1,
             clientsLimit: "Illimité",
             techsLimit: "Illimité",
             smsLimit: 1000,
-            features: ["Tout en illimité", "Accès API REST dédié", "Chorus Pro & Numéro dédié", "Gestion multi-sociétés"]
+            features: [
+                "Tout en illimité",
+                "Techniciens & Clients illimités",
+                "Accès API REST dédié",
+                "Chorus Pro & Numéro dédié",
+                "Gestion multi-sociétés"
+            ]
         }
     ];
 
-    const paymentHistory = [
-        { id: "INV-2026-007", date: "15/07/2026", amount: "39,00 € HT", status: "Payé", pdf: "recu-2026-07.pdf" },
-        { id: "INV-2026-006", date: "15/06/2026", amount: "39,00 € HT", status: "Payé", pdf: "recu-2026-06.pdf" },
-        { id: "INV-2026-005", date: "15/05/2026", amount: "39,00 € HT", status: "Payé", pdf: "recu-2026-05.pdf" },
-    ];
+    // Format renewal date
+    const formattedRenewalDate = useMemo(() => {
+        if (!subDetails?.currentPeriodEnd) return "15 août 2026";
+        try {
+            const d = new Date(subDetails.currentPeriodEnd);
+            return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+        } catch {
+            return "15 août 2026";
+        }
+    }, [subDetails]);
+
+    // Current price formatted
+    const currentPriceText = useMemo(() => {
+        const p = subDetails?.plan;
+        if (!p) return "1,00 € HT / mois";
+        const price = subDetails.cycle === "ANNUAL" ? p.priceAnnual : p.priceMonthly;
+        const period = subDetails.cycle === "ANNUAL" ? "an" : "mois";
+        return `${Number(price || 1).toFixed(2).replace(".", ",")} € HT / ${period}`;
+    }, [subDetails]);
+
+    // Usage percentages for gauges
+    const clientsPercent = useMemo(() => {
+        if (!usage.clients || usage.clients.max === -1) return 20;
+        return Math.min(100, Math.round((usage.clients.current / usage.clients.max) * 100)) || 0;
+    }, [usage.clients]);
+
+    const techsPercent = useMemo(() => {
+        if (!usage.technicians || usage.technicians.max === -1) return 20;
+        return Math.min(100, Math.round((usage.technicians.current / usage.technicians.max) * 100)) || 0;
+    }, [usage.technicians]);
+
+    const smsPercent = useMemo(() => {
+        if (!usage.sms || usage.sms.max === -1) return 20;
+        const used = usage.sms.current || 0;
+        const max = usage.sms.max || 50;
+        const remaining = Math.max(0, max - used);
+        return Math.min(100, Math.round((remaining / max) * 100)) || 0;
+    }, [usage.sms]);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Carte Plan Actuel & Consommation */}
-            <div style={{ background: 'linear-gradient(135deg, rgba(91, 77, 219, 0.08) 0%, rgba(91, 77, 219, 0.02) 100%)', border: '1px solid rgba(91, 77, 219, 0.2)', borderRadius: '14px', padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{
+                background: isCancelled
+                    ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%)'
+                    : 'linear-gradient(135deg, rgba(91, 77, 219, 0.08) 0%, rgba(91, 77, 219, 0.02) 100%)',
+                border: isCancelled ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(91, 77, 219, 0.2)',
+                borderRadius: '16px',
+                padding: '24px'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <span style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                            Offre actuelle : {currentPlan}
-                        </span>
-                        <h3 style={{ margin: '8px 0 2px 0', fontSize: '20px', fontWeight: 800 }}>39,00 € HT / mois</h3>
-                        <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--muted-foreground)' }}>Prochain prélèvement le <strong>15 août 2026</strong> via Carte •••• 4920</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{
+                                backgroundColor: isCancelled ? '#EF4444' : 'var(--sidebar-primary)',
+                                color: '#fff',
+                                fontSize: '11px',
+                                fontWeight: 800,
+                                padding: '4px 12px',
+                                borderRadius: '50px',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.04em'
+                            }}>
+                                Offre actuelle : {currentPlan}
+                            </span>
+                            {isCancelled && (
+                                <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '50px' }}>
+                                    Résiliation programmée
+                                </span>
+                            )}
+                        </div>
+
+                        <h3 style={{ margin: '10px 0 4px 0', fontSize: '22px', fontWeight: 800 }}>
+                            {currentPriceText}
+                        </h3>
+
+                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)' }}>
+                            {isCancelled ? (
+                                <span>Fin de la période d'accès le <strong>{formattedRenewalDate}</strong></span>
+                            ) : (
+                                <span>Prochain prélèvement le <strong>{formattedRenewalDate}</strong> via Carte bancaire</span>
+                            )}
+                        </p>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        {/* Scroll smooth to Comparer nos formules */}
                         <button
                             type="button"
-                            onClick={() => setShowStripeModal(true)}
-                            style={{ padding: '9px 16px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                            onClick={() => {
+                                comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }}
+                            style={{
+                                padding: '10px 18px',
+                                backgroundColor: 'var(--sidebar-primary)',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '10px',
+                                fontWeight: 700,
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                boxShadow: '0 4px 12px rgba(91,77,219,0.25)'
+                            }}
                         >
                             <Sparkles size={15} />
                             Changer de plan
                         </button>
+
+                        {/* Manage Card Button */}
                         <button
                             type="button"
-                            onClick={() => setShowPortalModal(true)}
-                            style={{ padding: '9px 16px', backgroundColor: 'var(--card)', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                            onClick={() => {
+                                setSelectedTargetPlan(currentPlan || 'PRO');
+                                setCheckoutMode('card_only');
+                                setCheckoutModalOpen(true);
+                            }}
+                            style={{
+                                padding: '10px 18px',
+                                backgroundColor: 'var(--card)',
+                                color: 'var(--foreground)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '10px',
+                                fontWeight: 700,
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                            }}
                         >
                             <CreditCard size={15} />
-                            Gérer ma carte (Stripe Portal)
+                            Gérer ma carte
                         </button>
+
+                        {/* Cancel or Reactivate button */}
+                        {isCancelled ? (
+                            <button
+                                type="button"
+                                onClick={handleReactivateSubscription}
+                                disabled={actionLoading}
+                                style={{
+                                    padding: '10px 18px',
+                                    backgroundColor: '#22C55E',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    fontWeight: 700,
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}
+                            >
+                                <RefreshCw size={14} />
+                                Réactiver l'abonnement
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleCancelSubscription}
+                                disabled={actionLoading}
+                                style={{
+                                    padding: '10px 18px',
+                                    backgroundColor: 'transparent',
+                                    color: '#ef4444',
+                                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                                    borderRadius: '10px',
+                                    fontWeight: 700,
+                                    fontSize: '13px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Résilier l'abonnement
+                            </button>
+                        )}
                     </div>
                 </div>
 
-                {/* Jauges d'utilisation */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(91, 77, 219, 0.15)' }}>
+                {/* Real Dynamic Usage Gauges */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '22px', paddingTop: '18px', borderTop: '1px solid rgba(91, 77, 219, 0.15)' }}>
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 600, marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, marginBottom: '6px' }}>
                             <span>Clients</span>
-                            <span>34 / 50</span>
+                            <span>{usage.clients?.current ?? 0} / {usage.clients?.max === -1 ? 'Illimité' : (usage.clients?.max ?? 50)}</span>
                         </div>
                         <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
-                            <div style={{ width: '68%', height: '100%', backgroundColor: 'var(--sidebar-primary)', borderRadius: '4px' }} />
+                            <div style={{ width: `${clientsPercent}%`, height: '100%', backgroundColor: 'var(--sidebar-primary)', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
 
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 600, marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, marginBottom: '6px' }}>
                             <span>Techniciens / Membres</span>
-                            <span>2 / 2</span>
+                            <span>{usage.technicians?.current ?? 1} / {usage.technicians?.max === -1 ? 'Illimité' : (usage.technicians?.max ?? 1)}</span>
                         </div>
                         <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
-                            <div style={{ width: '100%', height: '100%', backgroundColor: '#f59e0b', borderRadius: '4px' }} />
+                            <div style={{ width: `${techsPercent}%`, height: '100%', backgroundColor: '#f59e0b', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
 
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 600, marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, marginBottom: '6px' }}>
                             <span>Crédits SMS restants</span>
-                            <span>142 / 150</span>
+                            <span>{Math.max(0, (usage.sms?.max ?? 50) - (usage.sms?.current ?? 0))} / {usage.sms?.max === -1 ? 'Illimité' : (usage.sms?.max ?? 50)}</span>
                         </div>
                         <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
-                            <div style={{ width: '94%', height: '100%', backgroundColor: '#22c55e', borderRadius: '4px' }} />
+                            <div style={{ width: `${smsPercent}%`, height: '100%', backgroundColor: '#22c55e', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Carte Stripe Connect - Virement Bancaire IBAN */}
-            <div style={{ background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(34, 197, 94, 0.02) 100%)', border: '1px solid rgba(34, 197, 94, 0.25)', borderRadius: '14px', padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                            <CreditCard size={20} style={{ color: '#16A34A' }} />
-                            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>Compte Bancaire (IBAN / RIB) — Stripe Connect</h3>
-                        </div>
-                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)', maxWidth: '560px', lineHeight: 1.5 }}>
-                            Renseignez votre IBAN d'entreprise pour recevoir les paiements par carte bancaire de vos clients (factures, devis signés, acomptes) directement sur votre compte.
-                        </p>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={handleConnectStripeIBAN}
-                        disabled={connectLoading}
-                        style={{
-                            padding: '12px 22px',
-                            background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-                            color: '#FFFFFF',
-                            border: 'none',
-                            borderRadius: '30px',
-                            fontWeight: 700,
-                            fontSize: '14px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)'
-                        }}
-                    >
-                        <ExternalLink size={16} />
-                        {connectLoading ? 'Connexion Stripe...' : 'Connecter mon IBAN / RIB →'}
-                    </button>
-                </div>
-            </div>
-
-            {/* Selecteur de Plan & Toggle Mensuel / Annuel */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px', backgroundColor: 'var(--card)' }}>
+            {/* Comparer nos formules section with Ref for smooth scroll */}
+            <div ref={comparisonRef} style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>Comparer nos formules</h3>
+                    <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>Comparer nos formules</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border)' }}>
                         <button
                             type="button"
                             onClick={() => setBillingCycle("mensuel")}
-                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 600, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'mensuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'mensuel' ? 'var(--foreground)' : 'var(--muted-foreground)', boxShadow: billingCycle === 'mensuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
+                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'mensuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'mensuel' ? 'var(--foreground)' : 'var(--muted-foreground)', boxShadow: billingCycle === 'mensuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
                         >
                             Facturation mensuelle
                         </button>
                         <button
                             type="button"
                             onClick={() => setBillingCycle("annuel")}
-                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 600, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'annuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'annuel' ? 'var(--sidebar-primary)' : 'var(--muted-foreground)', boxShadow: billingCycle === 'annuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
+                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'annuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'annuel' ? 'var(--sidebar-primary)' : 'var(--muted-foreground)', boxShadow: billingCycle === 'annuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
                         >
                             Facturation annuelle <span style={{ color: '#22c55e', fontWeight: 800 }}>-20%</span>
                         </button>
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '18px', alignItems: 'stretch' }}>
                     {plans.map((plan) => {
                         const price = billingCycle === "annuel" ? plan.priceAnnual : plan.priceMonthly;
-                        const isCurrent = currentPlan === plan.name;
+                        const isCurrent = currentPlan.toLowerCase() === plan.name.toLowerCase();
+
                         return (
                             <div
                                 key={plan.name}
                                 style={{
-                                    border: isCurrent ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
-                                    borderRadius: '12px',
-                                    padding: '18px',
-                                    backgroundColor: isCurrent ? 'rgba(91, 77, 219, 0.02)' : 'var(--card)',
+                                    border: plan.recommended ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
+                                    borderRadius: '14px',
+                                    padding: '22px',
+                                    position: 'relative',
+                                    backgroundColor: plan.recommended ? 'rgba(91, 77, 219, 0.03)' : 'var(--background)',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    justify: 'space-between',
-                                    position: 'relative'
+                                    height: '100%',
+                                    boxSizing: 'border-box'
                                 }}
                             >
                                 {plan.recommended && (
-                                    <span style={{ position: 'absolute', top: '-10px', right: '16px', backgroundColor: '#5B4DDB', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '50px' }}>
+                                    <span style={{ position: 'absolute', top: '-11px', right: '18px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', letterSpacing: '0.5px' }}>
                                         RECOMMANDÉ
                                     </span>
                                 )}
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>{plan.name}</h4>
-                                    <div style={{ margin: '12px 0', fontSize: '24px', fontWeight: 800, color: 'var(--foreground)' }}>
-                                        {price} € <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--muted-foreground)' }}>HT / mois</span>
+
+                                <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column' }}>
+                                    <h4 style={{ margin: '0 0 6px 0', fontSize: '17px', fontWeight: 800 }}>{plan.name}</h4>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '16px' }}>
+                                        <span style={{ fontSize: '26px', fontWeight: 800 }}>{price} €</span>
+                                        <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>HT / mois</span>
                                     </div>
-                                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
-                                        {plan.features.map((f, i) => (
-                                            <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <Check size={14} style={{ color: 'var(--sidebar-primary)' }} />
-                                                <span>{f}</span>
+
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
+                                        {plan.features.map((feat, idx) => (
+                                            <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <Check size={15} style={{ color: '#22c55e', flexShrink: 0 }} />
+                                                <span>{feat}</span>
                                             </li>
                                         ))}
                                     </ul>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setCurrentPlan(plan.name);
-                                        triggerToast(`Formule modifiée vers ${plan.name} via Stripe !`);
-                                    }}
-                                    disabled={isCurrent}
-                                    style={{
-                                        padding: '9px',
-                                        borderRadius: '8px',
-                                        border: isCurrent ? '1px solid var(--border)' : 'none',
-                                        backgroundColor: isCurrent ? 'var(--background)' : 'var(--sidebar-primary)',
-                                        color: isCurrent ? 'var(--muted-foreground)' : '#fff',
-                                        fontWeight: 700,
-                                        fontSize: '12.5px',
-                                        cursor: isCurrent ? 'default' : 'pointer'
-                                    }}
-                                >
-                                    {isCurrent ? "Plan actuel" : `Choisir ${plan.name}`}
-                                </button>
+
+                                <div style={{ marginTop: 'auto', paddingTop: '10px' }}>
+                                    {isCurrent ? (
+                                        <button
+                                            type="button"
+                                            disabled
+                                            style={{
+                                                width: '100%',
+                                                padding: '11px',
+                                                borderRadius: '10px',
+                                                border: '1px solid var(--border)',
+                                                backgroundColor: 'var(--card)',
+                                                color: 'var(--muted-foreground)',
+                                                fontWeight: 700,
+                                                fontSize: '13px',
+                                                cursor: 'default',
+                                                boxSizing: 'border-box'
+                                            }}
+                                        >
+                                            Plan actuel
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSelectPlanStripe(plan.name)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '11px',
+                                                borderRadius: '10px',
+                                                border: 'none',
+                                                backgroundColor: plan.recommended ? 'var(--sidebar-primary)' : 'var(--foreground)',
+                                                color: 'var(--background)',
+                                                fontWeight: 700,
+                                                fontSize: '13px',
+                                                cursor: 'pointer',
+                                                boxShadow: plan.recommended ? '0 4px 14px rgba(91,77,219,0.3)' : 'none',
+                                                boxSizing: 'border-box',
+                                                transition: 'transform 0.15s'
+                                            }}
+                                        >
+                                            Choisir {plan.name}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Historique des factures et paiements */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700 }}>Historique des règlements Stripe</h3>
-                {isMobileView ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {paymentHistory.map((item) => (
-                            <div key={item.id} style={{ padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--foreground)' }}>{item.id}</span>
-                                    <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                        {item.status}
-                                    </span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px' }}>
-                                    <span style={{ color: 'var(--muted-foreground)' }}>{item.date}</span>
-                                    <span style={{ fontWeight: 700, color: 'var(--foreground)' }}>{item.amount}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
-                                    <button
-                                        type="button"
-                                        onClick={() => triggerToast(`Téléchargement de la facture PDF ${item.id}...`)}
-                                        style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                                    >
-                                        <Download size={14} /> PDF
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+            {/* Real Stripe Payment History */}
+            <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CreditCard size={18} style={{ color: 'var(--sidebar-primary)' }} />
+                    Historique des règlements Stripe
+                </h3>
+
+                {paymentHistory.length === 0 ? (
+                    <div style={{ padding: '24px', textAlign: 'center', backgroundColor: 'var(--background)', borderRadius: '12px', color: 'var(--muted-foreground)', fontSize: '13px' }}>
+                        Aucun paiement enregistré pour l'instant.
                     </div>
                 ) : (
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                             <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--muted-foreground)', textAlign: 'left' }}>
-                                    <th style={{ padding: '8px' }}>N° Facture</th>
-                                    <th style={{ padding: '8px' }}>Date</th>
-                                    <th style={{ padding: '8px' }}>Montant</th>
-                                    <th style={{ padding: '8px' }}>Statut</th>
-                                    <th style={{ padding: '8px', textAlign: 'right' }}>Reçu PDF</th>
+                                <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--muted-foreground)' }}>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>N° Facture / Réf</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>Date</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>Montant</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>Statut</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700, textAlign: 'right' }}>Reçu</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {paymentHistory.map((item) => (
-                                    <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.id}</td>
-                                        <td style={{ padding: '10px 8px' }}>{item.date}</td>
-                                        <td style={{ padding: '10px 8px', fontWeight: 600 }}>{item.amount}</td>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '10px 8px', textAlign: 'right' }}>
-                                            <button
-                                                type="button"
-                                                onClick={() => triggerToast(`Téléchargement de la facture PDF ${item.id}...`)}
-                                                style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                                            >
-                                                <Download size={14} /> PDF
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {paymentHistory.map((item, index) => {
+                                    const paymentDate = item.paidAt || item.createdAt;
+                                    const formattedDate = paymentDate ? new Date(paymentDate).toLocaleDateString('fr-FR') : '-';
+                                    const displayId = item.id ? `REC-${item.id.slice(-6).toUpperCase()}` : `INV-${index + 1}`;
+                                    const amountFormatted = `${Number(item.amount || 1).toFixed(2).replace('.', ',')} € HT`;
+
+                                    return (
+                                        <tr key={item.id || index} style={{ borderBottom: '1px solid var(--border)' }}>
+                                            <td style={{ padding: '12px 8px', fontWeight: 700 }}>{displayId}</td>
+                                            <td style={{ padding: '12px 8px', color: 'var(--muted-foreground)' }}>{formattedDate}</td>
+                                            <td style={{ padding: '12px 8px', fontWeight: 700 }}>{amountFormatted}</td>
+                                            <td style={{ padding: '12px 8px' }}>
+                                                <span style={{
+                                                    backgroundColor: item.status === 'succeeded' || item.status === 'paid' ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                                                    color: item.status === 'succeeded' || item.status === 'paid' ? '#22c55e' : '#ef4444',
+                                                    fontSize: '11px',
+                                                    padding: '3px 8px',
+                                                    borderRadius: '50px',
+                                                    fontWeight: 700
+                                                }}>
+                                                    {item.status === 'succeeded' || item.status === 'paid' ? 'Payé' : 'Échoué'}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '12px 8px', textAlign: 'right' }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (triggerToast) triggerToast(`Téléchargement du reçu ${displayId}...`);
+                                                    }}
+                                                    style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                                >
+                                                    <Download size={14} /> PDF
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
                 )}
-
-                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (triggerConfirm) {
-                                triggerConfirm({
-                                    title: "Résiliation d'abonnement",
-                                    message: "Êtes-vous sûr de vouloir résilier votre abonnement à la fin de la période en cours ?",
-                                    confirmText: "Oui, résilier",
-                                    cancelText: "Conserver mon offre",
-                                    onConfirm: () => {
-                                        triggerToast("Demande d'annulation prise en compte. Votre accès reste actif jusqu'au 15/08/2026.");
-                                    }
-                                });
-                            } else if (window.confirm("Êtes-vous sûr de vouloir résilier votre abonnement à la fin de la période en cours ?")) {
-                                triggerToast("Demande d'annulation prise en compte. Votre accès reste actif jusqu'au 15/08/2026.");
-                            }
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
-                    >
-                        Annuler l'abonnement
-                    </button>
-                </div>
             </div>
 
-            {/* Modal Stripe Checkout Simulation */}
-            {showStripeModal && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-                    <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', padding: '24px', maxWidth: '420px', width: '100%', border: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                            <CreditCard size={24} style={{ color: 'var(--sidebar-primary)' }} />
-                            <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 700 }}>Stripe Checkout Simulation</h4>
-                        </div>
-                        <p style={{ fontSize: '13px', color: 'var(--muted-foreground)', marginBottom: '20px' }}>
-                            Vous allez passer au plan <strong>{currentPlan}</strong> ({billingCycle}). Le paiement sécurisé est géré par Stripe.
-                        </p>
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                            <button type="button" onClick={() => setShowStripeModal(false)} style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', fontWeight: 600 }}>Annuler</button>
-                            <button type="button" onClick={() => { setShowStripeModal(false); triggerToast("Abonnement mis à jour via Stripe !"); }} style={{ padding: '9px 16px', borderRadius: '8px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600 }}>Payer & Valider</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Modal Stripe Customer Portal */}
-            {showPortalModal && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-                    <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', padding: '24px', maxWidth: '420px', width: '100%', border: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                            <ExternalLink size={24} style={{ color: 'var(--sidebar-primary)' }} />
-                            <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 700 }}>Portail Client Stripe</h4>
-                        </div>
-                        <p style={{ fontSize: '13px', color: 'var(--muted-foreground)', marginBottom: '20px' }}>
-                            Redirection vers votre portail sécurisé Stripe pour mettre à jour votre carte bancaire ou consulter vos factures officielles.
-                        </p>
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                            <button type="button" onClick={() => setShowPortalModal(false)} style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', fontWeight: 600 }}>Fermer</button>
-                            <button type="button" onClick={() => { setShowPortalModal(false); triggerToast("Portail Stripe ouvert."); }} style={{ padding: '9px 16px', borderRadius: '8px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', fontWeight: 600 }}>Accéder au portail</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Stripe Notion-style Checkout Modal */}
+            <StripeCheckoutModal
+                isOpen={checkoutModalOpen}
+                onClose={() => setCheckoutModalOpen(false)}
+                targetPlan={selectedTargetPlan}
+                initialCycle={billingCycle === "annuel" ? "ANNUAL" : "MONTHLY"}
+                mode={checkoutMode}
+                onSuccess={async (updatedSub) => {
+                    await loadAllSubscriptionData();
+                    if (triggerToast) triggerToast(checkoutMode === "card_only" ? "Carte bancaire mise à jour !" : "Souscription mise à jour avec succès !");
+                }}
+            />
         </div>
     );
 }

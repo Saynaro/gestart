@@ -8,13 +8,18 @@ import {
     updateCompanySettings,
     getCompanyStats,
     createStripeConnectAccount,
-    getStripeConnectStatus
+    getStripeConnectStatus,
+    validateIbanPublic
 } from "../controllers/companyController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
 
 const router = express.Router();
+
+// Public IBAN / BIC Validation API
+router.post("/validate-iban", validateIbanPublic);
+router.get("/validate-iban", validateIbanPublic);
 
 // Infos Société
 router.get("/", authMiddleware, getCompany);

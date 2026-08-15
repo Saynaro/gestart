@@ -1,4 +1,4 @@
-import { FileText, FileSpreadsheet, BarChart2, Package, Calculator, Star } from "lucide-react";
+import { FileText, FileSpreadsheet, BarChart2, Package, Calculator, Star, Wrench } from "lucide-react";
 
 export const Icons = {
     dashboard: (
@@ -124,7 +124,7 @@ export const menuSections = [
     {
         category: "GESTION",
         items: [
-            { title: "Techniciens", path: "/techniciens", iconKey: "techniciens" },
+            { title: "Techniciens", path: "/techniciens", iconKey: "techniciens", proOnly: true },
             { title: "Messages", path: "/messages", iconKey: "messages", badge: 2 },
             { title: "Factures", path: "/factures", iconKey: "factures" },
             { title: "Devis", path: "/devis", iconKey: "devis" },
@@ -136,7 +136,7 @@ export const menuSections = [
         category: "PARAMÈTRES",
         items: [
             { title: "Catalogue", path: "/catalogue", iconKey: "catalogue" },
-            { title: "Premium", path: "/premium", iconKey: "premium", badge: "PRO" },
+            { title: "Premium", path: "/premium", iconKey: "premium", proOnly: true, badge: "PRO" },
             { title: "Paramètres", path: "/settings", iconKey: "settings" },
         ]
     }
@@ -156,12 +156,13 @@ export const profilePages = [
 ];
 
 export const section1Items = [
+    { title: "Techniciens", path: "/techniciens", icon: Wrench, proOnly: true },
     { title: "Factures", path: "/factures", icon: FileText },
     { title: "Devis", path: "/devis", icon: FileSpreadsheet },
     { title: "Rapports", path: "/rapports", icon: BarChart2 },
     { title: "Catalogue", path: "/catalogue", icon: Package },
     { title: "Comptabilité", path: "/comptabilite", icon: Calculator },
-    { title: "Premium", path: "/premium", icon: Star, isPremium: true }
+    { title: "Premium", path: "/premium", icon: Star, proOnly: true, isPremium: true }
 ];
 
 export const DropdownIcons = {

@@ -36,6 +36,7 @@ export default function CompanyAutocomplete({
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const wrapperRef = useRef(null);
@@ -51,6 +52,7 @@ export default function CompanyAutocomplete({
         const handleClickOutside = (e) => {
             if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
                 setIsOpen(false);
+                setIsFocused(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -71,6 +73,11 @@ export default function CompanyAutocomplete({
             setSuggestions([]);
             setIsOpen(false);
             setLoading(false);
+            return;
+        }
+
+        // Do not search/open dropdown if not focused
+        if (!isFocused) {
             return;
         }
 
@@ -122,7 +129,9 @@ export default function CompanyAutocomplete({
                 });
 
                 setSuggestions(results);
-                setIsOpen(results.length > 0);
+                if (isFocused && results.length > 0) {
+                    setIsOpen(true);
+                }
             } catch (err) {
                 console.error("Company Autocomplete Error:", err);
                 setSuggestions([]);
@@ -132,7 +141,7 @@ export default function CompanyAutocomplete({
         }, 250); // 250ms debounce
 
         return () => clearTimeout(handler);
-    }, [query]);
+    }, [query, isFocused]);
 
     const handleInputChange = (e) => {
         justSelectedRef.current = false;
@@ -173,6 +182,22 @@ export default function CompanyAutocomplete({
         }
     };
 
+    const handleFocus = () => {
+        setIsFocused(true);
+        if (suggestions.length > 0) {
+            setIsOpen(true);
+        }
+    };
+
+    const handleBlur = (e) => {
+        // If clicking inside suggestions dropdown, let onMouseDown handle it
+        if (wrapperRef.current && wrapperRef.current.contains(e.relatedTarget)) {
+            return;
+        }
+        setIsFocused(false);
+        setIsOpen(false);
+    };
+
     return (
         <div ref={wrapperRef} className={`company-autocomplete-container ${className}`} style={style}>
             <div className="company-input-wrapper">
@@ -183,9 +208,8 @@ export default function CompanyAutocomplete({
                     value={query}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    onFocus={() => {
-                        if (suggestions.length > 0) setIsOpen(true);
-                    }}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     placeholder={placeholder}
                     required={required}
                     disabled={disabled}
@@ -203,8 +227,8 @@ export default function CompanyAutocomplete({
                 </div>
             </div>
 
-            {/* Suggestions Floating Dropdown */}
-            {isOpen && suggestions.length > 0 && (
+            {/* Suggestions Floating Dropdown - Only visible when focused and open */}
+            {isOpen && isFocused && suggestions.length > 0 && (
                 <ul className="company-suggestions-dropdown">
                     {suggestions.map((item, index) => {
                         const isSelected = index === selectedIndex;
@@ -212,7 +236,14 @@ export default function CompanyAutocomplete({
                             <li
                                 key={index}
                                 className={`suggestion-item ${isSelected ? 'selected' : ''}`}
-                                onClick={() => handleSelectSuggestion(item)}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    handleSelectSuggestion(item);
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleSelectSuggestion(item);
+                                }}
                                 onMouseEnter={() => setSelectedIndex(index)}
                             >
                                 <div className="company-icon-badge">

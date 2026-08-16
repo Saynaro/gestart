@@ -68,23 +68,29 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                         }}>
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                                 <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>Modèle</span>
-                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment.model}</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment?.model || "Non renseigné"}</span>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                                 <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>Installé le</span>
-                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment.installDate}</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment?.installDate || "Non renseigné"}</span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>N° de série</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, fontFamily: 'monospace', textAlign: 'right' }}>{details.equipment?.serialNumber || "N/A"}</span>
                             </div>
                         </div>
 
                         <div className="panel-divider"></div>
 
                         <h3 className="mobile-section-title">STATUT ENTRETIEN</h3>
-                        <div className="mobile-maintenance-box">
-                            <div className="maintenance-badge green">
-                                <span>{details.maintenance.status}</span>
+                        <div className={`mobile-maintenance-box ${details.maintenance.hasNext ? 'has-next' : 'no-next'}`}>
+                            <div className={`maintenance-badge ${details.maintenance.statusClass || (details.maintenance.hasNext ? 'green' : 'gray')}`}>
+                                <span>{details.maintenance.hasNext ? (details.maintenance.status || "OK") : "—"}</span>
                             </div>
-                            <div className="maintenance-next">
-                                Prochain entretien: {details.maintenance.nextMaintenance}
+                            <div className={`maintenance-next ${details.maintenance.hasNext ? '' : 'muted'}`}>
+                                {details.maintenance.hasNext
+                                    ? `Prochain entretien: ${details.maintenance.nextMaintenance}`
+                                    : `Aucun entretien à venir`}
                             </div>
                         </div>
 
@@ -108,8 +114,8 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                         </div>
                     </div>
                     
-                    {/* Tabs Card */}
-                    <div className="mobile-detail-tabs-card">
+                    {/* Right Card: Tabs View */}
+                    <div className="client-detail-tabs-card">
                         <div className="mobile-tabs-header">
                             {["interventions", "messages", "factures", "devis"].map((tab) => (
                                 <button
@@ -185,7 +191,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                             clientEmail: selectedClient.email || "",
                                                             clientAddress: selectedClient.address || "",
                                                             totalTtc: parseFloat((item.amount || "0").replace("€", "").replace(",", ".")) || 0,
-                                                            status: item.status === "Payée" ? "paid" : "pending"
+                                                            status: item.statusKey || "draft"
                                                         });
                                                     }
                                                 }}
@@ -194,7 +200,13 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                     <h4>{item.id}</h4>
                                                     <span className="history-card-date">{item.date}</span>
                                                 </div>
-                                                <p><strong>Montant:</strong> {item.amount} · <span className="status-paid">{item.status}</span></p>
+                                                <p style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                                                    <span><strong>Montant:</strong> {item.amount}</span>
+                                                    <span style={{ color: 'var(--border)' }}>·</span>
+                                                    <span className={`fp-status-badge ${item.statusKey || 'draft'}`}>
+                                                        {item.status}
+                                                    </span>
+                                                </p>
                                             </div>
                                         ))
                                     )}
@@ -223,7 +235,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                             clientEmail: selectedClient.email || "",
                                                             clientAddress: selectedClient.address || "",
                                                             totalTtc: parseFloat((item.amount || "0").replace("€", "").replace(",", ".")) || 0,
-                                                            status: item.status === "Accepté" ? "ACCEPTED" : "SENT"
+                                                            status: (item.statusKey || "DRAFT").toUpperCase()
                                                         });
                                                     }
                                                 }}
@@ -232,7 +244,13 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                     <h4>{item.id}</h4>
                                                     <span className="history-card-date">{item.date}</span>
                                                 </div>
-                                                <p><strong>Montant:</strong> {item.amount} · <span className="status-accepted">{item.status}</span></p>
+                                                <p style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                                                    <span><strong>Montant:</strong> {item.amount}</span>
+                                                    <span style={{ color: 'var(--border)' }}>·</span>
+                                                    <span className={`dv-status-badge ${(item.statusKey || 'DRAFT').toUpperCase()}`}>
+                                                        {item.status}
+                                                    </span>
+                                                </p>
                                             </div>
                                         ))
                                     )}

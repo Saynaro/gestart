@@ -4,6 +4,8 @@ import {
     updateCompany,
     uploadCompanyLogo,
     deleteCompanyLogo,
+    uploadCompanySignature,
+    deleteCompanySignature,
     getCompanySettings,
     updateCompanySettings,
     getCompanyStats,
@@ -29,6 +31,10 @@ router.put("/", authMiddleware, requireOwner, updateCompany);
 // Logo Société
 router.patch("/logo", authMiddleware, requireOwner, uploadCompanyLogo);
 router.delete("/logo", authMiddleware, requireOwner, deleteCompanyLogo);
+
+// Signature Société
+router.patch("/signature", authMiddleware, requireOwner, uploadCompanySignature);
+router.delete("/signature", authMiddleware, requireOwner, deleteCompanySignature);
 
 // Paramètres Société (SMS, Factures, PDF...)
 router.get("/settings", authMiddleware, requireOwner, getCompanySettings);

@@ -70,7 +70,13 @@ export const getInvoices = async (req, res) => {
                             companyName: true,
                             email: true,
                             phone: true,
+                            address: true,
+                            city: true,
+                            postalCode: true
                         }
+                    },
+                    lines: {
+                        orderBy: { position: "asc" }
                     },
                     _count: {
                         select: { lines: true }
@@ -79,10 +85,36 @@ export const getInvoices = async (req, res) => {
             })
         ]);
 
+        const sourceQuoteIds = invoices.map(i => i.sourceQuoteId).filter(Boolean);
+        const linkedQuotes = sourceQuoteIds.length > 0 ? await prisma.quote.findMany({
+            where: {
+                companyId,
+                id: { in: sourceQuoteIds }
+            },
+            include: {
+                client: true,
+                lines: true
+            }
+        }) : [];
+
+        const quoteById = {};
+        linkedQuotes.forEach(q => {
+            quoteById[q.id] = q;
+        });
+
+        const invoicesWithLinked = invoices.map(i => {
+            const linked = i.sourceQuoteId ? quoteById[i.sourceQuoteId] : null;
+            return {
+                ...i,
+                linkedDevis: linked,
+                linkedQuote: linked
+            };
+        });
+
         return res.status(200).json({
             success: true,
             data: {
-                invoices,
+                invoices: invoicesWithLinked,
                 pagination: {
                     total,
                     page,
@@ -183,9 +215,20 @@ export const getInvoiceById = async (req, res) => {
             });
         }
 
+        const linkedQuote = invoice.sourceQuoteId ? await prisma.quote.findFirst({
+            where: { companyId, id: invoice.sourceQuoteId },
+            include: { client: true, lines: true }
+        }) : null;
+
+        const invoiceWithLinked = {
+            ...invoice,
+            linkedDevis: linkedQuote,
+            linkedQuote: linkedQuote
+        };
+
         return res.status(200).json({
             success: true,
-            data: { invoice }
+            data: { invoice: invoiceWithLinked }
         });
     } catch (error) {
         console.error("GET INVOICE BY ID ERROR:", error.message);
@@ -220,37 +263,48 @@ export const createInvoice = async (req, res) => {
 
         // If clientId is missing or not provided, try to find or create client by name/email
         if (!finalClientId && (clientName || clientEmail)) {
-            const nameParts = (clientName || "Client").trim().split(" ");
-            const firstName = nameParts[0] || "Client";
+            const trimmedName = (clientName || "").trim();
+            const trimmedEmail = (clientEmail || "").trim();
+            const nameParts = trimmedName.split(" ").filter(Boolean);
+            const firstName = nameParts[0] || "";
             const lastName = nameParts.slice(1).join(" ") || "";
 
-            const existing = await prisma.client.findFirst({
+            const orConditions = [];
+            if (trimmedEmail) {
+                orConditions.push({ email: { equals: trimmedEmail, mode: "insensitive" } });
+            }
+            if (firstName && lastName) {
+                orConditions.push({
+                    AND: [
+                        { firstName: { equals: firstName, mode: "insensitive" } },
+                        { lastName: { equals: lastName, mode: "insensitive" } }
+                    ]
+                });
+            } else if (firstName) {
+                orConditions.push({ firstName: { equals: firstName, mode: "insensitive" } });
+            }
+            if (trimmedName) {
+                orConditions.push({ companyName: { equals: trimmedName, mode: "insensitive" } });
+            }
+
+            const existing = orConditions.length > 0 ? await prisma.client.findFirst({
                 where: {
                     companyId,
-                    OR: [
-                        { email: clientEmail ? clientEmail.trim() : undefined },
-                        {
-                            firstName: { equals: firstName, mode: "insensitive" },
-                            lastName: { equals: lastName || firstName, mode: "insensitive" }
-                        },
-                        {
-                            companyName: { equals: clientName, mode: "insensitive" }
-                        }
-                    ].filter(Boolean)
+                    OR: orConditions
                 }
-            });
+            }) : null;
 
             if (existing) {
                 finalClientId = existing.id;
-            } else {
+            } else if (trimmedName || trimmedEmail) {
                 const newCreatedClient = await prisma.client.create({
                     data: {
                         companyId,
-                        firstName,
-                        lastName: lastName || "Particulier",
-                        companyName: clientName && nameParts.length === 1 ? clientName : null,
+                        firstName: firstName || "Client",
+                        lastName: lastName || (trimmedName && nameParts.length === 1 ? "" : "Particulier"),
+                        companyName: trimmedName && nameParts.length === 1 ? trimmedName : null,
                         phone: "0600000000",
-                        email: clientEmail || null,
+                        email: trimmedEmail || null,
                         address: clientAddress || "Adresse non renseignée"
                     }
                 });
@@ -351,6 +405,38 @@ export const createInvoice = async (req, res) => {
             return invoice;
         });
 
+        // Auto-persist new items into CatalogItem
+        if (Array.isArray(lines)) {
+            for (const l of lines) {
+                if (l && l.description && l.description.trim()) {
+                    const desc = l.description.trim();
+                    const price = parseFloat(l.unitPrice) || 0;
+                    try {
+                        const existingCat = await prisma.catalogItem.findFirst({
+                            where: {
+                                companyId,
+                                name: { equals: desc, mode: "insensitive" }
+                            }
+                        });
+                        if (!existingCat) {
+                            await prisma.catalogItem.create({
+                                data: {
+                                    companyId,
+                                    name: desc,
+                                    reference: l.reference || null,
+                                    defaultPrice: price,
+                                    tvaRate: parseFloat(l.tvaRate) || 20,
+                                    type: (l.urssafCategory?.includes("Matériel") || l.urssafCategory?.includes("marchandises")) ? "PRODUCT" : "SERVICE"
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        console.warn("Auto-sync catalog item error:", err.message);
+                    }
+                }
+            }
+        }
+
         return res.status(201).json({
             success: true,
             message: `Facture ${result.number} créée avec succès`,
@@ -372,7 +458,8 @@ export const updateInvoice = async (req, res) => {
 
     try {
         const existingInvoice = await prisma.invoice.findFirst({
-            where: { id, companyId }
+            where: { id, companyId },
+            include: { lines: true, client: true }
         });
 
         if (!existingInvoice) {
@@ -382,27 +469,200 @@ export const updateInvoice = async (req, res) => {
             });
         }
 
-        const { status, dueAt, amountHT, tvaRate, paymentMethod, paymentRef, notes, conditions } = req.body;
+        const {
+            clientId,
+            clientName,
+            clientEmail,
+            clientAddress,
+            interventionId,
+            dueAt,
+            dueDate,
+            date,
+            issuedAt,
+            amountHT,
+            subtotalHt,
+            tvaRate,
+            amountTTC,
+            totalTtc,
+            status,
+            paymentMethod,
+            paymentRef,
+            notes,
+            conditions,
+            paymentConditions,
+            subject,
+            interventionType,
+            workDescription,
+            workDetails,
+            lines
+        } = req.body;
 
-        const updatedInvoice = await prisma.invoice.update({
-            where: { id },
-            data: {
-                ...(status && { status }),
-                ...(dueAt !== undefined && { dueAt: dueAt ? new Date(dueAt) : null }),
-                ...(amountHT !== undefined && { amountHT: parseFloat(amountHT) }),
-                ...(tvaRate !== undefined && { tvaRate: parseFloat(tvaRate) }),
-                ...(paymentMethod !== undefined && { paymentMethod }),
-                ...(paymentRef !== undefined && { paymentRef }),
-                ...(notes !== undefined && { notes }),
-                ...(conditions !== undefined && { conditions }),
-            },
-            include: { lines: true, client: true }
+        const parseSafeDate = (val) => {
+            if (!val) return undefined;
+            const d = new Date(val);
+            return !isNaN(d.getTime()) ? d : undefined;
+        };
+
+        const result = await prisma.$transaction(async (tx) => {
+            let finalClientId = clientId;
+
+            // Update or find client if clientName/email is given
+            if (!finalClientId && (clientName || clientEmail)) {
+                const trimmedName = (clientName || "").trim();
+                const trimmedEmail = (clientEmail || "").trim();
+                const nameParts = trimmedName.split(" ").filter(Boolean);
+                const firstName = nameParts[0] || "";
+                const lastName = nameParts.slice(1).join(" ") || "";
+
+                const orConditions = [];
+                if (trimmedEmail) {
+                    orConditions.push({ email: { equals: trimmedEmail, mode: "insensitive" } });
+                }
+                if (firstName && lastName) {
+                    orConditions.push({
+                        AND: [
+                            { firstName: { equals: firstName, mode: "insensitive" } },
+                            { lastName: { equals: lastName, mode: "insensitive" } }
+                        ]
+                    });
+                } else if (firstName) {
+                    orConditions.push({ firstName: { equals: firstName, mode: "insensitive" } });
+                }
+                if (trimmedName) {
+                    orConditions.push({ companyName: { equals: trimmedName, mode: "insensitive" } });
+                }
+
+                const existing = orConditions.length > 0 ? await tx.client.findFirst({
+                    where: {
+                        companyId,
+                        OR: orConditions
+                    }
+                }) : null;
+
+                if (existing) {
+                    finalClientId = existing.id;
+                } else if (trimmedName || trimmedEmail) {
+                    const newCreatedClient = await tx.client.create({
+                        data: {
+                            companyId,
+                            firstName: firstName || "Client",
+                            lastName: lastName || (trimmedName && nameParts.length === 1 ? "" : "Particulier"),
+                            companyName: trimmedName && nameParts.length === 1 ? trimmedName : null,
+                            phone: "0600000000",
+                            email: trimmedEmail || null,
+                            address: clientAddress || "Adresse non renseignée"
+                        }
+                    });
+                    finalClientId = newCreatedClient.id;
+                }
+            }
+
+            // If lines are provided, recompute amounts and recreate lines
+            let computedHT = parseFloat(amountHT ?? subtotalHt);
+            let calculatedTVA = tvaRate !== undefined ? parseFloat(tvaRate) : existingInvoice.tvaRate;
+            let computedTTC = parseFloat(amountTTC ?? totalTtc);
+
+            if (Array.isArray(lines)) {
+                await tx.invoiceLine.deleteMany({ where: { invoiceId: id } });
+
+                computedHT = lines.reduce((acc, l) => {
+                    const qty = Number(l.quantity || l.qty || 1);
+                    const price = parseFloat(l.unitPrice) || 0;
+                    const disc = parseFloat(l.discount) || 0;
+                    return acc + (qty * price * (1 - disc / 100));
+                }, 0);
+
+                computedTTC = computedHT * (1 + (calculatedTVA || 20) / 100);
+
+                if (lines.length > 0) {
+                    await tx.invoiceLine.createMany({
+                        data: lines.map((l, index) => {
+                            const qVal = Number(l.quantity || l.qty || 1);
+                            const pVal = parseFloat(l.unitPrice) || 0;
+                            const dVal = parseFloat(l.discount) || 0;
+                            return {
+                                invoiceId: id,
+                                description: l.description || "Prestation",
+                                reference: l.reference || null,
+                                quantity: qVal,
+                                unitPrice: pVal,
+                                tvaRate: parseFloat(l.tvaRate) || calculatedTVA || 20,
+                                discount: dVal,
+                                total: qVal * pVal * (1 - dVal / 100),
+                                position: index,
+                                catalogItemId: l.catalogItemId || null
+                            };
+                        })
+                    });
+                }
+            }
+
+            const targetDueAt = parseSafeDate(dueAt || dueDate);
+            const targetIssuedAt = parseSafeDate(issuedAt || date);
+
+            const updated = await tx.invoice.update({
+                where: { id },
+                data: {
+                    ...(finalClientId && { clientId: finalClientId }),
+                    ...(interventionId !== undefined && { interventionId: interventionId || null }),
+                    ...(status && { status: status.toUpperCase() }),
+                    ...(targetDueAt !== undefined && { dueAt: targetDueAt }),
+                    ...(targetIssuedAt !== undefined && { issuedAt: targetIssuedAt }),
+                    ...(!isNaN(computedHT) && { amountHT: computedHT }),
+                    ...(!isNaN(calculatedTVA) && { tvaRate: calculatedTVA }),
+                    ...(!isNaN(computedTTC) && { amountTTC: computedTTC }),
+                    ...(paymentMethod !== undefined && { paymentMethod }),
+                    ...(paymentRef !== undefined && { paymentRef }),
+                    ...(notes !== undefined && { notes }),
+                    ...((conditions !== undefined || paymentConditions !== undefined) && { conditions: conditions ?? paymentConditions }),
+                    ...((subject !== undefined || interventionType !== undefined) && { subject: subject ?? interventionType }),
+                    ...((workDescription !== undefined || workDetails !== undefined) && { workDescription: workDescription ?? workDetails })
+                },
+                include: {
+                    lines: { orderBy: { position: "asc" } },
+                    client: true
+                }
+            });
+
+            return updated;
         });
+
+        // Auto-sync new items into CatalogItem
+        if (Array.isArray(lines)) {
+            for (const l of lines) {
+                if (l && l.description && l.description.trim()) {
+                    const desc = l.description.trim();
+                    const price = parseFloat(l.unitPrice) || 0;
+                    try {
+                        const existingCat = await prisma.catalogItem.findFirst({
+                            where: {
+                                companyId,
+                                name: { equals: desc, mode: "insensitive" }
+                            }
+                        });
+                        if (!existingCat) {
+                            await prisma.catalogItem.create({
+                                data: {
+                                    companyId,
+                                    name: desc,
+                                    reference: l.reference || null,
+                                    defaultPrice: price,
+                                    tvaRate: parseFloat(l.tvaRate) || 20,
+                                    type: (l.urssafCategory?.includes("Matériel") || l.urssafCategory?.includes("marchandises")) ? "PRODUCT" : "SERVICE"
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        console.warn("Auto-sync catalog item error:", err.message);
+                    }
+                }
+            }
+        }
 
         return res.status(200).json({
             success: true,
             message: "Facture mise à jour avec succès",
-            data: { invoice: updatedInvoice }
+            data: { invoice: result }
         });
     } catch (error) {
         console.error("UPDATE INVOICE ERROR:", error.message);

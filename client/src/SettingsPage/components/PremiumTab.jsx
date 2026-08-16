@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, Clock, Link2, Key, CheckCircle2, Lock } from "lucide-react";
+import { Star, Clock, Link2, Key, CheckCircle2, Lock } from "lucide-react";
 
 export default function PremiumTab({ isMobileView, triggerToast }) {
     const [maintenanceDelayDays, setMaintenanceDelayDays] = useState(30); // 7 / 14 / 30 / 60 / 90
@@ -27,7 +27,7 @@ export default function PremiumTab({ isMobileView, triggerToast }) {
             <div style={{ background: 'linear-gradient(135deg, rgba(91, 77, 219, 0.12) 0%, rgba(91, 77, 219, 0.03) 100%)', border: '1px solid rgba(91, 77, 219, 0.25)', borderRadius: '14px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Sparkles size={24} />
+                        <Star size={24} fill="currentColor" />
                     </div>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

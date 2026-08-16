@@ -16,7 +16,6 @@ import {
     Receipt,
     MessageSquare,
     Bell,
-    Sparkles,
     HelpCircle,
     Star,
     Gift,
@@ -227,12 +226,13 @@ function SettingsPage() {
         }, 3000);
     };
 
-    const triggerConfirm = ({ title, message, confirmText = "Confirmer", cancelText = "Annuler", onConfirm }) => {
+    const triggerConfirm = ({ title, message, confirmText = "Confirmer", cancelText = "Annuler", type = "danger", onConfirm }) => {
         setConfirmConfig({
             title: title || "Êtes-vous sûr ?",
             message: message || "Voulez-vous vraiment effectuer cette action ?",
             confirmText,
             cancelText,
+            type,
             onConfirm
         });
     };
@@ -246,8 +246,7 @@ function SettingsPage() {
                 { id: "ma-societe", label: "Entreprise", icon: Building, subtitle: "Coordonnées et statut juridique" },
                 { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
                 { id: "rgpd-legal", label: "Légal & RGPD", icon: Lock, subtitle: "Exportation de données et droits" },
-                { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" },
-                { id: "utilisateurs", label: "Utilisateurs", icon: Users, subtitle: "Gérez les accès de vos collaborateurs" }
+                { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" }
             ]
         },
         {
@@ -268,7 +267,7 @@ function SettingsPage() {
                 { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
                 { id: "sms", label: "SMS", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
                 { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" },
-                { id: "premium", label: "Premium", icon: Sparkles, subtitle: "Fonctionnalités Pro avancées", badge: "PRO" }
+                { id: "premium", label: "Premium", icon: Star, subtitle: "Fonctionnalités Pro avancées", badge: "PRO" }
             ]
         },
         {
@@ -415,8 +414,7 @@ function SettingsPage() {
                             return <LegalRgpdTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "abonnement":
                             return <AbonnementTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
-                        case "utilisateurs":
-                            return <UtilisateursTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
+
                         case "chiffre-affaires":
                             return <ChiffreAffairesTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "cotisations":
@@ -862,8 +860,22 @@ function SettingsPage() {
                             }}
                         >
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <AlertTriangle size={22} />
+                                <div style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '50%',
+                                    backgroundColor: confirmConfig.type === 'success' ? 'rgba(34, 197, 94, 0.14)' : confirmConfig.type === 'info' ? 'rgba(37, 99, 235, 0.14)' : 'rgba(239, 68, 68, 0.12)',
+                                    color: confirmConfig.type === 'success' ? '#16a34a' : confirmConfig.type === 'info' ? '#2563eb' : '#ef4444',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                }}>
+                                    {confirmConfig.type === 'success' ? (
+                                        <Star size={22} fill="currentColor" />
+                                    ) : (
+                                        <AlertTriangle size={22} />
+                                    )}
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <h4 style={{ margin: '2px 0 0 0', fontSize: '15.5px', fontWeight: 700, color: 'var(--foreground)' }}>{confirmConfig.title}</h4>
@@ -902,13 +914,13 @@ function SettingsPage() {
                                         padding: '10px 14px',
                                         borderRadius: '10px',
                                         border: 'none',
-                                        backgroundColor: '#ef4444',
+                                        backgroundColor: confirmConfig.type === 'success' ? '#16a34a' : confirmConfig.type === 'info' ? '#2563eb' : '#ef4444',
                                         color: '#ffffff',
                                         fontWeight: 700,
                                         fontSize: '13px',
                                         cursor: 'pointer',
                                         textAlign: 'center',
-                                        boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)'
+                                        boxShadow: confirmConfig.type === 'success' ? '0 4px 14px rgba(22, 163, 74, 0.3)' : confirmConfig.type === 'info' ? '0 4px 14px rgba(37, 99, 235, 0.3)' : '0 4px 14px rgba(239, 68, 68, 0.3)'
                                     }}
                                 >
                                     {confirmConfig.confirmText || "Confirmer"}

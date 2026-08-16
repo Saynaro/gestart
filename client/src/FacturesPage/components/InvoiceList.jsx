@@ -1,18 +1,47 @@
-import React from "react";
-import { FileText } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { FileText, MoreVertical, Send, Edit2, CheckCircle2, Download, Palette } from "lucide-react";
 
 function getStatusLabel(status) {
-    switch (status) {
-        case "draft":    return "Brouillon";
-        case "pending":  return "En attente";
-        case "paid":     return "Payée";
-        case "overdue":  return "En retard";
+    const s = String(status || "").toLowerCase();
+    switch (s) {
+        case "draft":     return "Brouillon";
+        case "sent":      return "Envoyée";
+        case "pending":   return "En attente";
+        case "paid":      return "Payée";
+        case "overdue":   return "En retard";
         case "finalised": return "Finalisé";
-        default: return status;
+        case "accepted":  return "Acceptée";
+        case "refused":
+        case "rejected":  return "Refusée";
+        case "cancelled": return "Annulée";
+        default: return status || "Brouillon";
     }
 }
 
-function InvoiceList({ invoices, onRowClick, onCreateFacture }) {
+function InvoiceList({
+    invoices,
+    onRowClick,
+    onCreateFacture,
+    onSend,
+    onEdit,
+    onMarkPaid,
+    onDownloadPdf,
+    onCustomise
+}) {
+    const [activeMenuId, setActiveMenuId] = useState(null);
+
+    // Close menu when clicking anywhere on the document
+    useEffect(() => {
+        const handleClickOutside = () => setActiveMenuId(null);
+        window.addEventListener("click", handleClickOutside);
+        return () => window.removeEventListener("click", handleClickOutside);
+    }, []);
+
+    const toggleMenu = (e, id) => {
+        e.stopPropagation();
+        setActiveMenuId(prev => (prev === id ? null : id));
+    };
+
     if (!invoices || invoices.length === 0) {
         return (
             <div className="fp-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
@@ -35,7 +64,8 @@ function InvoiceList({ invoices, onRowClick, onCreateFacture }) {
             {invoices.map(inv => (
                 <div
                     key={inv.id}
-                    className="fp-invoice-card"
+                    className={`fp-invoice-card ${activeMenuId === inv.id ? "menu-open" : ""}`}
+                    style={{ zIndex: activeMenuId === inv.id ? 80 : undefined }}
                     onClick={() => onRowClick(inv)}
                     role="button"
                     tabIndex={0}
@@ -44,11 +74,95 @@ function InvoiceList({ invoices, onRowClick, onCreateFacture }) {
                     <div className="fp-card-top-left">
                         <span className="fp-card-number">{inv.number}</span>
                     </div>
+
                     <div className="fp-card-top-right">
-                        <span className="fp-card-amount">
-                            {inv.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                        </span>
-                        <span className="fp-card-amount-label"> HT</span>
+                        <div className="fp-card-amount-group">
+                            <span className="fp-card-amount">
+                                {inv.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                            </span>
+                            <span className="fp-card-amount-label"> HT</span>
+                        </div>
+
+                        {/* 3 Dots Menu Button on Invoice Card */}
+                        <div className="fp-card-dots-wrapper" onClick={e => e.stopPropagation()}>
+                            <button
+                                type="button"
+                                className="fp-card-dots-btn"
+                                onClick={(e) => toggleMenu(e, inv.id)}
+                                title="Actions de la facture"
+                                aria-label="Actions de la facture"
+                            >
+                                <MoreVertical size={16} />
+                            </button>
+
+                            {activeMenuId === inv.id && (
+                                <div className="fp-dots-menu fp-card-menu-dropdown" onClick={e => e.stopPropagation()}>
+                                    <button
+                                        type="button"
+                                        className="fp-dots-menu-item"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveMenuId(null);
+                                            if (onSend) onSend(inv);
+                                        }}
+                                    >
+                                        <Send size={14} /> Envoyer la facture
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="fp-dots-menu-item"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveMenuId(null);
+                                            if (onEdit) onEdit(inv);
+                                        }}
+                                    >
+                                        <Edit2 size={14} /> Modifier la facture
+                                    </button>
+
+                                    {inv.status !== "paid" && onMarkPaid && (
+                                        <button
+                                            type="button"
+                                            className="fp-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onMarkPaid(inv);
+                                            }}
+                                        >
+                                            <CheckCircle2 size={14} /> Encaisser le règlement
+                                        </button>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        className="fp-dots-menu-item"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveMenuId(null);
+                                            if (onDownloadPdf) onDownloadPdf(inv);
+                                        }}
+                                    >
+                                        <Download size={14} /> Télécharger PDF
+                                    </button>
+
+                                    {onCustomise && (
+                                        <button
+                                            type="button"
+                                            className="fp-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onCustomise(inv);
+                                            }}
+                                        >
+                                            <Palette size={14} /> Personnaliser
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="fp-card-bottom-left">
@@ -58,8 +172,9 @@ function InvoiceList({ invoices, onRowClick, onCreateFacture }) {
                         <span style={{ color: "var(--border)", userSelect: "none" }}>·</span>
                         <span className="fp-card-client">{inv.clientName}</span>
                     </div>
+
                     <div className="fp-card-bottom-right">
-                        <span className={`fp-status-badge ${inv.status}`}>
+                        <span className={`fp-status-badge ${(inv.status || "draft").toLowerCase()}`}>
                             {getStatusLabel(inv.status)}
                         </span>
                     </div>

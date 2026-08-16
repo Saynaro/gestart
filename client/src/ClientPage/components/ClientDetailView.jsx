@@ -76,12 +76,14 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                     <div className="panel-divider"></div>
 
                     <h3 className="mobile-section-title">STATUT ENTRETIEN</h3>
-                    <div className="mobile-maintenance-box">
-                        <div className="maintenance-badge green">
-                            <span>{details.maintenance.status}</span>
+                    <div className={`mobile-maintenance-box ${details.maintenance.hasNext ? 'has-next' : 'no-next'}`}>
+                        <div className={`maintenance-badge ${details.maintenance.statusClass || (details.maintenance.hasNext ? 'green' : 'gray')}`}>
+                            <span>{details.maintenance.hasNext ? (details.maintenance.status || "OK") : "—"}</span>
                         </div>
-                        <div className="maintenance-next">
-                            Prochain entretien: {details.maintenance.nextMaintenance}
+                        <div className={`maintenance-next ${details.maintenance.hasNext ? '' : 'muted'}`}>
+                            {details.maintenance.hasNext
+                                ? `Prochain entretien: ${details.maintenance.nextMaintenance}`
+                                : `Aucun entretien à venir`}
                         </div>
                     </div>
 
@@ -182,7 +184,7 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                                         clientEmail: selectedClient.email || "",
                                                         clientAddress: selectedClient.address || "",
                                                         totalTtc: parseFloat((item.amount || "0").replace("€", "").replace(",", ".")) || 0,
-                                                        status: item.status === "Payée" ? "paid" : "pending"
+                                                        status: item.statusKey || "draft"
                                                     });
                                                 }
                                             }}
@@ -191,7 +193,13 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                                 <h4>{item.id}</h4>
                                                 <span className="history-card-date">{item.date}</span>
                                             </div>
-                                            <p><strong>Montant:</strong> {item.amount} · <span className="status-paid">{item.status}</span></p>
+                                            <p style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                                                <span><strong>Montant:</strong> {item.amount}</span>
+                                                <span style={{ color: 'var(--border)' }}>·</span>
+                                                <span className={`fp-status-badge ${item.statusKey || 'draft'}`}>
+                                                    {item.status}
+                                                </span>
+                                            </p>
                                         </div>
                                     ))
                                 )}
@@ -220,7 +228,7 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                                         clientEmail: selectedClient.email || "",
                                                         clientAddress: selectedClient.address || "",
                                                         totalTtc: parseFloat((item.amount || "0").replace("€", "").replace(",", ".")) || 0,
-                                                        status: item.status === "Accepté" ? "ACCEPTED" : "SENT"
+                                                        status: (item.statusKey || "DRAFT").toUpperCase()
                                                     });
                                                 }
                                             }}
@@ -229,7 +237,13 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                                 <h4>{item.id}</h4>
                                                 <span className="history-card-date">{item.date}</span>
                                             </div>
-                                            <p><strong>Montant:</strong> {item.amount} · <span className="status-accepted">{item.status}</span></p>
+                                            <p style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                                                <span><strong>Montant:</strong> {item.amount}</span>
+                                                <span style={{ color: 'var(--border)' }}>·</span>
+                                                <span className={`dv-status-badge ${(item.statusKey || 'DRAFT').toUpperCase()}`}>
+                                                    {item.status}
+                                                </span>
+                                            </p>
                                         </div>
                                     ))
                                 )}

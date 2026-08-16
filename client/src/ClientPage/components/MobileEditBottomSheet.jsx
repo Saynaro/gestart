@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronDown, Plus, Search } from "lucide-react";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete from "../../components/CompanyAutocomplete";
+import EquipmentSelector from "../../components/EquipmentSelector";
 
 const formatDateToISO = (dateStr) => {
     if (!dateStr || dateStr === "Non renseigné" || dateStr === "N/A") return "";
@@ -251,23 +252,17 @@ function MobileEditBottomSheet({
 
                                 {/* Équipement installé Card */}
                                 <div className="mobile-form-card">
-                                    <span className="mobile-form-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                                    <span className="mobile-form-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>
                                         Équipement installé
                                     </span>
 
-                                    <div className="mobile-inner-input-box">
-                                        <label className="mobile-form-card-label">Marque / Modèle</label>
-                                        <input
-                                            type="text"
-                                            placeholder="ex: Mitsubishi 2.5kW"
-                                            value={editEquipModel}
-                                            onChange={(e) => setEditEquipModel(e.target.value)}
-                                            onFocus={handleInputFocus}
-                                            className="mobile-form-card-input"
-                                        />
-                                    </div>
+                                    <EquipmentSelector
+                                        value={editEquipModel}
+                                        onChange={(val) => setEditEquipModel(val)}
+                                        placeholder="Sélectionner ou saisir un équipement..."
+                                    />
 
-                                    <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                                         <div className="mobile-inner-input-box" style={{ flex: 1 }}>
                                             <label className="mobile-form-card-label">Date d'installation</label>
                                             <input

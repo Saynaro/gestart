@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MessageSquare, Sparkles, Send, CheckCircle2, Info, Loader2 } from "lucide-react";
+import { MessageSquare, Star, Send, CheckCircle2, Info, Loader2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 export default function SmsTab({ isMobileView, triggerToast }) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, CreditCard, Sparkles, X } from "lucide-react";
+import { AlertTriangle, CreditCard, Star, X } from "lucide-react";
 
 export default function SubscriptionExpiredModal() {
     const [isOpen, setIsOpen] = useState(false);
@@ -107,7 +107,7 @@ export default function SubscriptionExpiredModal() {
                             gap: "8px"
                         }}
                     >
-                        <Sparkles size={16} />
+                        <Star size={16} fill="currentColor" />
                         Voir les offres & Renouveler l'abonnement
                     </button>
                     

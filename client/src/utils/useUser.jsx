@@ -62,9 +62,11 @@ export function UserProvider({ children }) {
         };
 
         window.addEventListener('userProfileChanged', handleUserChanged);
+        window.addEventListener('companyUpdated', () => refreshUser());
         window.addEventListener('storage', handleUserChanged);
         return () => {
             window.removeEventListener('userProfileChanged', handleUserChanged);
+            window.removeEventListener('companyUpdated', () => refreshUser());
             window.removeEventListener('storage', handleUserChanged);
         };
     }, [refreshUser]);

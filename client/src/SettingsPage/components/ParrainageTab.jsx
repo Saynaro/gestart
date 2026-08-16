@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Gift, Copy, Check, Users, Sparkles, Share2 } from "lucide-react";
+import { Gift, Copy, Check, Users, Star, Share2 } from "lucide-react";
 
 export default function ParrainageTab({ isMobileView, triggerToast }) {
     const [copied, setCopied] = useState(false);

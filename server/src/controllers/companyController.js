@@ -62,6 +62,7 @@ export const updateCompany = async (req, res) => {
         postalCode,
         website,
         logoUrl,
+        signatureUrl,
         tradeCategories, // Array of category IDs
     } = req.body;
 
@@ -93,6 +94,7 @@ export const updateCompany = async (req, res) => {
                     ...(postalCode !== undefined && { postalCode: postalCode.trim() }),
                     ...(website !== undefined && { website: website.trim() }),
                     ...(logoUrl !== undefined && { logoUrl }),
+                    ...(signatureUrl !== undefined && { signatureUrl }),
                     ...(Array.isArray(tradeCategories) && {
                         tradeCategories: {
                             create: tradeCategories.map((catId) => ({
@@ -189,6 +191,56 @@ export const deleteCompanyLogo = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la suppression du logo"
+        });
+    }
+};
+
+////// UPLOAD COMPANY SIGNATURE (OWNER ONLY) //////
+export const uploadCompanySignature = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        const signatureUrl = req.body?.signatureUrl;
+
+        const company = await prisma.company.update({
+            where: { id: companyId },
+            data: { signatureUrl },
+            select: { id: true, signatureUrl: true }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Signature de la société enregistrée avec succès",
+            data: { signatureUrl: company.signatureUrl }
+        });
+    } catch (error) {
+        console.error("UPLOAD SIGNATURE ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de l'enregistrement de la signature"
+        });
+    }
+};
+
+////// DELETE COMPANY SIGNATURE (OWNER ONLY) //////
+export const deleteCompanySignature = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        await prisma.company.update({
+            where: { id: companyId },
+            data: { signatureUrl: null }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Signature supprimée avec succès"
+        });
+    } catch (error) {
+        console.error("DELETE SIGNATURE ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la suppression de la signature"
         });
     }
 };

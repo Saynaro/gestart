@@ -131,12 +131,19 @@
     align-items: center;
     transition: box-shadow 0.18s, border-color 0.18s, transform 0.15s;
     position: relative;
+    z-index: 1;
 }
 
 .fp-invoice-card:hover {
     border-color: rgba(85, 107, 47, 0.3);
     box-shadow: 0 4px 16px rgba(85, 107, 47, 0.08);
     transform: translateY(-1px);
+    z-index: 2;
+}
+
+.fp-invoice-card.menu-open,
+.fp-invoice-card:has(.fp-card-menu-dropdown) {
+    z-index: 90 !important;
 }
 
 .fp-invoice-card:active {
@@ -156,7 +163,17 @@
 }
 
 .fp-card-top-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
     text-align: right;
+}
+
+.fp-card-amount-group {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
 }
 
 .fp-card-amount {
@@ -169,6 +186,66 @@
     font-size: 0.7rem;
     color: var(--muted-foreground);
     font-weight: 500;
+}
+
+.fp-card-dots-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    z-index: 95;
+}
+
+.fp-card-dots-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.fp-card-dots-btn:hover {
+    background-color: var(--muted);
+    color: var(--foreground);
+}
+
+.fp-card-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    min-width: 190px;
+    z-index: 1000 !important;
+    overflow: hidden;
+    padding: 4px 0;
+}
+
+.fp-card-menu-dropdown .fp-dots-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 14px;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--foreground);
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s;
+}
+
+.fp-card-menu-dropdown .fp-dots-menu-item:hover {
+    background-color: var(--muted);
 }
 
 .fp-card-bottom-left {
@@ -205,6 +282,8 @@
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.01em;
+    background-color: rgba(124, 123, 130, 0.12);
+    color: #7C7B82;
 }
 
 .fp-status-badge.draft {
@@ -212,24 +291,37 @@
     color: #7C7B82;
 }
 
+.fp-status-badge.sent {
+    background-color: rgba(37, 99, 235, 0.12);
+    color: #2563EB;
+}
+
 .fp-status-badge.pending {
-    background-color: rgba(217, 119, 6, 0.1);
+    background-color: rgba(217, 119, 6, 0.12);
     color: #D97706;
 }
 
 .fp-status-badge.paid {
-    background-color: rgba(26, 158, 92, 0.1);
+    background-color: rgba(26, 158, 92, 0.12);
     color: #1A9E5C;
 }
 
 .fp-status-badge.overdue {
-    background-color: rgba(192, 57, 43, 0.1);
+    background-color: rgba(192, 57, 43, 0.12);
     color: #C0392B;
 }
 
-.fp-status-badge.finalised {
-    background-color: rgba(85, 107, 47, 0.1);
+.fp-status-badge.finalised,
+.fp-status-badge.accepted {
+    background-color: rgba(85, 107, 47, 0.12);
     color: #556B2F;
+}
+
+.fp-status-badge.cancelled,
+.fp-status-badge.refused,
+.fp-status-badge.rejected {
+    background-color: rgba(192, 57, 43, 0.12);
+    color: #C0392B;
 }
 
 /* ── Empty State ── */
@@ -1052,33 +1144,50 @@
 /* ── Toast Notification ── */
 .fp-toast {
     position: fixed;
-    bottom: 32px;
+    top: 24px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 9999;
-    background-color: #1A1A1A;
-    color: white;
+    z-index: 99999;
     padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    animation: fpToastIn 0.3s ease;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+    animation: fpToastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    background-color: #22c55e;
+    pointer-events: none;
+    max-width: 90vw;
 }
 
 .fp-toast--success {
-    background-color: #1A2E10;
-    border: 1px solid #556B2F;
+    background-color: #22c55e;
+    color: #ffffff;
+}
+
+.fp-toast--error {
+    background-color: #ef4444;
+    color: #ffffff;
 }
 
 .fp-toast--info {
-    background-color: #1A1A2E;
-    border: 1px solid #556B9B;
+    background-color: #3b82f6;
+    color: #ffffff;
 }
 
 @keyframes fpToastIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from {
+        opacity: 0;
+        transform: translate(-50%, -24px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
 }
 
 /* ── PDF Viewer ── */
@@ -1395,7 +1504,8 @@
 .doc-type-label { font-size: 26pt; font-weight: 800; color: #556B2F; letter-spacing: 1px; margin-bottom: 10pt; }
 .doc-meta-table { display: inline-block; font-size: 9.5pt; }
 .doc-meta-table td { padding: 2pt 4pt; }
-.pdf-billing-section { display: flex; margin-bottom: 20pt; border-top: 1px solid #E0E0E0; padding-top: 15pt; }
+.pdf-billing-section { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 20pt; border-top: 1px solid #E0E0E0; padding-top: 15pt; width: 100%; }
+.billing-to-card { width: 100%; display: flex; flex-direction: column; align-items: flex-start; }
 .billing-to-card .section-label { display: block; font-size: 8.5pt; font-weight: 700; color: #7C7B82; margin-bottom: 6pt; }
 .billing-to-card .client-name { font-size: 11pt; font-weight: 800; margin-bottom: 4pt; }
 .billing-to-card .client-details { font-size: 9.5pt; color: #4A4A4A; }

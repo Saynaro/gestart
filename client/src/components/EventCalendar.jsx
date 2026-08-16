@@ -153,8 +153,9 @@ function EventCalendar({
             <FullCalendar
                 ref={calendarRef}
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, classicThemePlugin]}
-                initialView="timeGridWeek"
-                initialDate="2026-05-19"
+                initialView={currentView || "timeGridWeek"}
+                nowIndicator={true}
+                scrollTime="08:00:00"
                 locale={frLocale}
                 headerToolbar={false}
                 events={events}

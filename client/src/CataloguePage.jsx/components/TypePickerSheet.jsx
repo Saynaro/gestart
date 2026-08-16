@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Tag } from "lucide-react";
 
@@ -26,7 +27,7 @@ const ARTICLE_TYPES = [
 ];
 
 function TypePickerSheet({ isOpen, onClose, selectedType, onSelect }) {
-    return (
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <>
@@ -90,7 +91,8 @@ function TypePickerSheet({ isOpen, onClose, selectedType, onSelect }) {
                     </motion.div>
                 </>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }
 

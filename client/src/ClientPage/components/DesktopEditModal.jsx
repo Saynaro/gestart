@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, User, MapPin, Wrench, ChevronRight, ChevronLeft, Check } from "lucide-react";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete from "../../components/CompanyAutocomplete";
+import EquipmentSelector from "../../components/EquipmentSelector";
 
 const formatDateToISO = (dateStr) => {
     if (!dateStr || dateStr === "Non renseigné" || dateStr === "N/A") return "";
@@ -306,13 +307,11 @@ function DesktopEditModal({
                                         <h3 className="wizard-section-title">Équipement installé (optionnel)</h3>
 
                                         <div className="form-field">
-                                            <label className="form-label">Marque / Modèle</label>
-                                            <input
-                                                type="text"
+                                            <label className="form-label">Marque & Modèle (Catalogue métiers ou sur-mesure)</label>
+                                            <EquipmentSelector
                                                 value={editEquipModel}
-                                                onChange={(e) => setEditEquipModel(e.target.value)}
-                                                className="form-input wizard-input-large"
-                                                placeholder="ex: Daikin 3.5kW Inverter"
+                                                onChange={(val) => setEditEquipModel(val)}
+                                                placeholder="Sélectionner ou saisir un équipement..."
                                             />
                                         </div>
 

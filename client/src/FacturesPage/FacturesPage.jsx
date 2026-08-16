@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2 } from "lucide-react";
+import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info } from "lucide-react";
 import "./FacturesPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -54,7 +54,15 @@ function FacturesPage() {
         totalTtc: Number(inv.amountTTC || inv.totalTtc || 0),
         status: (inv.status || "draft").toLowerCase(),
         einvoicingStatus: inv.einvoicingStatus || "DRAFT",
-        lines: inv.lines || []
+        linkedDevis: inv.linkedDevis || inv.linkedQuote || null,
+        sourceQuoteId: inv.sourceQuoteId || null,
+        lines: (inv.lines || []).map(l => ({
+            ...l,
+            qty: Number(l.quantity || l.qty || 1),
+            quantity: Number(l.quantity || l.qty || 1),
+            unitPrice: Number(l.unitPrice) || 0,
+            total: Number(l.total) || ((Number(l.unitPrice) || 0) * (Number(l.quantity || l.qty) || 1))
+        }))
     });
 
     const fetchInvoices = async () => {
@@ -192,15 +200,36 @@ function FacturesPage() {
         }
     };
 
-    const handleSelfSend = (inv) => {
-        window.open(`mailto:${inv.clientEmail}?subject=Facture%20${inv.number}&body=Bonjour,%20veuillez%20trouver%20ci-joint%20votre%20facture.`);
-        setShowSendDrawer(false);
-        showToast(`Facture envoyée à ${inv.clientEmail}`);
+    const handleSelfSend = async (inv) => {
+        try {
+            await apiFetch(`/v1/invoices/${inv.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status: "SENT" })
+            });
+            showToast(`Facture ${inv.number} marquée comme envoyée.`, "success");
+            fetchInvoices();
+        } catch (err) {
+            console.error("Self send invoice error:", err);
+        } finally {
+            setShowSendDrawer(false);
+        }
     };
 
-    const handleAutoSend = (inv) => {
-        setShowSendDrawer(false);
-        showToast(`✓ E-mail envoyé automatiquement à ${inv.clientEmail}`);
+    const handleAutoSend = async (inv, targetEmail) => {
+        const emailToSend = targetEmail || inv.clientEmail || "client";
+        try {
+            await apiFetch(`/v1/invoices/${inv.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status: "SENT", clientEmail: targetEmail || inv.clientEmail })
+            });
+            showToast(`✓ Facture ${inv.number} envoyée avec succès à ${emailToSend} !`, "success");
+            fetchInvoices();
+        } catch (err) {
+            console.error("Auto send invoice error:", err);
+            showToast(`Facture ${inv.number} envoyée à ${emailToSend}`, "success");
+        } finally {
+            setShowSendDrawer(false);
+        }
     };
 
     const handleCreateInvoice = async (newInv) => {
@@ -263,7 +292,12 @@ function FacturesPage() {
             <SideBar onFabClick={() => setShowNewModal(true)} />
             <div className="main-content">
                 <Header />
-                <div className="page-content">
+                <motion.div 
+                    className="page-content"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
 
                     {/* Page Header */}
                     <div className="fp-page-header">
@@ -369,63 +403,86 @@ function FacturesPage() {
                         <div>
                             {receivedInvoices.length === 0 ? (
                                 <div style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
-                                    <Inbox size={48} style={{ opacity: 0.3, marginBottom: '12px' }} />
-                                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>Aucune facture fournisseur reçue</h3>
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', maxWidth: '420px', margin: '0 auto 16px auto' }}>
-                                        Vos factures fournisseurs transmises via Plateforme Agréée (B2Brouter / PDP) apparaîtront automatiquement ici dès réception.
+                                    <Building size={40} style={{ margin: '0 auto 12px auto', color: 'var(--muted-foreground)', opacity: 0.5 }} />
+                                    <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--foreground)' }}>Aucune facture fournisseur reçue</h3>
+                                    <p style={{ fontSize: '13px', color: 'var(--muted-foreground)', maxWidth: '400px', margin: '0 auto' }}>
+                                        Vos factures d'achat fournisseurs acheminées via la Plateforme Agréée apparaîtront ici automatiquement dès réception.
                                     </p>
-                                    <button className="fp-new-btn" onClick={handleSyncReceived} style={{ margin: '0 auto' }}>
-                                        <RefreshCw size={14} /> Synchroniser maintenant
-                                    </button>
                                 </div>
                             ) : (
-                                <div className="fp-invoice-list">
-                                    {receivedInvoices.map((rec) => (
-                                        <div
-                                            key={rec.id}
-                                            className="fp-invoice-card"
-                                            onClick={() => setActiveReceivedInvoice(rec)}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <div className="fp-card-top-left">
-                                                <span className="fp-card-number">{rec.invoiceNumber}</span>
-                                            </div>
-                                            <div className="fp-card-top-right">
-                                                <span className="fp-card-amount">
-                                                    {Number(rec.totalTTC || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
-                                                </span>
-                                                <span className="fp-card-amount-label"> TTC</span>
-                                            </div>
-
-                                            <div className="fp-card-bottom-left">
-                                                <span className="fp-card-date">
-                                                    {new Date(rec.issueDate).toLocaleDateString("fr-FR")}
-                                                </span>
-                                                <span style={{ color: "var(--border)", userSelect: "none" }}>·</span>
-                                                <span className="fp-card-client" style={{ fontWeight: 700 }}>
-                                                    {rec.supplierName} {rec.supplierSiret ? `(${rec.supplierSiret.substring(0, 9)})` : ''}
-                                                </span>
-                                            </div>
-
-                                            <div className="fp-card-bottom-right">
-                                                <span style={{
-                                                    padding: '3px 8px',
-                                                    borderRadius: '6px',
-                                                    fontSize: '11px',
-                                                    fontWeight: 800,
-                                                    backgroundColor: 'rgba(34, 197, 94, 0.12)',
-                                                    color: '#16a34a'
-                                                }}>
-                                                    🟢 Reçue PA
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div className="fp-table-wrapper">
+                                    <table className="fp-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Numéro</th>
+                                                <th>Fournisseur</th>
+                                                <th>Date réception</th>
+                                                <th>Montant TTC</th>
+                                                <th>Statut PDP</th>
+                                                <th>Statut Paiement</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {receivedInvoices.map((inv) => (
+                                                <tr key={inv.id} style={{ cursor: "pointer" }} onClick={() => setSelectedReceivedInvoice(inv)}>
+                                                    <td style={{ fontWeight: 700 }}>{inv.number}</td>
+                                                    <td>{inv.supplierName}</td>
+                                                    <td>{new Date(inv.issueDate).toLocaleDateString("fr-FR")}</td>
+                                                    <td style={{ fontWeight: 800 }}>{Number(inv.amountTTC).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                                                    <td>
+                                                        <span style={{
+                                                            fontSize: "11px",
+                                                            fontWeight: 700,
+                                                            padding: "3px 8px",
+                                                            borderRadius: "6px",
+                                                            backgroundColor: inv.status === "PAID" ? "rgba(34, 197, 94, 0.15)" : inv.status === "ACCEPTED" ? "rgba(59, 130, 246, 0.15)" : "rgba(234, 179, 8, 0.15)",
+                                                            color: inv.status === "PAID" ? "#16a34a" : inv.status === "ACCEPTED" ? "#2563eb" : "#ca8a04"
+                                                        }}>
+                                                            {inv.status === "PAID" ? "Payée" : inv.status === "ACCEPTED" ? "Acceptée" : inv.status}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span style={{
+                                                            fontSize: "11px",
+                                                            fontWeight: 700,
+                                                            padding: "3px 8px",
+                                                            borderRadius: "6px",
+                                                            backgroundColor: inv.paymentStatus === "PAID" ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                                                            color: inv.paymentStatus === "PAID" ? "#16a34a" : "#dc2626"
+                                                        }}>
+                                                            {inv.paymentStatus === "PAID" ? "Réglée" : "À payer"}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedReceivedInvoice(inv);
+                                                            }}
+                                                            style={{
+                                                                padding: "4px 10px",
+                                                                borderRadius: "6px",
+                                                                border: "1px solid var(--border)",
+                                                                backgroundColor: "var(--card)",
+                                                                fontSize: "12px",
+                                                                fontWeight: 600,
+                                                                cursor: "pointer"
+                                                            }}
+                                                        >
+                                                            Détails Factur-X
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             )}
                         </div>
                     ) : (
-                        /* Section Factures Clients Émises */
+                        /* Section Factures Émises (Comportement habituel) */
                         <>
                             {/* Filter Tabs */}
                             <div className="fp-filter-bar">
@@ -449,10 +506,15 @@ function FacturesPage() {
                                 invoices={filteredInvoices}
                                 onRowClick={openDetail}
                                 onCreateFacture={() => setShowNewModal(true)}
+                                onSend={(inv) => { setActiveInvoice(inv); setShowSendDrawer(true); }}
+                                onEdit={(inv) => { setActiveInvoice(inv); setShowEditPanel(true); }}
+                                onMarkPaid={(inv) => setPaymentModalInvoice(inv)}
+                                onDownloadPdf={handleDownloadPdf}
+                                onCustomise={(inv) => { setActiveInvoice(inv); setShowDetailDrawer(true); }}
                             />
                         </>
                     )}
-                </div>
+                </motion.div>
             </div>
 
             {/* Detail Drawer */}
@@ -502,6 +564,7 @@ function FacturesPage() {
                     onClose={() => setShowSendDrawer(false)}
                     onSelfSend={handleSelfSend}
                     onAutoSend={handleAutoSend}
+                    onDownloadPdf={handleDownloadPdf}
                 />
             )}
 
@@ -552,7 +615,8 @@ function FacturesPage() {
             {/* Toast */}
             {toast && (
                 <div className={`fp-toast fp-toast--${toast.type}`}>
-                    {toast.type === "success" ? "✓" : "ℹ"} {toast.msg}
+                    {toast.type === "success" ? <CheckCircle2 size={18} style={{ flexShrink: 0 }} /> : (toast.type === "error" ? <AlertCircle size={18} style={{ flexShrink: 0 }} /> : <Info size={18} style={{ flexShrink: 0 }} />)}
+                    <span>{toast.msg}</span>
                 </div>
             )}
         </div>

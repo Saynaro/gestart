@@ -25,6 +25,7 @@ export const DEFAULT_CUSTOMIZATION = {
   showPaymentConditions: true,
   showIban: true,
   showAgaMention: false,
+  showCompanySignature: true,
   removeBranding: false,
 };
 

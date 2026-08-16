@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Lock, ArrowRight, CheckCircle2, Shield } from 'lucide-react';
+import { Star, Lock, ArrowRight, CheckCircle2, Shield } from 'lucide-react';
 import StripeCheckoutModal from '../SettingsPage/components/StripeCheckoutModal';
 import { useSubscription } from '../utils/useSubscription';
 
@@ -74,7 +74,7 @@ export default function FeatureLockBanner({
                             whiteSpace: 'nowrap'
                         }}
                     >
-                        <Sparkles size={14} /> Débloquer avec Pro
+                        <Star size={14} fill="currentColor" /> Débloquer avec Pro
                     </button>
                 </div>
 
@@ -105,7 +105,7 @@ export default function FeatureLockBanner({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
                     <div style={{ flex: '1 1 340px' }}>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(91,77,219,0.15)', color: 'var(--sidebar-primary, #5B4DDB)', padding: '4px 10px', borderRadius: '50px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>
-                            <Sparkles size={13} /> Offre Pro Requise
+                            <Star size={13} fill="currentColor" /> Offre Pro Requise
                         </div>
 
                         <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 800, color: 'var(--foreground)' }}>
@@ -162,7 +162,7 @@ export default function FeatureLockBanner({
                                 boxShadow: '0 8px 18px rgba(91,77,219,0.35)'
                             }}
                         >
-                            <Sparkles size={16} /> Passer à l'offre Pro <ArrowRight size={15} />
+                            <Star size={16} fill="currentColor" /> Passer à l'offre Pro <ArrowRight size={15} />
                         </button>
 
                         <button

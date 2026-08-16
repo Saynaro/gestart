@@ -16,7 +16,7 @@ import {
     User,
     Calendar,
     ChevronRight,
-    Sparkles,
+    Star,
     Shield
 } from "lucide-react";
 import SideBar from "../components/SideBar";

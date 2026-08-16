@@ -6,16 +6,7 @@ import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../com
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
-
-// Catalog list matching NewQuoteModal
-const MOCK_CATALOG = [
-    { id: 1, category: "Prestations", description: "Forfait Entretien annuel PAC", unitPrice: 100 },
-    { id: 2, category: "Prestations", description: "Recharge de fluide R32 (kg)", unitPrice: 85.22 },
-    { id: 3, category: "Matériel", description: "Sonde de température Daikin", unitPrice: 42.50 },
-    { id: 4, category: "Matériel", description: "Thermostat connecté Honeywell", unitPrice: 189 },
-    { id: 5, category: "Main d'œuvre", description: "Main d'œuvre diagnostic panne (1h)", unitPrice: 65 },
-    { id: 6, category: "Déplacement", description: "Frais de déplacement Zone A", unitPrice: 35 },
-];
+import { apiFetch } from "../../utils/api";
 
 // Same client list as NewQuoteModal
 const CLIENT_LIST = [
@@ -46,11 +37,16 @@ const INTERVENTION_TYPES = [
     "Contrôle d'étanchéité",
 ];
 
-import { apiFetch } from "../../utils/api";
-
 function ClientPickerModal({ currentName, onSelect, onClose }) {
     const [query, setQuery] = useState("");
     const [clientsList, setClientsList] = useState(CLIENT_LIST);
+    const [showNewClientForm, setShowNewClientForm] = useState(false);
+    const [newName, setNewName] = useState("");
+    const [newEmail, setNewEmail] = useState("");
+    const [newPhone, setNewPhone] = useState("");
+    const [newAddress, setNewAddress] = useState("");
+    const [newType, setNewType] = useState("Particulier");
+    const [creatingLoading, setCreatingLoading] = useState(false);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -63,6 +59,7 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                         name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
                         type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
                         email: c.email || "",
+                        phone: c.phone || "",
                         address: `${c.address || ''} ${c.city || ''}`.trim()
                     }));
                     setClientsList(mapped);
@@ -73,6 +70,65 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
         };
         fetchClients();
     }, []);
+
+    const handleCreateClient = async (e) => {
+        e.preventDefault();
+        if (!newName.trim()) {
+            alert("Veuillez saisir un nom pour le client.");
+            return;
+        }
+        setCreatingLoading(true);
+        try {
+            const nameParts = newName.trim().split(" ");
+            const firstName = nameParts[0] || "Client";
+            const lastName = nameParts.slice(1).join(" ") || (newType === "Organisation" ? "" : "Particulier");
+
+            const res = await apiFetch('/v1/clients', {
+                method: 'POST',
+                body: JSON.stringify({
+                    firstName,
+                    lastName: lastName || "Particulier",
+                    companyName: newType === "Organisation" ? newName.trim() : null,
+                    type: newType === "Organisation" ? "COMPANY" : "INDIVIDUAL",
+                    email: newEmail.trim() || null,
+                    phone: newPhone.trim() || "0600000000",
+                    address: newAddress.trim() || "Adresse non renseignée"
+                })
+            });
+
+            const created = res.data?.client || res.client || {
+                id: Date.now().toString(),
+                name: newName.trim(),
+                email: newEmail.trim(),
+                phone: newPhone.trim(),
+                address: newAddress.trim(),
+                type: newType
+            };
+
+            const mappedClient = {
+                id: created.id,
+                name: created.companyName || `${created.firstName || ''} ${created.lastName || ''}`.trim() || newName.trim(),
+                type: newType,
+                email: created.email || newEmail.trim(),
+                phone: created.phone || newPhone.trim(),
+                address: created.address || newAddress.trim()
+            };
+
+            onSelect(mappedClient);
+        } catch (err) {
+            console.error("Create client error:", err);
+            onSelect({
+                id: `temp_${Date.now()}`,
+                name: newName.trim(),
+                type: newType,
+                email: newEmail.trim(),
+                phone: newPhone.trim(),
+                address: newAddress.trim()
+            });
+        } finally {
+            setCreatingLoading(false);
+        }
+    };
 
     const filtered = clientsList.filter(c =>
         c.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -93,64 +149,222 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                 onClick={e => e.stopPropagation()}
                 style={{ maxHeight: "min(92vh, 720px)", animation: "fpScaleIn 0.22s cubic-bezier(0.22,1,0.36,1)" }}
             >
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
-                    <button className="fp-icon-btn" onClick={onClose} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", color: "var(--foreground)" }}>
-                        <ArrowLeft size={18} />
-                    </button>
-                    <span style={{ fontWeight: 700, fontSize: "1rem" }}>Sélectionner un client</span>
-                </div>
-
-                <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--background)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px" }}>
-                        <Search size={15} style={{ color: "var(--muted-foreground)", flexShrink: 0 }} />
-                        <input
-                            autoFocus
-                            value={query}
-                            onChange={e => setQuery(e.target.value)}
-                            placeholder="Rechercher un client..."
-                            style={{ border: "none", background: "transparent", outline: "none", fontFamily: "var(--font-body)", fontSize: "0.875rem", width: "100%", color: "var(--foreground)" }}
-                        />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <button className="fp-icon-btn" onClick={showNewClientForm ? () => setShowNewClientForm(false) : onClose} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", color: "var(--foreground)" }}>
+                            <ArrowLeft size={18} />
+                        </button>
+                        <span style={{ fontWeight: 700, fontSize: "1rem" }}>
+                            {showNewClientForm ? "Nouveau client" : "Sélectionner un client"}
+                        </span>
                     </div>
+                    <button className="fp-icon-btn" onClick={onClose} style={{ border: "none", background: "none", cursor: "pointer", color: "var(--muted-foreground)" }}>
+                        <X size={18} />
+                    </button>
                 </div>
 
-                <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
-                    {Object.keys(grouped).sort().map(letter => (
-                        <div key={letter}>
-                            <div style={{ padding: "6px 20px 2px", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                                {letter}
+                {showNewClientForm ? (
+                    <form onSubmit={handleCreateClient} style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "14px", overflowY: "auto" }}>
+                        <div style={{ display: "flex", gap: "10px", marginBottom: "4px" }}>
+                            <button
+                                type="button"
+                                onClick={() => setNewType("Particulier")}
+                                style={{
+                                    flex: 1,
+                                    padding: "8px",
+                                    borderRadius: "6px",
+                                    border: newType === "Particulier" ? "1.5px solid #556B2F" : "1px solid var(--border)",
+                                    backgroundColor: newType === "Particulier" ? "rgba(85, 107, 47, 0.1)" : "var(--background)",
+                                    color: newType === "Particulier" ? "#556B2F" : "var(--foreground)",
+                                    fontWeight: 700,
+                                    fontSize: "0.85rem",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Particulier
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setNewType("Organisation")}
+                                style={{
+                                    flex: 1,
+                                    padding: "8px",
+                                    borderRadius: "6px",
+                                    border: newType === "Organisation" ? "1.5px solid #556B2F" : "1px solid var(--border)",
+                                    backgroundColor: newType === "Organisation" ? "rgba(85, 107, 47, 0.1)" : "var(--background)",
+                                    color: newType === "Organisation" ? "#556B2F" : "var(--foreground)",
+                                    fontWeight: 700,
+                                    fontSize: "0.85rem",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Entreprise
+                            </button>
+                        </div>
+
+                        <div>
+                            <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted-foreground)", display: "block", marginBottom: 4 }}>Nom complet ou raison sociale *</label>
+                            <input
+                                required
+                                autoFocus
+                                value={newName}
+                                onChange={e => setNewName(e.target.value)}
+                                placeholder="Ex: Jean Dupont ou SARL Climatik"
+                                style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", outline: "none", boxSizing: "border-box" }}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted-foreground)", display: "block", marginBottom: 4 }}>Email</label>
+                            <input
+                                type="email"
+                                value={newEmail}
+                                onChange={e => setNewEmail(e.target.value)}
+                                placeholder="client@exemple.fr"
+                                style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", outline: "none", boxSizing: "border-box" }}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted-foreground)", display: "block", marginBottom: 4 }}>Téléphone</label>
+                            <input
+                                type="tel"
+                                value={newPhone}
+                                onChange={e => setNewPhone(e.target.value)}
+                                placeholder="06 12 34 56 78"
+                                style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", outline: "none", boxSizing: "border-box" }}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted-foreground)", display: "block", marginBottom: 4 }}>Adresse</label>
+                            <input
+                                value={newAddress}
+                                onChange={e => setNewAddress(e.target.value)}
+                                placeholder="10 Rue de la Paix, 75001 Paris"
+                                style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", outline: "none", boxSizing: "border-box" }}
+                            />
+                        </div>
+
+                        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                            <button
+                                type="submit"
+                                disabled={creatingLoading}
+                                style={{
+                                    flex: 2,
+                                    padding: "12px",
+                                    backgroundColor: "#556B2F",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: 8,
+                                    fontWeight: 700,
+                                    cursor: "pointer"
+                                }}
+                            >
+                                {creatingLoading ? "Création..." : "Créer et sélectionner"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowNewClientForm(false)}
+                                style={{
+                                    flex: 1,
+                                    padding: "12px",
+                                    backgroundColor: "transparent",
+                                    border: "1px solid var(--border)",
+                                    borderRadius: 8,
+                                    fontWeight: 600,
+                                    color: "var(--foreground)",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Annuler
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <>
+                        <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "10px", flexShrink: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--background)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px" }}>
+                                <Search size={15} style={{ color: "var(--muted-foreground)", flexShrink: 0 }} />
+                                <input
+                                    autoFocus
+                                    value={query}
+                                    onChange={e => setQuery(e.target.value)}
+                                    placeholder="Rechercher un client..."
+                                    style={{ border: "none", background: "transparent", outline: "none", fontFamily: "var(--font-body)", fontSize: "0.875rem", width: "100%", color: "var(--foreground)" }}
+                                />
                             </div>
-                            {grouped[letter].map(client => (
-                                <button
-                                    key={client.email}
-                                    onClick={() => onSelect(client)}
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        width: "100%",
-                                        padding: "10px 20px",
-                                        background: client.name === currentName ? "rgba(85,107,47,0.08)" : "none",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        textAlign: "left",
-                                        fontFamily: "var(--font-body)",
-                                        transition: "background 0.15s",
-                                        borderLeft: client.name === currentName ? "3px solid #556B2F" : "3px solid transparent",
-                                    }}
-                                    onMouseEnter={e => { if (client.name !== currentName) e.currentTarget.style.background = "var(--muted)"; }}
-                                    onMouseLeave={e => { if (client.name !== currentName) e.currentTarget.style.background = "none"; }}
-                                >
-                                    <span style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)" }}>{client.name}</span>
-                                    <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground)" }}>{client.email}</span>
-                                </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowNewClientForm(true)}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "8px",
+                                    width: "100%",
+                                    padding: "10px",
+                                    backgroundColor: "rgba(85, 107, 47, 0.08)",
+                                    color: "#556B2F",
+                                    border: "1px dashed #556B2F",
+                                    borderRadius: "8px",
+                                    fontWeight: 700,
+                                    fontSize: "0.85rem",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                <Plus size={16} /> Créer un nouveau client
+                            </button>
+                        </div>
+
+                        <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
+                            {Object.keys(grouped).sort().map(letter => (
+                                <div key={letter}>
+                                    <div style={{ padding: "6px 20px 2px", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                                        {letter}
+                                    </div>
+                                    {grouped[letter].map(client => (
+                                        <button
+                                            key={client.id || client.email || client.name}
+                                            onClick={() => onSelect(client)}
+                                            style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                width: "100%",
+                                                padding: "10px 20px",
+                                                background: client.name === currentName ? "rgba(85,107,47,0.08)" : "none",
+                                                border: "none",
+                                                cursor: "pointer",
+                                                textAlign: "left",
+                                                fontFamily: "var(--font-body)",
+                                                transition: "background 0.15s",
+                                                borderLeft: client.name === currentName ? "3px solid #556B2F" : "3px solid transparent",
+                                            }}
+                                            onMouseEnter={e => { if (client.name !== currentName) e.currentTarget.style.background = "var(--muted)"; }}
+                                            onMouseLeave={e => { if (client.name !== currentName) e.currentTarget.style.background = "none"; }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                                <span style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)" }}>{client.name}</span>
+                                                <span style={{ fontSize: "0.72rem", color: "var(--muted-foreground)", backgroundColor: "var(--muted)", padding: "2px 6px", borderRadius: "4px" }}>
+                                                    {client.type}
+                                                </span>
+                                            </div>
+                                            <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                                                {client.email || client.address || "Aucun email"}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
                             ))}
+                            {filtered.length === 0 && (
+                                <div style={{ padding: "30px 20px", textAlign: "center", color: "var(--muted-foreground)", fontSize: "0.85rem" }}>
+                                    Aucun client trouvé
+                                </div>
+                            )}
                         </div>
-                    ))}
-                    {filtered.length === 0 && (
-                        <div style={{ padding: "30px 20px", textAlign: "center", color: "var(--muted-foreground)", fontSize: "0.85rem" }}>
-                            Aucun client trouvé
-                        </div>
-                    )}
-                </div>
+                    </>
+                )}
             </div>
         </div>
     );
@@ -159,10 +373,36 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
 function ArticleEditorDrawer({ line, onSave, onClose }) {
     const [showCatalogSearch, setShowCatalogSearch] = useState(!line);
     const [catalogSearchQuery, setCatalogSearchQuery] = useState("");
+    const [catalogItems, setCatalogItems] = useState([]);
+
+    const fetchCatalog = async () => {
+        try {
+            const res = await apiFetch('/v1/catalog');
+            const raw = res.data || res.items || (Array.isArray(res) ? res : []);
+            const mapped = raw.map(item => ({
+                id: item.id,
+                description: item.name || "Article",
+                name: item.name || "Article",
+                reference: item.reference || "",
+                unitPrice: Number(item.defaultPrice || item.unitPrice || 0),
+                tvaRate: Number(item.tvaRate !== undefined ? item.tvaRate : 20),
+                urssafCategory: item.type === "PRODUCT" ? "Vente de marchandises (BIC)" : "Prestations de services (BNC)",
+                unit: item.unit || "À l'unité"
+            })).sort((a, b) => (a.description || "").localeCompare(b.description || ""));
+            setCatalogItems(mapped);
+        } catch (e) {
+            console.warn("Failed to fetch catalog:", e);
+        }
+    };
+
+    useEffect(() => {
+        fetchCatalog();
+    }, []);
 
     const [desc, setDesc] = useState(line ? line.description : "");
-    const [qty, setQty] = useState(line ? line.qty : 1);
-    const [price, setPrice] = useState(line ? line.unitPrice.toString() : "");
+    const [qty, setQty] = useState(line ? (line.quantity || line.qty || 1) : 1);
+    const [price, setPrice] = useState(line ? (line.unitPrice !== undefined ? line.unitPrice.toString() : "") : "");
+    const [tvaRate, setTvaRate] = useState(line ? (line.tvaRate !== undefined ? Number(line.tvaRate) : 20) : 20);
     const [ref, setRef] = useState(line ? (line.reference || "") : "");
     const [urssafCategory, setUrssafCategory] = useState(line ? (line.urssafCategory || "Vente de marchandises (BIC)") : "Vente de marchandises (BIC)");
     const [unit, setUnit] = useState(line ? (line.unit || "À l'unité") : "À l'unité");
@@ -170,30 +410,50 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
     const [showUrssafSelector, setShowUrssafSelector] = useState(false);
     const [showUnitSelector, setShowUnitSelector] = useState(false);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!desc.trim()) { alert("Veuillez saisir une désignation."); return; }
+        const itemPrice = parseFloat(price) || 0;
         onSave({
-            description: desc,
+            description: desc.trim(),
+            quantity: parseFloat(qty) || 1,
             qty: parseFloat(qty) || 1,
-            unitPrice: parseFloat(price) || 0,
-            reference: ref,
+            unitPrice: itemPrice,
+            tvaRate: Number(tvaRate),
+            reference: ref?.trim() || "",
             urssafCategory,
             unit
         });
+
+        // Auto-save to catalog database
+        try {
+            await apiFetch('/v1/catalog', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: desc.trim(),
+                    reference: ref?.trim() || null,
+                    unitPrice: itemPrice,
+                    tvaRate: Number(tvaRate),
+                    type: (urssafCategory?.includes("Matériel") || urssafCategory?.includes("marchandises")) ? "PRODUCT" : "SERVICE",
+                    unit
+                })
+            });
+        } catch (err) {
+            console.warn("Auto-save catalog item error:", err);
+        }
     };
 
     const getGroupedCatalog = (list) => {
         const grouped = {};
         list.forEach(item => {
-            const cat = item.category || "Autre";
-            if (!grouped[cat]) grouped[cat] = [];
-            grouped[cat].push(item);
+            const letter = (item.description || "A").charAt(0).toUpperCase();
+            if (!grouped[letter]) grouped[letter] = [];
+            grouped[letter].push(item);
         });
         return grouped;
     };
 
-    const filteredCatalog = MOCK_CATALOG.filter(item =>
-        item.description.toLowerCase().includes(catalogSearchQuery.toLowerCase())
+    const filteredCatalog = catalogItems.filter(item =>
+        (item.description || "").toLowerCase().includes(catalogSearchQuery.toLowerCase())
     );
     const groupedCatalog = getGroupedCatalog(filteredCatalog);
 
@@ -229,42 +489,55 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                     setDesc(catalogSearchQuery);
                                     setPrice("");
                                     setRef("");
+                                    setTvaRate(20);
                                     setUrssafCategory("Vente de marchandises (BIC)");
                                     setUnit("À l'unité");
                                     setShowCatalogSearch(false);
                                 }}
-                                style={{ cursor: 'pointer' }}
+                                style={{ cursor: 'pointer', border: '1px dashed #556B2F', borderRadius: '8px', margin: '8px 12px', backgroundColor: 'rgba(85, 107, 47, 0.05)' }}
                             >
-                                <span className="client-item-name" style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span className="client-item-name" style={{ color: '#556B2F', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
                                     <Plus size={16} /> Créer un nouvel article {catalogSearchQuery && `"${catalogSearchQuery}"`}
                                 </span>
                             </div>
 
-                            {Object.keys(groupedCatalog).map(cat => (
-                                <div key={cat} className="client-search-group">
-                                    <span className="client-search-group-letter">{cat}</span>
+                            {Object.keys(groupedCatalog).map(letter => (
+                                <div key={letter} className="client-search-group">
+                                    <span className="client-search-group-letter">{letter}</span>
                                     <div className="client-search-group-items">
-                                        {groupedCatalog[cat].map(item => (
+                                        {groupedCatalog[letter].map(item => (
                                             <div
                                                 key={item.id}
                                                 className="client-search-item"
                                                 onClick={() => {
                                                     setDesc(item.description);
                                                     setPrice(item.unitPrice.toString());
-                                                    setRef("");
-                                                    setUrssafCategory(cat === "Prestations" ? "Prestation de service (BIC)" : "Vente de marchandises (BIC)");
-                                                    setUnit(cat === "Prestations" ? "Au forfait" : "À l'unité");
+                                                    setTvaRate(item.tvaRate !== undefined ? Number(item.tvaRate) : 20);
+                                                    setRef(item.reference || "");
+                                                    setUrssafCategory(item.urssafCategory || "Prestations de services (BNC)");
+                                                    setUnit(item.unit || "À l'unité");
                                                     setShowCatalogSearch(false);
                                                 }}
                                                 style={{ cursor: 'pointer' }}
                                             >
-                                                <span className="client-item-name">{item.description}</span>
-                                                <span className="catalog-price-badge">{item.unitPrice.toLocaleString('fr-FR')} € HT</span>
+                                                <div>
+                                                    <span className="client-item-name">{item.description}</span>
+                                                    {item.reference && <span style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', display: 'block' }}>Réf: {item.reference}</span>}
+                                                </div>
+                                                <span className="client-item-type" style={{ fontWeight: 700, color: '#556B2F' }}>
+                                                    {item.unitPrice} € HT
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             ))}
+
+                            {catalogItems.length === 0 && (
+                                <div style={{ padding: '30px 20px', textAlign: 'center', color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>
+                                    Aucun article dans le catalogue. Cliquez sur "Créer un nouvel article".
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>,
@@ -272,18 +545,14 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
             )}
 
             {!showCatalogSearch && createPortal(
-                <div className="article-drawer-overlay" onClick={onClose}>
+                <div className="article-drawer-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
                     <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="bottom-sheet-drag-handle" />
-
                         <div className="article-drawer-header">
                             <button type="button" className="drawer-round-btn" onClick={onClose}>
                                 <X size={20} />
                             </button>
                             <h2>{line ? "Modifier l'article" : "Créer un nouvel article"}</h2>
-                            <button type="button" className="drawer-round-btn" style={{ opacity: 0.7 }}>
-                                <MoreHorizontal size={20} />
-                            </button>
+                            <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
                         </div>
 
                         <div className="article-drawer-body">
@@ -299,6 +568,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                             value={desc}
                                             onChange={(e) => setDesc(e.target.value)}
                                             required
+                                            autoFocus
                                         />
                                     </div>
                                     <div className="article-drawer-field">
@@ -315,18 +585,67 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                             </div>
 
                             <div>
-                                <div className="article-drawer-group-title">Tarification & Déclaration</div>
+                                <div className="article-drawer-group-title">Tarification & TVA</div>
                                 <div className="article-drawer-group-card">
                                     <div className="article-drawer-field">
                                         <label className="article-drawer-label">Prix unitaire HT (€)*</label>
                                         <input
                                             type="number"
+                                            step="any"
                                             className="article-drawer-input"
                                             placeholder="Ex: 85"
                                             value={price}
                                             onChange={(e) => setPrice(e.target.value)}
                                             required
                                         />
+                                    </div>
+
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Taux TVA (%)</label>
+                                        <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+                                            {[20, 10, 5.5, 0].map(rate => (
+                                                <button
+                                                    key={rate}
+                                                    type="button"
+                                                    onClick={() => setTvaRate(rate)}
+                                                    style={{
+                                                        flex: 1,
+                                                        padding: "8px 4px",
+                                                        borderRadius: "6px",
+                                                        border: tvaRate === rate ? "1.5px solid #556B2F" : "1px solid var(--border)",
+                                                        backgroundColor: tvaRate === rate ? "#556B2F" : "var(--background)",
+                                                        color: tvaRate === rate ? "#FFFFFF" : "var(--foreground)",
+                                                        fontWeight: 700,
+                                                        fontSize: "0.82rem",
+                                                        cursor: "pointer",
+                                                        transition: "all 0.15s"
+                                                    }}
+                                                >
+                                                    {rate}%
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <select
+                                            className="form-field-select"
+                                            value={tvaRate}
+                                            onChange={(e) => setTvaRate(parseFloat(e.target.value) || 0)}
+                                            style={{
+                                                width: '100%',
+                                                height: '40px',
+                                                borderRadius: '8px',
+                                                border: '1px solid var(--border)',
+                                                padding: '0 12px',
+                                                fontSize: '0.85rem',
+                                                backgroundColor: 'var(--card)',
+                                                color: 'var(--foreground)',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            <option value="20">20% (Taux normal)</option>
+                                            <option value="10">10% (Taux intermédiaire)</option>
+                                            <option value="5.5">5.5% (Taux réduit)</option>
+                                            <option value="0">0% (Exonéré / Franchise)</option>
+                                        </select>
                                     </div>
 
                                     <div className="article-drawer-field">
@@ -490,7 +809,15 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [q, setQ] = useState({
         ...quote,
-        lines: quote.lines ? quote.lines.map((l, i) => ({ ...l, id: l.id || Date.now() + i })) : [],
+        lines: (quote.lines || []).map((l, i) => ({
+            ...l,
+            id: l.id || Date.now() + i,
+            description: l.description || "Prestation",
+            qty: Number(l.quantity || l.qty || 1),
+            quantity: Number(l.quantity || l.qty || 1),
+            unitPrice: Number(l.unitPrice) || 0,
+            tvaRate: Number(l.tvaRate !== undefined ? l.tvaRate : (quote.tvaRate || 20))
+        }))
     });
 
     const [showClientPicker, setShowClientPicker] = useState(false);
@@ -500,8 +827,11 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
 
     // Totals
     const subtotalHt = q.lines.reduce((s, l) => s + (parseFloat(l.unitPrice) || 0) * (parseFloat(l.qty) || 1), 0);
-    const tvaAmt     = subtotalHt * ((q.tvaRate || 20) / 100);
-    const totalTtc   = subtotalHt + tvaAmt;
+    const tvaAmt = q.lines.reduce((s, l) => {
+        const rate = l.tvaRate !== undefined ? Number(l.tvaRate) : (Number(q.tvaRate) || 20);
+        return s + ((parseFloat(l.unitPrice) || 0) * (parseFloat(l.qty) || 1) * (rate / 100));
+    }, 0);
+    const totalTtc = subtotalHt + tvaAmt;
 
     const calculatedDueDate = computeDueDate(q.date, q.echeanceOptionId || '30j', q.echeanceCustomDate || '');
     const echeanceLabel = getEcheanceLabel(q.echeanceOptionId || '30j', q.echeanceCustomDate || '');
@@ -674,20 +1004,33 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                 <div
                     className="pdf-billing-section"
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        gap: '2px',
                         margin: '10pt 0',
                         padding: '8pt 10pt',
-                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
-                        borderRadius: '6px'
+                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}12` : '#FAFAF8',
+                        borderRadius: '6px',
+                        textAlign: 'left'
                     }}
                 >
-                    <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.6 }}>DEVIS POUR :</span>
-                        <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: '2pt 0' }}>{q.clientName || "Aucun client"}</h4>
-                        <p className="client-details" style={{ fontSize: '8.5pt', opacity: 0.85, margin: 0 }}>
-                            {q.clientAddress || ''}<br />
-                            {q.clientEmail || ''}
-                        </p>
-                    </div>
+                    <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.65, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                        DEVIS POUR :
+                    </span>
+                    <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                        {q.clientName || "Aucun client"}
+                    </h4>
+                    {q.clientAddress && (
+                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                            {q.clientAddress}
+                        </div>
+                    )}
+                    {q.clientEmail && (
+                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                            {q.clientEmail}
+                        </div>
+                    )}
                 </div>
 
                 <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>

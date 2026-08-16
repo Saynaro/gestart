@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Lock, ShieldCheck, Loader2, AlertCircle, Sparkles, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
+import { X, Lock, ShieldCheck, Loader2, AlertCircle, Star, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 const PLANS_INFO = {
@@ -110,7 +110,7 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                         <div>
                             <h2 style={{ fontSize: "20px", fontWeight: 800, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: "10px" }}>
                                 <span style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #5B4DDB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <Sparkles size={18} color="#FFF" />
+                                    <Star size={18} color="#FFF" />
                                 </span>
                                 {mode === "card_only" ? "Gérer ma carte bancaire" : `Passer à l'offre ${currentPlanObj.displayName}`}
                             </h2>

@@ -151,14 +151,32 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
         }
     };
 
-    // Mock catalog for supplies matching Screenshot style
-    const mockCatalog = [
-        { id: "cat1", description: "Filtre climatisation Daikin", unitPrice: 25 },
-        { id: "cat2", description: "Recharge Fluide R32 (1kg)", unitPrice: 85 },
-        { id: "cat3", description: "Main d'œuvre Entretien (Heure)", unitPrice: 65 },
-        { id: "cat4", description: "Frais de déplacement", unitPrice: 45 },
-        { id: "cat5", description: "Condenseur climatisation", unitPrice: 420 }
-    ].sort((a, b) => a.description.localeCompare(b.description));
+    // Real catalog items state fetched from backend
+    const [catalogItems, setCatalogItems] = useState([]);
+
+    const fetchCatalog = async () => {
+        try {
+            const res = await apiFetch('/v1/catalog');
+            const raw = res.data || res.items || (Array.isArray(res) ? res : []);
+            const mapped = raw.map(item => ({
+                id: item.id,
+                description: item.name || "Article",
+                name: item.name || "Article",
+                reference: item.reference || "",
+                unitPrice: Number(item.defaultPrice || item.unitPrice || 0),
+                tvaRate: Number(item.tvaRate || 20),
+                urssafCategory: item.type === "PRODUCT" ? "Vente de marchandises (BIC)" : "Prestations de services (BIC / BNC)",
+                unit: item.unit || "À l'unité"
+            })).sort((a, b) => (a.description || "").localeCompare(b.description || ""));
+            setCatalogItems(mapped);
+        } catch (e) {
+            console.warn("Failed to fetch catalog in quote modal:", e);
+        }
+    };
+
+    useEffect(() => {
+        fetchCatalog();
+    }, []);
 
     // Form states
     const [selectedClient, setSelectedClient] = useState(null);
@@ -205,6 +223,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
     const [tempReference, setTempReference] = useState("");
     const [tempPrice, setTempPrice] = useState("");
     const [tempQty, setTempQty] = useState(1);
+    const [tempTvaRate, setTempTvaRate] = useState(20);
     const [tempUrssafCategory, setTempUrssafCategory] = useState("Vente de marchandises (BIC)");
     const [tempUnit, setTempUnit] = useState("À l'unité");
 
@@ -252,28 +271,20 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
         historyStepPushedRef.current += 1;
 
         const handlePopState = () => {
-            if (historyStepPushedRef.current > 0) {
-                historyStepPushedRef.current -= 1;
-            }
-
-            if (editingClient) {
-                if (activeSubSheet) {
-                    setActiveSubSheet(null);
-                } else {
-                    setEditingClient(null);
-                    if (!isMobile) {
-                        setShowClientSearch(true);
-                    }
-                }
+            if (showMobilePreview) {
+                setShowMobilePreview(false);
                 return;
             }
-
-            if (showNewCatalogItemForm) {
-                setShowNewCatalogItemForm(false);
+            if (showCustomizer) {
+                setShowCustomizer(false);
                 return;
             }
-            if (showCatalogSearch) {
-                setShowCatalogSearch(false);
+            if (showNewClientFormMobile) {
+                setShowNewClientFormMobile(false);
+                return;
+            }
+            if (showEcheancePicker) {
+                setShowEcheancePicker(false);
                 return;
             }
             if (showUrssafSelector) {
@@ -284,30 +295,29 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                 setShowUnitSelector(false);
                 return;
             }
-            if (isCreatingItem || isEditingItem) {
-                setIsCreatingItem(false);
+            if (isEditingItem) {
                 setIsEditingItem(false);
                 return;
             }
-            if (showEcheancePicker) {
-                setShowEcheancePicker(false);
+            if (isCreatingItem) {
+                setIsCreatingItem(false);
                 return;
             }
-            if (showNewClientFormMobile) {
-                setShowNewClientFormMobile(false);
+            if (showNewCatalogItemForm) {
+                setShowNewCatalogItemForm(false);
                 return;
             }
-            if (showMobilePreview) {
-                setShowMobilePreview(false);
+            if (showCatalogSearch) {
+                setShowCatalogSearch(false);
                 return;
             }
-
-            if (step > 1) {
-                setStep(prev => prev - 1);
+            if (step === 2) {
+                setStep(1);
                 return;
             }
-
-            onClose();
+            if (step === 1) {
+                onClose();
+            }
         };
 
         window.addEventListener("popstate", handlePopState);
@@ -327,16 +337,19 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
 
     useEffect(() => {
         // Exclude empty helper lines from recap HT calculations
-        const validLines = lines.filter(l => l.description.trim() !== "");
+        const validLines = lines.filter(l => (l.description || "").trim() !== "");
         const sub = validLines.reduce((sum, line) => sum + (parseFloat(line.unitPrice) || 0) * (parseInt(line.qty) || 1), 0);
-        const tva = sub * (tvaRate / 100);
+        const tva = validLines.reduce((sum, line) => {
+            const rate = line.tvaRate !== undefined ? Number(line.tvaRate) : (Number(tvaRate) || 20);
+            return sum + ((parseFloat(line.unitPrice) || 0) * (parseInt(line.qty) || 1) * (rate / 100));
+        }, 0);
         setSubtotalHt(sub);
         setTvaAmount(tva);
         setTotalTtc(sub + tva);
     }, [lines, tvaRate]);
 
     const handleAddLine = () => {
-        setLines([...lines, { id: Date.now(), description: "", qty: 1, unitPrice: 0 }]);
+        setLines([...lines, { id: Date.now(), description: "", qty: 1, unitPrice: 0, tvaRate: tvaRate || 20 }]);
     };
 
     const handleRemoveLine = (id) => {
@@ -358,6 +371,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
         setTempReference(line.reference || "");
         setTempPrice(line.unitPrice !== undefined ? line.unitPrice.toString() : "0");
         setTempQty(line.qty || 1);
+        setTempTvaRate(line.tvaRate !== undefined ? Number(line.tvaRate) : (Number(tvaRate) || 20));
         setTempUrssafCategory(line.urssafCategory || "Vente de marchandises (BIC)");
         setTempUnit(line.unit || "À l'unité");
         setShowUrssafSelector(false);
@@ -371,6 +385,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
         setTempReference("");
         setTempPrice("");
         setTempQty(1);
+        setTempTvaRate(Number(tvaRate) || 20);
         setTempUrssafCategory("Vente de marchandises (BIC)");
         setTempUnit("À l'unité");
         setShowUrssafSelector(false);
@@ -383,22 +398,43 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
         setLines(lines.map(line => line.id === editingLineId ? {
             ...line, description: tempName, reference: tempReference,
             qty: tempQty, unitPrice: parseFloat(tempPrice) || 0,
+            tvaRate: tempTvaRate,
             urssafCategory: tempUrssafCategory, unit: tempUnit
         } : line));
         setIsEditingItem(false);
         setEditingLineId(null);
     };
 
-    const handleSaveCreatedLine = () => {
+    const handleSaveCreatedLine = async () => {
         if (!tempName.trim()) { alert("Veuillez saisir une désignation."); return; }
+        const price = parseFloat(tempPrice) || 0;
         const newLine = {
             id: Date.now(), description: tempName, reference: tempReference,
-            qty: tempQty, unitPrice: parseFloat(tempPrice) || 0,
+            qty: tempQty, unitPrice: price,
+            tvaRate: tempTvaRate,
             urssafCategory: tempUrssafCategory, unit: tempUnit
         };
-        setLines([...lines.filter(l => l.description.trim() !== ""), newLine]);
+        setLines([...lines.filter(l => (l.description || "").trim() !== ""), newLine]);
         setIsCreatingItem(false);
         setShowCatalogSearch(false);
+
+        // Auto-save to catalog database
+        try {
+            await apiFetch('/v1/catalog', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: tempName.trim(),
+                    reference: tempReference?.trim() || null,
+                    unitPrice: price,
+                    tvaRate: tempTvaRate,
+                    type: (tempUrssafCategory?.includes("Matériel") || tempUrssafCategory?.includes("marchandises")) ? "PRODUCT" : "SERVICE",
+                    unit: tempUnit
+                })
+            });
+            fetchCatalog();
+        } catch (err) {
+            console.warn("Could not save new item to catalog:", err);
+        }
     };
 
     const getGroupedClients = (list) => {
@@ -620,20 +656,33 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                 <div
                     className="pdf-billing-section"
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        gap: '2px',
                         margin: '10pt 0',
                         padding: '8pt 10pt',
-                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
-                        borderRadius: '6px'
+                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}12` : '#FAFAF8',
+                        borderRadius: '6px',
+                        textAlign: 'left'
                     }}
                 >
-                    <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.6 }}>DEVIS POUR :</span>
-                        <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: '2pt 0' }}>{selectedClient ? selectedClient.name : "Aucun client sélectionné"}</h4>
-                        <p className="client-details" style={{ fontSize: '8.5pt', opacity: 0.85, margin: 0 }}>
-                            {selectedClient ? selectedClient.address : "Adresse non définie"}<br />
-                            {selectedClient ? selectedClient.email : ""}
-                        </p>
-                    </div>
+                    <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.65, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                        DEVIS POUR :
+                    </span>
+                    <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                        {selectedClient ? selectedClient.name : "Aucun client sélectionné"}
+                    </h4>
+                    {selectedClient && selectedClient.address && (
+                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                            {selectedClient.address}
+                        </div>
+                    )}
+                    {selectedClient && selectedClient.email && (
+                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                            {selectedClient.email}
+                        </div>
+                    )}
                 </div>
 
                 <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
@@ -1305,19 +1354,35 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                             type="button"
                                             className="client-search-confirm-btn"
                                             style={{ flex: 2, height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 if (!newItemName.trim()) {
                                                     alert("Veuillez saisir un nom.");
                                                     return;
                                                 }
                                                 const price = parseFloat(newItemPrice) || 0;
+                                                const itemDesc = newItemName.trim();
                                                 // Append to lines
-                                                setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: newItemName, qty: 1, unitPrice: price }]);
+                                                setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: itemDesc, qty: 1, unitPrice: price }]);
                                                 setShowCatalogSearch(false);
                                                 setCatalogSearchQuery("");
                                                 setNewItemName("");
                                                 setNewItemPrice("");
                                                 setShowNewCatalogItemForm(false);
+
+                                                try {
+                                                    await apiFetch('/v1/catalog', {
+                                                        method: 'POST',
+                                                        body: JSON.stringify({
+                                                            name: itemDesc,
+                                                            unitPrice: price,
+                                                            tvaRate: 20,
+                                                            type: "SERVICE"
+                                                        })
+                                                    });
+                                                    fetchCatalog();
+                                                } catch (err) {
+                                                    console.warn("Could not save to catalog:", err);
+                                                }
                                             }}
                                         >
                                             Confirmer et ajouter
@@ -1350,8 +1415,8 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                     <div className="client-search-list-container">
                                         {Object.entries(
                                             getGroupedCatalog(
-                                                mockCatalog.filter(item =>
-                                                    item.description.toLowerCase().includes(catalogSearchQuery.toLowerCase())
+                                                catalogItems.filter(item =>
+                                                    (item.description || "").toLowerCase().includes(catalogSearchQuery.toLowerCase())
                                                 )
                                             )
                                         ).map(([letter, list]) => (
@@ -1365,7 +1430,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                                                 key={item.id}
                                                                 className={`client-search-item ${isSelected ? 'selected' : ''}`}
                                                                 onClick={() => {
-                                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: "", urssafCategory: "Vente de marchandises (BIC)", unit: "À l'unité" }]);
+                                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: item.reference || "", urssafCategory: item.urssafCategory || "Vente de marchandises (BIC)", unit: item.unit || "À l'unité" }]);
                                                                     setShowCatalogSearch(false);
                                                                     setCatalogSearchQuery("");
                                                                     setPendingCatalogItem(null);
@@ -1382,8 +1447,8 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                             </div>
                                         ))}
 
-                                        {mockCatalog.filter(item =>
-                                            item.description.toLowerCase().includes(catalogSearchQuery.toLowerCase())
+                                        {catalogItems.filter(item =>
+                                            (item.description || "").toLowerCase().includes(catalogSearchQuery.toLowerCase())
                                         ).length === 0 && (
                                                 <div className="client-search-empty">
                                                     <span>Aucun article ne correspond à votre recherche</span>
@@ -1470,6 +1535,30 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                         <div className="article-drawer-field">
                                             <label className="article-drawer-label">Prix unitaire HT (€)*</label>
                                             <input type="number" className="article-drawer-input" placeholder="Ex: 85" value={tempPrice} onChange={(e) => setTempPrice(e.target.value)} />
+                                        </div>
+                                        <div className="article-drawer-field">
+                                            <label className="article-drawer-label">Taux TVA (%)</label>
+                                            <select
+                                                className="form-field-select"
+                                                value={tempTvaRate}
+                                                onChange={(e) => setTempTvaRate(parseFloat(e.target.value) || 0)}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '42px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--border)',
+                                                    padding: '0 12px',
+                                                    fontSize: '0.85rem',
+                                                    backgroundColor: 'var(--card)',
+                                                    color: 'var(--foreground)',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                <option value="20">20% (Taux normal)</option>
+                                                <option value="10">10% (Taux intermédiaire)</option>
+                                                <option value="5.5">5.5% (Taux réduit)</option>
+                                                <option value="0">0% (Exonéré / Franchise)</option>
+                                            </select>
                                         </div>
                                         <div className="article-drawer-field">
                                             <label className="article-drawer-label">Type d'article (URSSAF)</label>
@@ -2063,18 +2152,34 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                         type="button"
                                         className="client-search-confirm-btn"
                                         style={{ flex: 2, height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                        onClick={() => {
+                                        onClick={async () => {
                                             if (!newItemName.trim()) {
                                                 alert("Veuillez saisir un nom.");
                                                 return;
                                             }
                                             const price = parseFloat(newItemPrice) || 0;
-                                            setLines(lines.map(line => line.id === activeLineId ? { ...line, description: newItemName, unitPrice: price } : line));
+                                            const itemDesc = newItemName.trim();
+                                            setLines(lines.map(line => line.id === activeLineId ? { ...line, description: itemDesc, unitPrice: price } : line));
                                             setShowCatalogSearch(false);
                                             setCatalogSearchQuery("");
                                             setNewItemName("");
                                             setNewItemPrice("");
                                             setShowNewCatalogItemForm(false);
+
+                                            try {
+                                                await apiFetch('/v1/catalog', {
+                                                    method: 'POST',
+                                                    body: JSON.stringify({
+                                                        name: itemDesc,
+                                                        unitPrice: price,
+                                                        tvaRate: 20,
+                                                        type: "SERVICE"
+                                                    })
+                                                });
+                                                fetchCatalog();
+                                            } catch (err) {
+                                                console.warn("Could not save to catalog:", err);
+                                            }
                                         }}
                                     >
                                         Confirmer et ajouter
@@ -2107,8 +2212,8 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                 <div className="client-search-list-container">
                                     {Object.entries(
                                         getGroupedCatalog(
-                                            mockCatalog.filter(item =>
-                                                item.description.toLowerCase().includes(catalogSearchQuery.toLowerCase())
+                                            catalogItems.filter(item =>
+                                                (item.description || "").toLowerCase().includes(catalogSearchQuery.toLowerCase())
                                             )
                                         )
                                     ).map(([letter, list]) => (
@@ -2134,8 +2239,8 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                         </div>
                                     ))}
 
-                                    {mockCatalog.filter(item =>
-                                        item.description.toLowerCase().includes(catalogSearchQuery.toLowerCase())
+                                    {catalogItems.filter(item =>
+                                        (item.description || "").toLowerCase().includes(catalogSearchQuery.toLowerCase())
                                     ).length === 0 && (
                                             <div className="client-search-empty">
                                                 <span>Aucun article ne correspond à votre recherche</span>
@@ -2251,6 +2356,30 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                     <div className="article-drawer-field">
                                         <label className="article-drawer-label">Prix unitaire HT (€)*</label>
                                         <input type="number" className="article-drawer-input" placeholder="Ex: 85" value={tempPrice} onChange={(e) => setTempPrice(e.target.value)} />
+                                    </div>
+                                    <div className="article-drawer-field">
+                                        <label className="article-drawer-label">Taux TVA (%)</label>
+                                        <select
+                                            className="form-field-select"
+                                            value={tempTvaRate}
+                                            onChange={(e) => setTempTvaRate(parseFloat(e.target.value) || 0)}
+                                            style={{
+                                                width: '100%',
+                                                height: '42px',
+                                                borderRadius: '8px',
+                                                border: '1px solid var(--border)',
+                                                padding: '0 12px',
+                                                fontSize: '0.85rem',
+                                                backgroundColor: 'var(--card)',
+                                                color: 'var(--foreground)',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            <option value="20">20% (Taux normal)</option>
+                                            <option value="10">10% (Taux intermédiaire)</option>
+                                            <option value="5.5">5.5% (Taux réduit)</option>
+                                            <option value="0">0% (Exonéré / Franchise)</option>
+                                        </select>
                                     </div>
                                     <div className="article-drawer-field">
                                         <label className="article-drawer-label">Type d'article (URSSAF)</label>

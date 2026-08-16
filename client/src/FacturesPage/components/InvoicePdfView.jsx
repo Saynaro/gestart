@@ -6,7 +6,7 @@ import { useUser } from "../../utils/useUser";
 function InvoicePdfView({ invoice, onClose, onDownload }) {
     const { company } = useUser();
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-    const [zoom, setZoom] = useState(isMobile ? 0.5 : 1.0);
+    const [zoom, setZoom] = useState(isMobile ? 0.65 : 1.0);
     const [globalCustomization] = useDocumentCustomization();
     const docCustomization = getEffectiveCustomization(invoice, globalCustomization);
 
@@ -19,7 +19,8 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
     const companyDisplayPhone = company?.phone || "Non renseigné";
     const companyDisplayEmail = company?.email || "contact@entreprise.fr";
     const companyLogo = docCustomization.logoUrl || company?.logoUrl;
-    const companyIban = company?.settings?.iban || company?.iban || "FR76 3000 6000 0123 4567 8901 234";
+    const companyIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 6000 0123 4567 8901 234";
+    const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
 
     const handlePrint = () => {
         window.print();
@@ -53,21 +54,29 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
 
                     <div className="pdf-controls-row">
                         <div className="pdf-zoom-controls">
-                            <button className="top-btn" onClick={zoomOut} title="Уменьшить">
+                            <button className="top-btn" onClick={zoomOut} title="Réduire">
                                 <ZoomOut size={15} />
                             </button>
                             <button className="top-btn zoom-badge" onClick={resetZoom}>
                                 {Math.round(zoom * 100)}%
                             </button>
-                            <button className="top-btn" onClick={zoomIn} title="Приблизить">
+                            <button className="top-btn" onClick={zoomIn} title="Agrandir">
                                 <ZoomIn size={15} />
                             </button>
                         </div>
 
                         <div className="actions">
-                            <button className="top-btn" onClick={handlePrint}><Printer size={15} /> <span className="btn-label">Imprimer</span></button>
-                            <button className="top-btn" onClick={() => onDownload(invoice)}><Download size={15} /> <span className="btn-label">PDF</span></button>
-                            <button className="top-btn close-x-desktop" onClick={onClose} aria-label="Fermer"><X size={18} /></button>
+                            <button className="top-btn" onClick={handlePrint}>
+                                <Printer size={15} />
+                                <span className="btn-label">Imprimer</span>
+                            </button>
+                            <button className="top-btn" onClick={() => onDownload ? onDownload(invoice) : handlePrint()}>
+                                <Download size={15} />
+                                <span className="btn-label">PDF</span>
+                            </button>
+                            <button className="top-btn close-x-desktop" onClick={onClose} aria-label="Fermer">
+                                <X size={18} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -77,54 +86,134 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                 <div
                     className="a4-page-shadow"
                     style={{
-                        zoom: zoom,
                         transform: `scale(${zoom})`,
-                        transformOrigin: 'top center',
-                        transition: 'transform 0.15s ease-out, zoom 0.15s ease-out'
+                        transformOrigin: "top center",
+                        transition: "transform 0.15s ease-out"
                     }}
                 >
-                    {/* A4 Sheet Container */}
-                    <div className="invoice-pdf-a4-sheet" id="invoice-pdf-print-area">
+                    <div
+                        className="invoice-pdf-a4-sheet"
+                        id="invoice-pdf-print-area"
+                        style={{
+                            backgroundColor: docCustomization.bgColor || "#FFFFFF",
+                            color: docCustomization.textColor || "#1A1A1A",
+                            fontSize: docCustomization.fontSize || "9.5pt",
+                            fontFamily: docCustomization.fontFamily || "Inter, sans-serif"
+                        }}
+                    >
+                        {/* Banner header if banner style */}
+                        {docCustomization.structure === "banner" && (
+                            <div
+                                style={{
+                                    height: "8px",
+                                    backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                    margin: "-20mm -18mm 14pt -18mm",
+                                    borderRadius: "2px 2px 0 0"
+                                }}
+                            />
+                        )}
+
                         {/* Company / Invoice details header */}
-                        <div className="pdf-header-row">
-                            <div className="pdf-header-left">
-                                {companyLogo ? (
-                                    <img
-                                        src={companyLogo}
-                                        alt="Logo"
-                                        style={{ maxHeight: '45px', maxWidth: '120px', objectFit: 'contain', marginBottom: '6pt' }}
-                                    />
-                                ) : (
-                                    <div className="pdf-logo-stub">
-                                        <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
-                                    </div>
+                        <div className="pdf-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14pt" }}>
+                            <div className="pdf-header-left" style={{ flex: 1 }}>
+                                {docCustomization.showLogo && docCustomization.logoPosition !== "right" && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                maxWidth: "180px",
+                                                objectFit: "contain",
+                                                marginBottom: "6pt"
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="pdf-logo-stub"
+                                            style={{
+                                                backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                color: "#FFF",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: "700",
+                                                borderRadius: "4px",
+                                                padding: "4px 8px",
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                marginBottom: "6pt",
+                                                fontSize: "1.1em"
+                                            }}
+                                        >
+                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                        </div>
+                                    )
                                 )}
-                                <h3 className="company-name">{companyDisplayName}</h3>
-                                <p className="company-details">
-                                    {companyDisplayAddress}<br />
-                                    SIRET : {companyDisplaySiret}<br />
-                                    N° TVA : {companyDisplayTva}
+                                <h3 className="company-name" style={{ color: docCustomization.primaryColor || "#556B2F", margin: "0 0 4px 0", fontSize: "1.3em", fontWeight: 800 }}>
+                                    {companyDisplayName}
+                                </h3>
+                                <p className="company-details" style={{ margin: 0, fontSize: "0.9em", lineHeight: 1.4, opacity: 0.85 }}>
+                                    {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                                    {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret} — N° TVA : {companyDisplayTva}<br /></span>}
+                                    {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                                    {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
                                 </p>
                             </div>
-                            <div className="pdf-header-right">
-                                <h1 className="doc-type-label">FACTURE</h1>
-                                <table className="doc-meta-table">
+
+                            <div className="pdf-header-right" style={{ textAlign: "right" }}>
+                                {docCustomization.showLogo && docCustomization.logoPosition === "right" && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                maxWidth: "180px",
+                                                objectFit: "contain",
+                                                marginBottom: "6pt"
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="pdf-logo-stub"
+                                            style={{
+                                                backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                color: "#FFF",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: "700",
+                                                borderRadius: "4px",
+                                                padding: "4px 8px",
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                marginBottom: "6pt",
+                                                fontSize: "1.1em"
+                                            }}
+                                        >
+                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                        </div>
+                                    )
+                                )}
+                                <h1 className="doc-type-label" style={{ color: docCustomization.primaryColor || "#556B2F", fontSize: "1.8em", margin: 0, fontWeight: 800 }}>FACTURE</h1>
+                                <table className="doc-meta-table" style={{ fontSize: "0.95em", marginTop: "4pt" }}>
                                     <tbody>
                                         <tr>
-                                            <td><strong>Numéro :</strong></td>
+                                            <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Numéro :</strong></td>
                                             <td>{invoice.number || `INV-${invoice.id}`}</td>
                                         </tr>
                                         <tr>
-                                            <td><strong>Date d'émission :</strong></td>
+                                            <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Date :</strong></td>
                                             <td>{new Date(invoice.date).toLocaleDateString("fr-FR")}</td>
                                         </tr>
                                         <tr>
-                                            <td><strong>Date d'exigibilité du paiement :</strong></td>
+                                            <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Échéance :</strong></td>
                                             <td>{new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}</td>
                                         </tr>
-                                        {invoice.deliveryDate && (
+                                        {docCustomization.showDeliveryDate && invoice.deliveryDate && (
                                             <tr>
-                                                <td><strong>Date de livraison :</strong></td>
+                                                <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Livraison :</strong></td>
                                                 <td>{new Date(invoice.deliveryDate).toLocaleDateString("fr-FR")}</td>
                                             </tr>
                                         )}
@@ -134,82 +223,231 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                         </div>
 
                         {/* Bill to block */}
-                        <div className="pdf-billing-section">
-                            <div className="billing-to-card">
-                                <span className="section-label">FACTURÉ À :</span>
-                                <h4 className="client-name">{invoice.clientName}</h4>
-                                <p className="client-details">
-                                    {invoice.clientAddress || "Adresse non fournie"}<br />
+                        <div
+                            className="pdf-billing-section"
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                gap: "3px",
+                                backgroundColor: docCustomization.structure === "modern" ? `${docCustomization.primaryColor || "#556B2F"}12` : "#FAFAF8",
+                                padding: "10px 14px",
+                                borderRadius: "6px",
+                                margin: "12px 0",
+                                textAlign: "left"
+                            }}
+                        >
+                            <span className="section-label" style={{ fontSize: "0.78em", fontWeight: 700, letterSpacing: "0.5px", opacity: 0.65, textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                FACTURÉ À :
+                            </span>
+                            <h4 className="client-name" style={{ fontSize: "1.1em", fontWeight: 700, margin: 0, color: "#1A1A1A", lineHeight: 1.3 }}>
+                                {invoice.clientName}
+                            </h4>
+                            {invoice.clientAddress && (
+                                <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
+                                    {invoice.clientAddress}
+                                </div>
+                            )}
+                            {invoice.clientEmail && (
+                                <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
                                     {invoice.clientEmail}
-                                </p>
-                            </div>
+                                </div>
+                            )}
+                            {invoice.clientPhone && (
+                                <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
+                                    {invoice.clientPhone}
+                                </div>
+                            )}
                         </div>
 
+                        {invoice.interventionType && (
+                            <div style={{ padding: "6px 10px", marginBottom: "12px", fontSize: "0.95em", backgroundColor: "#FAFAF8", borderRadius: "4px" }}>
+                                <span>Intervention : <strong>{invoice.interventionType}</strong></span>
+                                {invoice.workDetails && (
+                                    <p style={{ fontSize: "0.9em", marginTop: "4px", margin: 0, color: "#666" }}>{invoice.workDetails}</p>
+                                )}
+                            </div>
+                        )}
+
                         {/* Table items */}
-                        <table className="pdf-items-table">
-                            <thead>
+                        <table className="pdf-items-table" style={{ width: "100%", borderCollapse: "collapse", margin: "14px 0", fontSize: "0.95em" }}>
+                            <thead style={{ backgroundColor: docCustomization.primaryColor || "#556B2F", color: "#FFFFFF" }}>
                                 <tr>
-                                    <th>Description</th>
-                                    <th className="text-center" style={{ width: '60px' }}>Qté</th>
-                                    <th className="text-right" style={{ width: '110px' }}>Prix unit. HT</th>
-                                    <th className="text-right" style={{ width: '110px' }}>Total HT</th>
+                                    <th style={{ textAlign: "left", padding: "6px 8px", borderRadius: "3px 0 0 3px" }}>Description</th>
+                                    <th className="text-center" style={{ width: "40px", padding: "6px", whiteSpace: "nowrap" }}>Qté</th>
+                                    <th className="text-right" style={{ minWidth: "75px", padding: "6px 8px", whiteSpace: "nowrap" }}>Prix unit. HT</th>
+                                    <th className="text-right" style={{ minWidth: "75px", padding: "6px 8px", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap" }}>Total HT</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {invoice.lines && invoice.lines.map((line, idx) => (
-                                    <tr key={idx}>
-                                        <td>
-                                            <div style={{ fontWeight: 600 }}>{line.description || "Prestation / Fourniture"}</div>
-                                            {line.reference && (
-                                                <div style={{ fontSize: '7.5pt', color: '#7C7B82', marginTop: '2pt' }}>
-                                                    Réf: {line.reference}
-                                                </div>
-                                            )}
+                                {(invoice.lines && invoice.lines.length > 0) ? (
+                                    invoice.lines.map((line, idx) => {
+                                        const q = Number(line.quantity || line.qty || 1);
+                                        const p = Number(line.unitPrice) || 0;
+                                        return (
+                                            <tr key={idx} style={{ borderBottom: "1px solid #EAEAE6" }}>
+                                                <td style={{ padding: "6px 8px" }}>
+                                                    <div style={{ fontWeight: 600 }}>{line.description || "Prestation"}</div>
+                                                    {line.reference && (
+                                                        <div style={{ fontSize: "7.5pt", color: "#7C7B82", marginTop: "2pt" }}>
+                                                            Réf: {line.reference}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className="text-center" style={{ padding: "6px", whiteSpace: "nowrap" }}>{q}</td>
+                                                <td className="text-right" style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>{p.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                                                <td className="text-right" style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>{(p * q).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                                            </tr>
+                                        );
+                                    })
+                                ) : (
+                                    <tr style={{ borderBottom: "1px solid #EAEAE6" }}>
+                                        <td style={{ padding: "6px 8px" }}>
+                                            <div style={{ fontWeight: 600 }}>{invoice.interventionType || invoice.subject || "Prestation"}</div>
                                         </td>
-                                        <td className="text-center">{line.qty}</td>
-                                        <td className="text-right">
-                                            {(line.unitPrice || 0).toLocaleString("fr-FR")} €
-                                            {line.unit && line.unit !== "Aucune" ? ` / ${line.unit.replace("À l'", "").replace("À la ", "").replace("Au ", "").replace("À ", "")}` : ""}
-                                        </td>
-                                        <td className="text-right">{((line.unitPrice || 0) * (line.qty || 1)).toLocaleString("fr-FR")} €</td>
+                                        <td className="text-center" style={{ padding: "6px", whiteSpace: "nowrap" }}>1</td>
+                                        <td className="text-right" style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>{(Number(invoice.subtotalHt) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                                        <td className="text-right" style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>{(Number(invoice.subtotalHt) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
 
                         {/* Summary Block */}
-                        <div className="pdf-summary-block">
+                        <div className="pdf-summary-block" style={{ display: "flex", justifyContent: "flex-end", margin: "12px 0" }}>
                             <div className="summary-table-wrap">
-                                <table className="pdf-summary-table">
+                                <table className="pdf-summary-table" style={{ width: "auto", minWidth: "210px", fontSize: "0.95em" }}>
                                     <tbody>
                                         <tr>
-                                            <td>Sous-total HT :</td>
-                                            <td>{(invoice.subtotalHt || 0).toLocaleString("fr-FR")} €</td>
+                                            <td style={{ whiteSpace: "nowrap", padding: "4px 8px" }}>Sous-total HT :</td>
+                                            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>{(Number(invoice.subtotalHt) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
                                         </tr>
                                         <tr>
-                                            <td>TVA ({invoice.tvaRate || 20}%) :</td>
-                                            <td>{(invoice.tvaAmount || 0).toLocaleString("fr-FR")} €</td>
+                                            <td style={{ whiteSpace: "nowrap", padding: "4px 8px" }}>TVA ({invoice.tvaRate || 20}%) :</td>
+                                            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>{(Number(invoice.tvaAmount) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
                                         </tr>
-                                        <tr className="grand-total-row">
-                                            <td><strong>TOTAL TTC :</strong></td>
-                                            <td><strong>{(invoice.totalTtc || 0).toLocaleString("fr-FR")} €</strong></td>
+                                        <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || "#556B2F", color: "#FFFFFF", fontWeight: 700 }}>
+                                            <td style={{ padding: "6px 8px", borderRadius: "3px 0 0 3px", whiteSpace: "nowrap", fontSize: "1.05em" }}><strong>TOTAL TTC :</strong></td>
+                                            <td style={{ textAlign: "right", padding: "6px 8px", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap", fontSize: "1.05em" }}><strong>{(Number(invoice.totalTtc) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</strong></td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
+                        {/* Signatures Section (Company & Buyer) */}
+                        {(docCustomization.showCompanySignature !== false || docCustomization.showClientSignature !== false) && (() => {
+                            const compPos = docCustomization.signaturePosition || "left";
+                            const clPos = docCustomization.clientSignaturePosition || "right";
+
+                            const renderCompanySig = () => (
+                                <div key="comp-sig" style={{ width: "100%", maxWidth: "230px" }}>
+                                    <div style={{ fontWeight: 700, marginBottom: "4px", fontSize: "0.9em" }}>Pour l'entreprise :</div>
+                                    <div
+                                        style={{
+                                            height: "54px",
+                                            border: "1px dashed #DDD",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            borderRadius: "6px",
+                                            backgroundColor: "#FAFAF8",
+                                            padding: "4px"
+                                        }}
+                                    >
+                                        {companySignature ? (
+                                            <img src={companySignature} alt="Signature Entreprise" style={{ maxHeight: "48px", maxWidth: "90%", objectFit: "contain" }} />
+                                        ) : (
+                                            <span style={{ color: "#888", fontSize: "0.85em", fontStyle: "italic" }}>{companyDisplayName}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+
+                            const renderClientSig = () => (
+                                <div key="client-sig" style={{ width: "100%", maxWidth: "230px" }}>
+                                    <div style={{ fontWeight: 700, marginBottom: "4px", fontSize: "0.9em" }}>Signature de l'acheteur :</div>
+                                    <div
+                                        style={{
+                                            height: "54px",
+                                            border: "1px dashed #DDD",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            borderRadius: "6px",
+                                            backgroundColor: "#FAFAF8",
+                                            padding: "4px",
+                                            color: "#888",
+                                            fontSize: "0.82em"
+                                        }}
+                                    >
+                                        {invoice.clientSignatureUrl ? (
+                                            <img src={invoice.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: "48px", maxWidth: "90%", objectFit: "contain" }} />
+                                        ) : (
+                                            <>
+                                                <span style={{ fontStyle: "italic", fontSize: "0.78em" }}>Mention "Bon pour accord"</span>
+                                                <span style={{ fontSize: "0.72em", marginTop: "2px", opacity: 0.8 }}>Date et signature</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+
+                            const leftItems = [];
+                            const rightItems = [];
+
+                            if (docCustomization.showCompanySignature !== false) {
+                                if (compPos === "left") leftItems.push(renderCompanySig());
+                                else rightItems.push(renderCompanySig());
+                            }
+
+                            if (docCustomization.showClientSignature !== false) {
+                                if (clPos === "left") leftItems.push(renderClientSig());
+                                else rightItems.push(renderClientSig());
+                            }
+
+                            return (
+                                <div
+                                    className="pdf-signature-block-container"
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        gap: "24px",
+                                        margin: "18px 0",
+                                        fontSize: "0.85em",
+                                        borderTop: "1px dashed #E0E0E0",
+                                        paddingTop: "14px"
+                                    }}
+                                >
+                                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-start", textAlign: "left" }}>
+                                        {leftItems}
+                                    </div>
+                                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-end", textAlign: "right" }}>
+                                        {rightItems}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                         {/* Footer details */}
-                        <div className="pdf-footer-section">
-                            <div className="iban-block">
-                                <strong>Coordonnées bancaires (IBAN) :</strong><br />
-                                <span>{companyIban}</span>
-                            </div>
+                        <div className="pdf-footer-section" style={{ fontSize: "0.85em", borderTop: "1px solid #E5E5E5", paddingTop: "10px", marginTop: "auto", opacity: 0.85, lineHeight: 1.45 }}>
+                            {docCustomization.showIban && (
+                                <div className="iban-block" style={{ marginBottom: "6px" }}>
+                                    <strong>Coordonnées bancaires (IBAN) : </strong>
+                                    <span>{companyIban}</span>
+                                </div>
+                            )}
                             <div className="legal-notes">
-                                <strong>Conditions de paiement :</strong> {invoice.paymentConditions || "Paiement à réception"} (Échéance le {new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}).<br />
-                                <strong>Pénalités de retard :</strong> En cas de retard de paiement, application d'un taux d'intérêt égal au taux de la BCE majoré de 10 points de pourcentage (art. L. 441-10 C.com).<br />
-                                <strong>Indemnité forfaitaire pour frais de recouvrement :</strong> 40 € dus de plein droit par tout professionnel en cas de retard de paiement (art. D. 441-5 C.com). Aucun escompte pour paiement anticipé (art. L. 441-9 C.com).<br />
-                                {invoice.tvaRate === 0 && <span style={{ fontWeight: 700, color: '#556B2F' }}>TVA non applicable — art. 293 B du CGI.</span>}
+                                <strong>Conditions de paiement : </strong> {invoice.paymentConditions || "Paiement à 30 jours"} (Échéance le {new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}).<br />
+                                <strong>Pénalités de retard : </strong> En cas de retard de paiement, application d'un taux d'intérêt égal au taux de la BCE majoré de 10 points de pourcentage.<br />
+                                <strong>Indemnité forfaitaire pour frais de recouvrement : </strong> 40 € dus de plein droit par tout professionnel.<br />
+                                {invoice.tvaRate === 0 && <span style={{ fontWeight: 700, color: "#556B2F" }}>TVA non applicable — art. 293 B du CGI.</span>}
+                                {docCustomization.showAgaMention && (
+                                    <div style={{ fontStyle: "italic", marginTop: "2pt" }}>
+                                        Membre d'une association agréée, le règlement par chèque est accepté.
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

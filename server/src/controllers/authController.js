@@ -320,6 +320,15 @@ export const login = async (req, res) => {
             }
         }).catch(() => {});
 
+        // Delete existing session on same device to keep only the latest login
+        await prisma.userSession.deleteMany({
+            where: {
+                userId: user.id,
+                device: deviceInfo.device,
+                browser: deviceInfo.browser
+            }
+        }).catch(() => {});
+
         await prisma.userSession.create({
             data: {
                 userId: user.id,
@@ -436,6 +445,15 @@ export const verify2FALogin = async (req, res) => {
                 ip: deviceInfo.ip,
                 device: `${deviceInfo.device} - ${deviceInfo.browser}`,
                 status: "Succès (2FA)"
+            }
+        }).catch(() => {});
+
+        // Delete existing session on same device to keep only the latest login
+        await prisma.userSession.deleteMany({
+            where: {
+                userId: user.id,
+                device: deviceInfo.device,
+                browser: deviceInfo.browser
             }
         }).catch(() => {});
 
@@ -706,16 +724,15 @@ export const getSecurityData = async (req, res) => {
             return res.status(404).json({ success: false, message: "Utilisateur introuvable" });
         }
 
-        let sessions = await prisma.userSession.findMany({
+        let allSessions = await prisma.userSession.findMany({
             where: { userId },
-            orderBy: { lastActiveAt: 'desc' },
-            take: 10
+            orderBy: { lastActiveAt: 'desc' }
         });
 
         const currentDeviceInfo = parseDeviceInfo(req);
 
         // If no sessions recorded yet, initialize current session
-        if (sessions.length === 0) {
+        if (allSessions.length === 0) {
             const currentSession = await prisma.userSession.create({
                 data: {
                     userId,
@@ -727,31 +744,32 @@ export const getSecurityData = async (req, res) => {
                     lastActiveAt: new Date()
                 }
             });
-            sessions = [currentSession];
+            allSessions = [currentSession];
         }
 
-        let loginHistory = await prisma.loginHistory.findMany({
-            where: {
-                OR: [
-                    { userId },
-                    { email: user.email }
-                ]
-            },
-            orderBy: { createdAt: 'desc' },
-            take: 10
-        });
+        // Deduplicate sessions: keep only the most recent login for each unique device / browser
+        const seenDeviceKeys = new Set();
+        const uniqueSessions = [];
+        const duplicateSessionIdsToDelete = [];
 
-        if (loginHistory.length === 0) {
-            loginHistory = [
-                {
-                    id: "init-1",
-                    createdAt: new Date(),
-                    ip: currentDeviceInfo.ip,
-                    device: `${currentDeviceInfo.device} - ${currentDeviceInfo.browser}`,
-                    status: "Succès"
-                }
-            ];
+        for (const s of allSessions) {
+            const deviceKey = `${(s.device || '').trim().toLowerCase()}__${(s.browser || '').trim().toLowerCase()}`;
+            if (!seenDeviceKeys.has(deviceKey)) {
+                seenDeviceKeys.add(deviceKey);
+                uniqueSessions.push(s);
+            } else {
+                duplicateSessionIdsToDelete.push(s.id);
+            }
         }
+
+        // Clean up redundant duplicate sessions from the database
+        if (duplicateSessionIdsToDelete.length > 0) {
+            prisma.userSession.deleteMany({
+                where: { id: { in: duplicateSessionIdsToDelete } }
+            }).catch(() => {});
+        }
+
+        const sessions = uniqueSessions.slice(0, 10);
 
         const formattedSessions = sessions.map((s, idx) => {
             const diffMinutes = Math.floor((Date.now() - new Date(s.lastActiveAt).getTime()) / 60000);

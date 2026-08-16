@@ -20,17 +20,18 @@ function QuoteTable({ quotes, onView, onDownloadPdf, onSendForSignature, onConve
     }, []);
 
     const getStatusBadge = (status) => {
-        switch (status) {
+        const s = (status || "").toUpperCase();
+        switch (s) {
             case "DRAFT":
-                return <span className="status-badge cancelled">⚪ Brouillon</span>;
+                return <span className="status-badge cancelled">Brouillon</span>;
             case "SENT":
-                return <span className="status-badge pending">🟡 Envoyé</span>;
+                return <span className="status-badge pending">Envoyé</span>;
             case "ACCEPTED":
-                return <span className="status-badge paid">🟢 Accepté</span>;
+                return <span className="status-badge paid">Signé</span>;
             case "REFUSED":
-                return <span className="status-badge overdue">🔴 Refusé</span>;
+                return <span className="status-badge overdue">Refusé</span>;
             case "EXPIRED":
-                return <span className="status-badge">⚫ Expiré</span>;
+                return <span className="status-badge">Expiré</span>;
             default:
                 return <span className="status-badge">{status}</span>;
         }

@@ -21,15 +21,20 @@ function InvoiceTable({ invoices, onView, onDownloadPdf, onMarkPaid, onSend, onR
     }, []);
 
     const getStatusBadge = (status) => {
-        switch (status) {
+        const s = (status || "").toLowerCase();
+        switch (s) {
             case "paid":
-                return <span className="status-badge paid">🟢 Payée</span>;
+                return <span className="status-badge paid">Payée</span>;
+            case "sent":
+                return <span className="status-badge sent">Envoyée</span>;
             case "pending":
-                return <span className="status-badge pending">🟡 En attente</span>;
+                return <span className="status-badge pending">En attente</span>;
             case "overdue":
-                return <span className="status-badge overdue">🔴 En retard</span>;
+                return <span className="status-badge overdue">En retard</span>;
             case "cancelled":
-                return <span className="status-badge cancelled">⚪ Annulée</span>;
+                return <span className="status-badge cancelled">Annulée</span>;
+            case "draft":
+                return <span className="status-badge draft">Brouillon</span>;
             default:
                 return <span className="status-badge">{status}</span>;
         }

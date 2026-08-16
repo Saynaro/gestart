@@ -154,7 +154,7 @@ function PlanningPage() {
     const [startTime, setStartTime] = useState("09:00");
     const [endTime, setEndTime] = useState("10:30");
     const [typeFilter, setTypeFilter] = useState("Tous");
-    const [currentTitle, setCurrentTitle] = useState("19 - 25 Mai 2026");
+    const [currentTitle, setCurrentTitle] = useState("");
     const [currentView, setCurrentView] = useState("timeGridWeek");
     const calendarRef = useRef(null);
 
@@ -258,6 +258,10 @@ function PlanningPage() {
     // ── Desktop calendar handlers ──────────────────────────────────
     const handlePrev = () => calendarRef.current?.getApi().prev();
     const handleNext = () => calendarRef.current?.getApi().next();
+    const handleToday = () => {
+        calendarRef.current?.getApi().today();
+        setMobileSelectedDate(new Date());
+    };
 
     const handleViewChange = (viewName) => {
         setCurrentView(viewName);

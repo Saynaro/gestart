@@ -162,6 +162,7 @@ exports.Prisma.CompanyScalarFieldEnum = {
   city: 'city',
   postalCode: 'postalCode',
   logoUrl: 'logoUrl',
+  signatureUrl: 'signatureUrl',
   website: 'website',
   slug: 'slug',
   smsNumber: 'smsNumber',

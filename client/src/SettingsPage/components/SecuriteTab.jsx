@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Lock, Shield, Smartphone, Laptop, LogOut, CheckCircle2, AlertTriangle, Key, RefreshCw, Check } from "lucide-react";
+import { Lock, Shield, Smartphone, Laptop, LogOut, CheckCircle2, AlertTriangle, Key, RefreshCw, Check, Eye, EyeOff, X } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm }) {
@@ -13,6 +13,10 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordLoading, setPasswordLoading] = useState(false);
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
     const [twoFALoading, setTwoFALoading] = useState(false);
@@ -82,14 +86,23 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
         }
     };
 
+    const rules = {
+        length: newPassword.length >= 8,
+        uppercase: /[A-Z]/.test(newPassword),
+        lowercase: /[a-z]/.test(newPassword),
+        number: /[0-9]/.test(newPassword),
+    };
+    const isPasswordValid = rules.length && rules.uppercase && rules.lowercase && rules.number;
+    const isMatch = confirmPassword.length > 0 && newPassword === confirmPassword;
+
     const handlePasswordChangeSubmit = async (e) => {
         e.preventDefault();
         if (!oldPassword) {
             triggerToast("Veuillez saisir votre ancien mot de passe", true);
             return;
         }
-        if (newPassword.length < 8) {
-            triggerToast("Le nouveau mot de passe doit comporter au moins 8 caractères", true);
+        if (!isPasswordValid) {
+            triggerToast("Le nouveau mot de passe ne respecte pas tous les critères de sécurité", true);
             return;
         }
         if (newPassword !== confirmPassword) {
@@ -280,49 +293,177 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                     Changer le mot de passe
                 </h3>
                 <div className="profile-form-grid">
+                    {/* Ancien mot de passe */}
                     <div className="form-field form-group-full">
                         <label className="form-label">Ancien mot de passe</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            value={oldPassword}
-                            onChange={(e) => setOldPassword(e.target.value)}
-                            placeholder="••••••••••••"
-                            required
-                            style={{ width: '100%', boxSizing: 'border-box' }}
-                        />
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <input
+                                type={showOldPassword ? "text" : "password"}
+                                className="form-input"
+                                value={oldPassword}
+                                onChange={(e) => setOldPassword(e.target.value)}
+                                placeholder="••••••••••••"
+                                required
+                                style={{ width: '100%', boxSizing: 'border-box', paddingRight: '40px' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowOldPassword(prev => !prev)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '12px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: 'var(--muted-foreground)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '4px'
+                                }}
+                            >
+                                {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Nouveau mot de passe */}
                     <div className="form-field">
                         <label className="form-label">Nouveau mot de passe</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="Min. 8 caractères"
-                            required
-                            style={{ width: '100%', boxSizing: 'border-box' }}
-                        />
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <input
+                                type={showNewPassword ? "text" : "password"}
+                                className="form-input"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                onFocus={() => setIsPasswordFocused(true)}
+                                onBlur={() => setIsPasswordFocused(false)}
+                                placeholder="Min. 8 caractères"
+                                required
+                                style={{ width: '100%', boxSizing: 'border-box', paddingRight: '40px' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowNewPassword(prev => !prev)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '12px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: 'var(--muted-foreground)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '4px'
+                                }}
+                            >
+                                {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </div>
+
+                        {/* Real-time Password Rules helper */}
+                        {(isPasswordFocused || newPassword.length > 0) && (
+                            <div className="password-rules-box" style={{
+                                marginTop: '10px',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                                gap: '6px 12px',
+                                padding: '10px 14px',
+                                backgroundColor: 'var(--muted, #F8FAFC)',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)'
+                            }}>
+                                <div className={`rule-item ${rules.length ? 'valid' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: rules.length ? '#15803D' : '#991B1B', fontWeight: rules.length ? 600 : 500 }}>
+                                    {rules.length ? <Check size={14} style={{ color: '#15803D' }} /> : <X size={14} style={{ color: '#991B1B' }} />}
+                                    <span>Au moins 8 caractères</span>
+                                </div>
+                                <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: rules.uppercase ? '#15803D' : '#991B1B', fontWeight: rules.uppercase ? 600 : 500 }}>
+                                    {rules.uppercase ? <Check size={14} style={{ color: '#15803D' }} /> : <X size={14} style={{ color: '#991B1B' }} />}
+                                    <span>1 lettre majuscule (A-Z)</span>
+                                </div>
+                                <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: rules.lowercase ? '#15803D' : '#991B1B', fontWeight: rules.lowercase ? 600 : 500 }}>
+                                    {rules.lowercase ? <Check size={14} style={{ color: '#15803D' }} /> : <X size={14} style={{ color: '#991B1B' }} />}
+                                    <span>1 lettre minuscule (a-z)</span>
+                                </div>
+                                <div className={`rule-item ${rules.number ? 'valid' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: rules.number ? '#15803D' : '#991B1B', fontWeight: rules.number ? 600 : 500 }}>
+                                    {rules.number ? <Check size={14} style={{ color: '#15803D' }} /> : <X size={14} style={{ color: '#991B1B' }} />}
+                                    <span>1 chiffre (0-9)</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Confirmer le mot de passe */}
                     <div className="form-field">
                         <label className="form-label">Confirmer le nouveau mot de passe</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirmez le mot de passe"
-                            required
-                            style={{ width: '100%', boxSizing: 'border-box' }}
-                        />
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                className="form-input"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Confirmez le mot de passe"
+                                required
+                                style={{ width: '100%', boxSizing: 'border-box', paddingRight: '40px' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(prev => !prev)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '12px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: 'var(--muted-foreground)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '4px'
+                                }}
+                            >
+                                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </div>
+
+                        {/* Confirmation match indicator */}
+                        {confirmPassword.length > 0 && (
+                            <div style={{
+                                marginTop: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                fontSize: '11.5px',
+                                color: isMatch ? '#15803D' : '#991B1B',
+                                fontWeight: 600
+                            }}>
+                                {isMatch ? <Check size={14} style={{ color: '#15803D' }} /> : <X size={14} style={{ color: '#991B1B' }} />}
+                                <span>{isMatch ? "Les mots de passe correspondent" : "Les mots de passe ne correspondent pas"}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '14px', paddingTop: '14px', borderTop: '1px dashed var(--border)' }}>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '14px', borderTop: '1px dashed var(--border)' }}>
                     <button
                         type="submit"
-                        disabled={passwordLoading}
+                        disabled={passwordLoading || !oldPassword || !isPasswordValid || !isMatch}
                         className="save-profile-btn"
-                        style={{ padding: '9px 20px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
+                        style={{
+                            padding: '10px 22px',
+                            backgroundColor: 'var(--sidebar-primary)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            fontSize: '13px',
+                            cursor: passwordLoading || !oldPassword || !isPasswordValid || !isMatch ? 'not-allowed' : 'pointer',
+                            opacity: passwordLoading || !oldPassword || !isPasswordValid || !isMatch ? 0.6 : 1
+                        }}
                     >
                         {passwordLoading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
                     </button>

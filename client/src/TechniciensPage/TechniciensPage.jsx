@@ -16,7 +16,7 @@ import {
     RefreshCw,
     X,
     ExternalLink,
-    Sparkles,
+    Star,
     CheckCircle2
 } from "lucide-react";
 import SideBar from "../components/SideBar";
@@ -197,7 +197,7 @@ export default function TechniciensPage() {
                             }}
                             style={isStarter ? { opacity: 0.9 } : {}}
                         >
-                            {isStarter ? <Sparkles size={18} /> : <UserPlus size={18} />}
+                            {isStarter ? <Star size={18} fill="currentColor" /> : <UserPlus size={18} />}
                             {isStarter ? "Inviter un technicien (Pro)" : "Inviter un technicien"}
                         </button>
                     </div>

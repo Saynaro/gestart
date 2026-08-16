@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, MessageSquare, Save, Smartphone, Settings } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star, MessageSquare, Save, Smartphone, Settings } from "lucide-react";
 import "./PremiumPage.css";
 
 // Layout components
@@ -77,7 +78,12 @@ function PremiumPage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <div className="page-content">
+                <motion.div 
+                    className="page-content"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
                     {/* Header */}
                     <div className="content-header premium-header-row">
                         <div>
@@ -138,17 +144,15 @@ function PremiumPage() {
                                     </div>
 
                                     {/* Second Reminder Toggle & Days */}
-                                    <div className="form-field sync-checkboxes-section">
-                                        <div className="checkboxes-list" style={{ padding: 0, border: 'none', backgroundColor: 'transparent' }}>
-                                            <label className="checkbox-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={enableSecondReminder}
-                                                    onChange={(e) => setEnableSecondReminder(e.target.checked)}
-                                                />
-                                                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Activer un 2ème SMS de rappel</span>
-                                            </label>
-                                        </div>
+                                    <div className="form-field">
+                                        <label className="checkbox-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                            <input 
+                                                type="checkbox" 
+                                                checked={enableSecondReminder}
+                                                onChange={(e) => setEnableSecondReminder(e.target.checked)}
+                                            />
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Activer un 2ème SMS de rappel</span>
+                                        </label>
                                     </div>
 
                                     {enableSecondReminder && (
@@ -226,7 +230,7 @@ function PremiumPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

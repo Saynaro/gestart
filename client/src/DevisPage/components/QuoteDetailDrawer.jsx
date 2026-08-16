@@ -42,8 +42,21 @@ function QuoteDetailDrawer({
     const [globalCustomization] = useDocumentCustomization();
     const docCustomization = getEffectiveCustomization(quote, globalCustomization);
 
-    const isAccepted = quote.status === "ACCEPTED";
-    const isDraft    = quote.status === "DRAFT";
+    const quoteLines = (quote.lines || []).map(l => ({
+        ...l,
+        qty: Number(l.quantity || l.qty || 1),
+        quantity: Number(l.quantity || l.qty || 1),
+        unitPrice: Number(l.unitPrice) || 0,
+        total: Number(l.total) || ((Number(l.unitPrice) || 0) * (Number(l.quantity || l.qty) || 1))
+    }));
+    const computedHtFromLines = quoteLines.reduce((acc, l) => acc + (l.unitPrice * l.qty), 0);
+    const subtotalHt = Number(quote.subtotalHt || quote.amountHT || quote.totalHt || computedHtFromLines || 0);
+    const tvaRate = Number(quote.tvaRate !== undefined ? quote.tvaRate : 20);
+    const totalTtc = Number(quote.totalTtc || quote.amountTTC || (subtotalHt * (1 + tvaRate / 100)) || 0);
+    const tvaAmount = Number(quote.tvaAmount || (totalTtc - subtotalHt) || 0);
+
+    const isAccepted = (quote.status || "").toUpperCase() === "ACCEPTED";
+    const isDraft    = (quote.status || "").toUpperCase() === "DRAFT";
 
     const linkedFacture = quote.linkedFacture || (
         quote.number === "D-2026-0002" || quote.number === "D-2026-0001" ? {
@@ -53,18 +66,18 @@ function QuoteDetailDrawer({
             clientName: quote.clientName,
             clientEmail: quote.clientEmail,
             clientAddress: quote.clientAddress,
-            subtotalHt: quote.subtotalHt,
-            tvaRate: quote.tvaRate,
-            tvaAmount: quote.tvaAmount,
-            totalTtc: quote.totalTtc,
+            subtotalHt: subtotalHt,
+            tvaRate: tvaRate,
+            tvaAmount: tvaAmount,
+            totalTtc: totalTtc,
             status: quote.number === "D-2026-0001" ? "paid" : "pending",
             statusLabel: quote.number === "D-2026-0001" ? "Payée" : "Finalisé"
         } : null
     );
 
     const amountFactured = quote.amountFactured || 0;
-    const progressPct = quote.totalTtc > 0
-        ? Math.min(100, (amountFactured / quote.totalTtc) * 100)
+    const progressPct = totalTtc > 0
+        ? Math.min(100, (amountFactured / totalTtc) * 100)
         : 0;
 
     React.useEffect(() => {
@@ -88,6 +101,8 @@ function QuoteDetailDrawer({
     const companyDisplayPhone = company?.phone || "Non renseigné";
     const companyDisplayEmail = company?.email || "contact@entreprise.fr";
     const companyLogo = docCustomization.logoUrl || company?.logoUrl;
+    const companyIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 6000 0123 4567 8901 234";
+    const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
 
     // ── Live mini PDF preview (same style as NewQuoteModal) ──
     const renderPreview = () => (
@@ -141,8 +156,10 @@ function QuoteDetailDrawer({
                                 </div>
                             )
                         )}
-                        <h3 className="company-name" style={{ fontSize: '1.1em', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>{companyDisplayName}</h3>
-                        <p className="company-details" style={{ fontSize: '0.88em', lineHeight: 1.3, margin: '4px 0 0 0' }}>
+                        <h2 className="company-name" style={{ fontSize: '1.3em', fontWeight: 800, color: docCustomization.primaryColor || '#556B2F', margin: 0 }}>
+                            {companyDisplayName}
+                        </h2>
+                        <p className="company-details" style={{ fontSize: '0.9em', opacity: 0.85, lineHeight: 1.35, marginTop: '2pt' }}>
                             {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
                             {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
                             {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
@@ -203,32 +220,50 @@ function QuoteDetailDrawer({
                 <div
                     className="pdf-billing-section"
                     style={{
-                        margin: '12px 0',
-                        padding: '8px 12px',
-                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
-                        borderRadius: '6px'
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        gap: '3px',
+                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}12` : '#FAFAF8',
+                        padding: '10px 14px',
+                        borderRadius: '6px',
+                        marginBottom: '12px',
+                        textAlign: 'left'
                     }}
                 >
-                    <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '0.8em', fontWeight: 700, opacity: 0.6 }}>DEVIS POUR :</span>
-                        <h4 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: '2px 0' }}>{quote.clientName}</h4>
-                        <p className="client-details" style={{ fontSize: '0.95em', opacity: 0.85, margin: 0 }}>
-                            {quote.clientAddress || ''}<br />
-                            {quote.clientEmail || ''}
-                        </p>
-                    </div>
+                    <span className="section-label" style={{ fontSize: '0.78em', fontWeight: 700, letterSpacing: '0.5px', opacity: 0.65, textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                        DEVIS POUR :
+                    </span>
+                    <h3 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                        {quote.clientName}
+                    </h3>
+                    {quote.clientAddress && (
+                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                            {quote.clientAddress}
+                        </div>
+                    )}
+                    {quote.clientEmail && (
+                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                            {quote.clientEmail}
+                        </div>
+                    )}
+                    {quote.clientPhone && (
+                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                            {quote.clientPhone}
+                        </div>
+                    )}
                 </div>
 
                 {quote.interventionType && (
-                    <div className="pdf-intervention-info" style={{ padding: '6px 10px', marginBottom: '12px', fontSize: '0.95em' }}>
+                    <div className="pdf-intervention-info" style={{ padding: '6px 10px', marginBottom: '12px', fontSize: '0.95em', backgroundColor: '#FAFAF8', borderRadius: '4px' }}>
                         <span>Objet : <strong>{quote.interventionType}</strong></span>
                         {quote.workDetails && (
-                            <p className="work-details" style={{ fontSize: '0.9em', marginTop: '4px', paddingTop: '4px' }}>{quote.workDetails}</p>
+                            <p className="work-details" style={{ fontSize: '0.9em', marginTop: '4px', paddingTop: '4px', margin: 0, color: '#666' }}>{quote.workDetails}</p>
                         )}
                     </div>
                 )}
 
-                <table className="pdf-items-table" style={{ fontSize: '0.95em', marginBottom: '15px' }}>
+                <table className="pdf-items-table" style={{ fontSize: '0.95em', marginBottom: '15px', width: '100%', borderCollapse: 'collapse' }}>
                     <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
                         <tr>
                             <th style={{ textAlign: 'left', padding: '6px 8px' }}>Description</th>
@@ -238,39 +273,155 @@ function QuoteDetailDrawer({
                         </tr>
                     </thead>
                     <tbody>
-                        {(quote.lines || []).map((line, idx) => (
-                            <tr key={idx}>
-                                <td>{line.description || '—'}</td>
-                                <td className="text-center" style={{ whiteSpace: 'nowrap' }}>{line.qty}</td>
-                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{(line.unitPrice || 0).toLocaleString('fr-FR')} €</td>
-                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{((line.unitPrice || 0) * (line.qty || 1)).toLocaleString('fr-FR')} €</td>
+                        {(quote.lines && quote.lines.length > 0) ? (
+                            quote.lines.map((line, idx) => {
+                                const q = Number(line.quantity || line.qty || 1);
+                                const p = Number(line.unitPrice) || 0;
+                                return (
+                                    <tr key={idx} style={{ borderBottom: '1px solid #EAEAE6' }}>
+                                        <td style={{ padding: '6px 8px' }}>
+                                            <div style={{ fontWeight: 600 }}>{line.description || 'Prestation'}</div>
+                                            {line.reference && <div style={{ fontSize: '0.75em', color: 'var(--muted-foreground)' }}>Réf: {line.reference}</div>}
+                                        </td>
+                                        <td className="text-center" style={{ padding: '6px', whiteSpace: 'nowrap' }}>{q}</td>
+                                        <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{p.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                        <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(p * q).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr style={{ borderBottom: '1px solid #EAEAE6' }}>
+                                <td style={{ padding: '6px 8px' }}>{quote.interventionType || quote.subject || "Prestation"}</td>
+                                <td className="text-center" style={{ padding: '6px', whiteSpace: 'nowrap' }}>1</td>
+                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(Number(quote.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(Number(quote.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
 
-                <div className="pdf-summary-block" style={{ marginBottom: '15px' }}>
+                <div className="pdf-summary-block" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
                     <table className="pdf-summary-table" style={{ fontSize: '0.95em', width: 'auto', minWidth: '180pt' }}>
                         <tbody>
                             <tr>
                                 <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>Sous-total HT :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(quote.subtotalHt || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{subtotalHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                             <tr>
-                                <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>TVA ({quote.tvaRate || 20}%) :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(quote.tvaAmount || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>TVA ({tvaRate}%) :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{tvaAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
-                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
+                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', fontWeight: 700 }}>
                                 <td style={{ whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>TOTAL TTC :</strong></td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{(quote.totalTtc || 0).toLocaleString('fr-FR')} €</strong></td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{totalTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
+                {/* Signatures Section (Company & Buyer) */}
+                {(docCustomization.showCompanySignature !== false || docCustomization.showClientSignature !== false) && (() => {
+                    const compPos = docCustomization.signaturePosition || "left";
+                    const clPos = docCustomization.clientSignaturePosition || "right";
+
+                    const renderCompanySig = () => (
+                        <div key="comp-sig" style={{ width: '100%', maxWidth: '230px' }}>
+                            <div style={{ fontWeight: '700', marginBottom: '4px', fontSize: '0.9em' }}>Pour l'entreprise :</div>
+                            <div
+                                style={{
+                                    height: '54px',
+                                    border: '1px dashed #DDD',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: '6px',
+                                    backgroundColor: '#FAFAF8',
+                                    padding: '4px'
+                                }}
+                            >
+                                {companySignature ? (
+                                    <img src={companySignature} alt="Signature Entreprise" style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ color: '#888', fontSize: '0.85em', fontStyle: 'italic' }}>{companyDisplayName}</span>
+                                )}
+                            </div>
+                        </div>
+                    );
+
+                    const renderClientSig = () => (
+                        <div key="client-sig" style={{ width: '100%', maxWidth: '230px' }}>
+                            <div style={{ fontWeight: '700', marginBottom: '4px', fontSize: '0.9em' }}>Bon pour accord / Le Client :</div>
+                            <div
+                                style={{
+                                    height: '54px',
+                                    border: '1px dashed #DDD',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: '6px',
+                                    backgroundColor: quote.status === 'ACCEPTED' ? 'rgba(26, 158, 92, 0.05)' : '#FAFAF8',
+                                    padding: '4px',
+                                    color: quote.status === 'ACCEPTED' ? '#1A9E5C' : '#888',
+                                    fontSize: '0.82em'
+                                }}
+                            >
+                                {quote.clientSignatureUrl ? (
+                                    <img src={quote.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} />
+                                ) : quote.status === 'ACCEPTED' ? (
+                                    <>
+                                        <span style={{ fontWeight: 'bold' }}>✓ Signé électroniquement</span>
+                                        <span style={{ fontSize: '7.5pt', color: '#7C7B82' }}>le {new Date(quote.date).toLocaleDateString('fr-FR')}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span style={{ fontStyle: 'italic', fontSize: '0.78em' }}>Mention "Bon pour accord"</span>
+                                        <span style={{ fontSize: '0.72em', marginTop: '2px', opacity: 0.8 }}>Date et signature</span>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    );
+
+                    const leftItems = [];
+                    const rightItems = [];
+
+                    if (docCustomization.showCompanySignature !== false) {
+                        if (compPos === "left") leftItems.push(renderCompanySig());
+                        else rightItems.push(renderCompanySig());
+                    }
+
+                    if (docCustomization.showClientSignature !== false) {
+                        if (clPos === "left") leftItems.push(renderClientSig());
+                        else rightItems.push(renderClientSig());
+                    }
+
+                    return (
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                gap: '24px',
+                                margin: '18px 0',
+                                fontSize: '0.85em',
+                                borderTop: '1px dashed #E0E0E0',
+                                paddingTop: '14px'
+                            }}
+                        >
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start', textAlign: 'left' }}>
+                                {leftItems}
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-end', textAlign: 'right' }}>
+                                {rightItems}
+                            </div>
+                        </div>
+                    );
+                })()}
+
                 {docCustomization.showPaymentConditions && (
                     <div className="pdf-footer-section" style={{ fontSize: '0.85em', paddingTop: '10px', borderTop: '1px solid #E0E0E0', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <div><strong>Validité du devis :</strong> 30 jours (Date d'expiration : {new Date(new Date(quote.date).setDate(new Date(quote.date).getDate() + 30)).toLocaleDateString('fr-FR')})</div>
+                        {docCustomization.showIban && <div><strong>IBAN : </strong>{companyIban}</div>}
                         {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
                     </div>
                 )}
@@ -302,13 +453,17 @@ function QuoteDetailDrawer({
                                         <button className="dv-dots-menu-item" onClick={onSend}>
                                             <Send size={15} /> Envoyer le devis
                                         </button>
-                                        <button className="dv-dots-menu-item" onClick={onEdit}>
-                                            <Edit2 size={15} /> Modifier le devis
-                                        </button>
-                                        <button className="dv-dots-menu-item" onClick={() => onConvertToInvoice(quote)}>
-                                            <RefreshCw size={15} /> Facturer le devis
-                                        </button>
-                                        {isAccepted && (
+                                        {!isAccepted && (
+                                            <button className="dv-dots-menu-item" onClick={onEdit}>
+                                                <Edit2 size={15} /> Modifier le devis
+                                            </button>
+                                        )}
+                                        {!Boolean(linkedFacture || quote.invoiceId || quote.linkedInvoice || (quote.amountFactured && quote.amountFactured > 0)) && (
+                                            <button className="dv-dots-menu-item" onClick={() => onConvertToInvoice(quote)}>
+                                                <RefreshCw size={15} /> Facturer le devis
+                                            </button>
+                                        )}
+                                        {!isAccepted && (
                                             <button className="dv-dots-menu-item" onClick={() => setShowStatusPicker(v => !v)}>
                                                 <RefreshCw size={15} /> Changer le statut du devis
                                             </button>
@@ -335,8 +490,36 @@ function QuoteDetailDrawer({
 
                         {/* Status */}
                         <div className="dv-drawer-status-row">
-                            <span className={`dv-status-badge ${quote.status}`}>
-                                {getStatusLabel(quote.status)}
+                            <span
+                                style={{
+                                    fontSize: "0.78rem",
+                                    padding: "3px 10px",
+                                    borderRadius: "12px",
+                                    fontWeight: 700,
+                                    backgroundColor: isAccepted
+                                        ? "rgba(34, 197, 94, 0.12)"
+                                        : isDraft
+                                        ? "rgba(156, 163, 175, 0.15)"
+                                        : (quote.status || "").toUpperCase() === "SENT"
+                                        ? "rgba(59, 130, 246, 0.12)"
+                                        : (quote.status || "").toUpperCase() === "REFUSED"
+                                        ? "rgba(239, 68, 68, 0.12)"
+                                        : "rgba(234, 179, 8, 0.15)",
+                                    color: isAccepted
+                                        ? "#16a34a"
+                                        : isDraft
+                                        ? "#6b7280"
+                                        : (quote.status || "").toUpperCase() === "SENT"
+                                        ? "#2563eb"
+                                        : (quote.status || "").toUpperCase() === "REFUSED"
+                                        ? "#dc2626"
+                                        : "#ca8a04",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "5px"
+                                }}
+                            >
+                                {isAccepted ? "Signé" : isDraft ? "Brouillon" : (quote.status || "").toUpperCase() === "SENT" ? "Envoyé" : (quote.status || "").toUpperCase() === "REFUSED" ? "Refusé" : "En attente"}
                             </span>
                         </div>
 
@@ -349,7 +532,7 @@ function QuoteDetailDrawer({
 
                         {/* Amount progress */}
                         <div className="dv-amount-progress">
-                            {amountFactured.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € / {quote.totalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € facturé
+                            {amountFactured.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € / {totalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € facturé
                         </div>
                         <div className="dv-amount-progress-bar">
                             <div className="dv-amount-progress-fill" style={{ width: `${progressPct}%` }} />
@@ -408,7 +591,13 @@ function QuoteDetailDrawer({
                             <div className="dv-drawer-row">
                                 <span className="dv-drawer-row-label">Montant HT</span>
                                 <span className="dv-drawer-row-value" style={{ fontSize: "1.05rem", fontWeight: 700 }}>
-                                    {quote.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                                    {subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                                </span>
+                            </div>
+                            <div className="dv-drawer-row">
+                                <span className="dv-drawer-row-label">Total TTC</span>
+                                <span className="dv-drawer-row-value" style={{ fontSize: "1.05rem", fontWeight: 800, color: "#556B2F" }}>
+                                    {totalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                                 </span>
                             </div>
                         </div>
@@ -444,12 +633,12 @@ function QuoteDetailDrawer({
                                             </div>
                                         </div>
                                         <div style={{ fontSize: "11.5px", color: "var(--muted-foreground)", marginTop: "4px" }}>
-                                            {linkedFacture.date} · {quote.clientName}
+                                            {linkedFacture.createdAt ? new Date(linkedFacture.createdAt).toLocaleDateString("fr-FR") : (linkedFacture.date || "")} · {quote.clientName}
                                         </div>
                                     </div>
                                     <div style={{ textAlign: "right" }}>
                                         <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--foreground)" }}>
-                                            {linkedFacture.subtotalHt ? `${linkedFacture.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT` : `${quote.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT`}
+                                            {Number(linkedFacture.subtotalHt || linkedFacture.amountHT || quote.subtotalHt || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT
                                         </div>
                                         <span style={{
                                             display: "inline-block",
@@ -458,10 +647,10 @@ function QuoteDetailDrawer({
                                             fontWeight: 700,
                                             padding: "2px 8px",
                                             borderRadius: "6px",
-                                            backgroundColor: linkedFacture.status === "paid" ? "rgba(34, 197, 94, 0.12)" : "rgba(59, 130, 246, 0.12)",
-                                            color: linkedFacture.status === "paid" ? "#22c55e" : "#3b82f6"
+                                            backgroundColor: (linkedFacture.status || "").toLowerCase() === "paid" ? "rgba(34, 197, 94, 0.12)" : "rgba(59, 130, 246, 0.12)",
+                                            color: (linkedFacture.status || "").toLowerCase() === "paid" ? "#22c55e" : "#3b82f6"
                                         }}>
-                                            {linkedFacture.status === "paid" ? "Payée" : (linkedFacture.statusLabel || "Finalisé")}
+                                            {(linkedFacture.status || "").toLowerCase() === "paid" ? "Payée" : (linkedFacture.status || "").toLowerCase() === "sent" ? "Envoyée" : (linkedFacture.statusLabel || "Finalisé")}
                                         </span>
                                     </div>
                                 </div>

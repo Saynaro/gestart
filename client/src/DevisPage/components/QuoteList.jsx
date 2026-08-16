@@ -1,18 +1,45 @@
-import React from "react";
-import { FileText } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { FileText, MoreVertical, Send, Edit2, RefreshCw, Palette, Download, XSquare } from "lucide-react";
 
 function getStatusLabel(status) {
-    switch (status) {
+    const s = String(status || "").toUpperCase();
+    switch (s) {
         case "DRAFT":    return "Brouillon";
-        case "SENT":     return "En attente";
+        case "SENT":     return "Envoyé";
+        case "PENDING":  return "En attente";
         case "ACCEPTED": return "Signé";
-        case "REFUSED":  return "Refusé";
+        case "REFUSED":
+        case "REJECTED": return "Refusé";
         case "EXPIRED":  return "Expiré";
-        default: return status;
+        default: return status || "Brouillon";
     }
 }
 
-function QuoteList({ quotes, onRowClick, onCreateQuote }) {
+function QuoteList({
+    quotes,
+    onRowClick,
+    onCreateQuote,
+    onSend,
+    onEdit,
+    onConvertToInvoice,
+    onDownloadPdf,
+    onCustomise,
+    onRejectQuote
+}) {
+    const [activeMenuId, setActiveMenuId] = useState(null);
+
+    // Close menu when clicking anywhere on the document
+    useEffect(() => {
+        const handleClickOutside = () => setActiveMenuId(null);
+        window.addEventListener("click", handleClickOutside);
+        return () => window.removeEventListener("click", handleClickOutside);
+    }, []);
+
+    const toggleMenu = (e, id) => {
+        e.stopPropagation();
+        setActiveMenuId(prev => (prev === id ? null : id));
+    };
+
     if (!quotes || quotes.length === 0) {
         return (
             <div className="dv-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
@@ -35,7 +62,8 @@ function QuoteList({ quotes, onRowClick, onCreateQuote }) {
             {quotes.map(q => (
                 <div
                     key={q.id}
-                    className="dv-quote-card"
+                    className={`dv-quote-card ${activeMenuId === q.id ? "menu-open" : ""}`}
+                    style={{ zIndex: activeMenuId === q.id ? 80 : undefined }}
                     onClick={() => onRowClick(q)}
                     role="button"
                     tabIndex={0}
@@ -44,11 +72,111 @@ function QuoteList({ quotes, onRowClick, onCreateQuote }) {
                     <div className="dv-card-top-left">
                         <span className="dv-card-number">{q.number}</span>
                     </div>
+
                     <div className="dv-card-top-right">
-                        <span className="dv-card-amount">
-                            {q.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
-                        </span>
-                        <span className="dv-card-amount-label"> HT</span>
+                        <div className="dv-card-amount-group">
+                            <span className="dv-card-amount">
+                                {q.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                            </span>
+                            <span className="dv-card-amount-label"> HT</span>
+                        </div>
+
+                        {/* 3 Dots Menu Button on Quote Card */}
+                        <div className="dv-card-dots-wrapper" onClick={e => e.stopPropagation()}>
+                            <button
+                                type="button"
+                                className="dv-card-dots-btn"
+                                onClick={(e) => toggleMenu(e, q.id)}
+                                title="Actions du devis"
+                                aria-label="Actions du devis"
+                            >
+                                <MoreVertical size={16} />
+                            </button>
+
+                            {activeMenuId === q.id && (
+                                <div className="dv-dots-menu dv-card-menu-dropdown" onClick={e => e.stopPropagation()}>
+                                    <button
+                                        type="button"
+                                        className="dv-dots-menu-item"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveMenuId(null);
+                                            if (onSend) onSend(q);
+                                        }}
+                                    >
+                                        <Send size={14} /> Envoyer le devis
+                                    </button>
+
+                                    {(q.status || "").toUpperCase() !== "ACCEPTED" && onEdit && (
+                                        <button
+                                            type="button"
+                                            className="dv-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onEdit(q);
+                                            }}
+                                        >
+                                            <Edit2 size={14} /> Modifier le devis
+                                        </button>
+                                    )}
+
+                                    {!Boolean(q.invoiceId || q.linkedInvoice || q.linkedFacture || (q.amountFactured && q.amountFactured > 0)) && onConvertToInvoice && (
+                                        <button
+                                            type="button"
+                                            className="dv-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onConvertToInvoice(q);
+                                            }}
+                                        >
+                                            <RefreshCw size={14} /> Facturer le devis
+                                        </button>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        className="dv-dots-menu-item"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveMenuId(null);
+                                            if (onDownloadPdf) onDownloadPdf(q);
+                                        }}
+                                    >
+                                        <Download size={14} /> Télécharger PDF
+                                    </button>
+
+                                    {onCustomise && (
+                                        <button
+                                            type="button"
+                                            className="dv-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onCustomise(q);
+                                            }}
+                                        >
+                                            <Palette size={14} /> Personnaliser
+                                        </button>
+                                    )}
+
+                                    {q.status !== "REFUSED" && q.status !== "ACCEPTED" && onRejectQuote && (
+                                        <button
+                                            type="button"
+                                            className="dv-dots-menu-item dv-danger-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onRejectQuote(q);
+                                            }}
+                                        >
+                                            <XSquare size={14} /> Marquer refusé
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="dv-card-bottom-left">
@@ -56,8 +184,9 @@ function QuoteList({ quotes, onRowClick, onCreateQuote }) {
                         <span style={{ color: "var(--border)", userSelect: "none" }}>·</span>
                         <span>{q.clientName}</span>
                     </div>
+
                     <div className="dv-card-bottom-right">
-                        <span className={`dv-status-badge ${q.status}`}>
+                        <span className={`dv-status-badge ${(q.status || "DRAFT").toUpperCase()}`}>
                             {getStatusLabel(q.status)}
                         </span>
                     </div>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Building, Camera, Search, FileText, CheckCircle } from "lucide-react";
+import { Building, Camera, Search, FileText, CheckCircle, PenTool, Trash2, Upload, RefreshCw } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
-import CompanyAutocomplete from "../../components/CompanyAutocomplete";
+import CompanyAutocomplete, { formatNafCode } from "../../components/CompanyAutocomplete";
+import SignaturePadModal from "../../components/SignaturePadModal";
 
 export default function EntrepriseTab({ isMobileView, triggerToast }) {
     const [companyName, setCompanyName] = useState("KHALID SAINARO");
@@ -10,14 +11,19 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
     const [siret, setSiret] = useState("94408772500015");
     const [rcs, setRcs] = useState("RCS Nice B 944 087 725");
     const [capital, setCapital] = useState("1000");
-    const [address, setAddress] = useState("23 RUE PAGANINI, 06000 NICE");
+    const [address, setAddress] = useState("23 RUE PAGANINI");
+    const [postalCode, setPostalCode] = useState("06000");
+    const [city, setCity] = useState("NICE");
     const [nafCode, setNafCode] = useState("4322B - Travaux d'installation d'équipements thermiques et de climatisation");
     const [logoUrl, setLogoUrl] = useState(null);
+    const [signatureUrl, setSignatureUrl] = useState(null);
+    const [showSignatureModal, setShowSignatureModal] = useState(false);
     const [website, setWebsite] = useState("https://gestart.fr");
     const [companyEmail, setCompanyEmail] = useState("support.gestart@gmail.com");
     const [companyPhone, setCompanyPhone] = useState("04 93 12 34 56");
     const [iban, setIban] = useState("FR76 3000 3020 5001 2345 6789 012");
     const [bic, setBIC] = useState("BNPAFRPPXXX");
+    const [isSearchingSirene, setIsSearchingSirene] = useState(false);
 
     useEffect(() => {
         const fetchCompany = async () => {
@@ -32,10 +38,13 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     if (company.shareCapital) setCapital(company.shareCapital);
                     if (company.nafCode) setNafCode(company.nafCode);
                     if (company.address) setAddress(company.address);
+                    if (company.postalCode) setPostalCode(company.postalCode);
+                    if (company.city) setCity(company.city);
                     if (company.email) setCompanyEmail(company.email);
                     if (company.phone) setCompanyPhone(company.phone);
                     if (company.website) setWebsite(company.website);
                     if (company.logoUrl) setLogoUrl(company.logoUrl);
+                    if (company.signatureUrl) setSignatureUrl(company.signatureUrl);
                 }
             } catch (err) {
                 console.warn("API company non disponible, conservation des valeurs par défaut:", err.message);
@@ -63,21 +72,107 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
     const tvaNumber = computeTvaNumber(siren);
 
+    const handleAddressSelect = (selected) => {
+        const streetOnly = selected.street || (selected.postcode ? selected.label.split(selected.postcode)[0].replace(/,\s*$/, '').trim() : selected.label);
+        setAddress(streetOnly);
+        if (selected.postcode) setPostalCode(selected.postcode);
+        if (selected.city) setCity(selected.city);
+    };
+
     const handleCompanyAutoFillSelect = (company) => {
         if (company.nom) setCompanyName(company.nom);
         if (company.siret) setSiret(company.siret);
         if (company.adresse) setAddress(company.adresse);
-        if (company.code_ape) setNafCode(`${company.code_ape} - ${company.libelle_ape || ''}`.trim());
+        if (company.code_postal) setPostalCode(company.code_postal);
+        if (company.ville) setCity(company.ville);
+        
+        // Auto-fill Code NAF / APE
+        const formattedNaf = company.naf_formate || formatNafCode(company.code_ape, company.libelle_ape);
+        if (formattedNaf) setNafCode(formattedNaf);
+
+        // Auto-fill RCS
+        if (company.ville && company.siren) {
+            const sirenFormatted = company.siren.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            setRcs(`RCS ${company.ville} B ${sirenFormatted}`);
+        }
+
+        // Auto-fill Forme Juridique
         if (company.form_juridique) {
             const form = company.form_juridique.toUpperCase();
             if (form.includes("SASU")) setLegalForm("SASU");
             else if (form.includes("SAS")) setLegalForm("SAS");
             else if (form.includes("SARL")) setLegalForm("SARL");
             else if (form.includes("EURL")) setLegalForm("EURL");
-            else if (form.includes("INDIVIDU") || form.includes("EI")) setLegalForm("EI");
+            else if (form.includes("INDIVIDU") || form.includes("EI") || form.includes("PHYSIQUE")) setLegalForm("EI");
             else if (form.includes("MICRO") || form.includes("AUTO")) setLegalForm("Auto-entrepreneur");
+            else if (form.includes("SA")) setLegalForm("SA");
         }
-        triggerToast(`Entreprise "${company.nom}" sélectionnée ! Données juridiques pré-remplies.`);
+        triggerToast(`Entreprise "${company.nom}" sélectionnée ! Données juridiques & code NAF pré-remplis.`);
+    };
+
+    // Auto-fetch SIRENE data from SIRET/SIREN
+    const handleFetchSireneBySiret = async (termToLookup) => {
+        const queryTerm = (termToLookup || siret || siren).replace(/\s+/g, '');
+        if (!queryTerm || queryTerm.length < 9) {
+            triggerToast("Veuillez saisir un numéro SIREN (9 chiffres) ou SIRET (14 chiffres) valide", true);
+            return;
+        }
+
+        setIsSearchingSirene(true);
+        try {
+            const url = `https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(queryTerm)}&per_page=1`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Erreur API SIRENE");
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+                const comp = data.results[0];
+                const siege = comp.siege || {};
+                const apeCode = comp.activite_principale || siege.activite_principale || comp.matching_etablissements?.[0]?.activite_principale || '';
+                const apeLib = comp.libelle_activite_principale || siege.libelle_activite_principale || comp.activite_principale_libelle || '';
+
+                const formattedNaf = formatNafCode(apeCode, apeLib);
+                if (formattedNaf) setNafCode(formattedNaf);
+
+                if (comp.nom_complet || comp.nom_raison_sociale) {
+                    setCompanyName(comp.nom_complet || comp.nom_raison_sociale);
+                }
+
+                if (siege.siret || comp.matching_etablissements?.[0]?.siret) {
+                    setSiret(siege.siret || comp.matching_etablissements?.[0]?.siret);
+                }
+
+                const streetOnly = siege.numero_voie || siege.type_voie || siege.libelle_voie
+                    ? [siege.numero_voie, siege.type_voie, siege.libelle_voie].filter(Boolean).join(' ')
+                    : (siege.adresse || '');
+                if (streetOnly) setAddress(streetOnly);
+                if (siege.code_postal) setPostalCode(siege.code_postal);
+                if (siege.libelle_commune) setCity(siege.libelle_commune);
+
+                if (comp.nature_juridique_formate) {
+                    const form = comp.nature_juridique_formate.toUpperCase();
+                    if (form.includes("SASU")) setLegalForm("SASU");
+                    else if (form.includes("SAS")) setLegalForm("SAS");
+                    else if (form.includes("SARL")) setLegalForm("SARL");
+                    else if (form.includes("EURL")) setLegalForm("EURL");
+                    else if (form.includes("INDIVIDU") || form.includes("EI") || form.includes("PHYSIQUE")) setLegalForm("EI");
+                    else if (form.includes("MICRO") || form.includes("AUTO")) setLegalForm("Auto-entrepreneur");
+                }
+
+                if (comp.siren && siege.libelle_commune) {
+                    const sirenFormatted = comp.siren.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+                    setRcs(`RCS ${siege.libelle_commune} B ${sirenFormatted}`);
+                }
+
+                triggerToast(`Données SIRENE synchronisées : Code NAF ${formattedNaf}`);
+            } else {
+                triggerToast("Aucune entreprise trouvée pour ce numéro SIREN / SIRET", true);
+            }
+        } catch (err) {
+            console.error("Sirene fetch error:", err);
+            triggerToast("Impossible de joindre le registre SIRENE", true);
+        } finally {
+            setIsSearchingSirene(false);
+        }
     };
 
     const handleLogoUpload = (e) => {
@@ -107,6 +202,51 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
         }
     };
 
+    const handleSignatureSave = async (dataUrl) => {
+        setSignatureUrl(dataUrl);
+        try {
+            await apiFetch('/v1/company/signature', {
+                method: 'PATCH',
+                body: JSON.stringify({ signatureUrl: dataUrl })
+            });
+            window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { signatureUrl: dataUrl } }));
+            triggerToast("Signature de l'entreprise enregistrée avec succès !");
+        } catch (err) {
+            console.error("Signature save error:", err);
+            triggerToast("Signature enregistrée");
+        }
+    };
+
+    const handleSignatureUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                triggerToast("L'image est trop volumineuse (max 5 Mo)", true);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64Data = reader.result;
+                handleSignatureSave(base64Data);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleDeleteSignature = async () => {
+        setSignatureUrl(null);
+        try {
+            await apiFetch('/v1/company/signature', {
+                method: 'DELETE'
+            });
+            window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { signatureUrl: null } }));
+            triggerToast("Signature supprimée.");
+        } catch (err) {
+            console.error("Signature delete error:", err);
+            triggerToast("Signature supprimée.");
+        }
+    };
+
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
         try {
@@ -122,13 +262,16 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     shareCapital: capital,
                     nafCode,
                     address,
+                    postalCode,
+                    city,
                     email: companyEmail,
                     phone: companyPhone,
                     website,
-                    logoUrl
+                    logoUrl,
+                    signatureUrl
                 })
             });
-            window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { name: companyName, logoUrl } }));
+            window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { name: companyName, logoUrl, signatureUrl } }));
             triggerToast("Informations juridiques enregistrées dans la base de données !");
         } catch (err) {
             triggerToast("Informations juridiques enregistrées !");
@@ -160,6 +303,7 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
             </div>
 
             <div className="profile-form-grid" style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)' }}>
+                {/* Logo Section */}
                 <div className="form-field form-group-full">
                     <label className="form-label">Logo de l'entreprise (Imprimé sur les devis & factures PDF)</label>
                     <div className="avatar-edit-field">
@@ -174,6 +318,118 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                             </label>
                             <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px', display: 'block' }}>
                                 Format PNG transparent conseillé. Max 2 Mo.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Signature de l'entreprise Section */}
+                <div className="form-field form-group-full" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '8px' }}>
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <PenTool size={16} style={{ color: '#556B2F' }} />
+                            Signature de l'entreprise (Imprimée sur les devis et factures)
+                        </span>
+                        {signatureUrl && (
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#1A9E5C', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <CheckCircle size={14} /> Signature active
+                            </span>
+                        )}
+                    </label>
+
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', marginTop: '10px' }}>
+                        {/* Preview Box */}
+                        <div style={{
+                            width: '200px',
+                            height: '90px',
+                            borderRadius: '10px',
+                            border: '1.5px dashed var(--border)',
+                            backgroundColor: '#ffffff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            position: 'relative',
+                            padding: '8px'
+                        }}>
+                            {signatureUrl ? (
+                                <img src={signatureUrl} alt="Signature Entreprise" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                            ) : (
+                                <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', textAlign: 'center', padding: '0 8px' }}>
+                                    Aucune signature enregistrée
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowSignatureModal(true)}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '8px 14px',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                                        color: '#556B2F',
+                                        border: '1px solid rgba(85, 107, 47, 0.25)',
+                                        fontWeight: 600,
+                                        fontSize: '13px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <PenTool size={14} />
+                                    <span>{signatureUrl ? "Modifier / Dessiner" : "Dessiner la signature"}</span>
+                                </button>
+
+                                <label style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '8px 14px',
+                                    borderRadius: '8px',
+                                    backgroundColor: 'var(--muted, #F4F3EF)',
+                                    color: 'var(--foreground)',
+                                    border: '1px solid var(--border)',
+                                    fontWeight: 600,
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    margin: 0
+                                }}>
+                                    <Upload size={14} />
+                                    <span>Importer photo</span>
+                                    <input type="file" accept="image/*" onChange={handleSignatureUpload} style={{ display: 'none' }} />
+                                </label>
+
+                                {signatureUrl && (
+                                    <button
+                                        type="button"
+                                        onClick={handleDeleteSignature}
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                            color: '#ef4444',
+                                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                                            fontWeight: 600,
+                                            fontSize: '13px',
+                                            cursor: 'pointer'
+                                        }}
+                                        title="Supprimer la signature"
+                                    >
+                                        <Trash2 size={14} />
+                                        <span>Supprimer</span>
+                                    </button>
+                                )}
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>
+                                La signature sera apposée sur vos devis et factures (activable / désactivable dans "Personnaliser").
                             </span>
                         </div>
                     </div>
@@ -205,8 +461,45 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                 </div>
 
                 <div className="form-field">
-                    <label className="form-label">SIRET (14 chiffres)</label>
-                    <input type="text" className="form-input" maxLength="17" value={siret} onChange={(e) => setSiret(e.target.value)} required />
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>SIRET (14 chiffres)</span>
+                        <button
+                            type="button"
+                            onClick={() => handleFetchSireneBySiret()}
+                            disabled={isSearchingSirene}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--sidebar-primary)',
+                                fontSize: '11.5px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                padding: 0
+                            }}
+                        >
+                            <RefreshCw size={12} className={isSearchingSirene ? "animate-spin" : ""} />
+                            <span>{isSearchingSirene ? "Recherche..." : "Auto-remplir SIRENE"}</span>
+                        </button>
+                    </label>
+                    <input
+                        type="text"
+                        className="form-input"
+                        maxLength="17"
+                        value={siret}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setSiret(val);
+                            const clean = val.replace(/\s+/g, '');
+                            if (clean.length === 14 || clean.length === 9) {
+                                handleFetchSireneBySiret(clean);
+                            }
+                        }}
+                        placeholder="ex: 94408772500015"
+                        required
+                    />
                 </div>
 
                 <div className="form-field">
@@ -230,18 +523,50 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                 </div>
 
                 <div className="form-field">
-                    <label className="form-label">Code NAF / APE</label>
-                    <input type="text" className="form-input" value={nafCode} onChange={(e) => setNafCode(e.target.value)} />
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>Code NAF / APE</span>
+                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>Auto-rempli via SIRENE</span>
+                    </label>
+                    <input
+                        type="text"
+                        className="form-input"
+                        value={nafCode}
+                        onChange={(e) => setNafCode(e.target.value)}
+                        placeholder="ex: 4322B - Travaux d'installation d'équipements thermiques et de climatisation"
+                    />
                 </div>
 
                 <div className="form-field form-group-full">
-                    <label className="form-label">Adresse du siège social</label>
+                    <label className="form-label">Adresse (Numéro et nom de rue / voie)</label>
                     <AddressAutocomplete
                         value={address}
                         onChange={(val) => setAddress(val)}
-                        onAddressSelect={(selected) => setAddress(selected.label)}
-                        placeholder="ex: 23 RUE Paganini, 06000 NICE"
+                        onAddressSelect={handleAddressSelect}
+                        placeholder="ex: 23 Rue Paganini"
                         required
+                    />
+                </div>
+
+                <div className="form-field">
+                    <label className="form-label">Code postal</label>
+                    <input
+                        type="text"
+                        className="form-input"
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
+                        placeholder="ex: 06000"
+                        maxLength={10}
+                    />
+                </div>
+
+                <div className="form-field">
+                    <label className="form-label">Ville</label>
+                    <input
+                        type="text"
+                        className="form-input"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder="ex: Nice"
                     />
                 </div>
 
@@ -275,6 +600,14 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     </button>
                 </div>
             </div>
+
+            {/* Signature Drawing Modal */}
+            <SignaturePadModal
+                isOpen={showSignatureModal}
+                onClose={() => setShowSignatureModal(false)}
+                onSave={handleSignatureSave}
+                existingSignature={signatureUrl}
+            />
         </form>
     );
 }

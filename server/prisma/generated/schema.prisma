@@ -338,6 +338,7 @@ model Company {
   city            String?
   postalCode      String?
   logoUrl         String?
+  signatureUrl    String?
   website         String?
   slug            String? @unique // "dupont-climatisation" pour formulaire public
 

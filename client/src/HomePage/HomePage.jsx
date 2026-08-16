@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, FileText, Calendar, Users, ArrowRight, X } from "lucide-react";
+import { Star, FileText, Calendar, Users, ArrowRight, X } from "lucide-react";
 import "./Homepage.css";
 
 // Layout components
@@ -202,7 +202,7 @@ function HomePage() {
                             </button>
 
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(85, 107, 47, 0.12)', color: '#556B2F', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '16px' }}>
-                                <Sparkles size={16} /> Bienvenue sur ClimPro CRM
+                                <Star size={16} fill="currentColor" /> Bienvenue sur ClimPro CRM
                             </div>
 
                             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>

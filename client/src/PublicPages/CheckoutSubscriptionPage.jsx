@@ -5,7 +5,7 @@ import {
     ShieldCheck,
     CreditCard,
     CheckCircle2,
-    Sparkles,
+    Star,
     Lock,
     Zap,
     ArrowLeft,
@@ -233,7 +233,7 @@ export default function CheckoutSubscriptionPage() {
                         fontWeight: 700,
                         marginBottom: "12px"
                     }}>
-                        <Sparkles size={14} /> Activation Instantanée GestArt CRM
+                        <Star size={14} fill="currentColor" /> Activation Instantanée GestArt CRM
                     </div>
                     <h1 style={{ fontSize: "32px", fontWeight: 800, margin: "0 0 10px 0", letterSpacing: "-0.02em" }}>
                         Finalisez votre abonnement

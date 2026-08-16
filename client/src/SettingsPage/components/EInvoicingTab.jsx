@@ -252,8 +252,7 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                 fontSize: '12px',
                                 fontWeight: 800
                             }}>
-                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
-                                🟢 Connectée ({connectionData.environment === 'production' ? 'Production' : 'Sandbox / Test'})
+                                Connectée ({connectionData.environment === 'production' ? 'Production' : 'Sandbox / Test'})
                             </span>
                         ) : (
                             <span style={{
@@ -267,8 +266,7 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                 fontSize: '12px',
                                 fontWeight: 800
                             }}>
-                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#DC2626' }} />
-                                🔴 Non connectée
+                                Non connectée
                             </span>
                         )}
                     </div>
@@ -287,7 +285,7 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                             <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>Réception des factures B2B</span>
                         </div>
                         <div style={{ fontSize: '12px', color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            🟢 Activée (Obligatoire dès sept. 2026)
+                            Activée (Obligatoire dès sept. 2026)
                         </div>
                         <p style={{ margin: '6px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
                             Vos factures d'achats et fournisseurs sont reçues automatiquement dans l'onglet « Factures reçues ».
@@ -300,10 +298,10 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                             <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>Émission B2B structurée</span>
                         </div>
                         <div style={{ fontSize: '12px', color: '#CA8A04', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            🟡 Disponible à partir de 2027 / Optionnel
+                            Disponible à partir de 2027 / Optionnel
                         </div>
                         <p style={{ margin: '6px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                            Format Factur-X / UBL prêt pour transmission aux entreprises clientes dès l'application légale.
+                            Format Factur-X / UBL prêt для transmission aux entreprises clientes dès l'application légale.
                         </p>
                     </div>
 
@@ -313,7 +311,7 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                             <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>E-reporting & Encaissements</span>
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--sidebar-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            🟢 Prêt selon statut TVA
+                            Prêt selon statut TVA
                         </div>
                         <p style={{ margin: '6px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
                             Les statuts de paiement des factures de prestations de services sont transmis pour le reporting fiscal.

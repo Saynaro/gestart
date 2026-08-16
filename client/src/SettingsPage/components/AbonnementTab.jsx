@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
     CreditCard,
-    Sparkles,
+    Star,
     Check,
     Download,
     AlertCircle,
@@ -13,22 +13,39 @@ import {
 } from "lucide-react";
 import { API_URL } from "../../utils/config";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
+import { useUser } from "../../utils/useUser";
 import StripeCheckoutModal from "./StripeCheckoutModal";
+import SubscriptionReceiptModal from "./SubscriptionReceiptModal";
 
 export default function AbonnementTab({ isMobileView, triggerToast, triggerConfirm }) {
     const comparisonRef = useRef(null);
+    const { subscription: contextSub, displayName: contextPlanName, refreshSubscription } = useSubscription();
+    const { user, company } = useUser();
 
     // Subscription & Usage States
     const [billingCycle, setBillingCycle] = useState("mensuel"); // "mensuel" | "annuel"
-    const [currentPlan, setCurrentPlan] = useState("Starter");
-    const [subDetails, setSubDetails] = useState(null);
+    const [currentPlan, setCurrentPlan] = useState(() => contextPlanName || contextSub?.plan?.displayName || "Pro");
+    const [subDetails, setSubDetails] = useState(() => contextSub || null);
     const [usage, setUsage] = useState({
-        clients: { current: 0, max: 50 },
-        technicians: { current: 1, max: 1 },
-        sms: { current: 0, max: 50 }
+        clients: { current: 0, max: contextSub?.plan?.maxClients ?? -1 },
+        technicians: { current: 1, max: contextSub?.plan?.maxTechnicians ?? -1 },
+        sms: { current: 0, max: contextSub?.plan?.maxSmsPerMonth ?? 1000 }
     });
     const [paymentHistory, setPaymentHistory] = useState([]);
     const [loadingData, setLoadingData] = useState(true);
+    const [activeReceipt, setActiveReceipt] = useState(null);
+
+    // Sync from context when contextSub updates
+    useEffect(() => {
+        if (contextSub) {
+            setSubDetails(contextSub);
+            setCurrentPlan(contextPlanName || contextSub.plan?.displayName || "Pro");
+            if (contextSub.cycle === "ANNUAL") {
+                setBillingCycle("annuel");
+            }
+        }
+    }, [contextSub, contextPlanName]);
 
     // Stripe Checkout Modal state
     const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
@@ -46,10 +63,10 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 apiFetch('/v1/subscription/invoices').catch(() => null)
             ]);
 
-            const sub = subRes?.data?.subscription || subRes?.subscription;
+            const sub = subRes?.data?.subscription || subRes?.subscription || contextSub;
             if (sub) {
                 setSubDetails(sub);
-                const planName = sub.plan?.displayName || sub.plan?.name || "Starter";
+                const planName = sub.plan?.displayName || sub.plan?.name || contextPlanName || "Pro";
                 setCurrentPlan(planName);
                 if (sub.cycle === "ANNUAL") {
                     setBillingCycle("annuel");
@@ -144,7 +161,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
 
     // Cancel Subscription with real prompt
     const handleCancelSubscription = () => {
-        const confirmMsg = "Êtes-vous sûr de vouloir résilier votre abonnement ? Vous conserverez l'accès complet à vos fonctionnalités jusqu'à la fin de la période de facturation en cours.";
+        const confirmMsg = `Êtes-vous sûr de vouloir résilier votre abonnement ? Vous conserverez l'accès complet à vos fonctionnalités jusqu'au ${formattedRenewalDate}. Aucun prélèvement ne sera effectué le mois suivant.`;
 
         if (triggerConfirm) {
             triggerConfirm({
@@ -165,8 +182,9 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
         setActionLoading(true);
         try {
             const res = await apiFetch('/v1/subscription/cancel', { method: 'POST' });
-            if (triggerToast) triggerToast(res.message || "Abonnement résilié avec succès.", true);
+            if (triggerToast) triggerToast(res.message || "Abonnement résilié avec succès. Aucun prélèvement futur ne sera effectué.", true);
             await loadAllSubscriptionData();
+            if (refreshSubscription) refreshSubscription();
         } catch (err) {
             if (triggerToast) triggerToast(err.message || "Erreur lors de la résiliation", true);
         } finally {
@@ -174,13 +192,33 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
         }
     };
 
-    // Reactivate subscription
-    const handleReactivateSubscription = async () => {
+    // Reactivate subscription with prompt confirming date and amount
+    const handleReactivateSubscription = () => {
+        const confirmMsg = `Votre abonnement ${currentPlan} sera réactivé. Le prochain prélèvement automatique de ${currentPriceText} sera effectué le ${formattedRenewalDate}. Souhaitez-vous continuer ?`;
+
+        if (triggerConfirm) {
+            triggerConfirm({
+                title: "Réactiver l'abonnement ?",
+                message: confirmMsg,
+                confirmText: "Confirmer la réactivation",
+                cancelText: "Annuler",
+                type: "success",
+                onConfirm: async () => {
+                    executeReactivate();
+                }
+            });
+        } else if (window.confirm(confirmMsg)) {
+            executeReactivate();
+        }
+    };
+
+    const executeReactivate = async () => {
         setActionLoading(true);
         try {
             const res = await apiFetch('/v1/subscription/reactivate', { method: 'POST' });
-            if (triggerToast) triggerToast("Votre abonnement a été réactivé avec succès !");
+            if (triggerToast) triggerToast(`✓ Abonnement ${currentPlan} réactivé avec succès ! Prochain prélèvement le ${formattedRenewalDate}.`);
             await loadAllSubscriptionData();
+            if (refreshSubscription) refreshSubscription();
         } catch (err) {
             if (triggerToast) triggerToast(err.message || "Erreur lors de la réactivation", true);
         } finally {
@@ -253,12 +291,13 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
 
     // Current price formatted
     const currentPriceText = useMemo(() => {
-        const p = subDetails?.plan;
-        if (!p) return "1,00 € HT / mois";
-        const price = subDetails.cycle === "ANNUAL" ? p.priceAnnual : p.priceMonthly;
-        const period = subDetails.cycle === "ANNUAL" ? "an" : "mois";
+        const p = subDetails?.plan || contextSub?.plan;
+        if (!p) return "129,00 € HT / mois";
+        const cycle = subDetails?.cycle || contextSub?.cycle || "MONTHLY";
+        const price = cycle === "ANNUAL" ? p.priceAnnual : p.priceMonthly;
+        const period = cycle === "ANNUAL" ? "an" : "mois";
         return `${Number(price || 1).toFixed(2).replace(".", ",")} € HT / ${period}`;
-    }, [subDetails]);
+    }, [subDetails, contextSub]);
 
     // Usage percentages for gauges
     const clientsPercent = useMemo(() => {
@@ -347,7 +386,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                 boxShadow: '0 4px 12px rgba(91,77,219,0.25)'
                             }}
                         >
-                            <Sparkles size={15} />
+                            <Star size={15} fill="currentColor" />
                             Changer de plan
                         </button>
 
@@ -621,7 +660,14 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                                 <button
                                                     type="button"
                                                     onClick={() => {
-                                                        if (triggerToast) triggerToast(`Téléchargement du reçu ${displayId}...`);
+                                                        setActiveReceipt({
+                                                            id: item.id,
+                                                            displayId,
+                                                            formattedDate,
+                                                            amount: item.amount || 1,
+                                                            planName: item.planName || currentPlan || 'Unlimited',
+                                                            status: item.status
+                                                        });
                                                     }}
                                                     style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                                                 >
@@ -649,6 +695,17 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                     if (triggerToast) triggerToast(checkoutMode === "card_only" ? "Carte bancaire mise à jour !" : "Souscription mise à jour avec succès !");
                 }}
             />
+
+            {/* Subscription Payment Receipt Modal */}
+            {activeReceipt && (
+                <SubscriptionReceiptModal
+                    receipt={activeReceipt}
+                    user={user}
+                    company={company}
+                    currentPlan={currentPlan}
+                    onClose={() => setActiveReceipt(null)}
+                />
+            )}
         </div>
     );
 }

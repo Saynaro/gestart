@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Sparkles, ArrowRight, Zap } from 'lucide-react';
+import { CheckCircle2, Star, ArrowRight, Zap } from 'lucide-react';
 
 export function SubscriptionSuccessPage() {
     const navigate = useNavigate();
@@ -57,7 +57,7 @@ export function SubscriptionSuccessPage() {
                     fontWeight: 700,
                     marginBottom: '16px'
                 }}>
-                    <Sparkles size={16} /> Paiement Confirmé
+                    <Star size={16} fill="currentColor" /> Paiement Confirmé
                 </div>
 
                 <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-0.02em' }}>

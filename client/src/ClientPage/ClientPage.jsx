@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useDragControls } from "framer-motion";
 import "../HomePage/Homepage.css";
 import "./ClientPage.css";
 
@@ -59,7 +59,7 @@ function ClientPage() {
             clientList.forEach(c => {
                 const isOrg = c.type === 'COMPANY' || !!c.companyName;
 
-                const rawEquip = c.equipment?.[0];
+                const rawEquip = (c.equipment && c.equipment.length > 0) ? c.equipment[0] : null;
                 const equipObj = rawEquip ? {
                     model: rawEquip.model || (rawEquip.brand ? `${rawEquip.brand} ${rawEquip.model || ''}`.trim() : "Non renseigné"),
                     installDate: rawEquip.installDate ? new Date(rawEquip.installDate).toLocaleDateString('fr-FR') : 'Non renseigné',
@@ -76,27 +76,60 @@ function ClientPage() {
                     raw: i
                 }));
 
-                const mappedFactures = (c.invoices || []).map(inv => ({
-                    id: inv.number || `F-${inv.id.slice(0, 6)}`,
-                    date: inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString('fr-FR') : new Date(inv.createdAt).toLocaleDateString('fr-FR'),
-                    amount: `${(inv.amountTTC || 0).toFixed(2).replace('.', ',')} €`,
-                    status: inv.status === 'PAID' ? 'Payée' : inv.status === 'SENT' ? 'Envoyée' : inv.status === 'CANCELLED' ? 'Annulée' : 'En attente',
-                    raw: inv
-                }));
+                const mappedFactures = (c.invoices || []).map(inv => {
+                    const st = (inv.status || 'draft').toLowerCase();
+                    const statusLabel = st === 'paid' ? 'Payée' : st === 'sent' ? 'Envoyée' : st === 'overdue' ? 'En retard' : st === 'cancelled' ? 'Annulée' : 'Brouillon';
+                    return {
+                        id: inv.number || `F-${inv.id.slice(0, 6)}`,
+                        date: inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString('fr-FR') : (inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR')),
+                        amount: `${(inv.amountTTC || inv.amountHT || 0).toFixed(2).replace('.', ',')} €`,
+                        status: statusLabel,
+                        statusKey: st,
+                        raw: inv
+                    };
+                });
 
-                const mappedDevis = (c.quotes || []).map(q => ({
-                    id: q.number || `D-${q.id.slice(0, 6)}`,
-                    date: q.issuedAt ? new Date(q.issuedAt).toLocaleDateString('fr-FR') : new Date(q.createdAt).toLocaleDateString('fr-FR'),
-                    amount: `${(q.amountTTC || 0).toFixed(2).replace('.', ',')} €`,
-                    status: q.status === 'ACCEPTED' ? 'Accepté' : q.status === 'REJECTED' ? 'Refusé' : q.status === 'SENT' ? 'Envoyé' : 'En attente',
-                    raw: q
-                }));
+                const mappedDevis = (c.quotes || []).map(q => {
+                    const st = (q.status || 'DRAFT').toUpperCase();
+                    const statusLabel = st === 'ACCEPTED' ? 'Signé' : st === 'SENT' ? 'Envoyé' : st === 'REFUSED' ? 'Refusé' : st === 'EXPIRED' ? 'Expiré' : 'Brouillon';
+                    return {
+                        id: q.number || `D-${q.id.slice(0, 6)}`,
+                        date: q.issuedAt ? new Date(q.issuedAt).toLocaleDateString('fr-FR') : (q.createdAt ? new Date(q.createdAt).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR')),
+                        amount: `${(q.amountTTC || q.amountHT || 0).toFixed(2).replace('.', ',')} €`,
+                        status: statusLabel,
+                        statusKey: st.toLowerCase(),
+                        raw: q
+                    };
+                });
 
                 const mappedMessages = (c.smsLogs || []).map(m => ({
                     author: m.direction === 'INBOUND' ? 'Client' : 'Technicien / Entreprise',
                     text: m.message,
                     date: new Date(m.createdAt).toLocaleDateString('fr-FR')
                 }));
+
+                // Calculate real next upcoming intervention
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const upcomingInterventions = (c.interventions || [])
+                    .filter(i => {
+                        if (!i.scheduledAt) return false;
+                        const schedDate = new Date(i.scheduledAt);
+                        return schedDate >= today && i.status !== 'CANCELLED' && i.status !== 'COMPLETED';
+                    })
+                    .sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+
+                const nextIntervention = upcomingInterventions.length > 0 ? upcomingInterventions[0] : null;
+                
+                let nextMaintenanceDate = null;
+                if (nextIntervention) {
+                    nextMaintenanceDate = new Date(nextIntervention.scheduledAt).toLocaleDateString('fr-FR');
+                } else if (rawEquip?.nextServiceDate && new Date(rawEquip.nextServiceDate) >= today) {
+                    nextMaintenanceDate = new Date(rawEquip.nextServiceDate).toLocaleDateString('fr-FR');
+                }
+
+                const hasNext = !!nextMaintenanceDate;
 
                 const clientObj = {
                     id: c.id,
@@ -113,8 +146,11 @@ function ClientPage() {
                     type: isOrg ? 'organisation' : 'particulier',
                     equipment: equipObj,
                     maintenance: {
-                        status: c.status === "OK" ? "OK" : c.status === "WARNING" ? "À prévoir" : c.status === "URGENT" ? "Urgent" : "OK",
-                        nextMaintenance: rawEquip?.nextServiceDate ? new Date(rawEquip.nextServiceDate).toLocaleDateString('fr-FR') : "15/03/2027"
+                        status: hasNext ? "OK" : (rawEquip?.installDate && rawEquip.installDate !== "Non renseigné" ? "À planifier" : "Aucun"),
+                        statusClass: hasNext ? "green" : (rawEquip?.installDate && rawEquip.installDate !== "Non renseigné" ? "warning" : "gray"),
+                        nextMaintenance: nextMaintenanceDate || "Aucun entretien prévu",
+                        hasNext: hasNext,
+                        nextInterventionTitle: nextIntervention?.title || nextIntervention?.type || null
                     },
                     interventions: mappedInterventions,
                     factures: mappedFactures,

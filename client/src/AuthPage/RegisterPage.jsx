@@ -8,7 +8,7 @@ import {
     ArrowRight,
     ArrowLeft,
     Shield,
-    Sparkles,
+    Star,
     Lock,
     Mail,
     User,
@@ -545,7 +545,7 @@ export default function RegisterPage() {
                                             borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', color: '#16A34A',
                                             fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px'
                                         }}>
-                                            <Sparkles size={18} />
+                                            <Star size={18} fill="currentColor" />
                                             Vous êtes invité(e) à rejoindre l'entreprise : <strong>{invitedCompanyName}</strong>
                                         </div>
                                     )}

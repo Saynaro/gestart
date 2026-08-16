@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MoreHorizontal, ChevronRight, Tag } from "lucide-react";
 import TypePickerSheet from "./TypePickerSheet";
+import UnitPickerSheet from "./UnitPickerSheet";
 
 function NewArticleModal({
     isOpen,
@@ -17,6 +19,8 @@ function NewArticleModal({
     const [unitPrice, setUnitPrice] = useState("");
     const [tvaRate, setTvaRate] = useState("20");
     const [category, setCategory] = useState("Prestations de services (BIC / BNC)");
+    const [unit, setUnit] = useState("À l'unité");
+    const [showUnitPicker, setShowUnitPicker] = useState(false);
     const [description, setDescription] = useState("");
     const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -28,6 +32,7 @@ function NewArticleModal({
             setUnitPrice(editingArticle.unitPrice ? String(editingArticle.unitPrice) : "");
             setTvaRate(editingArticle.tvaRate ? String(editingArticle.tvaRate) : "20");
             setCategory(editingArticle.category || "Prestations de services (BIC / BNC)");
+            setUnit(editingArticle.unit || "À l'unité");
             setDescription(editingArticle.description || "");
         } else {
             setName("");
@@ -35,6 +40,7 @@ function NewArticleModal({
             setUnitPrice("");
             setTvaRate("20");
             setCategory("Prestations de services (BIC / BNC)");
+            setUnit("À l'unité");
             setDescription("");
         }
         setShowAdvanced(false);
@@ -56,6 +62,7 @@ function NewArticleModal({
             unitPrice: parseFloat(unitPrice) || 0,
             tvaRate: parseFloat(tvaRate) || 20,
             category: category,
+            unit: unit,
             description: description.trim()
         };
 
@@ -63,7 +70,7 @@ function NewArticleModal({
         onClose();
     };
 
-    return (
+    return createPortal(
         <>
             <AnimatePresence>
                 <div className="article-modal-overlay">
@@ -197,6 +204,21 @@ function NewArticleModal({
 
                                     <div className="form-field-divider" />
 
+                                    {/* Unit Picker Selector Row */}
+                                    <button
+                                        type="button"
+                                        className="form-field-selector-row"
+                                        onClick={() => setShowUnitPicker(true)}
+                                    >
+                                        <div className="selector-text-col">
+                                            <span className="selector-label">Unité de facturation</span>
+                                            <span className="selector-val">{unit}</span>
+                                        </div>
+                                        <ChevronRight size={18} className="selector-arrow" />
+                                    </button>
+
+                                    <div className="form-field-divider" />
+
                                     <div className="form-field-item">
                                         <label className="form-field-label">Description (facultatif)</label>
                                         <textarea
@@ -218,17 +240,6 @@ function NewArticleModal({
                                         <div className="form-field-item">
                                             <label className="form-field-label">Code-barres / EAN</label>
                                             <input type="text" className="form-field-input" placeholder="Ex: 3700123456789" />
-                                        </div>
-                                        <div className="form-field-divider" />
-                                        <div className="form-field-item">
-                                            <label className="form-field-label">Unité de mesure</label>
-                                            <select className="form-field-select" defaultValue="Unité">
-                                                <option value="Unité">Unité (u)</option>
-                                                <option value="Heure">Heure (h)</option>
-                                                <option value="Jour">Jour (j)</option>
-                                                <option value="Mètre">Mètre (m)</option>
-                                                <option value="Forfait">Forfait</option>
-                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -252,7 +263,16 @@ function NewArticleModal({
                 selectedType={category}
                 onSelect={(selectedCategory) => setCategory(selectedCategory)}
             />
-        </>
+
+            {/* Unit Picker Sub-Sheet */}
+            <UnitPickerSheet
+                isOpen={showUnitPicker}
+                onClose={() => setShowUnitPicker(false)}
+                selectedUnit={unit}
+                onSelect={(selectedUnit) => setUnit(selectedUnit)}
+            />
+        </>,
+        document.body
     );
 }
 

@@ -481,6 +481,19 @@ export const cancelSubscription = async (req, res) => {
     const companyId = req.user.companyId;
 
     try {
+        const sub = await prisma.subscription.findUnique({ where: { companyId } });
+
+        // If active Stripe Subscription exists, tell Stripe to cancel at end of period (no further charges)
+        if (sub?.stripeSubscriptionId && stripe) {
+            try {
+                await stripe.subscriptions.update(sub.stripeSubscriptionId, {
+                    cancel_at_period_end: true
+                });
+            } catch (stripeErr) {
+                console.warn("Stripe subscription cancel_at_period_end warning:", stripeErr.message);
+            }
+        }
+
         const updatedSubscription = await prisma.subscription.update({
             where: { companyId },
             data: {
@@ -492,7 +505,7 @@ export const cancelSubscription = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Votre abonnement a été résilié avec succès.",
+            message: "Votre abonnement a été résilié avec succès. Aucun prélèvement ne sera effectué le mois prochain.",
             data: { subscription: updatedSubscription }
         });
     } catch (error) {
@@ -509,6 +522,18 @@ export const reactivateSubscription = async (req, res) => {
     const companyId = req.user.companyId;
 
     try {
+        const sub = await prisma.subscription.findUnique({ where: { companyId } });
+
+        if (sub?.stripeSubscriptionId && stripe) {
+            try {
+                await stripe.subscriptions.update(sub.stripeSubscriptionId, {
+                    cancel_at_period_end: false
+                });
+            } catch (stripeErr) {
+                console.warn("Stripe subscription reactivate warning:", stripeErr.message);
+            }
+        }
+
         const updatedSubscription = await prisma.subscription.update({
             where: { companyId },
             data: {
@@ -520,7 +545,7 @@ export const reactivateSubscription = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Abonnement réactivé avec succès",
+            message: "Abonnement réactivé avec succès !",
             data: { subscription: updatedSubscription }
         });
     } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Check, Palette, Type, Layout, Eye, Sliders, Image, Sparkles } from "lucide-react";
+import { X, Check, Palette, Type, Layout, Eye, Sliders, Image, Star } from "lucide-react";
 import { useDocumentCustomization, getEffectiveCustomization } from "../utils/documentCustomization";
 import { useUser } from "../utils/useUser";
 import "./DocumentCustomizerModal.css";
@@ -56,6 +56,20 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
   const companyDisplayPhone = company?.phone || "06 51 60 43 16";
   const companyDisplayEmail = company?.email || "contact@entreprise.fr";
   const companyLogo = customization.logoUrl || company?.logoUrl;
+  const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
+  const realIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 6000 0123 4567 8901 234";
+
+  // Dynamic Client Info from active document if present
+  const clientDisplayName = doc?.clientName || doc?.client?.name || "Jean Dupont";
+  const clientDisplayAddress = doc?.clientAddress || doc?.client?.address || "12 Rue des Fleurs, 75001 Paris";
+  const clientDisplayEmail = doc?.clientEmail || doc?.client?.email || "jean.dupont@email.com";
+  const docNumber = doc?.number || (docType === "devis" ? "DEV-2026-0001" : "INV-2026-0001");
+  const docDate = doc?.date ? new Date(doc.date).toLocaleDateString('fr-FR') : "01/08/2026";
+  const docDeliveryDate = doc?.deliveryDate ? new Date(doc.deliveryDate).toLocaleDateString('fr-FR') : (doc?.dueDate ? new Date(doc.dueDate).toLocaleDateString('fr-FR') : "15/08/2026");
+  const docTotalHt = doc?.subtotalHt != null ? Number(doc.subtotalHt) : 100;
+  const docTvaRate = doc?.tvaRate != null ? Number(doc.tvaRate) : 20;
+  const docTotalTva = doc?.tvaAmount != null ? Number(doc.tvaAmount) : (docTotalHt * docTvaRate / 100);
+  const docTotalTtc = doc?.totalTtc != null ? Number(doc.totalTtc) : (docTotalHt + docTotalTva);
 
   const handleChange = (key, value) => {
     const newSettings = { ...customization, [key]: value };
@@ -73,7 +87,7 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
         {/* Modal Header */}
         <div className="doc-customizer-header">
           <div className="customizer-header-title">
-            <Sparkles size={20} className="customizer-sparkle-icon" />
+            <Star size={20} className="customizer-sparkle-icon" fill="currentColor" />
             <div>
               <h3>Personnaliser vos documents</h3>
               <p>Personnalisez l'apparence des factures et devis sur PC et Mobile</p>
@@ -499,6 +513,80 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                         onChange={(e) => handleChange("showAgaMention", e.target.checked)}
                       />
                     </div>
+
+                    <div className="toggle-row-card">
+                      <div>
+                        <span className="toggle-label-text">Signature de l'entreprise</span>
+                        <p className="toggle-desc-text">Afficher la signature / cachet en bas du document</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        className="custom-toggle-switch"
+                        checked={customization.showCompanySignature !== false}
+                        onChange={(e) => handleChange("showCompanySignature", e.target.checked)}
+                      />
+                    </div>
+
+                    {customization.showCompanySignature !== false && (
+                      <div style={{ marginLeft: "14px", marginTop: "6px", marginBottom: "10px" }}>
+                        <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--muted-foreground)", display: "block", marginBottom: "4px" }}>
+                          Position signature entreprise :
+                        </label>
+                        <div className="btn-segmented-control" style={{ maxWidth: "220px" }}>
+                          <button
+                            type="button"
+                            className={`segmented-btn ${(customization.signaturePosition || "left") === "left" ? "active" : ""}`}
+                            onClick={() => handleChange("signaturePosition", "left")}
+                          >
+                            Gauche
+                          </button>
+                          <button
+                            type="button"
+                            className={`segmented-btn ${customization.signaturePosition === "right" ? "active" : ""}`}
+                            onClick={() => handleChange("signaturePosition", "right")}
+                          >
+                            Droite
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="toggle-row-card">
+                      <div>
+                        <span className="toggle-label-text">Signature de l'acheteur (Client)</span>
+                        <p className="toggle-desc-text">Zone pour la signature du client / Bon pour accord</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        className="custom-toggle-switch"
+                        checked={customization.showClientSignature !== false}
+                        onChange={(e) => handleChange("showClientSignature", e.target.checked)}
+                      />
+                    </div>
+
+                    {customization.showClientSignature !== false && (
+                      <div style={{ marginLeft: "14px", marginTop: "6px", marginBottom: "10px" }}>
+                        <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--muted-foreground)", display: "block", marginBottom: "4px" }}>
+                          Position signature acheteur :
+                        </label>
+                        <div className="btn-segmented-control" style={{ maxWidth: "220px" }}>
+                          <button
+                            type="button"
+                            className={`segmented-btn ${customization.clientSignaturePosition === "left" ? "active" : ""}`}
+                            onClick={() => handleChange("clientSignaturePosition", "left")}
+                          >
+                            Gauche
+                          </button>
+                          <button
+                            type="button"
+                            className={`segmented-btn ${(customization.clientSignaturePosition || "right") === "right" ? "active" : ""}`}
+                            onClick={() => handleChange("clientSignaturePosition", "right")}
+                          >
+                            Droite
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -585,8 +673,8 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                           src={companyLogo}
                           alt="Logo"
                           style={{
-                            maxHeight: `${customization.logoSize || 45}px`,
-                            maxWidth: `${(customization.logoSize || 45) * 2.5}px`,
+                            height: `${customization.logoSize || 45}px`,
+                            maxWidth: "180px",
                             objectFit: "contain",
                             marginBottom: "6pt",
                           }}
@@ -612,10 +700,17 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                         </div>
                       )
                     )}
-                    <div style={{ fontWeight: "700", fontSize: "1.1em", color: customization.primaryColor }}>
+                    <h1
+                      style={{
+                        fontSize: "1.3em",
+                        fontWeight: "800",
+                        color: customization.primaryColor,
+                        margin: 0,
+                      }}
+                    >
                       {companyDisplayName}
-                    </div>
-                    <div style={{ fontSize: "0.88em", opacity: 0.8, lineHeight: 1.3 }}>
+                    </h1>
+                    <div style={{ fontSize: "0.9em", lineHeight: "1.4", opacity: 0.85, marginTop: "2pt" }}>
                       {customization.showAddress && <div>{companyDisplayAddress}</div>}
                       {customization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
                       {customization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
@@ -623,15 +718,15 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                  <div style={{ textAlign: "right" }}>
                     {customization.showLogo && customization.logoPosition === "right" && (
                       companyLogo ? (
                         <img
                           src={companyLogo}
                           alt="Logo"
                           style={{
-                            maxHeight: `${customization.logoSize || 45}px`,
-                            maxWidth: `${(customization.logoSize || 45) * 2.5}px`,
+                            height: `${customization.logoSize || 45}px`,
+                            maxWidth: "180px",
                             objectFit: "contain",
                             marginBottom: "6pt",
                           }}
@@ -670,14 +765,14 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     </h2>
                     <div style={{ fontSize: "0.95em", marginTop: "4pt" }}>
                       <div>
-                        <strong>N° : </strong> {docType === "devis" ? "DEV-2026-0001" : "INV-2026-0001"}
+                        <strong>N° : </strong> {docNumber}
                       </div>
                       <div>
-                        <strong>Date : </strong> 01/08/2026
+                        <strong>Date : </strong> {docDate}
                       </div>
                       {customization.showDeliveryDate && (
                         <div>
-                          <strong>Livraison : </strong> 15/08/2026
+                          <strong>Livraison : </strong> {docDeliveryDate}
                         </div>
                       )}
                     </div>
@@ -687,20 +782,38 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                 {/* Client Box */}
                 <div
                   style={{
-                    backgroundColor: customization.structure === "modern" ? `${customization.primaryColor}10` : "#FAFAF8",
-                    padding: "8px 12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: "3px",
+                    backgroundColor: customization.structure === "modern" ? `${customization.primaryColor}12` : "#FAFAF8",
+                    padding: "10px 14px",
                     borderRadius: "6px",
                     margin: "12px 0",
+                    textAlign: "left",
                   }}
                 >
-                  <span style={{ fontSize: "0.8em", fontWeight: "700", opacity: 0.6 }}>
+                  <span style={{ fontSize: "0.78em", fontWeight: "700", opacity: 0.65, letterSpacing: "0.5px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
                     {docType === "devis" ? "DEVIS POUR :" : "FACTURÉ À :"}
                   </span>
-                  <div style={{ fontWeight: "700", fontSize: "1.1em" }}>Jean Dupont</div>
-                  <div style={{ fontSize: "0.95em", opacity: 0.85 }}>
-                    12 Rue des Fleurs, 75001 Paris<br />
-                    jean.dupont@email.com
+                  <div style={{ fontWeight: "700", fontSize: "1.1em", color: "#1A1A1A", lineHeight: 1.3 }}>
+                    {clientDisplayName}
                   </div>
+                  {clientDisplayAddress && (
+                    <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
+                      {clientDisplayAddress}
+                    </div>
+                  )}
+                  {clientDisplayEmail && (
+                    <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
+                      {clientDisplayEmail}
+                    </div>
+                  )}
+                  {clientDisplayPhone && (
+                    <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
+                      {clientDisplayPhone}
+                    </div>
+                  )}
                 </div>
 
                 {/* Items Table */}
@@ -719,12 +832,30 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     </tr>
                   </thead>
                   <tbody>
-                    <tr style={{ borderBottom: "1px solid #EAEAE6" }}>
-                      <td style={{ padding: "6px 8px" }}>Forfait Entretien annuel PAC Daikin</td>
-                      <td style={{ textAlign: "center", padding: "6px", whiteSpace: "nowrap" }}>1</td>
-                      <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>100,00 €</td>
-                      <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>100,00 €</td>
-                    </tr>
+                    {doc?.lines && doc.lines.length > 0 ? (
+                      doc.lines.map((line, i) => {
+                        const q = Number(line.quantity || line.qty || 1);
+                        const p = Number(line.unitPrice) || 0;
+                        return (
+                          <tr key={i} style={{ borderBottom: "1px solid #EAEAE6" }}>
+                            <td style={{ padding: "6px 8px" }}>
+                              <div style={{ fontWeight: 600 }}>{line.description || "Prestation"}</div>
+                              {line.reference && <div style={{ fontSize: "0.75em", color: "var(--muted-foreground)" }}>Réf: {line.reference}</div>}
+                            </td>
+                            <td style={{ textAlign: "center", padding: "6px", whiteSpace: "nowrap" }}>{q}</td>
+                            <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>{p.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                            <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>{(p * q).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr style={{ borderBottom: "1px solid #EAEAE6" }}>
+                        <td style={{ padding: "6px 8px" }}>{doc?.interventionType || doc?.subject || "Forfait Prestation"}</td>
+                        <td style={{ textAlign: "center", padding: "6px", whiteSpace: "nowrap" }}>1</td>
+                        <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>{docTotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                        <td style={{ textAlign: "right", padding: "6px 8px", whiteSpace: "nowrap" }}>{docTotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
 
@@ -734,11 +865,11 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     <tbody>
                       <tr>
                         <td style={{ whiteSpace: "nowrap", padding: "4px 8px" }}>Sous-total HT :</td>
-                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>100,00 €</td>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>{docTotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
                       </tr>
                       <tr>
-                        <td style={{ whiteSpace: "nowrap", padding: "4px 8px" }}>TVA (20%) :</td>
-                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>20,00 €</td>
+                        <td style={{ whiteSpace: "nowrap", padding: "4px 8px" }}>TVA ({docTvaRate}%) :</td>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "4px 8px" }}>{docTotalTva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
                       </tr>
                       <tr
                         style={{
@@ -748,11 +879,107 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                         }}
                       >
                         <td style={{ padding: "6px 8px", borderRadius: "3px 0 0 3px", whiteSpace: "nowrap", fontSize: "1.05em" }}>TOTAL TTC :</td>
-                        <td style={{ textAlign: "right", padding: "6px 8px", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap", fontSize: "1.05em" }}>120,00 €</td>
+                        <td style={{ textAlign: "right", padding: "6px 8px", borderRadius: "0 3px 3px 0", whiteSpace: "nowrap", fontSize: "1.05em" }}>{docTotalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+
+                {/* Signatures Preview Block (Company & Buyer / Client) */}
+                {(customization.showCompanySignature !== false || customization.showClientSignature !== false) && (() => {
+                  const compPos = customization.signaturePosition || "left";
+                  const clPos = customization.clientSignaturePosition || "right";
+
+                  const renderCompanySig = () => (
+                    <div key="comp-sig" style={{ width: "100%", maxWidth: "230px" }}>
+                      <div style={{ fontWeight: "700", marginBottom: "4px", fontSize: "0.9em" }}>Pour l'entreprise :</div>
+                      <div
+                        style={{
+                          height: "54px",
+                          border: "1px dashed #DDD",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "6px",
+                          backgroundColor: "#FAFAF8",
+                          padding: "4px",
+                        }}
+                      >
+                        {companySignature ? (
+                          <img src={companySignature} alt="Signature Entreprise" style={{ maxHeight: "48px", maxWidth: "90%", objectFit: "contain" }} />
+                        ) : (
+                          <span style={{ color: "#888", fontSize: "0.85em", fontStyle: "italic" }}>{companyDisplayName}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+
+                  const renderClientSig = () => (
+                    <div key="client-sig" style={{ width: "100%", maxWidth: "230px" }}>
+                      <div style={{ fontWeight: "700", marginBottom: "4px", fontSize: "0.9em" }}>
+                        {docType === "devis" ? "Bon pour accord / Le Client :" : "Signature de l'acheteur :"}
+                      </div>
+                      <div
+                        style={{
+                          height: "54px",
+                          border: "1px dashed #DDD",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "6px",
+                          backgroundColor: "#FAFAF8",
+                          padding: "4px",
+                          color: "#888",
+                          fontSize: "0.82em",
+                        }}
+                      >
+                        {doc?.clientSignatureUrl ? (
+                          <img src={doc.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: "48px", maxWidth: "90%", objectFit: "contain" }} />
+                        ) : (
+                          <>
+                            <span style={{ fontStyle: "italic", fontSize: "0.78em" }}>Mention "Bon pour accord"</span>
+                            <span style={{ fontSize: "0.72em", marginTop: "2px", opacity: 0.8 }}>Date et signature</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+
+                  const leftItems = [];
+                  const rightItems = [];
+
+                  if (customization.showCompanySignature !== false) {
+                    if (compPos === "left") leftItems.push(renderCompanySig());
+                    else rightItems.push(renderCompanySig());
+                  }
+
+                  if (customization.showClientSignature !== false) {
+                    if (clPos === "left") leftItems.push(renderClientSig());
+                    else rightItems.push(renderClientSig());
+                  }
+
+                  return (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: "24px",
+                        margin: "18px 0",
+                        fontSize: "0.85em",
+                        borderTop: "1px dashed #E0E0E0",
+                        paddingTop: "14px",
+                      }}
+                    >
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-start", textAlign: "left" }}>
+                        {leftItems}
+                      </div>
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-end", textAlign: "right" }}>
+                        {rightItems}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Footer Section */}
                 {customization.showPaymentConditions && (
@@ -762,13 +989,14 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                       borderTop: "1px solid #E5E5E5",
                       paddingTop: "10px",
                       marginTop: "auto",
-                      opacity: 0.8,
+                      opacity: 0.85,
+                      lineHeight: "1.45",
                     }}
                   >
                     <div>
                       <strong>Conditions de paiement : </strong> Paiement à 30 jours
                     </div>
-                    {customization.showIban && <div>IBAN: FR76 3000 6000 0123 4567 8901 234</div>}
+                    {customization.showIban && <div><strong>IBAN : </strong>{realIban}</div>}
                     {customization.showAgaMention && (
                       <div style={{ fontStyle: "italic", marginTop: "2pt" }}>
                         Membre d'une association agréée, le règlement par chèque est accepté.

@@ -6734,6 +6734,7 @@ export namespace Prisma {
     city: string | null
     postalCode: string | null
     logoUrl: string | null
+    signatureUrl: string | null
     website: string | null
     slug: string | null
     smsNumber: string | null
@@ -6762,6 +6763,7 @@ export namespace Prisma {
     city: string | null
     postalCode: string | null
     logoUrl: string | null
+    signatureUrl: string | null
     website: string | null
     slug: string | null
     smsNumber: string | null
@@ -6790,6 +6792,7 @@ export namespace Prisma {
     city: number
     postalCode: number
     logoUrl: number
+    signatureUrl: number
     website: number
     slug: number
     smsNumber: number
@@ -6820,6 +6823,7 @@ export namespace Prisma {
     city?: true
     postalCode?: true
     logoUrl?: true
+    signatureUrl?: true
     website?: true
     slug?: true
     smsNumber?: true
@@ -6848,6 +6852,7 @@ export namespace Prisma {
     city?: true
     postalCode?: true
     logoUrl?: true
+    signatureUrl?: true
     website?: true
     slug?: true
     smsNumber?: true
@@ -6876,6 +6881,7 @@ export namespace Prisma {
     city?: true
     postalCode?: true
     logoUrl?: true
+    signatureUrl?: true
     website?: true
     slug?: true
     smsNumber?: true
@@ -6977,6 +6983,7 @@ export namespace Prisma {
     city: string | null
     postalCode: string | null
     logoUrl: string | null
+    signatureUrl: string | null
     website: string | null
     slug: string | null
     smsNumber: string | null
@@ -7022,6 +7029,7 @@ export namespace Prisma {
     city?: boolean
     postalCode?: boolean
     logoUrl?: boolean
+    signatureUrl?: boolean
     website?: boolean
     slug?: boolean
     smsNumber?: boolean
@@ -7074,6 +7082,7 @@ export namespace Prisma {
     city?: boolean
     postalCode?: boolean
     logoUrl?: boolean
+    signatureUrl?: boolean
     website?: boolean
     slug?: boolean
     smsNumber?: boolean
@@ -7102,6 +7111,7 @@ export namespace Prisma {
     city?: boolean
     postalCode?: boolean
     logoUrl?: boolean
+    signatureUrl?: boolean
     website?: boolean
     slug?: boolean
     smsNumber?: boolean
@@ -7130,6 +7140,7 @@ export namespace Prisma {
     city?: boolean
     postalCode?: boolean
     logoUrl?: boolean
+    signatureUrl?: boolean
     website?: boolean
     slug?: boolean
     smsNumber?: boolean
@@ -7140,7 +7151,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "siret" | "siren" | "tvaNumber" | "legalForm" | "rcsNumber" | "shareCapital" | "nafCode" | "isTvaFranchise" | "isSubcontractor" | "phone" | "email" | "address" | "city" | "postalCode" | "logoUrl" | "website" | "slug" | "smsNumber" | "stripeAccountId" | "stripeAccountStatus" | "onlinePaymentEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
+  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "siret" | "siren" | "tvaNumber" | "legalForm" | "rcsNumber" | "shareCapital" | "nafCode" | "isTvaFranchise" | "isSubcontractor" | "phone" | "email" | "address" | "city" | "postalCode" | "logoUrl" | "signatureUrl" | "website" | "slug" | "smsNumber" | "stripeAccountId" | "stripeAccountStatus" | "onlinePaymentEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Company$usersArgs<ExtArgs>
     clients?: boolean | Company$clientsArgs<ExtArgs>
@@ -7215,6 +7226,7 @@ export namespace Prisma {
       city: string | null
       postalCode: string | null
       logoUrl: string | null
+      signatureUrl: string | null
       website: string | null
       slug: string | null
       smsNumber: string | null
@@ -7686,6 +7698,7 @@ export namespace Prisma {
     readonly city: FieldRef<"Company", 'String'>
     readonly postalCode: FieldRef<"Company", 'String'>
     readonly logoUrl: FieldRef<"Company", 'String'>
+    readonly signatureUrl: FieldRef<"Company", 'String'>
     readonly website: FieldRef<"Company", 'String'>
     readonly slug: FieldRef<"Company", 'String'>
     readonly smsNumber: FieldRef<"Company", 'String'>
@@ -54157,6 +54170,7 @@ export namespace Prisma {
     city: 'city',
     postalCode: 'postalCode',
     logoUrl: 'logoUrl',
+    signatureUrl: 'signatureUrl',
     website: 'website',
     slug: 'slug',
     smsNumber: 'smsNumber',
@@ -55601,6 +55615,7 @@ export namespace Prisma {
     city?: StringNullableFilter<"Company"> | string | null
     postalCode?: StringNullableFilter<"Company"> | string | null
     logoUrl?: StringNullableFilter<"Company"> | string | null
+    signatureUrl?: StringNullableFilter<"Company"> | string | null
     website?: StringNullableFilter<"Company"> | string | null
     slug?: StringNullableFilter<"Company"> | string | null
     smsNumber?: StringNullableFilter<"Company"> | string | null
@@ -55652,6 +55667,7 @@ export namespace Prisma {
     city?: SortOrderInput | SortOrder
     postalCode?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
+    signatureUrl?: SortOrderInput | SortOrder
     website?: SortOrderInput | SortOrder
     slug?: SortOrderInput | SortOrder
     smsNumber?: SortOrderInput | SortOrder
@@ -55708,6 +55724,7 @@ export namespace Prisma {
     city?: StringNullableFilter<"Company"> | string | null
     postalCode?: StringNullableFilter<"Company"> | string | null
     logoUrl?: StringNullableFilter<"Company"> | string | null
+    signatureUrl?: StringNullableFilter<"Company"> | string | null
     website?: StringNullableFilter<"Company"> | string | null
     smsNumber?: StringNullableFilter<"Company"> | string | null
     stripeAccountStatus?: StringNullableFilter<"Company"> | string | null
@@ -55757,6 +55774,7 @@ export namespace Prisma {
     city?: SortOrderInput | SortOrder
     postalCode?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
+    signatureUrl?: SortOrderInput | SortOrder
     website?: SortOrderInput | SortOrder
     slug?: SortOrderInput | SortOrder
     smsNumber?: SortOrderInput | SortOrder
@@ -55791,6 +55809,7 @@ export namespace Prisma {
     city?: StringNullableWithAggregatesFilter<"Company"> | string | null
     postalCode?: StringNullableWithAggregatesFilter<"Company"> | string | null
     logoUrl?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    signatureUrl?: StringNullableWithAggregatesFilter<"Company"> | string | null
     website?: StringNullableWithAggregatesFilter<"Company"> | string | null
     slug?: StringNullableWithAggregatesFilter<"Company"> | string | null
     smsNumber?: StringNullableWithAggregatesFilter<"Company"> | string | null
@@ -60133,6 +60152,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -60184,6 +60204,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -60235,6 +60256,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60286,6 +60308,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60337,6 +60360,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -60365,6 +60389,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60393,6 +60418,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65754,6 +65780,7 @@ export namespace Prisma {
     city?: SortOrder
     postalCode?: SortOrder
     logoUrl?: SortOrder
+    signatureUrl?: SortOrder
     website?: SortOrder
     slug?: SortOrder
     smsNumber?: SortOrder
@@ -65782,6 +65809,7 @@ export namespace Prisma {
     city?: SortOrder
     postalCode?: SortOrder
     logoUrl?: SortOrder
+    signatureUrl?: SortOrder
     website?: SortOrder
     slug?: SortOrder
     smsNumber?: SortOrder
@@ -65810,6 +65838,7 @@ export namespace Prisma {
     city?: SortOrder
     postalCode?: SortOrder
     logoUrl?: SortOrder
+    signatureUrl?: SortOrder
     website?: SortOrder
     slug?: SortOrder
     smsNumber?: SortOrder
@@ -75342,6 +75371,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -75392,6 +75422,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -75485,6 +75516,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75535,6 +75567,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75656,6 +75689,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -75706,6 +75740,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -75859,6 +75894,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75909,6 +75945,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76138,6 +76175,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -76188,6 +76226,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -76254,6 +76293,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76304,6 +76344,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76354,6 +76395,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -76404,6 +76446,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -76858,6 +76901,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76908,6 +76952,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -77560,6 +77605,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -77610,6 +77656,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -77676,6 +77723,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -77726,6 +77774,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -77776,6 +77825,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -77826,6 +77876,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -77972,6 +78023,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -78022,6 +78074,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -78142,6 +78195,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -78192,6 +78246,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -78532,6 +78587,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -78582,6 +78638,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -78680,6 +78737,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -78730,6 +78788,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -79237,6 +79296,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79287,6 +79347,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79761,6 +79822,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -79811,6 +79873,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -80396,6 +80459,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80446,6 +80510,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81187,6 +81252,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -81237,6 +81303,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -81516,6 +81583,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81566,6 +81634,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82071,6 +82140,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -82121,6 +82191,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -82474,6 +82545,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82524,6 +82596,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83164,6 +83237,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -83214,6 +83288,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -83359,6 +83434,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83409,6 +83485,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83544,6 +83621,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -83594,6 +83672,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -83660,6 +83739,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83710,6 +83790,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83760,6 +83841,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -83810,6 +83892,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -83945,6 +84028,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83995,6 +84079,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84120,6 +84205,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84170,6 +84256,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84236,6 +84323,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84286,6 +84374,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84336,6 +84425,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84386,6 +84476,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84452,6 +84543,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84502,6 +84594,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84552,6 +84645,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84602,6 +84696,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84668,6 +84763,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84718,6 +84814,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84768,6 +84865,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84818,6 +84916,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -84884,6 +84983,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84934,6 +85034,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85232,6 +85333,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -85282,6 +85384,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -85417,6 +85520,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85467,6 +85571,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85864,6 +85969,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -85914,6 +86020,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -85980,6 +86087,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86030,6 +86138,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86080,6 +86189,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -86130,6 +86240,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -86238,6 +86349,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86288,6 +86400,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86354,6 +86467,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -86404,6 +86518,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -86656,6 +86771,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86706,6 +86822,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86954,6 +87071,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -87004,6 +87122,7 @@ export namespace Prisma {
     city?: string | null
     postalCode?: string | null
     logoUrl?: string | null
+    signatureUrl?: string | null
     website?: string | null
     slug?: string | null
     smsNumber?: string | null
@@ -87070,6 +87189,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87120,6 +87240,7 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: NullableStringFieldUpdateOperationsInput | string | null
     smsNumber?: NullableStringFieldUpdateOperationsInput | string | null

@@ -85,6 +85,7 @@ function CataloguePage() {
                 unitPrice: Number(item.defaultPrice || item.unitPrice || 0),
                 tvaRate: Number(item.tvaRate || 20),
                 category: item.type === "PRODUCT" ? "Matériel & Équipement" : "Prestations de services (BIC / BNC)",
+                unit: item.unit || "À l'unité",
                 description: item.description || ""
             }));
             setArticles(mappedArticles);
@@ -197,6 +198,7 @@ function CataloguePage() {
                 unitPrice: articleData.unitPrice,
                 tvaRate: articleData.tvaRate,
                 category: articleData.category,
+                unit: articleData.unit,
                 type: articleData.category?.includes("Matériel") ? "PRODUCT" : "SERVICE"
             };
 

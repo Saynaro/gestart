@@ -76,7 +76,7 @@ export default function ReceivedInvoicesDrawer({ invoice, onClose, onRefresh }) 
                             fontSize: '11.5px',
                             fontWeight: 800
                         }}>
-                            🟢 FACTURE FOURNISSEUR REÇUE
+                            FACTURE FOURNISSEUR REÇUE
                         </span>
                     </div>
                     <button

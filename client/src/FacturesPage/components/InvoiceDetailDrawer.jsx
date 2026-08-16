@@ -6,13 +6,15 @@ import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
 
 function getStatusLabel(status) {
-    switch (status) {
+    const s = (status || "").toLowerCase();
+    switch (s) {
         case "draft": return "Brouillon";
+        case "sent":
         case "pending": return "En attente";
         case "paid": return "Payée";
         case "overdue": return "En retard";
         case "finalised": return "Finalisé";
-        default: return status;
+        default: return status || "Brouillon";
     }
 }
 
@@ -35,9 +37,22 @@ function InvoiceDetailDrawer({
     const [globalCustomization] = useDocumentCustomization();
     const docCustomization = getEffectiveCustomization(invoice, globalCustomization);
 
-    const isDraft = invoice.status === "draft";
-    const isPaid = invoice.status === "paid";
-    const isPending = invoice.status === "pending" || invoice.status === "overdue";
+    const invoiceLines = (invoice.lines || []).map(l => ({
+        ...l,
+        qty: Number(l.quantity || l.qty || 1),
+        quantity: Number(l.quantity || l.qty || 1),
+        unitPrice: Number(l.unitPrice) || 0,
+        total: Number(l.total) || ((Number(l.unitPrice) || 0) * (Number(l.quantity || l.qty) || 1))
+    }));
+    const computedHtFromLines = invoiceLines.reduce((acc, l) => acc + (l.unitPrice * l.qty), 0);
+    const subtotalHt = Number(invoice.subtotalHt || invoice.amountHT || invoice.totalHt || computedHtFromLines || 0);
+    const tvaRate = Number(invoice.tvaRate !== undefined ? invoice.tvaRate : 20);
+    const totalTtc = Number(invoice.totalTtc || invoice.amountTTC || (subtotalHt * (1 + tvaRate / 100)) || 0);
+    const tvaAmount = Number(invoice.tvaAmount || (totalTtc - subtotalHt) || 0);
+
+    const isDraft = (invoice.status || "").toLowerCase() === "draft";
+    const isPaid = (invoice.status || "").toLowerCase() === "paid";
+    const isPending = (invoice.status || "").toLowerCase() === "pending" || (invoice.status || "").toLowerCase() === "sent" || (invoice.status || "").toLowerCase() === "overdue";
 
     const linkedDevis = invoice.linkedDevis || (
         invoice.number === "F-2026-0002" || invoice.number === "F-2026-0001" ? {
@@ -47,10 +62,10 @@ function InvoiceDetailDrawer({
             clientName: invoice.clientName,
             clientEmail: invoice.clientEmail,
             clientAddress: invoice.clientAddress,
-            subtotalHt: invoice.subtotalHt,
-            tvaRate: invoice.tvaRate,
-            tvaAmount: invoice.tvaAmount,
-            totalTtc: invoice.totalTtc,
+            subtotalHt: subtotalHt,
+            tvaRate: tvaRate,
+            tvaAmount: tvaAmount,
+            totalTtc: totalTtc,
             status: "ACCEPTED",
             statusLabel: "Signé"
         } : null
@@ -77,6 +92,8 @@ function InvoiceDetailDrawer({
     const companyDisplayPhone = company?.phone || "Non renseigné";
     const companyDisplayEmail = company?.email || "contact@entreprise.fr";
     const companyLogo = docCustomization.logoUrl || company?.logoUrl;
+    const companyIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 6000 0123 4567 8901 234";
+    const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
 
     const renderPreview = () => (
         <div className="live-preview-a4-wrapper">
@@ -129,8 +146,10 @@ function InvoiceDetailDrawer({
                                 </div>
                             )
                         )}
-                        <h3 className="company-name" style={{ fontSize: '1.1em', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>{companyDisplayName}</h3>
-                        <p className="company-details" style={{ fontSize: '0.88em', lineHeight: 1.3, margin: '4px 0 0 0' }}>
+                        <h2 className="company-name" style={{ fontSize: '1.3em', fontWeight: 800, color: docCustomization.primaryColor || '#556B2F', margin: 0 }}>
+                            {companyDisplayName}
+                        </h2>
+                        <p className="company-details" style={{ fontSize: '0.9em', opacity: 0.85, lineHeight: 1.35, marginTop: '2pt' }}>
                             {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
                             {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
                             {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
@@ -183,6 +202,10 @@ function InvoiceDetailDrawer({
                                     <td><strong>Date :</strong></td>
                                     <td>{new Date(invoice.date).toLocaleDateString('fr-FR')}</td>
                                 </tr>
+                                <tr>
+                                    <td><strong>Échéance :</strong></td>
+                                    <td>{dueDate}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -191,32 +214,41 @@ function InvoiceDetailDrawer({
                 <div
                     className="pdf-billing-section"
                     style={{
-                        margin: '12px 0',
-                        padding: '8px 12px',
-                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}10` : '#FAFAF8',
-                        borderRadius: '6px'
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        gap: '3px',
+                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}12` : '#FAFAF8',
+                        padding: '10px 14px',
+                        borderRadius: '6px',
+                        marginBottom: '12px',
+                        textAlign: 'left'
                     }}
                 >
-                    <div className="billing-to-card">
-                        <span className="section-label" style={{ fontSize: '0.8em', fontWeight: 700, opacity: 0.6 }}>FACTURÉ À :</span>
-                        <h4 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: '2px 0' }}>{invoice.clientName}</h4>
-                        <p className="client-details" style={{ fontSize: '0.95em', opacity: 0.85, margin: 0 }}>
-                            {invoice.clientAddress || ''}<br />
-                            {invoice.clientEmail || ''}
-                        </p>
-                    </div>
+                    <span className="section-label" style={{ fontSize: '0.78em', fontWeight: 700, letterSpacing: '0.5px', opacity: 0.65, textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                        FACTURÉ À :
+                    </span>
+                    <h3 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                        {invoice.clientName}
+                    </h3>
+                    {invoice.clientAddress && (
+                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                            {invoice.clientAddress}
+                        </div>
+                    )}
+                    {invoice.clientEmail && (
+                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                            {invoice.clientEmail}
+                        </div>
+                    )}
+                    {invoice.clientPhone && (
+                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                            {invoice.clientPhone}
+                        </div>
+                    )}
                 </div>
 
-                {invoice.interventionType && (
-                    <div className="pdf-intervention-info" style={{ padding: '6px 10px', marginBottom: '12px', fontSize: '0.95em' }}>
-                        <span>Intervention : <strong>{invoice.interventionType}</strong></span>
-                        {invoice.workDetails && (
-                            <p className="work-details" style={{ fontSize: '0.9em', marginTop: '4px', paddingTop: '4px' }}>{invoice.workDetails}</p>
-                        )}
-                    </div>
-                )}
-
-                <table className="pdf-items-table" style={{ fontSize: '0.95em', marginBottom: '15px' }}>
+                <table className="pdf-items-table" style={{ fontSize: '0.95em', marginBottom: '15px', width: '100%', borderCollapse: 'collapse' }}>
                     <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
                         <tr>
                             <th style={{ textAlign: 'left', padding: '6px 8px' }}>Description</th>
@@ -226,40 +258,150 @@ function InvoiceDetailDrawer({
                         </tr>
                     </thead>
                     <tbody>
-                        {(invoice.lines || []).map((line, idx) => (
-                            <tr key={idx}>
-                                <td>{line.description || '—'}</td>
-                                <td className="text-center" style={{ whiteSpace: 'nowrap' }}>{line.qty}</td>
-                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{(line.unitPrice || 0).toLocaleString('fr-FR')} €</td>
-                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{((line.unitPrice || 0) * (line.qty || 1)).toLocaleString('fr-FR')} €</td>
+                        {(invoice.lines && invoice.lines.length > 0) ? (
+                            invoice.lines.map((line, idx) => {
+                                const q = Number(line.quantity || line.qty || 1);
+                                const p = Number(line.unitPrice) || 0;
+                                return (
+                                    <tr key={idx} style={{ borderBottom: '1px solid #EAEAE6' }}>
+                                        <td style={{ padding: '6px 8px' }}>
+                                            <div style={{ fontWeight: 600 }}>{line.description || 'Prestation'}</div>
+                                            {line.reference && <div style={{ fontSize: '0.75em', color: 'var(--muted-foreground)' }}>Réf: {line.reference}</div>}
+                                        </td>
+                                        <td className="text-center" style={{ padding: '6px', whiteSpace: 'nowrap' }}>{q}</td>
+                                        <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{p.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                        <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(p * q).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr style={{ borderBottom: '1px solid #EAEAE6' }}>
+                                <td style={{ padding: '6px 8px' }}>{invoice.interventionType || invoice.subject || "Prestation"}</td>
+                                <td className="text-center" style={{ padding: '6px', whiteSpace: 'nowrap' }}>1</td>
+                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(Number(invoice.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(Number(invoice.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
 
-                <div className="pdf-summary-block" style={{ marginBottom: '15px' }}>
+                <div className="pdf-summary-block" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
                     <table className="pdf-summary-table" style={{ fontSize: '0.95em', width: 'auto', minWidth: '180pt' }}>
                         <tbody>
                             <tr>
                                 <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>Sous-total HT :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(invoice.subtotalHt || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(Number(invoice.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                             <tr>
                                 <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>TVA ({invoice.tvaRate || 20}%) :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(invoice.tvaAmount || 0).toLocaleString('fr-FR')} €</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(Number(invoice.tvaAmount) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
-                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
+                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', fontWeight: 700 }}>
                                 <td style={{ whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>TOTAL TTC :</strong></td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{(invoice.totalTtc || 0).toLocaleString('fr-FR')} €</strong></td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{(Number(invoice.totalTtc) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
+                {/* Signatures Section (Company & Buyer) */}
+                {(docCustomization.showCompanySignature !== false || docCustomization.showClientSignature !== false) && (() => {
+                    const compPos = docCustomization.signaturePosition || "left";
+                    const clPos = docCustomization.clientSignaturePosition || "right";
+
+                    const renderCompanySig = () => (
+                        <div key="comp-sig" style={{ width: '100%', maxWidth: '230px' }}>
+                            <div style={{ fontWeight: '700', marginBottom: '4px', fontSize: '0.9em' }}>Pour l'entreprise :</div>
+                            <div
+                                style={{
+                                    height: '54px',
+                                    border: '1px dashed #DDD',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: '6px',
+                                    backgroundColor: '#FAFAF8',
+                                    padding: '4px'
+                                }}
+                            >
+                                {companySignature ? (
+                                    <img src={companySignature} alt="Signature Entreprise" style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ color: '#888', fontSize: '0.85em', fontStyle: 'italic' }}>{companyDisplayName}</span>
+                                )}
+                            </div>
+                        </div>
+                    );
+
+                    const renderClientSig = () => (
+                        <div key="client-sig" style={{ width: '100%', maxWidth: '230px' }}>
+                            <div style={{ fontWeight: '700', marginBottom: '4px', fontSize: '0.9em' }}>Signature de l'acheteur :</div>
+                            <div
+                                style={{
+                                    height: '54px',
+                                    border: '1px dashed #DDD',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: '6px',
+                                    backgroundColor: '#FAFAF8',
+                                    padding: '4px',
+                                    color: '#888',
+                                    fontSize: '0.82em'
+                                }}
+                            >
+                                {invoice.clientSignatureUrl ? (
+                                    <img src={invoice.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} />
+                                ) : (
+                                    <>
+                                        <span style={{ fontStyle: 'italic', fontSize: '0.78em' }}>Mention "Bon pour accord"</span>
+                                        <span style={{ fontSize: '0.72em', marginTop: '2px', opacity: 0.8 }}>Date et signature</span>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    );
+
+                    const leftItems = [];
+                    const rightItems = [];
+
+                    if (docCustomization.showCompanySignature !== false) {
+                        if (compPos === "left") leftItems.push(renderCompanySig());
+                        else rightItems.push(renderCompanySig());
+                    }
+
+                    if (docCustomization.showClientSignature !== false) {
+                        if (clPos === "left") leftItems.push(renderClientSig());
+                        else rightItems.push(renderClientSig());
+                    }
+
+                    return (
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                gap: '24px',
+                                margin: '18px 0',
+                                fontSize: '0.85em',
+                                borderTop: '1px dashed #E0E0E0',
+                                paddingTop: '14px'
+                            }}
+                        >
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start', textAlign: 'left' }}>
+                                {leftItems}
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-end', textAlign: 'right' }}>
+                                {rightItems}
+                            </div>
+                        </div>
+                    );
+                })()}
+
                 {docCustomization.showPaymentConditions && (
                     <div className="pdf-footer-section" style={{ fontSize: '0.85em', paddingTop: '10px', borderTop: '1px solid #E0E0E0', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div><strong>Conditions de paiement :</strong> Paiement 30 jours (Échéance le {dueDate})</div>
-                        {docCustomization.showIban && <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>}
+                        <div><strong>Conditions de paiement :</strong> Paiement à 30 jours (Échéance le {dueDate})</div>
+                        {docCustomization.showIban && <div><strong>IBAN : </strong>{companyIban}</div>}
                         {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
                     </div>
                 )}
@@ -381,7 +523,37 @@ function InvoiceDetailDrawer({
                                 </div>
                                 <div className="fp-drawer-row">
                                     <span className="fp-drawer-row-label">Statut</span>
-                                    <span className={`fp-status-tag ${invoice.status}`}>{getStatusLabel(invoice.status)}</span>
+                                    <span
+                                        style={{
+                                            fontSize: "0.78rem",
+                                            padding: "3px 10px",
+                                            borderRadius: "12px",
+                                            fontWeight: 700,
+                                            backgroundColor: isPaid
+                                                ? "rgba(34, 197, 94, 0.12)"
+                                                : isDraft
+                                                ? "rgba(156, 163, 175, 0.15)"
+                                                : (invoice.status || "").toLowerCase() === "sent"
+                                                ? "rgba(59, 130, 246, 0.12)"
+                                                : (invoice.status || "").toLowerCase() === "overdue"
+                                                ? "rgba(239, 68, 68, 0.12)"
+                                                : "rgba(234, 179, 8, 0.15)",
+                                            color: isPaid
+                                                ? "#16a34a"
+                                                : isDraft
+                                                ? "#6b7280"
+                                                : (invoice.status || "").toLowerCase() === "sent"
+                                                ? "#2563eb"
+                                                : (invoice.status || "").toLowerCase() === "overdue"
+                                                ? "#dc2626"
+                                                : "#ca8a04",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "5px"
+                                        }}
+                                    >
+                                        {isPaid ? "Payée" : isDraft ? "Brouillon" : (invoice.status || "").toLowerCase() === "sent" ? "Envoyée" : (invoice.status || "").toLowerCase() === "overdue" ? "En retard" : "En attente"}
+                                    </span>
                                 </div>
                                 <div className="fp-drawer-row">
                                     <span className="fp-drawer-row-label">Date d'émission</span>
@@ -391,28 +563,22 @@ function InvoiceDetailDrawer({
                                     <span className="fp-drawer-row-label">Date d'exigibilité</span>
                                     <span className="fp-drawer-row-value">{dueDate}</span>
                                 </div>
-                                {invoice.subtotalHt != null && (
-                                    <div className="fp-drawer-row">
-                                        <span className="fp-drawer-row-label">Sous-total HT</span>
-                                        <span className="fp-drawer-row-value">{(invoice.subtotalHt || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>
-                                    </div>
-                                )}
-                                {invoice.tvaAmount != null && (
-                                    <div className="fp-drawer-row">
-                                        <span className="fp-drawer-row-label">TVA ({invoice.tvaRate || 20}%)</span>
-                                        <span className="fp-drawer-row-value">
-                                            {(invoice.tvaAmount || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
-                                        </span>
-                                    </div>
-                                )}
-                                {invoice.totalTtc != null && (
-                                    <div className="fp-drawer-row" style={{ borderTop: "1px solid var(--border)", marginTop: 4, paddingTop: 6 }}>
-                                        <span className="fp-drawer-row-label" style={{ fontWeight: 600, color: "var(--foreground)" }}>Total TTC</span>
-                                        <span className="fp-drawer-row-value" style={{ fontSize: "1rem", fontWeight: 800, color: "#556B2F" }}>
-                                            {invoice.totalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
-                                        </span>
-                                    </div>
-                                )}
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Sous-total HT</span>
+                                    <span className="fp-drawer-row-value">{subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>
+                                </div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">TVA ({tvaRate}%)</span>
+                                    <span className="fp-drawer-row-value">
+                                        {tvaAmount.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                                    </span>
+                                </div>
+                                <div className="fp-drawer-row" style={{ borderTop: "1px solid var(--border)", marginTop: 4, paddingTop: 6 }}>
+                                    <span className="fp-drawer-row-label" style={{ fontWeight: 600, color: "var(--foreground)" }}>Total TTC</span>
+                                    <span className="fp-drawer-row-value" style={{ fontSize: "1rem", fontWeight: 800, color: "#556B2F" }}>
+                                        {totalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Encaissement (paid only) */}
@@ -444,7 +610,7 @@ function InvoiceDetailDrawer({
                                         backgroundColor: invoice.einvoicingStatus === "ACCEPTED" ? "rgba(34, 197, 94, 0.15)" : invoice.einvoicingStatus === "SENT" ? "rgba(59, 130, 246, 0.15)" : "rgba(234, 179, 8, 0.15)",
                                         color: invoice.einvoicingStatus === "ACCEPTED" ? "#16a34a" : invoice.einvoicingStatus === "SENT" ? "#2563eb" : "#ca8a04"
                                     }}>
-                                        {invoice.einvoicingStatus === "ACCEPTED" ? "🟢 Acceptée" : invoice.einvoicingStatus === "SENT" ? "🔵 Transmise PA" : invoice.einvoicingStatus === "PROCESSING" ? "🟡 En cours" : invoice.einvoicingStatus === "REJECTED" ? "🔴 Rejetée" : "⚪ Non transmise"}
+                                        {invoice.einvoicingStatus === "ACCEPTED" ? "Acceptée" : invoice.einvoicingStatus === "SENT" ? "Transmise PA" : invoice.einvoicingStatus === "PROCESSING" ? "En cours" : invoice.einvoicingStatus === "REJECTED" ? "Rejetée" : "Non transmise"}
                                     </span>
                                 </div>
                                 <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginBottom: "8px" }}>
@@ -513,12 +679,12 @@ function InvoiceDetailDrawer({
                                                 <FileText size={14} style={{ color: "var(--sidebar-primary)" }} />
                                             </div>
                                             <div style={{ fontSize: "11.5px", color: "var(--muted-foreground)", marginTop: "4px" }}>
-                                                {linkedDevis.date} · {invoice.clientName}
+                                                {linkedDevis.createdAt ? new Date(linkedDevis.createdAt).toLocaleDateString("fr-FR") : (linkedDevis.date || "")} · {invoice.clientName}
                                             </div>
                                         </div>
                                         <div style={{ textAlign: "right" }}>
                                             <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--foreground)" }}>
-                                                {linkedDevis.subtotalHt ? `${linkedDevis.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT` : `${invoice.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT`}
+                                                {Number(linkedDevis.subtotalHt || linkedDevis.amountHT || invoice.subtotalHt || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € HT
                                             </div>
                                             <span style={{
                                                 display: "inline-block",
@@ -527,10 +693,10 @@ function InvoiceDetailDrawer({
                                                 fontWeight: 700,
                                                 padding: "2px 8px",
                                                 borderRadius: "6px",
-                                                backgroundColor: "rgba(34, 197, 94, 0.12)",
-                                                color: "#22c55e"
+                                                backgroundColor: (linkedDevis.status || "").toUpperCase() === "ACCEPTED" ? "rgba(34, 197, 94, 0.12)" : "rgba(59, 130, 246, 0.12)",
+                                                color: (linkedDevis.status || "").toUpperCase() === "ACCEPTED" ? "#22c55e" : "#3b82f6"
                                             }}>
-                                                {linkedDevis.statusLabel || "Signé"}
+                                                {(linkedDevis.status || "").toUpperCase() === "ACCEPTED" ? "Signé" : (linkedDevis.statusLabel || "Devis")}
                                             </span>
                                         </div>
                                     </div>

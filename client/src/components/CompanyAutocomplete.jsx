@@ -2,22 +2,55 @@ import { useState, useEffect, useRef } from 'react';
 import { Building2, Loader2, Check, ShieldCheck, AlertCircle } from 'lucide-react';
 import './CompanyAutocomplete.css';
 
+export const NAF_DESCRIPTIONS = {
+    "43.22B": "Travaux d'installation d'équipements thermiques et de climatisation",
+    "4322B": "Travaux d'installation d'équipements thermiques et de climatisation",
+    "43.22A": "Travaux d'installation d'eau et de gaz en tous locaux",
+    "4322A": "Travaux d'installation d'eau et de gaz en tous locaux",
+    "43.21A": "Travaux d'installation électrique dans tous locaux",
+    "4321A": "Travaux d'installation électrique dans tous locaux",
+    "43.21B": "Travaux d'installation électrique sur la voie publique",
+    "4321B": "Travaux d'installation électrique sur la voie publique",
+    "43.29A": "Travaux d'isolation",
+    "4329A": "Travaux d'isolation",
+    "43.29B": "Autres travaux d'installation n.c.a.",
+    "4329B": "Autres travaux d'installation n.c.a.",
+    "43.32A": "Travaux de menuiserie bois et PVC",
+    "4332A": "Travaux de menuiserie bois et PVC",
+    "43.32B": "Travaux de menuiserie métallique et serrurerie",
+    "4332B": "Travaux de menuiserie métallique et serrurerie",
+    "43.34Z": "Travaux de peinture et vitrerie",
+    "4334Z": "Travaux de peinture et vitrerie",
+    "43.91A": "Travaux de charpente",
+    "43.91B": "Travaux de couverture par éléments",
+    "43.99C": "Travaux de maçonnerie générale et gros œuvre de bâtiment",
+    "4399C": "Travaux de maçonnerie générale et gros œuvre de bâtiment",
+    "33.12Z": "Réparation de machines et équipements mécaniques",
+    "3312Z": "Réparation de machines et équipements mécaniques",
+    "71.12B": "Ingénierie, études techniques",
+    "7112B": "Ingénierie, études techniques",
+    "62.01Z": "Programmation informatique",
+    "6201Z": "Programmation informatique",
+    "62.02A": "Conseil en systèmes et logiciels informatiques",
+    "6202A": "Conseil en systèmes et logiciels informatiques",
+    "70.22Z": "Conseil pour les affaires et autres conseils de gestion",
+    "7022Z": "Conseil pour les affaires et autres conseils de gestion"
+};
+
+export const formatNafCode = (code, libelle) => {
+    if (!code) return "";
+    const cleanCode = String(code).trim();
+    if (cleanCode.includes('-') && cleanCode.split('-')[1]?.trim()?.length > 2) {
+        return cleanCode;
+    }
+    const pureCode = cleanCode.split('-')[0].trim();
+    const desc = libelle || NAF_DESCRIPTIONS[pureCode] || NAF_DESCRIPTIONS[pureCode.replace('.', '')] || "";
+    return desc ? `${pureCode} - ${desc}` : pureCode;
+};
+
 /**
  * CompanyAutocomplete Component using official French Government Companies API
  * (recherche-entreprises.api.gouv.fr/search?q=...)
- *
- * Props:
- * - value: string (current input string - name, SIREN or SIRET)
- * - onChange: (val: string) => void
- * - onCompanySelect: (company: { nom, siren, siret, adresse, code_postal, ville, code_ape, libelle_ape, est_active, form_juridique }) => void
- * - placeholder?: string
- * - className?: string
- * - style?: object
- * - inputStyle?: object
- * - id?: string
- * - name?: string
- * - required?: boolean
- * - disabled?: boolean
  */
 export default function CompanyAutocomplete({
     value = '',
@@ -114,6 +147,9 @@ export default function CompanyAutocomplete({
                             .filter(Boolean)
                             .join(' ');
 
+                    const apeCode = company.activite_principale || siege.activite_principale || company.matching_etablissements?.[0]?.activite_principale || '';
+                    const apeLib = company.libelle_activite_principale || siege.libelle_activite_principale || company.activite_principale_libelle || '';
+
                     return {
                         nom: company.nom_complet || company.nom_raison_sociale || '',
                         siren: company.siren || '',
@@ -121,8 +157,9 @@ export default function CompanyAutocomplete({
                         adresse: adresseFormatee,
                         code_postal: siege.code_postal || '',
                         ville: siege.libelle_commune || '',
-                        code_ape: company.activite_principale || '',
-                        libelle_ape: company.libelle_activite_principale || '',
+                        code_ape: apeCode,
+                        libelle_ape: apeLib,
+                        naf_formate: formatNafCode(apeCode, apeLib),
                         est_active: company.etat_administratif === "A",
                         form_juridique: company.nature_juridique_formate || ''
                     };

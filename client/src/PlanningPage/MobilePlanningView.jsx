@@ -173,6 +173,14 @@ function MobilePlanningView({ events, setEvents, onEventClick, onSelectSlot, sel
         });
     };
 
+    // Auto scroll day strip to selected date
+    const activeDayRef = useRef(null);
+    useEffect(() => {
+        if (activeDayRef.current) {
+            activeDayRef.current.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+    }, [selectedDate]);
+
     return (
         <div className="mobile-planning-container">
             {/* Day Navigator */}
@@ -180,7 +188,28 @@ function MobilePlanningView({ events, setEvents, onEventClick, onSelectSlot, sel
                 <button className="mobile-nav-btn" onClick={handlePrevMonth}>
                     <ChevronLeft size={20} />
                 </button>
-                <span className="mobile-current-day-label">{formatNavigatorMonth(selectedDate)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="mobile-current-day-label">{formatNavigatorMonth(selectedDate)}</span>
+                    {!isSameDay(selectedDate, new Date()) && (
+                        <button
+                            type="button"
+                            className="mobile-today-chip"
+                            onClick={() => setSelectedDate(new Date())}
+                            style={{
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                backgroundColor: 'rgba(95, 75, 219, 0.1)',
+                                color: 'var(--sidebar-primary)',
+                                border: '1px solid rgba(95, 75, 219, 0.2)',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Aujourd'hui
+                        </button>
+                    )}
+                </div>
                 <button className="mobile-nav-btn" onClick={handleNextMonth}>
                     <ChevronRight size={20} />
                 </button>
@@ -197,6 +226,7 @@ function MobilePlanningView({ events, setEvents, onEventClick, onSelectSlot, sel
                         return (
                             <button
                                 key={index}
+                                ref={active ? activeDayRef : null}
                                 className={`mobile-day-strip-item ${active ? 'active' : ''} ${isToday ? 'today' : ''}`}
                                 onClick={() => setSelectedDate(date)}
                             >

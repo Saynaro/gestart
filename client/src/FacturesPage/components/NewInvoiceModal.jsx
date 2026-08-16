@@ -757,7 +757,9 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                 {docCustomization.showPaymentConditions && (
                     <div className="pdf-footer-section" style={{ fontSize: '7.5pt', paddingTop: '8pt', borderTop: '1px solid #E0E0E0', marginTop: '12pt', display: 'flex', flexDirection: 'column', gap: '4pt' }}>
                         <div><strong>Conditions de paiement :</strong> Paiement {echeanceLabel} (Échéance le {new Date(calculatedDueDate).toLocaleDateString("fr-FR")})</div>
-                        {docCustomization.showIban && <span>IBAN: FR76 3000 6000 0123 4567 8901 234</span>}
+                        {docCustomization.showIban && (company?.settings?.bankIban || company?.bankIban || company?.iban) && (
+                            <span>IBAN: {company?.settings?.bankIban || company?.bankIban || company?.iban}</span>
+                        )}
                         {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
                     </div>
                 )}

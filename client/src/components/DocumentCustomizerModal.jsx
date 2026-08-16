@@ -57,7 +57,7 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
   const companyDisplayEmail = company?.email || "contact@entreprise.fr";
   const companyLogo = customization.logoUrl || company?.logoUrl;
   const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
-  const realIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 6000 0123 4567 8901 234";
+  const realIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 3020 5001 2345 6789 012";
 
   // Dynamic Client Info from active document if present
   const clientDisplayName = doc?.clientName || doc?.client?.name || "Jean Dupont";

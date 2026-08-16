@@ -1139,10 +1139,13 @@ function PlanningPage() {
                                 <button className="nav-arrow-btn" onClick={handlePrev} title="Précédent">
                                     <ChevronLeft size={18} />
                                 </button>
-                                <span className="calendar-current-range">{currentTitle}</span>
+                                <button className="nav-today-btn" onClick={handleToday} title="Aller à aujourd'hui">
+                                    Aujourd'hui
+                                </button>
                                 <button className="nav-arrow-btn" onClick={handleNext} title="Suivant">
                                     <ChevronRight size={18} />
                                 </button>
+                                <span className="calendar-current-range">{currentTitle}</span>
                             </div>
                         </div>
 

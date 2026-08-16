@@ -5,11 +5,7 @@ import "./SubscriptionReceiptModal.css";
 export default function SubscriptionReceiptModal({ receipt, user, company, currentPlan, onClose }) {
     if (!receipt) return null;
 
-    const amountNum = Number(receipt.amount || 1);
-    const amountHt = amountNum;
-    const tvaRate = 0.20;
-    const amountTva = amountHt * tvaRate;
-    const amountTtc = amountHt + amountTva;
+    const amountTotal = Number(receipt.amount || 1);
 
     const handlePrint = () => {
         window.print();
@@ -85,7 +81,6 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                             <p className="party-detail">10 Place de la République</p>
                             <p className="party-detail">75011 Paris, France</p>
                             <p className="party-detail">SIRET : 944 087 725 00018</p>
-                            <p className="party-detail">TVA : FR 12 944 087 725</p>
                             <p className="party-detail">Email : support@gestart.link</p>
                         </div>
 
@@ -106,8 +101,8 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                                 <tr>
                                     <th style={{ textAlign: 'left' }}>Désignation de la prestation</th>
                                     <th style={{ textAlign: 'center', width: '80px' }}>Qté</th>
-                                    <th style={{ textAlign: 'right', width: '130px' }}>Prix unitaire HT</th>
-                                    <th style={{ textAlign: 'right', width: '130px' }}>Total HT</th>
+                                    <th style={{ textAlign: 'right', width: '130px' }}>Prix unitaire</th>
+                                    <th style={{ textAlign: 'right', width: '130px' }}>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -119,8 +114,8 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                                         </div>
                                     </td>
                                     <td style={{ textAlign: 'center' }}>1</td>
-                                    <td style={{ textAlign: 'right' }}>{amountHt.toFixed(2).replace('.', ',')} €</td>
-                                    <td style={{ textAlign: 'right', fontWeight: 700 }}>{amountHt.toFixed(2).replace('.', ',')} €</td>
+                                    <td style={{ textAlign: 'right' }}>{amountTotal.toFixed(2).replace('.', ',')} €</td>
+                                    <td style={{ textAlign: 'right', fontWeight: 700 }}>{amountTotal.toFixed(2).replace('.', ',')} €</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -138,17 +133,9 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                         </div>
 
                         <div className="receipt-totals-table">
-                            <div className="receipt-total-row">
-                                <span>Total Hors Taxes (HT) :</span>
-                                <strong>{amountHt.toFixed(2).replace('.', ',')} €</strong>
-                            </div>
-                            <div className="receipt-total-row">
-                                <span>TVA (20,00 %) :</span>
-                                <strong>{amountTva.toFixed(2).replace('.', ',')} €</strong>
-                            </div>
                             <div className="receipt-total-row grand-total">
-                                <span>Montant Total TTC réglé :</span>
-                                <strong>{amountTtc.toFixed(2).replace('.', ',')} €</strong>
+                                <span>Montant Total réglé :</span>
+                                <strong>{amountTotal.toFixed(2).replace('.', ',')} €</strong>
                             </div>
                         </div>
                     </div>

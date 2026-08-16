@@ -18,11 +18,11 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
     const [logoUrl, setLogoUrl] = useState(null);
     const [signatureUrl, setSignatureUrl] = useState(null);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
-    const [website, setWebsite] = useState("https://gestart.fr");
-    const [companyEmail, setCompanyEmail] = useState("support.gestart@gmail.com");
-    const [companyPhone, setCompanyPhone] = useState("04 93 12 34 56");
-    const [iban, setIban] = useState("FR76 3000 3020 5001 2345 6789 012");
-    const [bic, setBIC] = useState("BNPAFRPPXXX");
+    const [website, setWebsite] = useState("");
+    const [companyEmail, setCompanyEmail] = useState("");
+    const [companyPhone, setCompanyPhone] = useState("");
+    const [iban, setIban] = useState("");
+    const [bic, setBIC] = useState("");
     const [isSearchingSirene, setIsSearchingSirene] = useState(false);
 
     useEffect(() => {
@@ -45,9 +45,15 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     if (company.website) setWebsite(company.website);
                     if (company.logoUrl) setLogoUrl(company.logoUrl);
                     if (company.signatureUrl) setSignatureUrl(company.signatureUrl);
+                    if (company.settings?.bankIban || company.bankIban || company.iban) {
+                        setIban(company.settings?.bankIban || company.bankIban || company.iban);
+                    }
+                    if (company.settings?.bankBic || company.bankBic || company.bic) {
+                        setBIC(company.settings?.bankBic || company.bankBic || company.bic);
+                    }
                 }
             } catch (err) {
-                console.warn("API company non disponible, conservation des valeurs par défaut:", err.message);
+                console.warn("API company non disponible:", err.message);
             }
         };
 
@@ -268,11 +274,26 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     phone: companyPhone,
                     website,
                     logoUrl,
-                    signatureUrl
+                    signatureUrl,
+                    bankIban: iban,
+                    bankBic: bic,
+                    iban,
+                    bic
                 })
             });
-            window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { name: companyName, logoUrl, signatureUrl } }));
-            triggerToast("Informations juridiques enregistrées dans la base de données !");
+            window.dispatchEvent(new CustomEvent('companyUpdated', { 
+                detail: { 
+                    name: companyName, 
+                    logoUrl, 
+                    signatureUrl,
+                    bankIban: iban,
+                    bankBic: bic,
+                    iban,
+                    bic,
+                    settings: { bankIban: iban, bankBic: bic }
+                } 
+            }));
+            triggerToast("Informations d'entreprise & coordonnées bancaires enregistrées !");
         } catch (err) {
             triggerToast("Informations juridiques enregistrées !");
         }
@@ -572,12 +593,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
                 <div className="form-field">
                     <label className="form-label">Email société (Imprimé PDF)</label>
-                    <input type="email" className="form-input" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} />
+                    <input type="email" className="form-input" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="contact@votre-entreprise.fr" />
                 </div>
 
                 <div className="form-field">
                     <label className="form-label">Téléphone société</label>
-                    <input type="tel" className="form-input" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} />
+                    <input type="tel" className="form-input" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="06 12 34 56 78" />
                 </div>
 
                 <div className="form-field form-group-full">
@@ -587,12 +608,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
                 <div className="form-field">
                     <label className="form-label">IBAN (Affiché sur factures PDF)</label>
-                    <input type="text" className="form-input" value={iban} onChange={(e) => setIban(e.target.value)} style={{ fontFamily: 'monospace', fontWeight: 600 }} />
+                    <input type="text" className="form-input" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="FR76 3000 3020 5001 2345 6789 012" style={{ fontFamily: 'monospace', fontWeight: 600 }} />
                 </div>
 
                 <div className="form-field">
                     <label className="form-label">BIC / SWIFT</label>
-                    <input type="text" className="form-input" value={bic} onChange={(e) => setBIC(e.target.value)} style={{ fontFamily: 'monospace', fontWeight: 600 }} />
+                    <input type="text" className="form-input" value={bic} onChange={(e) => setBIC(e.target.value)} placeholder="BNPAFRPPXXX" style={{ fontFamily: 'monospace', fontWeight: 600 }} />
                 </div>
                 <div className="form-group-full" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--border)' }}>
                     <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>

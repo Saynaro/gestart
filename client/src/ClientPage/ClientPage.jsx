@@ -108,19 +108,30 @@ function ClientPage() {
                     date: new Date(m.createdAt).toLocaleDateString('fr-FR')
                 }));
 
-                // Calculate real next upcoming intervention
+                // Calculate real next upcoming & last past interventions
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                const upcomingInterventions = (c.interventions || [])
+                const validInterventions = (c.interventions || []).filter(i => i.status !== 'CANCELLED');
+
+                const upcomingInterventions = validInterventions
                     .filter(i => {
                         if (!i.scheduledAt) return false;
                         const schedDate = new Date(i.scheduledAt);
-                        return schedDate >= today && i.status !== 'CANCELLED' && i.status !== 'COMPLETED';
+                        return schedDate >= today && i.status !== 'COMPLETED';
                     })
                     .sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
 
+                const pastInterventions = validInterventions
+                    .filter(i => {
+                        if (i.status === 'COMPLETED') return true;
+                        if (!i.scheduledAt) return false;
+                        return new Date(i.scheduledAt) < today;
+                    })
+                    .sort((a, b) => new Date(b.scheduledAt || b.createdAt) - new Date(a.scheduledAt || a.createdAt));
+
                 const nextIntervention = upcomingInterventions.length > 0 ? upcomingInterventions[0] : null;
+                const lastIntervention = pastInterventions.length > 0 ? pastInterventions[0] : null;
                 
                 let nextMaintenanceDate = null;
                 if (nextIntervention) {
@@ -130,6 +141,30 @@ function ClientPage() {
                 }
 
                 const hasNext = !!nextMaintenanceDate;
+
+                // Smart hybrid summary for table view
+                let interventionSummary = {
+                    type: 'none',
+                    date: 'Aucune',
+                    label: null
+                };
+
+                if (nextIntervention) {
+                    interventionSummary = {
+                        type: 'upcoming',
+                        date: new Date(nextIntervention.scheduledAt).toLocaleDateString('fr-FR'),
+                        label: 'Prévu',
+                        title: nextIntervention.title || nextIntervention.type || 'Intervention'
+                    };
+                } else if (lastIntervention) {
+                    const d = lastIntervention.scheduledAt || lastIntervention.createdAt;
+                    interventionSummary = {
+                        type: 'past',
+                        date: new Date(d).toLocaleDateString('fr-FR'),
+                        label: 'Dernier',
+                        title: lastIntervention.title || lastIntervention.type || 'Intervention'
+                    };
+                }
 
                 const clientObj = {
                     id: c.id,
@@ -152,6 +187,7 @@ function ClientPage() {
                         hasNext: hasNext,
                         nextInterventionTitle: nextIntervention?.title || nextIntervention?.type || null
                     },
+                    interventionSummary,
                     interventions: mappedInterventions,
                     factures: mappedFactures,
                     devis: mappedDevis,

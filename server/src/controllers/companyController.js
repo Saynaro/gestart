@@ -63,16 +63,37 @@ export const updateCompany = async (req, res) => {
         website,
         logoUrl,
         signatureUrl,
+        bankIban,
+        bankBic,
+        iban,
+        bic,
         tradeCategories, // Array of category IDs
     } = req.body;
 
     try {
-        // Mise à jour de la société et gestion atomique des catégories de métier
+        // Mise à jour de la société et gestion atomique des catégories de métier & paramètres bancaires
         const updatedCompany = await prisma.$transaction(async (tx) => {
             if (Array.isArray(tradeCategories)) {
                 // Supprime les anciennes catégories avant d'ajouter les nouvelles
                 await tx.companyTradeCategory.deleteMany({
                     where: { companyId }
+                });
+            }
+
+            const finalIban = bankIban !== undefined ? bankIban : iban;
+            const finalBic = bankBic !== undefined ? bankBic : bic;
+            if (finalIban !== undefined || finalBic !== undefined) {
+                await tx.companySettings.upsert({
+                    where: { companyId },
+                    update: {
+                        ...(finalIban !== undefined && { bankIban: finalIban ? finalIban.trim() : null }),
+                        ...(finalBic !== undefined && { bankBic: finalBic ? finalBic.trim() : null })
+                    },
+                    create: {
+                        companyId,
+                        ...(finalIban !== undefined && { bankIban: finalIban ? finalIban.trim() : null }),
+                        ...(finalBic !== undefined && { bankBic: finalBic ? finalBic.trim() : null })
+                    }
                 });
             }
 

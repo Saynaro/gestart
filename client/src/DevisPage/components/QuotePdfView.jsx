@@ -19,7 +19,7 @@ function QuotePdfView({ quote, onClose, onDownload }) {
     const companyDisplayPhone = company?.phone || "Non renseigné";
     const companyDisplayEmail = company?.email || "contact@entreprise.fr";
     const companyLogo = docCustomization.logoUrl || company?.logoUrl;
-    const companyIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 6000 0123 4567 8901 234";
+    const companyIban = company?.settings?.bankIban || company?.bankIban || company?.iban || quote.company?.settings?.bankIban || quote.company?.bankIban || "";
     const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
 
     const handlePrint = () => {

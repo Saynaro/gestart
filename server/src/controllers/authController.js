@@ -791,6 +791,17 @@ export const getSecurityData = async (req, res) => {
             };
         });
 
+        const loginHistory = await prisma.loginHistory.findMany({
+            where: {
+                OR: [
+                    { userId },
+                    { email: user.email }
+                ]
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 20
+        });
+
         const formattedHistory = loginHistory.map((h) => ({
             id: h.id,
             date: new Date(h.createdAt).toLocaleDateString("fr-FR", { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),

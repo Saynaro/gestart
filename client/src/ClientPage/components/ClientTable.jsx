@@ -39,7 +39,8 @@ function ClientTable({ clients, getClientDetails, onSelect, onEdit, onPlan, onAr
         if (!status) return "status-pill ok";
         const val = status.toLowerCase();
         if (val.includes("urgent")) return "status-pill urgent";
-        if (val.includes("bientôt") || val.includes("bientot")) return "status-pill bientot";
+        if (val.includes("planifier") || val.includes("warning") || val.includes("prévoir") || val.includes("prevoir")) return "status-pill warning";
+        if (val.includes("aucun") || val.includes("non")) return "status-pill gray";
         return "status-pill ok";
     };
 
@@ -51,7 +52,7 @@ function ClientTable({ clients, getClientDetails, onSelect, onEdit, onPlan, onAr
                         <th>Client</th>
                         <th>Adresse</th>
                         <th>Équipement</th>
-                        <th>Dernier entretien</th>
+                        <th>Entretien / Intervention</th>
                         <th>Statut</th>
                         <th style={{ width: "60px" }}></th>
                     </tr>
@@ -59,11 +60,11 @@ function ClientTable({ clients, getClientDetails, onSelect, onEdit, onPlan, onAr
                 <tbody>
                     {clients.map((client) => {
                         const details = getClientDetails(client);
-                        const lastIntervention = details.interventions?.[0]?.date || "Aucun";
                         const initials = client.isOrg ? client.name[0] : `${client.firstName[0]}${client.lastName[0]}`;
                         const displayName = client.isOrg ? client.name : `${client.firstName} ${client.lastName}`;
                         const displayAddress = client.address ? `${client.address}, ${client.city}` : "Non renseignée";
                         const statusVal = details.maintenance?.status || "OK";
+                        const summary = client.interventionSummary || details.interventionSummary;
 
                         return (
                             <tr key={client.id} className="client-table-row" onClick={() => onSelect(client)}>
@@ -80,7 +81,47 @@ function ClientTable({ clients, getClientDetails, onSelect, onEdit, onPlan, onAr
                                     <span className="client-table-text-medium">{details.equipment?.model || "Aucun"}</span>
                                 </td>
                                 <td>
-                                    <span className="client-table-text-muted">{lastIntervention}</span>
+                                    {summary?.type === 'upcoming' ? (
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                            <span style={{ 
+                                                display: 'inline-block', 
+                                                width: '6px', 
+                                                height: '6px', 
+                                                borderRadius: '50%', 
+                                                backgroundColor: '#16a34a' 
+                                            }} />
+                                            <span style={{ fontWeight: 600, color: 'var(--foreground)' }}>
+                                                {summary.date}
+                                            </span>
+                                            <span style={{ 
+                                                fontSize: '11px', 
+                                                color: '#16a34a', 
+                                                fontWeight: 600, 
+                                                backgroundColor: 'rgba(22, 163, 74, 0.1)', 
+                                                padding: '1px 6px', 
+                                                borderRadius: '4px' 
+                                            }}>
+                                                Prévu
+                                            </span>
+                                        </div>
+                                    ) : summary?.type === 'past' ? (
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                            <span style={{ color: 'var(--muted-foreground)', fontSize: '13px' }}>
+                                                {summary.date}
+                                            </span>
+                                            <span style={{ 
+                                                fontSize: '11px', 
+                                                color: 'var(--muted-foreground)', 
+                                                backgroundColor: 'rgba(0, 0, 0, 0.05)', 
+                                                padding: '1px 6px', 
+                                                borderRadius: '4px' 
+                                            }}>
+                                                Dernier
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className="client-table-text-muted">Aucune</span>
+                                    )}
                                 </td>
                                 <td>
                                     <span className={getStatusPillClass(statusVal)}>

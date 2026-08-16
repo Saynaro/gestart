@@ -45,6 +45,24 @@
     color: var(--sidebar-primary);
 }
 
+.nav-today-btn {
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.nav-today-btn:hover {
+    border-color: var(--sidebar-primary);
+    color: var(--sidebar-primary);
+    background-color: rgba(95, 75, 219, 0.06);
+}
+
 .calendar-current-range {
     font-size: 16px;
     font-weight: 700;

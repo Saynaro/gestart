@@ -300,6 +300,12 @@
     background-color: rgba(100, 116, 139, 0.12);
 }
 
+.client-data-table th:last-child,
+.client-data-table td:last-child {
+    padding-right: 20px !important;
+    text-align: right;
+}
+
 /* Dropdown Options Popup Menu */
 .client-row-more-btn {
     background: none;
@@ -309,10 +315,11 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    margin-right: 4px;
 }
 
 .client-row-more-btn:hover,
@@ -323,7 +330,7 @@
 
 .client-row-dropdown {
     position: absolute;
-    right: 8px;
+    right: 20px;
     z-index: 9999;
     background-color: var(--card, white);
     border-radius: 14px;

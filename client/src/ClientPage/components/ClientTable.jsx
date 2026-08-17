@@ -98,12 +98,12 @@ function ClientTable({
             <table className="client-data-table">
                 <thead>
                     <tr>
-                        <th style={{ width: "26%" }}>Client</th>
-                        <th style={{ width: "24%" }}>Adresse</th>
-                        <th style={{ width: "24%" }}>Équipement</th>
-                        <th style={{ width: "16%" }}>Entretien / Intervention</th>
+                        <th style={{ width: "25%" }}>Client</th>
+                        <th style={{ width: "23%" }}>Adresse</th>
+                        <th style={{ width: "23%" }}>Équipement</th>
+                        <th style={{ width: "17%" }}>Entretien / Intervention</th>
                         <th style={{ width: "10%" }}>Statut</th>
-                        <th style={{ width: "45px" }}></th>
+                        <th style={{ width: "64px", paddingRight: "24px" }}></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,11 +177,12 @@ function ClientTable({
                                         {statusVal}
                                     </span>
                                 </td>
-                                <td onClick={(e) => e.stopPropagation()} style={{ position: "relative", overflow: "visible" }}>
+                                <td onClick={(e) => e.stopPropagation()} style={{ position: "relative", overflow: "visible", paddingRight: "24px", textAlign: "right" }}>
                                     <button 
                                         className={`client-row-more-btn ${activeDropdownId === client.id ? "active" : ""}`}
                                         onClick={(e) => toggleDropdown(e, client.id)}
                                         title="Actions"
+                                        style={{ marginLeft: "auto" }}
                                     >
                                         <MoreVertical size={18} />
                                     </button>

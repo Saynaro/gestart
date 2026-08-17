@@ -172,17 +172,19 @@ function PhoneInput({
             digits = digits.substring(1);
         }
 
+        const currCountry = selectedCountry || COUNTRIES[0];
+
         // Limit strictly to country's maximum digits
-        if (digits.length > selectedCountry.maxDigits) {
-            digits = digits.substring(0, selectedCountry.maxDigits);
+        if (digits.length > (currCountry.maxDigits || 15)) {
+            digits = digits.substring(0, currCountry.maxDigits || 15);
         }
 
         setLocalDigits(digits);
 
-        const formattedLocal = formatPhoneDigits(digits, selectedCountry);
-        const fullFormatted = digits ? `${selectedCountry.dialCode} ${formattedLocal}` : "";
+        const formattedLocal = formatPhoneDigits(digits, currCountry);
+        const fullFormatted = digits ? `${currCountry.dialCode} ${formattedLocal}` : "";
         if (onChange) {
-            onChange(fullFormatted, digits ? `${selectedCountry.dialCode}${digits}` : "");
+            onChange(fullFormatted, digits ? `${currCountry.dialCode}${digits}` : "");
         }
     };
 
@@ -227,10 +229,13 @@ function PhoneInput({
         );
     }, [searchQuery]);
 
-    const displayFormattedValue = formatPhoneDigits(localDigits, selectedCountry);
+    const safeCountry = selectedCountry || COUNTRIES[0];
+    const pattern = safeCountry?.pattern || [2, 2, 2, 2, 2];
+    const maxDigits = safeCountry?.maxDigits || 15;
+    const displayFormattedValue = formatPhoneDigits(localDigits, safeCountry);
 
     // Maximum formatted string length with spaces
-    const maxFormattedLength = selectedCountry.maxDigits + (selectedCountry.pattern.length - 1);
+    const maxFormattedLength = maxDigits + (pattern.length - 1);
 
     return (
         <div
@@ -243,12 +248,12 @@ function PhoneInput({
                 type="button"
                 className="phone-country-btn"
                 onClick={() => !disabled && setIsOpen(prev => !prev)}
-                title={`${selectedCountry.name} (${selectedCountry.dialCode})`}
+                title={`${safeCountry.name} (${safeCountry.dialCode})`}
                 aria-label="Sélectionner le pays"
                 disabled={disabled}
             >
-                <span className="phone-flag">{selectedCountry.flag}</span>
-                <span className="phone-dial-code">{selectedCountry.dialCode}</span>
+                <span className="phone-flag">{safeCountry.flag}</span>
+                <span className="phone-dial-code">{safeCountry.dialCode}</span>
                 <ChevronDown size={14} className={`phone-chevron ${isOpen ? "open" : ""}`} />
             </button>
 
@@ -261,7 +266,7 @@ function PhoneInput({
                 className="phone-number-input"
                 value={displayFormattedValue}
                 onChange={handleInputChange}
-                placeholder={placeholder || selectedCountry.sample}
+                placeholder={placeholder || safeCountry.sample}
                 maxLength={maxFormattedLength}
                 required={required}
                 disabled={disabled}

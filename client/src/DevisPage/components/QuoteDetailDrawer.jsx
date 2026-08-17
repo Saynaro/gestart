@@ -69,7 +69,7 @@ function QuoteDetailDrawer({
     const clientDisplayPhone = client.phone || quote.clientPhone || "";
 
     const linkedFacture = quote.linkedFacture || quote.linkedInvoice || quote.invoice;
-    const isEditable = isDraft && !Boolean(linkedFacture || quote.invoiceId || quote.linkedInvoice || (quote.amountFactured && quote.amountFactured > 0));
+    const isEditable = !isAccepted && !Boolean(linkedFacture || quote.invoiceId || quote.linkedInvoice || (quote.amountFactured && quote.amountFactured > 0));
 
     const rawDocDate = quote.date || quote.createdAt || quote.issuedAt;
     const formattedDocDate = rawDocDate ? new Date(rawDocDate).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');

@@ -794,24 +794,8 @@ function ClientPage() {
 
             {/* Toast Notification */}
             {toastMessage && (
-                <div style={{
-                    position: 'fixed',
-                    bottom: '24px',
-                    right: '24px',
-                    backgroundColor: toastMessage.type === 'error' ? '#ef4444' : '#0f172a',
-                    color: '#ffffff',
-                    padding: '12px 20px',
-                    borderRadius: '10px',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                    zIndex: 100000,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    animation: 'fadeIn 0.2s ease-out'
-                }}>
-                    {toastMessage.type === 'error' ? <AlertCircle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} color="#22c55e" style={{ flexShrink: 0 }} />}
+                <div className={`app-toast ${toastMessage.type === 'error' ? 'dv-toast--error' : 'dv-toast--success'}`}>
+                    {toastMessage.type === 'error' ? <AlertCircle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} style={{ flexShrink: 0 }} />}
                     <span>{toastMessage.msg}</span>
                 </div>
             )}

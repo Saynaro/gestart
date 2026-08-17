@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { User, Camera, Globe, Clock, Check, ChevronRight } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import PhoneInput from "../../components/PhoneInput";
 
 export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, setActiveSubSheet }) {
     const [firstName, setFirstName] = useState("Khalid");
@@ -217,12 +218,9 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
 
             <div className="form-field">
                 <label className="form-label">Téléphone personnel</label>
-                <input
-                    type="tel"
-                    className="form-input"
+                <PhoneInput
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="06 12 34 56 78"
+                    onChange={(formatted) => setPhone(formatted)}
                 />
             </div>
 

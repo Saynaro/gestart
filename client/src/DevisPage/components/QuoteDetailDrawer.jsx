@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette, Lock } from "lucide-react";
+import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette, Lock, Trash2 } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
@@ -31,6 +31,7 @@ function QuoteDetailDrawer({
     onConvertToInvoice,
     onChangeStatus,
     onEdit,
+    onDelete,
     onOpenLinkedInvoice,
     onUpdateQuoteCustomization,
     overlayStyle
@@ -47,13 +48,15 @@ function QuoteDetailDrawer({
         qty: Number(l.quantity || l.qty || 1),
         quantity: Number(l.quantity || l.qty || 1),
         unitPrice: Number(l.unitPrice) || 0,
+        tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : (quote.tvaRate !== undefined && quote.tvaRate !== null ? Number(quote.tvaRate) : 20),
         total: Number(l.total) || ((Number(l.unitPrice) || 0) * (Number(l.quantity || l.qty) || 1))
     }));
     const computedHtFromLines = quoteLines.reduce((acc, l) => acc + (l.unitPrice * l.qty), 0);
     const subtotalHt = Number(quote.subtotalHt || quote.amountHT || quote.totalHt || computedHtFromLines || 0);
-    const tvaRate = Number(quote.tvaRate !== undefined ? quote.tvaRate : 20);
-    const totalTtc = Number(quote.totalTtc || quote.amountTTC || (subtotalHt * (1 + tvaRate / 100)) || 0);
-    const tvaAmount = Number(quote.tvaAmount || (totalTtc - subtotalHt) || 0);
+    const tvaRate = Number(quote.tvaRate !== undefined && quote.tvaRate !== null ? quote.tvaRate : (quoteLines[0]?.tvaRate !== undefined ? quoteLines[0].tvaRate : 20));
+    const computedTvaFromLines = quoteLines.reduce((acc, l) => acc + (l.unitPrice * l.qty * ((l.tvaRate !== undefined ? l.tvaRate : tvaRate) / 100)), 0);
+    const totalTtc = Number(quote.totalTtc || quote.amountTTC || (subtotalHt + computedTvaFromLines) || 0);
+    const tvaAmount = Number(quote.tvaAmount !== undefined && quote.tvaAmount !== null ? quote.tvaAmount : (totalTtc - subtotalHt));
 
     const isAccepted = (quote.status || "").toUpperCase() === "ACCEPTED";
     const isDraft    = (quote.status || "").toUpperCase() === "DRAFT";
@@ -115,160 +118,554 @@ function QuoteDetailDrawer({
                     fontFamily: docCustomization.fontFamily || 'Inter, sans-serif'
                 }}
             >
-                {docCustomization.structure === 'banner' && (
-                    <div style={{ height: '8px', backgroundColor: docCustomization.primaryColor || '#556B2F', margin: '-24px -20px 14px -20px', borderRadius: '2px 2px 0 0' }} />
+                {/* ==================== STRUCTURE 1: BANNER ==================== */}
+                {docCustomization.structure === "banner" && (
+                    <div style={{ marginBottom: "14px" }}>
+                        <div
+                            style={{
+                                backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                color: "#FFFFFF",
+                                padding: "14px 16px",
+                                margin: "-20px -18px 12px -18px",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center"
+                            }}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                {docCustomization.showLogo && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                maxWidth: "120px",
+                                                objectFit: "contain",
+                                                background: "rgba(255,255,255,0.2)",
+                                                padding: "2px 4px",
+                                                borderRadius: "4px"
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            style={{
+                                                backgroundColor: "rgba(255,255,255,0.2)",
+                                                color: "#FFFFFF",
+                                                fontWeight: 800,
+                                                borderRadius: "4px",
+                                                padding: "4px 6px",
+                                                fontSize: "0.95em"
+                                            }}
+                                        >
+                                            {companyDisplayName.substring(0, 8).toUpperCase()}
+                                        </div>
+                                    )
+                                )}
+                                <div>
+                                    <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                        {companyDisplayName}
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div style={{ textAlign: "right" }}>
+                                <h1 style={{ fontSize: "1.4em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "1.5px" }}>
+                                    DEVIS
+                                </h1>
+                            </div>
+                        </div>
+
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                backgroundColor: "#F4F4F2",
+                                padding: "6px 10px",
+                                borderRadius: "4px",
+                                fontSize: "0.82em",
+                                marginBottom: "10px",
+                                color: "#4A4A4A"
+                            }}
+                        >
+                            <div><strong>Numéro : </strong> {quote.number}</div>
+                            <div><strong>Date : </strong> {formattedDocDate}</div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginBottom: "12px" }}>
+                                <div style={{ flex: 1, fontSize: "0.85em", lineHeight: 1.35, opacity: 0.85 }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+                                <div
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: "#FAFAF8",
+                                        border: "1px solid #EAEAE6",
+                                        padding: "8px 12px",
+                                        borderRadius: "6px"
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, opacity: 0.65, letterSpacing: "0.5px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        DEVIS POUR :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                    {clientDisplayAddress && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{clientDisplayAddress}</div>}
+                                    {clientDisplayEmail && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{clientDisplayEmail}</div>}
+                                    {clientDisplayPhone && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{clientDisplayPhone}</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "12px" }}>
+                                <div style={{ fontSize: "0.85em", lineHeight: 1.35, opacity: 0.85, marginBottom: "8px" }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+                                <div
+                                    style={{
+                                        backgroundColor: "#FAFAF8",
+                                        border: "1px solid #EAEAE6",
+                                        padding: "8px 12px",
+                                        borderRadius: "6px"
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, opacity: 0.65, letterSpacing: "0.5px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        DEVIS POUR :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                    {clientDisplayAddress && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{clientDisplayAddress}</div>}
+                                    {clientDisplayEmail && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{clientDisplayEmail}</div>}
+                                    {clientDisplayPhone && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{clientDisplayPhone}</div>}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 )}
 
-                <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
-                    <div className="pdf-header-left" style={{ flex: 1 }}>
-                        {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
-                            companyLogo ? (
-                                <img
-                                    src={companyLogo}
-                                    alt="Logo"
-                                    style={{
-                                        maxHeight: `${docCustomization.logoSize || 45}px`,
-                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
-                                        objectFit: 'contain',
-                                        marginBottom: '6pt'
-                                    }}
-                                />
-                            ) : (
+                {/* ==================== STRUCTURE 2: MODERN ==================== */}
+                {docCustomization.structure === "modern" && (
+                    <div style={{ marginBottom: "14px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                            <div>
+                                {docCustomization.showLogo && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                maxWidth: "140px",
+                                                objectFit: "contain",
+                                                marginBottom: "4pt"
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            style={{
+                                                backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                color: "#FFF",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: 700,
+                                                borderRadius: "6px",
+                                                padding: "4px 8px",
+                                                height: `${docCustomization.logoSize || 40}px`,
+                                                minWidth: `${(docCustomization.logoSize || 40) * 1.8}px`,
+                                                marginBottom: "4pt",
+                                                fontSize: "0.95em"
+                                            }}
+                                        >
+                                            {companyDisplayName.substring(0, 8).toUpperCase()}
+                                        </div>
+                                    )
+                                )}
+                                <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                    {companyDisplayName}
+                                </h3>
+                            </div>
+
+                            <div style={{ textAlign: "right" }}>
                                 <div
-                                    className="pdf-logo-stub"
                                     style={{
-                                        fontSize: '1.1em',
-                                        padding: '4px 8px',
-                                        height: `${docCustomization.logoSize || 45}px`,
-                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                        color: '#FFF',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontWeight: '700',
-                                        borderRadius: '4px',
-                                        marginBottom: '6pt'
+                                        display: "inline-block",
+                                        backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                        color: "#FFFFFF",
+                                        padding: "4px 12px",
+                                        borderRadius: "16px",
+                                        fontWeight: 800,
+                                        fontSize: "0.9em",
+                                        letterSpacing: "0.5px",
+                                        marginBottom: "4px"
                                     }}
                                 >
-                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                    DEVIS N° {quote.number}
                                 </div>
-                            )
-                        )}
-                        <h2 className="company-name" style={{ fontSize: '1.3em', fontWeight: 800, color: docCustomization.primaryColor || '#556B2F', margin: 0 }}>
-                            {companyDisplayName}
-                        </h2>
-                        <p className="company-details" style={{ fontSize: '0.9em', opacity: 0.85, lineHeight: 1.35, marginTop: '2pt' }}>
-                            {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
-                            {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
-                            {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
-                            {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
-                        </p>
-                    </div>
-                    <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
-                        {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
-                            companyLogo ? (
-                                <img
-                                    src={companyLogo}
-                                    alt="Logo"
-                                    style={{
-                                        maxHeight: `${docCustomization.logoSize || 45}px`,
-                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
-                                        objectFit: 'contain',
-                                        marginBottom: '6pt'
-                                    }}
-                                />
-                            ) : (
+                                <div style={{ fontSize: "0.8em", opacity: 0.85 }}>
+                                    Date : <strong>{formattedDocDate}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
                                 <div
-                                    className="pdf-logo-stub"
                                     style={{
-                                        fontSize: '1.1em',
-                                        padding: '4px 8px',
-                                        height: `${docCustomization.logoSize || 45}px`,
-                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                        color: '#FFF',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontWeight: '700',
-                                        borderRadius: '4px',
-                                        marginBottom: '6pt'
+                                        flex: 1,
+                                        backgroundColor: "#FAFAF8",
+                                        borderLeft: `4px solid ${docCustomization.primaryColor || "#556B2F"}`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35
                                     }}
                                 >
-                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        Émetteur
+                                    </span>
+                                    <div style={{ fontWeight: 700, color: "#1A1A1A" }}>{companyDisplayName}</div>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
                                 </div>
-                            )
+
+                                <div
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: `${docCustomization.primaryColor || "#556B2F"}10`,
+                                        border: `1px solid ${docCustomization.primaryColor || "#556B2F"}30`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        DEVIS POUR :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                    {clientDisplayAddress && <div>{clientDisplayAddress}</div>}
+                                    {clientDisplayEmail && <div>{clientDisplayEmail}</div>}
+                                    {clientDisplayPhone && <div>{clientDisplayPhone}</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "12px" }}>
+                                <div
+                                    style={{
+                                        backgroundColor: "#FAFAF8",
+                                        borderLeft: `4px solid ${docCustomization.primaryColor || "#556B2F"}`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35,
+                                        marginBottom: "8px"
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        Émetteur
+                                    </span>
+                                    <div style={{ fontWeight: 700, color: "#1A1A1A" }}>{companyDisplayName}</div>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+
+                                <div
+                                    style={{
+                                        backgroundColor: `${docCustomization.primaryColor || "#556B2F"}10`,
+                                        border: `1px solid ${docCustomization.primaryColor || "#556B2F"}30`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        DEVIS POUR :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                    {clientDisplayAddress && <div>{clientDisplayAddress}</div>}
+                                    {clientDisplayEmail && <div>{clientDisplayEmail}</div>}
+                                    {clientDisplayPhone && <div>{clientDisplayPhone}</div>}
+                                </div>
+                            </div>
                         )}
-                        <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
-                        <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Numéro :</strong></td>
-                                    <td>{quote.number}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Date :</strong></td>
-                                    <td>{formattedDocDate}</td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
-                </div>
+                )}
 
-                <div
-                    className="pdf-billing-section"
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        gap: '3px',
-                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}12` : '#FAFAF8',
-                        padding: '10px 14px',
-                        borderRadius: '6px',
-                        marginBottom: '12px',
-                        textAlign: 'left'
-                    }}
-                >
-                    <span className="section-label" style={{ fontSize: '0.78em', fontWeight: 700, letterSpacing: '0.5px', opacity: 0.65, textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
-                        DEVIS POUR :
-                    </span>
-                    <h3 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
-                        {clientDisplayName}
-                    </h3>
-                    {clientDisplayAddress && (
-                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {clientDisplayAddress}
-                        </div>
-                    )}
-                    {clientDisplayEmail && (
-                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {clientDisplayEmail}
-                        </div>
-                    )}
-                    {clientDisplayPhone && (
-                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {clientDisplayPhone}
-                        </div>
-                    )}
-                </div>
+                {/* ==================== STRUCTURE 3: MINIMAL ==================== */}
+                {docCustomization.structure === "minimal" && (
+                    <div style={{ marginBottom: "14px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingBottom: "8px", borderBottom: `1.5px solid #EAEAE6`, marginBottom: "12px" }}>
+                            <div>
+                                {docCustomization.showLogo && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 36}px`,
+                                                maxWidth: "130px",
+                                                objectFit: "contain",
+                                                marginBottom: "4pt"
+                                            }}
+                                        />
+                                    ) : null
+                                )}
+                                <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                    {companyDisplayName}
+                                </h3>
+                            </div>
 
-                {quote.interventionType && (
-                    <div className="pdf-intervention-info" style={{ padding: '6px 10px', marginBottom: '12px', fontSize: '0.95em', backgroundColor: '#FAFAF8', borderRadius: '4px' }}>
-                        <span>Objet : <strong>{quote.interventionType}</strong></span>
-                        {quote.workDetails && (
-                            <p className="work-details" style={{ fontSize: '0.9em', marginTop: '4px', paddingTop: '4px', margin: 0, color: '#666' }}>{quote.workDetails}</p>
+                            <div style={{ textAlign: "right" }}>
+                                <h1 style={{ fontSize: "1.6em", fontWeight: 300, color: docCustomization.primaryColor || "#556B2F", margin: 0, letterSpacing: "2px" }}>
+                                    DEVIS
+                                </h1>
+                                <div style={{ fontSize: "0.8em", color: "#666", marginTop: "2px" }}>
+                                    N° {quote.number} • {formattedDocDate}
+                                </div>
+                            </div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", marginBottom: "12px" }}>
+                                <div style={{ flex: 1, fontSize: "0.82em", lineHeight: 1.35, color: "#4A4A4A" }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+
+                                <div style={{ flex: 1, fontSize: "0.82em", lineHeight: 1.35 }}>
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", letterSpacing: "1px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        DEVIS POUR :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                    {clientDisplayAddress && <div style={{ color: "#4A4A4A" }}>{clientDisplayAddress}</div>}
+                                    {clientDisplayEmail && <div style={{ color: "#4A4A4A" }}>{clientDisplayEmail}</div>}
+                                    {clientDisplayPhone && <div style={{ color: "#4A4A4A" }}>{clientDisplayPhone}</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "12px" }}>
+                                <div style={{ fontSize: "0.82em", lineHeight: 1.35, color: "#4A4A4A", marginBottom: "8px" }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+
+                                <div style={{ borderTop: "1px dashed #E0E0E0", paddingTop: "6px", fontSize: "0.82em", lineHeight: 1.35 }}>
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", letterSpacing: "1px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        DEVIS POUR :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                    {clientDisplayAddress && <div style={{ color: "#4A4A4A" }}>{clientDisplayAddress}</div>}
+                                    {clientDisplayEmail && <div style={{ color: "#4A4A4A" }}>{clientDisplayEmail}</div>}
+                                    {clientDisplayPhone && <div style={{ color: "#4A4A4A" }}>{clientDisplayPhone}</div>}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ==================== STRUCTURE 4: CLASSIC (DEFAULT) ==================== */}
+                {(docCustomization.structure === "classic" || !docCustomization.structure) && (
+                    <div style={{ marginBottom: "12px" }}>
+                        <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
+                            <div className="pdf-header-left" style={{ flex: 1 }}>
+                                {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 45}px`,
+                                                maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                                objectFit: 'contain',
+                                                marginBottom: '6pt'
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="pdf-logo-stub"
+                                            style={{
+                                                fontSize: '1.1em',
+                                                padding: '4px 8px',
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                                color: '#FFF',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontWeight: '700',
+                                                borderRadius: '4px',
+                                                marginBottom: '6pt'
+                                            }}
+                                        >
+                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                        </div>
+                                    )
+                                )}
+                                <h2 className="company-name" style={{ fontSize: '1.3em', fontWeight: 800, color: docCustomization.primaryColor || '#556B2F', margin: 0 }}>
+                                    {companyDisplayName}
+                                </h2>
+                                <p className="company-details" style={{ fontSize: '0.9em', opacity: 0.85, lineHeight: 1.35, marginTop: '2pt' }}>
+                                    {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                                    {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
+                                    {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                                    {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
+                                </p>
+                            </div>
+                            <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 45}px`,
+                                                maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                                objectFit: 'contain',
+                                                marginBottom: '6pt'
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="pdf-logo-stub"
+                                            style={{
+                                                fontSize: '1.1em',
+                                                padding: '4px 8px',
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                                color: '#FFF',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontWeight: '700',
+                                                borderRadius: '4px',
+                                                marginBottom: '6pt'
+                                            }}
+                                        >
+                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                        </div>
+                                    )
+                                )}
+                                <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
+                                <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Numéro :</strong></td>
+                                            <td>{quote.number}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Date :</strong></td>
+                                            <td>{formattedDocDate}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
+                                <div
+                                    className="pdf-billing-section"
+                                    style={{
+                                        width: "55%",
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'flex-start',
+                                        gap: '3px',
+                                        backgroundColor: '#FAFAF8',
+                                        border: '1px solid #EAEAE6',
+                                        padding: '10px 14px',
+                                        borderRadius: '6px',
+                                        textAlign: 'left'
+                                    }}
+                                >
+                                    <span className="section-label" style={{ fontSize: '0.78em', fontWeight: 700, letterSpacing: '0.5px', opacity: 0.65, textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                                        DEVIS POUR :
+                                    </span>
+                                    <h3 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                                        {clientDisplayName}
+                                    </h3>
+                                    {clientDisplayAddress && (
+                                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                                            {clientDisplayAddress}
+                                        </div>
+                                    )}
+                                    {clientDisplayEmail && (
+                                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                                            {clientDisplayEmail}
+                                        </div>
+                                    )}
+                                    {clientDisplayPhone && (
+                                        <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                                            {clientDisplayPhone}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div
+                                className="pdf-billing-section"
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                    gap: '3px',
+                                    backgroundColor: '#FAFAF8',
+                                    border: '1px solid #EAEAE6',
+                                    padding: '10px 14px',
+                                    borderRadius: '6px',
+                                    marginBottom: '12px',
+                                    textAlign: 'left'
+                                }}
+                            >
+                                <span className="section-label" style={{ fontSize: '0.78em', fontWeight: 700, letterSpacing: '0.5px', opacity: 0.65, textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                                    DEVIS POUR :
+                                </span>
+                                <h3 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                                    {clientDisplayName}
+                                </h3>
+                                {clientDisplayAddress && (
+                                    <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                                        {clientDisplayAddress}
+                                    </div>
+                                )}
+                                {clientDisplayEmail && (
+                                    <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                                        {clientDisplayEmail}
+                                    </div>
+                                )}
+                                {clientDisplayPhone && (
+                                    <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
+                                        {clientDisplayPhone}
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
                 )}
 
                 <table className="pdf-items-table" style={{ fontSize: '0.95em', marginBottom: '15px', width: '100%', borderCollapse: 'collapse' }}>
                     <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
-                        <tr>
-                            <th style={{ textAlign: 'left', padding: '6px 8px' }}>Description</th>
-                            <th className="text-center" style={{ width: '40px', padding: '6px', whiteSpace: 'nowrap' }}>Qté</th>
-                            <th className="text-right" style={{ minWidth: '75px', padding: '6px 8px', whiteSpace: 'nowrap' }}>Unit. HT</th>
-                            <th className="text-right" style={{ minWidth: '75px', padding: '6px 8px', whiteSpace: 'nowrap' }}>Total HT</th>
+                        <tr style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
+                            <th style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', textAlign: 'left', padding: '6px 8px', borderRadius: '3px 0 0 3px' }}>Description</th>
+                            <th className="text-center" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', width: '40px', padding: '6px', whiteSpace: 'nowrap' }}>Qté</th>
+                            <th className="text-right" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', minWidth: '75px', padding: '6px 8px', whiteSpace: 'nowrap' }}>Unit. HT</th>
+                            <th className="text-right" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', minWidth: '75px', padding: '6px 8px', borderRadius: '0 3px 3px 0', whiteSpace: 'nowrap' }}>Total HT</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -311,8 +708,8 @@ function QuoteDetailDrawer({
                                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{tvaAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                             <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', fontWeight: 700 }}>
-                                <td style={{ whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>TOTAL TTC :</strong></td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{totalTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</strong></td>
+                                <td style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em', borderRadius: '3px 0 0 3px' }}><strong>TOTAL TTC :</strong></td>
+                                <td style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em', borderRadius: '0 3px 3px 0' }}><strong>{totalTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -484,6 +881,17 @@ function QuoteDetailDrawer({
                                         <button className="dv-dots-menu-item" onClick={() => { setShowCustomizer(true); setShowDotsMenu(false); }}>
                                             <Palette size={15} /> Personnaliser le document
                                         </button>
+                                        {onDelete && (
+                                            <button
+                                                className="dv-dots-menu-item dv-danger-item"
+                                                onClick={() => {
+                                                    setShowDotsMenu(false);
+                                                    onDelete(quote);
+                                                }}
+                                            >
+                                                <Trash2 size={15} /> Supprimer le devis
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>

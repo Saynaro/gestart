@@ -93,11 +93,13 @@ function PayInvoice() {
     const company = invoice.company || {};
     const client = invoice.client || {};
     const lines = invoice.lines || [];
-    const isPaid = invoice.status === "PAID";
-    const totalTtc = Number(invoice.amountTTC || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const totalHt = Number(invoice.amountHT || (invoice.amountTTC / 1.2) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const tvaRate = invoice.tvaRate !== undefined ? invoice.tvaRate : 20;
-    const tvaAmount = (Number(invoice.amountTTC || 0) - Number(invoice.amountHT || (invoice.amountTTC / 1.2) || 0)).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const computedHt = lines.reduce((acc, l) => acc + (Number(l.unitPrice || 0) * Number(l.quantity || l.qty || 1)), 0);
+    const rawTotalHt = invoice.amountHT !== undefined && invoice.amountHT !== null ? Number(invoice.amountHT) : computedHt;
+    const rawTotalTtc = invoice.amountTTC !== undefined && invoice.amountTTC !== null ? Number(invoice.amountTTC) : rawTotalHt;
+    const totalTtc = rawTotalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const totalHt = rawTotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const tvaRate = invoice.tvaRate !== undefined && invoice.tvaRate !== null ? invoice.tvaRate : (lines[0]?.tvaRate !== undefined ? lines[0].tvaRate : 20);
+    const tvaAmount = Math.max(0, rawTotalTtc - rawTotalHt).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const clientDisplayName = client.firstName || client.lastName 
         ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
@@ -184,12 +186,12 @@ function PayInvoice() {
                     {lines.length > 0 && (
                         <div className="table-responsive-wrapper">
                             <table className="portal-lines-table">
-                                <thead>
-                                    <tr>
-                                        <th>Description</th>
-                                        <th style={{ textAlign: "center", width: "70px" }}>Qté</th>
-                                        <th style={{ textAlign: "right", width: "110px" }}>Prix Unit. HT</th>
-                                        <th style={{ textAlign: "right", width: "110px" }}>Total HT</th>
+                                <thead style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
+                                    <tr style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "left", padding: "10px 12px", borderRadius: "4px 0 0 4px" }}>Description</th>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "center", width: "70px", padding: "10px 12px" }}>Qté</th>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "right", width: "110px", padding: "10px 12px" }}>Prix Unit. HT</th>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "right", width: "110px", padding: "10px 12px", borderRadius: "0 4px 4px 0" }}>Total HT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -219,9 +221,9 @@ function PayInvoice() {
                             <span>TVA ({tvaRate}%) :</span>
                             <span>{tvaAmount} €</span>
                         </div>
-                        <div className="total-row total-highlight">
-                            <span>Total TTC :</span>
-                            <span>{totalTtc} € TTC</span>
+                        <div className="total-row total-highlight" style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
+                            <span style={{ color: "#FFFFFF" }}>Total TTC :</span>
+                            <span style={{ color: "#FFFFFF" }}>{totalTtc} € TTC</span>
                         </div>
                     </div>
 

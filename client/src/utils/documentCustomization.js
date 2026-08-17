@@ -15,6 +15,7 @@ export const DEFAULT_CUSTOMIZATION = {
   showLogo: true,
   logoSize: 45,                  // Height in px (20 - 80)
   logoPosition: "left",          // "left", "right"
+  clientBoxPosition: "bottom",   // "bottom" (Sous l'entreprise) ou "right" (En face / À droite)
 
   // Information Visibility Toggles
   showPhone: true,

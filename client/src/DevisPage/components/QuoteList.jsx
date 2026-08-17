@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FileText, MoreVertical, Send, Edit2, RefreshCw, Palette, Download, XSquare } from "lucide-react";
+import { FileText, MoreVertical, Send, Edit2, RefreshCw, Palette, Download, XSquare, Trash2 } from "lucide-react";
 
 function getStatusLabel(q) {
     if (!q) return "Brouillon";
@@ -20,6 +20,7 @@ function getStatusLabel(q) {
 
 function QuoteList({
     quotes,
+    activeFilter = "all",
     onRowClick,
     onCreateQuote,
     onSend,
@@ -27,7 +28,8 @@ function QuoteList({
     onConvertToInvoice,
     onDownloadPdf,
     onCustomise,
-    onRejectQuote
+    onRejectQuote,
+    onDeleteQuote
 }) {
     const [activeMenuId, setActiveMenuId] = useState(null);
 
@@ -44,12 +46,30 @@ function QuoteList({
     };
 
     if (!quotes || quotes.length === 0) {
+        let emptyTitle = "Vous n'avez pas encore de devis";
+        let emptyDesc = "Créez votre premier devis client pour commencer à chiffrer vos interventions.";
+
+        const f = String(activeFilter).toUpperCase();
+        if (f === "DRAFT") {
+            emptyTitle = "Vous n'avez pas de devis en brouillon";
+            emptyDesc = "Les devis en cours de préparation apparaîtront ici.";
+        } else if (f === "SENT") {
+            emptyTitle = "Vous n'avez pas de devis en attente";
+            emptyDesc = "Tous vos devis envoyés ont été signés ou sont en brouillon.";
+        } else if (f === "ACCEPTED") {
+            emptyTitle = "Vous n'avez pas de devis signés";
+            emptyDesc = "Vos devis validés et signés par vos clients apparaîtront ici.";
+        } else if (f === "REFUSED") {
+            emptyTitle = "Vous n'avez pas de devis refusés";
+            emptyDesc = "Bonne nouvelle ! Aucun devis n'a été refusé par vos clients.";
+        }
+
         return (
             <div className="dv-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
                 <FileText size={44} style={{ opacity: 0.4, marginBottom: '12px' }} />
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>Vous n'avez pas encore de devis</h3>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>{emptyTitle}</h3>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
-                    Créez votre premier devis client pour commencer à chiffrer vos interventions.
+                    {emptyDesc}
                 </p>
                 {onCreateQuote && (
                     <button className="dv-new-btn" onClick={onCreateQuote}>
@@ -175,6 +195,20 @@ function QuoteList({
                                             }}
                                         >
                                             <XSquare size={14} /> Marquer refusé
+                                        </button>
+                                    )}
+
+                                    {onDeleteQuote && (
+                                        <button
+                                            type="button"
+                                            className="dv-dots-menu-item dv-danger-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onDeleteQuote(q);
+                                            }}
+                                        >
+                                            <Trash2 size={14} /> Supprimer
                                         </button>
                                     )}
                                 </div>

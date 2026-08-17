@@ -191,10 +191,13 @@ function SignatureQuote() {
     const client = quote.client || {};
     const lines = quote.lines || [];
     const isSigned = signatureSaved || quote.status === "ACCEPTED" || quote.signatureUrl;
-    const totalTtc = Number(quote.amountTTC || quote.totalTtc || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const totalHt = Number(quote.amountHT || quote.totalHt || (Number(quote.amountTTC || 0) / 1.2) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const tvaRate = quote.tvaRate !== undefined ? quote.tvaRate : 20;
-    const tvaAmount = (Number(quote.amountTTC || quote.totalTtc || 0) - Number(quote.amountHT || quote.totalHt || 0)).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const computedHt = lines.reduce((acc, l) => acc + (Number(l.unitPrice || 0) * Number(l.quantity || l.qty || 1)), 0);
+    const rawTotalHt = quote.amountHT !== undefined && quote.amountHT !== null ? Number(quote.amountHT) : (quote.totalHt !== undefined ? Number(quote.totalHt) : computedHt);
+    const rawTotalTtc = quote.amountTTC !== undefined && quote.amountTTC !== null ? Number(quote.amountTTC) : (quote.totalTtc !== undefined ? Number(quote.totalTtc) : rawTotalHt);
+    const totalTtc = rawTotalTtc.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const totalHt = rawTotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const tvaRate = quote.tvaRate !== undefined && quote.tvaRate !== null ? quote.tvaRate : (lines[0]?.tvaRate !== undefined ? lines[0].tvaRate : 20);
+    const tvaAmount = Math.max(0, rawTotalTtc - rawTotalHt).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const clientDisplayName = client.firstName || client.lastName
         ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
@@ -273,12 +276,12 @@ function SignatureQuote() {
                     {lines.length > 0 && (
                         <div className="table-responsive-wrapper">
                             <table className="portal-lines-table">
-                                <thead>
-                                    <tr>
-                                        <th>Description</th>
-                                        <th style={{ textAlign: "center", width: "70px" }}>Qté</th>
-                                        <th style={{ textAlign: "right", width: "110px" }}>Prix Unit. HT</th>
-                                        <th style={{ textAlign: "right", width: "110px" }}>Total HT</th>
+                                <thead style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
+                                    <tr style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "left", padding: "10px 12px", borderRadius: "4px 0 0 4px" }}>Description</th>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "center", width: "70px", padding: "10px 12px" }}>Qté</th>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "right", width: "110px", padding: "10px 12px" }}>Prix Unit. HT</th>
+                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "right", width: "110px", padding: "10px 12px", borderRadius: "0 4px 4px 0" }}>Total HT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -308,9 +311,9 @@ function SignatureQuote() {
                             <span>TVA ({tvaRate}%) :</span>
                             <span>{tvaAmount} €</span>
                         </div>
-                        <div className="total-row total-highlight">
-                            <span>Total TTC :</span>
-                            <span>{totalTtc} € TTC</span>
+                        <div className="total-row total-highlight" style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
+                            <span style={{ color: "#FFFFFF" }}>Total TTC :</span>
+                            <span style={{ color: "#FFFFFF" }}>{totalTtc} € TTC</span>
                         </div>
                     </div>
 

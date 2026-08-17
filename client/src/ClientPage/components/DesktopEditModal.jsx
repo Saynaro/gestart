@@ -4,6 +4,7 @@ import { X, User, MapPin, Wrench, ChevronRight, ChevronLeft, Check } from "lucid
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 import EquipmentSelector from "../../components/EquipmentSelector";
+import PhoneInput from "../../components/PhoneInput";
 
 const formatDateToISO = (dateStr) => {
     if (!dateStr || dateStr === "Non renseigné" || dateStr === "N/A") return "";
@@ -222,12 +223,9 @@ function DesktopEditModal({
                                         <div className="profile-form-grid" style={{ marginTop: '16px' }}>
                                             <div className="form-field">
                                                 <label className="form-label">Téléphone</label>
-                                                <input
-                                                    type="text"
+                                                <PhoneInput
                                                     value={editPhone}
-                                                    onChange={(e) => setEditPhone(e.target.value)}
-                                                    className="form-input wizard-input-large"
-                                                    placeholder="06 12 34 56 78"
+                                                    onChange={(formatted) => setEditPhone(formatted)}
                                                 />
                                             </div>
                                             <div className="form-field">

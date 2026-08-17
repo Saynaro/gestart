@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, useDragControls } from "framer-motion";
+import { AlertTriangle, Trash2, CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 import "../HomePage/Homepage.css";
 import "./ClientPage.css";
 
@@ -429,29 +430,47 @@ function ClientPage() {
                 });
             }
             await fetchClients();
+            showToast("Client enregistré avec succès !");
         } catch (err) {
             console.error("Save client API error:", err);
-            alert(err.message || "Erreur lors de la sauvegarde du client");
+            showToast(err.message || "Erreur lors de la sauvegarde du client", "error");
         } finally {
             setEditingClient(null);
         }
     };
 
-    const handleArchiveClient = async (client) => {
-        const clientName = client.name || `${client.firstName} ${client.lastName}`;
-        if (window.confirm(`Voulez-vous vraiment archiver le client ${clientName} ?`)) {
-            try {
-                await apiFetch(`/v1/clients/${client.id}`, {
-                    method: 'DELETE'
-                });
-                if (selectedClient && selectedClient.id === client.id) {
-                    setSelectedClient(null);
-                }
-                await fetchClients();
-            } catch (err) {
-                console.error("Delete client error:", err);
-                alert(err.message || "Erreur lors de la suppression");
+    const [clientToDelete, setClientToDelete] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [toastMessage, setToastMessage] = useState(null);
+
+    const showToast = (msg, type = "success") => {
+        const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;
+        setToastMessage({ msg: cleanMsg, type });
+        setTimeout(() => setToastMessage(null), 3500);
+    };
+
+    const handleDeleteClient = (client) => {
+        setClientToDelete(client);
+    };
+
+    const confirmDeleteClient = async () => {
+        if (!clientToDelete) return;
+        try {
+            setDeleteLoading(true);
+            await apiFetch(`/v1/clients/${clientToDelete.id}`, {
+                method: 'DELETE'
+            });
+            if (selectedClient && selectedClient.id === clientToDelete.id) {
+                setSelectedClient(null);
             }
+            showToast("Client supprimé avec succès.");
+            await fetchClients();
+        } catch (err) {
+            console.error("Delete client error:", err);
+            showToast(err.message || "Erreur lors de la suppression du client", "error");
+        } finally {
+            setDeleteLoading(false);
+            setClientToDelete(null);
         }
     };
 
@@ -517,6 +536,8 @@ function ClientPage() {
                                 groupedItems={groupedItems}
                                 onSelect={(client) => navigate("/client?id=" + client.id)}
                                 activeTabType={activeTabType}
+                                statusFilter={statusFilter}
+                                searchTerm={searchTerm}
                                 onOpenAddClient={handleOpenAddClient}
                             />
                         </div>
@@ -599,8 +620,12 @@ function ClientPage() {
                                         getClientDetails={getClientDetails}
                                         onSelect={(client) => navigate("/client?id=" + client.id)}
                                         onEdit={handleOpenEdit}
+                                        onAddClient={handleOpenAddClient}
+                                        activeTabType={activeTabType}
+                                        statusFilter={statusFilter}
+                                        searchTerm={searchTerm}
                                         onPlan={handlePlanClient}
-                                        onArchive={handleArchiveClient}
+                                        onDelete={handleDeleteClient}
                                     />
                                 </>
                             )}
@@ -719,6 +744,76 @@ function ClientPage() {
                     onClose={() => setPdfModalQuote(null)}
                     onDownload={() => window.print()}
                 />
+            )}
+
+            {/* Custom Delete Confirmation Modal */}
+            {clientToDelete && (
+                <div className="client-delete-modal-overlay" onClick={() => !deleteLoading && setClientToDelete(null)}>
+                    <div className="client-delete-modal-card" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="client-delete-close-btn"
+                            onClick={() => !deleteLoading && setClientToDelete(null)}
+                            disabled={deleteLoading}
+                            aria-label="Fermer"
+                        >
+                            <X size={18} />
+                        </button>
+                        <div className="client-delete-icon-wrapper">
+                            <AlertTriangle size={32} color="#ef4444" />
+                        </div>
+                        <h3 className="client-delete-title">Supprimer le client</h3>
+                        <p className="client-delete-desc">
+                            Êtes-vous sûr de vouloir supprimer définitivement <strong>{clientToDelete.name || `${clientToDelete.firstName} ${clientToDelete.lastName}`}</strong> ?
+                            <br />
+                            <span style={{ fontSize: '13px', color: 'var(--muted-foreground)', display: 'block', marginTop: '8px' }}>
+                                Cette action est irréversible et supprimera les fiches et documents associés.
+                            </span>
+                        </p>
+                        <div className="client-delete-actions">
+                            <button 
+                                type="button" 
+                                className="client-delete-cancel-btn" 
+                                onClick={() => setClientToDelete(null)}
+                                disabled={deleteLoading}
+                            >
+                                Annuler
+                            </button>
+                            <button 
+                                type="button" 
+                                className="client-delete-confirm-btn" 
+                                onClick={confirmDeleteClient}
+                                disabled={deleteLoading}
+                            >
+                                <Trash2 size={16} />
+                                <span>{deleteLoading ? "Suppression..." : "Confirmer"}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Toast Notification */}
+            {toastMessage && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: '24px',
+                    right: '24px',
+                    backgroundColor: toastMessage.type === 'error' ? '#ef4444' : '#0f172a',
+                    color: '#ffffff',
+                    padding: '12px 20px',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                    zIndex: 100000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    animation: 'fadeIn 0.2s ease-out'
+                }}>
+                    {toastMessage.type === 'error' ? <AlertCircle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} color="#22c55e" style={{ flexShrink: 0 }} />}
+                    <span>{toastMessage.msg}</span>
+                </div>
             )}
         </>
     );

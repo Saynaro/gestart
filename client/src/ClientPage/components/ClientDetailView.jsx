@@ -8,7 +8,16 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
     if (!details) return null;
 
     const displayName = selectedClient.isOrg ? selectedClient.name : `${selectedClient.firstName} ${selectedClient.lastName}`;
-    const initials = selectedClient.isOrg ? selectedClient.name[0] : `${selectedClient.firstName[0]}${selectedClient.lastName[0]}`;
+    let initials = "CL";
+    if (selectedClient.isOrg) {
+        const n = (selectedClient.name || "").trim();
+        const parts = n.split(/\s+/);
+        initials = parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : n.substring(0, 2).toUpperCase() || "OR";
+    } else {
+        const f = selectedClient.firstName ? selectedClient.firstName[0] : "";
+        const l = selectedClient.lastName ? selectedClient.lastName[0] : "";
+        initials = `${f}${l}`.toUpperCase() || "CL";
+    }
 
     return (
         <>

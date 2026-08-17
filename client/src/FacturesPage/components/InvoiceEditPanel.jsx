@@ -4,6 +4,7 @@ import { X, ArrowLeft, Plus, Trash2, Search, ChevronRight, Edit2, Eye, MoreHoriz
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
+import PhoneInput from "../../components/PhoneInput";
 import { useDocumentCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
@@ -213,12 +214,9 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
 
                         <div>
                             <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted-foreground)", display: "block", marginBottom: 4 }}>Téléphone</label>
-                            <input
-                                type="tel"
+                            <PhoneInput
                                 value={newPhone}
-                                onChange={e => setNewPhone(e.target.value)}
-                                placeholder="06 12 34 56 78"
-                                style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", outline: "none", boxSizing: "border-box" }}
+                                onChange={(formatted) => setNewPhone(formatted)}
                             />
                         </div>
 
@@ -814,7 +812,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
             qty: Number(l.quantity || l.qty || 1),
             quantity: Number(l.quantity || l.qty || 1),
             unitPrice: Number(l.unitPrice) || 0,
-            tvaRate: Number(l.tvaRate !== undefined ? l.tvaRate : (invoice.tvaRate || 20))
+            tvaRate: Number(l.tvaRate !== undefined && l.tvaRate !== null ? l.tvaRate : (invoice.tvaRate !== undefined && invoice.tvaRate !== null ? invoice.tvaRate : 20))
         }))
     });
 
@@ -833,7 +831,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     // Totals
     const subtotalHt = inv.lines.reduce((s, l) => s + (parseFloat(l.unitPrice) || 0) * (parseFloat(l.qty) || 1), 0);
     const tvaAmt = inv.lines.reduce((s, l) => {
-        const rate = l.tvaRate !== undefined ? Number(l.tvaRate) : (Number(inv.tvaRate) || 20);
+        const rate = l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : (inv.tvaRate !== undefined && inv.tvaRate !== null ? Number(inv.tvaRate) : 20);
         return s + ((parseFloat(l.unitPrice) || 0) * (parseFloat(l.qty) || 1) * (rate / 100));
     }, 0);
     const totalTtc = subtotalHt + tvaAmt;
@@ -924,182 +922,575 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                     fontFamily: docCustomization.fontFamily || 'Inter, sans-serif'
                 }}
             >
-                {docCustomization.structure === 'banner' && (
-                    <div style={{ height: '8px', backgroundColor: docCustomization.primaryColor || '#556B2F', margin: '-24px -20px 14px -20px', borderRadius: '2px 2px 0 0' }} />
+                {/* ==================== STRUCTURE 1: BANNER ==================== */}
+                {docCustomization.structure === "banner" && (
+                    <div style={{ marginBottom: "14px" }}>
+                        <div
+                            style={{
+                                backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                color: "#FFFFFF",
+                                padding: "14px 16px",
+                                margin: "-20px -18px 12px -18px",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center"
+                            }}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                {docCustomization.showLogo && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                maxWidth: "120px",
+                                                objectFit: "contain",
+                                                background: "rgba(255,255,255,0.2)",
+                                                padding: "2px 4px",
+                                                borderRadius: "4px"
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            style={{
+                                                backgroundColor: "rgba(255,255,255,0.2)",
+                                                color: "#FFFFFF",
+                                                fontWeight: 800,
+                                                borderRadius: "4px",
+                                                padding: "4px 6px",
+                                                fontSize: "0.95em"
+                                            }}
+                                        >
+                                            {companyDisplayName.substring(0, 8).toUpperCase()}
+                                        </div>
+                                    )
+                                )}
+                                <div>
+                                    <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                        {companyDisplayName}
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div style={{ textAlign: "right" }}>
+                                <h1 style={{ fontSize: "1.4em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "1.5px" }}>
+                                    FACTURE
+                                </h1>
+                            </div>
+                        </div>
+
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                backgroundColor: "#F4F4F2",
+                                padding: "6px 10px",
+                                borderRadius: "4px",
+                                fontSize: "0.82em",
+                                marginBottom: "10px",
+                                color: "#4A4A4A"
+                            }}
+                        >
+                            <div><strong>Numéro : </strong> {inv.number || `INV-${inv.id}`}</div>
+                            <div><strong>Date : </strong> {inv.date ? new Date(inv.date).toLocaleDateString('fr-FR') : '—'}</div>
+                            <div><strong>Échéance : </strong> {new Date(calculatedDueDate).toLocaleDateString('fr-FR')}</div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginBottom: "12px" }}>
+                                <div style={{ flex: 1, fontSize: "0.85em", lineHeight: 1.35, opacity: 0.85 }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+                                <div
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: "#FAFAF8",
+                                        border: "1px solid #EAEAE6",
+                                        padding: "8px 12px",
+                                        borderRadius: "6px"
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, opacity: 0.65, letterSpacing: "0.5px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        FACTURÉ À :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{inv.clientName || 'Client non défini'}</div>
+                                    {inv.clientAddress && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{inv.clientAddress}</div>}
+                                    {inv.clientEmail && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{inv.clientEmail}</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "12px" }}>
+                                <div style={{ fontSize: "0.85em", lineHeight: 1.35, opacity: 0.85, marginBottom: "8px" }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+                                <div
+                                    style={{
+                                        backgroundColor: "#FAFAF8",
+                                        border: "1px solid #EAEAE6",
+                                        padding: "8px 12px",
+                                        borderRadius: "6px"
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, opacity: 0.65, letterSpacing: "0.5px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        FACTURÉ À :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{inv.clientName || 'Client non défini'}</div>
+                                    {inv.clientAddress && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{inv.clientAddress}</div>}
+                                    {inv.clientEmail && <div style={{ fontSize: "0.85em", opacity: 0.85 }}>{inv.clientEmail}</div>}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 )}
 
-                <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
-                    <div className="pdf-header-left" style={{ flex: 1 }}>
-                        {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
-                            companyLogo ? (
-                                <img
-                                    src={companyLogo}
-                                    alt="Logo"
-                                    style={{
-                                        maxHeight: `${docCustomization.logoSize || 45}px`,
-                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
-                                        objectFit: 'contain',
-                                        marginBottom: '6pt'
-                                    }}
-                                />
-                            ) : (
-                                <div
-                                    className="pdf-logo-stub"
-                                    style={{
-                                        fontSize: '1.1em',
-                                        padding: '4px 8px',
-                                        height: `${docCustomization.logoSize || 45}px`,
-                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                        color: '#FFF',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontWeight: '700',
-                                        borderRadius: '4px',
-                                        marginBottom: '6pt'
-                                    }}
-                                >
-                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
-                                </div>
-                            )
-                        )}
-                        <h3 className="company-name" style={{ fontSize: '1.1em', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>{companyDisplayName}</h3>
-                        <p className="company-details" style={{ fontSize: '0.88em', lineHeight: 1.3, margin: '4px 0 0 0' }}>
-                            {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
-                            {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
-                            {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
-                            {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
-                        </p>
-                    </div>
-                    <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
-                        {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
-                            companyLogo ? (
-                                <img
-                                    src={companyLogo}
-                                    alt="Logo"
-                                    style={{
-                                        maxHeight: `${docCustomization.logoSize || 45}px`,
-                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
-                                        objectFit: 'contain',
-                                        marginBottom: '6pt'
-                                    }}
-                                />
-                            ) : (
-                                <div
-                                    className="pdf-logo-stub"
-                                    style={{
-                                        fontSize: '1.1em',
-                                        padding: '4px 8px',
-                                        height: `${docCustomization.logoSize || 45}px`,
-                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                        color: '#FFF',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontWeight: '700',
-                                        borderRadius: '4px',
-                                        marginBottom: '6pt'
-                                    }}
-                                >
-                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
-                                </div>
-                            )
-                        )}
-                        <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>FACTURE</h1>
-                        <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Numéro :</strong></td>
-                                    <td>{inv.number || `INV-${inv.id}`}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Date d'émission :</strong></td>
-                                    <td>{inv.date ? new Date(inv.date).toLocaleDateString('fr-FR') : '—'}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Date d'exigibilité :</strong></td>
-                                    <td>{new Date(calculatedDueDate).toLocaleDateString('fr-FR')}</td>
-                                </tr>
-                                {docCustomization.showDeliveryDate && inv.deliveryDate && (
-                                    <tr>
-                                        <td><strong>Date de livraison :</strong></td>
-                                        <td>{new Date(inv.deliveryDate).toLocaleDateString('fr-FR')}</td>
-                                    </tr>
+                {/* ==================== STRUCTURE 2: MODERN ==================== */}
+                {docCustomization.structure === "modern" && (
+                    <div style={{ marginBottom: "14px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                            <div>
+                                {docCustomization.showLogo && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                maxWidth: "140px",
+                                                objectFit: "contain",
+                                                marginBottom: "4pt"
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            style={{
+                                                backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                color: "#FFF",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: 700,
+                                                borderRadius: "6px",
+                                                padding: "4px 8px",
+                                                height: `${docCustomization.logoSize || 40}px`,
+                                                minWidth: `${(docCustomization.logoSize || 40) * 1.8}px`,
+                                                marginBottom: "4pt",
+                                                fontSize: "0.95em"
+                                            }}
+                                        >
+                                            {companyDisplayName.substring(0, 8).toUpperCase()}
+                                        </div>
+                                    )
                                 )}
-                            </tbody>
-                        </table>
+                                <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                    {companyDisplayName}
+                                </h3>
+                            </div>
+
+                            <div style={{ textAlign: "right" }}>
+                                <div
+                                    style={{
+                                        display: "inline-block",
+                                        backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                        color: "#FFFFFF",
+                                        padding: "4px 12px",
+                                        borderRadius: "16px",
+                                        fontWeight: 800,
+                                        fontSize: "0.9em",
+                                        letterSpacing: "0.5px",
+                                        marginBottom: "4px"
+                                    }}
+                                >
+                                    FACTURE N° {inv.number || `INV-${inv.id}`}
+                                </div>
+                                <div style={{ fontSize: "0.8em", opacity: 0.85 }}>
+                                    Date : <strong>{inv.date ? new Date(inv.date).toLocaleDateString('fr-FR') : '—'}</strong> • Échéance : <strong>{new Date(calculatedDueDate).toLocaleDateString('fr-FR')}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+                                <div
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: "#FAFAF8",
+                                        borderLeft: `4px solid ${docCustomization.primaryColor || "#556B2F"}`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        Émetteur
+                                    </span>
+                                    <div style={{ fontWeight: 700, color: "#1A1A1A" }}>{companyDisplayName}</div>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+
+                                <div
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: `${docCustomization.primaryColor || "#556B2F"}10`,
+                                        border: `1px solid ${docCustomization.primaryColor || "#556B2F"}30`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        FACTURÉ À :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{inv.clientName || 'Client non défini'}</div>
+                                    {inv.clientAddress && <div>{inv.clientAddress}</div>}
+                                    {inv.clientEmail && <div>{inv.clientEmail}</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "12px" }}>
+                                <div
+                                    style={{
+                                        backgroundColor: "#FAFAF8",
+                                        borderLeft: `4px solid ${docCustomization.primaryColor || "#556B2F"}`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35,
+                                        marginBottom: "8px"
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        Émetteur
+                                    </span>
+                                    <div style={{ fontWeight: 700, color: "#1A1A1A" }}>{companyDisplayName}</div>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+
+                                <div
+                                    style={{
+                                        backgroundColor: `${docCustomization.primaryColor || "#556B2F"}10`,
+                                        border: `1px solid ${docCustomization.primaryColor || "#556B2F"}30`,
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.85em",
+                                        lineHeight: 1.35
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        FACTURÉ À :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{inv.clientName || 'Client non défini'}</div>
+                                    {inv.clientAddress && <div>{inv.clientAddress}</div>}
+                                    {inv.clientEmail && <div>{inv.clientEmail}</div>}
+                                </div>
+                            </div>
+                        )}
                     </div>
-                </div>
+                )}
 
-                <div
-                    className="pdf-billing-section"
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        gap: '2px',
-                        margin: '10pt 0',
-                        padding: '8pt 10pt',
-                        backgroundColor: docCustomization.structure === 'modern' ? `${docCustomization.primaryColor || '#556B2F'}12` : '#FAFAF8',
-                        borderRadius: '6px',
-                        textAlign: 'left'
-                    }}
-                >
-                    <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.65, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
-                        FACTURÉ À :
-                    </span>
-                    <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
-                        {inv.clientName || 'Client non défini'}
-                    </h4>
-                    {inv.clientAddress && (
-                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
-                            {inv.clientAddress}
-                        </div>
-                    )}
-                    {inv.clientEmail && (
-                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
-                            {inv.clientEmail}
-                        </div>
-                    )}
-                </div>
+                {/* ==================== STRUCTURE 3: MINIMAL ==================== */}
+                {docCustomization.structure === "minimal" && (
+                    <div style={{ marginBottom: "14px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingBottom: "8px", borderBottom: `1.5px solid #EAEAE6`, marginBottom: "12px" }}>
+                            <div>
+                                {docCustomization.showLogo && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 36}px`,
+                                                maxWidth: "130px",
+                                                objectFit: "contain",
+                                                marginBottom: "4pt"
+                                            }}
+                                        />
+                                    ) : null
+                                )}
+                                <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                    {companyDisplayName}
+                                </h3>
+                            </div>
 
-                <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt' }}>
+                            <div style={{ textAlign: "right" }}>
+                                <h1 style={{ fontSize: "1.6em", fontWeight: 300, color: docCustomization.primaryColor || "#556B2F", margin: 0, letterSpacing: "2px" }}>
+                                    FACTURE
+                                </h1>
+                                <div style={{ fontSize: "0.8em", color: "#666", marginTop: "2px" }}>
+                                    N° {inv.number || `INV-${inv.id}`} • {inv.date ? new Date(inv.date).toLocaleDateString('fr-FR') : '—'}
+                                </div>
+                            </div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", marginBottom: "12px" }}>
+                                <div style={{ flex: 1, fontSize: "0.82em", lineHeight: 1.35, color: "#4A4A4A" }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+
+                                <div style={{ flex: 1, fontSize: "0.82em", lineHeight: 1.35 }}>
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", letterSpacing: "1px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        FACTURÉ À :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{inv.clientName || 'Client non défini'}</div>
+                                    {inv.clientAddress && <div style={{ color: "#4A4A4A" }}>{inv.clientAddress}</div>}
+                                    {inv.clientEmail && <div style={{ color: "#4A4A4A" }}>{inv.clientEmail}</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "12px" }}>
+                                <div style={{ fontSize: "0.82em", lineHeight: 1.35, color: "#4A4A4A", marginBottom: "8px" }}>
+                                    {docCustomization.showAddress && <div>{companyDisplayAddress}</div>}
+                                    {docCustomization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                                    {docCustomization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                                    {docCustomization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                                </div>
+
+                                <div style={{ borderTop: "1px dashed #E0E0E0", paddingTop: "6px", fontSize: "0.82em", lineHeight: 1.35 }}>
+                                    <span style={{ fontSize: "0.75em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", letterSpacing: "1px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                        FACTURÉ À :
+                                    </span>
+                                    <div style={{ fontWeight: 700, fontSize: "0.98em", color: "#1A1A1A" }}>{inv.clientName || 'Client non défini'}</div>
+                                    {inv.clientAddress && <div style={{ color: "#4A4A4A" }}>{inv.clientAddress}</div>}
+                                    {inv.clientEmail && <div style={{ color: "#4A4A4A" }}>{inv.clientEmail}</div>}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ==================== STRUCTURE 4: CLASSIC (DEFAULT) ==================== */}
+                {(docCustomization.structure === "classic" || !docCustomization.structure) && (
+                    <div style={{ marginBottom: "12px" }}>
+                        <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
+                            <div className="pdf-header-left" style={{ flex: 1 }}>
+                                {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 45}px`,
+                                                maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                                objectFit: 'contain',
+                                                marginBottom: '6pt'
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="pdf-logo-stub"
+                                            style={{
+                                                fontSize: '1.1em',
+                                                padding: '4px 8px',
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                                color: '#FFF',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontWeight: '700',
+                                                borderRadius: '4px',
+                                                marginBottom: '6pt'
+                                            }}
+                                        >
+                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                        </div>
+                                    )
+                                )}
+                                <h3 className="company-name" style={{ fontSize: '1.1em', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 700 }}>{companyDisplayName}</h3>
+                                <p className="company-details" style={{ fontSize: '0.88em', lineHeight: 1.3, margin: '4px 0 0 0' }}>
+                                    {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                                    {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
+                                    {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                                    {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
+                                </p>
+                            </div>
+                            <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
+                                    companyLogo ? (
+                                        <img
+                                            src={companyLogo}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${docCustomization.logoSize || 45}px`,
+                                                maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                                objectFit: 'contain',
+                                                marginBottom: '6pt'
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="pdf-logo-stub"
+                                            style={{
+                                                fontSize: '1.1em',
+                                                padding: '4px 8px',
+                                                height: `${docCustomization.logoSize || 45}px`,
+                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                                color: '#FFF',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontWeight: '700',
+                                                borderRadius: '4px',
+                                                marginBottom: '6pt'
+                                            }}
+                                        >
+                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                        </div>
+                                    )
+                                )}
+                                <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>FACTURE</h1>
+                                <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Numéro :</strong></td>
+                                            <td>{inv.number || `INV-${inv.id}`}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Date d'émission :</strong></td>
+                                            <td>{inv.date ? new Date(inv.date).toLocaleDateString('fr-FR') : '—'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Date d'exigibilité :</strong></td>
+                                            <td>{new Date(calculatedDueDate).toLocaleDateString('fr-FR')}</td>
+                                        </tr>
+                                        {docCustomization.showDeliveryDate && inv.deliveryDate && (
+                                            <tr>
+                                                <td><strong>Date de livraison :</strong></td>
+                                                <td>{new Date(inv.deliveryDate).toLocaleDateString('fr-FR')}</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {docCustomization.clientBoxPosition === "right" ? (
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
+                                <div
+                                    className="pdf-billing-section"
+                                    style={{
+                                        width: "55%",
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'flex-start',
+                                        gap: '2px',
+                                        backgroundColor: '#FAFAF8',
+                                        border: '1px solid #EAEAE6',
+                                        padding: '8pt 10pt',
+                                        borderRadius: '6px',
+                                        textAlign: 'left'
+                                    }}
+                                >
+                                    <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.65, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                                        FACTURÉ À :
+                                    </span>
+                                    <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                                        {inv.clientName || 'Client non défini'}
+                                    </h4>
+                                    {inv.clientAddress && (
+                                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                                            {inv.clientAddress}
+                                        </div>
+                                    )}
+                                    {inv.clientEmail && (
+                                        <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                                            {inv.clientEmail}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div
+                                className="pdf-billing-section"
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                    gap: '2px',
+                                    margin: '10pt 0',
+                                    padding: '8pt 10pt',
+                                    backgroundColor: '#FAFAF8',
+                                    border: '1px solid #EAEAE6',
+                                    borderRadius: '6px',
+                                    textAlign: 'left'
+                                }}
+                            >
+                                <span className="section-label" style={{ fontSize: '7.5pt', fontWeight: 700, opacity: 0.65, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                                    FACTURÉ À :
+                                </span>
+                                <h4 className="client-name" style={{ fontSize: '10pt', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
+                                    {inv.clientName || 'Client non défini'}
+                                </h4>
+                                {inv.clientAddress && (
+                                    <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                                        {inv.clientAddress}
+                                    </div>
+                                )}
+                                {inv.clientEmail && (
+                                    <div style={{ fontSize: '8.5pt', opacity: 0.85, lineHeight: 1.3 }}>
+                                        {inv.clientEmail}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <table className="pdf-items-table" style={{ fontSize: '8.5pt', marginBottom: '15pt', width: '100%', borderCollapse: 'collapse' }}>
                     <thead style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
-                        <tr>
-                            <th style={{ textAlign: 'left', padding: '6pt 8pt' }}>Description</th>
-                            <th className="text-center" style={{ width: '40px', padding: '6pt', whiteSpace: 'nowrap' }}>Qté</th>
-                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Unit. HT</th>
-                            <th className="text-right" style={{ minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Total HT</th>
+                        <tr style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
+                            <th style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', textAlign: 'left', padding: '6pt 8pt', borderRadius: '3px 0 0 3px' }}>Description</th>
+                            <th className="text-center" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', width: '40px', padding: '6pt', whiteSpace: 'nowrap' }}>Qté</th>
+                            <th className="text-right" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', minWidth: '75px', padding: '6pt 8pt', whiteSpace: 'nowrap' }}>Unit. HT</th>
+                            <th className="text-right" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', minWidth: '75px', padding: '6pt 8pt', borderRadius: '0 3px 3px 0', whiteSpace: 'nowrap' }}>Total HT</th>
                         </tr>
                     </thead>
                     <tbody>
                         {inv.lines.filter(l => l.description).map((line, idx) => (
-                            <tr key={idx}>
-                                <td>{line.description || '—'}</td>
-                                <td className="text-center" style={{ whiteSpace: 'nowrap' }}>{line.qty}</td>
-                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{(parseFloat(line.unitPrice) || 0).toLocaleString('fr-FR')} €</td>
-                                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>{((parseFloat(line.unitPrice) || 0) * (parseFloat(line.qty) || 1)).toLocaleString('fr-FR')} €</td>
+                            <tr key={idx} style={{ borderBottom: '1px solid #EAEAE6' }}>
+                                <td style={{ padding: '6pt 8pt' }}>{line.description || '—'}</td>
+                                <td className="text-center" style={{ padding: '6pt', whiteSpace: 'nowrap' }}>{line.qty}</td>
+                                <td className="text-right" style={{ padding: '6pt 8pt', whiteSpace: 'nowrap' }}>{(parseFloat(line.unitPrice) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                <td className="text-right" style={{ padding: '6pt 8pt', whiteSpace: 'nowrap' }}>{((parseFloat(line.unitPrice) || 0) * (parseFloat(line.qty) || 1)).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
 
-                <div className="pdf-summary-block" style={{ marginBottom: '15pt' }}>
+                <div className="pdf-summary-block" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15pt' }}>
                     <table className="pdf-summary-table" style={{ fontSize: '8.5pt', width: 'auto', minWidth: '180pt' }}>
                         <tbody>
                             <tr>
                                 <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>Sous-total HT :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{subtotalHt.toLocaleString('fr-FR')} €</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{subtotalHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                             <tr>
-                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>TVA ({inv.tvaRate || 20}%) :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{tvaAmt.toLocaleString('fr-FR')} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '3pt 6pt' }}>TVA ({inv.tvaRate !== undefined && inv.tvaRate !== null ? inv.tvaRate : 20}%) :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '3pt 6pt' }}>{tvaAmt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
-                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF' }}>
-                                <td style={{ whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>TOTAL TTC :</strong></td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6pt 8pt' }}><strong>{totalTtc.toLocaleString('fr-FR')} €</strong></td>
+                            <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', fontWeight: 700 }}>
+                                <td style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', whiteSpace: 'nowrap', padding: '6pt 8pt', borderRadius: '3px 0 0 3px' }}><strong>TOTAL TTC :</strong></td>
+                                <td style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', textAlign: 'right', whiteSpace: 'nowrap', padding: '6pt 8pt', borderRadius: '0 3px 3px 0' }}><strong>{totalTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -1315,7 +1706,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                             <span className="fp-drawer-row-value">{subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>
                         </div>
                         <div className="fp-drawer-row">
-                            <span className="fp-drawer-row-label">TVA ({inv.tvaRate || 20}%)</span>
+                            <span className="fp-drawer-row-label">TVA ({inv.tvaRate !== undefined && inv.tvaRate !== null ? inv.tvaRate : 20}%)</span>
                             <span className="fp-drawer-row-value">{tvaAmt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>
                         </div>
                         <div className="fp-drawer-row" style={{ fontWeight: 800, fontSize: "1.05rem", borderTop: "1px solid var(--border)", paddingTop: 8, marginTop: 4 }}>

@@ -230,6 +230,19 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                             )}
                         </div>
 
+                        {/* Spam reminder notice */}
+                        <div style={{
+                            backgroundColor: 'rgba(85, 107, 47, 0.08)',
+                            border: '1px solid rgba(85, 107, 47, 0.2)',
+                            borderRadius: '8px',
+                            padding: '10px 12px',
+                            fontSize: '11.5px',
+                            color: 'var(--muted-foreground)',
+                            lineHeight: '1.4'
+                        }}>
+                            💡 <strong>Information d'expédition :</strong> L'e-mail est expédié via <strong>GestArt (support.gestart@gmail.com)</strong>. Si votre client ne le trouve pas dans sa boîte de réception, conseillez-lui de vérifier son dossier <strong>Spam / Courriers indésirables</strong>.
+                        </div>
+
                         {/* Confirmation Button */}
                         <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                             <button

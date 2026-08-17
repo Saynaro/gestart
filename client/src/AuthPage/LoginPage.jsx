@@ -257,6 +257,20 @@ export default function LoginPage() {
 
                     {twoFactorRequired ? (
                         <form onSubmit={handleVerify2FASubmit} className="form-content">
+                            <div style={{
+                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
+                                border: '1px solid rgba(85, 107, 47, 0.25)',
+                                borderRadius: '10px',
+                                padding: '10px 14px',
+                                fontSize: '12px',
+                                color: 'var(--muted-foreground)',
+                                lineHeight: '1.45',
+                                marginBottom: '16px',
+                                textAlign: 'left'
+                            }}>
+                                💡 <strong>Conseil :</strong> Pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong> si vous ne trouvez pas l'email (expéditeur : <code>support.gestart@gmail.com</code>).
+                            </div>
+
                             <div className="input-group">
                                 <label>Code de vérification (6 chiffres) *</label>
                                 <div className="input-wrapper">

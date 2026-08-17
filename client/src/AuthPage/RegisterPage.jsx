@@ -31,8 +31,9 @@ import {
     TreePine
 } from 'lucide-react';
 import './RegisterPage.css';
-import { API_URL } from '../utils/config';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
+import PhoneInput from '../components/PhoneInput';
+import { apiFetch } from '../utils/api';
 import { setAuthToken } from '../utils/auth';
 import LegalModal from '../components/LegalHelpModal';
 
@@ -694,6 +695,20 @@ export default function RegisterPage() {
                                 <p>Saisissez le code à 6 chiffres envoyé à <strong>{formData.email}</strong></p>
                             </div>
 
+                            <div style={{
+                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
+                                border: '1px solid rgba(85, 107, 47, 0.25)',
+                                borderRadius: '10px',
+                                padding: '10px 14px',
+                                fontSize: '12px',
+                                color: 'var(--muted-foreground)',
+                                lineHeight: '1.45',
+                                marginBottom: '16px',
+                                textAlign: 'left'
+                            }}>
+                                💡 <strong>Important :</strong> Pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong> si vous ne recevez pas le code (expéditeur : <code>support.gestart@gmail.com</code>).
+                            </div>
+
                             <div className="digits-input-container">
                                 {digitCode.map((digit, idx) => (
                                     <input
@@ -767,17 +782,12 @@ export default function RegisterPage() {
 
                             <div className="input-group">
                                 <label>Téléphone portable *</label>
-                                <div className="input-wrapper">
-                                    <Phone className="input-icon" />
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        placeholder="+33 6 12 34 56 78"
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
+                                <PhoneInput
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={(formatted) => setFormData(prev => ({ ...prev, phone: formatted }))}
+                                    required
+                                />
                             </div>
 
                             <button type="submit" className="btn-submit pill-btn">

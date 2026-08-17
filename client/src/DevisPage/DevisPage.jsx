@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, CheckCircle2, AlertCircle, Info, RefreshCw, Loader2, FileText, Check } from "lucide-react";
+import { Plus, CheckCircle2, AlertCircle, Info, RefreshCw, Loader2, FileText, Check, Trash2 } from "lucide-react";
 import "./DevisPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -32,16 +32,19 @@ function DevisPage() {
     const [loading, setLoading] = useState(true);
 
     const mapQuoteFromApi = (q) => ({
+        ...q,
         id: q.id,
         number: q.number || `D-2026-${String(q.id).padStart(4, "0")}`,
+        client: q.client || {},
         clientName: q.client ? `${q.client.firstName || ''} ${q.client.lastName || q.client.companyName || ''}`.trim() : (q.clientName || 'Client Inconnu'),
         clientEmail: q.client?.email || q.clientEmail || '',
-        clientAddress: q.client ? `${q.client.address || ''} ${q.client.city || ''}`.trim() : (q.clientAddress || ''),
+        clientPhone: q.client?.phone || q.clientPhone || '',
+        clientAddress: q.client ? `${q.client.address || ''}${q.client.postalCode || q.client.city ? `, ${q.client.postalCode || ''} ${q.client.city || ''}` : ''}`.trim() : (q.clientAddress || ''),
         interventionType: q.subject || q.interventionType || "Prestation",
         workDetails: q.description || q.workDetails || "",
         date: q.createdAt ? new Date(q.createdAt).toISOString().split('T')[0] : (q.date || new Date().toISOString().split('T')[0]),
         validityDays: q.validityDays || 30,
-        tvaRate: q.tvaRate || 20,
+        tvaRate: q.tvaRate !== undefined && q.tvaRate !== null ? Number(q.tvaRate) : 20,
         subtotalHt: Number(q.amountHT || q.totalHt || q.subtotalHt || 0),
         tvaAmount: Number(q.amountTTC ? (q.amountTTC - (q.amountHT || 0)) : (q.totalTva || q.tvaAmount || 0)),
         totalTtc: Number(q.amountTTC || q.totalTtc || 0),
@@ -53,7 +56,8 @@ function DevisPage() {
             ...l,
             qty: Number(l.quantity || l.qty || 1),
             quantity: Number(l.quantity || l.qty || 1),
-            unitPrice: Number(l.unitPrice) || 0,
+            unitPrice: Number(l.unitPrice || 0),
+            tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : (q.tvaRate !== undefined && q.tvaRate !== null ? Number(q.tvaRate) : 20),
             total: Number(l.total) || ((Number(l.unitPrice) || 0) * (Number(l.quantity || l.qty) || 1))
         }))
     });
@@ -99,7 +103,8 @@ function DevisPage() {
     const [toast, setToast] = useState(null);
 
     const showToast = (msg, type = "success") => {
-        setToast({ msg, type });
+        const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;
+        setToast({ msg: cleanMsg, type });
         setTimeout(() => setToast(null), 3500);
     };
 
@@ -133,7 +138,7 @@ function DevisPage() {
             const fresh = res.data?.quote || res.quote || updatedQuote;
             setQuotes(prev => prev.map(q => q.id === updatedQuote.id ? { ...q, ...fresh } : q));
             setActiveQuote(prev => (prev?.id === updatedQuote.id ? { ...prev, ...fresh } : prev));
-            showToast(`✓ Devis ${updatedQuote.number} mis à jour.`, "success");
+            showToast(`Devis ${updatedQuote.number} mis à jour.`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Save quote error:", err);
@@ -144,7 +149,35 @@ function DevisPage() {
     };
 
     const [confirmFactureQuote, setConfirmFactureQuote] = useState(null);
+    const [quoteToDelete, setQuoteToDelete] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
+
+    const handleDeleteQuote = (q) => {
+        if (!q) return;
+        setQuoteToDelete(q);
+    };
+
+    const executeDeleteQuote = async (q) => {
+        if (!q) return;
+        setActionLoading(true);
+        try {
+            await apiFetch(`/v1/quotes/${q.id}`, {
+                method: 'DELETE'
+            });
+            showToast(`Devis ${q.number} supprimé avec succès.`, "success");
+            setQuotes(prev => prev.filter(item => item.id !== q.id));
+            if (activeQuote?.id === q.id) {
+                closeAll();
+            }
+            fetchQuotes();
+        } catch (err) {
+            console.error("Delete quote error:", err);
+            showToast(err.message || "Erreur lors de la suppression du devis", "error");
+        } finally {
+            setActionLoading(false);
+            setQuoteToDelete(null);
+        }
+    };
 
     // Triggers the confirmation warning modal
     const handleConvertToInvoice = (q) => {
@@ -160,7 +193,7 @@ function DevisPage() {
             await apiFetch(`/v1/quotes/${q.id}/convert-to-invoice`, {
                 method: 'POST'
             });
-            showToast(`✓ Devis ${q.number} converti en facture ! Retrouvez-la dans Factures.`, "success");
+            showToast(`Devis ${q.number} converti en facture ! Retrouvez-la dans Factures.`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Convert quote to invoice error:", err);
@@ -170,7 +203,7 @@ function DevisPage() {
                     method: 'PUT',
                     body: JSON.stringify({ status: "ACCEPTED" })
                 });
-                showToast(`✓ Devis ${q.number} marqué comme accepté.`, "success");
+                showToast(`Devis ${q.number} marqué comme accepté.`, "success");
                 fetchQuotes();
             } catch (e) {
                 showToast(err.message || "Erreur lors de la facturation", "error");
@@ -201,7 +234,7 @@ function DevisPage() {
                 method: 'PUT',
                 body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString() })
             });
-            showToast(`✓ Devis ${q.number} marqué comme envoyé.`, "success");
+            showToast(`Devis ${q.number} marqué comme envoyé.`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Send quote error:", err);
@@ -217,7 +250,7 @@ function DevisPage() {
                 method: 'POST',
                 body: JSON.stringify({ email: targetEmail || q.clientEmail })
             });
-            showToast(`✓ Devis ${q.number} envoyé avec signature à ${emailToSend} !`, "success");
+            showToast(`Devis ${q.number} envoyé avec signature à ${emailToSend} !`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Auto send error:", err);
@@ -225,7 +258,7 @@ function DevisPage() {
                 method: 'PUT',
                 body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString(), clientEmail: targetEmail || q.clientEmail })
             });
-            showToast(`✓ Devis ${q.number} envoyé à ${emailToSend}`, "success");
+            showToast(`Devis ${q.number} envoyé à ${emailToSend}`, "success");
             fetchQuotes();
         } finally {
             setShowSendDrawer(false);
@@ -245,7 +278,7 @@ function DevisPage() {
                     subject: newQuote.interventionType || newQuote.subject || "Devis Prestation",
                     amountHT: newQuote.subtotalHt || 0,
                     amountTTC: newQuote.totalTtc || 0,
-                    tvaRate: newQuote.tvaRate || 20,
+                    tvaRate: newQuote.tvaRate !== undefined && newQuote.tvaRate !== null ? Number(newQuote.tvaRate) : 20,
                     lines: newQuote.lines || [],
                     status: newQuote.status || "DRAFT",
                     conditions: newQuote.paymentConditions || null,
@@ -253,7 +286,7 @@ function DevisPage() {
                     validUntil: newQuote.dueDate || null
                 })
             });
-            showToast(`✓ Devis créé avec succès !`, "success");
+            showToast(`Devis créé avec succès !`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Create quote API error:", err);
@@ -337,6 +370,7 @@ function DevisPage() {
                     {/* Quotes List */}
                     <QuoteList
                         quotes={filteredQuotes}
+                        activeFilter={activeFilter}
                         onRowClick={openDetail}
                         onCreateQuote={() => setShowNewModal(true)}
                         onSend={(q) => { setActiveQuote(q); setShowSendDrawer(true); }}
@@ -345,6 +379,7 @@ function DevisPage() {
                         onDownloadPdf={handleDownloadPdf}
                         onCustomise={(q) => { setActiveQuote(q); setShowDetailDrawer(true); }}
                         onRejectQuote={(q) => handleChangeStatus(q, "REFUSED")}
+                        onDeleteQuote={handleDeleteQuote}
                     />
                 </motion.div>
             </div>
@@ -359,6 +394,7 @@ function DevisPage() {
                     onConvertToInvoice={handleConvertToInvoice}
                     onChangeStatus={handleChangeStatus}
                     onEdit={() => { setShowDetailDrawer(false); setShowEditPanel(true); }}
+                    onDelete={handleDeleteQuote}
                     onOpenLinkedInvoice={handleOpenLinkedInvoice}
                     onUpdateQuoteCustomization={handleUpdateQuoteCustomization}
                 />
@@ -558,6 +594,132 @@ function DevisPage() {
                                 >
                                     {actionLoading ? <Loader2 size={16} className="spin-loader" /> : <RefreshCw size={16} />}
                                     Facturer le devis
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {/* Confirm Delete Quote Modal */}
+                {quoteToDelete && (
+                    <motion.div
+                        className="modal-overlay"
+                        style={{
+                            position: 'fixed',
+                            inset: 0,
+                            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                            backdropFilter: 'blur(4px)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 10000,
+                            padding: '16px'
+                        }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setQuoteToDelete(null)}
+                    >
+                        <motion.div
+                            className="modal-container"
+                            style={{
+                                backgroundColor: 'var(--card)',
+                                borderRadius: '16px',
+                                padding: '24px',
+                                width: '100%',
+                                maxWidth: '440px',
+                                boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                                border: '1px solid var(--border)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '16px'
+                            }}
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '10px',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                                    color: '#ef4444',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                }}>
+                                    <Trash2 size={20} />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                        Supprimer le devis ?
+                                    </h3>
+                                    <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                                        {quoteToDelete.number} · {quoteToDelete.clientName}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div style={{
+                                backgroundColor: 'var(--background)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '10px',
+                                padding: '12px 14px',
+                                fontSize: '13px',
+                                color: 'var(--muted-foreground)',
+                                lineHeight: '1.45'
+                            }}>
+                                Êtes-vous sûr de vouloir supprimer définitivement ce devis ? Cette action est irréversible.
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '6px' }}>
+                                <button
+                                    type="button"
+                                    disabled={actionLoading}
+                                    onClick={() => setQuoteToDelete(null)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '11px 16px',
+                                        borderRadius: '10px',
+                                        border: '1px solid var(--border)',
+                                        backgroundColor: 'var(--background)',
+                                        color: 'var(--foreground)',
+                                        fontWeight: 600,
+                                        fontSize: '13.5px',
+                                        cursor: 'pointer',
+                                        textAlign: 'center',
+                                        transition: 'all 0.15s ease'
+                                    }}
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={actionLoading}
+                                    onClick={() => executeDeleteQuote(quoteToDelete)}
+                                    style={{
+                                        flex: 1.2,
+                                        padding: '11px 16px',
+                                        borderRadius: '10px',
+                                        border: 'none',
+                                        backgroundColor: '#ef4444',
+                                        color: '#ffffff',
+                                        fontWeight: 700,
+                                        fontSize: '13.5px',
+                                        cursor: actionLoading ? 'not-allowed' : 'pointer',
+                                        textAlign: 'center',
+                                        boxShadow: '0 4px 14px rgba(239, 68, 68, 0.35)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    {actionLoading ? <Loader2 size={16} className="spin-loader" /> : <Trash2 size={16} />}
+                                    Supprimer
                                 </button>
                             </div>
                         </motion.div>

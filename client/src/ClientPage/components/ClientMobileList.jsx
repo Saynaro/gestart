@@ -1,8 +1,30 @@
 import React from "react";
 import { ChevronRight, Users } from "lucide-react";
 
-function ClientMobileList({ sortedLetters, groupedItems, onSelect, activeTabType, onOpenAddClient }) {
+function ClientMobileList({ 
+    sortedLetters, 
+    groupedItems, 
+    onSelect, 
+    activeTabType = "particulier", 
+    statusFilter = "Tous", 
+    searchTerm = "", 
+    onOpenAddClient 
+}) {
     if (!sortedLetters || sortedLetters.length === 0) {
+        const isOrg = activeTabType === "organisation";
+        let emptyTitle = isOrg ? "Vous n'avez pas encore d'organisations" : "Vous n'avez pas encore de clients";
+        let emptyDesc = isOrg 
+            ? "Ajoutez votre première organisation pour commencer à gérer ses fiches et contacts." 
+            : "Ajoutez votre premier client particulier pour commencer à gérer vos fiches et devis.";
+
+        if (searchTerm && searchTerm.trim()) {
+            emptyTitle = "Aucun contact trouvé";
+            emptyDesc = `Aucun ${isOrg ? "organisation" : "client"} ne correspond à votre recherche "${searchTerm}".`;
+        } else if (statusFilter && statusFilter !== "Tous") {
+            emptyTitle = `Aucun ${isOrg ? "organisation" : "client"} avec le statut "${statusFilter}"`;
+            emptyDesc = `Vous n'avez aucun contact ${isOrg ? "organisation" : "particulier"} dans la catégorie "${statusFilter}".`;
+        }
+
         return (
             <div 
                 className="client-mobile-empty-state" 
@@ -23,12 +45,10 @@ function ClientMobileList({ sortedLetters, groupedItems, onSelect, activeTabType
             >
                 <Users size={44} style={{ opacity: 0.35, color: 'var(--foreground)', margin: '0 auto 12px auto', display: 'block' }} />
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--foreground)', marginBottom: '6px' }}>
-                    Vous n'avez pas encore de clients
+                    {emptyTitle}
                 </h3>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', lineHeight: '1.4', margin: '0 auto 20px auto', maxWidth: '260px' }}>
-                    {activeTabType === "organisation" 
-                        ? "Ajoutez votre première organisation pour commencer."
-                        : "Ajoutez votre premier client particulier pour commencer à gérer vos fiches et devis."}
+                    {emptyDesc}
                 </p>
                 {onOpenAddClient && (
                     <button 
@@ -45,7 +65,7 @@ function ClientMobileList({ sortedLetters, groupedItems, onSelect, activeTabType
                             boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
                         }}
                     >
-                        + Nouveau client
+                        + {isOrg ? "Nouvelle organisation" : "Nouveau client"}
                     </button>
                 )}
             </div>

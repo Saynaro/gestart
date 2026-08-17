@@ -257,6 +257,20 @@ export default function VerifyEmailPage() {
                                 <p>Saisissez le code à 6 chiffres envoyé sur votre adresse email</p>
                             </div>
 
+                            <div style={{
+                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
+                                border: '1px solid rgba(85, 107, 47, 0.25)',
+                                borderRadius: '10px',
+                                padding: '10px 14px',
+                                fontSize: '12px',
+                                color: 'var(--muted-foreground)',
+                                lineHeight: '1.45',
+                                marginBottom: '16px',
+                                textAlign: 'left'
+                            }}>
+                                💡 <strong>Conseil :</strong> Vérifiez votre boîte de réception ainsi que votre dossier <strong>Spam / Courriers indésirables</strong> (expéditeur : <code>support.gestart@gmail.com</code>).
+                            </div>
+
                             {error && (
                                 <div className="error-alert">
                                     <AlertCircle size={18} />

@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
+import PhoneInput from "../components/PhoneInput";
 import { apiFetch } from "../utils/api";
 import "./SettingsPage.css";
 
@@ -665,30 +666,15 @@ function SettingsPage() {
                                             <h2 className="mobile-sheet-title">Numéro de téléphone</h2>
                                             <div style={{ width: '36px' }} />
                                         </div>
-                                        <div className="mobile-sheet-body-stack" style={{ padding: '0 16px 20px 16px' }}>
-                                            <div className="mobile-phone-input-row" style={{ marginTop: '10px' }}>
-                                                <div className="mobile-phone-country">
-                                                    <span className="mobile-flag" style={{ fontSize: '18px' }}>🇫🇷</span>
-                                                    <span className="mobile-phone-code">+33</span>
-                                                </div>
-                                                <div className="mobile-phone-number-field">
-                                                    <input
-                                                        type="tel"
-                                                        value={phone}
-                                                        onChange={(e) => setPhone(e.target.value)}
-                                                        placeholder="06 12 34 56 78"
-                                                        className="mobile-phone-number-input"
-                                                    />
-                                                    {phone && (
-                                                        <button className="mobile-phone-clear-btn" onClick={() => setPhone("")}>
-                                                            <X size={14} />
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
+                                        <div className="mobile-sheet-body-stack" style={{ padding: '10px 16px 20px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                            <PhoneInput
+                                                value={phone}
+                                                onChange={(formatted) => setPhone(formatted)}
+                                                autoFocus
+                                            />
 
                                             <button className="mobile-sub-sheet-confirm-btn" onClick={() => setActiveProfileSubSheet(null)}>
-                                                Ajouter ce numéro
+                                                Valider ce numéro
                                             </button>
                                         </div>
                                     </div>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Building, Camera, Search, FileText, CheckCircle, PenTool, Trash2, Upload, RefreshCw } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { formatIBAN, formatBIC } from "../../utils/bankValidator";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete, { formatNafCode } from "../../components/CompanyAutocomplete";
 import SignaturePadModal from "../../components/SignaturePadModal";
+import PhoneInput from "../../components/PhoneInput";
 
 export default function EntrepriseTab({ isMobileView, triggerToast }) {
     const [companyName, setCompanyName] = useState("KHALID SAINARO");
@@ -46,10 +48,10 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     if (company.logoUrl) setLogoUrl(company.logoUrl);
                     if (company.signatureUrl) setSignatureUrl(company.signatureUrl);
                     if (company.settings?.bankIban || company.bankIban || company.iban) {
-                        setIban(company.settings?.bankIban || company.bankIban || company.iban);
+                        setIban(formatIBAN(company.settings?.bankIban || company.bankIban || company.iban));
                     }
                     if (company.settings?.bankBic || company.bankBic || company.bic) {
-                        setBIC(company.settings?.bankBic || company.bankBic || company.bic);
+                        setBIC(formatBIC(company.settings?.bankBic || company.bankBic || company.bic));
                     }
                 }
             } catch (err) {
@@ -598,7 +600,10 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
                 <div className="form-field">
                     <label className="form-label">Téléphone société</label>
-                    <input type="tel" className="form-input" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="06 12 34 56 78" />
+                    <PhoneInput
+                        value={companyPhone}
+                        onChange={(formatted) => setCompanyPhone(formatted)}
+                    />
                 </div>
 
                 <div className="form-field form-group-full">
@@ -608,12 +613,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
                 <div className="form-field">
                     <label className="form-label">IBAN (Affiché sur factures PDF)</label>
-                    <input type="text" className="form-input" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="FR76 3000 3020 5001 2345 6789 012" style={{ fontFamily: 'monospace', fontWeight: 600 }} />
+                    <input type="text" className="form-input" value={iban} onChange={(e) => setIban(formatIBAN(e.target.value))} placeholder="FR76 3000 3020 5001 2345 6789 012" style={{ fontFamily: 'monospace', fontWeight: 600 }} />
                 </div>
 
                 <div className="form-field">
                     <label className="form-label">BIC / SWIFT</label>
-                    <input type="text" className="form-input" value={bic} onChange={(e) => setBIC(e.target.value)} placeholder="BNPAFRPPXXX" style={{ fontFamily: 'monospace', fontWeight: 600 }} />
+                    <input type="text" className="form-input" value={bic} onChange={(e) => setBIC(formatBIC(e.target.value))} placeholder="BNPAFRPPXXX" style={{ fontFamily: 'monospace', fontWeight: 600 }} />
                 </div>
                 <div className="form-group-full" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--border)' }}>
                     <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>

@@ -164,6 +164,7 @@ export const createQuote = async (req, res) => {
         clientId,
         clientName,
         clientEmail,
+        clientPhone,
         clientAddress,
         interventionId,
         amountHT,
@@ -213,6 +214,12 @@ export const createQuote = async (req, res) => {
 
             if (existing) {
                 finalClientId = existing.id;
+                if (clientPhone && (!existing.phone || existing.phone === "0600000000")) {
+                    await prisma.client.update({
+                        where: { id: existing.id },
+                        data: { phone: clientPhone }
+                    });
+                }
             } else if (trimmedName || trimmedEmail) {
                 const newCreatedClient = await prisma.client.create({
                     data: {
@@ -220,12 +227,23 @@ export const createQuote = async (req, res) => {
                         firstName: firstName || "Client",
                         lastName: lastName || (trimmedName && nameParts.length === 1 ? "" : "Particulier"),
                         companyName: trimmedName && nameParts.length === 1 ? trimmedName : null,
-                        phone: "0600000000",
+                        phone: clientPhone || "0600000000",
                         email: trimmedEmail || null,
                         address: clientAddress || "Adresse non renseignée"
                     }
                 });
                 finalClientId = newCreatedClient.id;
+            }
+        }
+
+        // If finalClientId was passed, update phone if not already present
+        if (finalClientId && clientPhone) {
+            const curClient = await prisma.client.findFirst({ where: { id: finalClientId, companyId } });
+            if (curClient && (!curClient.phone || curClient.phone === "0600000000")) {
+                await prisma.client.update({
+                    where: { id: finalClientId },
+                    data: { phone: clientPhone }
+                });
             }
         }
 
@@ -267,19 +285,27 @@ export const createQuote = async (req, res) => {
                 data: { quoteNextNumber: nextNumber + 1 }
             });
 
-            // Calcul du montant HT depuis les lignes si présent
-            let computedHT = parseFloat(amountHT) || 0;
+            // Calcul du montant HT et TTC depuis les lignes
+            const calculatedTVA = tvaRate !== undefined && tvaRate !== null ? parseFloat(tvaRate) : 20;
+            let computedHT = 0;
+            let computedTVAAmount = 0;
+
             if (lines.length > 0) {
-                computedHT = lines.reduce((acc, l) => {
+                lines.forEach(l => {
                     const qty = Number(l.quantity || l.qty || 1);
                     const price = parseFloat(l.unitPrice) || 0;
                     const disc = parseFloat(l.discount) || 0;
-                    return acc + (qty * price * (1 - disc / 100));
-                }, 0);
+                    const lineHT = qty * price * (1 - disc / 100);
+                    const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
+                    computedHT += lineHT;
+                    computedTVAAmount += lineHT * (lineTva / 100);
+                });
+            } else {
+                computedHT = parseFloat(amountHT) || 0;
+                computedTVAAmount = computedHT * (calculatedTVA / 100);
             }
 
-            const calculatedTVA = parseFloat(tvaRate) || 20;
-            const computedTTC = computedHT * (1 + calculatedTVA / 100);
+            const computedTTC = computedHT + computedTVAAmount;
 
             const targetStatus = req.body.status && ["SENT", "ACCEPTED", "REFUSED"].includes(req.body.status.toUpperCase()) ? req.body.status.toUpperCase() : "DRAFT";
 
@@ -302,12 +328,13 @@ export const createQuote = async (req, res) => {
                             const qVal = Number(l.quantity || l.qty || 1);
                             const pVal = parseFloat(l.unitPrice) || 0;
                             const dVal = parseFloat(l.discount) || 0;
+                            const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
                             return {
                                 description: l.description,
                                 reference: l.reference || null,
                                 quantity: qVal,
                                 unitPrice: pVal,
-                                tvaRate: parseFloat(l.tvaRate) || calculatedTVA,
+                                tvaRate: lineTva,
                                 discount: dVal,
                                 total: qVal * pVal * (1 - dVal / 100),
                                 position: index,
@@ -486,21 +513,27 @@ export const updateQuote = async (req, res) => {
             }
 
             // If lines are provided, recompute amounts and recreate lines
+            let calculatedTVA = tvaRate !== undefined && tvaRate !== null ? parseFloat(tvaRate) : (existingQuote.tvaRate !== undefined ? existingQuote.tvaRate : 20);
             let computedHT = parseFloat(amountHT ?? subtotalHt);
-            let calculatedTVA = tvaRate !== undefined ? parseFloat(tvaRate) : existingQuote.tvaRate;
             let computedTTC = parseFloat(amountTTC ?? totalTtc);
 
             if (Array.isArray(lines)) {
                 await tx.quoteLine.deleteMany({ where: { quoteId: id } });
 
-                computedHT = lines.reduce((acc, l) => {
+                computedHT = 0;
+                let computedTVAAmount = 0;
+
+                lines.forEach(l => {
                     const qty = Number(l.quantity || l.qty || 1);
                     const price = parseFloat(l.unitPrice) || 0;
                     const disc = parseFloat(l.discount) || 0;
-                    return acc + (qty * price * (1 - disc / 100));
-                }, 0);
+                    const lineHT = qty * price * (1 - disc / 100);
+                    const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
+                    computedHT += lineHT;
+                    computedTVAAmount += lineHT * (lineTva / 100);
+                });
 
-                computedTTC = computedHT * (1 + (calculatedTVA || 20) / 100);
+                computedTTC = computedHT + computedTVAAmount;
 
                 if (lines.length > 0) {
                     await tx.quoteLine.createMany({
@@ -508,13 +541,14 @@ export const updateQuote = async (req, res) => {
                             const qVal = Number(l.quantity || l.qty || 1);
                             const pVal = parseFloat(l.unitPrice) || 0;
                             const dVal = parseFloat(l.discount) || 0;
+                            const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
                             return {
                                 quoteId: id,
                                 description: l.description || "Prestation",
                                 reference: l.reference || null,
                                 quantity: qVal,
                                 unitPrice: pVal,
-                                tvaRate: parseFloat(l.tvaRate) || calculatedTVA || 20,
+                                tvaRate: lineTva,
                                 discount: dVal,
                                 total: qVal * pVal * (1 - dVal / 100),
                                 position: index,
@@ -645,7 +679,8 @@ export const sendQuote = async (req, res) => {
                 quote,
                 company: quote.company,
                 signatureUrl,
-                senderEmail: req.user?.email || quote.company?.email
+                senderEmail: req.user?.email || quote.company?.email,
+                primaryColor: req.body?.primaryColor || (typeof quote.company?.settings === 'object' && quote.company.settings?.primaryColor) || "#556B2F"
             });
         }
 
@@ -857,3 +892,50 @@ export const getQuotePdf = async (req, res) => {
         });
     }
 };
+
+////// DELETE QUOTE //////
+export const deleteQuote = async (req, res) => {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+
+    try {
+        const quote = await prisma.quote.findFirst({
+            where: { id, companyId }
+        });
+
+        if (!quote) {
+            return res.status(404).json({
+                success: false,
+                message: "Devis introuvable"
+            });
+        }
+
+        // Vérifier si une facture active est liée à ce devis
+        const linkedInvoice = await prisma.invoice.findFirst({
+            where: { sourceQuoteId: id, status: { not: "CANCELLED" } }
+        });
+
+        if (linkedInvoice) {
+            return res.status(400).json({
+                success: false,
+                message: `Ce devis ne peut pas être supprimé car la facture ${linkedInvoice.number || ""} y est associée.`
+            });
+        }
+
+        // Suppression des lignes puis du devis
+        await prisma.quoteLine.deleteMany({ where: { quoteId: id } });
+        await prisma.quote.delete({ where: { id } });
+
+        return res.status(200).json({
+            success: true,
+            message: "Devis supprimé avec succès"
+        });
+    } catch (error) {
+        console.error("DELETE QUOTE ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la suppression du devis"
+        });
+    }
+};
+

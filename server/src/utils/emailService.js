@@ -124,12 +124,13 @@ export const sendVerificationEmail = async ({ to, code, token, firstName = "Util
             </div>
 
             <div style="text-align: center; margin-top: 28px; color: #A3B18A; font-size: 12px;">
+                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos emails, vérifiez votre dossier <strong>Spam / Courriers indésirables</strong>. Email officiel : <strong>support.gestart@gmail.com</strong></p>
                 <p>© 2026 GestArt CRM. L'outil CRM N°1 des artisans & installateurs.</p>
             </div>
         </div>
     `;
 
-    const text = `Bonjour ${firstName},\n\nVotre code de vérification GestArt CRM est: ${code}\n\nOu cliquez sur ce lien pour vérifier votre email: ${verifyUrl}`;
+    const text = `Bonjour ${firstName},\n\nVotre code de vérification GestArt CRM est: ${code}\n\nOu cliquez sur ce lien pour vérifier votre email: ${verifyUrl}\n\n(Pensez à vérifier votre dossier Spam si besoin. Expéditeur : support.gestart@gmail.com)`;
 
     return await sendEmail({ to, subject, html, text });
 };
@@ -169,13 +170,14 @@ export const sendPasswordResetEmail = async ({ to, token, code, firstName = "Uti
             </div>
 
             <div style="text-align: center; margin-top: 28px; color: #A3B18A; font-size: 12px;">
+                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos emails, vérifiez votre dossier <strong>Spam / Courriers indésirables</strong>. Email officiel : <strong>support.gestart@gmail.com</strong></p>
                 <p>Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en toute sécurité.</p>
                 <p>© 2026 GestArt CRM. L'outil CRM N°1 des artisans & installateurs.</p>
             </div>
         </div>
     `;
 
-    const text = `Bonjour ${firstName},\n\nVous avez demandé la réinitialisation de votre mot de passe sur GestArt CRM. Cliquez sur ce lien pour réinitialiser votre mot de passe: ${resetUrl}\n\nLien valable pendant 1 heure.`;
+    const text = `Bonjour ${firstName},\n\nVous avez demandé la réinitialisation de votre mot de passe sur GestArt CRM. Cliquez sur ce lien pour réinitialiser votre mot de passe: ${resetUrl}\n\nLien valable pendant 1 heure.\n\n(Pensez à vérifier votre dossier Spam si besoin. Expéditeur : support.gestart@gmail.com)`;
 
     return await sendEmail({ to, subject, html, text });
 };
@@ -205,13 +207,14 @@ export const sendTwoFactorCodeEmail = async ({ to, code, firstName = "Utilisateu
             </div>
 
             <div style="text-align: center; margin-top: 24px; color: #A3B18A; font-size: 12px;">
+                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos emails, vérifiez votre dossier <strong>Spam / Courriers indésirables</strong>. Email officiel : <strong>support.gestart@gmail.com</strong></p>
                 <p>Si vous n'êtes pas à l'origine de cette tentative de connexion, nous vous conseillons de changer immédiatement votre mot de passe.</p>
                 <p>© 2026 GestArt CRM.</p>
             </div>
         </div>
     `;
 
-    const text = `Bonjour ${firstName},\n\nVotre code de connexion 2FA GestArt CRM est : ${code}\n\nCe code expire dans 10 minutes.`;
+    const text = `Bonjour ${firstName},\n\nVotre code de connexion 2FA GestArt CRM est : ${code}\n\nCe code expire dans 10 minutes.\n\n(Pensez à vérifier votre dossier Spam si besoin. Expéditeur : support.gestart@gmail.com)`;
 
     return await sendEmail({ to, subject, html, text });
 };
@@ -262,13 +265,14 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
             </div>
 
             <div style="text-align: center; margin-top: 24px; color: #64748B; font-size: 12px; line-height: 1.5;">
+                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>. Envoyé via <strong>GestArt (support.gestart@gmail.com)</strong>.</p>
                 <p>Pour toute question relative à ce devis, vous pouvez répondre directement à cet email (${senderEmail || company?.email || ''}).</p>
                 <p>© ${new Date().getFullYear()} ${companyName} • Tous droits réservés.</p>
             </div>
         </div>
     `;
 
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter, le signer en ligne et régler par carte bancaire ici : ${signatureUrl}\n\nCordialement,\n${companyName}`;
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter, le signer en ligne et régler par carte bancaire ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
 
     return await sendEmail({ to, subject, html, text });
 };
@@ -319,13 +323,14 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
             </div>
 
             <div style="text-align: center; margin-top: 24px; color: #64748B; font-size: 12px; line-height: 1.5;">
+                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>. Envoyé via <strong>GestArt (support.gestart@gmail.com)</strong>.</p>
                 <p>Pour toute question relative à cette facture, vous pouvez répondre directement à cet email (${senderEmail || company?.email || ''}).</p>
                 <p>© ${new Date().getFullYear()} ${companyName} • Tous droits réservés.</p>
             </div>
         </div>
     `;
 
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez la consulter et la régler en ligne ici : ${paymentUrl}\n\nCordialement,\n${companyName}`;
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez la consulter et la régler en ligne ici : ${paymentUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
 
     return await sendEmail({ to, subject, html, text });
 };

@@ -7,11 +7,12 @@ import {
     sendQuote,
     acceptQuote,
     convertQuoteToInvoice,
-    getQuotePdf
+    getQuotePdf,
+    deleteQuote
 } from "../controllers/quoteController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import { requireManager } from "../middlewares/checkRole.js";
+import { requireOwner, requireManager } from "../middlewares/checkRole.js";
 
 const router = express.Router();
 
@@ -30,5 +31,8 @@ router.put("/:id", requireManager, updateQuote);
 router.post("/:id/send", requireManager, sendQuote);
 router.post("/:id/accept", requireManager, acceptQuote);
 router.post("/:id/convert-to-invoice", requireManager, convertQuoteToInvoice);
+
+// Suppression devis réservée au OWNER
+router.delete("/:id", requireOwner, deleteQuote);
 
 export default router;

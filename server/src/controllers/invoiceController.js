@@ -262,6 +262,7 @@ export const createInvoice = async (req, res) => {
         clientId,
         clientName,
         clientEmail,
+        clientPhone,
         clientAddress,
         interventionId,
         amountHT,
@@ -312,6 +313,12 @@ export const createInvoice = async (req, res) => {
 
             if (existing) {
                 finalClientId = existing.id;
+                if (clientPhone && (!existing.phone || existing.phone === "0600000000")) {
+                    await prisma.client.update({
+                        where: { id: existing.id },
+                        data: { phone: clientPhone }
+                    });
+                }
             } else if (trimmedName || trimmedEmail) {
                 const newCreatedClient = await prisma.client.create({
                     data: {
@@ -319,12 +326,23 @@ export const createInvoice = async (req, res) => {
                         firstName: firstName || "Client",
                         lastName: lastName || (trimmedName && nameParts.length === 1 ? "" : "Particulier"),
                         companyName: trimmedName && nameParts.length === 1 ? trimmedName : null,
-                        phone: "0600000000",
+                        phone: clientPhone || "0600000000",
                         email: trimmedEmail || null,
                         address: clientAddress || "Adresse non renseignée"
                     }
                 });
                 finalClientId = newCreatedClient.id;
+            }
+        }
+
+        // If finalClientId was passed, update phone if not already present
+        if (finalClientId && clientPhone) {
+            const curClient = await prisma.client.findFirst({ where: { id: finalClientId, companyId } });
+            if (curClient && (!curClient.phone || curClient.phone === "0600000000")) {
+                await prisma.client.update({
+                    where: { id: finalClientId },
+                    data: { phone: clientPhone }
+                });
             }
         }
 
@@ -365,18 +383,26 @@ export const createInvoice = async (req, res) => {
                 data: { invoiceNextNumber: nextNumber + 1 }
             });
 
-            let computedHT = parseFloat(amountHT) || 0;
+            const calculatedTVA = tvaRate !== undefined && tvaRate !== null ? parseFloat(tvaRate) : 20;
+            let computedHT = 0;
+            let computedTVAAmount = 0;
+
             if (lines.length > 0) {
-                computedHT = lines.reduce((acc, l) => {
+                lines.forEach(l => {
                     const qty = parseFloat(l.quantity) || 1;
                     const price = parseFloat(l.unitPrice) || 0;
                     const disc = parseFloat(l.discount) || 0;
-                    return acc + (qty * price * (1 - disc / 100));
-                }, 0);
+                    const lineHT = qty * price * (1 - disc / 100);
+                    const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
+                    computedHT += lineHT;
+                    computedTVAAmount += lineHT * (lineTva / 100);
+                });
+            } else {
+                computedHT = parseFloat(amountHT) || 0;
+                computedTVAAmount = computedHT * (calculatedTVA / 100);
             }
 
-            const calculatedTVA = parseFloat(tvaRate) || 20;
-            const computedTTC = computedHT * (1 + calculatedTVA / 100);
+            const computedTTC = computedHT + computedTVAAmount;
 
             const defaultDueDate = new Date();
             defaultDueDate.setDate(defaultDueDate.getDate() + (settings.defaultPaymentDays || 30));
@@ -399,17 +425,20 @@ export const createInvoice = async (req, res) => {
                     paymentMethod: normalizePaymentMethod(paymentMethod),
                     dueAt: dueAt ? new Date(dueAt) : defaultDueDate,
                     lines: {
-                        create: lines.map((l, index) => ({
-                            description: l.description,
-                            reference: l.reference || null,
-                            quantity: parseFloat(l.quantity) || 1,
-                            unitPrice: parseFloat(l.unitPrice) || 0,
-                            tvaRate: parseFloat(l.tvaRate) || calculatedTVA,
-                            discount: parseFloat(l.discount) || 0,
-                            total: (parseFloat(l.quantity) || 1) * (parseFloat(l.unitPrice) || 0) * (1 - (parseFloat(l.discount) || 0) / 100),
-                            position: index,
-                            catalogItemId: l.catalogItemId || null,
-                        }))
+                        create: lines.map((l, index) => {
+                            const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
+                            return {
+                                description: l.description,
+                                reference: l.reference || null,
+                                quantity: parseFloat(l.quantity) || 1,
+                                unitPrice: parseFloat(l.unitPrice) || 0,
+                                tvaRate: lineTva,
+                                discount: parseFloat(l.discount) || 0,
+                                total: (parseFloat(l.quantity) || 1) * (parseFloat(l.unitPrice) || 0) * (1 - (parseFloat(l.discount) || 0) / 100),
+                                position: index,
+                                catalogItemId: l.catalogItemId || null,
+                            };
+                        })
                     }
                 },
                 include: {
@@ -585,21 +614,27 @@ export const updateInvoice = async (req, res) => {
             }
 
             // If lines are provided, recompute amounts and recreate lines
+            let calculatedTVA = tvaRate !== undefined && tvaRate !== null ? parseFloat(tvaRate) : (existingInvoice.tvaRate !== undefined ? existingInvoice.tvaRate : 20);
             let computedHT = parseFloat(amountHT ?? subtotalHt);
-            let calculatedTVA = tvaRate !== undefined ? parseFloat(tvaRate) : existingInvoice.tvaRate;
             let computedTTC = parseFloat(amountTTC ?? totalTtc);
 
             if (Array.isArray(lines)) {
                 await tx.invoiceLine.deleteMany({ where: { invoiceId: id } });
 
-                computedHT = lines.reduce((acc, l) => {
+                computedHT = 0;
+                let computedTVAAmount = 0;
+
+                lines.forEach(l => {
                     const qty = Number(l.quantity || l.qty || 1);
                     const price = parseFloat(l.unitPrice) || 0;
                     const disc = parseFloat(l.discount) || 0;
-                    return acc + (qty * price * (1 - disc / 100));
-                }, 0);
+                    const lineHT = qty * price * (1 - disc / 100);
+                    const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
+                    computedHT += lineHT;
+                    computedTVAAmount += lineHT * (lineTva / 100);
+                });
 
-                computedTTC = computedHT * (1 + (calculatedTVA || 20) / 100);
+                computedTTC = computedHT + computedTVAAmount;
 
                 if (lines.length > 0) {
                     await tx.invoiceLine.createMany({
@@ -607,13 +642,14 @@ export const updateInvoice = async (req, res) => {
                             const qVal = Number(l.quantity || l.qty || 1);
                             const pVal = parseFloat(l.unitPrice) || 0;
                             const dVal = parseFloat(l.discount) || 0;
+                            const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
                             return {
                                 invoiceId: id,
                                 description: l.description || "Prestation",
                                 reference: l.reference || null,
                                 quantity: qVal,
                                 unitPrice: pVal,
-                                tvaRate: parseFloat(l.tvaRate) || calculatedTVA || 20,
+                                tvaRate: lineTva,
                                 discount: dVal,
                                 total: qVal * pVal * (1 - dVal / 100),
                                 position: index,
@@ -712,7 +748,7 @@ export const sendInvoice = async (req, res) => {
     try {
         const invoice = await prisma.invoice.findFirst({
             where: { id, companyId },
-            include: { 
+            include: {
                 client: true,
                 company: true
             }
@@ -743,7 +779,8 @@ export const sendInvoice = async (req, res) => {
                 invoice,
                 company: invoice.company,
                 paymentUrl,
-                senderEmail: req.user?.email || invoice.company?.email
+                senderEmail: req.user?.email || invoice.company?.email,
+                primaryColor: req.body?.primaryColor || (typeof invoice.company?.settings === 'object' && invoice.company.settings?.primaryColor) || "#556B2F"
             });
         }
 
@@ -759,7 +796,7 @@ export const sendInvoice = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: `Facture ${invoice.number} envoyée avec succès à ${recipientEmail || 'client'}`,
-            data: { 
+            data: {
                 invoice: updatedInvoice,
                 paymentToken: token,
                 paymentUrl
@@ -932,22 +969,21 @@ export const deleteInvoice = async (req, res) => {
             });
         }
 
-        // Selon la loi française, seule une facture en brouillon (DRAFT) peut être annulée/supprimée
+        // Selon la loi française, seule une facture en brouillon (DRAFT) peut être supprimée
         if (invoice.status !== "DRAFT") {
             return res.status(400).json({
                 success: false,
-                message: "Seule une facture au statut Brouillon (DRAFT) peut être annulée."
+                message: "Conformément à la loi, seule une facture au statut Brouillon peut être supprimée."
             });
         }
 
-        await prisma.invoice.update({
-            where: { id },
-            data: { status: "CANCELLED" }
-        });
+        // Suppression des lignes puis de la facture brouillon
+        await prisma.invoiceLine.deleteMany({ where: { invoiceId: id } });
+        await prisma.invoice.delete({ where: { id } });
 
         return res.status(200).json({
             success: true,
-            message: "Facture annulée avec succès"
+            message: "Facture supprimée avec succès"
         });
     } catch (error) {
         console.error("DELETE INVOICE ERROR:", error.message);

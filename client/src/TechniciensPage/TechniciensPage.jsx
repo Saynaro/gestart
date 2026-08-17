@@ -460,7 +460,16 @@ export default function TechniciensPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setShowInviteModal(false)}
-                                                style={{ padding: '12px 20px', borderRadius: '12px', border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', fontWeight: 700 }}
+                                                style={{
+                                                    padding: '11px 20px',
+                                                    borderRadius: '10px',
+                                                    border: '1px solid var(--border)',
+                                                    background: 'transparent',
+                                                    color: 'var(--foreground)',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 700,
+                                                    fontSize: '0.9rem'
+                                                }}
                                             >
                                                 Annuler
                                             </button>
@@ -533,11 +542,8 @@ export default function TechniciensPage() {
                                         <button
                                             type="button"
                                             onClick={() => setShowInviteModal(false)}
-                                            style={{
-                                                width: '100%', marginTop: '24px', padding: '12px',
-                                                borderRadius: '12px', border: '1px solid var(--border)',
-                                                background: 'var(--card)', fontWeight: 700, cursor: 'pointer'
-                                            }}
+                                            className="btn-invite-tech"
+                                            style={{ width: '100%', marginTop: '24px', justifyContent: 'center' }}
                                         >
                                             Terminer
                                         </button>
@@ -570,11 +576,12 @@ export default function TechniciensPage() {
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <button
-                                    className="tech-modal-close"
+                                    className="delete-tech-close-btn"
                                     onClick={() => !isDeletingTech && setTechToDelete(null)}
                                     disabled={isDeletingTech}
+                                    aria-label="Fermer"
                                 >
-                                    <X size={20} />
+                                    <X size={18} />
                                 </button>
 
                                 <div className="delete-tech-icon-container">
@@ -616,12 +623,12 @@ export default function TechniciensPage() {
                                         {isDeletingTech ? (
                                             <>
                                                 <RefreshCw size={16} className="animate-spin" />
-                                                Suppression en cours...
+                                                Suppression...
                                             </>
                                         ) : (
                                             <>
                                                 <Trash2 size={16} />
-                                                Confirmer la suppression
+                                                Confirmer
                                             </>
                                         )}
                                     </button>

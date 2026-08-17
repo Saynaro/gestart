@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Send, CheckCircle2, Phone, Mail, User, Building2, MapPin, AlertCircle, Wrench } from "lucide-react";
 import AddressAutocomplete from "../components/AddressAutocomplete";
+import PhoneInput from "../components/PhoneInput";
 import { apiFetch } from "../utils/api";
 import "./PublicContact.css";
 
@@ -165,21 +166,10 @@ function PublicContact() {
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                         <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155' }}>Numéro de téléphone *</label>
-                                        <input
-                                            type="tel"
+                                        <PhoneInput
                                             value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
+                                            onChange={(formatted) => setPhone(formatted)}
                                             required
-                                            placeholder="Ex: 06 12 34 56 78"
-                                            style={{
-                                                padding: '11px 14px',
-                                                borderRadius: '10px',
-                                                border: '1px solid #CBD5E1',
-                                                backgroundColor: '#FFFFFF',
-                                                color: '#0F172A',
-                                                fontSize: '13.5px',
-                                                outline: 'none'
-                                            }}
                                         />
                                     </div>
 

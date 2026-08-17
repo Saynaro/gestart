@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info, AlertTriangle, Lock } from "lucide-react";
+import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info, AlertTriangle, Lock, Trash2 } from "lucide-react";
 import "./FacturesPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -38,17 +38,20 @@ function FacturesPage() {
     const [activeReceivedInvoice, setActiveReceivedInvoice] = useState(null);
 
     const mapInvoiceFromApi = (inv) => ({
+        ...inv,
         id: inv.id,
         number: inv.number || `F-2026-${String(inv.id).padStart(4, "0")}`,
+        client: inv.client || {},
         clientName: inv.client ? `${inv.client.firstName || ''} ${inv.client.lastName || inv.client.companyName || ''}`.trim() : (inv.clientName || 'Client Inconnu'),
         clientEmail: inv.client?.email || inv.clientEmail || '',
-        clientAddress: inv.client ? `${inv.client.address || ''} ${inv.client.city || ''}`.trim() : (inv.clientAddress || ''),
+        clientPhone: inv.client?.phone || inv.clientPhone || '',
+        clientAddress: inv.client ? `${inv.client.address || ''}${inv.client.postalCode || inv.client.city ? `, ${inv.client.postalCode || ''} ${inv.client.city || ''}` : ''}`.trim() : (inv.clientAddress || ''),
         interventionType: inv.subject || inv.interventionType || "Prestation",
         workDetails: inv.description || inv.workDetails || "",
         date: inv.createdAt ? new Date(inv.createdAt).toISOString().split('T')[0] : (inv.date || new Date().toISOString().split('T')[0]),
         dueDate: inv.dueAt ? new Date(inv.dueAt).toISOString().split('T')[0] : (inv.dueDate || new Date().toISOString().split('T')[0]),
         paymentDelay: inv.paymentDelay || 30,
-        tvaRate: inv.tvaRate || 20,
+        tvaRate: inv.tvaRate !== undefined && inv.tvaRate !== null ? Number(inv.tvaRate) : 20,
         subtotalHt: Number(inv.amountHT || inv.totalHt || inv.subtotalHt || 0),
         tvaAmount: Number(inv.amountTTC ? (inv.amountTTC - (inv.amountHT || 0)) : (inv.totalTva || 0)),
         totalTtc: Number(inv.amountTTC || inv.totalTtc || 0),
@@ -60,7 +63,8 @@ function FacturesPage() {
             ...l,
             qty: Number(l.quantity || l.qty || 1),
             quantity: Number(l.quantity || l.qty || 1),
-            unitPrice: Number(l.unitPrice) || 0,
+            unitPrice: Number(l.unitPrice || 0),
+            tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : (inv.tvaRate !== undefined && inv.tvaRate !== null ? Number(inv.tvaRate) : 20),
             total: Number(l.total) || ((Number(l.unitPrice) || 0) * (Number(l.quantity || l.qty) || 1))
         }))
     });
@@ -113,13 +117,42 @@ function FacturesPage() {
     }, [location.state]);
     const [paymentModalInvoice, setPaymentModalInvoice] = useState(null);
     const [invoiceToFinalise, setInvoiceToFinalise] = useState(null);
+    const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+    const [actionLoading, setActionLoading] = useState(false);
     const [linkedQuoteForDrawer, setLinkedQuoteForDrawer] = useState(null);
     const [pdfModalQuote, setPdfModalQuote] = useState(null);
     const [toast, setToast] = useState(null);
-
     const showToast = (msg, type = "success") => {
-        setToast({ msg, type });
+        const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;
+        setToast({ msg: cleanMsg, type });
         setTimeout(() => setToast(null), 3500);
+    };
+
+    const handleDeleteInvoice = (inv) => {
+        if (!inv) return;
+        setInvoiceToDelete(inv);
+    };
+
+    const executeDeleteInvoice = async (inv) => {
+        if (!inv) return;
+        setActionLoading(true);
+        try {
+            await apiFetch(`/v1/invoices/${inv.id}`, {
+                method: 'DELETE'
+            });
+            showToast(`Facture ${inv.number} supprimée avec succès.`, "success");
+            setInvoices(prev => prev.filter(item => item.id !== inv.id));
+            if (activeInvoice?.id === inv.id) {
+                closeAll();
+            }
+            fetchInvoices();
+        } catch (err) {
+            console.error("Delete invoice error:", err);
+            showToast(err.message || "Erreur lors de la suppression de la facture", "error");
+        } finally {
+            setActionLoading(false);
+            setInvoiceToDelete(null);
+        }
     };
 
     // Filtered list
@@ -142,25 +175,23 @@ function FacturesPage() {
     const openDetail = (inv) => {
         setActiveInvoice(inv);
         setShowDetailDrawer(true);
-        setShowEditPanel(false);
         setShowSendDrawer(false);
+        setShowEditPanel(false);
     };
 
     const closeAll = () => {
         setShowDetailDrawer(false);
         setShowSendDrawer(false);
         setShowEditPanel(false);
-        setShowPdfModal(false);
-        setActiveReceivedInvoice(null);
     };
 
     const handleFinalise = (inv) => {
+        if (!inv) return;
         setInvoiceToFinalise(inv);
     };
 
-    const handleConfirmFinalise = async () => {
-        if (!invoiceToFinalise) return;
-        const inv = invoiceToFinalise;
+    const executeFinaliseInvoice = async (inv) => {
+        if (!inv) return;
         try {
             await apiFetch(`/v1/invoices/${inv.id}`, {
                 method: 'PUT',
@@ -168,7 +199,7 @@ function FacturesPage() {
             });
             setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "SENT" } : i));
             setActiveInvoice(prev => (prev?.id === inv.id ? { ...prev, status: "SENT" } : prev));
-            showToast(`✓ Facture ${inv.number} finalisée avec succès !`, "success");
+            showToast(`Facture ${inv.number} finalisée avec succès !`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Finalise invoice error:", err);
@@ -176,6 +207,11 @@ function FacturesPage() {
         } finally {
             setInvoiceToFinalise(null);
         }
+    };
+
+    const handleConfirmFinalise = async () => {
+        if (!invoiceToFinalise) return;
+        await executeFinaliseInvoice(invoiceToFinalise);
     };
 
     const handleMarkPaid = (inv) => {
@@ -188,11 +224,11 @@ function FacturesPage() {
                 method: 'POST',
                 body: JSON.stringify({ paymentMethod })
             });
-            showToast(`✓ Facture ${inv.number} encaissée par ${paymentMethod} !`);
+            showToast(`Facture ${inv.number} encaissée par ${paymentMethod} !`);
             fetchInvoices();
         } catch (err) {
             console.error("Confirm payment API error:", err);
-            alert(err.message || "Erreur lors du règlement");
+            showToast(err.message || "Erreur lors du règlement", "error");
         } finally {
             setPaymentModalInvoice(null);
         }
@@ -220,7 +256,7 @@ function FacturesPage() {
             const fresh = res.data?.invoice || res.invoice || updatedInv;
             setInvoices(prev => prev.map(i => i.id === updatedInv.id ? { ...i, ...fresh } : i));
             setActiveInvoice(prev => (prev?.id === updatedInv.id ? { ...prev, ...fresh } : prev));
-            showToast(`✓ Facture ${updatedInv.number} modifiée.`, "success");
+            showToast(`Facture ${updatedInv.number} modifiée.`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Save invoice error:", err);
@@ -236,7 +272,7 @@ function FacturesPage() {
                 method: 'PUT',
                 body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString() })
             });
-            showToast(`✓ Facture ${inv.number} marquée comme envoyée.`, "success");
+            showToast(`Facture ${inv.number} marquée comme envoyée.`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Self send invoice error:", err);
@@ -252,7 +288,7 @@ function FacturesPage() {
                 method: 'POST',
                 body: JSON.stringify({ recipientEmail: targetEmail || inv.clientEmail })
             });
-            showToast(`✓ Facture ${inv.number} envoyée avec succès à ${emailToSend} !`, "success");
+            showToast(`Facture ${inv.number} envoyée avec succès à ${emailToSend} !`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Auto send invoice error:", err);
@@ -260,7 +296,7 @@ function FacturesPage() {
                 method: 'PUT',
                 body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString(), clientEmail: targetEmail || inv.clientEmail })
             });
-            showToast(`✓ Facture ${inv.number} envoyée à ${emailToSend}`, "success");
+            showToast(`Facture ${inv.number} envoyée à ${emailToSend}`, "success");
             fetchInvoices();
         } finally {
             setShowSendDrawer(false);
@@ -280,7 +316,7 @@ function FacturesPage() {
                     subject: newInv.interventionType || newInv.subject || "Facture Prestation",
                     amountHT: newInv.subtotalHt || 0,
                     amountTTC: newInv.totalTtc || 0,
-                    tvaRate: newInv.tvaRate || 20,
+                    tvaRate: newInv.tvaRate !== undefined && newInv.tvaRate !== null ? Number(newInv.tvaRate) : 20,
                     status: newInv.status || "DRAFT",
                     conditions: newInv.paymentConditions || null,
                     notes: newInv.internalNotes || null,
@@ -288,11 +324,11 @@ function FacturesPage() {
                     lines: newInv.lines || []
                 })
             });
-            showToast(`✓ Facture créée avec succès !`, "success");
+            showToast(`Facture créée avec succès !`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Create invoice API error:", err);
-            alert(err.message || "Erreur lors de la création de la facture");
+            showToast(err.message || "Erreur lors de la création de la facture", "error");
         } finally {
             setShowNewModal(false);
         }
@@ -564,6 +600,7 @@ function FacturesPage() {
                             {/* Invoices List */}
                             <InvoiceList
                                 invoices={filteredInvoices}
+                                activeFilter={activeFilter}
                                 onRowClick={openDetail}
                                 onCreateFacture={() => setShowNewModal(true)}
                                 onSend={(inv) => { setActiveInvoice(inv); setShowSendDrawer(true); }}
@@ -571,6 +608,7 @@ function FacturesPage() {
                                 onMarkPaid={(inv) => setPaymentModalInvoice(inv)}
                                 onDownloadPdf={handleDownloadPdf}
                                 onCustomise={(inv) => { setActiveInvoice(inv); setShowDetailDrawer(true); }}
+                                onDeleteInvoice={handleDeleteInvoice}
                             />
                         </>
                     )}
@@ -588,6 +626,7 @@ function FacturesPage() {
                     onFinalise={handleFinalise}
                     onMarkPaid={handleMarkPaid}
                     onMarkUnpaid={handleMarkUnpaid}
+                    onDelete={handleDeleteInvoice}
                     onOpenLinkedDevis={handleOpenLinkedDevis}
                     onUpdateInvoiceCustomization={handleUpdateInvoiceCustomization}
                 />
@@ -780,6 +819,134 @@ function FacturesPage() {
                             >
                                 ✓ Confirmer la finalisation
                             </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Confirm Delete Invoice Modal */}
+            {invoiceToDelete && (
+                <div
+                    className="modal-overlay"
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        backdropFilter: "blur(4px)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 10000,
+                        padding: "16px"
+                    }}
+                    onClick={() => setInvoiceToDelete(null)}
+                >
+                    <motion.div
+                        className="modal-container"
+                        style={{
+                            backgroundColor: "var(--card)",
+                            borderRadius: "16px",
+                            padding: "24px",
+                            width: "100%",
+                            maxWidth: "460px",
+                            boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+                            border: "1px solid var(--border)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "16px"
+                        }}
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <div style={{
+                                width: "42px",
+                                height: "42px",
+                                borderRadius: "12px",
+                                backgroundColor: "rgba(239, 68, 68, 0.12)",
+                                color: "#ef4444",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                            }}>
+                                <Trash2 size={20} />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>Supprimer la facture ?</h3>
+                                <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "var(--muted-foreground)" }}>
+                                    {invoiceToDelete.number} · {invoiceToDelete.clientName}
+                                </p>
+                            </div>
+                        </div>
+
+                        {(invoiceToDelete.status || "").toLowerCase() === "draft" ? (
+                            <div style={{
+                                backgroundColor: "var(--muted, #f8f9fa)",
+                                borderRadius: "12px",
+                                padding: "12px 14px",
+                                fontSize: "0.88rem",
+                                lineHeight: 1.45,
+                                color: "var(--foreground)",
+                                border: "1px solid var(--border)"
+                            }}>
+                                Êtes-vous sûr de vouloir supprimer définitivement ce brouillon de facture ? Cette action est irréversible.
+                            </div>
+                        ) : (
+                            <div style={{
+                                backgroundColor: "rgba(239, 68, 68, 0.08)",
+                                borderRadius: "12px",
+                                padding: "12px 14px",
+                                fontSize: "0.88rem",
+                                lineHeight: 1.45,
+                                color: "#b91c1c",
+                                border: "1px solid rgba(239, 68, 68, 0.2)"
+                            }}>
+                                <strong>Information légale :</strong> Conformément à la législation française (loi anti-fraude TVA), une facture émise ou finalisée ne peut pas être supprimée. Seuls les brouillons peuvent être supprimés.
+                            </div>
+                        )}
+
+                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
+                            <button
+                                disabled={actionLoading}
+                                onClick={() => setInvoiceToDelete(null)}
+                                style={{
+                                    padding: "10px 16px",
+                                    borderRadius: "10px",
+                                    border: "1px solid var(--border)",
+                                    background: "transparent",
+                                    color: "var(--foreground)",
+                                    fontSize: "0.9rem",
+                                    fontWeight: 600,
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Annuler
+                            </button>
+                            {(invoiceToDelete.status || "").toLowerCase() === "draft" && (
+                                <button
+                                    disabled={actionLoading}
+                                    onClick={() => executeDeleteInvoice(invoiceToDelete)}
+                                    style={{
+                                        padding: "10px 20px",
+                                        borderRadius: "10px",
+                                        border: "none",
+                                        background: "#ef4444",
+                                        color: "#FFFFFF",
+                                        fontSize: "0.9rem",
+                                        fontWeight: 700,
+                                        cursor: actionLoading ? "not-allowed" : "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        boxShadow: "0 4px 14px rgba(239, 68, 68, 0.35)"
+                                    }}
+                                >
+                                    {actionLoading ? <Loader2 size={16} className="spin-loader" /> : <Trash2 size={16} />}
+                                    Supprimer
+                                </button>
+                            )}
                         </div>
                     </motion.div>
                 </div>

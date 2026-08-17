@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FileText, MoreVertical, Send, Edit2, CheckCircle2, Download, Palette } from "lucide-react";
+import { FileText, MoreVertical, Send, Edit2, CheckCircle2, Download, Palette, Trash2 } from "lucide-react";
 
 function getStatusLabel(inv) {
     if (!inv) return "Brouillon";
@@ -20,13 +20,15 @@ function getStatusLabel(inv) {
 
 function InvoiceList({
     invoices,
+    activeFilter = "all",
     onRowClick,
     onCreateFacture,
     onSend,
     onEdit,
     onMarkPaid,
     onDownloadPdf,
-    onCustomise
+    onCustomise,
+    onDeleteInvoice
 }) {
     const [activeMenuId, setActiveMenuId] = useState(null);
 
@@ -43,12 +45,30 @@ function InvoiceList({
     };
 
     if (!invoices || invoices.length === 0) {
+        let emptyTitle = "Vous n'avez pas encore de factures";
+        let emptyDesc = "Créez votre première facture client pour enregistrer vos règlements.";
+
+        const f = String(activeFilter).toLowerCase();
+        if (f === "draft") {
+            emptyTitle = "Vous n'avez pas de factures en brouillon";
+            emptyDesc = "Les factures en cours de préparation apparaîtront ici.";
+        } else if (f === "pending" || f === "sent") {
+            emptyTitle = "Vous n'avez pas de factures en attente";
+            emptyDesc = "Toutes vos factures émises ont été réglées ou sont en brouillon.";
+        } else if (f === "paid") {
+            emptyTitle = "Vous n'avez pas de factures payées";
+            emptyDesc = "Les factures enregistrées comme réglées et encaissées apparaîtront ici.";
+        } else if (f === "overdue") {
+            emptyTitle = "Vous n'avez pas de factures en retard";
+            emptyDesc = "Bonne nouvelle ! Toutes vos factures échues ont été réglées à temps.";
+        }
+
         return (
             <div className="fp-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
                 <FileText size={44} style={{ opacity: 0.4, marginBottom: '12px' }} />
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>Vous n'avez pas encore de factures</h3>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>{emptyTitle}</h3>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
-                    Créez votre première facture client pour enregistrer vos règlements.
+                    {emptyDesc}
                 </p>
                 {onCreateFacture && (
                     <button className="fp-new-btn" onClick={onCreateFacture}>
@@ -158,6 +178,20 @@ function InvoiceList({
                                             }}
                                         >
                                             <Palette size={14} /> Personnaliser
+                                        </button>
+                                    )}
+
+                                    {onDeleteInvoice && (
+                                        <button
+                                            type="button"
+                                            className="fp-dots-menu-item danger"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onDeleteInvoice(inv);
+                                            }}
+                                        >
+                                            <Trash2 size={14} /> Supprimer
                                         </button>
                                     )}
                                 </div>

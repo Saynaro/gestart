@@ -4,6 +4,7 @@ import { X, ChevronDown, Plus, Search } from "lucide-react";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 import EquipmentSelector from "../../components/EquipmentSelector";
+import PhoneInput from "../../components/PhoneInput";
 
 const formatDateToISO = (dateStr) => {
     if (!dateStr || dateStr === "Non renseigné" || dateStr === "N/A") return "";
@@ -402,30 +403,15 @@ function MobileEditBottomSheet({
                             {/* SUB-SHEET 2: PHONE EDIT */}
                             {activeSubSheet === "phone" && (
                                 <div>
-                                    <div className="mobile-sheet-body-stack" style={{ padding: '16px 16px 20px 16px' }}>
-                                        <div className="mobile-phone-input-row">
-                                            <div className="mobile-phone-country">
-                                                <span className="mobile-flag" style={{ fontSize: '18px' }}>🇫🇷</span>
-                                                <span className="mobile-phone-code">+33</span>
-                                            </div>
-                                            <div className="mobile-phone-number-field">
-                                                <input
-                                                    type="tel"
-                                                    value={editPhone}
-                                                    onChange={(e) => setEditPhone(e.target.value)}
-                                                    placeholder="01 23 45 67 89"
-                                                    className="mobile-phone-number-input"
-                                                />
-                                                {editPhone && (
-                                                    <button className="mobile-phone-clear-btn" onClick={() => setEditPhone("")}>
-                                                        <X size={14} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
+                                    <div className="mobile-sheet-body-stack" style={{ padding: '16px 16px 20px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                        <PhoneInput
+                                            value={editPhone}
+                                            onChange={(formatted) => setEditPhone(formatted)}
+                                            autoFocus
+                                        />
 
                                         <button className="mobile-sub-sheet-confirm-btn" onClick={() => setActiveSubSheet(null)}>
-                                            Ajouter ce numéro
+                                            Valider ce numéro
                                         </button>
                                     </div>
                                 </div>

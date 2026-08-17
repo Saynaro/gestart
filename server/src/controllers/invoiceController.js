@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { prisma } from "../config/db.js";
+import { sendInvoiceClientEmail } from "../utils/emailService.js";
 
 // Helper notification
 const createNotification = async ({ companyId, userId, type, title, body, entityId }) => {
@@ -21,6 +22,21 @@ const createNotification = async ({ companyId, userId, type, title, body, entity
     } catch (error) {
         console.error("NOTIFICATION ERROR:", error.message);
     }
+};
+
+const normalizePaymentMethod = (method) => {
+    if (!method) return null;
+    const validEnums = ["CARD", "SEPA", "TRANSFER", "CASH", "CHEQUE"];
+    const upper = String(method).toUpperCase().trim();
+    if (validEnums.includes(upper)) return upper;
+
+    const m = String(method).toLowerCase().trim();
+    if (m.includes("virement") || m.includes("transfer") || m.includes("iban") || m.includes("banque")) return "TRANSFER";
+    if (m.includes("carte") || m.includes("card") || m.includes("cb") || m.includes("stripe") || m.includes("visa") || m.includes("mastercard")) return "CARD";
+    if (m.includes("sepa") || m.includes("prélèvement") || m.includes("prelevement")) return "SEPA";
+    if (m.includes("chèque") || m.includes("cheque") || m.includes("cesu")) return "CHEQUE";
+    if (m.includes("espèce") || m.includes("espece") || m.includes("cash") || m.includes("liquide")) return "CASH";
+    return "TRANSFER";
 };
 
 ////// GET PAGINATED INVOICES //////
@@ -380,7 +396,7 @@ export const createInvoice = async (req, res) => {
                     subject: subject ? subject.trim() : null,
                     notes: notes || null,
                     conditions: conditions || settings.invoiceConditions || null,
-                    paymentMethod: paymentMethod || null,
+                    paymentMethod: normalizePaymentMethod(paymentMethod),
                     dueAt: dueAt ? new Date(dueAt) : defaultDueDate,
                     lines: {
                         create: lines.map((l, index) => ({
@@ -494,8 +510,19 @@ export const updateInvoice = async (req, res) => {
             interventionType,
             workDescription,
             workDetails,
-            lines
+            lines,
+            emailSentAt
         } = req.body;
+
+        // Block modifying core fields (client, items, amounts) if invoice is already finalized/sent or paid
+        const isCurrentlyDraft = (existingInvoice.status || "").toUpperCase() === "DRAFT";
+        const isModifyingContent = lines !== undefined || clientId !== undefined || clientName !== undefined || clientEmail !== undefined || amountHT !== undefined || subtotalHt !== undefined;
+        if (!isCurrentlyDraft && isModifyingContent) {
+            return res.status(400).json({
+                success: false,
+                message: "Cette facture a déjà été finalisée ou payée. Conformément aux règles de facturation, son contenu ne peut plus être modifié."
+            });
+        }
 
         const parseSafeDate = (val) => {
             if (!val) return undefined;
@@ -600,23 +627,27 @@ export const updateInvoice = async (req, res) => {
             const targetDueAt = parseSafeDate(dueAt || dueDate);
             const targetIssuedAt = parseSafeDate(issuedAt || date);
 
+            let normalizedStatus = status ? status.toUpperCase() : undefined;
+            if (normalizedStatus === "PENDING" || normalizedStatus === "FINALIZED") normalizedStatus = "SENT";
+
             const updated = await tx.invoice.update({
                 where: { id },
                 data: {
                     ...(finalClientId && { clientId: finalClientId }),
                     ...(interventionId !== undefined && { interventionId: interventionId || null }),
-                    ...(status && { status: status.toUpperCase() }),
+                    ...(normalizedStatus && { status: normalizedStatus }),
                     ...(targetDueAt !== undefined && { dueAt: targetDueAt }),
                     ...(targetIssuedAt !== undefined && { issuedAt: targetIssuedAt }),
                     ...(!isNaN(computedHT) && { amountHT: computedHT }),
                     ...(!isNaN(calculatedTVA) && { tvaRate: calculatedTVA }),
                     ...(!isNaN(computedTTC) && { amountTTC: computedTTC }),
-                    ...(paymentMethod !== undefined && { paymentMethod }),
+                    ...(paymentMethod !== undefined && { paymentMethod: normalizePaymentMethod(paymentMethod) }),
                     ...(paymentRef !== undefined && { paymentRef }),
                     ...(notes !== undefined && { notes }),
                     ...((conditions !== undefined || paymentConditions !== undefined) && { conditions: conditions ?? paymentConditions }),
                     ...((subject !== undefined || interventionType !== undefined) && { subject: subject ?? interventionType }),
-                    ...((workDescription !== undefined || workDetails !== undefined) && { workDescription: workDescription ?? workDetails })
+                    ...((workDescription !== undefined || workDetails !== undefined) && { workDescription: workDescription ?? workDetails }),
+                    ...(emailSentAt !== undefined && { emailSentAt: emailSentAt ? new Date(emailSentAt) : null })
                 },
                 include: {
                     lines: { orderBy: { position: "asc" } },
@@ -681,7 +712,10 @@ export const sendInvoice = async (req, res) => {
     try {
         const invoice = await prisma.invoice.findFirst({
             where: { id, companyId },
-            include: { client: true }
+            include: { 
+                client: true,
+                company: true
+            }
         });
 
         if (!invoice) {
@@ -691,19 +725,45 @@ export const sendInvoice = async (req, res) => {
             });
         }
 
+        let token = invoice.paymentToken;
+        if (!token) {
+            token = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            await prisma.invoice.update({
+                where: { id },
+                data: { paymentToken: token }
+            });
+        }
+
+        const paymentUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/invoice/${token}`;
+        const recipientEmail = invoice.client?.email;
+
+        if (recipientEmail) {
+            await sendInvoiceClientEmail({
+                to: recipientEmail,
+                invoice,
+                company: invoice.company,
+                paymentUrl,
+                senderEmail: req.user?.email || invoice.company?.email
+            });
+        }
+
         const updatedInvoice = await prisma.invoice.update({
             where: { id },
             data: {
                 status: "SENT",
                 emailSentAt: new Date(),
-                emailSentTo: invoice.client.email || undefined,
+                emailSentTo: recipientEmail || undefined,
             }
         });
 
         return res.status(200).json({
             success: true,
-            message: `Facture ${invoice.number} envoyée avec succès à ${invoice.client.email || 'client'}`,
-            data: { invoice: updatedInvoice }
+            message: `Facture ${invoice.number} envoyée avec succès à ${recipientEmail || 'client'}`,
+            data: { 
+                invoice: updatedInvoice,
+                paymentToken: token,
+                paymentUrl
+            }
         });
     } catch (error) {
         console.error("SEND INVOICE ERROR:", error.message);
@@ -733,6 +793,7 @@ export const markInvoicePaid = async (req, res) => {
         }
 
         const paymentDate = paidAt ? new Date(paidAt) : new Date();
+        const safePaymentMethod = normalizePaymentMethod(paymentMethod) || "TRANSFER";
 
         const updatedInvoice = await prisma.invoice.update({
             where: { id },
@@ -740,8 +801,8 @@ export const markInvoicePaid = async (req, res) => {
                 status: "PAID",
                 amountPaid: invoice.amountTTC,
                 paidAt: paymentDate,
-                ...(paymentMethod && { paymentMethod }),
-                ...(paymentRef && { paymentRef }),
+                paymentMethod: safePaymentMethod,
+                paymentRef: paymentRef || (typeof paymentMethod === "string" ? paymentMethod : undefined),
             }
         });
 

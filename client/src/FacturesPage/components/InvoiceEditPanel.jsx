@@ -9,23 +9,7 @@ import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
 
 // Same client list as NewInvoiceModal
-const CLIENT_LIST = [
-    { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "John Doe", type: "Particulier", email: "john.doe@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Khalid Sainaro", type: "Particulier", email: "khalid@gmail.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Martin Dupont", type: "Particulier", email: "martin.dupont@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Sophie Bernard", type: "Particulier", email: "sophie.b@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Jean Moreau", type: "Particulier", email: "jean.moreau@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Marie Dupont", type: "Particulier", email: "marie.dubois@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Jean Dupont", type: "Particulier", email: "jean.dupont@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Marie Martin", type: "Particulier", email: "marie.martin@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Marc Leroy", type: "Particulier", email: "marc.leroy@outlook.fr", address: "109 Rue Saint-Dizier, 54000 Nancy" },
-    { name: "Claire Laurent", type: "Particulier", email: "claire.laurent@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Pierre Leroy", type: "Particulier", email: "pierre.leroy@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Garage Central", type: "Organisation", email: "contact@garagecentral.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "LexCorp", type: "Organisation", email: "contact@lexcorp.com", address: "Metropolis City" },
-    { name: "Acme Corp", type: "Organisation", email: "billing@acme.com", address: "109 Rue Saint-Dizier, 54000 Nancy" },
-].sort((a, b) => a.name.localeCompare(b.name));
+const CLIENT_LIST = [];
 
 const TVA_RATES = [0, 5.5, 10, 20];
 
@@ -60,7 +44,7 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                         type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
                         email: c.email || "",
                         phone: c.phone || "",
-                        address: `${c.address || ''} ${c.city || ''}`.trim()
+                        address: c.address ? `${c.address}${c.postalCode || c.city ? `, ${c.postalCode || ''} ${c.city || ''}` : ''}`.trim() : (c.city || "")
                     }));
                     setClientsList(mapped);
                 }
@@ -860,9 +844,12 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     const handleSelectClient = (client) => {
         setInv(p => ({
             ...p,
+            clientId: client.id,
+            client: client,
             clientName: client.name,
-            clientEmail: client.email,
-            clientAddress: client.address,
+            clientEmail: client.email || "",
+            clientPhone: client.phone || "",
+            clientAddress: client.address || "",
         }));
         setShowClientPicker(false);
     };
@@ -891,11 +878,37 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     };
 
     const handleSave = () => {
-        onSave({ ...inv, dueDate: calculatedDueDate, paymentConditions: echeanceLabel, subtotalHt, tvaAmount: tvaAmt, totalTtc });
+        onSave({
+            ...inv,
+            clientId: inv.clientId || inv.client?.id,
+            client: inv.client,
+            clientName: inv.clientName || inv.client?.name,
+            clientEmail: inv.clientEmail || inv.client?.email,
+            clientPhone: inv.clientPhone || inv.client?.phone,
+            clientAddress: inv.clientAddress || inv.client?.address,
+            dueDate: calculatedDueDate,
+            paymentConditions: echeanceLabel,
+            subtotalHt,
+            tvaAmount: tvaAmt,
+            totalTtc
+        });
     };
 
     const handleFinalise = () => {
-        onFinalise({ ...inv, dueDate: calculatedDueDate, paymentConditions: echeanceLabel, subtotalHt, tvaAmount: tvaAmt, totalTtc });
+        onFinalise({
+            ...inv,
+            clientId: inv.clientId || inv.client?.id,
+            client: inv.client,
+            clientName: inv.clientName || inv.client?.name,
+            clientEmail: inv.clientEmail || inv.client?.email,
+            clientPhone: inv.clientPhone || inv.client?.phone,
+            clientAddress: inv.clientAddress || inv.client?.address,
+            dueDate: calculatedDueDate,
+            paymentConditions: echeanceLabel,
+            subtotalHt,
+            tvaAmount: tvaAmt,
+            totalTtc
+        });
         onClose();
     };
 

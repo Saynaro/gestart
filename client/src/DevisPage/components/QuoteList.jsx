@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { FileText, MoreVertical, Send, Edit2, RefreshCw, Palette, Download, XSquare } from "lucide-react";
 
-function getStatusLabel(status) {
-    const s = String(status || "").toUpperCase();
-    switch (s) {
-        case "DRAFT":    return "Brouillon";
-        case "SENT":     return "Envoyé";
-        case "PENDING":  return "En attente";
-        case "ACCEPTED": return "Signé";
-        case "REFUSED":
-        case "REJECTED": return "Refusé";
-        case "EXPIRED":  return "Expiré";
-        default: return status || "Brouillon";
+function getStatusLabel(q) {
+    if (!q) return "Brouillon";
+    const status = typeof q === "string" ? q : (q.status || "DRAFT");
+    const s = String(status).toUpperCase();
+    if (s === "DRAFT") return "Brouillon";
+    if (s === "ACCEPTED") return "Signé";
+    if (s === "REFUSED" || s === "REJECTED") return "Refusé";
+    if (s === "EXPIRED") return "Expiré";
+    if (s === "SENT" || s === "PENDING") {
+        if (typeof q === "object" && (q.emailSentAt || q.isSentByEmail)) {
+            return "Envoyé";
+        }
+        return "Finalisé";
     }
+    return "Finalisé";
 }
 
 function QuoteList({
@@ -187,7 +190,7 @@ function QuoteList({
 
                     <div className="dv-card-bottom-right">
                         <span className={`dv-status-badge ${(q.status || "DRAFT").toUpperCase()}`}>
-                            {getStatusLabel(q.status)}
+                            {getStatusLabel(q)}
                         </span>
                     </div>
                 </div>

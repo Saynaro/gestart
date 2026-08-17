@@ -22,6 +22,18 @@ function QuotePdfView({ quote, onClose, onDownload }) {
     const companyIban = company?.settings?.bankIban || company?.bankIban || company?.iban || quote.company?.settings?.bankIban || quote.company?.bankIban || "";
     const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
 
+    const rawQuoteDate = quote.date || quote.createdAt || quote.issuedAt;
+    const formattedQuoteDate = rawQuoteDate ? new Date(rawQuoteDate).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
+    
+    const rawQuoteDueDate = quote.validUntil || quote.dueDate || (rawQuoteDate ? new Date(new Date(rawQuoteDate).getTime() + 30 * 86400000) : null);
+    const formattedQuoteDueDate = rawQuoteDueDate ? new Date(rawQuoteDueDate).toLocaleDateString('fr-FR') : formattedQuoteDate;
+
+    const client = quote.client || {};
+    const clientDisplayName = client.companyName || `${client.firstName || ''} ${client.lastName || ''}`.trim() || quote.clientName || "Client";
+    const clientDisplayAddress = client.address || quote.clientAddress || (client.city ? `${client.postalCode || ''} ${client.city}` : "");
+    const clientDisplayEmail = client.email || quote.clientEmail || "";
+    const clientDisplayPhone = client.phone || quote.clientPhone || "";
+
     const handlePrint = () => {
         window.print();
     };
@@ -205,11 +217,11 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                                         </tr>
                                         <tr>
                                             <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Date :</strong></td>
-                                            <td>{new Date(quote.date).toLocaleDateString("fr-FR")}</td>
+                                            <td>{formattedQuoteDate}</td>
                                         </tr>
                                         <tr>
                                             <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Validité :</strong></td>
-                                            <td>{quote.validUntil ? new Date(quote.validUntil).toLocaleDateString("fr-FR") : new Date(new Date(quote.date).setDate(new Date(quote.date).getDate() + 30)).toLocaleDateString("fr-FR")}</td>
+                                            <td>{formattedQuoteDueDate}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -235,21 +247,21 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                                 DEVIS POUR :
                             </span>
                             <h4 className="client-name" style={{ fontSize: "1.1em", fontWeight: 700, margin: 0, color: "#1A1A1A", lineHeight: 1.3 }}>
-                                {quote.clientName}
+                                {clientDisplayName}
                             </h4>
-                            {quote.clientAddress && (
+                            {clientDisplayAddress && (
                                 <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                    {quote.clientAddress}
+                                    {clientDisplayAddress}
                                 </div>
                             )}
-                            {quote.clientEmail && (
+                            {clientDisplayEmail && (
                                 <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                    {quote.clientEmail}
+                                    {clientDisplayEmail}
                                 </div>
                             )}
-                            {quote.clientPhone && (
+                            {clientDisplayPhone && (
                                 <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                    {quote.clientPhone}
+                                    {clientDisplayPhone}
                                 </div>
                             )}
                         </div>
@@ -376,12 +388,23 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                                             fontSize: "0.82em"
                                         }}
                                     >
-                                        {quote.clientSignatureUrl ? (
-                                            <img src={quote.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: "48px", maxWidth: "90%", objectFit: "contain" }} />
+                                        {quote.signatureUrl || quote.clientSignatureUrl ? (
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                                                <img 
+                                                    src={quote.signatureUrl || quote.clientSignatureUrl} 
+                                                    alt="Signature Client" 
+                                                    style={{ maxHeight: "36px", maxWidth: "90%", objectFit: "contain" }} 
+                                                />
+                                                <span style={{ fontSize: "7pt", color: "#16a34a", fontWeight: 600, marginTop: "2px" }}>
+                                                    ✓ Signé le {new Date(quote.signedAt || quote.acceptedAt || quote.date || quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}
+                                                </span>
+                                            </div>
                                         ) : quote.status === "ACCEPTED" ? (
                                             <>
-                                                <span style={{ fontWeight: "bold" }}>✓ Signé électroniquement</span>
-                                                <span style={{ fontSize: "7.5pt", color: "#7C7B82" }}>le {new Date(quote.date).toLocaleDateString("fr-FR")}</span>
+                                                <span style={{ fontWeight: "bold", color: "#16a34a" }}>✓ Signé électroniquement</span>
+                                                <span style={{ fontSize: "7.5pt", color: "#7C7B82" }}>
+                                                    le {new Date(quote.signedAt || quote.acceptedAt || quote.date || quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}
+                                                </span>
                                             </>
                                         ) : (
                                             <>

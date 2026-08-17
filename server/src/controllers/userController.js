@@ -289,7 +289,7 @@ export const updateUser = async (req, res) => {
     }
 };
 
-////// DELETE USER (SOFT DELETE) //////
+////// DELETE USER (TECHNICIAN / MEMBER REMOVAL) //////
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
     const companyId = req.user.companyId;
@@ -306,21 +306,37 @@ export const deleteUser = async (req, res) => {
             });
         }
 
-        // Soft delete: désactivation du compte
-        await prisma.user.update({
-            where: { id },
-            data: { isActive: false }
+        if (targetUser.role === "OWNER" || targetUser.id === req.user.id) {
+            return res.status(400).json({
+                success: false,
+                message: "Vous ne pouvez pas supprimer le compte propriétaire principal de l'entreprise"
+            });
+        }
+
+        await prisma.$transaction(async (tx) => {
+            // Unassign from interventions so they become unassigned
+            await tx.intervention.updateMany({
+                where: { technicianId: id },
+                data: { technicianId: null }
+            });
+            // Delete user sessions, tokens, login histories and notifications
+            await tx.pushToken.deleteMany({ where: { userId: id } });
+            await tx.userSession.deleteMany({ where: { userId: id } });
+            await tx.loginHistory.deleteMany({ where: { userId: id } });
+            await tx.notification.deleteMany({ where: { userId: id } });
+            // Delete user
+            await tx.user.delete({ where: { id } });
         });
 
         return res.status(200).json({
             success: true,
-            message: "Utilisateur désactivé avec succès"
+            message: "Technicien supprimé avec succès de l'entreprise"
         });
     } catch (error) {
         console.error("DELETE USER ERROR:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la désactivation de l'utilisateur",
+            message: "Erreur serveur lors de la suppression de l'utilisateur",
         });
     }
 };

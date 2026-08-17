@@ -40,6 +40,9 @@ import SubscriptionExpiredModal from './components/SubscriptionExpiredModal'
 const CheckoutSubscriptionPage = lazy(() => import('./PublicPages/CheckoutSubscriptionPage'))
 const SubscriptionSuccessPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionSuccessPage })))
 const SubscriptionCancelPage = lazy(() => import('./PublicPages/SubscriptionSuccessPage').then(m => ({ default: m.SubscriptionCancelPage })))
+const PayInvoice = lazy(() => import('./PublicPages/PayInvoice'))
+const SignatureQuote = lazy(() => import('./PublicPages/SignatureQuote'))
+const PublicContact = lazy(() => import('./PublicPages/PublicContact'))
 
 // Route Guard for Private Pages (Requires valid Auth Token)
 function ProtectedRoute({ children }) {
@@ -176,6 +179,12 @@ function App() {
             <Route path="/subscription" element={<ProtectedRoute><CheckoutSubscriptionPage /></ProtectedRoute>} />
             <Route path="/subscription/success" element={<ProtectedRoute><SubscriptionSuccessPage /></ProtectedRoute>} />
             <Route path="/subscription/cancel" element={<ProtectedRoute><SubscriptionCancelPage /></ProtectedRoute>} />
+
+            {/* Public Client Portals (No login required) */}
+            <Route path="/pay/invoice/:token" element={<PayInvoice />} />
+            <Route path="/sign/quote/:token" element={<SignatureQuote />} />
+            <Route path="/devis/:id" element={<SignatureQuote />} />
+            <Route path="/contact/:companySlug" element={<PublicContact />} />
 
             {/* Catch-all Fallback */}
             <Route path="*" element={<Navigate to={isAuthenticated() ? "/home" : "/login"} replace />} />

@@ -6,7 +6,8 @@ import {
     getPublicInvoiceByToken,
     createPublicInvoiceCheckoutSession,
     getPublicQuoteByToken,
-    signPublicQuote
+    signPublicQuote,
+    createPublicQuoteCheckoutSession
 } from "../controllers/publicController.js";
 
 const router = express.Router();
@@ -20,8 +21,9 @@ router.post("/quote-request/:companySlug", submitQuoteRequest);
 router.get("/pay/invoice/:paymentToken", getPublicInvoiceByToken);
 router.post("/pay/invoice/:paymentToken/checkout", createPublicInvoiceCheckoutSession);
 
-// Signature électronique de devis en ligne (lien public pour les clients)
+// Signature électronique & Paiement de devis en ligne (lien public pour les clients)
 router.get("/sign/quote/:signatureToken", getPublicQuoteByToken);
 router.post("/sign/quote/:signatureToken/sign", signPublicQuote);
+router.post("/sign/quote/:signatureToken/checkout", createPublicQuoteCheckoutSession);
 
 export default router;

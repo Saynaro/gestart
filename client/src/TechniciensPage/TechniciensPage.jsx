@@ -17,7 +17,8 @@ import {
     X,
     ExternalLink,
     Star,
-    CheckCircle2
+    CheckCircle2,
+    AlertTriangle
 } from "lucide-react";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
@@ -118,6 +119,28 @@ export default function TechniciensPage() {
         } catch (err) {
             triggerToast(err.message || "Erreur lors de la révocation", true);
             loadData();
+        }
+    };
+
+    // Delete Technician State & Handler
+    const [techToDelete, setTechToDelete] = useState(null);
+    const [isDeletingTech, setIsDeletingTech] = useState(false);
+
+    const handleDeleteTechnician = async () => {
+        if (!techToDelete) return;
+        setIsDeletingTech(true);
+        try {
+            await apiFetch(`/v1/users/${techToDelete.id}`, {
+                method: "DELETE"
+            });
+            const displayName = `${techToDelete.firstName || ''} ${techToDelete.lastName || ''}`.trim() || techToDelete.email;
+            triggerToast(`Technicien "${displayName}" supprimé avec succès`);
+            setTechToDelete(null);
+            loadData();
+        } catch (err) {
+            triggerToast(err.message || "Erreur lors de la suppression du technicien", true);
+        } finally {
+            setIsDeletingTech(false);
         }
     };
 
@@ -273,6 +296,7 @@ export default function TechniciensPage() {
                                             <th>Téléphone</th>
                                             <th>Statut</th>
                                             <th>Date d'ajout</th>
+                                            <th style={{ textAlign: 'right' }}>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -309,6 +333,22 @@ export default function TechniciensPage() {
                                                         </span>
                                                     </td>
                                                     <td>{t.createdAt ? new Date(t.createdAt).toLocaleDateString('fr-FR') : "Récent"}</td>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        {t.role === "OWNER" ? (
+                                                            <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>
+                                                                Compte principal
+                                                            </span>
+                                                        ) : (
+                                                            <button
+                                                                type="button"
+                                                                className="btn-delete-tech-row"
+                                                                title="Supprimer ce technicien"
+                                                                onClick={() => setTechToDelete(t)}
+                                                            >
+                                                                <Trash2 size={15} />
+                                                            </button>
+                                                        )}
+                                                    </td>
                                                 </tr>
                                             );
                                         })}
@@ -518,6 +558,77 @@ export default function TechniciensPage() {
                             triggerToast("Félicitations ! Votre abonnement Pro a été activé.");
                         }}
                     />
+
+                    {/* Delete Technician Warning Modal */}
+                    {techToDelete && (
+                        <div className="tech-modal-overlay" onClick={() => !isDeletingTech && setTechToDelete(null)}>
+                            <motion.div
+                                className="tech-modal-card delete-tech-modal-card"
+                                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <button
+                                    className="tech-modal-close"
+                                    onClick={() => !isDeletingTech && setTechToDelete(null)}
+                                    disabled={isDeletingTech}
+                                >
+                                    <X size={20} />
+                                </button>
+
+                                <div className="delete-tech-icon-container">
+                                    <AlertTriangle size={32} />
+                                </div>
+
+                                <h2 className="delete-tech-modal-title">Supprimer ce technicien ?</h2>
+                                
+                                <p className="delete-tech-modal-desc">
+                                    Vous êtes sur le point de retirer définitivement <strong>{`${techToDelete.firstName || ''} ${techToDelete.lastName || ''}`.trim() || techToDelete.email}</strong> de votre entreprise.
+                                </p>
+
+                                <div className="delete-tech-warning-box">
+                                    <div className="warning-box-header">
+                                        <Shield size={16} />
+                                        <span>Conséquences de la suppression :</span>
+                                    </div>
+                                    <ul className="warning-box-items">
+                                        <li>L'accès du technicien à l'application mobile et aux données CRM sera révoqué immédiatement.</li>
+                                        <li>Ses interventions passées et futures resteront enregistrées mais passeront en statut <strong>« Non assigné »</strong>.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="delete-tech-actions-row">
+                                    <button
+                                        type="button"
+                                        className="btn-cancel-delete"
+                                        disabled={isDeletingTech}
+                                        onClick={() => setTechToDelete(null)}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn-confirm-delete"
+                                        disabled={isDeletingTech}
+                                        onClick={handleDeleteTechnician}
+                                    >
+                                        {isDeletingTech ? (
+                                            <>
+                                                <RefreshCw size={16} className="animate-spin" />
+                                                Suppression en cours...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Trash2 size={16} />
+                                                Confirmer la suppression
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
 
                 </motion.main>
             </div>

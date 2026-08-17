@@ -126,15 +126,18 @@ function DevisPage() {
 
     const handleSaveEdit = async (updatedQuote) => {
         try {
-            await apiFetch(`/v1/quotes/${updatedQuote.id}`, {
+            const res = await apiFetch(`/v1/quotes/${updatedQuote.id}`, {
                 method: 'PUT',
                 body: JSON.stringify(updatedQuote)
             });
-            showToast(`✓ Devis ${updatedQuote.number} mis à jour.`);
+            const fresh = res.data?.quote || res.quote || updatedQuote;
+            setQuotes(prev => prev.map(q => q.id === updatedQuote.id ? { ...q, ...fresh } : q));
+            setActiveQuote(prev => (prev?.id === updatedQuote.id ? { ...prev, ...fresh } : prev));
+            showToast(`✓ Devis ${updatedQuote.number} mis à jour.`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Save quote error:", err);
-            alert(err.message || "Erreur lors de la mise à jour");
+            showToast(err.message || "Erreur lors de la mise à jour", "error");
         } finally {
             setShowEditPanel(false);
         }
@@ -196,9 +199,9 @@ function DevisPage() {
         try {
             await apiFetch(`/v1/quotes/${q.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ status: "SENT" })
+                body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString() })
             });
-            showToast(`Devis ${q.number} marqué comme envoyé.`, "success");
+            showToast(`✓ Devis ${q.number} marqué comme envoyé.`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Send quote error:", err);
@@ -210,15 +213,20 @@ function DevisPage() {
     const handleAutoSend = async (q, targetEmail) => {
         const emailToSend = targetEmail || q.clientEmail || "client";
         try {
-            await apiFetch(`/v1/quotes/${q.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({ status: "SENT", clientEmail: targetEmail || q.clientEmail })
+            await apiFetch(`/v1/quotes/${q.id}/send`, {
+                method: 'POST',
+                body: JSON.stringify({ email: targetEmail || q.clientEmail })
             });
             showToast(`✓ Devis ${q.number} envoyé avec signature à ${emailToSend} !`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Auto send error:", err);
-            showToast(`Devis ${q.number} envoyé à ${emailToSend}`, "success");
+            await apiFetch(`/v1/quotes/${q.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString(), clientEmail: targetEmail || q.clientEmail })
+            });
+            showToast(`✓ Devis ${q.number} envoyé à ${emailToSend}`, "success");
+            fetchQuotes();
         } finally {
             setShowSendDrawer(false);
         }
@@ -232,6 +240,7 @@ function DevisPage() {
                     clientId: newQuote.clientId || newQuote.client?.id,
                     clientName: newQuote.clientName || newQuote.client?.name,
                     clientEmail: newQuote.clientEmail || newQuote.client?.email,
+                    clientPhone: newQuote.clientPhone || newQuote.client?.phone,
                     clientAddress: newQuote.clientAddress || newQuote.client?.address,
                     subject: newQuote.interventionType || newQuote.subject || "Devis Prestation",
                     amountHT: newQuote.subtotalHt || 0,
@@ -244,7 +253,7 @@ function DevisPage() {
                     validUntil: newQuote.dueDate || null
                 })
             });
-            showToast(`Devis créé avec succès !`, "success");
+            showToast(`✓ Devis créé avec succès !`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Create quote API error:", err);
@@ -263,6 +272,26 @@ function DevisPage() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleOpenLinkedInvoice = async (inv) => {
+        setShowDetailDrawer(false);
+        try {
+            const res = await apiFetch(`/v1/invoices/${inv.id}`);
+            const fullInv = res.data?.invoice || res.invoice || inv;
+            if (!fullInv.linkedDevis && !fullInv.linkedQuote && activeQuote) {
+                fullInv.linkedDevis = activeQuote;
+                fullInv.linkedQuote = activeQuote;
+            }
+            setLinkedInvoiceForDrawer(fullInv);
+        } catch (e) {
+            const fallbackInv = { ...inv };
+            if (!fallbackInv.linkedDevis && !fallbackInv.linkedQuote && activeQuote) {
+                fallbackInv.linkedDevis = activeQuote;
+                fallbackInv.linkedQuote = activeQuote;
+            }
+            setLinkedInvoiceForDrawer(fallbackInv);
+        }
     };
 
     return (
@@ -330,7 +359,7 @@ function DevisPage() {
                     onConvertToInvoice={handleConvertToInvoice}
                     onChangeStatus={handleChangeStatus}
                     onEdit={() => { setShowDetailDrawer(false); setShowEditPanel(true); }}
-                    onOpenLinkedInvoice={(inv) => setLinkedInvoiceForDrawer(inv)}
+                    onOpenLinkedInvoice={handleOpenLinkedInvoice}
                     onUpdateQuoteCustomization={handleUpdateQuoteCustomization}
                 />
             )}
@@ -347,6 +376,11 @@ function DevisPage() {
                     onFinalise={() => { }}
                     onMarkPaid={() => { }}
                     onMarkUnpaid={() => { }}
+                    onOpenLinkedDevis={(devis) => {
+                        setLinkedInvoiceForDrawer(null);
+                        setActiveQuote(devis?.id === activeQuote?.id ? activeQuote : (devis || activeQuote));
+                        setShowDetailDrawer(true);
+                    }}
                 />
             )}
 

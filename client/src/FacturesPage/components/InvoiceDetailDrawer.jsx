@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette } from "lucide-react";
+import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette, Lock } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
@@ -36,6 +36,11 @@ function InvoiceDetailDrawer({
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [globalCustomization] = useDocumentCustomization();
     const docCustomization = getEffectiveCustomization(invoice, globalCustomization);
+    const client = invoice.client || {};
+    const clientDisplayName = client.companyName || `${client.firstName || ''} ${client.lastName || ''}`.trim() || invoice.clientName || "Client";
+    const clientDisplayAddress = client.address || invoice.clientAddress || (client.city ? `${client.postalCode || ''} ${client.city}` : "");
+    const clientDisplayEmail = client.email || invoice.clientEmail || "";
+    const clientDisplayPhone = client.phone || invoice.clientPhone || "";
 
     const invoiceLines = (invoice.lines || []).map(l => ({
         ...l,
@@ -50,26 +55,17 @@ function InvoiceDetailDrawer({
     const totalTtc = Number(invoice.totalTtc || invoice.amountTTC || (subtotalHt * (1 + tvaRate / 100)) || 0);
     const tvaAmount = Number(invoice.tvaAmount || (totalTtc - subtotalHt) || 0);
 
-    const isDraft = (invoice.status || "").toLowerCase() === "draft";
-    const isPaid = (invoice.status || "").toLowerCase() === "paid";
-    const isPending = (invoice.status || "").toLowerCase() === "pending" || (invoice.status || "").toLowerCase() === "sent" || (invoice.status || "").toLowerCase() === "overdue";
+    const isDraft = (invoice.status || "").toUpperCase() === "DRAFT";
+    const isPaid = (invoice.status || "").toUpperCase() === "PAID";
+    const isPending = (invoice.status || "").toUpperCase() === "SENT" || (invoice.status || "").toUpperCase() === "FINALIZED" || (invoice.status || "").toUpperCase() === "OVERDUE" || (invoice.status || "").toUpperCase() === "PENDING";
 
-    const linkedDevis = invoice.linkedDevis || (
-        invoice.number === "F-2026-0002" || invoice.number === "F-2026-0001" ? {
-            id: invoice.id,
-            number: `D-2026-000${invoice.id}`,
-            date: "04/07/26",
-            clientName: invoice.clientName,
-            clientEmail: invoice.clientEmail,
-            clientAddress: invoice.clientAddress,
-            subtotalHt: subtotalHt,
-            tvaRate: tvaRate,
-            tvaAmount: tvaAmount,
-            totalTtc: totalTtc,
-            status: "ACCEPTED",
-            statusLabel: "Signé"
-        } : null
-    );
+    const linkedDevis = invoice.linkedDevis || invoice.linkedQuote || invoice.sourceQuote;
+
+    const rawDocDate = invoice.issuedAt || invoice.date || invoice.createdAt;
+    const formattedDocDate = rawDocDate ? new Date(rawDocDate).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
+    
+    const rawDueDate = invoice.dueAt || invoice.dueDate || (rawDocDate ? new Date(new Date(rawDocDate).getTime() + (invoice.paymentDelay || 30) * 86400000) : null);
+    const dueDate = rawDueDate ? new Date(rawDueDate).toLocaleDateString("fr-FR") : formattedDocDate;
 
     React.useEffect(() => {
         window.history.pushState({ invoiceDetail: true }, "");
@@ -81,10 +77,6 @@ function InvoiceDetailDrawer({
             window.removeEventListener("popstate", handlePopState);
         };
     }, []);
-
-    const dueDate = invoice.dueDate
-        ? new Date(invoice.dueDate).toLocaleDateString("fr-FR")
-        : new Date(new Date(invoice.date).setDate(new Date(invoice.date).getDate() + (invoice.paymentDelay || 30))).toLocaleDateString("fr-FR");
 
     const companyDisplayName = company?.name || invoice.company?.name || "Mon Entreprise";
     const companyDisplayAddress = company?.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "Adresse non renseignée";
@@ -200,7 +192,7 @@ function InvoiceDetailDrawer({
                                 </tr>
                                 <tr>
                                     <td><strong>Date :</strong></td>
-                                    <td>{new Date(invoice.date).toLocaleDateString('fr-FR')}</td>
+                                    <td>{formattedDocDate}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Échéance :</strong></td>
@@ -229,21 +221,21 @@ function InvoiceDetailDrawer({
                         FACTURÉ À :
                     </span>
                     <h3 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
-                        {invoice.clientName}
+                        {clientDisplayName}
                     </h3>
-                    {invoice.clientAddress && (
+                    {clientDisplayAddress && (
                         <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {invoice.clientAddress}
+                            {clientDisplayAddress}
                         </div>
                     )}
-                    {invoice.clientEmail && (
+                    {clientDisplayEmail && (
                         <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {invoice.clientEmail}
+                            {clientDisplayEmail}
                         </div>
                     )}
-                    {invoice.clientPhone && (
+                    {clientDisplayPhone && (
                         <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {invoice.clientPhone}
+                            {clientDisplayPhone}
                         </div>
                     )}
                 </div>
@@ -258,8 +250,8 @@ function InvoiceDetailDrawer({
                         </tr>
                     </thead>
                     <tbody>
-                        {(invoice.lines && invoice.lines.length > 0) ? (
-                            invoice.lines.map((line, idx) => {
+                        {(invoiceLines && invoiceLines.length > 0) ? (
+                            invoiceLines.map((line, idx) => {
                                 const q = Number(line.quantity || line.qty || 1);
                                 const p = Number(line.unitPrice) || 0;
                                 return (
@@ -278,8 +270,8 @@ function InvoiceDetailDrawer({
                             <tr style={{ borderBottom: '1px solid #EAEAE6' }}>
                                 <td style={{ padding: '6px 8px' }}>{invoice.interventionType || invoice.subject || "Prestation"}</td>
                                 <td className="text-center" style={{ padding: '6px', whiteSpace: 'nowrap' }}>1</td>
-                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(Number(invoice.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
-                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{(Number(invoice.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{subtotalHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                <td className="text-right" style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{subtotalHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                         )}
                     </tbody>
@@ -290,15 +282,15 @@ function InvoiceDetailDrawer({
                         <tbody>
                             <tr>
                                 <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>Sous-total HT :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(Number(invoice.subtotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{subtotalHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                             <tr>
-                                <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>TVA ({invoice.tvaRate || 20}%) :</td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{(Number(invoice.tvaAmount) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                <td style={{ whiteSpace: 'nowrap', padding: '4px 8px' }}>TVA ({tvaRate}%) :</td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px' }}>{tvaAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                             </tr>
                             <tr className="grand-total-row" style={{ backgroundColor: docCustomization.primaryColor || '#556B2F', color: '#FFFFFF', fontWeight: 700 }}>
                                 <td style={{ whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>TOTAL TTC :</strong></td>
-                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{(Number(invoice.totalTtc) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</strong></td>
+                                <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px', fontSize: '1.05em' }}><strong>{totalTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -351,8 +343,17 @@ function InvoiceDetailDrawer({
                                     fontSize: '0.82em'
                                 }}
                             >
-                                {invoice.clientSignatureUrl ? (
-                                    <img src={invoice.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} />
+                                {invoice.signatureUrl || invoice.clientSignatureUrl ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                        <img 
+                                            src={invoice.signatureUrl || invoice.clientSignatureUrl} 
+                                            alt="Signature Client" 
+                                            style={{ maxHeight: '36px', maxWidth: '90%', objectFit: 'contain' }} 
+                                        />
+                                        <span style={{ fontSize: '7pt', color: '#16a34a', fontWeight: 600, marginTop: '2px' }}>
+                                            ✓ Signé le {new Date(invoice.paidAt || invoice.date || invoice.createdAt || Date.now()).toLocaleDateString('fr-FR')}
+                                        </span>
+                                    </div>
                                 ) : (
                                     <>
                                         <span style={{ fontStyle: 'italic', fontSize: '0.78em' }}>Mention "Bon pour accord"</span>
@@ -371,7 +372,8 @@ function InvoiceDetailDrawer({
                         else rightItems.push(renderCompanySig());
                     }
 
-                    if (docCustomization.showClientSignature !== false) {
+                    // By default OFF for Factures (standard French accounting), activatable in "Personnaliser"
+                    if (docCustomization.showClientSignature === true) {
                         if (clPos === "left") leftItems.push(renderClientSig());
                         else rightItems.push(renderClientSig());
                     }
@@ -432,9 +434,11 @@ function InvoiceDetailDrawer({
                                             <button className="fp-dots-menu-item" onClick={onSend}>
                                                 <Send size={15} /> Envoyer la facture
                                             </button>
-                                            <button className="fp-dots-menu-item" onClick={onEdit}>
-                                                <Edit2 size={15} /> Modifier la facture
-                                            </button>
+                                            {isDraft && (
+                                                <button className="fp-dots-menu-item" onClick={onEdit}>
+                                                    <Edit2 size={15} /> Modifier la facture
+                                                </button>
+                                            )}
                                             <button className="fp-dots-menu-item" onClick={() => setShowCustomizer(true)}>
                                                 <Palette size={15} /> Personnaliser le document
                                             </button>
@@ -504,14 +508,20 @@ function InvoiceDetailDrawer({
                                 <div className="fp-drawer-section-title">Client</div>
                                 <div className="fp-drawer-row">
                                     <span className="fp-drawer-row-label">Nom</span>
-                                    <span className="fp-drawer-row-value bold">{invoice.clientName}</span>
+                                    <span className="fp-drawer-row-value bold">{clientDisplayName}</span>
                                 </div>
-                                {invoice.clientEmail && (
-                                    <div className="fp-drawer-row">
-                                        <span className="fp-drawer-row-label">Email</span>
-                                        <span className="fp-drawer-row-value">{invoice.clientEmail}</span>
-                                    </div>
-                                )}
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Email</span>
+                                    <span className="fp-drawer-row-value">{clientDisplayEmail || "Non renseigné"}</span>
+                                </div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Téléphone</span>
+                                    <span className="fp-drawer-row-value">{clientDisplayPhone || "Non renseigné"}</span>
+                                </div>
+                                <div className="fp-drawer-row">
+                                    <span className="fp-drawer-row-label">Adresse</span>
+                                    <span className="fp-drawer-row-value">{clientDisplayAddress || "Non renseignée"}</span>
+                                </div>
                             </div>
 
                             {/* Info Section */}
@@ -533,31 +543,31 @@ function InvoiceDetailDrawer({
                                                 ? "rgba(34, 197, 94, 0.12)"
                                                 : isDraft
                                                 ? "rgba(156, 163, 175, 0.15)"
-                                                : (invoice.status || "").toLowerCase() === "sent"
-                                                ? "rgba(59, 130, 246, 0.12)"
                                                 : (invoice.status || "").toLowerCase() === "overdue"
                                                 ? "rgba(239, 68, 68, 0.12)"
-                                                : "rgba(234, 179, 8, 0.15)",
+                                                : (invoice.emailSentAt || invoice.isSentByEmail)
+                                                ? "rgba(59, 130, 246, 0.12)"
+                                                : "rgba(147, 51, 234, 0.12)",
                                             color: isPaid
                                                 ? "#16a34a"
                                                 : isDraft
                                                 ? "#6b7280"
-                                                : (invoice.status || "").toLowerCase() === "sent"
-                                                ? "#2563eb"
                                                 : (invoice.status || "").toLowerCase() === "overdue"
                                                 ? "#dc2626"
-                                                : "#ca8a04",
+                                                : (invoice.emailSentAt || invoice.isSentByEmail)
+                                                ? "#2563eb"
+                                                : "#9333ea",
                                             display: "inline-flex",
                                             alignItems: "center",
                                             gap: "5px"
                                         }}
                                     >
-                                        {isPaid ? "Payée" : isDraft ? "Brouillon" : (invoice.status || "").toLowerCase() === "sent" ? "Envoyée" : (invoice.status || "").toLowerCase() === "overdue" ? "En retard" : "En attente"}
+                                        {isPaid ? "Payée" : isDraft ? "Brouillon" : (invoice.status || "").toLowerCase() === "overdue" ? "En retard" : (invoice.emailSentAt || invoice.isSentByEmail) ? "Envoyée" : "Finalisée"}
                                     </span>
                                 </div>
                                 <div className="fp-drawer-row">
                                     <span className="fp-drawer-row-label">Date d'émission</span>
-                                    <span className="fp-drawer-row-value">{new Date(invoice.date).toLocaleDateString("fr-FR")}</span>
+                                    <span className="fp-drawer-row-value">{formattedDocDate}</span>
                                 </div>
                                 <div className="fp-drawer-row">
                                     <span className="fp-drawer-row-label">Date d'exigibilité</span>
@@ -730,10 +740,16 @@ function InvoiceDetailDrawer({
                             </button>
 
                             {/* Modifier */}
-                            <button className="fp-drawer-action-link" onClick={onEdit}>
-                                <Edit2 size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />
-                                Modifier la facture
-                            </button>
+                            {isDraft ? (
+                                <button className="fp-drawer-action-link" onClick={onEdit}>
+                                    <Edit2 size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                                    Modifier la facture
+                                </button>
+                            ) : (
+                                <div style={{ fontSize: "11.5px", color: "var(--muted-foreground)", textAlign: "center", paddingTop: "6px", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+                                    <Lock size={12} /> Facture finalisée · Non modifiable
+                                </div>
+                            )}
                         </div>
                     </aside>
                     {/* RIGHT: live preview (desktop only) */}

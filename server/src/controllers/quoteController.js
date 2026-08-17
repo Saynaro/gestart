@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { prisma } from "../config/db.js";
+import { sendQuoteClientEmail } from "../utils/emailService.js";
 
 ////// GET PAGINATED QUOTES //////
 export const getQuotes = async (req, res) => {
@@ -280,7 +281,7 @@ export const createQuote = async (req, res) => {
             const calculatedTVA = parseFloat(tvaRate) || 20;
             const computedTTC = computedHT * (1 + calculatedTVA / 100);
 
-            const targetStatus = req.body.status === "draft" || req.body.status === "DRAFT" ? "DRAFT" : "SENT";
+            const targetStatus = req.body.status && ["SENT", "ACCEPTED", "REFUSED"].includes(req.body.status.toUpperCase()) ? req.body.status.toUpperCase() : "DRAFT";
 
             const quote = await tx.quote.create({
                 data: {
@@ -410,8 +411,19 @@ export const updateQuote = async (req, res) => {
             depositAmount,
             subject,
             interventionType,
-            lines
+            lines,
+            emailSentAt
         } = req.body;
+
+        // Block modifying core fields (client, items, amounts) if quote is already sent or accepted
+        const isCurrentlyDraft = (existingQuote.status || "").toUpperCase() === "DRAFT";
+        const isModifyingContent = lines !== undefined || clientId !== undefined || clientName !== undefined || clientEmail !== undefined || amountHT !== undefined || subtotalHt !== undefined;
+        if (!isCurrentlyDraft && isModifyingContent) {
+            return res.status(400).json({
+                success: false,
+                message: "Ce devis a déjà été envoyé ou accepté. Conformément aux règles de devis, son contenu et son client ne peuvent plus être modifiés."
+            });
+        }
 
         const parseSafeDate = (val) => {
             if (!val) return undefined;
@@ -532,7 +544,8 @@ export const updateQuote = async (req, res) => {
                     ...(paymentConditions !== undefined && { paymentConditions }),
                     ...(depositPercent !== undefined && { depositPercent: parseFloat(depositPercent) }),
                     ...(depositAmount !== undefined && { depositAmount: parseFloat(depositAmount) }),
-                    ...((subject !== undefined || interventionType !== undefined) && { subject: subject ?? interventionType })
+                    ...((subject !== undefined || interventionType !== undefined) && { subject: subject ?? interventionType }),
+                    ...(emailSentAt !== undefined && { emailSentAt: emailSentAt ? new Date(emailSentAt) : null })
                 },
                 include: {
                     lines: { orderBy: { position: "asc" } },
@@ -592,12 +605,13 @@ export const updateQuote = async (req, res) => {
 ////// SEND QUOTE BY EMAIL //////
 export const sendQuote = async (req, res) => {
     const { id } = req.params;
+    const { email: customTargetEmail } = req.body || {};
     const companyId = req.user.companyId;
 
     try {
         const quote = await prisma.quote.findFirst({
             where: { id, companyId },
-            include: { client: true }
+            include: { client: true, company: true }
         });
 
         if (!quote) {
@@ -623,19 +637,30 @@ export const sendQuote = async (req, res) => {
         }
 
         const signatureUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/sign/quote/${token}`;
+        const recipientEmail = customTargetEmail || quote.client?.email;
+
+        if (recipientEmail) {
+            await sendQuoteClientEmail({
+                to: recipientEmail,
+                quote,
+                company: quote.company,
+                signatureUrl,
+                senderEmail: req.user?.email || quote.company?.email
+            });
+        }
 
         const updatedQuote = await prisma.quote.update({
             where: { id },
             data: {
                 status: "SENT",
                 emailSentAt: new Date(),
-                emailSentTo: quote.client.email || undefined,
+                emailSentTo: recipientEmail || undefined,
             }
         });
 
         return res.status(200).json({
             success: true,
-            message: `Devis ${quote.number} marqué comme envoyé à ${quote.client.email || 'client'}`,
+            message: `Devis ${quote.number} envoyé avec succès à ${recipientEmail || 'client'}`,
             data: {
                 quote: updatedQuote,
                 signatureToken: token,
@@ -730,6 +755,8 @@ export const convertQuoteToInvoice = async (req, res) => {
             const dueAt = new Date();
             dueAt.setDate(dueAt.getDate() + (settings.defaultPaymentDays || 30));
 
+            const isQuoteAccepted = quote.status === "ACCEPTED";
+
             const newInvoice = await tx.invoice.create({
                 data: {
                     companyId,
@@ -737,10 +764,13 @@ export const convertQuoteToInvoice = async (req, res) => {
                     interventionId: quote.interventionId || null,
                     sourceQuoteId: quote.id,
                     number: invoiceNumberFormatted,
-                    status: "DRAFT",
+                    status: isQuoteAccepted ? "PAID" : "DRAFT",
                     amountHT: quote.amountHT,
                     tvaRate: quote.tvaRate,
                     amountTTC: quote.amountTTC,
+                    amountPaid: isQuoteAccepted ? quote.amountTTC : 0,
+                    paidAt: isQuoteAccepted ? (quote.acceptedAt || new Date()) : null,
+                    paymentMethod: isQuoteAccepted ? "CARD" : null,
                     subject: quote.subject,
                     notes: quote.notes,
                     conditions: quote.conditions || settings.invoiceConditions,
@@ -762,7 +792,7 @@ export const convertQuoteToInvoice = async (req, res) => {
                 include: { lines: true, client: true }
             });
 
-            // Marquer le devis comme accepté
+            // Marquer le devis comme accepté s'il ne l'était pas
             await tx.quote.update({
                 where: { id: quote.id },
                 data: {

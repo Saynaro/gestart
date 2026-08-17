@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { FileText, MoreVertical, Send, Edit2, CheckCircle2, Download, Palette } from "lucide-react";
 
-function getStatusLabel(status) {
-    const s = String(status || "").toLowerCase();
-    switch (s) {
-        case "draft":     return "Brouillon";
-        case "sent":      return "Envoyée";
-        case "pending":   return "En attente";
-        case "paid":      return "Payée";
-        case "overdue":   return "En retard";
-        case "finalised": return "Finalisé";
-        case "accepted":  return "Acceptée";
-        case "refused":
-        case "rejected":  return "Refusée";
-        case "cancelled": return "Annulée";
-        default: return status || "Brouillon";
+function getStatusLabel(inv) {
+    if (!inv) return "Brouillon";
+    const status = typeof inv === "string" ? inv : (inv.status || "draft");
+    const s = String(status).toLowerCase();
+    if (s === "paid") return "Payée";
+    if (s === "overdue") return "En retard";
+    if (s === "draft") return "Brouillon";
+    if (s === "sent" || s === "pending") {
+        if (typeof inv === "object" && (inv.emailSentAt || inv.isSentByEmail)) {
+            return "Envoyée";
+        }
+        return "Finalisée";
     }
+    if (s === "finalised") return "Finalisée";
+    return "Finalisée";
 }
 
 function InvoiceList({
@@ -175,7 +175,7 @@ function InvoiceList({
 
                     <div className="fp-card-bottom-right">
                         <span className={`fp-status-badge ${(inv.status || "draft").toLowerCase()}`}>
-                            {getStatusLabel(inv.status)}
+                            {getStatusLabel(inv)}
                         </span>
                     </div>
                 </div>

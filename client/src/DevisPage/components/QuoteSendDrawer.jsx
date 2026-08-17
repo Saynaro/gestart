@@ -1,21 +1,32 @@
 import React, { useState } from "react";
-import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, ExternalLink } from "lucide-react";
+import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, AlertTriangle, CreditCard, Building } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../../utils/useUser";
 
 function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf }) {
-    const [viewMode, setViewMode] = useState("main"); // "main" | "self" | "auto"
+    const navigate = useNavigate();
+    const { company } = useUser();
+    const [viewMode, setViewMode] = useState("main"); // "main" | "self" | "auto" | "iban_warning"
     const [copied, setCopied] = useState(false);
     const [targetEmail, setTargetEmail] = useState(() => quote?.clientEmail || quote?.client?.email || "");
     const [isSending, setIsSending] = useState(false);
 
     if (!quote) return null;
 
+    const hasIban = !!(company?.settings?.bankIban || company?.bankIban || company?.iban);
     const docNumber = quote.number || `D-${quote.id}`;
     const clientName = quote.clientName || "Client";
     const totalTtc = Number(quote.totalTtc || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/devis/${quote.id || ''}` : `https://gestart.fr/devis/${quote.id || ''}`;
-    const defaultMsg = `Bonjour ${clientName},\n\nVeuillez trouver votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\nVous pouvez le consulter et le signer en ligne ici : ${shareUrl}\n\nCordialement,`;
+    const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/sign/quote/${quote.signatureToken || quote.id || ''}` : `https://gestart.fr/sign/quote/${quote.signatureToken || quote.id || ''}`;
+    const defaultMsg = `Bonjour ${clientName},\n\nVeuillez trouver votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\nVous pouvez le consulter, le signer en ligne avec valeur légale et régler par carte bancaire ici :\n${shareUrl}\n\nCordialement,\n${company?.name || 'Votre entreprise'}`;
 
-    const handleCopyLink = () => {
+    const handleCopyText = () => {
+        navigator.clipboard.writeText(defaultMsg);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+    };
+
+    const handleCopyLinkOnly = () => {
         navigator.clipboard.writeText(shareUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
@@ -51,6 +62,14 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
         if (onSelfSend) onSelfSend(quote);
     };
 
+    const handleStartAutoSend = () => {
+        if (!hasIban) {
+            setViewMode("iban_warning");
+        } else {
+            setViewMode("auto");
+        }
+    };
+
     const handleConfirmAutoSend = async () => {
         setIsSending(true);
         try {
@@ -78,8 +97,9 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                         )}
                         <span className="dv-send-drawer-title">
                             {viewMode === "main" && "Envoyer le devis"}
-                            {viewMode === "self" && "Modes d'envoi disponibles"}
-                            {viewMode === "auto" && "Envoi avec signature"}
+                            {viewMode === "self" && "Envoyer par moi-même"}
+                            {viewMode === "iban_warning" && "Coordonnées bancaires"}
+                            {viewMode === "auto" && "Envoi automatique & Signature"}
                         </span>
                     </div>
                     <button className="dv-send-close-btn" onClick={onClose} aria-label="Fermer">
@@ -97,104 +117,227 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                             </div>
                             <div style={{ flex: 1, textAlign: 'left' }}>
                                 <span className="dv-send-option-label">Envoyer par moi-même</span>
-                                <span className="dv-send-option-desc">Télécharger, SMS, WhatsApp, Mail perso...</span>
+                                <span className="dv-send-option-desc">Copier le texte, SMS, WhatsApp, Mail perso, PDF...</span>
                             </div>
                         </button>
 
                         {/* Option 2: Auto Send */}
-                        <button className="dv-send-option" onClick={() => setViewMode("auto")}>
+                        <button className="dv-send-option" onClick={handleStartAutoSend}>
                             <div className="dv-send-option-icon" style={{ backgroundColor: "rgba(85,107,47,0.12)" }}>
                                 <Send size={20} style={{ color: "#556B2F" }} />
                             </div>
                             <div style={{ flex: 1, textAlign: 'left' }}>
-                                <span className="dv-send-option-label">Envoyer avec signature</span>
-                                <span className="dv-send-option-desc">E-mail professionnel direct avec signature client</span>
+                                <span className="dv-send-option-label">Envoyer automatiquement</span>
+                                <span className="dv-send-option-desc">E-mail certifié avec PDF + lien de signature & paiement</span>
                             </div>
                         </button>
+                    </div>
+                )}
+
+                {/* VIEW IBAN WARNING: If IBAN is not set */}
+                {viewMode === "iban_warning" && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '6px 0' }}>
+                        <div style={{
+                            padding: '16px',
+                            borderRadius: '12px',
+                            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                            border: '1px solid rgba(245, 158, 11, 0.25)',
+                            display: 'flex',
+                            gap: '12px',
+                            alignItems: 'flex-start'
+                        }}>
+                            <AlertTriangle size={24} style={{ color: '#D97706', flexShrink: 0, marginTop: '2px' }} />
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#D97706' }}>
+                                    IBAN non renseigné dans votre compte
+                                </h4>
+                                <p style={{ margin: '6px 0 0 0', fontSize: '12.5px', color: 'var(--foreground)', lineHeight: 1.45 }}>
+                                    Pour que vos clients puissent régler ce devis en ligne et recevoir vos coordonnées bancaires sur le PDF, nous vous recommandons de renseigner votre IBAN.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onClose();
+                                    navigate('/settings?tab=entreprise');
+                                }}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    padding: '12px 18px',
+                                    borderRadius: '10px',
+                                    border: 'none',
+                                    backgroundColor: '#556B2F',
+                                    color: '#ffffff',
+                                    fontWeight: 700,
+                                    fontSize: '13.5px',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(85, 107, 47, 0.3)'
+                                }}
+                            >
+                                <Building size={16} />
+                                <span>Renseigner mon IBAN maintenant</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setViewMode("auto")}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    padding: '11px 18px',
+                                    borderRadius: '10px',
+                                    border: '1px solid var(--border)',
+                                    backgroundColor: 'var(--card, #FFFFFF)',
+                                    color: 'var(--foreground)',
+                                    fontWeight: 600,
+                                    fontSize: '13px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <Send size={15} style={{ color: 'var(--muted-foreground)' }} />
+                                <span>Envoyer sans lien de paiement</span>
+                            </button>
+                        </div>
                     </div>
                 )}
 
                 {/* VIEW 2: Send by myself channels */}
                 {viewMode === "self" && (
-                    <div className="dv-send-options" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {/* Download PDF */}
-                        <button className="dv-send-option" onClick={handleDownload}>
-                            <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-                                <Download size={18} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {/* Copyable Formatted Text Box */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--foreground)' }}>
+                                    Message prêt à copier & envoyer :
+                                </label>
+                                <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>Avec lien de signature</span>
                             </div>
-                            <div style={{ flex: 1, textAlign: 'left' }}>
-                                <span className="dv-send-option-label">Télécharger le PDF</span>
-                                <span className="dv-send-option-desc">Imprimer ou enregistrer le fichier PDF</span>
-                            </div>
-                        </button>
+                            <textarea
+                                readOnly
+                                value={defaultMsg}
+                                rows={5}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 12px',
+                                    borderRadius: '10px',
+                                    border: '1px solid var(--border)',
+                                    backgroundColor: 'var(--background)',
+                                    color: 'var(--foreground)',
+                                    fontSize: '12.5px',
+                                    lineHeight: '1.45',
+                                    fontFamily: 'inherit',
+                                    resize: 'none'
+                                }}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleCopyText}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    padding: '10px 14px',
+                                    borderRadius: '8px',
+                                    border: '1.5px solid #556B2F',
+                                    backgroundColor: 'rgba(85, 107, 47, 0.08)',
+                                    color: '#556B2F',
+                                    fontWeight: 700,
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.15s ease'
+                                }}
+                            >
+                                {copied ? <Check size={16} color="#16a34a" /> : <Copy size={16} />}
+                                <span>{copied ? "Texte copié avec succès !" : "Copier le texte complet"}</span>
+                            </button>
+                        </div>
 
-                        {/* WhatsApp */}
-                        <button className="dv-send-option" onClick={handleOpenWhatsApp}>
-                            <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(37, 211, 102, 0.12)', color: '#25D366' }}>
-                                <MessageCircle size={18} />
-                            </div>
-                            <div style={{ flex: 1, textAlign: 'left' }}>
-                                <span className="dv-send-option-label">Partager par WhatsApp</span>
-                                <span className="dv-send-option-desc">Ouvre WhatsApp avec le lien du devis</span>
-                            </div>
-                        </button>
+                        <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '4px 0' }} />
 
-                        {/* SMS */}
-                        <button className="dv-send-option" onClick={handleOpenSms}>
-                            <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', color: '#a855f7' }}>
-                                <MessageSquare size={18} />
-                            </div>
-                            <div style={{ flex: 1, textAlign: 'left' }}>
-                                <span className="dv-send-option-label">Envoyer par SMS</span>
-                                <span className="dv-send-option-desc">Ouvre l'application SMS de votre appareil</span>
-                            </div>
-                        </button>
+                        {/* Quick Channels */}
+                        <div className="dv-send-options" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {/* Download PDF */}
+                            <button className="dv-send-option" onClick={handleDownload}>
+                                <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                                    <Download size={18} />
+                                </div>
+                                <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <span className="dv-send-option-label">Télécharger le PDF</span>
+                                    <span className="dv-send-option-desc">Imprimer ou enregistrer le fichier PDF</span>
+                                </div>
+                            </button>
 
-                        {/* Mail Client */}
-                        <button className="dv-send-option" onClick={handleOpenMailClient}>
-                            <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(234, 88, 12, 0.12)', color: '#ea580c' }}>
-                                <Mail size={18} />
-                            </div>
-                            <div style={{ flex: 1, textAlign: 'left' }}>
-                                <span className="dv-send-option-label">Mon application e-mail (Mail / Gmail)</span>
-                                <span className="dv-send-option-desc">Ouvre votre messagerie avec le message prêt</span>
-                            </div>
-                        </button>
+                            {/* WhatsApp */}
+                            <button className="dv-send-option" onClick={handleOpenWhatsApp}>
+                                <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(37, 211, 102, 0.12)', color: '#25D366' }}>
+                                    <MessageCircle size={18} />
+                                </div>
+                                <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <span className="dv-send-option-label">Partager par WhatsApp</span>
+                                    <span className="dv-send-option-desc">Ouvre WhatsApp avec le message et le lien</span>
+                                </div>
+                            </button>
 
-                        {/* Copy Link */}
-                        <button className="dv-send-option" onClick={handleCopyLink}>
-                            <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(100, 116, 139, 0.12)', color: '#64748b' }}>
-                                {copied ? <Check size={18} color="#16a34a" /> : <Copy size={18} />}
-                            </div>
-                            <div style={{ flex: 1, textAlign: 'left' }}>
-                                <span className="dv-send-option-label">{copied ? "Lien copié dans le presse-papier !" : "Copier le lien du devis"}</span>
-                                <span className="dv-send-option-desc">Collez le lien où vous voulez</span>
-                            </div>
-                        </button>
+                            {/* SMS */}
+                            <button className="dv-send-option" onClick={handleOpenSms}>
+                                <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', color: '#a855f7' }}>
+                                    <MessageSquare size={18} />
+                                </div>
+                                <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <span className="dv-send-option-label">Envoyer par SMS</span>
+                                    <span className="dv-send-option-desc">Ouvre l'application SMS de votre téléphone</span>
+                                </div>
+                            </button>
+
+                            {/* Mail Client */}
+                            <button className="dv-send-option" onClick={handleOpenMailClient}>
+                                <div className="dv-send-option-icon" style={{ backgroundColor: 'rgba(234, 88, 12, 0.12)', color: '#ea580c' }}>
+                                    <Mail size={18} />
+                                </div>
+                                <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <span className="dv-send-option-label">Mon application e-mail (Mail / Gmail)</span>
+                                    <span className="dv-send-option-desc">Ouvre votre messagerie avec le texte pré-rempli</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 )}
 
-                {/* VIEW 3: Auto Send with Signature Confirmation */}
+                {/* VIEW 3: Auto Send with Signature & Payment Notice */}
                 {viewMode === "auto" && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '4px 0' }}>
-                        {/* Info Banner */}
+                        {/* Info Banner with Signature + Payment details */}
                         <div style={{
-                            padding: '12px 16px',
-                            borderRadius: '10px',
+                            padding: '14px 16px',
+                            borderRadius: '12px',
                             backgroundColor: 'rgba(85, 107, 47, 0.08)',
-                            border: '1px solid rgba(85, 107, 47, 0.2)',
+                            border: '1px solid rgba(85, 107, 47, 0.25)',
                             display: 'flex',
                             gap: '12px',
                             alignItems: 'flex-start'
                         }}>
-                            <ShieldCheck size={20} style={{ color: '#556B2F', flexShrink: 0, marginTop: '2px' }} />
+                            <ShieldCheck size={22} style={{ color: '#556B2F', flexShrink: 0, marginTop: '2px' }} />
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#556B2F' }}>
-                                    Envoi d'un e-mail certifié avec signature
+                                <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 700, color: '#556B2F' }}>
+                                    Envoi certifié avec signature & lien de paiement
                                 </h4>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>
-                                    Le devis <strong>{docNumber}</strong> ({totalTtc} € TTC) sera envoyé automatiquement par e-mail avec un lien sécurisé permettant au client de signer en ligne avec valeur légale.
+                                <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: 'var(--foreground)', lineHeight: 1.45 }}>
+                                    Le devis <strong>{docNumber}</strong> ({totalTtc} € TTC) sera envoyé par e-mail avec :
                                 </p>
+                                <ul style={{ margin: '6px 0 0 0', paddingLeft: '18px', fontSize: '12px', color: 'var(--muted-foreground)', lineHeight: 1.45 }}>
+                                    <li>Le devis officiel en fichier <strong>PDF attaché</strong>.</li>
+                                    <li>Un lien sécurisé pour <strong>signer en ligne avec valeur légale</strong>.</li>
+                                    <li>Une <strong>option de règlement en ligne par carte bancaire (Stripe)</strong>.</li>
+                                </ul>
                             </div>
                         </div>
 

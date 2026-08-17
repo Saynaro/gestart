@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { stripe } from "../config/stripe.js";
 
 ////// PUBLIC PLANS LIST (FOR LANDING PAGE) //////
 export const getPublicPlans = async (req, res) => {
@@ -154,18 +155,32 @@ export const getPublicInvoiceByToken = async (req, res) => {
     const { paymentToken } = req.params;
 
     try {
-        const invoice = await prisma.invoice.findUnique({
-            where: { paymentToken },
+        const invoice = await prisma.invoice.findFirst({
+            where: {
+                OR: [
+                    { paymentToken },
+                    { id: paymentToken }
+                ]
+            },
             include: {
                 company: {
                     select: {
+                        id: true,
                         name: true,
                         logoUrl: true,
                         phone: true,
                         email: true,
                         address: true,
                         city: true,
-                        postalCode: true
+                        postalCode: true,
+                        siret: true,
+                        settings: {
+                            select: {
+                                bankIban: true,
+                                bankBic: true,
+                                bankName: true
+                            }
+                        }
                     }
                 },
                 client: {
@@ -174,7 +189,8 @@ export const getPublicInvoiceByToken = async (req, res) => {
                         lastName: true,
                         companyName: true,
                         email: true,
-                        phone: true
+                        phone: true,
+                        address: true
                     }
                 },
                 lines: { orderBy: { position: "asc" } }
@@ -214,8 +230,13 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
     const { paymentToken } = req.params;
 
     try {
-        const invoice = await prisma.invoice.findUnique({
-            where: { paymentToken },
+        const invoice = await prisma.invoice.findFirst({
+            where: {
+                OR: [
+                    { paymentToken },
+                    { id: paymentToken }
+                ]
+            },
             include: { company: true, client: true }
         });
 
@@ -226,7 +247,40 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
             });
         }
 
-        const checkoutUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?invoiceId=${invoice.id}`;
+        let checkoutUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?invoiceId=${invoice.id}`;
+
+        if (stripe) {
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'eur',
+                            product_data: {
+                                name: `Facture ${invoice.number} - ${invoice.company?.name || 'Prestation'}`,
+                                description: invoice.subject || 'Règlement de facture',
+                            },
+                            unit_amount: Math.round(Number(invoice.amountTTC) * 100),
+                        },
+                        quantity: 1,
+                    },
+                ],
+                mode: 'payment',
+                customer_email: invoice.client?.email || undefined,
+                client_reference_id: invoice.id,
+                metadata: {
+                    invoiceId: invoice.id,
+                    companyId: invoice.companyId,
+                    type: 'INVOICE_PAYMENT'
+                },
+                success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?invoiceId=${invoice.id}&session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/invoice/${paymentToken}?canceled=true`,
+            });
+
+            if (session?.url) {
+                checkoutUrl = session.url;
+            }
+        }
 
         return res.status(200).json({
             success: true,
@@ -251,18 +305,32 @@ export const getPublicQuoteByToken = async (req, res) => {
     const { signatureToken } = req.params;
 
     try {
-        let quote = await prisma.quote.findUnique({
-            where: { signatureToken },
+        let quote = await prisma.quote.findFirst({
+            where: {
+                OR: [
+                    { signatureToken },
+                    { id: signatureToken }
+                ]
+            },
             include: {
                 company: {
                     select: {
+                        id: true,
                         name: true,
                         logoUrl: true,
                         phone: true,
                         email: true,
                         address: true,
                         city: true,
-                        postalCode: true
+                        postalCode: true,
+                        siret: true,
+                        settings: {
+                            select: {
+                                bankIban: true,
+                                bankBic: true,
+                                bankName: true
+                            }
+                        }
                     }
                 },
                 client: {
@@ -326,8 +394,13 @@ export const signPublicQuote = async (req, res) => {
     }
 
     try {
-        const quote = await prisma.quote.findUnique({
-            where: { signatureToken },
+        const quote = await prisma.quote.findFirst({
+            where: {
+                OR: [
+                    { signatureToken },
+                    { id: signatureToken }
+                ]
+            },
             include: { client: true }
         });
 
@@ -372,24 +445,32 @@ export const signPublicQuote = async (req, res) => {
         });
 
         // Notification automatique au propriétaire de l'entreprise
-        const owner = await prisma.user.findFirst({
-            where: { companyId: quote.companyId, role: "OWNER" }
-        });
-
-        if (owner) {
-            await prisma.notification.create({
-                data: {
-                    companyId: quote.companyId,
-                    userId: owner.id,
-                    type: "QUOTE_ACCEPTED",
-                    channel: "IN_APP",
-                    status: "SENT",
-                    title: `Devis ${quote.number} signé et accepté !`,
-                    body: `Le client ${quote.client.firstName} ${quote.client.lastName} a signé le devis ${quote.number} d'un montant de ${quote.amountTTC}€.`,
-                    entityType: "quote",
-                    entityId: quote.id
-                }
+        try {
+            const owner = await prisma.user.findFirst({
+                where: { companyId: quote.companyId, role: "OWNER" }
             });
+
+            const clientName = quote.client
+                ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim()
+                : 'Client';
+
+            if (owner) {
+                await prisma.notification.create({
+                    data: {
+                        companyId: quote.companyId,
+                        userId: owner.id,
+                        type: "NEW_QUOTE_REQUEST",
+                        channel: "IN_APP",
+                        status: "SENT",
+                        title: `Devis ${quote.number} signé et accepté !`,
+                        body: `Le client ${clientName} a signé le devis ${quote.number} d'un montant de ${quote.amountTTC || quote.totalTtc || 0}€.`,
+                        entityType: "quote",
+                        entityId: quote.id
+                    }
+                });
+            }
+        } catch (notifErr) {
+            console.warn("NOTIFICATION ERROR (NON-BLOCKING):", notifErr.message);
         }
 
         return res.status(200).json({
@@ -405,5 +486,81 @@ export const signPublicQuote = async (req, res) => {
         });
     }
 };
+
+////// CREATE STRIPE CHECKOUT SESSION FOR QUOTE ONLINE PAYMENT //////
+export const createPublicQuoteCheckoutSession = async (req, res) => {
+    const { signatureToken } = req.params;
+
+    try {
+        const quote = await prisma.quote.findFirst({
+            where: {
+                OR: [
+                    { signatureToken },
+                    { id: signatureToken }
+                ]
+            },
+            include: { company: true, client: true }
+        });
+
+        if (!quote) {
+            return res.status(404).json({
+                success: false,
+                message: "Devis introuvable"
+            });
+        }
+
+        let checkoutUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?quoteId=${quote.id}`;
+
+        if (stripe) {
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'eur',
+                            product_data: {
+                                name: `Devis ${quote.number} - ${quote.company?.name || 'Prestation'}`,
+                                description: quote.subject || 'Règlement de devis validé',
+                            },
+                            unit_amount: Math.round(Number(quote.amountTTC || quote.totalTtc || 0) * 100),
+                        },
+                        quantity: 1,
+                    },
+                ],
+                mode: 'payment',
+                customer_email: quote.client?.email || undefined,
+                client_reference_id: quote.id,
+                metadata: {
+                    quoteId: quote.id,
+                    companyId: quote.companyId,
+                    type: 'QUOTE_PAYMENT'
+                },
+                success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?quoteId=${quote.id}&session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/sign/quote/${signatureToken}?canceled=true`,
+            });
+
+            if (session?.url) {
+                checkoutUrl = session.url;
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Session de paiement sécurisée Stripe créée avec succès",
+            data: {
+                checkoutUrl,
+                amountTTC: quote.amountTTC,
+                quoteNumber: quote.number
+            }
+        });
+    } catch (error) {
+        console.error("CREATE QUOTE CHECKOUT SESSION ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la création de la session de paiement"
+        });
+    }
+};
+
 
 

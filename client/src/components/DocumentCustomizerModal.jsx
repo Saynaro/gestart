@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Check, Palette, Type, Layout, Eye, Sliders, Image, Star } from "lucide-react";
-import { useDocumentCustomization, getEffectiveCustomization } from "../utils/documentCustomization";
+import { useDocumentCustomization, getEffectiveCustomization, saveDocCustomization } from "../utils/documentCustomization";
 import { useUser } from "../utils/useUser";
 import "./DocumentCustomizerModal.css";
 
@@ -60,9 +60,10 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
   const realIban = company?.settings?.bankIban || company?.bankIban || company?.iban || "FR76 3000 3020 5001 2345 6789 012";
 
   // Dynamic Client Info from active document if present
-  const clientDisplayName = doc?.clientName || doc?.client?.name || "Jean Dupont";
-  const clientDisplayAddress = doc?.clientAddress || doc?.client?.address || "12 Rue des Fleurs, 75001 Paris";
-  const clientDisplayEmail = doc?.clientEmail || doc?.client?.email || "jean.dupont@email.com";
+  const clientDisplayName = doc?.client?.companyName || (doc?.client?.firstName ? `${doc.client.firstName} ${doc.client.lastName || ''}`.trim() : null) || doc?.clientName || "Jean Dupont";
+  const clientDisplayAddress = doc?.client?.address ? `${doc.client.address}${doc.client.postalCode || doc.client.city ? `, ${doc.client.postalCode || ''} ${doc.client.city || ''}` : ''}`.trim() : (doc?.clientAddress || "12 Rue des Fleurs, 75001 Paris");
+  const clientDisplayEmail = doc?.client?.email || doc?.clientEmail || "jean.dupont@email.com";
+  const clientDisplayPhone = doc?.client?.phone || doc?.clientPhone || "";
   const docNumber = doc?.number || (docType === "devis" ? "DEV-2026-0001" : "INV-2026-0001");
   const docDate = doc?.date ? new Date(doc.date).toLocaleDateString('fr-FR') : "01/08/2026";
   const docDeliveryDate = doc?.deliveryDate ? new Date(doc.deliveryDate).toLocaleDateString('fr-FR') : (doc?.dueDate ? new Date(doc.dueDate).toLocaleDateString('fr-FR') : "15/08/2026");
@@ -74,6 +75,9 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
   const handleChange = (key, value) => {
     const newSettings = { ...customization, [key]: value };
     setCustomization(newSettings);
+    if (doc?.id || doc?.clientId || doc?.client?.id) {
+      saveDocCustomization(doc?.id, newSettings, doc?.clientId || doc?.client?.id);
+    }
     if (doc && onSaveDocCustomization) {
       onSaveDocCustomization(newSettings);
     } else {
@@ -551,42 +555,53 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                       </div>
                     )}
 
-                    <div className="toggle-row-card">
-                      <div>
-                        <span className="toggle-label-text">Signature de l'acheteur (Client)</span>
-                        <p className="toggle-desc-text">Zone pour la signature du client / Bon pour accord</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        className="custom-toggle-switch"
-                        checked={customization.showClientSignature !== false}
-                        onChange={(e) => handleChange("showClientSignature", e.target.checked)}
-                      />
-                    </div>
+                    {(() => {
+                      const isClientSigVisible = customization.showClientSignature !== undefined 
+                        ? customization.showClientSignature 
+                        : (docType === "devis");
+                      return (
+                        <>
+                          <div className="toggle-row-card">
+                            <div>
+                              <span className="toggle-label-text">Signature de l'acheteur (Client)</span>
+                              <p className="toggle-desc-text">
+                                {docType === "devis" ? "Zone « Bon pour accord » pour signature du devis" : "Zone signature acheteur (désactivée par défaut sur factures)"}
+                              </p>
+                            </div>
+                            <input
+                              type="checkbox"
+                              className="custom-toggle-switch"
+                              checked={isClientSigVisible}
+                              onChange={(e) => handleChange("showClientSignature", e.target.checked)}
+                            />
+                          </div>
 
-                    {customization.showClientSignature !== false && (
-                      <div style={{ marginLeft: "14px", marginTop: "6px", marginBottom: "10px" }}>
-                        <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--muted-foreground)", display: "block", marginBottom: "4px" }}>
-                          Position signature acheteur :
-                        </label>
-                        <div className="btn-segmented-control" style={{ maxWidth: "220px" }}>
-                          <button
-                            type="button"
-                            className={`segmented-btn ${customization.clientSignaturePosition === "left" ? "active" : ""}`}
-                            onClick={() => handleChange("clientSignaturePosition", "left")}
-                          >
-                            Gauche
-                          </button>
-                          <button
-                            type="button"
-                            className={`segmented-btn ${(customization.clientSignaturePosition || "right") === "right" ? "active" : ""}`}
-                            onClick={() => handleChange("clientSignaturePosition", "right")}
-                          >
-                            Droite
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                          {isClientSigVisible && (
+                            <div style={{ marginLeft: "14px", marginTop: "6px", marginBottom: "10px" }}>
+                              <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--muted-foreground)", display: "block", marginBottom: "4px" }}>
+                                Position signature acheteur :
+                              </label>
+                              <div className="btn-segmented-control" style={{ maxWidth: "220px" }}>
+                                <button
+                                  type="button"
+                                  className={`btn-segmented-item ${customization.clientSignaturePosition === "left" ? "active" : ""}`}
+                                  onClick={() => handleChange("clientSignaturePosition", "left")}
+                                >
+                                  Gauche
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`btn-segmented-item ${customization.clientSignaturePosition !== "left" ? "active" : ""}`}
+                                  onClick={() => handleChange("clientSignaturePosition", "right")}
+                                >
+                                  Droite
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
@@ -934,8 +949,17 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                           fontSize: "0.82em",
                         }}
                       >
-                        {doc?.clientSignatureUrl ? (
-                          <img src={doc.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: "48px", maxWidth: "90%", objectFit: "contain" }} />
+                        {doc?.signatureUrl || doc?.clientSignatureUrl ? (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                            <img 
+                              src={doc.signatureUrl || doc.clientSignatureUrl} 
+                              alt="Signature Client" 
+                              style={{ maxHeight: "36px", maxWidth: "90%", objectFit: "contain" }} 
+                            />
+                            <span style={{ fontSize: "7pt", color: "#16a34a", fontWeight: 600, marginTop: "2px" }}>
+                              ✓ Signé le {new Date(doc.signedAt || doc.acceptedAt || doc.date || doc.createdAt || Date.now()).toLocaleDateString("fr-FR")}
+                            </span>
+                          </div>
                         ) : (
                           <>
                             <span style={{ fontStyle: "italic", fontSize: "0.78em" }}>Mention "Bon pour accord"</span>
@@ -954,7 +978,11 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     else rightItems.push(renderCompanySig());
                   }
 
-                  if (customization.showClientSignature !== false) {
+                  const isClientSigVisible = customization.showClientSignature !== undefined 
+                    ? customization.showClientSignature 
+                    : (docType === "devis");
+
+                  if (isClientSigVisible) {
                     if (clPos === "left") leftItems.push(renderClientSig());
                     else rightItems.push(renderClientSig());
                   }

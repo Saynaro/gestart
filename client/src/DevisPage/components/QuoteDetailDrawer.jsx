@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette } from "lucide-react";
+import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette, Lock } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
@@ -57,23 +57,22 @@ function QuoteDetailDrawer({
 
     const isAccepted = (quote.status || "").toUpperCase() === "ACCEPTED";
     const isDraft    = (quote.status || "").toUpperCase() === "DRAFT";
+    const isSent     = (quote.status || "").toUpperCase() === "SENT";
 
-    const linkedFacture = quote.linkedFacture || (
-        quote.number === "D-2026-0002" || quote.number === "D-2026-0001" ? {
-            id: quote.id,
-            number: `F-2026-000${quote.id}`,
-            date: "04/07/26",
-            clientName: quote.clientName,
-            clientEmail: quote.clientEmail,
-            clientAddress: quote.clientAddress,
-            subtotalHt: subtotalHt,
-            tvaRate: tvaRate,
-            tvaAmount: tvaAmount,
-            totalTtc: totalTtc,
-            status: quote.number === "D-2026-0001" ? "paid" : "pending",
-            statusLabel: quote.number === "D-2026-0001" ? "Payée" : "Finalisé"
-        } : null
-    );
+    const client = quote.client || {};
+    const clientDisplayName = client.companyName || `${client.firstName || ''} ${client.lastName || ''}`.trim() || quote.clientName || "Client";
+    const clientDisplayAddress = client.address || quote.clientAddress || (client.city ? `${client.postalCode || ''} ${client.city}` : "");
+    const clientDisplayEmail = client.email || quote.clientEmail || "";
+    const clientDisplayPhone = client.phone || quote.clientPhone || "";
+
+    const linkedFacture = quote.linkedFacture || quote.linkedInvoice || quote.invoice;
+    const isEditable = isDraft && !Boolean(linkedFacture || quote.invoiceId || quote.linkedInvoice || (quote.amountFactured && quote.amountFactured > 0));
+
+    const rawDocDate = quote.date || quote.createdAt || quote.issuedAt;
+    const formattedDocDate = rawDocDate ? new Date(rawDocDate).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
+    
+    const rawDueDate = quote.validUntil || quote.dueDate || (rawDocDate ? new Date(new Date(rawDocDate).getTime() + 30 * 86400000) : null);
+    const formattedDueDate = rawDueDate ? new Date(rawDueDate).toLocaleDateString('fr-FR') : formattedDocDate;
 
     const amountFactured = quote.amountFactured || 0;
     const progressPct = totalTtc > 0
@@ -210,7 +209,7 @@ function QuoteDetailDrawer({
                                 </tr>
                                 <tr>
                                     <td><strong>Date :</strong></td>
-                                    <td>{new Date(quote.date).toLocaleDateString('fr-FR')}</td>
+                                    <td>{formattedDocDate}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -235,21 +234,21 @@ function QuoteDetailDrawer({
                         DEVIS POUR :
                     </span>
                     <h3 className="client-name" style={{ fontSize: '1.1em', fontWeight: 700, margin: 0, color: '#1A1A1A', lineHeight: 1.3 }}>
-                        {quote.clientName}
+                        {clientDisplayName}
                     </h3>
-                    {quote.clientAddress && (
+                    {clientDisplayAddress && (
                         <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {quote.clientAddress}
+                            {clientDisplayAddress}
                         </div>
                     )}
-                    {quote.clientEmail && (
+                    {clientDisplayEmail && (
                         <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {quote.clientEmail}
+                            {clientDisplayEmail}
                         </div>
                     )}
-                    {quote.clientPhone && (
+                    {clientDisplayPhone && (
                         <div style={{ fontSize: '0.92em', opacity: 0.85, lineHeight: 1.35 }}>
-                            {quote.clientPhone}
+                            {clientDisplayPhone}
                         </div>
                     )}
                 </div>
@@ -366,12 +365,23 @@ function QuoteDetailDrawer({
                                     fontSize: '0.82em'
                                 }}
                             >
-                                {quote.clientSignatureUrl ? (
-                                    <img src={quote.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} />
+                                {quote.signatureUrl || quote.clientSignatureUrl ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                        <img 
+                                            src={quote.signatureUrl || quote.clientSignatureUrl} 
+                                            alt="Signature Client" 
+                                            style={{ maxHeight: '36px', maxWidth: '90%', objectFit: 'contain' }} 
+                                        />
+                                        <span style={{ fontSize: '7pt', color: '#16a34a', fontWeight: 600, marginTop: '2px' }}>
+                                            ✓ Signé le {new Date(quote.signedAt || quote.acceptedAt || quote.date || quote.createdAt || Date.now()).toLocaleDateString('fr-FR')}
+                                        </span>
+                                    </div>
                                 ) : quote.status === 'ACCEPTED' ? (
                                     <>
-                                        <span style={{ fontWeight: 'bold' }}>✓ Signé électroniquement</span>
-                                        <span style={{ fontSize: '7.5pt', color: '#7C7B82' }}>le {new Date(quote.date).toLocaleDateString('fr-FR')}</span>
+                                        <span style={{ fontWeight: 'bold', color: '#16a34a' }}>✓ Signé électroniquement</span>
+                                        <span style={{ fontSize: '7.5pt', color: '#7C7B82' }}>
+                                            le {new Date(quote.signedAt || quote.acceptedAt || quote.date || quote.createdAt || Date.now()).toLocaleDateString('fr-FR')}
+                                        </span>
                                     </>
                                 ) : (
                                     <>
@@ -453,7 +463,7 @@ function QuoteDetailDrawer({
                                         <button className="dv-dots-menu-item" onClick={onSend}>
                                             <Send size={15} /> Envoyer le devis
                                         </button>
-                                        {!isAccepted && (
+                                        {isEditable && (
                                             <button className="dv-dots-menu-item" onClick={onEdit}>
                                                 <Edit2 size={15} /> Modifier le devis
                                             </button>
@@ -500,26 +510,26 @@ function QuoteDetailDrawer({
                                         ? "rgba(34, 197, 94, 0.12)"
                                         : isDraft
                                         ? "rgba(156, 163, 175, 0.15)"
-                                        : (quote.status || "").toUpperCase() === "SENT"
-                                        ? "rgba(59, 130, 246, 0.12)"
                                         : (quote.status || "").toUpperCase() === "REFUSED"
                                         ? "rgba(239, 68, 68, 0.12)"
-                                        : "rgba(234, 179, 8, 0.15)",
+                                        : (quote.emailSentAt || quote.isSentByEmail)
+                                        ? "rgba(59, 130, 246, 0.12)"
+                                        : "rgba(147, 51, 234, 0.12)",
                                     color: isAccepted
                                         ? "#16a34a"
                                         : isDraft
                                         ? "#6b7280"
-                                        : (quote.status || "").toUpperCase() === "SENT"
-                                        ? "#2563eb"
                                         : (quote.status || "").toUpperCase() === "REFUSED"
                                         ? "#dc2626"
-                                        : "#ca8a04",
+                                        : (quote.emailSentAt || quote.isSentByEmail)
+                                        ? "#2563eb"
+                                        : "#9333ea",
                                     display: "inline-flex",
                                     alignItems: "center",
                                     gap: "5px"
                                 }}
                             >
-                                {isAccepted ? "Signé" : isDraft ? "Brouillon" : (quote.status || "").toUpperCase() === "SENT" ? "Envoyé" : (quote.status || "").toUpperCase() === "REFUSED" ? "Refusé" : "En attente"}
+                                {isAccepted ? "Signé" : isDraft ? "Brouillon" : (quote.status || "").toUpperCase() === "REFUSED" ? "Refusé" : (quote.emailSentAt || quote.isSentByEmail) ? "Envoyé" : "Finalisé"}
                             </span>
                         </div>
 
@@ -555,8 +565,20 @@ function QuoteDetailDrawer({
                         <div className="dv-drawer-section">
                             <div className="dv-drawer-section-title">Client</div>
                             <div className="dv-drawer-row">
-                                <span className="dv-drawer-row-label">Nom du client</span>
-                                <span className="dv-drawer-row-value">{quote.clientName}</span>
+                                <span className="dv-drawer-row-label">Nom</span>
+                                <span className="dv-drawer-row-value bold">{clientDisplayName}</span>
+                            </div>
+                            <div className="dv-drawer-row">
+                                <span className="dv-drawer-row-label">Email</span>
+                                <span className="dv-drawer-row-value">{clientDisplayEmail || "Non renseigné"}</span>
+                            </div>
+                            <div className="dv-drawer-row">
+                                <span className="dv-drawer-row-label">Téléphone</span>
+                                <span className="dv-drawer-row-value">{clientDisplayPhone || "Non renseigné"}</span>
+                            </div>
+                            <div className="dv-drawer-row">
+                                <span className="dv-drawer-row-label">Adresse</span>
+                                <span className="dv-drawer-row-value">{clientDisplayAddress || "Non renseignée"}</span>
                             </div>
                         </div>
 
@@ -566,12 +588,12 @@ function QuoteDetailDrawer({
                             <div className="dv-drawer-row">
                                 <span className="dv-drawer-row-label">Date d'émission</span>
                                 <span className="dv-drawer-row-value">
-                                    {new Date(quote.date).toLocaleDateString("fr-FR")}
+                                    {formattedDocDate}
                                 </span>
                             </div>
                             <div className="dv-drawer-row">
                                 <span className="dv-drawer-row-label">Date d'exigibilité</span>
-                                <span className="dv-drawer-row-value">{quote.dueDate ? new Date(quote.dueDate).toLocaleDateString("fr-FR") : new Date(quote.date).toLocaleDateString("fr-FR")}</span>
+                                <span className="dv-drawer-row-value">{formattedDueDate}</span>
                             </div>
                             {quote.deliveryDate && (
                                 <div className="dv-drawer-row">
@@ -628,12 +650,10 @@ function QuoteDetailDrawer({
                                     <div>
                                         <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 700, color: "var(--foreground)" }}>
                                             <span>{linkedFacture.number}</span>
-                                            <div style={{ width: "16px", height: "16px", borderRadius: "50%", border: "1.5px solid #3b82f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#3b82f6" }}>
-                                                <Play size={8} style={{ fill: "currentColor", marginLeft: "1px" }} />
-                                            </div>
+                                            <FileText size={14} style={{ color: "var(--sidebar-primary)" }} />
                                         </div>
                                         <div style={{ fontSize: "11.5px", color: "var(--muted-foreground)", marginTop: "4px" }}>
-                                            {linkedFacture.createdAt ? new Date(linkedFacture.createdAt).toLocaleDateString("fr-FR") : (linkedFacture.date || "")} · {quote.clientName}
+                                            {(linkedFacture.issuedAt ? new Date(linkedFacture.issuedAt).toLocaleDateString("fr-FR") : (linkedFacture.createdAt ? new Date(linkedFacture.createdAt).toLocaleDateString("fr-FR") : (linkedFacture.date || "")))} · {clientDisplayName}
                                         </div>
                                     </div>
                                     <div style={{ textAlign: "right" }}>
@@ -647,10 +667,18 @@ function QuoteDetailDrawer({
                                             fontWeight: 700,
                                             padding: "2px 8px",
                                             borderRadius: "6px",
-                                            backgroundColor: (linkedFacture.status || "").toLowerCase() === "paid" ? "rgba(34, 197, 94, 0.12)" : "rgba(59, 130, 246, 0.12)",
-                                            color: (linkedFacture.status || "").toLowerCase() === "paid" ? "#22c55e" : "#3b82f6"
+                                            backgroundColor: (linkedFacture.status || "").toLowerCase() === "paid"
+                                                ? "rgba(34, 197, 94, 0.12)"
+                                                : (linkedFacture.emailSentAt || linkedFacture.isSentByEmail)
+                                                ? "rgba(59, 130, 246, 0.12)"
+                                                : "rgba(147, 51, 234, 0.12)",
+                                            color: (linkedFacture.status || "").toLowerCase() === "paid"
+                                                ? "#22c55e"
+                                                : (linkedFacture.emailSentAt || linkedFacture.isSentByEmail)
+                                                ? "#2563eb"
+                                                : "#9333ea"
                                         }}>
-                                            {(linkedFacture.status || "").toLowerCase() === "paid" ? "Payée" : (linkedFacture.status || "").toLowerCase() === "sent" ? "Envoyée" : (linkedFacture.statusLabel || "Finalisé")}
+                                            {(linkedFacture.status || "").toLowerCase() === "paid" ? "Payée" : (linkedFacture.emailSentAt || linkedFacture.isSentByEmail) ? "Envoyée" : "Finalisée"}
                                         </span>
                                     </div>
                                 </div>
@@ -678,6 +706,12 @@ function QuoteDetailDrawer({
                             >
                                 Changer le statut du devis
                             </button>
+                        )}
+
+                        {!isEditable && (
+                            <div style={{ fontSize: "11.5px", color: "var(--muted-foreground)", textAlign: "center", paddingTop: "6px", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+                                <Lock size={12} /> {isAccepted ? "Devis signé · Non modifiable" : "Devis envoyé / facturé · Non modifiable"}
+                            </div>
                         )}
                     </div>
                     </aside>

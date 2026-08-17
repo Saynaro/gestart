@@ -11,21 +11,7 @@ import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
 
-const initialClientDetails = [
-    { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "John Doe", type: "Particulier", email: "john.doe@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Khalid Sainaro", type: "Particulier", email: "khalid@gmail.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Martin Dupont", type: "Particulier", email: "martin.dupont@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Sophie Bernard", type: "Particulier", email: "sophie.b@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Jean Moreau", type: "Particulier", email: "jean.moreau@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Marie Dubois", type: "Particulier", email: "marie.dubois@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Claire Laurent", type: "Particulier", email: "claire.laurent@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Pierre Leroy", type: "Particulier", email: "pierre.leroy@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "LexCorp", type: "Organisation", email: "contact@lexcorp.com", address: "Metropolis City" },
-    { name: "Acme Corp", type: "Organisation", email: "billing@acme.com", address: "109 Rue Saint-Dizier, 54000 Nancy" },
-    { name: "Dupont & Co", type: "Organisation", email: "dupontco@gmail.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Bernard SA", type: "Organisation", email: "contact@bernard.sa", address: "45 Avenue Foch, 69006 Lyon" }
-].sort((a, b) => a.name.localeCompare(b.name));
+const initialClientDetails = [];
 
 import { apiFetch } from "../../utils/api";
 
@@ -54,10 +40,14 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                     const mapped = list.map(c => ({
                         id: c.id,
                         clientId: c.id,
+                        firstName: c.firstName || "",
+                        lastName: c.lastName || "",
+                        companyName: c.companyName || "",
                         name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
                         type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
                         email: c.email || "",
-                        address: `${c.address || ''} ${c.city || ''}`.trim()
+                        phone: c.phone || "",
+                        address: c.address ? `${c.address}${c.postalCode || c.city ? `, ${c.postalCode || ''} ${c.city || ''}` : ''}`.trim() : (c.city || "")
                     }));
                     setClientDetails(mapped);
                 }
@@ -495,6 +485,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             client: selectedClient,
             clientName: selectedClient.name,
             clientEmail: selectedClient.email || "",
+            clientPhone: selectedClient.phone || "",
             clientAddress: selectedClient.address || "",
             date: invoiceDate,
             dueDate: calculatedDueDate,
@@ -515,7 +506,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             subtotalHt: subtotalHt,
             tvaAmount: tvaAmount,
             totalTtc: totalTtc,
-            status: "pending"
+            status: "DRAFT"
         };
 
         onCreateInvoice(newInvoice);

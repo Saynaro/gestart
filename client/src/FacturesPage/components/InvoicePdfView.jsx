@@ -382,8 +382,17 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             fontSize: "0.82em"
                                         }}
                                     >
-                                        {invoice.clientSignatureUrl ? (
-                                            <img src={invoice.clientSignatureUrl} alt="Signature Client" style={{ maxHeight: "48px", maxWidth: "90%", objectFit: "contain" }} />
+                                        {invoice.signatureUrl || invoice.clientSignatureUrl ? (
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                                                <img 
+                                                    src={invoice.signatureUrl || invoice.clientSignatureUrl} 
+                                                    alt="Signature Client" 
+                                                    style={{ maxHeight: "36px", maxWidth: "90%", objectFit: "contain" }} 
+                                                />
+                                                <span style={{ fontSize: "7pt", color: "#16a34a", fontWeight: 600, marginTop: "2px" }}>
+                                                    ✓ Signé le {new Date(invoice.paidAt || invoice.date || invoice.createdAt || Date.now()).toLocaleDateString("fr-FR")}
+                                                </span>
+                                            </div>
                                         ) : (
                                             <>
                                                 <span style={{ fontStyle: "italic", fontSize: "0.78em" }}>Mention "Bon pour accord"</span>
@@ -402,7 +411,8 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                 else rightItems.push(renderCompanySig());
                             }
 
-                            if (docCustomization.showClientSignature !== false) {
+                            // By default OFF for Factures (standard French accounting), activatable in "Personnaliser"
+                            if (docCustomization.showClientSignature === true) {
                                 if (clPos === "left") leftItems.push(renderClientSig());
                                 else rightItems.push(renderClientSig());
                             }

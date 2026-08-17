@@ -9,23 +9,7 @@ import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
 
 // Same client list as NewQuoteModal
-const CLIENT_LIST = [
-    { name: "Jane Doe", type: "Particulier", email: "jane.doe@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "John Doe", type: "Particulier", email: "john.doe@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Khalid Sainaro", type: "Particulier", email: "khalid@gmail.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Martin Dupont", type: "Particulier", email: "martin.dupont@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Sophie Bernard", type: "Particulier", email: "sophie.b@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Jean Moreau", type: "Particulier", email: "jean.moreau@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Marie Dupont", type: "Particulier", email: "marie.dubois@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Jean Dupont", type: "Particulier", email: "jean.dupont@email.com", address: "12 Rue des Fleurs, 75001 Paris" },
-    { name: "Marie Martin", type: "Particulier", email: "marie.martin@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Marc Leroy", type: "Particulier", email: "marc.leroy@outlook.fr", address: "109 Rue Saint-Dizier, 54000 Nancy" },
-    { name: "Claire Laurent", type: "Particulier", email: "claire.laurent@email.com", address: "45 Avenue Foch, 69006 Lyon" },
-    { name: "Pierre Leroy", type: "Particulier", email: "pierre.leroy@email.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "Garage Central", type: "Organisation", email: "contact@garagecentral.com", address: "8 Boulevard de l'Industrie, 44000 Nantes" },
-    { name: "LexCorp", type: "Organisation", email: "contact@lexcorp.com", address: "Metropolis City" },
-    { name: "Acme Corp", type: "Organisation", email: "billing@acme.com", address: "109 Rue Saint-Dizier, 54000 Nancy" },
-].sort((a, b) => a.name.localeCompare(b.name));
+const CLIENT_LIST = [];
 
 const TVA_RATES = [0, 5.5, 10, 20];
 
@@ -38,14 +22,14 @@ const INTERVENTION_TYPES = [
 ];
 
 function ClientPickerModal({ currentName, onSelect, onClose }) {
-    const [query, setQuery] = useState("");
     const [clientsList, setClientsList] = useState(CLIENT_LIST);
     const [showNewClientForm, setShowNewClientForm] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const [newName, setNewName] = useState("");
+    const [newType, setNewType] = useState("Particulier");
     const [newEmail, setNewEmail] = useState("");
     const [newPhone, setNewPhone] = useState("");
     const [newAddress, setNewAddress] = useState("");
-    const [newType, setNewType] = useState("Particulier");
     const [creatingLoading, setCreatingLoading] = useState(false);
 
     useEffect(() => {
@@ -60,7 +44,7 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                         type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
                         email: c.email || "",
                         phone: c.phone || "",
-                        address: `${c.address || ''} ${c.city || ''}`.trim()
+                        address: c.address ? `${c.address}${c.postalCode || c.city ? `, ${c.postalCode || ''} ${c.city || ''}` : ''}`.trim() : (c.city || "")
                     }));
                     setClientsList(mapped);
                 }
@@ -846,9 +830,12 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
     const handleSelectClient = (client) => {
         setQ(p => ({
             ...p,
+            clientId: client.id,
+            client: client,
             clientName: client.name,
-            clientEmail: client.email,
-            clientAddress: client.address,
+            clientEmail: client.email || "",
+            clientPhone: client.phone || "",
+            clientAddress: client.address || "",
         }));
         setShowClientPicker(false);
     };
@@ -877,7 +864,20 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
     };
 
     const handleSave = () => {
-        onSave({ ...q, dueDate: calculatedDueDate, paymentConditions: echeanceLabel, subtotalHt, tvaAmount: tvaAmt, totalTtc });
+        onSave({
+            ...q,
+            clientId: q.clientId || q.client?.id,
+            client: q.client,
+            clientName: q.clientName || q.client?.name,
+            clientEmail: q.clientEmail || q.client?.email,
+            clientPhone: q.clientPhone || q.client?.phone,
+            clientAddress: q.clientAddress || q.client?.address,
+            dueDate: calculatedDueDate,
+            paymentConditions: echeanceLabel,
+            subtotalHt,
+            tvaAmount: tvaAmt,
+            totalTtc
+        });
     };
 
     // Live preview

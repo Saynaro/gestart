@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info, AlertTriangle, Lock } from "lucide-react";
 import "./FacturesPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -112,6 +112,7 @@ function FacturesPage() {
         }
     }, [location.state]);
     const [paymentModalInvoice, setPaymentModalInvoice] = useState(null);
+    const [invoiceToFinalise, setInvoiceToFinalise] = useState(null);
     const [linkedQuoteForDrawer, setLinkedQuoteForDrawer] = useState(null);
     const [pdfModalQuote, setPdfModalQuote] = useState(null);
     const [toast, setToast] = useState(null);
@@ -124,11 +125,19 @@ function FacturesPage() {
     // Filtered list
     const filteredInvoices = activeFilter === "all"
         ? invoices
-        : invoices.filter(inv => inv.status === activeFilter);
+        : invoices.filter(inv => {
+            const s = (inv.status || "").toLowerCase();
+            if (activeFilter === "pending") return s === "sent" || s === "pending";
+            return s === activeFilter.toLowerCase();
+        });
 
     const filterCount = (key) => key === "all"
         ? invoices.length
-        : invoices.filter(inv => inv.status === key).length;
+        : invoices.filter(inv => {
+            const s = (inv.status || "").toLowerCase();
+            if (key === "pending") return s === "sent" || s === "pending";
+            return s === key.toLowerCase();
+        }).length;
 
     const openDetail = (inv) => {
         setActiveInvoice(inv);
@@ -146,9 +155,27 @@ function FacturesPage() {
     };
 
     const handleFinalise = (inv) => {
-        setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "pending" } : i));
-        setActiveInvoice(prev => ({ ...prev, status: "pending" }));
-        showToast(`✓ Facture ${inv.number} finalisée !`);
+        setInvoiceToFinalise(inv);
+    };
+
+    const handleConfirmFinalise = async () => {
+        if (!invoiceToFinalise) return;
+        const inv = invoiceToFinalise;
+        try {
+            await apiFetch(`/v1/invoices/${inv.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: "SENT" })
+            });
+            setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "SENT" } : i));
+            setActiveInvoice(prev => (prev?.id === inv.id ? { ...prev, status: "SENT" } : prev));
+            showToast(`✓ Facture ${inv.number} finalisée avec succès !`, "success");
+            fetchInvoices();
+        } catch (err) {
+            console.error("Finalise invoice error:", err);
+            showToast(err.message || "Erreur lors de la finalisation de la facture", "error");
+        } finally {
+            setInvoiceToFinalise(null);
+        }
     };
 
     const handleMarkPaid = (inv) => {
@@ -186,15 +213,18 @@ function FacturesPage() {
 
     const handleSaveEdit = async (updatedInv) => {
         try {
-            await apiFetch(`/v1/invoices/${updatedInv.id}`, {
-                method: 'PATCH',
+            const res = await apiFetch(`/v1/invoices/${updatedInv.id}`, {
+                method: 'PUT',
                 body: JSON.stringify(updatedInv)
             });
-            showToast(`✓ Facture ${updatedInv.number} modifiée.`);
+            const fresh = res.data?.invoice || res.invoice || updatedInv;
+            setInvoices(prev => prev.map(i => i.id === updatedInv.id ? { ...i, ...fresh } : i));
+            setActiveInvoice(prev => (prev?.id === updatedInv.id ? { ...prev, ...fresh } : prev));
+            showToast(`✓ Facture ${updatedInv.number} modifiée.`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Save invoice error:", err);
-            alert(err.message || "Erreur lors de la modification");
+            showToast(err.message || "Erreur lors de la modification", "error");
         } finally {
             setShowEditPanel(false);
         }
@@ -203,10 +233,10 @@ function FacturesPage() {
     const handleSelfSend = async (inv) => {
         try {
             await apiFetch(`/v1/invoices/${inv.id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ status: "SENT" })
+                method: 'PUT',
+                body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString() })
             });
-            showToast(`Facture ${inv.number} marquée comme envoyée.`, "success");
+            showToast(`✓ Facture ${inv.number} marquée comme envoyée.`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Self send invoice error:", err);
@@ -218,15 +248,20 @@ function FacturesPage() {
     const handleAutoSend = async (inv, targetEmail) => {
         const emailToSend = targetEmail || inv.clientEmail || "client";
         try {
-            await apiFetch(`/v1/invoices/${inv.id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ status: "SENT", clientEmail: targetEmail || inv.clientEmail })
+            await apiFetch(`/v1/invoices/${inv.id}/send`, {
+                method: 'POST',
+                body: JSON.stringify({ recipientEmail: targetEmail || inv.clientEmail })
             });
             showToast(`✓ Facture ${inv.number} envoyée avec succès à ${emailToSend} !`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Auto send invoice error:", err);
-            showToast(`Facture ${inv.number} envoyée à ${emailToSend}`, "success");
+            await apiFetch(`/v1/invoices/${inv.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString(), clientEmail: targetEmail || inv.clientEmail })
+            });
+            showToast(`✓ Facture ${inv.number} envoyée à ${emailToSend}`, "success");
+            fetchInvoices();
         } finally {
             setShowSendDrawer(false);
         }
@@ -240,15 +275,20 @@ function FacturesPage() {
                     clientId: newInv.clientId || newInv.client?.id,
                     clientName: newInv.clientName || newInv.client?.name,
                     clientEmail: newInv.clientEmail || newInv.client?.email,
+                    clientPhone: newInv.clientPhone || newInv.client?.phone,
                     clientAddress: newInv.clientAddress || newInv.client?.address,
                     subject: newInv.interventionType || newInv.subject || "Facture Prestation",
-                    amountHT: newInv.subtotalHt || 100,
-                    amountTTC: newInv.totalTtc || 120,
+                    amountHT: newInv.subtotalHt || 0,
+                    amountTTC: newInv.totalTtc || 0,
                     tvaRate: newInv.tvaRate || 20,
+                    status: newInv.status || "DRAFT",
+                    conditions: newInv.paymentConditions || null,
+                    notes: newInv.internalNotes || null,
+                    dueAt: newInv.dueDate || null,
                     lines: newInv.lines || []
                 })
             });
-            showToast(`✓ Facture créée avec succès !`);
+            showToast(`✓ Facture créée avec succès !`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Create invoice API error:", err);
@@ -284,6 +324,26 @@ function FacturesPage() {
             showToast(err.message || "Erreur de synchronisation", "error");
         } finally {
             setLoadingReceived(false);
+        }
+    };
+
+    const handleOpenLinkedDevis = async (quote) => {
+        setShowDetailDrawer(false);
+        try {
+            const res = await apiFetch(`/v1/quotes/${quote.id}`);
+            const fullQuote = res.data?.quote || res.quote || quote;
+            if (!fullQuote.linkedFacture && !fullQuote.linkedInvoice && activeInvoice) {
+                fullQuote.linkedFacture = activeInvoice;
+                fullQuote.linkedInvoice = activeInvoice;
+            }
+            setLinkedQuoteForDrawer(fullQuote);
+        } catch (e) {
+            const fallbackQuote = { ...quote };
+            if (!fallbackQuote.linkedFacture && !fallbackQuote.linkedInvoice && activeInvoice) {
+                fallbackQuote.linkedFacture = activeInvoice;
+                fallbackQuote.linkedInvoice = activeInvoice;
+            }
+            setLinkedQuoteForDrawer(fallbackQuote);
         }
     };
 
@@ -528,7 +588,7 @@ function FacturesPage() {
                     onFinalise={handleFinalise}
                     onMarkPaid={handleMarkPaid}
                     onMarkUnpaid={handleMarkUnpaid}
-                    onOpenLinkedDevis={(quote) => setLinkedQuoteForDrawer(quote)}
+                    onOpenLinkedDevis={handleOpenLinkedDevis}
                     onUpdateInvoiceCustomization={handleUpdateInvoiceCustomization}
                 />
             )}
@@ -544,6 +604,11 @@ function FacturesPage() {
                     onConvertToInvoice={() => {}}
                     onChangeStatus={() => {}}
                     onEdit={() => {}}
+                    onOpenLinkedInvoice={(inv) => {
+                        setLinkedQuoteForDrawer(null);
+                        setActiveInvoice(inv?.id === activeInvoice?.id ? activeInvoice : (inv || activeInvoice));
+                        setShowDetailDrawer(true);
+                    }}
                 />
             )}
 
@@ -610,6 +675,114 @@ function FacturesPage() {
                     onConfirm={handleConfirmPayment}
                     onClose={() => setPaymentModalInvoice(null)}
                 />
+            )}
+
+            {/* Finalise Confirmation Modal */}
+            {invoiceToFinalise && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        zIndex: 13000,
+                        backgroundColor: "rgba(0, 0, 0, 0.65)",
+                        backdropFilter: "blur(4px)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "16px"
+                    }}
+                    onClick={() => setInvoiceToFinalise(null)}
+                >
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{
+                            backgroundColor: "var(--card, #FFFFFF)",
+                            color: "var(--foreground, #111)",
+                            borderRadius: "18px",
+                            padding: "24px 28px",
+                            maxWidth: "460px",
+                            width: "100%",
+                            boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+                            border: "1px solid var(--border)",
+                            position: "relative"
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
+                            <div style={{
+                                width: "42px",
+                                height: "42px",
+                                borderRadius: "12px",
+                                backgroundColor: "rgba(234, 179, 8, 0.15)",
+                                color: "#ca8a04",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                            }}>
+                                <AlertTriangle size={22} />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>Finaliser la facture {invoiceToFinalise.number} ?</h3>
+                                <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "var(--muted-foreground)" }}>Action comptable définitive</p>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            backgroundColor: "var(--muted, #f8f9fa)",
+                            borderRadius: "12px",
+                            padding: "12px 14px",
+                            fontSize: "0.88rem",
+                            lineHeight: 1.45,
+                            color: "var(--foreground)",
+                            marginBottom: "20px",
+                            border: "1px solid var(--border)"
+                        }}>
+                            <div style={{ fontWeight: 700, color: "#b45309", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                                <Lock size={14} /> Attention : Modification impossible après finalisation
+                            </div>
+                            Conformément aux normes comptables et fiscales (loi anti-fraude TVA), une facture finalisée devient <strong>définitive</strong>. Vous ne pourrez plus modifier le client, les articles, ni les montants.
+                        </div>
+
+                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                            <button
+                                onClick={() => setInvoiceToFinalise(null)}
+                                style={{
+                                    padding: "10px 16px",
+                                    borderRadius: "10px",
+                                    border: "1px solid var(--border)",
+                                    background: "transparent",
+                                    color: "var(--foreground)",
+                                    fontSize: "0.9rem",
+                                    fontWeight: 600,
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={handleConfirmFinalise}
+                                style={{
+                                    padding: "10px 20px",
+                                    borderRadius: "10px",
+                                    border: "none",
+                                    background: "var(--sidebar-primary, #556B2F)",
+                                    color: "#FFFFFF",
+                                    fontSize: "0.9rem",
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px"
+                                }}
+                            >
+                                ✓ Confirmer la finalisation
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
             )}
 
             {/* Toast */}

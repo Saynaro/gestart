@@ -14,11 +14,116 @@ export const handleStripeWebhook = async (req, res) => {
         switch (eventType) {
             case "checkout.session.completed": {
                 const session = dataObject;
+                const metadata = session.metadata || {};
+
+                // 1. Facture (Invoice) Client Online Payment
+                if (metadata.type === "INVOICE_PAYMENT" || metadata.invoiceId) {
+                    const invoiceId = metadata.invoiceId || session.client_reference_id;
+                    if (invoiceId) {
+                        try {
+                            const inv = await prisma.invoice.findUnique({ where: { id: invoiceId } });
+                            if (inv) {
+                                await prisma.invoice.update({
+                                    where: { id: invoiceId },
+                                    data: {
+                                        status: "PAID",
+                                        amountPaid: inv.amountTTC,
+                                        paidAt: new Date(),
+                                        paymentMethod: "CARD",
+                                        paymentRef: session.payment_intent || session.id
+                                    }
+                                });
+
+                                // Notification au propriétaire
+                                const owner = await prisma.user.findFirst({
+                                    where: { companyId: inv.companyId, role: "OWNER" }
+                                });
+                                if (owner) {
+                                    await prisma.notification.create({
+                                        data: {
+                                            companyId: inv.companyId,
+                                            userId: owner.id,
+                                            type: "INVOICE_PAID",
+                                            channel: "IN_APP",
+                                            status: "SENT",
+                                            title: `Facture ${inv.number} payée en ligne !`,
+                                            body: `Le client a réglé la facture ${inv.number} (${inv.amountTTC}€) par carte bancaire (Stripe).`,
+                                            entityType: "invoice",
+                                            entityId: inv.id
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            console.error("[WEBHOOK] Erreur règlement facture:", e.message);
+                        }
+                    }
+                }
+
+                // 2. Devis (Quote) Client Online Payment
+                if (metadata.type === "QUOTE_PAYMENT" || metadata.quoteId) {
+                    const quoteId = metadata.quoteId || session.client_reference_id;
+                    if (quoteId) {
+                        try {
+                            const quote = await prisma.quote.findUnique({ where: { id: quoteId } });
+                            if (quote) {
+                                await prisma.quote.update({
+                                    where: { id: quoteId },
+                                    data: {
+                                        status: "ACCEPTED",
+                                        acceptedAt: new Date()
+                                    }
+                                });
+
+                                // ⚡ Si une facture a déjà été générée à partir de ce devis -> la passer automatiquement en PAID !
+                                const linkedInvoice = await prisma.invoice.findFirst({
+                                    where: { sourceQuoteId: quote.id }
+                                });
+
+                                if (linkedInvoice && linkedInvoice.status !== "PAID") {
+                                    await prisma.invoice.update({
+                                        where: { id: linkedInvoice.id },
+                                        data: {
+                                            status: "PAID",
+                                            amountPaid: linkedInvoice.amountTTC,
+                                            paidAt: new Date(),
+                                            paymentMethod: "CARD",
+                                            paymentRef: session.payment_intent || session.id
+                                        }
+                                    });
+                                }
+
+                                const owner = await prisma.user.findFirst({
+                                    where: { companyId: quote.companyId, role: "OWNER" }
+                                });
+                                if (owner) {
+                                    await prisma.notification.create({
+                                        data: {
+                                            companyId: quote.companyId,
+                                            userId: owner.id,
+                                            type: "INVOICE_PAID",
+                                            channel: "IN_APP",
+                                            status: "SENT",
+                                            title: `Devis ${quote.number} payé en ligne !`,
+                                            body: `Le client a validé et réglé le devis ${quote.number} (${quote.amountTTC || quote.totalTtc}€) par carte bancaire.`,
+                                            entityType: "quote",
+                                            entityId: quote.id
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            console.error("[WEBHOOK] Erreur règlement devis:", e.message);
+                        }
+                    }
+                }
+
+                // 3. SaaS Subscription Payment (GestArt CRM)
                 const companyId = session.client_reference_id || session.metadata?.companyId;
                 const customerId = session.customer;
                 const subscriptionId = session.subscription;
 
-                if (companyId) {
+                if (companyId && subscriptionId) {
                     await prisma.subscription.update({
                         where: { companyId },
                         data: {

@@ -13448,6 +13448,7 @@ export namespace Prisma {
     invoiceFooter: number
     invoiceConditions: number
     invoiceColor: number
+    documentCustomization: number
     defaultTvaRate: number
     defaultPaymentDays: number
     defaultValidDays: number
@@ -13617,6 +13618,7 @@ export namespace Prisma {
     invoiceFooter?: true
     invoiceConditions?: true
     invoiceColor?: true
+    documentCustomization?: true
     defaultTvaRate?: true
     defaultPaymentDays?: true
     defaultValidDays?: true
@@ -13753,6 +13755,7 @@ export namespace Prisma {
     invoiceFooter: string | null
     invoiceConditions: string | null
     invoiceColor: string | null
+    documentCustomization: JsonValue | null
     defaultTvaRate: number
     defaultPaymentDays: number
     defaultValidDays: number
@@ -13821,6 +13824,7 @@ export namespace Prisma {
     invoiceFooter?: boolean
     invoiceConditions?: boolean
     invoiceColor?: boolean
+    documentCustomization?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
@@ -13871,6 +13875,7 @@ export namespace Prisma {
     invoiceFooter?: boolean
     invoiceConditions?: boolean
     invoiceColor?: boolean
+    documentCustomization?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
@@ -13921,6 +13926,7 @@ export namespace Prisma {
     invoiceFooter?: boolean
     invoiceConditions?: boolean
     invoiceColor?: boolean
+    documentCustomization?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
@@ -13971,6 +13977,7 @@ export namespace Prisma {
     invoiceFooter?: boolean
     invoiceConditions?: boolean
     invoiceColor?: boolean
+    documentCustomization?: boolean
     defaultTvaRate?: boolean
     defaultPaymentDays?: boolean
     defaultValidDays?: boolean
@@ -13985,7 +13992,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "documentCustomization" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -14036,6 +14043,7 @@ export namespace Prisma {
       invoiceFooter: string | null
       invoiceConditions: string | null
       invoiceColor: string | null
+      documentCustomization: Prisma.JsonValue | null
       defaultTvaRate: number
       defaultPaymentDays: number
       defaultValidDays: number
@@ -14506,6 +14514,7 @@ export namespace Prisma {
     readonly invoiceFooter: FieldRef<"CompanySettings", 'String'>
     readonly invoiceConditions: FieldRef<"CompanySettings", 'String'>
     readonly invoiceColor: FieldRef<"CompanySettings", 'String'>
+    readonly documentCustomization: FieldRef<"CompanySettings", 'Json'>
     readonly defaultTvaRate: FieldRef<"CompanySettings", 'Float'>
     readonly defaultPaymentDays: FieldRef<"CompanySettings", 'Int'>
     readonly defaultValidDays: FieldRef<"CompanySettings", 'Int'>
@@ -28926,6 +28935,7 @@ export namespace Prisma {
     signedAt: Date | null
     signatureUrl: string | null
     signatureIp: string | null
+    paidAt: Date | null
     emailSentAt: Date | null
     emailSentTo: string | null
     reminder1SentAt: Date | null
@@ -28962,6 +28972,7 @@ export namespace Prisma {
     signedAt: Date | null
     signatureUrl: string | null
     signatureIp: string | null
+    paidAt: Date | null
     emailSentAt: Date | null
     emailSentTo: string | null
     reminder1SentAt: Date | null
@@ -28985,6 +28996,7 @@ export namespace Prisma {
     subject: number
     notes: number
     conditions: number
+    documentCustomization: number
     validUntil: number
     acceptedAt: number
     refusedAt: number
@@ -28998,6 +29010,7 @@ export namespace Prisma {
     signedAt: number
     signatureUrl: number
     signatureIp: number
+    paidAt: number
     emailSentAt: number
     emailSentTo: number
     reminder1SentAt: number
@@ -29052,6 +29065,7 @@ export namespace Prisma {
     signedAt?: true
     signatureUrl?: true
     signatureIp?: true
+    paidAt?: true
     emailSentAt?: true
     emailSentTo?: true
     reminder1SentAt?: true
@@ -29088,6 +29102,7 @@ export namespace Prisma {
     signedAt?: true
     signatureUrl?: true
     signatureIp?: true
+    paidAt?: true
     emailSentAt?: true
     emailSentTo?: true
     reminder1SentAt?: true
@@ -29111,6 +29126,7 @@ export namespace Prisma {
     subject?: true
     notes?: true
     conditions?: true
+    documentCustomization?: true
     validUntil?: true
     acceptedAt?: true
     refusedAt?: true
@@ -29124,6 +29140,7 @@ export namespace Prisma {
     signedAt?: true
     signatureUrl?: true
     signatureIp?: true
+    paidAt?: true
     emailSentAt?: true
     emailSentTo?: true
     reminder1SentAt?: true
@@ -29234,6 +29251,7 @@ export namespace Prisma {
     subject: string | null
     notes: string | null
     conditions: string | null
+    documentCustomization: JsonValue | null
     validUntil: Date | null
     acceptedAt: Date | null
     refusedAt: Date | null
@@ -29247,6 +29265,7 @@ export namespace Prisma {
     signedAt: Date | null
     signatureUrl: string | null
     signatureIp: string | null
+    paidAt: Date | null
     emailSentAt: Date | null
     emailSentTo: string | null
     reminder1SentAt: Date | null
@@ -29289,6 +29308,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     validUntil?: boolean
     acceptedAt?: boolean
     refusedAt?: boolean
@@ -29302,6 +29322,7 @@ export namespace Prisma {
     signedAt?: boolean
     signatureUrl?: boolean
     signatureIp?: boolean
+    paidAt?: boolean
     emailSentAt?: boolean
     emailSentTo?: boolean
     reminder1SentAt?: boolean
@@ -29331,6 +29352,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     validUntil?: boolean
     acceptedAt?: boolean
     refusedAt?: boolean
@@ -29344,6 +29366,7 @@ export namespace Prisma {
     signedAt?: boolean
     signatureUrl?: boolean
     signatureIp?: boolean
+    paidAt?: boolean
     emailSentAt?: boolean
     emailSentTo?: boolean
     reminder1SentAt?: boolean
@@ -29371,6 +29394,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     validUntil?: boolean
     acceptedAt?: boolean
     refusedAt?: boolean
@@ -29384,6 +29408,7 @@ export namespace Prisma {
     signedAt?: boolean
     signatureUrl?: boolean
     signatureIp?: boolean
+    paidAt?: boolean
     emailSentAt?: boolean
     emailSentTo?: boolean
     reminder1SentAt?: boolean
@@ -29411,6 +29436,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     validUntil?: boolean
     acceptedAt?: boolean
     refusedAt?: boolean
@@ -29424,6 +29450,7 @@ export namespace Prisma {
     signedAt?: boolean
     signatureUrl?: boolean
     signatureIp?: boolean
+    paidAt?: boolean
     emailSentAt?: boolean
     emailSentTo?: boolean
     reminder1SentAt?: boolean
@@ -29433,7 +29460,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type QuoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "subject" | "notes" | "conditions" | "validUntil" | "acceptedAt" | "refusedAt" | "serviceDate" | "operationType" | "depositPercent" | "depositAmount" | "paymentConditions" | "signatureToken" | "signatureTokenExpiry" | "signedAt" | "signatureUrl" | "signatureIp" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "issuedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quote"]>
+  export type QuoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "subject" | "notes" | "conditions" | "documentCustomization" | "validUntil" | "acceptedAt" | "refusedAt" | "serviceDate" | "operationType" | "depositPercent" | "depositAmount" | "paymentConditions" | "signatureToken" | "signatureTokenExpiry" | "signedAt" | "signatureUrl" | "signatureIp" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "issuedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quote"]>
   export type QuoteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
@@ -29478,6 +29505,7 @@ export namespace Prisma {
       subject: string | null
       notes: string | null
       conditions: string | null
+      documentCustomization: Prisma.JsonValue | null
       validUntil: Date | null
       acceptedAt: Date | null
       refusedAt: Date | null
@@ -29491,6 +29519,7 @@ export namespace Prisma {
       signedAt: Date | null
       signatureUrl: string | null
       signatureIp: string | null
+      paidAt: Date | null
       emailSentAt: Date | null
       emailSentTo: string | null
       reminder1SentAt: Date | null
@@ -29939,6 +29968,7 @@ export namespace Prisma {
     readonly subject: FieldRef<"Quote", 'String'>
     readonly notes: FieldRef<"Quote", 'String'>
     readonly conditions: FieldRef<"Quote", 'String'>
+    readonly documentCustomization: FieldRef<"Quote", 'Json'>
     readonly validUntil: FieldRef<"Quote", 'DateTime'>
     readonly acceptedAt: FieldRef<"Quote", 'DateTime'>
     readonly refusedAt: FieldRef<"Quote", 'DateTime'>
@@ -29952,6 +29982,7 @@ export namespace Prisma {
     readonly signedAt: FieldRef<"Quote", 'DateTime'>
     readonly signatureUrl: FieldRef<"Quote", 'String'>
     readonly signatureIp: FieldRef<"Quote", 'String'>
+    readonly paidAt: FieldRef<"Quote", 'DateTime'>
     readonly emailSentAt: FieldRef<"Quote", 'DateTime'>
     readonly emailSentTo: FieldRef<"Quote", 'String'>
     readonly reminder1SentAt: FieldRef<"Quote", 'DateTime'>
@@ -31854,6 +31885,7 @@ export namespace Prisma {
     subject: number
     notes: number
     conditions: number
+    documentCustomization: number
     paymentMethod: number
     paymentRef: number
     pdfUrl: number
@@ -32040,6 +32072,7 @@ export namespace Prisma {
     subject?: true
     notes?: true
     conditions?: true
+    documentCustomization?: true
     paymentMethod?: true
     paymentRef?: true
     pdfUrl?: true
@@ -32183,6 +32216,7 @@ export namespace Prisma {
     subject: string | null
     notes: string | null
     conditions: string | null
+    documentCustomization: JsonValue | null
     paymentMethod: $Enums.PaymentMethod | null
     paymentRef: string | null
     pdfUrl: string | null
@@ -32258,6 +32292,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
@@ -32322,6 +32357,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
@@ -32382,6 +32418,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
@@ -32442,6 +32479,7 @@ export namespace Prisma {
     subject?: boolean
     notes?: boolean
     conditions?: boolean
+    documentCustomization?: boolean
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
@@ -32472,7 +32510,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "paymentMethod" | "paymentRef" | "pdfUrl" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "einvoicingStatus" | "einvoicingProvider" | "providerInvoiceId" | "einvoicingSentAt" | "einvoicingProcessedAt" | "einvoicingTransmissionId" | "einvoicingError" | "einvoicingRawPayload" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "documentCustomization" | "paymentMethod" | "paymentRef" | "pdfUrl" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "einvoicingStatus" | "einvoicingProvider" | "providerInvoiceId" | "einvoicingSentAt" | "einvoicingProcessedAt" | "einvoicingTransmissionId" | "einvoicingError" | "einvoicingRawPayload" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
   export type InvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
@@ -32533,6 +32571,7 @@ export namespace Prisma {
       subject: string | null
       notes: string | null
       conditions: string | null
+      documentCustomization: Prisma.JsonValue | null
       paymentMethod: $Enums.PaymentMethod | null
       paymentRef: string | null
       pdfUrl: string | null
@@ -33016,6 +33055,7 @@ export namespace Prisma {
     readonly subject: FieldRef<"Invoice", 'String'>
     readonly notes: FieldRef<"Invoice", 'String'>
     readonly conditions: FieldRef<"Invoice", 'String'>
+    readonly documentCustomization: FieldRef<"Invoice", 'Json'>
     readonly paymentMethod: FieldRef<"Invoice", 'PaymentMethod'>
     readonly paymentRef: FieldRef<"Invoice", 'String'>
     readonly pdfUrl: FieldRef<"Invoice", 'String'>
@@ -54280,6 +54320,7 @@ export namespace Prisma {
     invoiceFooter: 'invoiceFooter',
     invoiceConditions: 'invoiceConditions',
     invoiceColor: 'invoiceColor',
+    documentCustomization: 'documentCustomization',
     defaultTvaRate: 'defaultTvaRate',
     defaultPaymentDays: 'defaultPaymentDays',
     defaultValidDays: 'defaultValidDays',
@@ -54533,6 +54574,7 @@ export namespace Prisma {
     subject: 'subject',
     notes: 'notes',
     conditions: 'conditions',
+    documentCustomization: 'documentCustomization',
     validUntil: 'validUntil',
     acceptedAt: 'acceptedAt',
     refusedAt: 'refusedAt',
@@ -54546,6 +54588,7 @@ export namespace Prisma {
     signedAt: 'signedAt',
     signatureUrl: 'signatureUrl',
     signatureIp: 'signatureIp',
+    paidAt: 'paidAt',
     emailSentAt: 'emailSentAt',
     emailSentTo: 'emailSentTo',
     reminder1SentAt: 'reminder1SentAt',
@@ -54603,6 +54646,7 @@ export namespace Prisma {
     subject: 'subject',
     notes: 'notes',
     conditions: 'conditions',
+    documentCustomization: 'documentCustomization',
     paymentMethod: 'paymentMethod',
     paymentRef: 'paymentRef',
     pdfUrl: 'pdfUrl',
@@ -55175,6 +55219,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'UserRole'
    */
   export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
@@ -55311,20 +55369,6 @@ export namespace Prisma {
    * Reference to a field of type 'EInvoicingProviderType[]'
    */
   export type ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingProviderType[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -56179,6 +56223,7 @@ export namespace Prisma {
     invoiceFooter?: StringNullableFilter<"CompanySettings"> | string | null
     invoiceConditions?: StringNullableFilter<"CompanySettings"> | string | null
     invoiceColor?: StringNullableFilter<"CompanySettings"> | string | null
+    documentCustomization?: JsonNullableFilter<"CompanySettings">
     defaultTvaRate?: FloatFilter<"CompanySettings"> | number
     defaultPaymentDays?: IntFilter<"CompanySettings"> | number
     defaultValidDays?: IntFilter<"CompanySettings"> | number
@@ -56229,6 +56274,7 @@ export namespace Prisma {
     invoiceFooter?: SortOrderInput | SortOrder
     invoiceConditions?: SortOrderInput | SortOrder
     invoiceColor?: SortOrderInput | SortOrder
+    documentCustomization?: SortOrderInput | SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
@@ -56282,6 +56328,7 @@ export namespace Prisma {
     invoiceFooter?: StringNullableFilter<"CompanySettings"> | string | null
     invoiceConditions?: StringNullableFilter<"CompanySettings"> | string | null
     invoiceColor?: StringNullableFilter<"CompanySettings"> | string | null
+    documentCustomization?: JsonNullableFilter<"CompanySettings">
     defaultTvaRate?: FloatFilter<"CompanySettings"> | number
     defaultPaymentDays?: IntFilter<"CompanySettings"> | number
     defaultValidDays?: IntFilter<"CompanySettings"> | number
@@ -56332,6 +56379,7 @@ export namespace Prisma {
     invoiceFooter?: SortOrderInput | SortOrder
     invoiceConditions?: SortOrderInput | SortOrder
     invoiceColor?: SortOrderInput | SortOrder
+    documentCustomization?: SortOrderInput | SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
@@ -56389,6 +56437,7 @@ export namespace Prisma {
     invoiceFooter?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     invoiceConditions?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     invoiceColor?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    documentCustomization?: JsonNullableWithAggregatesFilter<"CompanySettings">
     defaultTvaRate?: FloatWithAggregatesFilter<"CompanySettings"> | number
     defaultPaymentDays?: IntWithAggregatesFilter<"CompanySettings"> | number
     defaultValidDays?: IntWithAggregatesFilter<"CompanySettings"> | number
@@ -57624,6 +57673,7 @@ export namespace Prisma {
     subject?: StringNullableFilter<"Quote"> | string | null
     notes?: StringNullableFilter<"Quote"> | string | null
     conditions?: StringNullableFilter<"Quote"> | string | null
+    documentCustomization?: JsonNullableFilter<"Quote">
     validUntil?: DateTimeNullableFilter<"Quote"> | Date | string | null
     acceptedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     refusedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
@@ -57637,6 +57687,7 @@ export namespace Prisma {
     signedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     signatureUrl?: StringNullableFilter<"Quote"> | string | null
     signatureIp?: StringNullableFilter<"Quote"> | string | null
+    paidAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     emailSentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     emailSentTo?: StringNullableFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
@@ -57665,6 +57716,7 @@ export namespace Prisma {
     subject?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     conditions?: SortOrderInput | SortOrder
+    documentCustomization?: SortOrderInput | SortOrder
     validUntil?: SortOrderInput | SortOrder
     acceptedAt?: SortOrderInput | SortOrder
     refusedAt?: SortOrderInput | SortOrder
@@ -57678,6 +57730,7 @@ export namespace Prisma {
     signedAt?: SortOrderInput | SortOrder
     signatureUrl?: SortOrderInput | SortOrder
     signatureIp?: SortOrderInput | SortOrder
+    paidAt?: SortOrderInput | SortOrder
     emailSentAt?: SortOrderInput | SortOrder
     emailSentTo?: SortOrderInput | SortOrder
     reminder1SentAt?: SortOrderInput | SortOrder
@@ -57710,6 +57763,7 @@ export namespace Prisma {
     subject?: StringNullableFilter<"Quote"> | string | null
     notes?: StringNullableFilter<"Quote"> | string | null
     conditions?: StringNullableFilter<"Quote"> | string | null
+    documentCustomization?: JsonNullableFilter<"Quote">
     validUntil?: DateTimeNullableFilter<"Quote"> | Date | string | null
     acceptedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     refusedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
@@ -57722,6 +57776,7 @@ export namespace Prisma {
     signedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     signatureUrl?: StringNullableFilter<"Quote"> | string | null
     signatureIp?: StringNullableFilter<"Quote"> | string | null
+    paidAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     emailSentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     emailSentTo?: StringNullableFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
@@ -57750,6 +57805,7 @@ export namespace Prisma {
     subject?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     conditions?: SortOrderInput | SortOrder
+    documentCustomization?: SortOrderInput | SortOrder
     validUntil?: SortOrderInput | SortOrder
     acceptedAt?: SortOrderInput | SortOrder
     refusedAt?: SortOrderInput | SortOrder
@@ -57763,6 +57819,7 @@ export namespace Prisma {
     signedAt?: SortOrderInput | SortOrder
     signatureUrl?: SortOrderInput | SortOrder
     signatureIp?: SortOrderInput | SortOrder
+    paidAt?: SortOrderInput | SortOrder
     emailSentAt?: SortOrderInput | SortOrder
     emailSentTo?: SortOrderInput | SortOrder
     reminder1SentAt?: SortOrderInput | SortOrder
@@ -57794,6 +57851,7 @@ export namespace Prisma {
     subject?: StringNullableWithAggregatesFilter<"Quote"> | string | null
     notes?: StringNullableWithAggregatesFilter<"Quote"> | string | null
     conditions?: StringNullableWithAggregatesFilter<"Quote"> | string | null
+    documentCustomization?: JsonNullableWithAggregatesFilter<"Quote">
     validUntil?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
     acceptedAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
     refusedAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
@@ -57807,6 +57865,7 @@ export namespace Prisma {
     signedAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
     signatureUrl?: StringNullableWithAggregatesFilter<"Quote"> | string | null
     signatureIp?: StringNullableWithAggregatesFilter<"Quote"> | string | null
+    paidAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
     emailSentAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
     emailSentTo?: StringNullableWithAggregatesFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
@@ -57945,6 +58004,7 @@ export namespace Prisma {
     subject?: StringNullableFilter<"Invoice"> | string | null
     notes?: StringNullableFilter<"Invoice"> | string | null
     conditions?: StringNullableFilter<"Invoice"> | string | null
+    documentCustomization?: JsonNullableFilter<"Invoice">
     paymentMethod?: EnumPaymentMethodNullableFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
@@ -58008,6 +58068,7 @@ export namespace Prisma {
     subject?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     conditions?: SortOrderInput | SortOrder
+    documentCustomization?: SortOrderInput | SortOrder
     paymentMethod?: SortOrderInput | SortOrder
     paymentRef?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
@@ -58077,6 +58138,7 @@ export namespace Prisma {
     subject?: StringNullableFilter<"Invoice"> | string | null
     notes?: StringNullableFilter<"Invoice"> | string | null
     conditions?: StringNullableFilter<"Invoice"> | string | null
+    documentCustomization?: JsonNullableFilter<"Invoice">
     paymentMethod?: EnumPaymentMethodNullableFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
@@ -58137,6 +58199,7 @@ export namespace Prisma {
     subject?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     conditions?: SortOrderInput | SortOrder
+    documentCustomization?: SortOrderInput | SortOrder
     paymentMethod?: SortOrderInput | SortOrder
     paymentRef?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
@@ -58201,6 +58264,7 @@ export namespace Prisma {
     subject?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     notes?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     conditions?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    documentCustomization?: JsonNullableWithAggregatesFilter<"Invoice">
     paymentMethod?: EnumPaymentMethodNullableWithAggregatesFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
@@ -60809,6 +60873,7 @@ export namespace Prisma {
     invoiceFooter?: string | null
     invoiceConditions?: string | null
     invoiceColor?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
@@ -60859,6 +60924,7 @@ export namespace Prisma {
     invoiceFooter?: string | null
     invoiceConditions?: string | null
     invoiceColor?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
@@ -60907,6 +60973,7 @@ export namespace Prisma {
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
@@ -60957,6 +61024,7 @@ export namespace Prisma {
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
@@ -61006,6 +61074,7 @@ export namespace Prisma {
     invoiceFooter?: string | null
     invoiceConditions?: string | null
     invoiceColor?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
@@ -61054,6 +61123,7 @@ export namespace Prisma {
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
@@ -61103,6 +61173,7 @@ export namespace Prisma {
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
@@ -62521,6 +62592,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -62534,6 +62606,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -62562,6 +62635,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -62575,6 +62649,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -62595,6 +62670,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62608,6 +62684,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62636,6 +62713,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62649,6 +62727,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62673,6 +62752,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -62686,6 +62766,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -62705,6 +62786,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62718,6 +62800,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62741,6 +62824,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62754,6 +62838,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -62895,6 +62980,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -62958,6 +63044,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -63013,6 +63100,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63076,6 +63164,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63135,6 +63224,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -63187,6 +63277,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63243,6 +63334,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66145,6 +66237,29 @@ export namespace Prisma {
     hasSome?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
     isEmpty?: boolean
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type IntNullableListFilter<$PrismaModel = never> = {
     equals?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -66189,6 +66304,7 @@ export namespace Prisma {
     invoiceFooter?: SortOrder
     invoiceConditions?: SortOrder
     invoiceColor?: SortOrder
+    documentCustomization?: SortOrder
     defaultTvaRate?: SortOrder
     defaultPaymentDays?: SortOrder
     defaultValidDays?: SortOrder
@@ -66329,6 +66445,32 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPreferredChannelFilter<$PrismaModel>
     _max?: NestedEnumPreferredChannelFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumUserRoleFilter<$PrismaModel = never> = {
@@ -67239,6 +67381,7 @@ export namespace Prisma {
     subject?: SortOrder
     notes?: SortOrder
     conditions?: SortOrder
+    documentCustomization?: SortOrder
     validUntil?: SortOrder
     acceptedAt?: SortOrder
     refusedAt?: SortOrder
@@ -67252,6 +67395,7 @@ export namespace Prisma {
     signedAt?: SortOrder
     signatureUrl?: SortOrder
     signatureIp?: SortOrder
+    paidAt?: SortOrder
     emailSentAt?: SortOrder
     emailSentTo?: SortOrder
     reminder1SentAt?: SortOrder
@@ -67296,6 +67440,7 @@ export namespace Prisma {
     signedAt?: SortOrder
     signatureUrl?: SortOrder
     signatureIp?: SortOrder
+    paidAt?: SortOrder
     emailSentAt?: SortOrder
     emailSentTo?: SortOrder
     reminder1SentAt?: SortOrder
@@ -67332,6 +67477,7 @@ export namespace Prisma {
     signedAt?: SortOrder
     signatureUrl?: SortOrder
     signatureIp?: SortOrder
+    paidAt?: SortOrder
     emailSentAt?: SortOrder
     emailSentTo?: SortOrder
     reminder1SentAt?: SortOrder
@@ -67471,29 +67617,6 @@ export namespace Prisma {
     notIn?: $Enums.EInvoicingProviderType[] | ListEnumEInvoicingProviderTypeFieldRefInput<$PrismaModel> | null
     not?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel> | $Enums.EInvoicingProviderType | null
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type InvoicePaymentEventListRelationFilter = {
     every?: InvoicePaymentEventWhereInput
@@ -67531,6 +67654,7 @@ export namespace Prisma {
     subject?: SortOrder
     notes?: SortOrder
     conditions?: SortOrder
+    documentCustomization?: SortOrder
     paymentMethod?: SortOrder
     paymentRef?: SortOrder
     pdfUrl?: SortOrder
@@ -67717,32 +67841,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
     _max?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type InvoiceScalarRelationFilter = {
@@ -72519,6 +72617,29 @@ export namespace Prisma {
     _min?: NestedEnumPreferredChannelFilter<$PrismaModel>
     _max?: NestedEnumPreferredChannelFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnumUserRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.UserRole | EnumUserRoleFieldRefInput<$PrismaModel>
@@ -72748,29 +72869,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
     _max?: NestedEnumEInvoicingProviderTypeNullableFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumMessageDirectionFilter<$PrismaModel = never> = {
@@ -73329,6 +73427,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -73390,6 +73489,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -73443,6 +73543,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -73456,6 +73557,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -73482,6 +73584,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -73495,6 +73598,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -73722,6 +73826,7 @@ export namespace Prisma {
     invoiceFooter?: string | null
     invoiceConditions?: string | null
     invoiceColor?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
@@ -73770,6 +73875,7 @@ export namespace Prisma {
     invoiceFooter?: string | null
     invoiceConditions?: string | null
     invoiceColor?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: number
     defaultPaymentDays?: number
     defaultValidDays?: number
@@ -74519,6 +74625,7 @@ export namespace Prisma {
     subject?: StringNullableFilter<"Invoice"> | string | null
     notes?: StringNullableFilter<"Invoice"> | string | null
     conditions?: StringNullableFilter<"Invoice"> | string | null
+    documentCustomization?: JsonNullableFilter<"Invoice">
     paymentMethod?: EnumPaymentMethodNullableFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
@@ -74582,6 +74689,7 @@ export namespace Prisma {
     subject?: StringNullableFilter<"Quote"> | string | null
     notes?: StringNullableFilter<"Quote"> | string | null
     conditions?: StringNullableFilter<"Quote"> | string | null
+    documentCustomization?: JsonNullableFilter<"Quote">
     validUntil?: DateTimeNullableFilter<"Quote"> | Date | string | null
     acceptedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     refusedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
@@ -74595,6 +74703,7 @@ export namespace Prisma {
     signedAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     signatureUrl?: StringNullableFilter<"Quote"> | string | null
     signatureIp?: StringNullableFilter<"Quote"> | string | null
+    paidAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     emailSentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     emailSentTo?: StringNullableFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
@@ -74807,6 +74916,7 @@ export namespace Prisma {
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
@@ -74855,6 +74965,7 @@ export namespace Prisma {
     invoiceFooter?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceConditions?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceColor?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     defaultTvaRate?: FloatFieldUpdateOperationsInput | number
     defaultPaymentDays?: IntFieldUpdateOperationsInput | number
     defaultValidDays?: IntFieldUpdateOperationsInput | number
@@ -78372,6 +78483,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -78433,6 +78545,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -78486,6 +78599,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -78499,6 +78613,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -78525,6 +78640,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -78538,6 +78654,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -79033,6 +79150,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -79094,6 +79212,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -79147,6 +79266,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -79160,6 +79280,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -79186,6 +79307,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -79199,6 +79321,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -80254,6 +80377,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -80315,6 +80439,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -80363,6 +80488,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -80376,6 +80502,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -80402,6 +80529,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -80415,6 +80543,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -80929,6 +81058,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80990,6 +81120,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81044,6 +81175,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -81057,6 +81189,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -81083,6 +81216,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -81096,6 +81230,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -81884,6 +82019,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -81897,6 +82033,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -81924,6 +82061,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -81937,6 +82075,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -82013,6 +82152,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -82026,6 +82166,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -82053,6 +82194,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -82066,6 +82208,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -82905,6 +83048,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -82967,6 +83111,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -83078,6 +83223,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83140,6 +83286,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85089,6 +85236,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -85151,6 +85299,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -85221,6 +85370,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85283,6 +85433,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86578,6 +86729,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -86640,6 +86792,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -86888,6 +87041,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86950,6 +87104,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87449,6 +87604,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -87492,6 +87648,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -87505,6 +87662,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -88032,6 +88190,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -88093,6 +88252,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -88151,6 +88311,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -88191,6 +88352,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -88204,6 +88366,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -88230,6 +88393,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -88243,6 +88407,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -88266,6 +88431,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -88279,6 +88445,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -89799,6 +89966,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -89842,6 +90010,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -89855,6 +90024,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -89967,6 +90137,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90028,6 +90199,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90086,6 +90258,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90126,6 +90299,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90139,6 +90313,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90165,6 +90340,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90178,6 +90354,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90201,6 +90378,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90214,6 +90392,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90292,6 +90471,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
@@ -90335,6 +90515,7 @@ export namespace Prisma {
     subject?: string | null
     notes?: string | null
     conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: Date | string | null
     acceptedAt?: Date | string | null
     refusedAt?: Date | string | null
@@ -90348,6 +90529,7 @@ export namespace Prisma {
     signedAt?: Date | string | null
     signatureUrl?: string | null
     signatureIp?: string | null
+    paidAt?: Date | string | null
     emailSentAt?: Date | string | null
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
@@ -90538,6 +90720,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90599,6 +90782,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90657,6 +90841,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90697,6 +90882,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90710,6 +90896,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90736,6 +90923,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90749,6 +90937,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90772,6 +90961,7 @@ export namespace Prisma {
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
     validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refusedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -90785,6 +90975,7 @@ export namespace Prisma {
     signedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     signatureIp?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

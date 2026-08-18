@@ -43,6 +43,7 @@ const SubscriptionCancelPage = lazy(() => import('./PublicPages/SubscriptionSucc
 const PayInvoice = lazy(() => import('./PublicPages/PayInvoice'))
 const SignatureQuote = lazy(() => import('./PublicPages/SignatureQuote'))
 const PublicContact = lazy(() => import('./PublicPages/PublicContact'))
+const PaySuccessPage = lazy(() => import('./PublicPages/PaySuccessPage'))
 
 // Route Guard for Private Pages (Requires valid Auth Token)
 function ProtectedRoute({ children }) {
@@ -182,7 +183,9 @@ function App() {
 
             {/* Public Client Portals (No login required) */}
             <Route path="/pay/invoice/:token" element={<PayInvoice />} />
+            <Route path="/pay/success" element={<PaySuccessPage />} />
             <Route path="/sign/quote/:token" element={<SignatureQuote />} />
+            <Route path="/sign/success" element={<PaySuccessPage />} />
             <Route path="/devis/:id" element={<SignatureQuote />} />
             <Route path="/contact/:companySlug" element={<PublicContact />} />
 

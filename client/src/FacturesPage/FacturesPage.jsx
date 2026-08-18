@@ -19,6 +19,9 @@ import QuoteDetailDrawer from "../DevisPage/components/QuoteDetailDrawer";
 import QuotePdfView from "../DevisPage/components/QuotePdfView";
 import ReceivedInvoicesDrawer from "./components/ReceivedInvoicesDrawer";
 import { apiFetch } from "../utils/api";
+import { getAuthToken } from "../utils/auth";
+import { getApiUrl } from "../utils/config";
+import { getEffectiveCustomization } from "../utils/documentCustomization";
 
 const FILTERS = [
     { key: "all",      label: "Toutes" },
@@ -283,12 +286,17 @@ function FacturesPage() {
 
     const handleAutoSend = async (inv, targetEmail) => {
         const emailToSend = targetEmail || inv.clientEmail || "client";
+        const customization = getEffectiveCustomization(inv);
         try {
             await apiFetch(`/v1/invoices/${inv.id}/send`, {
                 method: 'POST',
-                body: JSON.stringify({ recipientEmail: targetEmail || inv.clientEmail })
+                body: JSON.stringify({ 
+                    recipientEmail: targetEmail || inv.clientEmail,
+                    primaryColor: customization.primaryColor,
+                    customization
+                })
             });
-            showToast(`Facture ${inv.number} envoyée avec succès à ${emailToSend} !`, "success");
+            showToast(`Facture ${inv.number} envoyée avec PDF à ${emailToSend} !`, "success");
             fetchInvoices();
         } catch (err) {
             console.error("Auto send invoice error:", err);
@@ -334,20 +342,41 @@ function FacturesPage() {
         }
     };
 
-    const handleDownloadPdf = (inv) => {
-        const content = `FACTURE — ${inv.number}\nClient: ${inv.clientName}\nMontant HT: ${inv.subtotalHt} €\nTVA: ${inv.tvaAmount} €\nTotal TTC: ${inv.totalTtc} €`;
-        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Facture_${inv.number}.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownloadPdf = async (inv) => {
+        try {
+            const token = getAuthToken();
+            const res = await fetch(getApiUrl(`/v1/invoices/${inv.id}/pdf`), {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error("Erreur téléchargement PDF");
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Facture_${(inv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Erreur téléchargement PDF:", err);
+        }
     };
 
-    const handleUpdateInvoiceCustomization = (invId, customSettings) => {
-        setInvoices(prev => prev.map(i => i.id === invId ? { ...i, customization: customSettings } : i));
-        setActiveInvoice(prev => (prev && prev.id === invId ? { ...prev, customization: customSettings } : prev));
+
+    const handleUpdateInvoiceCustomization = async (invId, customSettings) => {
+        setInvoices(prev => prev.map(i => i.id === invId ? { ...i, documentCustomization: customSettings, customization: customSettings } : i));
+        setActiveInvoice(prev => (prev && prev.id === invId ? { ...prev, documentCustomization: customSettings, customization: customSettings } : prev));
+        try {
+            await apiFetch(`/v1/invoices/${invId}`, {
+                method: "PUT",
+                body: JSON.stringify({ documentCustomization: customSettings, customization: customSettings })
+            });
+            showToast("Personnalisation enregistrée.");
+        } catch (err) {
+            console.warn("Erreur sauvegarde personnalisation facture:", err);
+        }
     };
 
     const handleSyncReceived = async () => {
@@ -636,10 +665,16 @@ function FacturesPage() {
             {linkedQuoteForDrawer && (
                 <QuoteDetailDrawer
                     quote={linkedQuoteForDrawer}
-                    onClose={() => setLinkedQuoteForDrawer(null)}
+                    onClose={() => {
+                        setLinkedQuoteForDrawer(null);
+                        setShowDetailDrawer(true);
+                    }}
                     overlayStyle={{ zIndex: 1200 }}
                     onPreview={() => setPdfModalQuote(linkedQuoteForDrawer)}
-                    onSend={() => setLinkedQuoteForDrawer(null)}
+                    onSend={() => {
+                        setLinkedQuoteForDrawer(null);
+                        setShowDetailDrawer(true);
+                    }}
                     onConvertToInvoice={() => {}}
                     onChangeStatus={() => {}}
                     onEdit={() => {}}

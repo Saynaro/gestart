@@ -1156,8 +1156,7 @@ function InvoiceDetailDrawer({
                             )}
 
                             {/* Envoyer */}
-                            <button className="fp-drawer-action-secondary" onClick={onSend}>
-                                <Send size={14} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                            <button className="fp-drawer-action-primary" onClick={onSend}>
                                 Envoyer la facture
                             </button>
 

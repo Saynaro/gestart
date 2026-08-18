@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Download, CheckCircle2, Trash2, ShieldCheck, Building2, User, CreditCard, PenTool, AlertCircle, FileText, Check, Copy } from "lucide-react";
 import "./SignatureQuote.css";
 import { apiFetch } from "../utils/api";
+import { getApiUrl } from "../utils/config";
 import { getEffectiveCustomization } from "../utils/documentCustomization";
 
 function SignatureQuote() {
@@ -160,8 +161,13 @@ function SignatureQuote() {
         setTimeout(() => setIbanCopied(false), 2500);
     };
 
+    const handleDownloadPdf = () => {
+        const token = activeToken || quote?.signatureToken || quote?.id;
+        window.open(getApiUrl(`/v1/public/sign/quote/${token}/pdf`), "_blank");
+    };
+
     const handlePrint = () => {
-        window.print();
+        handleDownloadPdf();
     };
 
     if (loading) {
@@ -190,7 +196,8 @@ function SignatureQuote() {
     const company = quote.company || {};
     const client = quote.client || {};
     const lines = quote.lines || [];
-    const isSigned = signatureSaved || quote.status === "ACCEPTED" || quote.signatureUrl;
+    const isSigned = signatureSaved || quote.status === "ACCEPTED" || quote.status === "PAID" || quote.signatureUrl;
+    const isPaid = Boolean(quote.paidAt || quote.status === "PAID");
     const computedHt = lines.reduce((acc, l) => acc + (Number(l.unitPrice || 0) * Number(l.quantity || l.qty || 1)), 0);
     const rawTotalHt = quote.amountHT !== undefined && quote.amountHT !== null ? Number(quote.amountHT) : (quote.totalHt !== undefined ? Number(quote.totalHt) : computedHt);
     const rawTotalTtc = quote.amountTTC !== undefined && quote.amountTTC !== null ? Number(quote.amountTTC) : (quote.totalTtc !== undefined ? Number(quote.totalTtc) : rawTotalHt);
@@ -206,10 +213,10 @@ function SignatureQuote() {
     const bankIban = company.settings?.bankIban || company.bankIban;
     const bankBic = company.settings?.bankBic || company.bankBic;
     const bankName = company.settings?.bankName || company.bankName;
-
     const custom = getEffectiveCustomization(quote);
     const primaryColor = custom.primaryColor || "#556B2F";
     const fontFamily = custom.fontFamily || "Inter, sans-serif";
+    const companySignature = company.signatureUrl || company.signature || company.settings?.signatureUrl || company.settings?.signature || custom.signatureUrl;
 
     return (
         <div className="public-portal-page" style={{ '--primary-color': primaryColor, fontFamily: fontFamily }}>
@@ -217,9 +224,17 @@ function SignatureQuote() {
             <header className="public-portal-header no-print">
                 <div className="header-inner">
                     <div className="header-brand-wrap">
-                        <div className="company-badge-icon">
-                            <Building2 size={20} />
-                        </div>
+                        {custom.showLogo && (custom.logoUrl || company.logoUrl) ? (
+                            <img 
+                                src={custom.logoUrl || company.logoUrl} 
+                                alt="Logo" 
+                                style={{ maxHeight: `${custom.logoSize || 45}px`, maxWidth: '120px', objectFit: 'contain' }} 
+                            />
+                        ) : (
+                            <div className="company-badge-icon" style={{ backgroundColor: primaryColor, color: '#FFFFFF' }}>
+                                <Building2 size={20} />
+                            </div>
+                        )}
                         <div>
                             <h1 className="header-company-name">{company.name || "GestArt CRM"}</h1>
                             <span className="header-doc-sub">Devis {quote.number}</span>
@@ -232,131 +247,412 @@ function SignatureQuote() {
                 </div>
             </header>
 
-            {/* Main Content (Printable A4 Sheet) */}
+            {/* Main Content (Printable A4 Sheet matching Previsualiser) */}
             <main className="public-portal-main">
-                <div className="public-portal-card" id="invoice-pdf-print-area">
-                    {/* Top Banner */}
-                    <div className="payment-intro-banner">
-                        <div className="intro-left">
-                            <span className="intro-badge">Proposition Commerciale & Devis</span>
-                            <h2 className="intro-title">Devis {quote.number}</h2>
-                            <span className="intro-date">
-                                Émis le {new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")} • Valable jusqu'au {quote.validUntil ? new Date(quote.validUntil).toLocaleDateString("fr-FR") : "30 jours"}
-                            </span>
-                        </div>
-                        <div className="intro-right-amount">
-                            <span className="amount-label">Montant Total</span>
-                            <span className="amount-val">{totalTtc} € <span className="ttc-tag">TTC</span></span>
-                        </div>
-                    </div>
+                <div
+                    className="public-portal-card"
+                    id="invoice-pdf-print-area"
+                    style={{
+                        padding: '32px',
+                        backgroundColor: custom.bgColor || '#FFFFFF',
+                        color: custom.textColor || '#1A1A1A',
+                        fontSize: custom.fontSize || '9.5pt',
+                        fontFamily: custom.fontFamily || 'Inter, sans-serif'
+                    }}
+                >
+                    {/* ==================== STRUCTURE: BANNER ==================== */}
+                    {custom.structure === "banner" && (
+                        <div style={{ marginBottom: "16px" }}>
+                            <div
+                                style={{
+                                    backgroundColor: primaryColor,
+                                    color: "#FFFFFF",
+                                    padding: "16px 20px",
+                                    margin: "-32px -32px 14px -32px",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center"
+                                }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                        <img
+                                            src={custom.logoUrl || company.logoUrl}
+                                            alt="Logo"
+                                            style={{
+                                                height: `${custom.logoSize || 45}px`,
+                                                maxWidth: "140px",
+                                                objectFit: "contain",
+                                                background: "rgba(255,255,255,0.2)",
+                                                padding: "2px 6px",
+                                                borderRadius: "4px"
+                                            }}
+                                        />
+                                    )}
+                                    <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                        {company.name || "Entreprise"}
+                                    </h2>
+                                </div>
+                                <h1 style={{ fontSize: "1.8em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
+                                    DEVIS
+                                </h1>
+                            </div>
 
-                    {/* Parties Grid */}
-                    <div className="parties-grid">
-                        <div className="party-box">
-                            <span className="party-title"><Building2 size={14} /> Entreprise émettrice</span>
-                            <strong className="party-name">{company.name || "Entreprise"}</strong>
-                            {company.address && <span className="party-line">{company.address}</span>}
-                            {(company.postalCode || company.city) && <span className="party-line">{company.postalCode} {company.city}</span>}
-                            {company.siret && <span className="party-line">SIRET : {company.siret}</span>}
-                            {company.phone && <span className="party-line">Tél : {company.phone}</span>}
-                            {company.email && <span className="party-line">{company.email}</span>}
-                        </div>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    backgroundColor: "#F4F4F2",
+                                    padding: "6px 12px",
+                                    borderRadius: "4px",
+                                    fontSize: "0.85em",
+                                    marginBottom: "12px",
+                                    color: "#4A4A4A"
+                                }}
+                            >
+                                <div><strong>Numéro : </strong> {quote.number || `DEV-${quote.id}`}</div>
+                                <div><strong>Date : </strong> {new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</div>
+                                {custom.showDeliveryDate !== false && <div><strong>Validité : </strong> {quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</div>}
+                            </div>
 
-                        <div className="party-box">
-                            <span className="party-title"><User size={14} /> Client destinataire</span>
-                            <strong className="party-name">{clientDisplayName}</strong>
-                            {client.companyName && client.firstName && <span className="party-line">{client.companyName}</span>}
-                            {client.address && <span className="party-line">{client.address}</span>}
-                            {client.phone && <span className="party-line">Tél : {client.phone}</span>}
-                            {client.email && <span className="party-line">{client.email}</span>}
-                        </div>
-                    </div>
-
-                    {/* Lines Table */}
-                    {lines.length > 0 && (
-                        <div className="table-responsive-wrapper">
-                            <table className="portal-lines-table">
-                                <thead style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
-                                    <tr style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
-                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "left", padding: "10px 12px", borderRadius: "4px 0 0 4px" }}>Description</th>
-                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "center", width: "70px", padding: "10px 12px" }}>Qté</th>
-                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "right", width: "110px", padding: "10px 12px" }}>Prix Unit. HT</th>
-                                        <th style={{ backgroundColor: primaryColor, color: "#FFFFFF", textAlign: "right", width: "110px", padding: "10px 12px", borderRadius: "0 4px 4px 0" }}>Total HT</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {lines.map((line, idx) => (
-                                        <tr key={idx}>
-                                            <td>
-                                                <div className="line-desc-bold">{line.description}</div>
-                                                {line.reference && <div className="line-ref">Réf: {line.reference}</div>}
-                                            </td>
-                                            <td style={{ textAlign: "center" }}>{line.quantity || 1}</td>
-                                            <td style={{ textAlign: "right" }}>{Number(line.unitPrice || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
-                                            <td style={{ textAlign: "right", fontWeight: 600 }}>{Number(line.total || (line.quantity * line.unitPrice) || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            {custom.clientBoxPosition === "right" ? (
+                                <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", marginBottom: "14px" }}>
+                                    <div style={{ flex: 1, fontSize: "0.9em", lineHeight: 1.4, opacity: 0.85 }}>
+                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                        {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                        {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                    </div>
+                                    <div style={{ flex: 1, backgroundColor: "#FAFAF8", border: "1px solid #EAEAE6", padding: "10px 14px", borderRadius: "6px" }}>
+                                        <span style={{ fontSize: "0.75em", fontWeight: 700, color: primaryColor, textTransform: "uppercase", display: "block", marginBottom: "2px" }}>DEVIS POUR :</span>
+                                        <h3 style={{ fontSize: "1.05em", fontWeight: 700, margin: "0 0 2px 0", color: "#1A1A1A" }}>{clientDisplayName}</h3>
+                                        {client.address && <div style={{ fontSize: "0.88em", color: "#475569" }}>{client.address}</div>}
+                                        {client.phone && <div style={{ fontSize: "0.88em", color: "#475569" }}>Tél : {client.phone}</div>}
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div style={{ fontSize: "0.9em", lineHeight: 1.4, opacity: 0.85, marginBottom: "10px" }}>
+                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                        {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                        {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                    </div>
+                                    <div style={{ backgroundColor: "#FAFAF8", border: "1px solid #EAEAE6", padding: "10px 14px", borderRadius: "6px", marginBottom: "14px" }}>
+                                        <span style={{ fontSize: "0.75em", fontWeight: 700, color: primaryColor, textTransform: "uppercase", display: "block", marginBottom: "2px" }}>DEVIS POUR :</span>
+                                        <h3 style={{ fontSize: "1.05em", fontWeight: 700, margin: "0 0 2px 0", color: "#1A1A1A" }}>{clientDisplayName}</h3>
+                                        {client.address && <div style={{ fontSize: "0.88em", color: "#475569" }}>{client.address}</div>}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 
-                    {/* Totals */}
-                    <div className="totals-recap-box">
-                        <div className="total-row">
-                            <span>Sous-total HT :</span>
-                            <span>{totalHt} €</span>
-                        </div>
-                        <div className="total-row">
-                            <span>TVA ({tvaRate}%) :</span>
-                            <span>{tvaAmount} €</span>
-                        </div>
-                        <div className="total-row total-highlight" style={{ backgroundColor: primaryColor, color: "#FFFFFF" }}>
-                            <span style={{ color: "#FFFFFF" }}>Total TTC :</span>
-                            <span style={{ color: "#FFFFFF" }}>{totalTtc} € TTC</span>
-                        </div>
-                    </div>
-
-                    {/* DUAL SIGNATURE BLOCKS (OFFICIAL FRENCH COMMERCIAL FORMAT) */}
-                    <div className="signatures-dual-grid">
-                        {/* Company Signature / Stamp */}
-                        <div className="signature-block-card">
-                            <div className="signature-block-header">
-                                <span className="signature-block-title">Pour l'entreprise</span>
-                                <span className="signature-badge-cert"><CheckCircle2 size={12} /> Émetteur agréé</span>
-                            </div>
-                            <span className="signature-mention-label">Cachet & Signature de l'artisan</span>
-                            <div className="signature-visual-box">
-                                <div style={{ textAlign: 'center', color: '#334155' }}>
-                                    <strong style={{ fontSize: '13px', display: 'block' }}>{company.name || "Entreprise"}</strong>
-                                    <span style={{ fontSize: '11px', color: '#64748B', display: 'block' }}>SIRET : {company.siret || 'Enregistré'}</span>
-                                    <span style={{ fontSize: '10.5px', color: '#16a34a', fontWeight: 600, display: 'block', marginTop: '4px' }}>✓ Devis officiel vérifié</span>
+                    {/* ==================== STRUCTURE: MODERN ==================== */}
+                    {custom.structure === "modern" && (
+                        <div style={{ marginBottom: "16px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                                <div>
+                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                        <img
+                                            src={custom.logoUrl || company.logoUrl}
+                                            alt="Logo"
+                                            style={{ height: `${custom.logoSize || 45}px`, maxWidth: "180px", objectFit: "contain", marginBottom: "4px" }}
+                                        />
+                                    )}
+                                    <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                        {company.name || "Entreprise"}
+                                    </h2>
+                                </div>
+                                <div style={{ textAlign: "right" }}>
+                                    <div style={{ display: "inline-block", backgroundColor: primaryColor, color: "#FFFFFF", padding: "6px 16px", borderRadius: "20px", fontWeight: 800, fontSize: "1.05em", letterSpacing: "0.5px", marginBottom: "4px" }}>
+                                        DEVIS N° {quote.number}
+                                    </div>
+                                    <div style={{ fontSize: "0.88em", color: "#475569" }}>
+                                        Date : <strong>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</strong> {custom.showDeliveryDate !== false && <>• Validité : <strong>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</strong></>}
+                                    </div>
                                 </div>
                             </div>
-                            <span style={{ fontSize: '11px', color: '#64748B' }}>Date : {new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</span>
+
+                            {custom.clientBoxPosition === "right" ? (
+                                <div style={{ display: "flex", gap: "14px", marginBottom: "14px" }}>
+                                    <div style={{ flex: 1, backgroundColor: "#FAFAF8", borderLeft: `4px solid ${primaryColor}`, padding: "10px 14px", borderRadius: "6px", fontSize: "0.9em", lineHeight: 1.4 }}>
+                                        <span style={{ fontSize: "0.78em", fontWeight: 700, color: primaryColor, textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                            Émetteur
+                                        </span>
+                                        <div style={{ fontWeight: 700, color: "#1A1A1A" }}>{company.name}</div>
+                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                        {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                        {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                    </div>
+
+                                    <div style={{ flex: 1, backgroundColor: "#F8FAFC", border: `1px solid #E2E8F0`, borderLeft: `4px solid ${primaryColor}`, padding: "10px 14px", borderRadius: "6px", fontSize: "0.9em", lineHeight: 1.4 }}>
+                                        <span style={{ fontSize: "0.78em", fontWeight: 700, color: primaryColor, textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                            DEVIS POUR :
+                                        </span>
+                                        <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                        {client.address && <div>{client.address}</div>}
+                                        {client.phone && <div>Tél : {client.phone}</div>}
+                                        {client.email && <div>Email : {client.email}</div>}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ marginBottom: "14px" }}>
+                                    <div style={{ backgroundColor: "#FAFAF8", borderLeft: `4px solid ${primaryColor}`, padding: "10px 14px", borderRadius: "6px", fontSize: "0.9em", lineHeight: 1.4, marginBottom: "10px" }}>
+                                        <span style={{ fontSize: "0.78em", fontWeight: 700, color: primaryColor, textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                            Émetteur
+                                        </span>
+                                        <div style={{ fontWeight: 700, color: "#1A1A1A" }}>{company.name}</div>
+                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                        {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                    </div>
+
+                                    <div style={{ backgroundColor: "#F8FAFC", border: `1px solid #E2E8F0`, borderLeft: `4px solid ${primaryColor}`, padding: "10px 14px", borderRadius: "6px", fontSize: "0.9em", lineHeight: 1.4 }}>
+                                        <span style={{ fontSize: "0.78em", fontWeight: 700, color: primaryColor, textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                                            DEVIS POUR :
+                                        </span>
+                                        <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                        {client.address && <div>{client.address}</div>}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+
+                    {/* ==================== STRUCTURE: MINIMAL ==================== */}
+                    {custom.structure === "minimal" && (
+                        <div style={{ marginBottom: "16px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "12px", borderBottom: "1px solid #E2E8F0", marginBottom: "12px" }}>
+                                <div>
+                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                        <img src={custom.logoUrl || company.logoUrl} alt="Logo" style={{ height: "36px", objectFit: "contain", marginBottom: "6px" }} />
+                                    )}
+                                    <h2 style={{ fontSize: "1.2em", fontWeight: 700, color: "#0F172A", margin: 0 }}>{company.name || "Entreprise"}</h2>
+                                    <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px", lineHeight: 1.35 }}>
+                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: "right" }}>
+                                    <h1 style={{ fontSize: "1.5em", fontWeight: 700, color: "#0F172A", margin: 0, letterSpacing: "1px" }}>DEVIS</h1>
+                                    <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px" }}>
+                                        <div>N° {quote.number}</div>
+                                        <div>Date : {new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: "8px 0", marginBottom: "12px" }}>
+                                <span style={{ fontSize: "0.75em", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", display: "block" }}>DESTINATAIRE</span>
+                                <div style={{ fontSize: "1em", fontWeight: 700, color: "#0F172A", marginTop: "2px" }}>{clientDisplayName}</div>
+                                {client.address && <div style={{ fontSize: "0.88em", color: "#64748B" }}>{client.address}</div>}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ==================== STRUCTURE: CLASSIC ==================== */}
+                    {(!custom.structure || custom.structure === "classic") && (
+                        <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                <div style={{ flex: 1 }}>
+                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                        <img
+                                            src={custom.logoUrl || company.logoUrl}
+                                            alt="Logo"
+                                            style={{
+                                                maxHeight: `${custom.logoSize || 45}px`,
+                                                maxWidth: `${(custom.logoSize || 45) * 2.5}px`,
+                                                objectFit: 'contain',
+                                                marginBottom: '8px'
+                                            }}
+                                        />
+                                    )}
+                                    <h2 style={{ fontSize: '1.3em', fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                        {company.name || "Entreprise"}
+                                    </h2>
+                                    <div style={{ fontSize: '0.9em', color: '#475569', lineHeight: 1.4, marginTop: '4px' }}>
+                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                        {custom.showAddress !== false && (company.postalCode || company.city) && <div>{company.postalCode} {company.city}</div>}
+                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                        {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                        {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                    <h1 style={{ fontSize: '2em', color: primaryColor, margin: 0, fontWeight: 800, letterSpacing: '0.5px' }}>
+                                        DEVIS
+                                    </h1>
+                                    <table style={{ fontSize: '0.9em', marginTop: '6px', borderCollapse: 'collapse' }}>
+                                        <tbody>
+                                            <tr>
+                                                <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Numéro :</td>
+                                                <td style={{ padding: '2px 0', color: '#0F172A', fontWeight: 600 }}>{quote.number}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Date :</td>
+                                                <td style={{ padding: '2px 0', color: '#475569' }}>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</td>
+                                            </tr>
+                                            {custom.showDeliveryDate !== false && (
+                                                <tr>
+                                                    <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Validité :</td>
+                                                    <td style={{ padding: '2px 0', color: '#475569' }}>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Client Box */}
+                            <div style={{
+                                backgroundColor: '#FAFAF8',
+                                border: '1px solid #EAEAE6',
+                                padding: '10px 14px',
+                                borderRadius: '6px',
+                                marginBottom: '16px',
+                                textAlign: 'left',
+                                ...(custom.clientBoxPosition === "right" ? { maxWidth: "300px", marginLeft: "auto" } : {})
+                            }}>
+                                <span style={{ fontSize: '0.78em', fontWeight: 700, letterSpacing: '0.5px', color: primaryColor, textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                                    DEVIS POUR :
+                                </span>
+                                <h3 style={{ fontSize: '1.1em', fontWeight: 700, margin: '0 0 2px 0', color: '#1A1A1A', lineHeight: 1.3 }}>
+                                    {clientDisplayName}
+                                </h3>
+                                {client.address && (
+                                    <div style={{ fontSize: '0.92em', color: '#475569', lineHeight: 1.35 }}>{client.address}</div>
+                                )}
+                                {client.phone && (
+                                    <div style={{ fontSize: '0.92em', color: '#475569', lineHeight: 1.35 }}>Tél : {client.phone}</div>
+                                )}
+                                {client.email && (
+                                    <div style={{ fontSize: '0.92em', color: '#475569', lineHeight: 1.35 }}>Email : {client.email}</div>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+
+                    {/* Items Table */}
+                    <table style={{ fontSize: '0.95em', marginBottom: '16px', width: '100%', borderCollapse: 'collapse' }}>
+                        <thead style={{ backgroundColor: primaryColor, color: '#FFFFFF' }}>
+                            <tr style={{ backgroundColor: primaryColor, color: '#FFFFFF' }}>
+                                <th style={{ backgroundColor: primaryColor, color: '#FFFFFF', textAlign: 'left', padding: '7px 10px', borderRadius: '3px 0 0 3px' }}>Description</th>
+                                <th style={{ backgroundColor: primaryColor, color: '#FFFFFF', textAlign: 'center', width: '50px', padding: '7px 6px', whiteSpace: 'nowrap' }}>Qté</th>
+                                <th style={{ backgroundColor: primaryColor, color: '#FFFFFF', textAlign: 'right', width: '90px', padding: '7px 10px', whiteSpace: 'nowrap' }}>Unit. HT</th>
+                                <th style={{ backgroundColor: primaryColor, color: '#FFFFFF', textAlign: 'right', width: '95px', padding: '7px 10px', borderRadius: '0 3px 3px 0', whiteSpace: 'nowrap' }}>Total HT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(lines && lines.length > 0) ? (
+                                lines.map((line, idx) => {
+                                    const q = Number(line.quantity || line.qty || 1);
+                                    const p = Number(line.unitPrice) || 0;
+                                    return (
+                                        <tr key={idx} style={{ borderBottom: '1px solid #EAEAE6' }}>
+                                            <td style={{ padding: '7px 10px' }}>
+                                                <div style={{ fontWeight: 600, color: '#1E293B' }}>{line.description || 'Prestation'}</div>
+                                                {line.reference && <div style={{ fontSize: '0.78em', color: '#64748B' }}>Réf: {line.reference}</div>}
+                                            </td>
+                                            <td style={{ textAlign: 'center', padding: '7px 6px', color: '#334155' }}>{q}</td>
+                                            <td style={{ textAlign: 'right', padding: '7px 10px', color: '#334155' }}>{p.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                            <td style={{ textAlign: 'right', padding: '7px 10px', fontWeight: 600, color: '#1E293B' }}>{(p * q).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr style={{ borderBottom: '1px solid #EAEAE6' }}>
+                                    <td style={{ padding: '7px 10px', fontWeight: 600 }}>{quote.interventionType || quote.subject || "Prestation"}</td>
+                                    <td style={{ textAlign: 'center', padding: '7px 6px' }}>1</td>
+                                    <td style={{ textAlign: 'right', padding: '7px 10px' }}>{(Number(rawTotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                    <td style={{ textAlign: 'right', padding: '7px 10px', fontWeight: 600 }}>{(Number(rawTotalHt) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+
+                    {/* Summary Block */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                        <table style={{ fontSize: '0.95em', width: 'auto', minWidth: '200pt', borderCollapse: 'collapse' }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ whiteSpace: 'nowrap', padding: '4px 8px', color: '#475569' }}>Sous-total HT :</td>
+                                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px', fontWeight: 600, color: '#0F172A' }}>{totalHt} €</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ whiteSpace: 'nowrap', padding: '4px 8px', color: '#475569' }}>TVA ({tvaRate}%) :</td>
+                                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '4px 8px', fontWeight: 600, color: '#0F172A' }}>{tvaAmount} €</td>
+                                </tr>
+                                <tr style={{ backgroundColor: primaryColor, color: '#FFFFFF', fontWeight: 700 }}>
+                                    <td style={{ backgroundColor: primaryColor, color: '#FFFFFF', whiteSpace: 'nowrap', padding: '7px 10px', fontSize: '1.05em', borderRadius: '3px 0 0 3px' }}>
+                                        <strong>TOTAL TTC :</strong>
+                                    </td>
+                                    <td style={{ backgroundColor: primaryColor, color: '#FFFFFF', textAlign: 'right', whiteSpace: 'nowrap', padding: '7px 10px', fontSize: '1.05em', borderRadius: '0 3px 3px 0' }}>
+                                        <strong>{totalTtc} €</strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Signatures Dual Grid */}
+                    <div style={{ display: 'flex', gap: '14px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        {/* Company Signature */}
+                        <div style={{ flex: '1 1 220px' }}>
+                            <div style={{ fontWeight: 700, marginBottom: '4px', fontSize: '0.9em', color: '#0F172A' }}>Pour l'entreprise :</div>
+                            <div style={{
+                                height: '54px',
+                                border: '1px dashed #CBD5E1',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: '6px',
+                                backgroundColor: '#FAFAF8',
+                                padding: '4px'
+                            }}>
+                                {companySignature ? (
+                                    <img src={companySignature} alt="Signature Entreprise" style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ color: '#94A3B8', fontSize: '0.85em', fontStyle: 'italic' }}>{company.name}</span>
+                                )}
+                            </div>
                         </div>
 
                         {/* Client Signature */}
-                        <div className="signature-block-card">
-                            <div className="signature-block-header">
-                                <span className="signature-block-title">Pour le client</span>
-                                {isSigned && <span className="signature-badge-cert"><CheckCircle2 size={12} /> Signé en ligne</span>}
-                            </div>
-                            <span className="signature-mention-label">Mention manuscrite « Bon pour accord »</span>
-                            <div className="signature-visual-box">
-                                {isSigned && (quote.signatureUrl || hasSigned) ? (
-                                    <img 
-                                        src={quote.signatureUrl || canvasRef.current?.toDataURL()} 
-                                        alt="Signature électronique client" 
-                                        className="signature-img-rendered" 
-                                    />
-                                ) : (
-                                    <span style={{ fontSize: '11.5px', color: '#94A3B8', fontStyle: 'italic', textAlign: 'center' }}>
-                                        Cadre réservé à la signature du client
+                        <div style={{ flex: '1 1 220px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9em', color: '#0F172A' }}>Bon pour accord / Le Client :</span>
+                                {isSigned && (
+                                    <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                        <CheckCircle2 size={12} /> Signé en ligne
                                     </span>
                                 )}
                             </div>
-                            <span style={{ fontSize: '11px', color: '#64748B' }}>
+                            <div style={{
+                                height: '54px',
+                                border: '1px dashed #CBD5E1',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: '6px',
+                                backgroundColor: '#FAFAF8',
+                                padding: '4px'
+                            }}>
+                                {isSigned && (quote.signatureUrl || hasSigned) ? (
+                                    <img 
+                                        src={quote.signatureUrl || canvasRef.current?.toDataURL()} 
+                                        alt="Signature client" 
+                                        style={{ maxHeight: '48px', maxWidth: '90%', objectFit: 'contain' }} 
+                                    />
+                                ) : (
+                                    <span style={{ color: '#94A3B8', fontSize: '0.85em', fontStyle: 'italic' }}>Cadre réservé à la signature du client</span>
+                                )}
+                            </div>
+                            <span style={{ fontSize: '10.5px', color: '#64748B', display: 'block', marginTop: '2px' }}>
                                 {isSigned ? (
                                     <>Signé le {quote.signedAt ? new Date(quote.signedAt).toLocaleDateString("fr-FR") : new Date().toLocaleDateString("fr-FR")} par {clientDisplayName}</>
                                 ) : (
@@ -366,11 +662,15 @@ function SignatureQuote() {
                         </div>
                     </div>
 
-                    {/* Legal Notice */}
-                    <div className="doc-legal-notice">
-                        Devis valable {quote.validUntil ? `jusqu'au ${new Date(quote.validUntil).toLocaleDateString("fr-FR")}` : "30 jours à compter de son émission"}. 
-                        Toute commande implique l'acceptation sans réserve des conditions générales de vente et de prestation. 
-                        En cas de signature électronique, l'accord vaut bon de commande ferme et définitif conformément aux articles 1366 et suivants du Code Civil.
+                    {/* Footer / Legal Section (Exact match with Previsualiser) */}
+                    <div style={{ fontSize: '0.85em', paddingTop: '10px', borderTop: '1px solid #E0E0E0', marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '3px', color: '#334155' }}>
+                        {bankIban && (
+                            <div><strong>Coordonnées bancaires (IBAN) : </strong>{bankIban}{bankBic ? ` • BIC : ${bankBic}` : ''}{bankName ? ` • ${bankName}` : ''}</div>
+                        )}
+                        <div><strong>Conditions de paiement : </strong>Paiement à 30 jours (Échéance le {quote.dueDate ? new Date(quote.dueDate).toLocaleDateString("fr-FR") : new Date(new Date(quote.date || quote.createdAt || Date.now()).setDate(new Date(quote.date || quote.createdAt || Date.now()).getDate() + 30)).toLocaleDateString("fr-FR")}).</div>
+                        <div><strong>Validité du devis : </strong>30 jours à compter de la date d'émission (art. L. 221-5 et L. 111-1 C.conso). Devis gratuit avant exécution des travaux (art. L. 111-3 C.conso).</div>
+                        <div><strong>Conditions d'exécution : </strong>Les travaux débuteront après signature du devis accompagné d'un acompte.</div>
+                        <div style={{ fontStyle: 'italic', marginTop: '2px', color: '#64748B' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>
                     </div>
 
                     {/* INTERACTIVE SIGNATURE PAD (Screen only, hidden on print) */}
@@ -395,12 +695,10 @@ function SignatureQuote() {
                                 </button>
                             </div>
 
-                            <div style={{ border: '2px dashed #CBD5E1', borderRadius: '12px', backgroundColor: '#F8FAFC', overflow: 'hidden', touchAction: 'none' }}>
+                            <div className="signature-canvas-wrapper">
                                 <canvas
                                     ref={canvasRef}
-                                    width={640}
-                                    height={150}
-                                    style={{ width: '100%', height: '150px', display: 'block', cursor: 'crosshair' }}
+                                    className="signature-canvas"
                                     onMouseDown={startDrawing}
                                     onMouseMove={draw}
                                     onMouseUp={stopDrawing}
@@ -423,36 +721,26 @@ function SignatureQuote() {
                         </div>
                     )}
 
-                    {/* Post-Signature Confirmation & Pay/Download Actions (Screen only) */}
+                    {/* Post-Signature Confirmation & Download Actions (Screen only) */}
                     {isSigned && (
                         <div className="portal-actions-container no-print" style={{ marginTop: '16px' }}>
-                            <div className="paid-success-banner" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '14px' }}>
+                            <div className="paid-success-banner" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '14px', backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <CheckCircle2 size={32} color="#16a34a" />
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '16px', color: '#166534' }}>Devis validé et signé avec succès !</h3>
+                                        <h3 style={{ margin: 0, fontSize: '16px', color: '#166534', fontWeight: 700 }}>Devis validé et signé avec succès !</h3>
                                         <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#15803D' }}>
-                                            Votre accord électronique avec mention <em>« Bon pour accord »</em> a été enregistré.
+                                            Votre accord électronique avec mention <em>« Bon pour accord »</em> a été enregistré. Une facture officielle sera transmise pour le règlement des prestations.
                                         </p>
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '6px', flexWrap: 'wrap' }}>
-                                    <button
-                                        type="button"
-                                        className="portal-primary-pay-btn"
-                                        onClick={handlePayQuoteStripe}
-                                        disabled={isPaying}
-                                        style={{ flex: 1, minWidth: '220px' }}
-                                    >
-                                        <CreditCard size={18} />
-                                        <span>{isPaying ? "Redirection..." : `Régler le montant (${totalTtc} €) par Carte`}</span>
-                                    </button>
+                                <div style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '6px' }}>
                                     <button
                                         type="button"
                                         className="portal-secondary-btn"
                                         onClick={handlePrint}
-                                        style={{ flex: 1, minWidth: '180px' }}
+                                        style={{ flex: 1, backgroundColor: '#FFFFFF' }}
                                     >
                                         <Download size={16} />
                                         <span>Télécharger l'exemplaire signé (PDF)</span>
@@ -463,7 +751,7 @@ function SignatureQuote() {
                     )}
 
                     {/* Bank Transfer Box (Screen only) */}
-                    {bankIban && (
+                    {bankIban && !isPaid && (
                         <div className="bank-transfer-info-box no-print">
                             <h4 className="bank-title">Coordonnées bancaires de l'entreprise :</h4>
                             <div className="iban-display-row">

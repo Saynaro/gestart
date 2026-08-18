@@ -296,10 +296,11 @@ export const updateCompanySettings = async (req, res) => {
     const companyId = req.user.companyId;
 
     try {
+        const { id, company, companyId: _cId, createdAt, updatedAt, ...validData } = req.body;
         const updatedSettings = await prisma.companySettings.upsert({
             where: { companyId },
-            update: { ...req.body },
-            create: { companyId, ...req.body }
+            update: { ...validData },
+            create: { companyId, ...validData }
         });
 
         return res.status(200).json({
@@ -315,6 +316,7 @@ export const updateCompanySettings = async (req, res) => {
         });
     }
 };
+
 
 ////// GET COMPANY STATS (FAST AGGREGATIONS) //////
 export const getCompanyStats = async (req, res) => {

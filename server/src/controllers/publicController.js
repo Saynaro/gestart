@@ -1,5 +1,6 @@
 import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
+import { generateInvoicePdfBuffer, generateQuotePdfBuffer } from "../utils/pdfGenerator.js";
 
 ////// PUBLIC PLANS LIST (FOR LANDING PAGE) //////
 export const getPublicPlans = async (req, res) => {
@@ -168,19 +169,14 @@ export const getPublicInvoiceByToken = async (req, res) => {
                         id: true,
                         name: true,
                         logoUrl: true,
+                        signatureUrl: true,
                         phone: true,
                         email: true,
                         address: true,
                         city: true,
                         postalCode: true,
                         siret: true,
-                        settings: {
-                            select: {
-                                bankIban: true,
-                                bankBic: true,
-                                bankName: true
-                            }
-                        }
+                        settings: true
                     }
                 },
                 client: {
@@ -252,6 +248,18 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
         if (stripe) {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
+                payment_method_options: {
+                    card: {
+                        request_three_d_secure: 'any',
+                    },
+                },
+                payment_intent_data: {
+                    metadata: {
+                        invoiceId: invoice.id,
+                        companyId: invoice.companyId,
+                        type: 'INVOICE_PAYMENT'
+                    },
+                },
                 line_items: [
                     {
                         price_data: {
@@ -318,19 +326,14 @@ export const getPublicQuoteByToken = async (req, res) => {
                         id: true,
                         name: true,
                         logoUrl: true,
+                        signatureUrl: true,
                         phone: true,
                         email: true,
                         address: true,
                         city: true,
                         postalCode: true,
                         siret: true,
-                        settings: {
-                            select: {
-                                bankIban: true,
-                                bankBic: true,
-                                bankName: true
-                            }
-                        }
+                        settings: true
                     }
                 },
                 client: {
@@ -509,11 +512,30 @@ export const createPublicQuoteCheckoutSession = async (req, res) => {
             });
         }
 
+        if (quote.paidAt || quote.status === "PAID") {
+            return res.status(400).json({
+                success: false,
+                message: "Ce devis a déjà été réglé avec succès."
+            });
+        }
+
         let checkoutUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?quoteId=${quote.id}`;
 
         if (stripe) {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
+                payment_method_options: {
+                    card: {
+                        request_three_d_secure: 'any',
+                    },
+                },
+                payment_intent_data: {
+                    metadata: {
+                        quoteId: quote.id,
+                        companyId: quote.companyId,
+                        type: 'QUOTE_PAYMENT'
+                    },
+                },
                 line_items: [
                     {
                         price_data: {
@@ -562,5 +584,281 @@ export const createPublicQuoteCheckoutSession = async (req, res) => {
     }
 };
 
+////// VERIFY PUBLIC PAYMENT (AFTER STRIPE OR DIRECT PAY) //////
+export const verifyPublicPayment = async (req, res) => {
+    const { quoteId, invoiceId, sessionId } = req.body;
 
+    try {
+        let isStripeVerified = false;
+        if (sessionId && stripe) {
+            try {
+                const session = await stripe.checkout.sessions.retrieve(sessionId);
+                if (session && (session.payment_status === 'paid' || session.status === 'complete')) {
+                    isStripeVerified = true;
+                } else {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Le paiement n'a pas été finalisé par la banque."
+                    });
+                }
+            } catch (sErr) {
+                console.warn("Stripe session retrieve warning:", sErr.message);
+            }
+        }
+
+        // If for a Quote
+        if (quoteId) {
+            const quote = await prisma.quote.findFirst({
+                where: {
+                    OR: [
+                        { id: quoteId },
+                        { signatureToken: quoteId }
+                    ]
+                },
+                include: { company: true, client: true, lines: true }
+            });
+
+            if (!quote) {
+                return res.status(404).json({ success: false, message: "Devis introuvable" });
+            }
+
+            // Update quote status to ACCEPTED with paidAt timestamp
+            const updatedQuote = await prisma.quote.update({
+                where: { id: quote.id },
+                data: {
+                    status: "ACCEPTED",
+                    paidAt: quote.paidAt || new Date()
+                },
+                include: { company: true, client: true }
+            });
+
+            // Record income transaction only if not already recorded
+            try {
+                const existingTx = await prisma.transaction.findFirst({
+                    where: {
+                        companyId: quote.companyId,
+                        description: { contains: quote.number }
+                    }
+                });
+
+                if (!existingTx) {
+                    await prisma.transaction.create({
+                        data: {
+                            companyId: quote.companyId,
+                            amount: Number(quote.amountTTC || quote.totalTtc || 0),
+                            type: "INCOME",
+                            category: "Devis encaissé",
+                            date: new Date(),
+                            description: `Paiement en ligne CB - Devis ${quote.number} (${quote.client ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim() : 'Client'})`,
+                            paymentMethod: "CARD",
+                        }
+                    });
+                }
+            } catch (tErr) {
+                console.warn("Transaction note:", tErr.message);
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Paiement du devis confirmé avec succès",
+                data: {
+                    type: "QUOTE",
+                    docNumber: updatedQuote.number,
+                    amountTTC: updatedQuote.amountTTC || updatedQuote.totalTtc,
+                    companyName: updatedQuote.company?.name,
+                    clientName: updatedQuote.client ? `${updatedQuote.client.firstName || ''} ${updatedQuote.client.lastName || updatedQuote.client.companyName || ''}`.trim() : "Client",
+                    paidAt: updatedQuote.paidAt || new Date(),
+                    signatureToken: updatedQuote.signatureToken
+                }
+            });
+        }
+
+        // If for an Invoice
+        if (invoiceId) {
+            const invoice = await prisma.invoice.findFirst({
+                where: {
+                    OR: [
+                        { id: invoiceId },
+                        { paymentToken: invoiceId }
+                    ]
+                },
+                include: { company: true, client: true, lines: true }
+            });
+
+            if (!invoice) {
+                return res.status(404).json({ success: false, message: "Facture introuvable" });
+            }
+
+            const totalTtc = Number(invoice.amountTTC || 0);
+
+            // Update invoice status to PAID
+            const updatedInvoice = await prisma.invoice.update({
+                where: { id: invoice.id },
+                data: {
+                    status: "PAID",
+                    amountPaid: totalTtc,
+                    paidAt: invoice.paidAt || new Date()
+                },
+                include: { company: true, client: true }
+            });
+
+            // Create accounting transaction only if not existing
+            try {
+                const existingTx = await prisma.transaction.findFirst({
+                    where: {
+                        companyId: invoice.companyId,
+                        invoiceId: invoice.id
+                    }
+                });
+
+                if (!existingTx) {
+                    await prisma.transaction.create({
+                        data: {
+                            companyId: invoice.companyId,
+                            invoiceId: invoice.id,
+                            amount: totalTtc,
+                            type: "INCOME",
+                            category: "Ventes de prestations / matériel",
+                            date: new Date(),
+                            description: `Paiement en ligne CB - Facture ${invoice.number} (${invoice.client ? `${invoice.client.firstName || ''} ${invoice.client.lastName || invoice.client.companyName || ''}`.trim() : 'Client'})`,
+                            paymentMethod: "CARD",
+                        }
+                    });
+                }
+            } catch (tErr) {
+                console.warn("Transaction note:", tErr.message);
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Paiement de la facture confirmé avec succès",
+                data: {
+                    type: "INVOICE",
+                    docNumber: updatedInvoice.number,
+                    amountTTC: updatedInvoice.amountTTC,
+                    companyName: updatedInvoice.company?.name,
+                    clientName: updatedInvoice.client ? `${updatedInvoice.client.firstName || ''} ${updatedInvoice.client.lastName || updatedInvoice.client.companyName || ''}`.trim() : "Client",
+                    paidAt: updatedInvoice.paidAt || new Date(),
+                    paymentToken: updatedInvoice.paymentToken
+                }
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: "Paramètres de paiement manquants"
+        });
+    } catch (error) {
+        console.error("VERIFY PUBLIC PAYMENT ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la vérification du paiement"
+        });
+    }
+};
+
+// ==================== DOWNLOAD PUBLIC INVOICE PDF ====================
+export const downloadPublicInvoicePdf = async (req, res) => {
+    const { paymentToken } = req.params;
+
+    try {
+        const invoice = await prisma.invoice.findFirst({
+            where: {
+                OR: [
+                    { paymentToken },
+                    { id: paymentToken }
+                ]
+            },
+            include: {
+                company: {
+                    include: { settings: true }
+                },
+                client: true,
+                lines: { orderBy: { position: "asc" } }
+            }
+        });
+
+        if (!invoice) {
+            return res.status(404).json({
+                success: false,
+                message: "Facture introuvable"
+            });
+        }
+
+        const effectiveCustomization = {
+            ...(invoice.company?.settings?.documentCustomization || {}),
+            ...(invoice.documentCustomization || {})
+        };
+
+        const pdfBuffer = await generateInvoicePdfBuffer({
+            invoice,
+            company: invoice.company,
+            customization: effectiveCustomization
+        });
+
+        const filename = `Facture_${(invoice.number || 'document').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        return res.send(pdfBuffer);
+    } catch (error) {
+        console.error("DOWNLOAD PUBLIC INVOICE PDF ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la génération du PDF"
+        });
+    }
+};
+
+// ==================== DOWNLOAD PUBLIC QUOTE PDF ====================
+export const downloadPublicQuotePdf = async (req, res) => {
+    const { signatureToken } = req.params;
+
+    try {
+        const quote = await prisma.quote.findFirst({
+            where: {
+                OR: [
+                    { signatureToken },
+                    { id: signatureToken }
+                ]
+            },
+            include: {
+                company: {
+                    include: { settings: true }
+                },
+                client: true,
+                lines: { orderBy: { position: "asc" } }
+            }
+        });
+
+        if (!quote) {
+            return res.status(404).json({
+                success: false,
+                message: "Devis introuvable"
+            });
+        }
+
+        const effectiveCustomization = {
+            ...(quote.company?.settings?.documentCustomization || {}),
+            ...(quote.documentCustomization || {})
+        };
+
+        const pdfBuffer = await generateQuotePdfBuffer({
+            quote,
+            company: quote.company,
+            customization: effectiveCustomization
+        });
+
+
+        const filename = `Devis_${(quote.number || 'document').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        return res.send(pdfBuffer);
+    } catch (error) {
+        console.error("DOWNLOAD PUBLIC QUOTE PDF ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la génération du PDF"
+        });
+    }
+};
 

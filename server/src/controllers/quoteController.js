@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../config/db.js";
 import { sendQuoteClientEmail } from "../utils/emailService.js";
+import { generateQuotePdfBuffer } from "../utils/pdfGenerator.js";
 
 ////// GET PAGINATED QUOTES //////
 export const getQuotes = async (req, res) => {
@@ -173,8 +174,11 @@ export const createQuote = async (req, res) => {
         subject,
         notes,
         conditions,
+        documentCustomization,
+        customization,
         lines = []
     } = req.body;
+
 
     try {
         let finalClientId = clientId;
@@ -322,6 +326,7 @@ export const createQuote = async (req, res) => {
                     subject: subject ? subject.trim() : null,
                     notes: notes || null,
                     conditions: conditions || settings.invoiceConditions || null,
+                    documentCustomization: (documentCustomization ?? customization) || null,
                     validUntil: validUntil ? new Date(validUntil) : null,
                     lines: {
                         create: lines.map((l, index) => {
@@ -439,8 +444,11 @@ export const updateQuote = async (req, res) => {
             subject,
             interventionType,
             lines,
-            emailSentAt
+            emailSentAt,
+            documentCustomization,
+            customization
         } = req.body;
+
 
         // Block modifying core fields (client, items, amounts) if quote is already sent or accepted
         const isCurrentlyDraft = (existingQuote.status || "").toUpperCase() === "DRAFT";
@@ -579,13 +587,15 @@ export const updateQuote = async (req, res) => {
                     ...(depositPercent !== undefined && { depositPercent: parseFloat(depositPercent) }),
                     ...(depositAmount !== undefined && { depositAmount: parseFloat(depositAmount) }),
                     ...((subject !== undefined || interventionType !== undefined) && { subject: subject ?? interventionType }),
-                    ...(emailSentAt !== undefined && { emailSentAt: emailSentAt ? new Date(emailSentAt) : null })
+                    ...(emailSentAt !== undefined && { emailSentAt: emailSentAt ? new Date(emailSentAt) : null }),
+                    ...((documentCustomization !== undefined || customization !== undefined) && { documentCustomization: documentCustomization ?? customization })
                 },
                 include: {
                     lines: { orderBy: { position: "asc" } },
                     client: true
                 }
             });
+
 
             return updated;
         });
@@ -645,7 +655,13 @@ export const sendQuote = async (req, res) => {
     try {
         const quote = await prisma.quote.findFirst({
             where: { id, companyId },
-            include: { client: true, company: true }
+            include: {
+                client: true,
+                company: {
+                    include: { settings: true }
+                },
+                lines: { orderBy: { position: "asc" } }
+            }
         });
 
         if (!quote) {
@@ -674,20 +690,34 @@ export const sendQuote = async (req, res) => {
         const recipientEmail = customTargetEmail || quote.client?.email;
 
         if (recipientEmail) {
+            const companySettings = (typeof quote.company?.settings === 'object' && quote.company.settings) ? quote.company.settings : {};
+            const effectiveCustomization = {
+                ...(companySettings.documentCustomization || {}),
+                ...(quote.documentCustomization || {}),
+                ...(req.body?.customization || {}),
+                primaryColor: req.body?.primaryColor || req.body?.customization?.primaryColor || quote.documentCustomization?.primaryColor || companySettings.documentCustomization?.primaryColor || companySettings.primaryColor || "#556B2F"
+            };
+
             await sendQuoteClientEmail({
                 to: recipientEmail,
                 quote,
                 company: quote.company,
                 signatureUrl,
                 senderEmail: req.user?.email || quote.company?.email,
-                primaryColor: req.body?.primaryColor || (typeof quote.company?.settings === 'object' && quote.company.settings?.primaryColor) || "#556B2F"
+                primaryColor: effectiveCustomization.primaryColor,
+                customization: effectiveCustomization
             });
         }
+
+
+        const newStatus = (quote.status === "ACCEPTED" || quote.status === "PAID") 
+            ? quote.status 
+            : "SENT";
 
         const updatedQuote = await prisma.quote.update({
             where: { id },
             data: {
-                status: "SENT",
+                status: newStatus,
                 emailSentAt: new Date(),
                 emailSentTo: recipientEmail || undefined,
             }
@@ -853,7 +883,7 @@ export const convertQuoteToInvoice = async (req, res) => {
     }
 };
 
-////// GET QUOTE PDF DATA //////
+// ==================== GET QUOTE PDF ====================
 export const getQuotePdf = async (req, res) => {
     const { id } = req.params;
     const companyId = req.user.companyId;
@@ -877,13 +907,22 @@ export const getQuotePdf = async (req, res) => {
             });
         }
 
-        return res.status(200).json({
-            success: true,
-            data: {
-                quote,
-                pdfUrl: quote.signatureUrl || null
-            }
+        const effectiveCustomization = {
+            ...(quote.company?.settings?.documentCustomization || {}),
+            ...(quote.documentCustomization || {})
+        };
+
+        const pdfBuffer = await generateQuotePdfBuffer({
+            quote,
+            company: quote.company,
+            customization: effectiveCustomization
         });
+
+        const filename = `Devis_${(quote.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        return res.send(pdfBuffer);
+
     } catch (error) {
         console.error("GET QUOTE PDF ERROR:", error.message);
         return res.status(500).json({
@@ -892,6 +931,7 @@ export const getQuotePdf = async (req, res) => {
         });
     }
 };
+
 
 ////// DELETE QUOTE //////
 export const deleteQuote = async (req, res) => {

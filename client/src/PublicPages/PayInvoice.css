@@ -493,3 +493,62 @@
     color: #166534;
     font-weight: 600;
 }
+
+/* ==================== A4 EXACT CLEAN PRINT STYLES ==================== */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 10mm 15mm;
+    }
+
+    *, *::before, *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    html, body {
+        background: #FFFFFF !important;
+        background-color: #FFFFFF !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .no-print,
+    .public-portal-header,
+    .public-portal-footer,
+    .portal-actions-container,
+    .interactive-signature-pad,
+    .paid-success-banner {
+        display: none !important;
+    }
+
+    .public-portal-page {
+        background: #FFFFFF !important;
+        background-color: #FFFFFF !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+
+    .public-portal-main {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Sheet: Sharp/square A4 corners, no outer borders, no shadows */
+    .public-portal-card,
+    #invoice-pdf-print-area {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        background: #FFFFFF !important;
+    }
+}

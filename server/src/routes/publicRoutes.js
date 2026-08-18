@@ -5,9 +5,12 @@ import {
     submitQuoteRequest,
     getPublicInvoiceByToken,
     createPublicInvoiceCheckoutSession,
+    downloadPublicInvoicePdf,
     getPublicQuoteByToken,
     signPublicQuote,
-    createPublicQuoteCheckoutSession
+    createPublicQuoteCheckoutSession,
+    downloadPublicQuotePdf,
+    verifyPublicPayment
 } from "../controllers/publicController.js";
 
 const router = express.Router();
@@ -17,12 +20,17 @@ router.get("/plans", getPublicPlans);
 router.get("/company/:companySlug", getPublicCompany);
 router.post("/quote-request/:companySlug", submitQuoteRequest);
 
-// Paiement en ligne de facture (lien public pour les clients)
+// Confirmation et vérification de paiement public
+router.post("/pay/verify-payment", verifyPublicPayment);
+
+// Factures publiques (consultation, paiement et téléchargement PDF officiel)
 router.get("/pay/invoice/:paymentToken", getPublicInvoiceByToken);
+router.get("/pay/invoice/:paymentToken/pdf", downloadPublicInvoicePdf);
 router.post("/pay/invoice/:paymentToken/checkout", createPublicInvoiceCheckoutSession);
 
-// Signature électronique & Paiement de devis en ligne (lien public pour les clients)
+// Devis publics (consultation, signature et téléchargement PDF officiel)
 router.get("/sign/quote/:signatureToken", getPublicQuoteByToken);
+router.get("/sign/quote/:signatureToken/pdf", downloadPublicQuotePdf);
 router.post("/sign/quote/:signatureToken/sign", signPublicQuote);
 router.post("/sign/quote/:signatureToken/checkout", createPublicQuoteCheckoutSession);
 

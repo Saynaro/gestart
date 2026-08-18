@@ -826,12 +826,17 @@ function QuoteDetailDrawer({
                 })()}
 
                 {docCustomization.showPaymentConditions && (
-                    <div className="pdf-footer-section" style={{ fontSize: '0.85em', paddingTop: '10px', borderTop: '1px solid #E0E0E0', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div><strong>Validité du devis :</strong> 30 jours (Date d'expiration : {new Date(new Date(quote.date).setDate(new Date(quote.date).getDate() + 30)).toLocaleDateString('fr-FR')})</div>
-                        {docCustomization.showIban && <div><strong>IBAN : </strong>{companyIban}</div>}
-                        {docCustomization.showAgaMention && <div style={{ fontStyle: 'italic', marginTop: '2pt' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>}
+                    <div className="pdf-footer-section" style={{ fontSize: '0.85em', paddingTop: '10px', borderTop: '1px solid #E0E0E0', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        {companyIban && (
+                            <div><strong>Coordonnées bancaires (IBAN) : </strong>{companyIban}</div>
+                        )}
+                        <div><strong>Conditions de paiement : </strong>Paiement à 30 jours (Échéance le {new Date(new Date(quote.date || quote.createdAt || Date.now()).setDate(new Date(quote.date || quote.createdAt || Date.now()).getDate() + 30)).toLocaleDateString('fr-FR')}).</div>
+                        <div><strong>Validité du devis : </strong>30 jours à compter de la date d'émission (art. L. 221-5 et L. 111-1 C.conso). Devis gratuit avant exécution des travaux (art. L. 111-3 C.conso).</div>
+                        <div><strong>Conditions d'exécution : </strong>Les travaux débuteront après signature du devis accompagné d'un acompte.</div>
+                        <div style={{ fontStyle: 'italic', marginTop: '2px', color: '#64748B' }}>Membre d'une association agréée, le règlement par chèque est accepté.</div>
                     </div>
                 )}
+
             </div>
         </div>
     );
@@ -939,12 +944,27 @@ function QuoteDetailDrawer({
                             >
                                 {isAccepted ? "Signé" : isDraft ? "Brouillon" : (quote.status || "").toUpperCase() === "REFUSED" ? "Refusé" : (quote.emailSentAt || quote.isSentByEmail) ? "Envoyé" : "Finalisé"}
                             </span>
+                            {quote.paidAt && (
+                                <span
+                                    className="dv-status-badge"
+                                    style={{
+                                        backgroundColor: "#DCFCE7",
+                                        color: "#166534",
+                                        fontWeight: 600,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "5px"
+                                    }}
+                                >
+                                    ✓ Payé le {new Date(quote.paidAt).toLocaleDateString("fr-FR")}
+                                </span>
+                            )}
                         </div>
 
                         {/* Note for locked status */}
                         {isAccepted && (
                             <div className="dv-accepted-note">
-                                Le statut du document ne peut pas être changé car il a déjà été facturé.
+                                Devis signé et validé par le client. Vous pouvez exécuter les travaux et convertir ce devis en facture pour encaissement.
                             </div>
                         )}
 

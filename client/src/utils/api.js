@@ -44,7 +44,18 @@ export async function silentRefresh() {
         // Refresh failed — logout
         clearAuthToken();
         const currentPath = window.location.pathname;
-        if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/') {
+        const isPublicPage = currentPath.startsWith('/sign') ||
+                             currentPath.startsWith('/pay') ||
+                             currentPath.startsWith('/devis') ||
+                             currentPath.startsWith('/contact') ||
+                             currentPath.startsWith('/p/') ||
+                             currentPath === '/login' ||
+                             currentPath === '/register' ||
+                             currentPath === '/forgot-password' ||
+                             currentPath === '/reset-password' ||
+                             currentPath === '/verify-email' ||
+                             currentPath === '/';
+        if (!isPublicPage) {
             window.location.href = '/login';
         }
         return null;
@@ -138,7 +149,18 @@ export async function apiFetch(endpoint, options = {}) {
         if (response.status === 401) {
             clearAuthToken();
             const currentPath = window.location.pathname;
-            if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/') {
+            const isPublicPage = currentPath.startsWith('/sign') ||
+                                 currentPath.startsWith('/pay') ||
+                                 currentPath.startsWith('/devis') ||
+                                 currentPath.startsWith('/contact') ||
+                                 currentPath.startsWith('/p/') ||
+                                 currentPath === '/login' ||
+                                 currentPath === '/register' ||
+                                 currentPath === '/forgot-password' ||
+                                 currentPath === '/reset-password' ||
+                                 currentPath === '/verify-email' ||
+                                 currentPath === '/';
+            if (!isPublicPage) {
                 window.location.href = '/login';
             }
         }

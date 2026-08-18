@@ -127,18 +127,6 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                             fontFamily: docCustomization.fontFamily || "Inter, sans-serif"
                         }}
                     >
-                        {/* Banner header if banner style */}
-                        {docCustomization.structure === "banner" && (
-                            <div
-                                style={{
-                                    height: "8px",
-                                    backgroundColor: docCustomization.primaryColor || "#556B2F",
-                                    margin: "-20mm -18mm 14pt -18mm",
-                                    borderRadius: "2px 2px 0 0"
-                                }}
-                            />
-                        )}
-
                         {/* ==================== STRUCTURE 1: BANNER ==================== */}
                         {docCustomization.structure === "banner" && (
                             <div style={{ marginBottom: "14pt" }}>
@@ -147,13 +135,14 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                                         backgroundColor: docCustomization.primaryColor || "#556B2F",
                                         color: "#FFFFFF",
                                         padding: "16px 20px",
-                                        margin: "-25mm -20mm 14px -20mm",
+                                        margin: "-20mm -18mm 14px -18mm",
                                         borderRadius: "0",
                                         display: "flex",
                                         justifyContent: "space-between",
                                         alignItems: "center"
                                     }}
                                 >
+
                                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                                         {docCustomization.showLogo && (
                                             companyLogo ? (

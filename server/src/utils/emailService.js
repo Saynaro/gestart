@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { generateQuotePdfBuffer, generateInvoicePdfBuffer } from "./pdfGenerator.js";
 
 /**
  * Direct Nodemailer Transporter Configuration
@@ -49,7 +50,7 @@ const createTransporter = () => {
 /**
  * Helper to send email with automatic dev fallback logging
  */
-export const sendEmail = async ({ to, subject, html, text }) => {
+export const sendEmail = async ({ to, subject, html, text, attachments }) => {
     const from = process.env.EMAIL_FROM || '"GestArt CRM" <support.gestart@gmail.com>';
     const transporter = createTransporter();
 
@@ -58,8 +59,8 @@ export const sendEmail = async ({ to, subject, html, text }) => {
         console.log(`[EMAIL SERVICE - DEV FALLBACK]`);
         console.log(`TO: ${to}`);
         console.log(`SUBJECT: ${subject}`);
+        console.log(`ATTACHMENTS: ${attachments ? attachments.length + ' file(s)' : 'None'}`);
         console.log(`BODY (TEXT): ${text || "See HTML"}`);
-        console.log(`HTML: ${html}`);
         console.log("--------------------------------------------------");
         return { success: true, isDevFallback: true };
     }
@@ -71,15 +72,12 @@ export const sendEmail = async ({ to, subject, html, text }) => {
             subject,
             text,
             html,
+            attachments: attachments || []
         });
         console.log(`[EMAIL SENT] MessageId: ${info.messageId} to ${to}`);
         return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error(`[EMAIL ERROR] Failed to send email to ${to}:`, error.message);
-        console.log(`[DEV FALLBACK DUE TO SMTP ERROR]:`);
-        console.log(`TO: ${to}`);
-        console.log(`SUBJECT: ${subject}`);
-        console.log(`TEXT: ${text}`);
         return { success: false, error: error.message };
     }
 };
@@ -220,9 +218,9 @@ export const sendTwoFactorCodeEmail = async ({ to, code, firstName = "Utilisateu
 };
 
 /**
- * Send Quote to Client with Signature & Online Payment Link
+ * Send Quote to Client with Signature & Online Payment Link + PDF Attachment
  */
-export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, senderEmail, primaryColor = "#556B2F" }) => {
+export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, senderEmail, primaryColor = "#556B2F", customization = {} }) => {
     const companyName = company?.name || "Votre entreprise";
     const clientName = quote.client ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim() : "Client";
     const totalTtc = Number(quote.amountTTC || quote.totalTtc || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -234,33 +232,33 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
     const html = `
         <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: #0F172A; color: #F8FAFC; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
             <div style="text-align: center; margin-bottom: 24px;">
-                <h1 style="color: ${accentColor}; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">${companyName}</h1>
+                <h1 style="color: #FFFFFF; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">${companyName}</h1>
                 <p style="color: #94A3B8; font-size: 14px; margin-top: 4px; font-weight: 500;">Devis & Proposition commerciale</p>
             </div>
             
             <div style="background: #1E293B; padding: 28px; border-radius: 12px; border: 1px solid #334155;">
                 <h2 style="font-size: 18px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${clientName},</h2>
                 <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">
-                    Veuillez trouver ci-joint votre devis <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> pour la prestation demandée.
+                    Veuillez trouver ci-joint votre devis <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché).
                 </p>
 
-                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border-left: 4px solid ${accentColor};">
-                    <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Montant Total TTC :</div>
+                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border-left: 4px solid #3B82F6;">
+                    <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Montant du devis :</div>
                     <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">${totalTtc} € TTC</div>
                 </div>
                 
                 <p style="color: #E2E8F0; line-height: 1.5; font-size: 14px;">
-                    Vous pouvez consulter ce devis, <strong>le signer électroniquement en ligne (valeur légale)</strong> et effectuer le règlement par carte bancaire sécurisée :
+                    Vous pouvez consulter ce devis et <strong>le valider par signature électronique en ligne (valeur légale)</strong> :
                 </p>
 
                 <div style="text-align: center; margin: 28px 0;">
-                    <a href="${signatureUrl}" target="_blank" style="background-color: ${accentColor}; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
-                        Signer & Payer le devis en ligne
+                    <a href="${signatureUrl}" target="_blank" style="background-color: #2563EB; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
+                        Signer le devis en ligne
                     </a>
                 </div>
 
                 <p style="font-size: 12px; color: #94A3B8; text-align: center; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${signatureUrl}" style="color: ${accentColor}; word-break: break-all;">${signatureUrl}</a>
+                    Lien direct sécurisé : <a href="${signatureUrl}" style="color: #60A5FA; word-break: break-all;">${signatureUrl}</a>
                 </p>
             </div>
 
@@ -272,15 +270,33 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
         </div>
     `;
 
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter, le signer en ligne et régler par carte bancaire ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
 
-    return await sendEmail({ to, subject, html, text });
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter et le signer en ligne ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
+
+    let attachments = [];
+    try {
+        const effectiveCustomization = {
+            primaryColor: accentColor,
+            ...(company?.settings?.documentCustomization || {}),
+            ...customization
+        };
+        const pdfBuffer = await generateQuotePdfBuffer({ quote, company, customization: effectiveCustomization });
+        attachments.push({
+            filename: `Devis_${docNumber}.pdf`,
+            content: pdfBuffer,
+            contentType: "application/pdf"
+        });
+    } catch (pdfErr) {
+        console.warn("Could not generate quote PDF attachment:", pdfErr.message);
+    }
+
+    return await sendEmail({ to, subject, html, text, attachments });
 };
 
 /**
- * Send Invoice to Client with Online Payment Link
+ * Send Invoice to Client with Online Payment Link + PDF Attachment
  */
-export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl, senderEmail, primaryColor = "#556B2F" }) => {
+export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl, senderEmail, primaryColor = "#556B2F", customization = {} }) => {
     const companyName = company?.name || "Votre entreprise";
     const clientName = invoice.client ? `${invoice.client.firstName || ''} ${invoice.client.lastName || invoice.client.companyName || ''}`.trim() : "Client";
     const totalTtc = Number(invoice.amountTTC || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -292,17 +308,17 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
     const html = `
         <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: #0F172A; color: #F8FAFC; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
             <div style="text-align: center; margin-bottom: 24px;">
-                <h1 style="color: ${accentColor}; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">${companyName}</h1>
+                <h1 style="color: #FFFFFF; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">${companyName}</h1>
                 <p style="color: #94A3B8; font-size: 14px; margin-top: 4px; font-weight: 500;">Facture officielle</p>
             </div>
             
             <div style="background: #1E293B; padding: 28px; border-radius: 12px; border: 1px solid #334155;">
                 <h2 style="font-size: 18px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${clientName},</h2>
                 <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">
-                    Veuillez trouver votre facture <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong>.
+                    Veuillez trouver ci-joint votre facture <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché).
                 </p>
 
-                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border-left: 4px solid ${accentColor};">
+                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border-left: 4px solid #3B82F6;">
                     <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Net à payer :</div>
                     <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">${totalTtc} € TTC</div>
                 </div>
@@ -312,13 +328,13 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
                 </p>
 
                 <div style="text-align: center; margin: 28px 0;">
-                    <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor}; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
+                    <a href="${paymentUrl}" target="_blank" style="background-color: #2563EB; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
                         Consulter & Payer ma facture
                     </a>
                 </div>
 
                 <p style="font-size: 12px; color: #94A3B8; text-align: center; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: ${accentColor}; word-break: break-all;">${paymentUrl}</a>
+                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #60A5FA; word-break: break-all;">${paymentUrl}</a>
                 </p>
             </div>
 
@@ -330,8 +346,27 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
         </div>
     `;
 
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez la consulter et la régler en ligne ici : ${paymentUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
 
-    return await sendEmail({ to, subject, html, text });
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez la consulter et la régler en ligne ici : ${paymentUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
+
+    let attachments = [];
+    try {
+        const effectiveCustomization = {
+            primaryColor: accentColor,
+            ...(company?.settings?.documentCustomization || {}),
+            ...customization
+        };
+        const pdfBuffer = await generateInvoicePdfBuffer({ invoice, company, customization: effectiveCustomization });
+        attachments.push({
+            filename: `Facture_${docNumber}.pdf`,
+            content: pdfBuffer,
+            contentType: "application/pdf"
+        });
+    } catch (pdfErr) {
+        console.warn("Could not generate invoice PDF attachment:", pdfErr.message);
+    }
+
+
+    return await sendEmail({ to, subject, html, text, attachments });
 };
 

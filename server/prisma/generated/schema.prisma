@@ -575,12 +575,12 @@ model CompanySettings {
   quotePrefix       String @default("D") // D-2026-001
   quoteNextNumber   Int    @default(1)
 
-  // ── PDF FACTURE ───────────────────────────────────────────
-  invoiceFooter      String? // texte pied de page PDF
-  invoiceConditions  String? // conditions de paiement
-  invoiceColor       String? @default("#556B2F") // couleur principale PDF factures & devis
-  defaultTvaRate     Float   @default(20)
-  defaultPaymentDays Int     @default(30) // délai paiement facture
+  invoiceFooter         String? // texte pied de page PDF
+  invoiceConditions     String? // conditions de paiement
+  invoiceColor          String? @default("#556B2F") // couleur principale PDF factures & devis
+  documentCustomization Json? // style visuel par défaut des documents (couleurs, structure, polices, visibilité)
+  defaultTvaRate        Float   @default(20)
+  defaultPaymentDays    Int     @default(30) // délai paiement facture
 
   // ── DEVIS ─────────────────────────────────────────────────
   defaultValidDays Int @default(30) // validité devis en jours
@@ -1101,9 +1101,10 @@ model Quote {
   amountTTC Float
 
   // Métadonnées
-  subject    String? // "Installation clim Daikin salon"
-  notes      String? // notes internes
-  conditions String? // visibles sur le PDF
+  subject               String? // "Installation clim Daikin salon"
+  notes                 String? // notes internes
+  conditions            String? // visibles sur le PDF
+  documentCustomization Json? // style visuel personnalisé du devis
 
   validUntil DateTime?
   acceptedAt DateTime?
@@ -1127,6 +1128,7 @@ model Quote {
   signedAt             DateTime? // quand le client a signé
   signatureUrl         String? // URL du PDF signé (Cloudinary)
   signatureIp          String? // IP du client au moment de la signature
+  paidAt               DateTime? // quand le client a payé le devis
 
   // ── ENVOI EMAIL ───────────────────────────────────────────
   emailSentAt DateTime? // quand l'email a été envoyé
@@ -1258,9 +1260,10 @@ model Invoice {
   // Description libre des travaux effectués
   workDescription String? // "Nettoyage filtres, vérification circuit frigorigène..."
 
-  subject    String?
-  notes      String? // notes internes (non visibles sur PDF)
-  conditions String? // visibles sur PDF
+  subject               String?
+  notes                 String? // notes internes (non visibles sur PDF)
+  conditions            String? // visibles sur PDF
+  documentCustomization Json? // style visuel personnalisé de la facture
 
   paymentMethod PaymentMethod?
   paymentRef    String?

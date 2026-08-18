@@ -461,17 +461,25 @@
 }
 
 .specimen-a4-sheet {
-    width: 100%;
-    max-width: 440px;
-    min-height: 580px;
-    padding: 20px;
+    width: 595px;
+    min-width: 595px;
+    max-width: 595px;
+    min-height: 842px;
+    padding: 28px 24px;
     box-sizing: border-box;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
-    border-radius: 3px;
+    border-radius: 4px;
     display: flex;
     flex-direction: column;
     transition: background-color 0.15s, color 0.15s;
+    word-break: break-word;
+    overflow: hidden;
 }
+
+.specimen-a4-sheet * {
+    box-sizing: border-box;
+}
+
 
 /* Personnaliser Header Button in Preview Pane */
 .personnaliser-btn {

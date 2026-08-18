@@ -73,6 +73,7 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/catalog", catalogRoutes);
 app.use("/api/v1/public", publicRoutes);
+app.use("/api/public", publicRoutes);
 app.use("/api/v1/e-invoicing", eInvoicingRoutes);
 
 app.use((err, req, res, next) => {

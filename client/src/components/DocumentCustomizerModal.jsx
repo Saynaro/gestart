@@ -672,11 +672,11 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                 style={{
                   backgroundColor: customization.bgColor || "#FFFFFF",
                   color: customization.textColor || "#1A1A1A",
-                  fontSize: customization.fontSize || "9pt",
+                  fontSize: customization.fontSize || "9.5pt",
                   fontFamily: customization.fontFamily || "Inter, sans-serif",
                   transform: `scale(${specimenZoom})`,
                   transformOrigin: "top center",
-                  marginBottom: `calc(-1 * (735px * (1 - ${specimenZoom})))`,
+                  marginBottom: `calc(-1 * (842px * (1 - ${specimenZoom})))`,
                   transition: "transform 0.15s ease-out"
                 }}
               >
@@ -688,14 +688,16 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                       style={{
                         backgroundColor: customization.primaryColor || "#556B2F",
                         color: "#FFFFFF",
-                        padding: "16px 20px",
-                        margin: "-24px -20px 14px -20px",
+                        padding: "16px 24px",
+                        margin: "-28px -24px 14px -24px",
                         borderRadius: "2px 2px 0 0",
+
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                       }}
                     >
+
                       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                         {customization.showLogo && (
                           companyLogo ? (

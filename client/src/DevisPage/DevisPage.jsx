@@ -17,6 +17,9 @@ import QuoteEditPanel from "./components/QuoteEditPanel";
 import InvoiceDetailDrawer from "../FacturesPage/components/InvoiceDetailDrawer";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 import { apiFetch } from "../utils/api";
+import { getAuthToken } from "../utils/auth";
+import { getApiUrl } from "../utils/config";
+import { getEffectiveCustomization } from "../utils/documentCustomization";
 
 const FILTERS = [
     { key: "all", label: "Tous" },
@@ -80,10 +83,26 @@ function DevisPage() {
         fetchQuotes();
     }, []);
 
-    const handleUpdateQuoteCustomization = async (customization) => {
-        showToast("Personnalisation enregistrée.");
-        fetchQuotes();
+    const handleUpdateQuoteCustomization = async (qId, customSettings) => {
+        if (typeof qId === "object" && !customSettings) {
+            customSettings = qId;
+            qId = activeQuote?.id;
+        }
+        setQuotes(prev => prev.map(q => q.id === qId ? { ...q, documentCustomization: customSettings, customization: customSettings } : q));
+        setActiveQuote(prev => (prev && prev.id === qId ? { ...prev, documentCustomization: customSettings, customization: customSettings } : prev));
+        try {
+            if (qId) {
+                await apiFetch(`/v1/quotes/${qId}`, {
+                    method: "PUT",
+                    body: JSON.stringify({ documentCustomization: customSettings, customization: customSettings })
+                });
+            }
+            showToast("Personnalisation enregistrée.");
+        } catch (err) {
+            console.warn("Erreur sauvegarde personnalisation devis:", err);
+        }
     };
+
 
     const [activeFilter, setActiveFilter] = useState("all");
     const [activeQuote, setActiveQuote] = useState(null);
@@ -245,12 +264,17 @@ function DevisPage() {
 
     const handleAutoSend = async (q, targetEmail) => {
         const emailToSend = targetEmail || q.clientEmail || "client";
+        const customization = getEffectiveCustomization(q);
         try {
             await apiFetch(`/v1/quotes/${q.id}/send`, {
                 method: 'POST',
-                body: JSON.stringify({ email: targetEmail || q.clientEmail })
+                body: JSON.stringify({ 
+                    email: targetEmail || q.clientEmail,
+                    primaryColor: customization.primaryColor,
+                    customization
+                })
             });
-            showToast(`Devis ${q.number} envoyé avec signature à ${emailToSend} !`, "success");
+            showToast(`Devis ${q.number} envoyé avec signature & PDF à ${emailToSend} !`, "success");
             fetchQuotes();
         } catch (err) {
             console.error("Auto send error:", err);
@@ -296,16 +320,28 @@ function DevisPage() {
         }
     };
 
-    const handleDownloadPdf = (q) => {
-        const content = `DEVIS — ${q.number}\nClient: ${q.clientName}\nMontant HT: ${q.subtotalHt} €\nTotal TTC: ${q.totalTtc} €`;
-        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Devis_${q.number}.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownloadPdf = async (q) => {
+        try {
+            const token = getAuthToken();
+            const res = await fetch(getApiUrl(`/v1/quotes/${q.id}/pdf`), {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error("Erreur téléchargement PDF");
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Devis_${(q.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Erreur téléchargement PDF:", err);
+        }
     };
+
 
     const handleOpenLinkedInvoice = async (inv) => {
         setShowDetailDrawer(false);
@@ -404,11 +440,20 @@ function DevisPage() {
             {linkedInvoiceForDrawer && (
                 <InvoiceDetailDrawer
                     invoice={linkedInvoiceForDrawer}
-                    onClose={() => setLinkedInvoiceForDrawer(null)}
+                    onClose={() => {
+                        setLinkedInvoiceForDrawer(null);
+                        setShowDetailDrawer(true);
+                    }}
                     overlayStyle={{ zIndex: 1200 }}
                     onPreview={() => setPdfModalInvoice(linkedInvoiceForDrawer)}
-                    onEdit={() => { setLinkedInvoiceForDrawer(null); }}
-                    onSend={() => setLinkedInvoiceForDrawer(null)}
+                    onEdit={() => {
+                        setLinkedInvoiceForDrawer(null);
+                        setShowDetailDrawer(true);
+                    }}
+                    onSend={() => {
+                        setLinkedInvoiceForDrawer(null);
+                        setShowDetailDrawer(true);
+                    }}
                     onFinalise={() => { }}
                     onMarkPaid={() => { }}
                     onMarkUnpaid={() => { }}

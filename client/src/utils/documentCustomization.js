@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from './api';
 
 export const DEFAULT_CUSTOMIZATION = {
   // Colors
@@ -49,6 +50,13 @@ export function saveCustomization(newSettings) {
     const merged = { ...getCustomization(), ...newSettings };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
     window.dispatchEvent(new CustomEvent("docCustomizationChanged", { detail: merged }));
+    
+    // Asynchronously sync global company customization to backend
+    apiFetch("/v1/company/settings", {
+      method: "PUT",
+      body: JSON.stringify({ documentCustomization: merged })
+    }).catch(err => console.warn("Could not sync global customization:", err.message));
+
     return merged;
   } catch (e) {
     console.error("Failed to save document customization", e);
@@ -76,7 +84,7 @@ export function getClientCustomization(clientId) {
   }
 }
 
-export function saveDocCustomization(docId, settings, clientId = null) {
+export function saveDocCustomization(docId, settings, clientId = null, docType = null) {
   if (!settings) return;
   try {
     if (docId) {
@@ -88,6 +96,19 @@ export function saveDocCustomization(docId, settings, clientId = null) {
     window.dispatchEvent(new CustomEvent("docCustomizationChanged", { 
       detail: { docId, clientId, settings } 
     }));
+
+    // Asynchronously sync document customization to backend database
+    if (docId) {
+      const isQuote = docType === "devis" || (typeof docId === "string" && docId.startsWith("d_")) || (docId && docType !== "facture");
+      const endpoint = (docType === "facture" || (!isQuote && docType !== "devis"))
+        ? `/v1/invoices/${docId}`
+        : `/v1/quotes/${docId}`;
+
+      apiFetch(endpoint, {
+        method: "PUT",
+        body: JSON.stringify({ documentCustomization: settings, customization: settings })
+      }).catch(err => console.warn("Could not sync doc customization:", err.message));
+    }
   } catch (e) {
     console.error("Failed to save per-doc customization", e);
   }
@@ -95,13 +116,14 @@ export function saveDocCustomization(docId, settings, clientId = null) {
 
 export function useDocumentCustomization(doc = null) {
   const [customization, setCustomization] = useState(() => getEffectiveCustomization(doc));
+  const docKey = `${doc?.id || ""}_${doc?.clientId || doc?.client?.id || ""}_${JSON.stringify(doc?.documentCustomization || doc?.customization || "")}`;
 
   useEffect(() => {
     setCustomization(getEffectiveCustomization(doc));
-  }, [doc?.id, doc?.clientId, doc?.client?.id]);
+  }, [docKey]);
 
   useEffect(() => {
-    const handleChanged = (e) => {
+    const handleChanged = () => {
       setCustomization(getEffectiveCustomization(doc));
     };
 
@@ -111,11 +133,12 @@ export function useDocumentCustomization(doc = null) {
       window.removeEventListener("docCustomizationChanged", handleChanged);
       window.removeEventListener("storage", handleChanged);
     };
-  }, [doc?.id, doc?.clientId, doc?.client?.id]);
+  }, [docKey]);
+
 
   const update = (newSettings) => {
     if (doc?.id || doc?.clientId || doc?.client?.id) {
-      saveDocCustomization(doc?.id, newSettings, doc?.clientId || doc?.client?.id);
+      saveDocCustomization(doc?.id, newSettings, doc?.clientId || doc?.client?.id, doc?.number?.startsWith("D") ? "devis" : "facture");
     } else {
       saveCustomization(newSettings);
     }
@@ -126,12 +149,31 @@ export function useDocumentCustomization(doc = null) {
 }
 
 export function getEffectiveCustomization(doc, globalCustomization) {
-  const globalSettings = globalCustomization || getCustomization();
+  const companySettings = (doc?.company?.settings && typeof doc.company.settings === 'object') 
+    ? doc.company.settings 
+    : ((doc?.company && typeof doc.company === 'object') ? doc.company : {});
+
+  const companyCustomization = (companySettings.documentCustomization && typeof companySettings.documentCustomization === 'object')
+    ? companySettings.documentCustomization
+    : {};
+
+  const baseDefaults = {
+    ...DEFAULT_CUSTOMIZATION,
+    ...(companySettings.primaryColor ? { primaryColor: companySettings.primaryColor } : {}),
+    ...(companySettings.logoUrl || doc?.company?.logoUrl ? { logoUrl: companySettings.logoUrl || doc?.company?.logoUrl } : {}),
+    ...(companySettings.signatureUrl || doc?.company?.signatureUrl ? { signatureUrl: companySettings.signatureUrl || doc?.company?.signatureUrl } : {}),
+    ...(companySettings.fontFamily ? { fontFamily: companySettings.fontFamily } : {}),
+    ...(companySettings.structure ? { structure: companySettings.structure } : {}),
+    ...companyCustomization
+  };
+
+  const globalSettings = globalCustomization ? { ...baseDefaults, ...globalCustomization } : { ...baseDefaults, ...getCustomization() };
   if (!doc) return globalSettings;
 
-  // 1. Explicit doc.customization (if passed from backend or state)
-  if (doc.customization && typeof doc.customization === 'object' && Object.keys(doc.customization).length > 0) {
-    return { ...globalSettings, ...doc.customization };
+  // 1. Explicit doc.documentCustomization or doc.customization (from backend or state)
+  const docCustom = doc.documentCustomization || doc.customization;
+  if (docCustom && typeof docCustom === 'object' && Object.keys(docCustom).length > 0) {
+    return { ...globalSettings, ...docCustom };
   }
 
   // 2. LocalStorage per docId (e.g. invoice or quote ID)
@@ -142,7 +184,7 @@ export function getEffectiveCustomization(doc, globalCustomization) {
     }
   }
 
-  // 3. LocalStorage per clientId (so all docs for that specific client inherit their customized color)
+  // 3. LocalStorage per clientId
   const clientId = doc.clientId || doc.client?.id;
   if (clientId) {
     const byClient = getClientCustomization(clientId);
@@ -153,3 +195,4 @@ export function getEffectiveCustomization(doc, globalCustomization) {
 
   return globalSettings;
 }
+

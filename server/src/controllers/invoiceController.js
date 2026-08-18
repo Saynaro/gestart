@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../config/db.js";
 import { sendInvoiceClientEmail } from "../utils/emailService.js";
+import { generateInvoicePdfBuffer } from "../utils/pdfGenerator.js";
 
 // Helper notification
 const createNotification = async ({ companyId, userId, type, title, body, entityId }) => {
@@ -272,8 +273,11 @@ export const createInvoice = async (req, res) => {
         notes,
         conditions,
         paymentMethod,
+        documentCustomization,
+        customization,
         lines = []
     } = req.body;
+
 
     try {
         let finalClientId = clientId;
@@ -422,6 +426,7 @@ export const createInvoice = async (req, res) => {
                     subject: subject ? subject.trim() : null,
                     notes: notes || null,
                     conditions: conditions || settings.invoiceConditions || null,
+                    documentCustomization: (documentCustomization ?? customization) || null,
                     paymentMethod: normalizePaymentMethod(paymentMethod),
                     dueAt: dueAt ? new Date(dueAt) : defaultDueDate,
                     lines: {
@@ -540,8 +545,11 @@ export const updateInvoice = async (req, res) => {
             workDescription,
             workDetails,
             lines,
-            emailSentAt
+            emailSentAt,
+            documentCustomization,
+            customization
         } = req.body;
+
 
         // Block modifying core fields (client, items, amounts) if invoice is already finalized/sent or paid
         const isCurrentlyDraft = (existingInvoice.status || "").toUpperCase() === "DRAFT";
@@ -683,13 +691,15 @@ export const updateInvoice = async (req, res) => {
                     ...((conditions !== undefined || paymentConditions !== undefined) && { conditions: conditions ?? paymentConditions }),
                     ...((subject !== undefined || interventionType !== undefined) && { subject: subject ?? interventionType }),
                     ...((workDescription !== undefined || workDetails !== undefined) && { workDescription: workDescription ?? workDetails }),
-                    ...(emailSentAt !== undefined && { emailSentAt: emailSentAt ? new Date(emailSentAt) : null })
+                    ...(emailSentAt !== undefined && { emailSentAt: emailSentAt ? new Date(emailSentAt) : null }),
+                    ...((documentCustomization !== undefined || customization !== undefined) && { documentCustomization: documentCustomization ?? customization })
                 },
                 include: {
                     lines: { orderBy: { position: "asc" } },
                     client: true
                 }
             });
+
 
             return updated;
         });
@@ -750,7 +760,10 @@ export const sendInvoice = async (req, res) => {
             where: { id, companyId },
             include: {
                 client: true,
-                company: true
+                company: {
+                    include: { settings: true }
+                },
+                lines: { orderBy: { position: "asc" } }
             }
         });
 
@@ -774,20 +787,34 @@ export const sendInvoice = async (req, res) => {
         const recipientEmail = invoice.client?.email;
 
         if (recipientEmail) {
+            const companySettings = (typeof invoice.company?.settings === 'object' && invoice.company.settings) ? invoice.company.settings : {};
+            const effectiveCustomization = {
+                ...(companySettings.documentCustomization || {}),
+                ...(invoice.documentCustomization || {}),
+                ...(req.body?.customization || {}),
+                primaryColor: req.body?.primaryColor || req.body?.customization?.primaryColor || invoice.documentCustomization?.primaryColor || companySettings.documentCustomization?.primaryColor || companySettings.primaryColor || "#556B2F"
+            };
+
             await sendInvoiceClientEmail({
                 to: recipientEmail,
                 invoice,
                 company: invoice.company,
                 paymentUrl,
                 senderEmail: req.user?.email || invoice.company?.email,
-                primaryColor: req.body?.primaryColor || (typeof invoice.company?.settings === 'object' && invoice.company.settings?.primaryColor) || "#556B2F"
+                primaryColor: effectiveCustomization.primaryColor,
+                customization: effectiveCustomization
             });
         }
+
+
+        const newStatus = (invoice.status === "PAID") 
+            ? "PAID" 
+            : "SENT";
 
         const updatedInvoice = await prisma.invoice.update({
             where: { id },
             data: {
-                status: "SENT",
+                status: newStatus,
                 emailSentAt: new Date(),
                 emailSentTo: recipientEmail || undefined,
             }
@@ -936,18 +963,27 @@ export const getInvoicePdf = async (req, res) => {
             });
         }
 
-        return res.status(200).json({
-            success: true,
-            data: {
-                invoice,
-                pdfUrl: invoice.pdfUrl || null
-            }
+        const effectiveCustomization = {
+            ...(invoice.company?.settings?.documentCustomization || {}),
+            ...(invoice.documentCustomization || {})
+        };
+
+        const pdfBuffer = await generateInvoicePdfBuffer({
+            invoice,
+            company: invoice.company,
+            customization: effectiveCustomization
         });
+
+        const filename = `Facture_${(invoice.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        return res.send(pdfBuffer);
+
     } catch (error) {
         console.error("GET INVOICE PDF ERROR:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la génération du PDF"
+            message: "Erreur serveur lors de la génération du PDF de la facture"
         });
     }
 };

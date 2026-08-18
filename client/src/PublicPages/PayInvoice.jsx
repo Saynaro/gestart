@@ -66,7 +66,9 @@ function PayInvoice() {
 
     const handleDownloadPdf = () => {
         const activeToken = token || invoice?.paymentToken || invoice?.id;
-        window.open(getApiUrl(`/v1/public/pay/invoice/${activeToken}/pdf`), "_blank");
+        const custom = docCustomization || getEffectiveCustomization(invoice);
+        const customParam = encodeURIComponent(JSON.stringify(custom));
+        window.open(getApiUrl(`/v1/public/pay/invoice/${activeToken}/pdf?customization=${customParam}`), "_blank");
     };
 
     const handlePrint = () => {

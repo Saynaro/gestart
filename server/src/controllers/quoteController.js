@@ -907,9 +907,19 @@ export const getQuotePdf = async (req, res) => {
             });
         }
 
+        let queryCustomization = {};
+        if (req.query.customization) {
+            try {
+                queryCustomization = typeof req.query.customization === 'string' ? JSON.parse(req.query.customization) : req.query.customization;
+            } catch (e) {}
+        } else if (req.query.structure || req.query.primaryColor || req.query.fontFamily || req.query.fontSize || req.query.clientBoxPosition) {
+            queryCustomization = { ...req.query };
+        }
+
         const effectiveCustomization = {
             ...(quote.company?.settings?.documentCustomization || {}),
-            ...(quote.documentCustomization || {})
+            ...(quote.documentCustomization || {}),
+            ...queryCustomization
         };
 
         const pdfBuffer = await generateQuotePdfBuffer({

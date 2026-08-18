@@ -345,7 +345,9 @@ function FacturesPage() {
     const handleDownloadPdf = async (inv) => {
         try {
             const token = getAuthToken();
-            const res = await fetch(getApiUrl(`/v1/invoices/${inv.id}/pdf`), {
+            const effectiveCustomization = getEffectiveCustomization(inv);
+            const customParam = encodeURIComponent(JSON.stringify(effectiveCustomization));
+            const res = await fetch(getApiUrl(`/v1/invoices/${inv.id}/pdf?customization=${customParam}`), {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
                 credentials: 'include'
             });

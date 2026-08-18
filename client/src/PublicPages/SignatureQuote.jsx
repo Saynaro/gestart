@@ -163,7 +163,9 @@ function SignatureQuote() {
 
     const handleDownloadPdf = () => {
         const token = activeToken || quote?.signatureToken || quote?.id;
-        window.open(getApiUrl(`/v1/public/sign/quote/${token}/pdf`), "_blank");
+        const custom = docCustomization || getEffectiveCustomization(quote);
+        const customParam = encodeURIComponent(JSON.stringify(custom));
+        window.open(getApiUrl(`/v1/public/sign/quote/${token}/pdf?customization=${customParam}`), "_blank");
     };
 
     const handlePrint = () => {

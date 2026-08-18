@@ -323,7 +323,9 @@ function DevisPage() {
     const handleDownloadPdf = async (q) => {
         try {
             const token = getAuthToken();
-            const res = await fetch(getApiUrl(`/v1/quotes/${q.id}/pdf`), {
+            const effectiveCustomization = getEffectiveCustomization(q);
+            const customParam = encodeURIComponent(JSON.stringify(effectiveCustomization));
+            const res = await fetch(getApiUrl(`/v1/quotes/${q.id}/pdf?customization=${customParam}`), {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
                 credentials: 'include'
             });

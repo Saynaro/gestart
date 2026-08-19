@@ -1,6 +1,6 @@
 import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
-import { generateInvoicePdfBuffer, generateQuotePdfBuffer } from "../utils/pdfGenerator.js";
+import { generateInvoicePdfBuffer, generateQuotePdfBuffer, generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
 
 ////// PUBLIC PLANS LIST (FOR LANDING PAGE) //////
 export const getPublicPlans = async (req, res) => {
@@ -243,6 +243,15 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
             });
         }
 
+        const amountInCents = Math.round(Number(invoice.amountTTC) * 100);
+
+        if (amountInCents < 50) {
+            return res.status(400).json({
+                success: false,
+                message: "Le montant minimum pour un paiement en ligne par carte bancaire (Stripe) est de 0,50 € TTC."
+            });
+        }
+
         let checkoutUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?invoiceId=${invoice.id}`;
 
         if (stripe) {
@@ -268,7 +277,7 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
                                 name: `Facture ${invoice.number} - ${invoice.company?.name || 'Prestation'}`,
                                 description: invoice.subject || 'Règlement de facture',
                             },
-                            unit_amount: Math.round(Number(invoice.amountTTC) * 100),
+                            unit_amount: amountInCents,
                         },
                         quantity: 1,
                     },
@@ -303,7 +312,7 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
         console.error("CREATE CHECKOUT SESSION ERROR:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la création de la session de paiement"
+            message: error.message || "Erreur serveur lors de la création de la session de paiement"
         });
     }
 };
@@ -586,15 +595,36 @@ export const createPublicQuoteCheckoutSession = async (req, res) => {
 
 ////// VERIFY PUBLIC PAYMENT (AFTER STRIPE OR DIRECT PAY) //////
 export const verifyPublicPayment = async (req, res) => {
-    const { quoteId, invoiceId, sessionId } = req.body;
+    let { quoteId, invoiceId, sessionId } = req.body;
 
     try {
         let isStripeVerified = false;
+        let stripeSession = null;
+        let cardBrand = "Carte Bancaire (3D-Secure)";
+        let cardLast4 = "";
+        let transactionId = sessionId || `TX-${Date.now().toString(36).toUpperCase()}`;
+
         if (sessionId && stripe) {
             try {
-                const session = await stripe.checkout.sessions.retrieve(sessionId);
-                if (session && (session.payment_status === 'paid' || session.status === 'complete')) {
+                stripeSession = await stripe.checkout.sessions.retrieve(sessionId, {
+                    expand: ['payment_intent.payment_method']
+                });
+                if (stripeSession && (stripeSession.payment_status === 'paid' || stripeSession.status === 'complete')) {
                     isStripeVerified = true;
+                    if (stripeSession.payment_intent) {
+                        const pi = typeof stripeSession.payment_intent === 'object' ? stripeSession.payment_intent : null;
+                        if (pi) {
+                            transactionId = pi.id || transactionId;
+                            if (pi.payment_method?.card) {
+                                cardBrand = pi.payment_method.card.brand?.toUpperCase() || "CARTE BANCAIRE";
+                                cardLast4 = pi.payment_method.card.last4 || "";
+                            }
+                        }
+                    }
+                    if (!quoteId && !invoiceId) {
+                        quoteId = stripeSession.metadata?.quoteId || (stripeSession.metadata?.type === 'QUOTE_PAYMENT' ? stripeSession.client_reference_id : null);
+                        invoiceId = stripeSession.metadata?.invoiceId || (stripeSession.metadata?.type === 'INVOICE_PAYMENT' ? stripeSession.client_reference_id : null);
+                    }
                 } else {
                     return res.status(400).json({
                         success: false,
@@ -618,59 +648,84 @@ export const verifyPublicPayment = async (req, res) => {
                 include: { company: true, client: true, lines: true }
             });
 
-            if (!quote) {
-                return res.status(404).json({ success: false, message: "Devis introuvable" });
-            }
-
-            // Update quote status to ACCEPTED with paidAt timestamp
-            const updatedQuote = await prisma.quote.update({
-                where: { id: quote.id },
-                data: {
-                    status: "ACCEPTED",
-                    paidAt: quote.paidAt || new Date()
-                },
-                include: { company: true, client: true }
-            });
-
-            // Record income transaction only if not already recorded
-            try {
-                const existingTx = await prisma.transaction.findFirst({
-                    where: {
-                        companyId: quote.companyId,
-                        description: { contains: quote.number }
-                    }
+            if (quote) {
+                // Update quote status to ACCEPTED with paidAt timestamp
+                const updatedQuote = await prisma.quote.update({
+                    where: { id: quote.id },
+                    data: {
+                        status: "ACCEPTED",
+                        paidAt: quote.paidAt || new Date()
+                    },
+                    include: { company: true, client: true, lines: true }
                 });
 
-                if (!existingTx) {
-                    await prisma.transaction.create({
-                        data: {
+                const totalTtc = Number(updatedQuote.amountTTC || updatedQuote.totalTtc || 0);
+                const totalHt = Number(updatedQuote.amountHT || updatedQuote.totalHt || (totalTtc / 1.2));
+                const tvaAmount = Number(updatedQuote.tvaAmount !== undefined && updatedQuote.tvaAmount !== null ? updatedQuote.tvaAmount : (totalTtc - totalHt));
+
+                // Record income transaction only if not already recorded
+                try {
+                    const existingTx = await prisma.transaction.findFirst({
+                        where: {
                             companyId: quote.companyId,
-                            amount: Number(quote.amountTTC || quote.totalTtc || 0),
-                            type: "INCOME",
-                            category: "Devis encaissé",
-                            date: new Date(),
-                            description: `Paiement en ligne CB - Devis ${quote.number} (${quote.client ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim() : 'Client'})`,
-                            paymentMethod: "CARD",
+                            description: { contains: quote.number }
                         }
                     });
-                }
-            } catch (tErr) {
-                console.warn("Transaction note:", tErr.message);
-            }
 
-            return res.status(200).json({
-                success: true,
-                message: "Paiement du devis confirmé avec succès",
-                data: {
-                    type: "QUOTE",
-                    docNumber: updatedQuote.number,
-                    amountTTC: updatedQuote.amountTTC || updatedQuote.totalTtc,
-                    companyName: updatedQuote.company?.name,
-                    clientName: updatedQuote.client ? `${updatedQuote.client.firstName || ''} ${updatedQuote.client.lastName || updatedQuote.client.companyName || ''}`.trim() : "Client",
-                    paidAt: updatedQuote.paidAt || new Date(),
-                    signatureToken: updatedQuote.signatureToken
+                    if (!existingTx) {
+                        await prisma.transaction.create({
+                            data: {
+                                companyId: quote.companyId,
+                                amount: totalTtc,
+                                type: "INCOME",
+                                category: "Devis encaissé",
+                                date: new Date(),
+                                description: `Paiement en ligne CB - Devis ${quote.number} (${quote.client ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim() : 'Client'})`,
+                                paymentMethod: "CARD",
+                            }
+                        });
+                    }
+                } catch (tErr) {
+                    console.warn("Transaction note:", tErr.message);
                 }
-            });
+
+                const clientDisplayName = updatedQuote.client 
+                    ? (updatedQuote.client.companyName || `${updatedQuote.client.firstName || ''} ${updatedQuote.client.lastName || ''}`.trim() || updatedQuote.clientName || "Client")
+                    : (updatedQuote.clientName || "Client");
+
+                const clientDisplayAddress = updatedQuote.client 
+                    ? `${updatedQuote.client.address || ''}${updatedQuote.client.city ? `, ${updatedQuote.client.postalCode || ''} ${updatedQuote.client.city}` : ''}`.trim() 
+                    : "";
+
+                return res.status(200).json({
+                    success: true,
+                    message: "Paiement du devis confirmé avec succès",
+                    data: {
+                        type: "QUOTE",
+                        docNumber: updatedQuote.number,
+                        amountTTC: totalTtc,
+                        amountHT: totalHt,
+                        tvaAmount,
+                        tvaRate: updatedQuote.tvaRate !== undefined && updatedQuote.tvaRate !== null ? Number(updatedQuote.tvaRate) : 20,
+                        companyName: updatedQuote.company?.name || "Mon Entreprise",
+                        companyAddress: updatedQuote.company?.address ? `${updatedQuote.company.address}${updatedQuote.company.postalCode || updatedQuote.company.city ? `, ${updatedQuote.company.postalCode || ''} ${updatedQuote.company.city || ''}` : ''}` : "",
+                        companySiret: updatedQuote.company?.siret || "",
+                        companyEmail: updatedQuote.company?.email || "",
+                        companyPhone: updatedQuote.company?.phone || "",
+                        companyLogo: updatedQuote.company?.logoUrl || updatedQuote.company?.settings?.logoUrl || null,
+                        clientName: clientDisplayName,
+                        clientEmail: updatedQuote.client?.email || updatedQuote.clientEmail || "",
+                        clientPhone: updatedQuote.client?.phone || updatedQuote.clientPhone || "",
+                        clientAddress: clientDisplayAddress,
+                        cardBrand,
+                        cardLast4,
+                        transactionId,
+                        paidAt: updatedQuote.paidAt || new Date(),
+                        quoteId: updatedQuote.id,
+                        signatureToken: updatedQuote.signatureToken
+                    }
+                });
+            }
         }
 
         // If for an Invoice
@@ -685,68 +740,91 @@ export const verifyPublicPayment = async (req, res) => {
                 include: { company: true, client: true, lines: true }
             });
 
-            if (!invoice) {
-                return res.status(404).json({ success: false, message: "Facture introuvable" });
-            }
+            if (invoice) {
+                const totalTtc = Number(invoice.amountTTC || 0);
+                const totalHt = Number(invoice.amountHT || (totalTtc / 1.2));
+                const tvaAmount = Number(invoice.tvaAmount !== undefined && invoice.tvaAmount !== null ? invoice.tvaAmount : (totalTtc - totalHt));
 
-            const totalTtc = Number(invoice.amountTTC || 0);
-
-            // Update invoice status to PAID
-            const updatedInvoice = await prisma.invoice.update({
-                where: { id: invoice.id },
-                data: {
-                    status: "PAID",
-                    amountPaid: totalTtc,
-                    paidAt: invoice.paidAt || new Date()
-                },
-                include: { company: true, client: true }
-            });
-
-            // Create accounting transaction only if not existing
-            try {
-                const existingTx = await prisma.transaction.findFirst({
-                    where: {
-                        companyId: invoice.companyId,
-                        invoiceId: invoice.id
-                    }
+                // Update invoice status to PAID
+                const updatedInvoice = await prisma.invoice.update({
+                    where: { id: invoice.id },
+                    data: {
+                        status: "PAID",
+                        amountPaid: totalTtc,
+                        paidAt: invoice.paidAt || new Date()
+                    },
+                    include: { company: true, client: true, lines: true }
                 });
 
-                if (!existingTx) {
-                    await prisma.transaction.create({
-                        data: {
+                // Create accounting transaction only if not existing
+                try {
+                    const existingTx = await prisma.transaction.findFirst({
+                        where: {
                             companyId: invoice.companyId,
-                            invoiceId: invoice.id,
-                            amount: totalTtc,
-                            type: "INCOME",
-                            category: "Ventes de prestations / matériel",
-                            date: new Date(),
-                            description: `Paiement en ligne CB - Facture ${invoice.number} (${invoice.client ? `${invoice.client.firstName || ''} ${invoice.client.lastName || invoice.client.companyName || ''}`.trim() : 'Client'})`,
-                            paymentMethod: "CARD",
+                            invoiceId: invoice.id
                         }
                     });
-                }
-            } catch (tErr) {
-                console.warn("Transaction note:", tErr.message);
-            }
 
-            return res.status(200).json({
-                success: true,
-                message: "Paiement de la facture confirmé avec succès",
-                data: {
-                    type: "INVOICE",
-                    docNumber: updatedInvoice.number,
-                    amountTTC: updatedInvoice.amountTTC,
-                    companyName: updatedInvoice.company?.name,
-                    clientName: updatedInvoice.client ? `${updatedInvoice.client.firstName || ''} ${updatedInvoice.client.lastName || updatedInvoice.client.companyName || ''}`.trim() : "Client",
-                    paidAt: updatedInvoice.paidAt || new Date(),
-                    paymentToken: updatedInvoice.paymentToken
+                    if (!existingTx) {
+                        await prisma.transaction.create({
+                            data: {
+                                companyId: invoice.companyId,
+                                invoiceId: invoice.id,
+                                amount: totalTtc,
+                                type: "INCOME",
+                                category: "Ventes de prestations / matériel",
+                                date: new Date(),
+                                description: `Paiement en ligne CB - Facture ${invoice.number} (${invoice.client ? `${invoice.client.firstName || ''} ${invoice.client.lastName || invoice.client.companyName || ''}`.trim() : 'Client'})`,
+                                paymentMethod: "CARD",
+                            }
+                        });
+                    }
+                } catch (tErr) {
+                    console.warn("Transaction note:", tErr.message);
                 }
-            });
+
+                const clientDisplayName = updatedInvoice.client 
+                    ? (updatedInvoice.client.companyName || `${updatedInvoice.client.firstName || ''} ${updatedInvoice.client.lastName || ''}`.trim() || updatedInvoice.clientName || "Client")
+                    : (updatedInvoice.clientName || "Client");
+
+                const clientDisplayAddress = updatedInvoice.client 
+                    ? `${updatedInvoice.client.address || ''}${updatedInvoice.client.city ? `, ${updatedInvoice.client.postalCode || ''} ${updatedInvoice.client.city}` : ''}`.trim() 
+                    : "";
+
+                return res.status(200).json({
+                    success: true,
+                    message: "Paiement de la facture confirmé avec succès",
+                    data: {
+                        type: "INVOICE",
+                        docNumber: updatedInvoice.number,
+                        amountTTC: totalTtc,
+                        amountHT: totalHt,
+                        tvaAmount,
+                        tvaRate: updatedInvoice.tvaRate !== undefined && updatedInvoice.tvaRate !== null ? Number(updatedInvoice.tvaRate) : 20,
+                        companyName: updatedInvoice.company?.name || "Mon Entreprise",
+                        companyAddress: updatedInvoice.company?.address ? `${updatedInvoice.company.address}${updatedInvoice.company.postalCode || updatedInvoice.company.city ? `, ${updatedInvoice.company.postalCode || ''} ${updatedInvoice.company.city || ''}` : ''}` : "",
+                        companySiret: updatedInvoice.company?.siret || "",
+                        companyEmail: updatedInvoice.company?.email || "",
+                        companyPhone: updatedInvoice.company?.phone || "",
+                        companyLogo: updatedInvoice.company?.logoUrl || updatedInvoice.company?.settings?.logoUrl || null,
+                        clientName: clientDisplayName,
+                        clientEmail: updatedInvoice.client?.email || updatedInvoice.clientEmail || "",
+                        clientPhone: updatedInvoice.client?.phone || updatedInvoice.clientPhone || "",
+                        clientAddress: clientDisplayAddress,
+                        cardBrand,
+                        cardLast4,
+                        transactionId,
+                        paidAt: updatedInvoice.paidAt || new Date(),
+                        invoiceId: updatedInvoice.id,
+                        paymentToken: updatedInvoice.paymentToken
+                    }
+                });
+            }
         }
 
         return res.status(400).json({
             success: false,
-            message: "Paramètres de paiement manquants"
+            message: "Paramètres de paiement manquants ou document introuvable."
         });
     } catch (error) {
         console.error("VERIFY PUBLIC PAYMENT ERROR:", error.message);
@@ -754,6 +832,125 @@ export const verifyPublicPayment = async (req, res) => {
             success: false,
             message: "Erreur lors de la vérification du paiement"
         });
+    }
+};
+
+// ==================== DOWNLOAD PUBLIC PAYMENT RECEIPT PDF ====================
+export const downloadPublicReceiptPdf = async (req, res) => {
+    try {
+        const { quoteId, invoiceId, sessionId, token } = req.query;
+
+        let targetQuoteId = quoteId;
+        let targetInvoiceId = invoiceId;
+        let cardBrand = "Carte Bancaire (3D-Secure)";
+        let cardLast4 = "";
+        let transactionId = sessionId || `TX-${Date.now().toString(36).toUpperCase()}`;
+
+        if (sessionId && stripe) {
+            try {
+                const stripeSession = await stripe.checkout.sessions.retrieve(sessionId, {
+                    expand: ['payment_intent.payment_method']
+                });
+                if (stripeSession) {
+                    if (stripeSession.payment_intent) {
+                        const pi = typeof stripeSession.payment_intent === 'object' ? stripeSession.payment_intent : null;
+                        if (pi) {
+                            transactionId = pi.id || transactionId;
+                            if (pi.payment_method?.card) {
+                                cardBrand = pi.payment_method.card.brand?.toUpperCase() || "CARTE BANCAIRE";
+                                cardLast4 = pi.payment_method.card.last4 || "";
+                            }
+                        }
+                    }
+                    if (!targetQuoteId && !targetInvoiceId) {
+                        targetQuoteId = stripeSession.metadata?.quoteId || (stripeSession.metadata?.type === 'QUOTE_PAYMENT' ? stripeSession.client_reference_id : null);
+                        targetInvoiceId = stripeSession.metadata?.invoiceId || (stripeSession.metadata?.type === 'INVOICE_PAYMENT' ? stripeSession.client_reference_id : null);
+                    }
+                }
+            } catch (sErr) {
+                console.warn("Stripe session retrieve warning in receipt pdf:", sErr.message);
+            }
+        }
+
+        let doc = null;
+        let type = "QUOTE";
+        if (targetQuoteId || token) {
+            doc = await prisma.quote.findFirst({
+                where: {
+                    OR: [
+                        { id: targetQuoteId || token },
+                        { signatureToken: targetQuoteId || token }
+                    ]
+                },
+                include: { company: true, client: true, lines: true }
+            });
+            if (doc) type = "QUOTE";
+        }
+
+        if (!doc && (targetInvoiceId || token)) {
+            doc = await prisma.invoice.findFirst({
+                where: {
+                    OR: [
+                        { id: targetInvoiceId || token },
+                        { paymentToken: targetInvoiceId || token }
+                    ]
+                },
+                include: { company: true, client: true, lines: true }
+            });
+            if (doc) type = "INVOICE";
+        }
+
+        if (!doc) {
+            return res.status(404).json({ success: false, message: "Document introuvable pour ce reçu" });
+        }
+
+        const amountTtc = Number(doc.amountTTC || doc.totalTtc || 0);
+        const amountHt = Number(doc.amountHT || doc.totalHt || (amountTtc / 1.2));
+        const tvaAmount = Number(doc.tvaAmount !== undefined && doc.tvaAmount !== null ? doc.tvaAmount : (amountTtc - amountHt));
+
+        const clientName = doc.client 
+            ? (doc.client.companyName || `${doc.client.firstName || ''} ${doc.client.lastName || ''}`.trim() || doc.clientName || "Client")
+            : (doc.clientName || "Client");
+        
+        const clientAddress = doc.client 
+            ? `${doc.client.address || ''}${doc.client.city ? `, ${doc.client.postalCode || ''} ${doc.client.city}` : ''}`.trim() 
+            : "";
+
+        const paymentData = {
+            type,
+            docNumber: doc.number,
+            amountTTC: amountTtc,
+            amountHT: amountHt,
+            tvaAmount,
+            tvaRate: doc.tvaRate !== undefined && doc.tvaRate !== null ? Number(doc.tvaRate) : 20,
+            companyName: doc.company?.name || "Mon Entreprise",
+            companyAddress: doc.company?.address ? `${doc.company.address}${doc.company.postalCode || doc.company.city ? `, ${doc.company.postalCode || ''} ${doc.company.city || ''}` : ''}` : "",
+            companySiret: doc.company?.siret || "",
+            companyEmail: doc.company?.email || "",
+            companyPhone: doc.company?.phone || "",
+            clientName,
+            clientEmail: doc.client?.email || doc.clientEmail || "",
+            clientPhone: doc.client?.phone || doc.clientPhone || "",
+            clientAddress,
+            cardBrand,
+            cardLast4,
+            transactionId,
+            paidAt: doc.paidAt || new Date()
+        };
+
+        const pdfBuffer = await generateReceiptPdfBuffer({
+            paymentData,
+            company: doc.company,
+            customization: doc.company?.settings?.documentCustomization || {}
+        });
+
+        const safeNumber = (doc.number || 'document').replace(/[^a-zA-Z0-9-_]/g, '_');
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="Recu_Paiement_${safeNumber}.pdf"`);
+        return res.send(pdfBuffer);
+    } catch (error) {
+        console.error("DOWNLOAD PUBLIC RECEIPT PDF ERROR:", error);
+        return res.status(500).json({ success: false, message: "Erreur lors de la génération du reçu PDF" });
     }
 };
 

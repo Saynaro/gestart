@@ -90,11 +90,14 @@ export function saveDocCustomization(docId, settings, clientId = null, docType =
     if (docId) {
       localStorage.setItem(`crm_doc_custom_${docId}`, JSON.stringify(settings));
     }
+    // Clean up any stale client-level override keys to avoid style contamination
     if (clientId) {
-      localStorage.setItem(`crm_client_custom_${clientId}`, JSON.stringify(settings));
+      try {
+        localStorage.removeItem(`crm_client_custom_${clientId}`);
+      } catch (e) {}
     }
     window.dispatchEvent(new CustomEvent("docCustomizationChanged", { 
-      detail: { docId, clientId, settings } 
+      detail: { docId, settings } 
     }));
 
     // Asynchronously sync document customization to backend database
@@ -116,7 +119,7 @@ export function saveDocCustomization(docId, settings, clientId = null, docType =
 
 export function useDocumentCustomization(doc = null) {
   const [customization, setCustomization] = useState(() => getEffectiveCustomization(doc));
-  const docKey = `${doc?.id || ""}_${doc?.clientId || doc?.client?.id || ""}_${JSON.stringify(doc?.documentCustomization || doc?.customization || "")}`;
+  const docKey = `${doc?.id || ""}_${JSON.stringify(doc?.documentCustomization || doc?.customization || "")}`;
 
   useEffect(() => {
     setCustomization(getEffectiveCustomization(doc));
@@ -137,8 +140,8 @@ export function useDocumentCustomization(doc = null) {
 
 
   const update = (newSettings) => {
-    if (doc?.id || doc?.clientId || doc?.client?.id) {
-      saveDocCustomization(doc?.id, newSettings, doc?.clientId || doc?.client?.id, doc?.number?.startsWith("D") ? "devis" : "facture");
+    if (doc?.id) {
+      saveDocCustomization(doc?.id, newSettings, null, doc?.number?.startsWith("D") ? "devis" : "facture");
     } else {
       saveCustomization(newSettings);
     }
@@ -181,15 +184,6 @@ export function getEffectiveCustomization(doc, globalCustomization) {
     const byDoc = getDocCustomization(doc.id);
     if (byDoc && typeof byDoc === 'object') {
       return { ...globalSettings, ...byDoc };
-    }
-  }
-
-  // 3. LocalStorage per clientId
-  const clientId = doc.clientId || doc.client?.id;
-  if (clientId) {
-    const byClient = getClientCustomization(clientId);
-    if (byClient && typeof byClient === 'object') {
-      return { ...globalSettings, ...byClient };
     }
   }
 

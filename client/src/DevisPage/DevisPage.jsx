@@ -307,7 +307,9 @@ function DevisPage() {
                     status: newQuote.status || "DRAFT",
                     conditions: newQuote.paymentConditions || null,
                     notes: newQuote.internalNotes || null,
-                    validUntil: newQuote.dueDate || null
+                    validUntil: newQuote.dueDate || null,
+                    documentCustomization: newQuote.documentCustomization || newQuote.customization || globalCustomization,
+                    customization: newQuote.documentCustomization || newQuote.customization || globalCustomization
                 })
             });
             showToast(`Devis créé avec succès !`, "success");
@@ -320,25 +322,31 @@ function DevisPage() {
         }
     };
 
-    const handleDownloadPdf = async (q) => {
+    const handleDownloadPdf = async (q, customOverride = null) => {
         try {
             const token = getAuthToken();
-            const effectiveCustomization = getEffectiveCustomization(q);
-            const customParam = encodeURIComponent(JSON.stringify(effectiveCustomization));
-            const res = await fetch(getApiUrl(`/v1/quotes/${q.id}/pdf?customization=${customParam}`), {
+            let endpointUrl = `/v1/quotes/${q.id}/pdf`;
+            if (customOverride) {
+                const cleanCustom = { ...customOverride };
+                if (cleanCustom.logoUrl && cleanCustom.logoUrl.startsWith('data:')) delete cleanCustom.logoUrl;
+                if (cleanCustom.signatureUrl && cleanCustom.signatureUrl.startsWith('data:')) delete cleanCustom.signatureUrl;
+                const customParam = encodeURIComponent(JSON.stringify(cleanCustom));
+                endpointUrl += `?customization=${customParam}`;
+            }
+            const res = await fetch(getApiUrl(endpointUrl), {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
                 credentials: 'include'
             });
             if (!res.ok) throw new Error("Erreur téléchargement PDF");
             const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
+            const blobUrl = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.href = url;
+            link.href = blobUrl;
             link.download = `Devis_${(q.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(blobUrl);
         } catch (err) {
             console.error("Erreur téléchargement PDF:", err);
         }

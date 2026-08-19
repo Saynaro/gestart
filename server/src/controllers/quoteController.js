@@ -820,8 +820,6 @@ export const convertQuoteToInvoice = async (req, res) => {
             const dueAt = new Date();
             dueAt.setDate(dueAt.getDate() + (settings.defaultPaymentDays || 30));
 
-            const isQuoteAccepted = quote.status === "ACCEPTED";
-
             const newInvoice = await tx.invoice.create({
                 data: {
                     companyId,
@@ -829,16 +827,18 @@ export const convertQuoteToInvoice = async (req, res) => {
                     interventionId: quote.interventionId || null,
                     sourceQuoteId: quote.id,
                     number: invoiceNumberFormatted,
-                    status: isQuoteAccepted ? "PAID" : "DRAFT",
+                    status: "DRAFT",
                     amountHT: quote.amountHT,
                     tvaRate: quote.tvaRate,
                     amountTTC: quote.amountTTC,
-                    amountPaid: isQuoteAccepted ? quote.amountTTC : 0,
-                    paidAt: isQuoteAccepted ? (quote.acceptedAt || new Date()) : null,
-                    paymentMethod: isQuoteAccepted ? "CARD" : null,
+                    amountPaid: 0,
+                    paidAt: null,
+                    paymentMethod: null,
                     subject: quote.subject,
                     notes: quote.notes,
                     conditions: quote.conditions || settings.invoiceConditions,
+                    documentCustomization: quote.documentCustomization || quote.customization || null,
+                    paymentToken: `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
                     dueAt,
                     lines: {
                         create: quote.lines.map(l => ({

@@ -132,48 +132,97 @@ function QuoteDetailDrawer({
                                 alignItems: "center"
                             }}
                         >
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                {docCustomization.showLogo && (
-                                    companyLogo ? (
-                                        <img
-                                            src={companyLogo}
-                                            alt="Logo"
-                                            style={{
-                                                maxHeight: `${docCustomization.logoSize || 40}px`,
-                                                maxWidth: "120px",
-                                                objectFit: "contain",
-                                                background: "rgba(255,255,255,0.2)",
-                                                padding: "2px 4px",
-                                                borderRadius: "4px"
-                                            }}
-                                        />
-                                    ) : (
-                                        <div
-                                            style={{
-                                                backgroundColor: "rgba(255,255,255,0.2)",
-                                                color: "#FFFFFF",
-                                                fontWeight: 800,
-                                                borderRadius: "4px",
-                                                padding: "4px 6px",
-                                                fontSize: "0.95em"
-                                            }}
-                                        >
-                                            {companyDisplayName.substring(0, 8).toUpperCase()}
+                            {docCustomization.logoPosition !== "right" ? (
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                        maxWidth: "120px",
+                                                        objectFit: "contain",
+                                                        background: "rgba(255,255,255,0.2)",
+                                                        padding: "2px 4px",
+                                                        borderRadius: "4px"
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        backgroundColor: "rgba(255,255,255,0.2)",
+                                                        color: "#FFFFFF",
+                                                        fontWeight: 800,
+                                                        borderRadius: "4px",
+                                                        padding: "4px 6px",
+                                                        fontSize: "0.95em"
+                                                    }}
+                                                >
+                                                    {companyDisplayName.substring(0, 8).toUpperCase()}
+                                                </div>
+                                            )
+                                        )}
+                                        <div>
+                                            <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                                {companyDisplayName}
+                                            </h3>
                                         </div>
-                                    )
-                                )}
-                                <div>
-                                    <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
-                                        {companyDisplayName}
-                                    </h3>
-                                </div>
-                            </div>
+                                    </div>
 
-                            <div style={{ textAlign: "right" }}>
-                                <h1 style={{ fontSize: "1.4em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "1.5px" }}>
-                                    DEVIS
-                                </h1>
-                            </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <h1 style={{ fontSize: "1.4em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "1.5px" }}>
+                                            DEVIS
+                                        </h1>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div>
+                                        <h1 style={{ fontSize: "1.4em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "1.5px" }}>
+                                            DEVIS
+                                        </h1>
+                                    </div>
+
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", textAlign: "right" }}>
+                                        <div>
+                                            <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                                {companyDisplayName}
+                                            </h3>
+                                        </div>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                        maxWidth: "120px",
+                                                        objectFit: "contain",
+                                                        background: "rgba(255,255,255,0.2)",
+                                                        padding: "2px 4px",
+                                                        borderRadius: "4px"
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        backgroundColor: "rgba(255,255,255,0.2)",
+                                                        color: "#FFFFFF",
+                                                        fontWeight: 800,
+                                                        borderRadius: "4px",
+                                                        padding: "4px 6px",
+                                                        fontSize: "0.95em"
+                                                    }}
+                                                >
+                                                    {companyDisplayName.substring(0, 8).toUpperCase()}
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         <div
@@ -251,65 +300,135 @@ function QuoteDetailDrawer({
                 {docCustomization.structure === "modern" && (
                     <div style={{ marginBottom: "14px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                            <div>
-                                {docCustomization.showLogo && (
-                                    companyLogo ? (
-                                        <img
-                                            src={companyLogo}
-                                            alt="Logo"
-                                            style={{
-                                                maxHeight: `${docCustomization.logoSize || 40}px`,
-                                                maxWidth: "140px",
-                                                objectFit: "contain",
-                                                marginBottom: "4pt"
-                                            }}
-                                        />
-                                    ) : (
-                                        <div
-                                            style={{
-                                                backgroundColor: docCustomization.primaryColor || "#556B2F",
-                                                color: "#FFF",
-                                                display: "inline-flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                fontWeight: 700,
-                                                borderRadius: "6px",
-                                                padding: "4px 8px",
-                                                height: `${docCustomization.logoSize || 40}px`,
-                                                minWidth: `${(docCustomization.logoSize || 40) * 1.8}px`,
-                                                marginBottom: "4pt",
-                                                fontSize: "0.95em"
-                                            }}
-                                        >
-                                            {companyDisplayName.substring(0, 8).toUpperCase()}
-                                        </div>
-                                    )
-                                )}
-                                <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
-                                    {companyDisplayName}
-                                </h3>
-                            </div>
+                            {docCustomization.logoPosition !== "right" ? (
+                                <>
+                                    <div>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                        maxWidth: "140px",
+                                                        objectFit: "contain",
+                                                        marginBottom: "4pt"
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                        color: "#FFF",
+                                                        display: "inline-flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        fontWeight: 700,
+                                                        borderRadius: "6px",
+                                                        padding: "4px 8px",
+                                                        height: `${docCustomization.logoSize || 40}px`,
+                                                        minWidth: `${(docCustomization.logoSize || 40) * 1.8}px`,
+                                                        marginBottom: "4pt",
+                                                        fontSize: "0.95em"
+                                                    }}
+                                                >
+                                                    {companyDisplayName.substring(0, 8).toUpperCase()}
+                                                </div>
+                                            )
+                                        )}
+                                        <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                            {companyDisplayName}
+                                        </h3>
+                                    </div>
 
-                            <div style={{ textAlign: "right" }}>
-                                <div
-                                    style={{
-                                        display: "inline-block",
-                                        backgroundColor: docCustomization.primaryColor || "#556B2F",
-                                        color: "#FFFFFF",
-                                        padding: "4px 12px",
-                                        borderRadius: "16px",
-                                        fontWeight: 800,
-                                        fontSize: "0.9em",
-                                        letterSpacing: "0.5px",
-                                        marginBottom: "4px"
-                                    }}
-                                >
-                                    DEVIS N° {quote.number}
-                                </div>
-                                <div style={{ fontSize: "0.8em", opacity: 0.85 }}>
-                                    Date : <strong>{formattedDocDate}</strong>
-                                </div>
-                            </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <div>
+                                            <div
+                                                style={{
+                                                    display: "inline-block",
+                                                    backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                    color: "#FFFFFF",
+                                                    padding: "4px 12px",
+                                                    borderRadius: "16px",
+                                                    fontWeight: 800,
+                                                    fontSize: "0.9em",
+                                                    letterSpacing: "0.5px",
+                                                    marginBottom: "4px"
+                                                }}
+                                            >
+                                                DEVIS N° {quote.number}
+                                            </div>
+                                            <div style={{ fontSize: "0.8em", opacity: 0.85 }}>
+                                                Date : <strong>{formattedDocDate}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div style={{ textAlign: "left" }}>
+                                        <div>
+                                            <div
+                                                style={{
+                                                    display: "inline-block",
+                                                    backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                    color: "#FFFFFF",
+                                                    padding: "4px 12px",
+                                                    borderRadius: "16px",
+                                                    fontWeight: 800,
+                                                    fontSize: "0.9em",
+                                                    letterSpacing: "0.5px",
+                                                    marginBottom: "4px"
+                                                }}
+                                            >
+                                                DEVIS N° {quote.number}
+                                            </div>
+                                            <div style={{ fontSize: "0.8em", opacity: 0.85 }}>
+                                                Date : <strong>{formattedDocDate}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 40}px`,
+                                                        maxWidth: "140px",
+                                                        objectFit: "contain",
+                                                        marginBottom: "4pt"
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        backgroundColor: docCustomization.primaryColor || "#556B2F",
+                                                        color: "#FFF",
+                                                        display: "inline-flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        fontWeight: 700,
+                                                        borderRadius: "6px",
+                                                        padding: "4px 8px",
+                                                        height: `${docCustomization.logoSize || 40}px`,
+                                                        minWidth: `${(docCustomization.logoSize || 40) * 1.8}px`,
+                                                        marginBottom: "4pt",
+                                                        fontSize: "0.95em"
+                                                    }}
+                                                >
+                                                    {companyDisplayName.substring(0, 8).toUpperCase()}
+                                                </div>
+                                            )
+                                        )}
+                                        <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                            {companyDisplayName}
+                                        </h3>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {docCustomization.clientBoxPosition === "right" ? (
@@ -405,34 +524,69 @@ function QuoteDetailDrawer({
                 {docCustomization.structure === "minimal" && (
                     <div style={{ marginBottom: "14px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingBottom: "8px", borderBottom: `1.5px solid #EAEAE6`, marginBottom: "12px" }}>
-                            <div>
-                                {docCustomization.showLogo && (
-                                    companyLogo ? (
-                                        <img
-                                            src={companyLogo}
-                                            alt="Logo"
-                                            style={{
-                                                maxHeight: `${docCustomization.logoSize || 36}px`,
-                                                maxWidth: "130px",
-                                                objectFit: "contain",
-                                                marginBottom: "4pt"
-                                            }}
-                                        />
-                                    ) : null
-                                )}
-                                <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
-                                    {companyDisplayName}
-                                </h3>
-                            </div>
+                            {docCustomization.logoPosition !== "right" ? (
+                                <>
+                                    <div>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 36}px`,
+                                                        maxWidth: "130px",
+                                                        objectFit: "contain",
+                                                        marginBottom: "4pt"
+                                                    }}
+                                                />
+                                            ) : null
+                                        )}
+                                        <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                            {companyDisplayName}
+                                        </h3>
+                                    </div>
 
-                            <div style={{ textAlign: "right" }}>
-                                <h1 style={{ fontSize: "1.6em", fontWeight: 300, color: docCustomization.primaryColor || "#556B2F", margin: 0, letterSpacing: "2px" }}>
-                                    DEVIS
-                                </h1>
-                                <div style={{ fontSize: "0.8em", color: "#666", marginTop: "2px" }}>
-                                    N° {quote.number} • {formattedDocDate}
-                                </div>
-                            </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <h1 style={{ fontSize: "1.6em", fontWeight: 300, color: docCustomization.primaryColor || "#556B2F", margin: 0, letterSpacing: "2px" }}>
+                                            DEVIS
+                                        </h1>
+                                        <div style={{ fontSize: "0.8em", color: "#666", marginTop: "2px" }}>
+                                            N° {quote.number} • {formattedDocDate}
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div style={{ textAlign: "left" }}>
+                                        <h1 style={{ fontSize: "1.6em", fontWeight: 300, color: docCustomization.primaryColor || "#556B2F", margin: 0, letterSpacing: "2px" }}>
+                                            DEVIS
+                                        </h1>
+                                        <div style={{ fontSize: "0.8em", color: "#666", marginTop: "2px" }}>
+                                            N° {quote.number} • {formattedDocDate}
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 36}px`,
+                                                        maxWidth: "130px",
+                                                        objectFit: "contain",
+                                                        marginBottom: "4pt"
+                                                    }}
+                                                />
+                                            ) : null
+                                        )}
+                                        <h3 style={{ fontSize: "1.15em", fontWeight: 800, color: docCustomization.primaryColor || "#556B2F", margin: 0 }}>
+                                            {companyDisplayName}
+                                        </h3>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {docCustomization.clientBoxPosition === "right" ? (
@@ -481,100 +635,133 @@ function QuoteDetailDrawer({
                 {(docCustomization.structure === "classic" || !docCustomization.structure) && (
                     <div style={{ marginBottom: "12px" }}>
                         <div className="pdf-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12pt' }}>
-                            <div className="pdf-header-left" style={{ flex: 1 }}>
-                                {docCustomization.showLogo && docCustomization.logoPosition !== 'right' && (
-                                    companyLogo ? (
-                                        <img
-                                            src={companyLogo}
-                                            alt="Logo"
-                                            style={{
-                                                maxHeight: `${docCustomization.logoSize || 45}px`,
-                                                maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
-                                                objectFit: 'contain',
-                                                marginBottom: '6pt'
-                                            }}
-                                        />
-                                    ) : (
-                                        <div
-                                            className="pdf-logo-stub"
-                                            style={{
-                                                fontSize: '1.1em',
-                                                padding: '4px 8px',
-                                                height: `${docCustomization.logoSize || 45}px`,
-                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                                backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                                color: '#FFF',
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontWeight: '700',
-                                                borderRadius: '4px',
-                                                marginBottom: '6pt'
-                                            }}
-                                        >
-                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
-                                        </div>
-                                    )
-                                )}
-                                <h2 className="company-name" style={{ fontSize: '1.3em', fontWeight: 800, color: docCustomization.primaryColor || '#556B2F', margin: 0 }}>
-                                    {companyDisplayName}
-                                </h2>
-                                <p className="company-details" style={{ fontSize: '0.9em', opacity: 0.85, lineHeight: 1.35, marginTop: '2pt' }}>
-                                    {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
-                                    {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
-                                    {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
-                                    {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
-                                </p>
-                            </div>
-                            <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
-                                {docCustomization.showLogo && docCustomization.logoPosition === 'right' && (
-                                    companyLogo ? (
-                                        <img
-                                            src={companyLogo}
-                                            alt="Logo"
-                                            style={{
-                                                maxHeight: `${docCustomization.logoSize || 45}px`,
-                                                maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
-                                                objectFit: 'contain',
-                                                marginBottom: '6pt'
-                                            }}
-                                        />
-                                    ) : (
-                                        <div
-                                            className="pdf-logo-stub"
-                                            style={{
-                                                fontSize: '1.1em',
-                                                padding: '4px 8px',
-                                                height: `${docCustomization.logoSize || 45}px`,
-                                                minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
-                                                backgroundColor: docCustomization.primaryColor || '#556B2F',
-                                                color: '#FFF',
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontWeight: '700',
-                                                borderRadius: '4px',
-                                                marginBottom: '6pt'
-                                            }}
-                                        >
-                                            <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
-                                        </div>
-                                    )
-                                )}
-                                <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
-                                <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
-                                    <tbody>
-                                        <tr>
-                                            <td><strong>Numéro :</strong></td>
-                                            <td>{quote.number}</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Date :</strong></td>
-                                            <td>{formattedDocDate}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            {docCustomization.logoPosition !== 'right' ? (
+                                <>
+                                    <div className="pdf-header-left" style={{ flex: 1 }}>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                                        objectFit: 'contain',
+                                                        marginBottom: '6pt'
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="pdf-logo-stub"
+                                                    style={{
+                                                        fontSize: '1.1em',
+                                                        padding: '4px 8px',
+                                                        height: `${docCustomization.logoSize || 45}px`,
+                                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                                        color: '#FFF',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontWeight: '700',
+                                                        borderRadius: '4px',
+                                                        marginBottom: '6pt'
+                                                    }}
+                                                >
+                                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                                </div>
+                                            )
+                                        )}
+                                        <h2 className="company-name" style={{ fontSize: '1.3em', fontWeight: 800, color: docCustomization.primaryColor || '#556B2F', margin: 0 }}>
+                                            {companyDisplayName}
+                                        </h2>
+                                        <p className="company-details" style={{ fontSize: '0.9em', opacity: 0.85, lineHeight: 1.35, marginTop: '2pt' }}>
+                                            {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                                            {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
+                                            {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                                            {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
+                                        </p>
+                                    </div>
+                                    <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                        <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
+                                        <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Numéro :</strong></td>
+                                                    <td>{quote.number}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Date :</strong></td>
+                                                    <td>{formattedDocDate}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="pdf-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
+                                        <h1 className="doc-type-label" style={{ fontSize: '1.8em', marginBottom: '4px', color: docCustomization.primaryColor || '#556B2F', margin: 0, fontWeight: 800 }}>DEVIS</h1>
+                                        <table className="doc-meta-table" style={{ fontSize: '0.9em' }}>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Numéro :</strong></td>
+                                                    <td>{quote.number}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Date :</strong></td>
+                                                    <td>{formattedDocDate}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="pdf-header-left" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                        {docCustomization.showLogo && (
+                                            companyLogo ? (
+                                                <img
+                                                    src={companyLogo}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${docCustomization.logoSize || 45}px`,
+                                                        maxWidth: `${(docCustomization.logoSize || 45) * 2.5}px`,
+                                                        objectFit: 'contain',
+                                                        marginBottom: '6pt'
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="pdf-logo-stub"
+                                                    style={{
+                                                        fontSize: '1.1em',
+                                                        padding: '4px 8px',
+                                                        height: `${docCustomization.logoSize || 45}px`,
+                                                        minWidth: `${(docCustomization.logoSize || 45) * 1.8}px`,
+                                                        backgroundColor: docCustomization.primaryColor || '#556B2F',
+                                                        color: '#FFF',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontWeight: '700',
+                                                        borderRadius: '4px',
+                                                        marginBottom: '6pt'
+                                                    }}
+                                                >
+                                                    <span>{companyDisplayName.substring(0, 10).toUpperCase()}</span>
+                                                </div>
+                                            )
+                                        )}
+                                        <h2 className="company-name" style={{ fontSize: '1.3em', fontWeight: 800, color: docCustomization.primaryColor || '#556B2F', margin: 0 }}>
+                                            {companyDisplayName}
+                                        </h2>
+                                        <p className="company-details" style={{ fontSize: '0.9em', opacity: 0.85, lineHeight: 1.35, marginTop: '2pt' }}>
+                                            {docCustomization.showAddress && <span>{companyDisplayAddress}<br /></span>}
+                                            {docCustomization.showSiret && <span>SIRET : {companyDisplaySiret}<br /></span>}
+                                            {docCustomization.showPhone && <span>Tél : {companyDisplayPhone}<br /></span>}
+                                            {docCustomization.showEmail && <span>Email : {companyDisplayEmail}</span>}
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {docCustomization.clientBoxPosition === "right" ? (

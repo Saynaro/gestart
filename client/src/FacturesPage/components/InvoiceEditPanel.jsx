@@ -801,7 +801,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
 
 function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     const { company } = useUser();
-    const [docCustomization] = useDocumentCustomization();
+    const [docCustomization, setDocCustomization] = useDocumentCustomization(invoice);
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [inv, setInv] = useState({
         ...invoice,
@@ -1748,7 +1748,12 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
             </div>
 
             {showCustomizer && (
-                <DocumentCustomizerModal docType="facture" onClose={() => setShowCustomizer(false)} />
+                <DocumentCustomizerModal
+                    docType="facture"
+                    doc={invoice}
+                    onSaveDocCustomization={(newSettings) => setDocCustomization(newSettings)}
+                    onClose={() => setShowCustomizer(false)}
+                />
             )}
 
             {/* Client picker overlay */}

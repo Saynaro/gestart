@@ -329,6 +329,8 @@ function FacturesPage() {
                     conditions: newInv.paymentConditions || null,
                     notes: newInv.internalNotes || null,
                     dueAt: newInv.dueDate || null,
+                    documentCustomization: newInv.documentCustomization || newInv.customization || globalCustomization,
+                    customization: newInv.documentCustomization || newInv.customization || globalCustomization,
                     lines: newInv.lines || []
                 })
             });
@@ -342,25 +344,31 @@ function FacturesPage() {
         }
     };
 
-    const handleDownloadPdf = async (inv) => {
+    const handleDownloadPdf = async (inv, customOverride = null) => {
         try {
             const token = getAuthToken();
-            const effectiveCustomization = getEffectiveCustomization(inv);
-            const customParam = encodeURIComponent(JSON.stringify(effectiveCustomization));
-            const res = await fetch(getApiUrl(`/v1/invoices/${inv.id}/pdf?customization=${customParam}`), {
+            let endpointUrl = `/v1/invoices/${inv.id}/pdf`;
+            if (customOverride) {
+                const cleanCustom = { ...customOverride };
+                if (cleanCustom.logoUrl && cleanCustom.logoUrl.startsWith('data:')) delete cleanCustom.logoUrl;
+                if (cleanCustom.signatureUrl && cleanCustom.signatureUrl.startsWith('data:')) delete cleanCustom.signatureUrl;
+                const customParam = encodeURIComponent(JSON.stringify(cleanCustom));
+                endpointUrl += `?customization=${customParam}`;
+            }
+            const res = await fetch(getApiUrl(endpointUrl), {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
                 credentials: 'include'
             });
             if (!res.ok) throw new Error("Erreur téléchargement PDF");
             const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
+            const blobUrl = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.href = url;
+            link.href = blobUrl;
             link.download = `Facture_${(inv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(blobUrl);
         } catch (err) {
             console.error("Erreur téléchargement PDF:", err);
         }

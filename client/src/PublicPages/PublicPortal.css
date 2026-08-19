@@ -416,7 +416,7 @@
 .portal-primary-pay-btn {
     width: 100%;
     padding: 14px 20px;
-    background-color: var(--primary-color, #556B2F);
+    background-color: #556B2F !important;
     color: #FFFFFF;
     border: none;
     border-radius: 10px;

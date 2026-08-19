@@ -10,7 +10,8 @@ import {
     signPublicQuote,
     createPublicQuoteCheckoutSession,
     downloadPublicQuotePdf,
-    verifyPublicPayment
+    verifyPublicPayment,
+    downloadPublicReceiptPdf
 } from "../controllers/publicController.js";
 
 const router = express.Router();
@@ -20,8 +21,9 @@ router.get("/plans", getPublicPlans);
 router.get("/company/:companySlug", getPublicCompany);
 router.post("/quote-request/:companySlug", submitQuoteRequest);
 
-// Confirmation et vérification de paiement public
+// Confirmation, vérification et reçu de paiement public
 router.post("/pay/verify-payment", verifyPublicPayment);
+router.get("/pay/receipt/pdf", downloadPublicReceiptPdf);
 
 // Factures publiques (consultation, paiement et téléchargement PDF officiel)
 router.get("/pay/invoice/:paymentToken", getPublicInvoiceByToken);

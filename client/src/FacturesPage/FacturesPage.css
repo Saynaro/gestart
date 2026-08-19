@@ -1433,16 +1433,25 @@
 .invoice-pdf-a4-sheet {
     width: 210mm;
     min-height: 297mm;
-    padding: 20mm 18mm;
+    padding: 0 14mm 10mm 14mm;
     box-sizing: border-box;
     background-color: #ffffff;
     color: #1A1A1A;
     font-family: var(--font-body);
-    font-size: 10.5pt;
+    font-size: 9.5pt;
     line-height: 1.4;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    position: relative;
     border-radius: 2px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.invoice-pdf-a4-sheet * {
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 /* ── Full 1:1 Scale A4 Sheet PDF Viewer with Horizontal Scroll ── */
@@ -1485,7 +1494,7 @@
         width: 210mm !important;
         min-width: 210mm !important;
         min-height: 297mm !important;
-        padding: 20mm 18mm !important;
+        padding: 0 14mm 10mm 14mm !important;
         box-sizing: border-box !important;
         font-size: 11pt !important;
         border-radius: 2px !important;
@@ -1493,35 +1502,44 @@
     }
 }
 
-.pdf-header-row { display: flex; justify-content: space-between; margin-bottom: 25pt; }
+.pdf-header-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
 .pdf-logo-stub {
     display: flex; align-items: center; justify-content: center;
     background-color: #556B2F; color: white; font-weight: 900; font-size: 14pt;
-    letter-spacing: 0.5px; width: 110pt; padding: 6pt; margin-bottom: 10pt; border-radius: 3px;
+    letter-spacing: 0.5px; width: 110pt; padding: 6pt; margin-bottom: 6pt; border-radius: 3px;
 }
 .pdf-header-left .company-name { font-size: 12pt; font-weight: 800; margin-bottom: 4pt; }
 .pdf-header-left .company-details { font-size: 9pt; color: #4A4A4A; }
 .pdf-header-right { text-align: right; }
-.doc-type-label { font-size: 26pt; font-weight: 800; letter-spacing: 1px; margin-bottom: 10pt; }
+.doc-type-label { font-size: 26pt; font-weight: 800; letter-spacing: 1px; margin-bottom: 4pt; }
 .doc-meta-table { display: inline-block; font-size: 9.5pt; }
 .doc-meta-table td { padding: 2pt 4pt; }
-.pdf-billing-section { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 20pt; border-top: 1px solid #E0E0E0; padding-top: 15pt; width: 100%; }
+.pdf-billing-section { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 10px; border-top: 1px solid #E0E0E0; padding-top: 8px; width: 100%; }
 .billing-to-card { width: 100%; display: flex; flex-direction: column; align-items: flex-start; }
-.billing-to-card .section-label { display: block; font-size: 8.5pt; font-weight: 700; color: #7C7B82; margin-bottom: 6pt; }
-.billing-to-card .client-name { font-size: 11pt; font-weight: 800; margin-bottom: 4pt; }
+.billing-to-card .section-label { display: block; font-size: 8.5pt; font-weight: 700; color: #7C7B82; margin-bottom: 2px; }
+.billing-to-card .client-name { font-size: 11pt; font-weight: 800; margin-bottom: 2px; }
 .billing-to-card .client-details { font-size: 9.5pt; color: #4A4A4A; }
-.pdf-intervention-info { background-color: #FAFAF8; border: 1px solid #EAEAE6; border-radius: 4px; padding: 10pt 12pt; font-size: 9.5pt; margin-bottom: 20pt; }
+.pdf-intervention-info { background-color: #FAFAF8; border: 1px solid #EAEAE6; border-radius: 4px; padding: 10pt 12pt; font-size: 9.5pt; margin-bottom: 12px; }
 .pdf-intervention-info .work-details { margin-top: 6pt; color: #4A4A4A; font-size: 9pt; border-top: 1px dashed #E0E0E0; padding-top: 6pt; }
-.pdf-items-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 20pt; }
-.pdf-items-table th, .pdf-items-table td { padding: 8pt; border-bottom: 1px solid #E0E0E0; text-align: left; }
+.pdf-items-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 10px 0; }
+.pdf-items-table th, .pdf-items-table td { padding: 6px 8px; border-bottom: 1px solid #E0E0E0; text-align: left; }
 .pdf-items-table th { font-weight: 800; }
-.pdf-summary-block { display: flex; justify-content: flex-end; margin-bottom: 25pt; }
-.pdf-summary-table { width: 220pt; border-collapse: collapse; font-size: 9.5pt; }
-.pdf-summary-table td { padding: 6pt 8pt; text-align: right; }
+.pdf-summary-block { display: flex; justify-content: flex-end; margin: 10px 0; }
+.pdf-summary-table { width: auto; min-width: 210px; border-collapse: collapse; font-size: 9.5pt; }
+.pdf-summary-table td { padding: 4px 8px; text-align: right; }
 .pdf-summary-table tr.grand-total-row { color: white; }
-.pdf-summary-table tr.grand-total-row td { font-size: 12pt; }
-.pdf-footer-section { border-top: 1px solid #E0E0E0; padding-top: 15pt; font-size: 8.5pt; color: #7C7B82; }
-.pdf-footer-section .iban-block { margin-bottom: 10pt; color: #1A1A1A; }
+.pdf-summary-table tr.grand-total-row td { font-size: 1.05em; padding: 6px 8px; }
+.pdf-signature-block-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 12px 0 8px 0;
+    font-size: 0.85em;
+    border-top: 1px dashed #E0E0E0;
+    padding-top: 8px;
+}
+.pdf-footer-section { border-top: 1px solid #E0E0E0; padding-top: 6px; margin-top: auto; font-size: 8.5pt; color: #7C7B82; }
+.pdf-footer-section .iban-block { margin-bottom: 4px; color: #1A1A1A; }
 .pdf-footer-section .legal-notes { line-height: 1.3; }
 
 /* ── Live preview A4 sheet ── */
@@ -1531,6 +1549,7 @@
     justify-content: center;
     padding: 8px 4px 32px 4px;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .live-preview-a4-sheet {
@@ -1550,11 +1569,17 @@
     border-radius: 6px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     margin-bottom: 24px;
+    overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Live preview A4 sheet inherits user customizer inline styles */
 .live-preview-a4-sheet * {
     box-sizing: border-box;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* ── fp-detail-right: always white/light regardless of theme ── */

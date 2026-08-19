@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useDragControls, AnimatePresence } from "framer-motion";
+import { motion, useDragControls, AnimatePresence } from "framer-motion";
 import { Plus, Trash, X, ChevronDown, ChevronRight, MoreHorizontal, Search, Eye, FileText, Check, Edit2, ArrowLeft, ZoomIn, ZoomOut, Palette } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
@@ -513,6 +513,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             subtotalHt: subtotalHt,
             tvaAmount: tvaAmount,
             totalTtc: totalTtc,
+            documentCustomization: docCustomization,
+            customization: docCustomization,
             status: "DRAFT"
         };
 
@@ -548,6 +550,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             subtotalHt: subtotalHt,
             tvaAmount: tvaAmount,
             totalTtc: totalTtc,
+            documentCustomization: docCustomization,
+            customization: docCustomization,
             status: "draft"
         };
 
@@ -2617,7 +2621,12 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             </div>
 
             {showCustomizer && (
-                <DocumentCustomizerModal docType="facture" onClose={() => setShowCustomizer(false)} />
+                <DocumentCustomizerModal
+                    docType="facture"
+                    doc={{ documentCustomization: docCustomization }}
+                    onSaveDocCustomization={(newSettings) => setDocCustomization(newSettings)}
+                    onClose={() => setShowCustomizer(false)}
+                />
             )}
 
             {/* Client Search Portal */}

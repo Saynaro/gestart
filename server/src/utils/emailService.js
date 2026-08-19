@@ -225,7 +225,7 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
     const clientName = quote.client ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim() : "Client";
     const totalTtc = Number(quote.amountTTC || quote.totalTtc || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const docNumber = quote.number || "Devis";
-    const accentColor = primaryColor || "#556B2F";
+    const accentColor = customization.primaryColor || company?.settings?.documentCustomization?.primaryColor || company?.settings?.primaryColor || primaryColor || "#556B2F";
 
     const subject = `Devis ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
@@ -242,7 +242,7 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
                     Veuillez trouver ci-joint votre devis <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché).
                 </p>
 
-                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border-left: 4px solid #3B82F6;">
+                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border: 1px solid #334155;">
                     <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Montant du devis :</div>
                     <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">${totalTtc} € TTC</div>
                 </div>
@@ -252,13 +252,13 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
                 </p>
 
                 <div style="text-align: center; margin: 28px 0;">
-                    <a href="${signatureUrl}" target="_blank" style="background-color: #2563EB; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
+                    <a href="${signatureUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
                         Signer le devis en ligne
                     </a>
                 </div>
 
-                <p style="font-size: 12px; color: #94A3B8; text-align: center; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${signatureUrl}" style="color: #60A5FA; word-break: break-all;">${signatureUrl}</a>
+                <p style="font-size: 13px; color: #94A3B8; text-align: center; margin-top: 16px;">
+                    Lien direct sécurisé : <a href="${signatureUrl}" style="color: #556B2F !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${signatureUrl}</a>
                 </p>
             </div>
 
@@ -301,7 +301,7 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
     const clientName = invoice.client ? `${invoice.client.firstName || ''} ${invoice.client.lastName || invoice.client.companyName || ''}`.trim() : "Client";
     const totalTtc = Number(invoice.amountTTC || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const docNumber = invoice.number || "Facture";
-    const accentColor = primaryColor || "#556B2F";
+    const accentColor = customization.primaryColor || company?.settings?.documentCustomization?.primaryColor || company?.settings?.primaryColor || primaryColor || "#556B2F";
 
     const subject = `Facture ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
@@ -318,7 +318,7 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
                     Veuillez trouver ci-joint votre facture <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché).
                 </p>
 
-                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border-left: 4px solid #3B82F6;">
+                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border: 1px solid #334155;">
                     <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Net à payer :</div>
                     <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">${totalTtc} € TTC</div>
                 </div>
@@ -328,13 +328,13 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
                 </p>
 
                 <div style="text-align: center; margin: 28px 0;">
-                    <a href="${paymentUrl}" target="_blank" style="background-color: #2563EB; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
+                    <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
                         Consulter & Payer ma facture
                     </a>
                 </div>
 
-                <p style="font-size: 12px; color: #94A3B8; text-align: center; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #60A5FA; word-break: break-all;">${paymentUrl}</a>
+                <p style="font-size: 13px; color: #94A3B8; text-align: center; margin-top: 16px;">
+                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #556B2F !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${paymentUrl}</a>
                 </p>
             </div>
 

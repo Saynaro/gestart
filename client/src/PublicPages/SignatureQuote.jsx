@@ -18,6 +18,7 @@ function SignatureQuote() {
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isPaying, setIsPaying] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [ibanCopied, setIbanCopied] = useState(false);
 
     useEffect(() => {
@@ -47,61 +48,115 @@ function SignatureQuote() {
         fetchPublicQuote();
     }, [activeToken]);
 
-    // Canvas drawing setup
-    useEffect(() => {
-        if (signatureSaved) return;
+    const isDrawingRef = useRef(false);
+
+    // Canvas drawing setup & dynamic resolution scaling
+    const setupCanvas = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        let existingData = null;
+        if (canvas.width > 0 && canvas.height > 0) {
+            try {
+                existingData = canvas.toDataURL();
+            } catch (e) {}
+        }
+
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+
         const ctx = canvas.getContext("2d");
-        ctx.strokeStyle = "#0F172A";
-        ctx.lineWidth = 3;
+        ctx.scale(dpr, dpr);
         ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "#0F172A";
+        ctx.lineWidth = 2.8;
+
+        if (existingData) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, rect.width, rect.height);
+            };
+            img.src = existingData;
+        }
+    };
+
+    useEffect(() => {
+        if (signatureSaved || loading) return;
+
+        const timer = setTimeout(setupCanvas, 100);
+        const handleResize = () => setupCanvas();
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener("resize", handleResize);
+        };
     }, [signatureSaved, loading]);
 
-    const getEventCoords = (e, canvas) => {
+    const getCanvasCoordinates = (e) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return { x: 0, y: 0 };
         const rect = canvas.getBoundingClientRect();
-        if (e.touches && e.touches.length > 0) {
-            return {
-                x: e.touches[0].clientX - rect.left,
-                y: e.touches[0].clientY - rect.top
-            };
-        }
         return {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
+            x: Math.max(0, Math.min(rect.width, e.clientX - rect.left)),
+            y: Math.max(0, Math.min(rect.height, e.clientY - rect.top))
         };
     };
 
     const startDrawing = (e) => {
+        if (e.target.setPointerCapture) {
+            try {
+                e.target.setPointerCapture(e.pointerId);
+            } catch (err) {}
+        }
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
-        const coords = getEventCoords(e, canvas);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "#0F172A";
+        ctx.lineWidth = 2.8;
+
+        const { x, y } = getCanvasCoordinates(e);
         ctx.beginPath();
-        ctx.moveTo(coords.x, coords.y);
+        ctx.moveTo(x, y);
+        isDrawingRef.current = true;
         setIsDrawing(true);
         setHasSigned(true);
     };
 
     const draw = (e) => {
-        if (!isDrawing) return;
+        if (!isDrawingRef.current) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
-        const coords = getEventCoords(e, canvas);
-        ctx.lineTo(coords.x, coords.y);
+        const { x, y } = getCanvasCoordinates(e);
+        ctx.lineTo(x, y);
         ctx.stroke();
     };
 
-    const stopDrawing = () => {
+    const stopDrawing = (e) => {
+        if (!isDrawingRef.current) return;
+        isDrawingRef.current = false;
         setIsDrawing(false);
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const ctx = canvas.getContext("2d");
+            ctx.closePath();
+        }
     };
 
     const handleClear = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const rect = canvas.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
         setHasSigned(false);
     };
 
@@ -161,15 +216,38 @@ function SignatureQuote() {
         setTimeout(() => setIbanCopied(false), 2500);
     };
 
-    const handleDownloadPdf = () => {
-        const token = activeToken || quote?.signatureToken || quote?.id;
-        const custom = docCustomization || getEffectiveCustomization(quote);
-        const customParam = encodeURIComponent(JSON.stringify(custom));
-        window.open(getApiUrl(`/v1/public/sign/quote/${token}/pdf?customization=${customParam}`), "_blank");
+    const handleDownloadPdf = async () => {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        const targetToken = activeToken || quote?.signatureToken || quote?.id;
+        const pdfUrl = getApiUrl(`/v1/public/sign/quote/${targetToken}/pdf`);
+
+        try {
+            const res = await fetch(pdfUrl);
+            if (!res.ok) {
+                window.open(pdfUrl, "_blank");
+                return;
+            }
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            const isSignedDoc = Boolean(signatureSaved || quote?.status === "ACCEPTED" || quote?.status === "PAID" || quote?.signatureUrl);
+            link.download = `Devis_${(quote?.number || 'document').replace(/[^a-zA-Z0-9-_]/g, '_')}${isSignedDoc ? '_signe' : ''}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => window.URL.revokeObjectURL(url), 2000);
+        } catch (err) {
+            console.error("Erreur téléchargement PDF:", err);
+            window.open(pdfUrl, "_blank");
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handlePrint = () => {
-        handleDownloadPdf();
+        window.print();
     };
 
     if (loading) {
@@ -242,9 +320,34 @@ function SignatureQuote() {
                             <span className="header-doc-sub">Devis {quote.number}</span>
                         </div>
                     </div>
-                    <div className="header-secure-pill">
-                        <ShieldCheck size={16} color="#16a34a" />
-                        <span>Signature légale certifiée</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <button
+                            type="button"
+                            onClick={handleDownloadPdf}
+                            disabled={isDownloading}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                background: '#FFFFFF',
+                                border: '1px solid #E2E8F0',
+                                padding: '6px 14px',
+                                borderRadius: '20px',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                color: '#0F172A',
+                                cursor: isDownloading ? 'wait' : 'pointer',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                                transition: 'all 0.15s ease'
+                            }}
+                        >
+                            <Download size={14} color="#64748B" />
+                            <span>{isDownloading ? "Téléchargement..." : "Télécharger PDF"}</span>
+                        </button>
+                        <div className="header-secure-pill">
+                            <ShieldCheck size={16} color="#16a34a" />
+                            <span>Signature légale certifiée</span>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -276,28 +379,57 @@ function SignatureQuote() {
                                     alignItems: "center"
                                 }}
                             >
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img
-                                            src={custom.logoUrl || company.logoUrl}
-                                            alt="Logo"
-                                            style={{
-                                                height: `${custom.logoSize || 45}px`,
-                                                maxWidth: "140px",
-                                                objectFit: "contain",
-                                                background: "rgba(255,255,255,0.2)",
-                                                padding: "2px 6px",
-                                                borderRadius: "4px"
-                                            }}
-                                        />
-                                    )}
-                                    <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
-                                        {company.name || "Entreprise"}
-                                    </h2>
-                                </div>
-                                <h1 style={{ fontSize: "1.8em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
-                                    DEVIS
-                                </h1>
+                                {custom.logoPosition !== "right" ? (
+                                    <>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        height: `${custom.logoSize || 45}px`,
+                                                        maxWidth: "140px",
+                                                        objectFit: "contain",
+                                                        background: "rgba(255,255,255,0.2)",
+                                                        padding: "2px 6px",
+                                                        borderRadius: "4px"
+                                                    }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                        </div>
+                                        <h1 style={{ fontSize: "1.8em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
+                                            DEVIS
+                                        </h1>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h1 style={{ fontSize: "1.8em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
+                                            DEVIS
+                                        </h1>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px", textAlign: "right" }}>
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        height: `${custom.logoSize || 45}px`,
+                                                        maxWidth: "140px",
+                                                        objectFit: "contain",
+                                                        background: "rgba(255,255,255,0.2)",
+                                                        padding: "2px 6px",
+                                                        borderRadius: "4px"
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             <div
@@ -354,26 +486,53 @@ function SignatureQuote() {
                     {custom.structure === "modern" && (
                         <div style={{ marginBottom: "16px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                                <div>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img
-                                            src={custom.logoUrl || company.logoUrl}
-                                            alt="Logo"
-                                            style={{ height: `${custom.logoSize || 45}px`, maxWidth: "180px", objectFit: "contain", marginBottom: "4px" }}
-                                        />
-                                    )}
-                                    <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: primaryColor, margin: 0 }}>
-                                        {company.name || "Entreprise"}
-                                    </h2>
-                                </div>
-                                <div style={{ textAlign: "right" }}>
-                                    <div style={{ display: "inline-block", backgroundColor: primaryColor, color: "#FFFFFF", padding: "6px 16px", borderRadius: "20px", fontWeight: 800, fontSize: "1.05em", letterSpacing: "0.5px", marginBottom: "4px" }}>
-                                        DEVIS N° {quote.number}
-                                    </div>
-                                    <div style={{ fontSize: "0.88em", color: "#475569" }}>
-                                        Date : <strong>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</strong> {custom.showDeliveryDate !== false && <>• Validité : <strong>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</strong></>}
-                                    </div>
-                                </div>
+                                {custom.logoPosition !== "right" ? (
+                                    <>
+                                        <div>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{ height: `${custom.logoSize || 45}px`, maxWidth: "180px", objectFit: "contain", marginBottom: "4px" }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                        </div>
+                                        <div style={{ textAlign: "right" }}>
+                                            <div style={{ display: "inline-block", backgroundColor: primaryColor, color: "#FFFFFF", padding: "6px 16px", borderRadius: "20px", fontWeight: 800, fontSize: "1.05em", letterSpacing: "0.5px", marginBottom: "4px" }}>
+                                                DEVIS N° {quote.number}
+                                            </div>
+                                            <div style={{ fontSize: "0.88em", color: "#475569" }}>
+                                                Date : <strong>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</strong> {custom.showDeliveryDate !== false && <>• Validité : <strong>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</strong></>}
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ textAlign: "left" }}>
+                                            <div style={{ display: "inline-block", backgroundColor: primaryColor, color: "#FFFFFF", padding: "6px 16px", borderRadius: "20px", fontWeight: 800, fontSize: "1.05em", letterSpacing: "0.5px", marginBottom: "4px" }}>
+                                                DEVIS N° {quote.number}
+                                            </div>
+                                            <div style={{ fontSize: "0.88em", color: "#475569" }}>
+                                                Date : <strong>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</strong> {custom.showDeliveryDate !== false && <>• Validité : <strong>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</strong></>}
+                                            </div>
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{ height: `${custom.logoSize || 45}px`, maxWidth: "180px", objectFit: "contain", marginBottom: "4px" }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {custom.clientBoxPosition === "right" ? (
@@ -428,23 +587,47 @@ function SignatureQuote() {
                     {custom.structure === "minimal" && (
                         <div style={{ marginBottom: "16px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "12px", borderBottom: "1px solid #E2E8F0", marginBottom: "12px" }}>
-                                <div>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img src={custom.logoUrl || company.logoUrl} alt="Logo" style={{ height: "36px", objectFit: "contain", marginBottom: "6px" }} />
-                                    )}
-                                    <h2 style={{ fontSize: "1.2em", fontWeight: 700, color: "#0F172A", margin: 0 }}>{company.name || "Entreprise"}</h2>
-                                    <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px", lineHeight: 1.35 }}>
-                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
-                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
-                                    </div>
-                                </div>
-                                <div style={{ textAlign: "right" }}>
-                                    <h1 style={{ fontSize: "1.5em", fontWeight: 700, color: "#0F172A", margin: 0, letterSpacing: "1px" }}>DEVIS</h1>
-                                    <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px" }}>
-                                        <div>N° {quote.number}</div>
-                                        <div>Date : {new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</div>
-                                    </div>
-                                </div>
+                                {custom.logoPosition !== "right" ? (
+                                    <>
+                                        <div>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img src={custom.logoUrl || company.logoUrl} alt="Logo" style={{ height: "36px", objectFit: "contain", marginBottom: "6px" }} />
+                                            )}
+                                            <h2 style={{ fontSize: "1.2em", fontWeight: 700, color: "#0F172A", margin: 0 }}>{company.name || "Entreprise"}</h2>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px", lineHeight: 1.35 }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                            </div>
+                                        </div>
+                                        <div style={{ textAlign: "right" }}>
+                                            <h1 style={{ fontSize: "1.5em", fontWeight: 700, color: "#0F172A", margin: 0, letterSpacing: "1px" }}>DEVIS</h1>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px" }}>
+                                                <div>N° {quote.number}</div>
+                                                <div>Date : {new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ textAlign: "left" }}>
+                                            <h1 style={{ fontSize: "1.5em", fontWeight: 700, color: "#0F172A", margin: 0, letterSpacing: "1px" }}>DEVIS</h1>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px" }}>
+                                                <div>N° {quote.number}</div>
+                                                <div>Date : {new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img src={custom.logoUrl || company.logoUrl} alt="Logo" style={{ height: "36px", objectFit: "contain", marginBottom: "6px" }} />
+                                            )}
+                                            <h2 style={{ fontSize: "1.2em", fontWeight: 700, color: "#0F172A", margin: 0 }}>{company.name || "Entreprise"}</h2>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px", lineHeight: 1.35 }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             <div style={{ padding: "8px 0", marginBottom: "12px" }}>
@@ -459,54 +642,109 @@ function SignatureQuote() {
                     {(!custom.structure || custom.structure === "classic") && (
                         <>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                                <div style={{ flex: 1 }}>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img
-                                            src={custom.logoUrl || company.logoUrl}
-                                            alt="Logo"
-                                            style={{
-                                                maxHeight: `${custom.logoSize || 45}px`,
-                                                maxWidth: `${(custom.logoSize || 45) * 2.5}px`,
-                                                objectFit: 'contain',
-                                                marginBottom: '8px'
-                                            }}
-                                        />
-                                    )}
-                                    <h2 style={{ fontSize: '1.3em', fontWeight: 800, color: primaryColor, margin: 0 }}>
-                                        {company.name || "Entreprise"}
-                                    </h2>
-                                    <div style={{ fontSize: '0.9em', color: '#475569', lineHeight: 1.4, marginTop: '4px' }}>
-                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
-                                        {custom.showAddress !== false && (company.postalCode || company.city) && <div>{company.postalCode} {company.city}</div>}
-                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
-                                        {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
-                                        {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
-                                    <h1 style={{ fontSize: '2em', color: primaryColor, margin: 0, fontWeight: 800, letterSpacing: '0.5px' }}>
-                                        DEVIS
-                                    </h1>
-                                    <table style={{ fontSize: '0.9em', marginTop: '6px', borderCollapse: 'collapse' }}>
-                                        <tbody>
-                                            <tr>
-                                                <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Numéro :</td>
-                                                <td style={{ padding: '2px 0', color: '#0F172A', fontWeight: 600 }}>{quote.number}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Date :</td>
-                                                <td style={{ padding: '2px 0', color: '#475569' }}>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</td>
-                                            </tr>
-                                            {custom.showDeliveryDate !== false && (
-                                                <tr>
-                                                    <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Validité :</td>
-                                                    <td style={{ padding: '2px 0', color: '#475569' }}>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</td>
-                                                </tr>
+                                {custom.logoPosition !== 'right' ? (
+                                    <>
+                                        <div style={{ flex: 1 }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${custom.logoSize || 45}px`,
+                                                        maxWidth: `${(custom.logoSize || 45) * 2.5}px`,
+                                                        objectFit: 'contain',
+                                                        marginBottom: '8px'
+                                                    }}
+                                                />
                                             )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            <h2 style={{ fontSize: '1.3em', fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                            <div style={{ fontSize: '0.9em', color: '#475569', lineHeight: 1.4, marginTop: '4px' }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showAddress !== false && (company.postalCode || company.city) && <div>{company.postalCode} {company.city}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                                {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                                {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                            <h1 style={{ fontSize: '2em', color: primaryColor, margin: 0, fontWeight: 800, letterSpacing: '0.5px' }}>
+                                                DEVIS
+                                            </h1>
+                                            <table style={{ fontSize: '0.9em', marginTop: '6px', borderCollapse: 'collapse' }}>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Numéro :</td>
+                                                        <td style={{ padding: '2px 0', color: '#0F172A', fontWeight: 600 }}>{quote.number}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Date :</td>
+                                                        <td style={{ padding: '2px 0', color: '#475569' }}>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</td>
+                                                    </tr>
+                                                    {custom.showDeliveryDate !== false && (
+                                                        <tr>
+                                                            <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Validité :</td>
+                                                            <td style={{ padding: '2px 0', color: '#475569' }}>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
+                                            <h1 style={{ fontSize: '2em', color: primaryColor, margin: 0, fontWeight: 800, letterSpacing: '0.5px' }}>
+                                                DEVIS
+                                            </h1>
+                                            <table style={{ fontSize: '0.9em', marginTop: '6px', borderCollapse: 'collapse' }}>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Numéro :</td>
+                                                        <td style={{ padding: '2px 0', color: '#0F172A', fontWeight: 600 }}>{quote.number}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Date :</td>
+                                                        <td style={{ padding: '2px 0', color: '#475569' }}>{new Date(quote.createdAt || Date.now()).toLocaleDateString("fr-FR")}</td>
+                                                    </tr>
+                                                    {custom.showDeliveryDate !== false && (
+                                                        <tr>
+                                                            <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Validité :</td>
+                                                            <td style={{ padding: '2px 0', color: '#475569' }}>{quote.validUntil || quote.dueDate ? new Date(quote.validUntil || quote.dueDate).toLocaleDateString("fr-FR") : new Date(Date.now() + 30 * 86400000).toLocaleDateString("fr-FR")}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${custom.logoSize || 45}px`,
+                                                        maxWidth: `${(custom.logoSize || 45) * 2.5}px`,
+                                                        objectFit: 'contain',
+                                                        marginBottom: '8px'
+                                                    }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: '1.3em', fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                            <div style={{ fontSize: '0.9em', color: '#475569', lineHeight: 1.4, marginTop: '4px' }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showAddress !== false && (company.postalCode || company.city) && <div>{company.postalCode} {company.city}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                                {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                                {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Client Box */}
@@ -697,17 +935,39 @@ function SignatureQuote() {
                                 </button>
                             </div>
 
-                            <div className="signature-canvas-wrapper">
+                            <div
+                                className="signature-canvas-wrapper"
+                                style={{
+                                    position: "relative",
+                                    width: "100%",
+                                    height: "200px",
+                                    backgroundColor: "#F8FAFC",
+                                    border: "2px dashed #CBD5E1",
+                                    borderRadius: "14px",
+                                    overflow: "hidden",
+                                    display: "block",
+                                    touchAction: "none",
+                                    userSelect: "none",
+                                    marginBottom: "16px"
+                                }}
+                            >
                                 <canvas
                                     ref={canvasRef}
                                     className="signature-canvas"
-                                    onMouseDown={startDrawing}
-                                    onMouseMove={draw}
-                                    onMouseUp={stopDrawing}
-                                    onMouseLeave={stopDrawing}
-                                    onTouchStart={startDrawing}
-                                    onTouchMove={draw}
-                                    onTouchEnd={stopDrawing}
+                                    style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        width: "100%",
+                                        height: "100%",
+                                        display: "block",
+                                        cursor: "crosshair",
+                                        touchAction: "none"
+                                    }}
+                                    onPointerDown={startDrawing}
+                                    onPointerMove={draw}
+                                    onPointerUp={stopDrawing}
+                                    onPointerCancel={stopDrawing}
                                 />
                             </div>
 
@@ -741,11 +1001,12 @@ function SignatureQuote() {
                                     <button
                                         type="button"
                                         className="portal-secondary-btn"
-                                        onClick={handlePrint}
-                                        style={{ flex: 1, backgroundColor: '#FFFFFF' }}
+                                        onClick={handleDownloadPdf}
+                                        disabled={isDownloading}
+                                        style={{ flex: 1, backgroundColor: '#FFFFFF', cursor: isDownloading ? 'wait' : 'pointer' }}
                                     >
                                         <Download size={16} />
-                                        <span>Télécharger l'exemplaire signé (PDF)</span>
+                                        <span>{isDownloading ? "Téléchargement du PDF en cours..." : "Télécharger l'exemplaire signé (PDF)"}</span>
                                     </button>
                                 </div>
                             </div>

@@ -787,7 +787,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
 
 function QuoteEditPanel({ quote, onClose, onSave }) {
     const { company } = useUser();
-    const [docCustomization] = useDocumentCustomization();
+    const [docCustomization, setDocCustomization] = useDocumentCustomization(quote);
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [q, setQ] = useState({
         ...quote,
@@ -1672,7 +1672,12 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
             </div>
 
             {showCustomizer && (
-                <DocumentCustomizerModal docType="devis" onClose={() => setShowCustomizer(false)} />
+                <DocumentCustomizerModal
+                    docType="devis"
+                    doc={quote}
+                    onSaveDocCustomization={(newSettings) => setDocCustomization(newSettings)}
+                    onClose={() => setShowCustomizer(false)}
+                />
             )}
 
             {/* Client Picker */}

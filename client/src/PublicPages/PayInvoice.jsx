@@ -12,6 +12,7 @@ function PayInvoice() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isPaying, setIsPaying] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [ibanCopied, setIbanCopied] = useState(false);
 
     useEffect(() => {
@@ -64,15 +65,37 @@ function PayInvoice() {
         setTimeout(() => setIbanCopied(false), 2500);
     };
 
-    const handleDownloadPdf = () => {
-        const activeToken = token || invoice?.paymentToken || invoice?.id;
-        const custom = docCustomization || getEffectiveCustomization(invoice);
-        const customParam = encodeURIComponent(JSON.stringify(custom));
-        window.open(getApiUrl(`/v1/public/pay/invoice/${activeToken}/pdf?customization=${customParam}`), "_blank");
+    const handleDownloadPdf = async () => {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        const targetToken = token || invoice?.paymentToken || invoice?.id;
+        const pdfUrl = getApiUrl(`/v1/public/pay/invoice/${targetToken}/pdf`);
+
+        try {
+            const res = await fetch(pdfUrl);
+            if (!res.ok) {
+                window.open(pdfUrl, "_blank");
+                return;
+            }
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Facture_${(invoice?.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}${isPaid ? '_acquittee' : ''}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => window.URL.revokeObjectURL(url), 2000);
+        } catch (err) {
+            console.error("Erreur téléchargement PDF:", err);
+            window.open(pdfUrl, "_blank");
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handlePrint = () => {
-        handleDownloadPdf();
+        window.print();
     };
 
     if (loading) {
@@ -136,9 +159,34 @@ function PayInvoice() {
                             <span className="header-doc-sub">Facture {invoice.number}</span>
                         </div>
                     </div>
-                    <div className="header-secure-pill">
-                        <ShieldCheck size={16} color="#16a34a" />
-                        <span>Paiement sécurisé</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <button
+                            type="button"
+                            onClick={handleDownloadPdf}
+                            disabled={isDownloading}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                background: '#FFFFFF',
+                                border: '1px solid #E2E8F0',
+                                padding: '6px 14px',
+                                borderRadius: '20px',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                color: '#0F172A',
+                                cursor: isDownloading ? 'wait' : 'pointer',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                                transition: 'all 0.15s ease'
+                            }}
+                        >
+                            <Download size={14} color="#64748B" />
+                            <span>{isDownloading ? "Téléchargement..." : "Télécharger PDF"}</span>
+                        </button>
+                        <div className="header-secure-pill">
+                            <ShieldCheck size={16} color="#16a34a" />
+                            <span>Paiement sécurisé</span>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -170,28 +218,57 @@ function PayInvoice() {
                                     alignItems: "center"
                                 }}
                             >
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img
-                                            src={custom.logoUrl || company.logoUrl}
-                                            alt="Logo"
-                                            style={{
-                                                height: `${custom.logoSize || 45}px`,
-                                                maxWidth: "140px",
-                                                objectFit: "contain",
-                                                background: "rgba(255,255,255,0.2)",
-                                                padding: "2px 6px",
-                                                borderRadius: "4px"
-                                            }}
-                                        />
-                                    )}
-                                    <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
-                                        {company.name || "Entreprise"}
-                                    </h2>
-                                </div>
-                                <h1 style={{ fontSize: "1.8em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
-                                    FACTURE
-                                </h1>
+                                {custom.logoPosition !== "right" ? (
+                                    <>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        height: `${custom.logoSize || 45}px`,
+                                                        maxWidth: "140px",
+                                                        objectFit: "contain",
+                                                        background: "rgba(255,255,255,0.2)",
+                                                        padding: "2px 6px",
+                                                        borderRadius: "4px"
+                                                    }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                        </div>
+                                        <h1 style={{ fontSize: "1.8em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
+                                            FACTURE
+                                        </h1>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h1 style={{ fontSize: "1.8em", fontWeight: 800, color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
+                                            FACTURE
+                                        </h1>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px", textAlign: "right" }}>
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: "#FFFFFF", margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        height: `${custom.logoSize || 45}px`,
+                                                        maxWidth: "140px",
+                                                        objectFit: "contain",
+                                                        background: "rgba(255,255,255,0.2)",
+                                                        padding: "2px 6px",
+                                                        borderRadius: "4px"
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             <div
@@ -248,26 +325,53 @@ function PayInvoice() {
                     {custom.structure === "modern" && (
                         <div style={{ marginBottom: "16px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                                <div>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img
-                                            src={custom.logoUrl || company.logoUrl}
-                                            alt="Logo"
-                                            style={{ height: `${custom.logoSize || 45}px`, maxWidth: "180px", objectFit: "contain", marginBottom: "4px" }}
-                                        />
-                                    )}
-                                    <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: primaryColor, margin: 0 }}>
-                                        {company.name || "Entreprise"}
-                                    </h2>
-                                </div>
-                                <div style={{ textAlign: "right" }}>
-                                    <div style={{ display: "inline-block", backgroundColor: primaryColor, color: "#FFFFFF", padding: "6px 16px", borderRadius: "20px", fontWeight: 800, fontSize: "1.05em", letterSpacing: "0.5px", marginBottom: "4px" }}>
-                                        FACTURE N° {invoice.number}
-                                    </div>
-                                    <div style={{ fontSize: "0.88em", color: "#475569" }}>
-                                        Date : <strong>{new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</strong> {custom.showDeliveryDate !== false && <>• Échéance : <strong>{invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString("fr-FR") : "À réception"}</strong></>}
-                                    </div>
-                                </div>
+                                {custom.logoPosition !== "right" ? (
+                                    <>
+                                        <div>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{ height: `${custom.logoSize || 45}px`, maxWidth: "180px", objectFit: "contain", marginBottom: "4px" }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                        </div>
+                                        <div style={{ textAlign: "right" }}>
+                                            <div style={{ display: "inline-block", backgroundColor: primaryColor, color: "#FFFFFF", padding: "6px 16px", borderRadius: "20px", fontWeight: 800, fontSize: "1.05em", letterSpacing: "0.5px", marginBottom: "4px" }}>
+                                                FACTURE N° {invoice.number}
+                                            </div>
+                                            <div style={{ fontSize: "0.88em", color: "#475569" }}>
+                                                Date : <strong>{new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</strong> {custom.showDeliveryDate !== false && <>• Échéance : <strong>{invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString("fr-FR") : "À réception"}</strong></>}
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ textAlign: "left" }}>
+                                            <div style={{ display: "inline-block", backgroundColor: primaryColor, color: "#FFFFFF", padding: "6px 16px", borderRadius: "20px", fontWeight: 800, fontSize: "1.05em", letterSpacing: "0.5px", marginBottom: "4px" }}>
+                                                FACTURE N° {invoice.number}
+                                            </div>
+                                            <div style={{ fontSize: "0.88em", color: "#475569" }}>
+                                                Date : <strong>{new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</strong> {custom.showDeliveryDate !== false && <>• Échéance : <strong>{invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString("fr-FR") : "À réception"}</strong></>}
+                                            </div>
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{ height: `${custom.logoSize || 45}px`, maxWidth: "180px", objectFit: "contain", marginBottom: "4px" }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: "1.35em", fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {custom.clientBoxPosition === "right" ? (
@@ -322,23 +426,47 @@ function PayInvoice() {
                     {custom.structure === "minimal" && (
                         <div style={{ marginBottom: "16px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "12px", borderBottom: "1px solid #E2E8F0", marginBottom: "12px" }}>
-                                <div>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img src={custom.logoUrl || company.logoUrl} alt="Logo" style={{ height: "36px", objectFit: "contain", marginBottom: "6px" }} />
-                                    )}
-                                    <h2 style={{ fontSize: "1.2em", fontWeight: 700, color: "#0F172A", margin: 0 }}>{company.name || "Entreprise"}</h2>
-                                    <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px", lineHeight: 1.35 }}>
-                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
-                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
-                                    </div>
-                                </div>
-                                <div style={{ textAlign: "right" }}>
-                                    <h1 style={{ fontSize: "1.5em", fontWeight: 700, color: "#0F172A", margin: 0, letterSpacing: "1px" }}>FACTURE</h1>
-                                    <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px" }}>
-                                        <div>N° {invoice.number}</div>
-                                        <div>Date : {new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</div>
-                                    </div>
-                                </div>
+                                {custom.logoPosition !== "right" ? (
+                                    <>
+                                        <div>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img src={custom.logoUrl || company.logoUrl} alt="Logo" style={{ height: "36px", objectFit: "contain", marginBottom: "6px" }} />
+                                            )}
+                                            <h2 style={{ fontSize: "1.2em", fontWeight: 700, color: "#0F172A", margin: 0 }}>{company.name || "Entreprise"}</h2>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px", lineHeight: 1.35 }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                            </div>
+                                        </div>
+                                        <div style={{ textAlign: "right" }}>
+                                            <h1 style={{ fontSize: "1.5em", fontWeight: 700, color: "#0F172A", margin: 0, letterSpacing: "1px" }}>FACTURE</h1>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px" }}>
+                                                <div>N° {invoice.number}</div>
+                                                <div>Date : {new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ textAlign: "left" }}>
+                                            <h1 style={{ fontSize: "1.5em", fontWeight: 700, color: "#0F172A", margin: 0, letterSpacing: "1px" }}>FACTURE</h1>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px" }}>
+                                                <div>N° {invoice.number}</div>
+                                                <div>Date : {new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img src={custom.logoUrl || company.logoUrl} alt="Logo" style={{ height: "36px", objectFit: "contain", marginBottom: "6px" }} />
+                                            )}
+                                            <h2 style={{ fontSize: "1.2em", fontWeight: 700, color: "#0F172A", margin: 0 }}>{company.name || "Entreprise"}</h2>
+                                            <div style={{ fontSize: "0.85em", color: "#64748B", marginTop: "4px", lineHeight: 1.35 }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             <div style={{ padding: "8px 0", marginBottom: "12px" }}>
@@ -353,54 +481,109 @@ function PayInvoice() {
                     {(!custom.structure || custom.structure === "classic") && (
                         <>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                                <div style={{ flex: 1 }}>
-                                    {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
-                                        <img
-                                            src={custom.logoUrl || company.logoUrl}
-                                            alt="Logo"
-                                            style={{
-                                                maxHeight: `${custom.logoSize || 45}px`,
-                                                maxWidth: `${(custom.logoSize || 45) * 2.5}px`,
-                                                objectFit: 'contain',
-                                                marginBottom: '8px'
-                                            }}
-                                        />
-                                    )}
-                                    <h2 style={{ fontSize: '1.3em', fontWeight: 800, color: primaryColor, margin: 0 }}>
-                                        {company.name || "Entreprise"}
-                                    </h2>
-                                    <div style={{ fontSize: '0.9em', color: '#475569', lineHeight: 1.4, marginTop: '4px' }}>
-                                        {custom.showAddress !== false && company.address && <div>{company.address}</div>}
-                                        {custom.showAddress !== false && (company.postalCode || company.city) && <div>{company.postalCode} {company.city}</div>}
-                                        {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
-                                        {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
-                                        {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
-                                    <h1 style={{ fontSize: '2em', color: primaryColor, margin: 0, fontWeight: 800, letterSpacing: '0.5px' }}>
-                                        FACTURE
-                                    </h1>
-                                    <table style={{ fontSize: '0.9em', marginTop: '6px', borderCollapse: 'collapse' }}>
-                                        <tbody>
-                                            <tr>
-                                                <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Numéro :</td>
-                                                <td style={{ padding: '2px 0', color: '#0F172A', fontWeight: 600 }}>{invoice.number}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Date :</td>
-                                                <td style={{ padding: '2px 0', color: '#475569' }}>{new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</td>
-                                            </tr>
-                                            {custom.showDeliveryDate !== false && (
-                                                <tr>
-                                                    <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Échéance :</td>
-                                                    <td style={{ padding: '2px 0', color: '#475569' }}>{invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString("fr-FR") : "À réception"}</td>
-                                                </tr>
+                                {custom.logoPosition !== 'right' ? (
+                                    <>
+                                        <div style={{ flex: 1 }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${custom.logoSize || 45}px`,
+                                                        maxWidth: `${(custom.logoSize || 45) * 2.5}px`,
+                                                        objectFit: 'contain',
+                                                        marginBottom: '8px'
+                                                    }}
+                                                />
                                             )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            <h2 style={{ fontSize: '1.3em', fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                            <div style={{ fontSize: '0.9em', color: '#475569', lineHeight: 1.4, marginTop: '4px' }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showAddress !== false && (company.postalCode || company.city) && <div>{company.postalCode} {company.city}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                                {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                                {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                            <h1 style={{ fontSize: '2em', color: primaryColor, margin: 0, fontWeight: 800, letterSpacing: '0.5px' }}>
+                                                FACTURE
+                                            </h1>
+                                            <table style={{ fontSize: '0.9em', marginTop: '6px', borderCollapse: 'collapse' }}>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Numéro :</td>
+                                                        <td style={{ padding: '2px 0', color: '#0F172A', fontWeight: 600 }}>{invoice.number}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Date :</td>
+                                                        <td style={{ padding: '2px 0', color: '#475569' }}>{new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</td>
+                                                    </tr>
+                                                    {custom.showDeliveryDate !== false && (
+                                                        <tr>
+                                                            <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Échéance :</td>
+                                                            <td style={{ padding: '2px 0', color: '#475569' }}>{invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString("fr-FR") : "À réception"}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
+                                            <h1 style={{ fontSize: '2em', color: primaryColor, margin: 0, fontWeight: 800, letterSpacing: '0.5px' }}>
+                                                FACTURE
+                                            </h1>
+                                            <table style={{ fontSize: '0.9em', marginTop: '6px', borderCollapse: 'collapse' }}>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Numéro :</td>
+                                                        <td style={{ padding: '2px 0', color: '#0F172A', fontWeight: 600 }}>{invoice.number}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Date :</td>
+                                                        <td style={{ padding: '2px 0', color: '#475569' }}>{new Date(invoice.issuedAt || invoice.date || Date.now()).toLocaleDateString("fr-FR")}</td>
+                                                    </tr>
+                                                    {custom.showDeliveryDate !== false && (
+                                                        <tr>
+                                                            <td style={{ padding: '2px 8px 2px 0', fontWeight: 700, color: '#0F172A' }}>Échéance :</td>
+                                                            <td style={{ padding: '2px 0', color: '#475569' }}>{invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString("fr-FR") : "À réception"}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                            {custom.showLogo !== false && (custom.logoUrl || company.logoUrl) && (
+                                                <img
+                                                    src={custom.logoUrl || company.logoUrl}
+                                                    alt="Logo"
+                                                    style={{
+                                                        maxHeight: `${custom.logoSize || 45}px`,
+                                                        maxWidth: `${(custom.logoSize || 45) * 2.5}px`,
+                                                        objectFit: 'contain',
+                                                        marginBottom: '8px'
+                                                    }}
+                                                />
+                                            )}
+                                            <h2 style={{ fontSize: '1.3em', fontWeight: 800, color: primaryColor, margin: 0 }}>
+                                                {company.name || "Entreprise"}
+                                            </h2>
+                                            <div style={{ fontSize: '0.9em', color: '#475569', lineHeight: 1.4, marginTop: '4px' }}>
+                                                {custom.showAddress !== false && company.address && <div>{company.address}</div>}
+                                                {custom.showAddress !== false && (company.postalCode || company.city) && <div>{company.postalCode} {company.city}</div>}
+                                                {custom.showSiret !== false && company.siret && <div>SIRET : {company.siret}</div>}
+                                                {custom.showPhone !== false && company.phone && <div>Tél : {company.phone}</div>}
+                                                {custom.showEmail !== false && company.email && <div>Email : {company.email}</div>}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Client Box */}
@@ -566,11 +749,12 @@ function PayInvoice() {
                                 <button
                                     type="button"
                                     className="portal-secondary-btn"
-                                    onClick={handlePrint}
-                                    style={{ width: 'auto', backgroundColor: '#FFFFFF' }}
+                                    onClick={handleDownloadPdf}
+                                    disabled={isDownloading}
+                                    style={{ width: 'auto', backgroundColor: '#FFFFFF', cursor: isDownloading ? 'wait' : 'pointer' }}
                                 >
                                     <Download size={16} />
-                                    <span>Télécharger le reçu (PDF)</span>
+                                    <span>{isDownloading ? "Téléchargement..." : "Télécharger le reçu (PDF)"}</span>
                                 </button>
                             </div>
                         ) : (
@@ -585,14 +769,27 @@ function PayInvoice() {
                                     <span>{isPaying ? "Redirection Stripe..." : `Payer ${totalTtc} € par Carte Bancaire`}</span>
                                 </button>
 
-                                <button
-                                    type="button"
-                                    className="portal-secondary-btn"
-                                    onClick={handlePrint}
-                                >
-                                    <FileText size={16} />
-                                    <span>Imprimer / Télécharger la facture (PDF)</span>
-                                </button>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button
+                                        type="button"
+                                        className="portal-secondary-btn"
+                                        onClick={handleDownloadPdf}
+                                        disabled={isDownloading}
+                                        style={{ flex: 1, cursor: isDownloading ? 'wait' : 'pointer' }}
+                                    >
+                                        <Download size={16} />
+                                        <span>{isDownloading ? "Téléchargement..." : "Télécharger la facture (PDF)"}</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="portal-secondary-btn"
+                                        onClick={handlePrint}
+                                        style={{ width: 'auto' }}
+                                    >
+                                        <FileText size={16} />
+                                        <span>Imprimer</span>
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

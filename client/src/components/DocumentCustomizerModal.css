@@ -13,6 +13,7 @@
 
 .doc-customizer-modal {
     width: min(1000px, 95vw);
+    height: min(90vh, 850px);
     max-height: min(90vh, 850px);
     background-color: var(--card, #FFFFFF);
     color: var(--foreground, #1A1A1A);
@@ -455,17 +456,18 @@
 .specimen-scrollable {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 20px;
     display: flex;
     justify-content: center;
+    min-height: 0;
 }
 
 .specimen-a4-sheet {
-    width: 595px;
-    min-width: 595px;
-    max-width: 595px;
-    min-height: 842px;
-    padding: 28px 24px;
+    width: 100%;
+    max-width: 520px;
+    min-height: 735px;
+    padding: 22px 18px;
     box-sizing: border-box;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
     border-radius: 4px;
@@ -473,11 +475,15 @@
     flex-direction: column;
     transition: background-color 0.15s, color 0.15s;
     word-break: break-word;
+    overflow-wrap: anywhere;
     overflow: hidden;
 }
 
 .specimen-a4-sheet * {
     box-sizing: border-box;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 

@@ -1077,6 +1077,7 @@
     justify-content: center;
     padding: 8px 4px 32px 4px;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .live-preview-a4-sheet {
@@ -1096,11 +1097,17 @@
     border-radius: 6px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     margin-bottom: 24px;
+    overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Live preview A4 sheet inherits user customizer inline styles */
 .live-preview-a4-sheet * {
     box-sizing: border-box;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 @keyframes fpScaleIn {

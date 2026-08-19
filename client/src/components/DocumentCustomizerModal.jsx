@@ -29,10 +29,12 @@ const FONT_SIZES = [
 ];
 
 const FONT_FAMILIES = [
-  { label: "Inter (Moderne)", value: "Inter, sans-serif" },
-  { label: "Roboto (Clean)", value: "Roboto, sans-serif" },
-  { label: "Space Grotesk (Tech)", value: "'Space Grotesk', monospace" },
-  { label: "Georgia (Serif Classic)", value: "Georgia, serif" },
+  { label: "Inter (Moderne)", value: "'Inter', sans-serif" },
+  { label: "Roboto (Classique Pro)", value: "'Roboto', sans-serif" },
+  { label: "Outfit (Tendance)", value: "'Outfit', sans-serif" },
+  { label: "Lora (Éditorial Serif)", value: "'Lora', Georgia, serif" },
+  { label: "Playfair Display (Luxe)", value: "'Playfair Display', Georgia, serif" },
+  { label: "Space Grotesk (Tech)", value: "'Space Grotesk', sans-serif" },
 ];
 
 const STRUCTURE_PRESETS = [
@@ -75,14 +77,18 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
   const handleChange = (key, value) => {
     const newSettings = { ...customization, [key]: value };
     setCustomization(newSettings);
+  };
+
+  const handleSave = () => {
     if (doc?.id || doc?.clientId || doc?.client?.id) {
-      saveDocCustomization(doc?.id, newSettings, doc?.clientId || doc?.client?.id);
+      saveDocCustomization(doc?.id, customization, doc?.clientId || doc?.client?.id);
     }
     if (doc && onSaveDocCustomization) {
-      onSaveDocCustomization(newSettings);
+      onSaveDocCustomization(customization);
     } else {
-      updateGlobalCustomization(newSettings);
+      updateGlobalCustomization(customization);
     }
+    onClose();
   };
 
   return (
@@ -629,7 +635,7 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
 
             {/* Bottom Save Action */}
             <div className="customizer-footer-actions">
-              <button className="save-customizer-btn" onClick={onClose}>
+              <button className="save-customizer-btn" onClick={handleSave}>
                 Enregistrer la personnalisation
               </button>
             </div>
@@ -691,55 +697,102 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                         padding: "16px 24px",
                         margin: "-28px -24px 14px -24px",
                         borderRadius: "2px 2px 0 0",
-
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                       }}
                     >
-
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        {customization.showLogo && (
-                          companyLogo ? (
-                            <img
-                              src={companyLogo}
-                              alt="Logo"
-                              style={{
-                                height: `${customization.logoSize || 45}px`,
-                                maxWidth: "140px",
-                                objectFit: "contain",
-                                background: "rgba(255,255,255,0.2)",
-                                padding: "2px 6px",
-                                borderRadius: "4px"
-                              }}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                backgroundColor: "rgba(255,255,255,0.2)",
-                                color: "#FFFFFF",
-                                fontWeight: "800",
-                                borderRadius: "4px",
-                                padding: "4px 8px",
-                                fontSize: "1.1em",
-                              }}
-                            >
-                              {companyDisplayName.substring(0, 8).toUpperCase()}
+                      {customization.logoPosition !== "right" ? (
+                        <>
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 45}px`,
+                                    maxWidth: "140px",
+                                    objectFit: "contain",
+                                    background: "rgba(255,255,255,0.2)",
+                                    padding: "2px 6px",
+                                    borderRadius: "4px"
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    backgroundColor: "rgba(255,255,255,0.2)",
+                                    color: "#FFFFFF",
+                                    fontWeight: "800",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    fontSize: "1.1em",
+                                  }}
+                                >
+                                  {companyDisplayName.substring(0, 8).toUpperCase()}
+                                </div>
+                              )
+                            )}
+                            <div>
+                              <h1 style={{ fontSize: "1.35em", fontWeight: "800", color: "#FFFFFF", margin: 0 }}>
+                                {companyDisplayName}
+                              </h1>
                             </div>
-                          )
-                        )}
-                        <div>
-                          <h1 style={{ fontSize: "1.35em", fontWeight: "800", color: "#FFFFFF", margin: 0 }}>
-                            {companyDisplayName}
-                          </h1>
-                        </div>
-                      </div>
+                          </div>
 
-                      <div style={{ textAlign: "right" }}>
-                        <h2 style={{ fontSize: "1.8em", fontWeight: "800", color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
-                          {docType === "devis" ? "DEVIS" : "FACTURE"}
-                        </h2>
-                      </div>
+                          <div style={{ textAlign: "right" }}>
+                            <h2 style={{ fontSize: "1.8em", fontWeight: "800", color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
+                              {docType === "devis" ? "DEVIS" : "FACTURE"}
+                            </h2>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <h2 style={{ fontSize: "1.8em", fontWeight: "800", color: "#FFFFFF", margin: 0, letterSpacing: "2px" }}>
+                              {docType === "devis" ? "DEVIS" : "FACTURE"}
+                            </h2>
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px", textAlign: "right" }}>
+                            <div>
+                              <h1 style={{ fontSize: "1.35em", fontWeight: "800", color: "#FFFFFF", margin: 0 }}>
+                                {companyDisplayName}
+                              </h1>
+                            </div>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 45}px`,
+                                    maxWidth: "140px",
+                                    objectFit: "contain",
+                                    background: "rgba(255,255,255,0.2)",
+                                    padding: "2px 6px",
+                                    borderRadius: "4px"
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    backgroundColor: "rgba(255,255,255,0.2)",
+                                    color: "#FFFFFF",
+                                    fontWeight: "800",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    fontSize: "1.1em",
+                                  }}
+                                >
+                                  {companyDisplayName.substring(0, 8).toUpperCase()}
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Metadata Pills Strip */}
@@ -821,65 +874,135 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                   <div>
                     {/* Modern Top Header with Capsule Badge */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                      <div>
-                        {customization.showLogo && (
-                          companyLogo ? (
-                            <img
-                              src={companyLogo}
-                              alt="Logo"
-                              style={{
-                                height: `${customization.logoSize || 45}px`,
-                                maxWidth: "180px",
-                                objectFit: "contain",
-                                marginBottom: "4pt",
-                              }}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                backgroundColor: customization.primaryColor || "#556B2F",
-                                color: "#FFF",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: "700",
-                                borderRadius: "6px",
-                                padding: "4px 8px",
-                                height: `${customization.logoSize || 45}px`,
-                                minWidth: `${(customization.logoSize || 45) * 1.8}px`,
-                                marginBottom: "4pt",
-                                fontSize: "1.1em",
-                              }}
-                            >
-                              {companyDisplayName.substring(0, 10).toUpperCase()}
-                            </div>
-                          )
-                        )}
-                        <h1 style={{ fontSize: "1.35em", fontWeight: "800", color: customization.primaryColor || "#556B2F", margin: 0 }}>
-                          {companyDisplayName}
-                        </h1>
-                      </div>
+                      {customization.logoPosition !== "right" ? (
+                        <>
+                          <div>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 45}px`,
+                                    maxWidth: "180px",
+                                    objectFit: "contain",
+                                    marginBottom: "4pt",
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    backgroundColor: customization.primaryColor || "#556B2F",
+                                    color: "#FFF",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: "700",
+                                    borderRadius: "6px",
+                                    padding: "4px 8px",
+                                    height: `${customization.logoSize || 45}px`,
+                                    minWidth: `${(customization.logoSize || 45) * 1.8}px`,
+                                    marginBottom: "4pt",
+                                    fontSize: "1.1em",
+                                  }}
+                                >
+                                  {companyDisplayName.substring(0, 10).toUpperCase()}
+                                </div>
+                              )
+                            )}
+                            <h1 style={{ fontSize: "1.35em", fontWeight: "800", color: customization.primaryColor || "#556B2F", margin: 0 }}>
+                              {companyDisplayName}
+                            </h1>
+                          </div>
 
-                      <div style={{ textAlign: "right" }}>
-                        <div
-                          style={{
-                            display: "inline-block",
-                            backgroundColor: customization.primaryColor || "#556B2F",
-                            color: "#FFFFFF",
-                            padding: "6px 16px",
-                            borderRadius: "20px",
-                            fontWeight: "800",
-                            fontSize: "1.05em",
-                            letterSpacing: "0.5px",
-                            marginBottom: "4px",
-                          }}
-                        >
-                          {docType === "devis" ? "DEVIS" : "FACTURE"} N° {docNumber}
-                        </div>
-                        <div style={{ fontSize: "0.88em", opacity: 0.85 }}>
-                          Date : <strong>{docDate}</strong> {customization.showDeliveryDate && <>• Échéance : <strong>{docDeliveryDate}</strong></>}
-                        </div>
-                      </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div>
+                              <div
+                                style={{
+                                  display: "inline-block",
+                                  backgroundColor: customization.primaryColor || "#556B2F",
+                                  color: "#FFFFFF",
+                                  padding: "6px 16px",
+                                  borderRadius: "20px",
+                                  fontWeight: "800",
+                                  fontSize: "1.05em",
+                                  letterSpacing: "0.5px",
+                                  marginBottom: "4px",
+                                }}
+                              >
+                                {docType === "devis" ? "DEVIS" : "FACTURE"} N° {docNumber}
+                              </div>
+                              <div style={{ fontSize: "0.88em", opacity: 0.85 }}>
+                                Date : <strong>{docDate}</strong> {customization.showDeliveryDate && <>• Échéance : <strong>{docDeliveryDate}</strong></>}
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ textAlign: "left" }}>
+                            <div>
+                              <div
+                                style={{
+                                  display: "inline-block",
+                                  backgroundColor: customization.primaryColor || "#556B2F",
+                                  color: "#FFFFFF",
+                                  padding: "6px 16px",
+                                  borderRadius: "20px",
+                                  fontWeight: "800",
+                                  fontSize: "1.05em",
+                                  letterSpacing: "0.5px",
+                                  marginBottom: "4px",
+                                }}
+                              >
+                                {docType === "devis" ? "DEVIS" : "FACTURE"} N° {docNumber}
+                              </div>
+                              <div style={{ fontSize: "0.88em", opacity: 0.85 }}>
+                                Date : <strong>{docDate}</strong> {customization.showDeliveryDate && <>• Échéance : <strong>{docDeliveryDate}</strong></>}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 45}px`,
+                                    maxWidth: "180px",
+                                    objectFit: "contain",
+                                    marginBottom: "4pt",
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    backgroundColor: customization.primaryColor || "#556B2F",
+                                    color: "#FFF",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: "700",
+                                    borderRadius: "6px",
+                                    padding: "4px 8px",
+                                    height: `${customization.logoSize || 45}px`,
+                                    minWidth: `${(customization.logoSize || 45) * 1.8}px`,
+                                    marginBottom: "4pt",
+                                    fontSize: "1.1em",
+                                  }}
+                                >
+                                  {companyDisplayName.substring(0, 10).toUpperCase()}
+                                </div>
+                              )
+                            )}
+                            <h1 style={{ fontSize: "1.35em", fontWeight: "800", color: customization.primaryColor || "#556B2F", margin: 0 }}>
+                              {companyDisplayName}
+                            </h1>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Modern 2-Card Flex Layout */}
@@ -977,34 +1100,69 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                   <div>
                     {/* Minimal Typographic Header */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingBottom: "10px", borderBottom: `1.5px solid #EAEAE6`, marginBottom: "14px" }}>
-                      <div>
-                        {customization.showLogo && (
-                          companyLogo ? (
-                            <img
-                              src={companyLogo}
-                              alt="Logo"
-                              style={{
-                                height: `${customization.logoSize || 40}px`,
-                                maxWidth: "160px",
-                                objectFit: "contain",
-                                marginBottom: "4pt",
-                              }}
-                            />
-                          ) : null
-                        )}
-                        <h1 style={{ fontSize: "1.3em", fontWeight: "800", color: customization.primaryColor || "#556B2F", margin: 0, letterSpacing: "-0.02em" }}>
-                          {companyDisplayName}
-                        </h1>
-                      </div>
+                      {customization.logoPosition !== "right" ? (
+                        <>
+                          <div>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 40}px`,
+                                    maxWidth: "160px",
+                                    objectFit: "contain",
+                                    marginBottom: "4pt",
+                                  }}
+                                />
+                              ) : null
+                            )}
+                            <h1 style={{ fontSize: "1.3em", fontWeight: "800", color: customization.primaryColor || "#556B2F", margin: 0, letterSpacing: "-0.02em" }}>
+                              {companyDisplayName}
+                            </h1>
+                          </div>
 
-                      <div style={{ textAlign: "right" }}>
-                        <h2 style={{ fontSize: "2em", fontWeight: "300", color: customization.primaryColor || "#556B2F", margin: 0, letterSpacing: "3px" }}>
-                          {docType === "devis" ? "DEVIS" : "FACTURE"}
-                        </h2>
-                        <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                          N° {docNumber} • {docDate}
-                        </div>
-                      </div>
+                          <div style={{ textAlign: "right" }}>
+                            <h2 style={{ fontSize: "2em", fontWeight: "300", color: customization.primaryColor || "#556B2F", margin: 0, letterSpacing: "3px" }}>
+                              {docType === "devis" ? "DEVIS" : "FACTURE"}
+                            </h2>
+                            <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
+                              N° {docNumber} • {docDate}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ textAlign: "left" }}>
+                            <h2 style={{ fontSize: "2em", fontWeight: "300", color: customization.primaryColor || "#556B2F", margin: 0, letterSpacing: "3px" }}>
+                              {docType === "devis" ? "DEVIS" : "FACTURE"}
+                            </h2>
+                            <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
+                              N° {docNumber} • {docDate}
+                            </div>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 40}px`,
+                                    maxWidth: "160px",
+                                    objectFit: "contain",
+                                    marginBottom: "4pt",
+                                  }}
+                                />
+                              ) : null
+                            )}
+                            <h1 style={{ fontSize: "1.3em", fontWeight: "800", color: customization.primaryColor || "#556B2F", margin: 0, letterSpacing: "-0.02em" }}>
+                              {companyDisplayName}
+                            </h1>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Minimal 2-Column Info without background boxes */}
@@ -1062,117 +1220,169 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                         marginBottom: "12pt",
                       }}
                     >
-                      <div style={{ flex: 1 }}>
-                        {customization.showLogo && customization.logoPosition !== "right" && (
-                          companyLogo ? (
-                            <img
-                              src={companyLogo}
-                              alt="Logo"
+                      {customization.logoPosition !== "right" ? (
+                        <>
+                          <div style={{ flex: 1 }}>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 45}px`,
+                                    maxWidth: "180px",
+                                    objectFit: "contain",
+                                    marginBottom: "6pt",
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    backgroundColor: customization.primaryColor || "#556B2F",
+                                    color: "#FFF",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: "700",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    height: `${customization.logoSize || 45}px`,
+                                    minWidth: `${(customization.logoSize || 45) * 1.8}px`,
+                                    marginBottom: "6pt",
+                                    fontSize: "1.1em",
+                                  }}
+                                >
+                                  {companyDisplayName.substring(0, 10).toUpperCase()}
+                                </div>
+                              )
+                            )}
+                            <h1
                               style={{
-                                height: `${customization.logoSize || 45}px`,
-                                maxWidth: "180px",
-                                objectFit: "contain",
-                                marginBottom: "6pt",
-                              }}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                backgroundColor: customization.primaryColor || "#556B2F",
-                                color: "#FFF",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: "700",
-                                borderRadius: "4px",
-                                padding: "4px 8px",
-                                height: `${customization.logoSize || 45}px`,
-                                minWidth: `${(customization.logoSize || 45) * 1.8}px`,
-                                marginBottom: "6pt",
-                                fontSize: "1.1em",
+                                fontSize: "1.3em",
+                                fontWeight: "800",
+                                color: customization.primaryColor || "#556B2F",
+                                margin: 0,
                               }}
                             >
-                              {companyDisplayName.substring(0, 10).toUpperCase()}
+                              {companyDisplayName}
+                            </h1>
+                            <div style={{ fontSize: "0.9em", lineHeight: "1.4", opacity: 0.85, marginTop: "2pt" }}>
+                              {customization.showAddress && <div>{companyDisplayAddress}</div>}
+                              {customization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                              {customization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                              {customization.showEmail && <div>Email : {companyDisplayEmail}</div>}
                             </div>
-                          )
-                        )}
-                        <h1
-                          style={{
-                            fontSize: "1.3em",
-                            fontWeight: "800",
-                            color: customization.primaryColor || "#556B2F",
-                            margin: 0,
-                          }}
-                        >
-                          {companyDisplayName}
-                        </h1>
-                        <div style={{ fontSize: "0.9em", lineHeight: "1.4", opacity: 0.85, marginTop: "2pt" }}>
-                          {customization.showAddress && <div>{companyDisplayAddress}</div>}
-                          {customization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
-                          {customization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
-                          {customization.showEmail && <div>Email : {companyDisplayEmail}</div>}
-                        </div>
-                      </div>
+                          </div>
 
-                      <div style={{ textAlign: "right" }}>
-                        {customization.showLogo && customization.logoPosition === "right" && (
-                          companyLogo ? (
-                            <img
-                              src={companyLogo}
-                              alt="Logo"
+                          <div style={{ textAlign: "right" }}>
+                            <h2
                               style={{
-                                height: `${customization.logoSize || 45}px`,
-                                maxWidth: "180px",
-                                objectFit: "contain",
-                                marginBottom: "6pt",
-                              }}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                backgroundColor: customization.primaryColor || "#556B2F",
-                                color: "#FFF",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: "700",
-                                borderRadius: "4px",
-                                padding: "4px 8px",
-                                height: `${customization.logoSize || 45}px`,
-                                minWidth: `${(customization.logoSize || 45) * 1.8}px`,
-                                marginBottom: "6pt",
-                                fontSize: "1.1em",
+                                fontSize: "1.8em",
+                                fontWeight: "800",
+                                color: customization.primaryColor || "#556B2F",
+                                margin: 0,
+                                textTransform: "uppercase",
                               }}
                             >
-                              {companyDisplayName.substring(0, 10).toUpperCase()}
+                              {docType === "devis" ? "DEVIS" : "FACTURE"}
+                            </h2>
+                            <div style={{ fontSize: "0.95em", marginTop: "4pt" }}>
+                              <div>
+                                <strong>N° : </strong> {docNumber}
+                              </div>
+                              <div>
+                                <strong>Date : </strong> {docDate}
+                              </div>
+                              {customization.showDeliveryDate && (
+                                <div>
+                                  <strong>Livraison : </strong> {docDeliveryDate}
+                                </div>
+                              )}
                             </div>
-                          )
-                        )}
-                        <h2
-                          style={{
-                            fontSize: "1.8em",
-                            fontWeight: "800",
-                            color: customization.primaryColor || "#556B2F",
-                            margin: 0,
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          {docType === "devis" ? "DEVIS" : "FACTURE"}
-                        </h2>
-                        <div style={{ fontSize: "0.95em", marginTop: "4pt" }}>
-                          <div>
-                            <strong>N° : </strong> {docNumber}
                           </div>
-                          <div>
-                            <strong>Date : </strong> {docDate}
-                          </div>
-                          {customization.showDeliveryDate && (
-                            <div>
-                              <strong>Livraison : </strong> {docDeliveryDate}
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ textAlign: "left" }}>
+                            <h2
+                              style={{
+                                fontSize: "1.8em",
+                                fontWeight: "800",
+                                color: customization.primaryColor || "#556B2F",
+                                margin: 0,
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              {docType === "devis" ? "DEVIS" : "FACTURE"}
+                            </h2>
+                            <div style={{ fontSize: "0.95em", marginTop: "4pt" }}>
+                              <div>
+                                <strong>N° : </strong> {docNumber}
+                              </div>
+                              <div>
+                                <strong>Date : </strong> {docDate}
+                              </div>
+                              {customization.showDeliveryDate && (
+                                <div>
+                                  <strong>Livraison : </strong> {docDeliveryDate}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
+                          </div>
+
+                          <div style={{ flex: 1, textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                            {customization.showLogo && (
+                              companyLogo ? (
+                                <img
+                                  src={companyLogo}
+                                  alt="Logo"
+                                  style={{
+                                    height: `${customization.logoSize || 45}px`,
+                                    maxWidth: "180px",
+                                    objectFit: "contain",
+                                    marginBottom: "6pt",
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    backgroundColor: customization.primaryColor || "#556B2F",
+                                    color: "#FFF",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: "700",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    height: `${customization.logoSize || 45}px`,
+                                    minWidth: `${(customization.logoSize || 45) * 1.8}px`,
+                                    marginBottom: "6pt",
+                                    fontSize: "1.1em",
+                                  }}
+                                >
+                                  {companyDisplayName.substring(0, 10).toUpperCase()}
+                                </div>
+                              )
+                            )}
+                            <h1
+                              style={{
+                                fontSize: "1.3em",
+                                fontWeight: "800",
+                                color: customization.primaryColor || "#556B2F",
+                                margin: 0,
+                              }}
+                            >
+                              {companyDisplayName}
+                            </h1>
+                            <div style={{ fontSize: "0.9em", lineHeight: "1.4", opacity: 0.85, marginTop: "2pt" }}>
+                              {customization.showAddress && <div>{companyDisplayAddress}</div>}
+                              {customization.showSiret && <div>SIRET : {companyDisplaySiret}</div>}
+                              {customization.showPhone && <div>Tél : {companyDisplayPhone}</div>}
+                              {customization.showEmail && <div>Email : {companyDisplayEmail}</div>}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Client Box: Right vs Bottom */}

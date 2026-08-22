@@ -284,7 +284,11 @@ function FacturesPage() {
         }
     };
 
-    const handleAutoSend = async (inv, targetEmail) => {
+    const handleAutoSend = async (inv, sendOptions) => {
+        const targetEmail = typeof sendOptions === "object" ? sendOptions.targetEmail : sendOptions;
+        const stripePaymentEnabled = typeof sendOptions === "object" ? sendOptions.stripePaymentEnabled : undefined;
+        const bankTransferEnabled = typeof sendOptions === "object" ? sendOptions.bankTransferEnabled : undefined;
+
         const emailToSend = targetEmail || inv.clientEmail || "client";
         const customization = getEffectiveCustomization(inv);
         try {
@@ -293,7 +297,9 @@ function FacturesPage() {
                 body: JSON.stringify({ 
                     recipientEmail: targetEmail || inv.clientEmail,
                     primaryColor: customization.primaryColor,
-                    customization
+                    customization,
+                    stripePaymentEnabled,
+                    bankTransferEnabled
                 })
             });
             showToast(`Facture ${inv.number} envoyée avec PDF à ${emailToSend} !`, "success");

@@ -28,9 +28,12 @@ import ProductivityTab from "./components/ProductivityTab";
 
 import { apiFetch } from "../utils/api";
 
+import { useUser } from "../utils/useUser";
+
 function HomePage() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, company } = useUser();
     const [activeTab, setActiveTab] = useState("comptabilite");
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
@@ -96,8 +99,12 @@ function HomePage() {
     };
 
     const revenueVal = dashboardData?.stats?.revenueThisMonth || 0;
-    const cotisationsVal = Math.round(revenueVal * 0.211 * 100) / 100;
-    const resultatVal = Math.round((revenueVal - cotisationsVal) * 100) / 100;
+    const cotisationsVal = dashboardData?.stats?.cotisationsThisMonth !== undefined 
+        ? dashboardData.stats.cotisationsThisMonth 
+        : Math.round(revenueVal * 0.212 * 100) / 100;
+    const resultatVal = dashboardData?.stats?.resultatThisMonth !== undefined
+        ? dashboardData.stats.resultatThisMonth
+        : Math.round((revenueVal - cotisationsVal) * 100) / 100;
 
     return (
         <div className="home-page">
@@ -111,7 +118,7 @@ function HomePage() {
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 >
                     {/* Welcome Greeting Section */}
-                    <Greeting name="Khalid" />
+                    <Greeting name={user?.firstName || "Khalid"} />
 
                     {/* Top Row: Financial Statistics Cards & Interactive Chart */}
                     <div className="dashboard-top-section">
@@ -123,7 +130,7 @@ function HomePage() {
                             onConnectUrssaf={handleConnectUrssaf}
                             onConfigureTaux={handleConfigureTaux}
                         />
-                        <FinancialChart />
+                        <FinancialChart data={dashboardData?.financialChart || []} />
                     </div>
 
                     {/* Dashboard Segmented Tabs */}
@@ -133,20 +140,58 @@ function HomePage() {
                     {activeTab === "comptabilite" && (
                         <div className="dashboard-comptabilite-content">
                             <div className="dashboard-bottom-grid">
-                                <FacturesCard onCreateFacture={handleCreateFacture} />
-                                <DevisCard onCreateDevis={handleCreateDevis} />
-                                <InterventionsCard onPlanIntervention={handlePlanIntervention} />
+                                <FacturesCard 
+                                    enRetardCount={dashboardData?.factures?.enRetardCount || 0}
+                                    enRetardAmount={dashboardData?.factures?.enRetardAmount || 0}
+                                    enAttenteCount={dashboardData?.factures?.enAttenteCount || 0}
+                                    enAttenteAmount={dashboardData?.factures?.enAttenteAmount || 0}
+                                    overdueInvoices={dashboardData?.factures?.overdueInvoices || []}
+                                    pendingInvoices={dashboardData?.factures?.pendingInvoices || []}
+                                    onCreateFacture={handleCreateFacture} 
+                                />
+                                <DevisCard 
+                                    draftCount={dashboardData?.devis?.brouillonsCount || 0}
+                                    draftAmount={dashboardData?.devis?.brouillonsAmount || 0}
+                                    sentCount={dashboardData?.devis?.envoyesCount || 0}
+                                    sentAmount={dashboardData?.devis?.envoyesAmount || 0}
+                                    draftDevis={dashboardData?.devis?.brouillonsQuotes || []}
+                                    sentDevis={dashboardData?.devis?.sentQuotes || []}
+                                    onCreateDevis={handleCreateDevis} 
+                                />
+                                <InterventionsCard 
+                                    plannedCount={dashboardData?.interventions?.todayCount || 0}
+                                    completedCount={dashboardData?.interventions?.completedThisMonth || 0}
+                                    todayInterventions={dashboardData?.todayInterventions || []}
+                                    onPlanIntervention={handlePlanIntervention} 
+                                />
                             </div>
-                            <PlafondsCard />
+                            <PlafondsCard 
+                                servicesCurrent={dashboardData?.plafonds?.servicesCurrent || 0}
+                                commercialCurrent={dashboardData?.plafonds?.commercialCurrent || 0}
+                                servicesMax={dashboardData?.plafonds?.servicesMax || 77700}
+                                servicesTva={dashboardData?.plafonds?.servicesTva || 37500}
+                                servicesTvaMax={dashboardData?.plafonds?.servicesTvaMax || 41250}
+                                commercialMax={dashboardData?.plafonds?.commercialMax || 203100}
+                                commercialTva={dashboardData?.plafonds?.commercialTva || 85000}
+                                commercialTvaMax={dashboardData?.plafonds?.commercialTvaMax || 93500}
+                            />
                         </div>
                     )}
 
                     {activeTab === "statistiques" && (
-                        <StatsTab />
+                        <StatsTab 
+                            revenueThisMonth={revenueVal}
+                            cotisationsThisMonth={cotisationsVal}
+                            topArticles={dashboardData?.topArticles || []}
+                            topClients={dashboardData?.topClients || []}
+                            pendingInvoices={dashboardData?.factures?.pendingInvoices || []}
+                            overdueInvoices={dashboardData?.factures?.overdueInvoices || []}
+                        />
                     )}
 
                     {activeTab === "productivite" && (
                         <ProductivityTab 
+                            trackingColumns={dashboardData?.interventions?.trackingColumns}
                             onCreateTask={handleCreateTask}
                             onCreateBoard={handleCreateBoard}
                         />

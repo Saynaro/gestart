@@ -337,8 +337,9 @@ export const sendInvoiceClientEmail = async ({
 
                 <!-- Option A : Paiement par carte en ligne -->
                 <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 16px;">
-                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px;">
-                        💳 Option 1 : Paiement sécurisé en ligne (Stripe)
+                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px; display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#635BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block;"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                        <span>Option 1 : Paiement sécurisé en ligne (Stripe)</span>
                     </div>
                     <p style="color: #94A3B8; font-size: 13px; margin: 0 0 14px 0; line-height: 1.4;">
                         Réglez instantanément par carte bancaire en quelques clics :
@@ -356,8 +357,9 @@ export const sendInvoiceClientEmail = async ({
 
                 <!-- Option B : Virement bancaire direct -->
                 <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
-                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px;">
-                        🏦 Option 2 : Virement bancaire
+                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px; display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block;"><line x1="2" x2="22" y1="22" y2="22"/><line x1="18" x2="18" y1="11" y2="15"/><line x1="6" x2="6" y1="11" y2="15"/><line x1="10" x2="10" y1="11" y2="15"/><line x1="14" x2="14" y1="11" y2="15"/><polyline points="2 7 12 2 22 7"/><line x1="12" x2="12" y1="7" y2="7"/></svg>
+                        <span>Option 2 : Virement bancaire</span>
                     </div>
                     <table style="width: 100%; font-size: 13px; color: #CBD5E1; border-collapse: collapse;">
                         <tr>
@@ -408,8 +410,9 @@ export const sendInvoiceClientEmail = async ({
         paymentSectionsHtml = `
             <div style="margin-top: 24px;">
                 <div style="background: #0F172A; padding: 22px; border-radius: 10px; border: 1px solid #334155;">
-                    <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 12px;">
-                        🏦 Coordonnées pour virement bancaire :
+                    <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 12px; display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block;"><line x1="2" x2="22" y1="22" y2="22"/><line x1="18" x2="18" y1="11" y2="15"/><line x1="6" x2="6" y1="11" y2="15"/><line x1="10" x2="10" y1="11" y2="15"/><line x1="14" x2="14" y1="11" y2="15"/><polyline points="2 7 12 2 22 7"/><line x1="12" x2="12" y1="7" y2="7"/></svg>
+                        <span>Coordonnées pour virement bancaire :</span>
                     </div>
                     <table style="width: 100%; font-size: 13.5px; color: #CBD5E1; border-collapse: collapse;">
                         <tr>

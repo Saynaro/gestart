@@ -445,68 +445,72 @@ export const handleStripeConnectWebhook = async (req, res) => {
 };
 
 /**
- * Webhook Twilio pour les SMS entrants
+ * Webhook Twilio pour les SMS entrants (POST /api/v1/webhooks/twilio/sms ou /twilio)
  */
 export const handleTwilioWebhook = async (req, res) => {
-    const { From, To, Body, MessageSid } = req.body || req.query;
-
-    if (!From || !Body) {
-        return res.status(400).send("<Response><Message>Informations manquantes</Message></Response>");
-    }
-
     try {
-        const cleanFrom = From.replace(/\s+/g, "");
+        const { TwilioSmsService, validateTwilioWebhookSignature } = await import("../services/messaging/sms/twilio.service.js");
 
-        const client = await prisma.client.findFirst({
-            where: {
-                phone: { contains: cleanFrom.slice(-9) },
-                isActive: true
-            }
-        });
-
-        if (client) {
-            const smsLog = await prisma.smsLog.create({
-                data: {
-                    companyId: client.companyId,
-                    clientId: client.id,
-                    direction: "INCOMING",
-                    channel: "SMS",
-                    body: Body.trim(),
-                    fromNumber: From,
-                    toNumber: To,
-                    twilioSid: MessageSid || null,
-                    status: "received",
-                    isRead: false
-                }
-            });
-
-            const owner = await prisma.user.findFirst({
-                where: { companyId: client.companyId, role: "OWNER" }
-            });
-
-            if (owner) {
-                await prisma.notification.create({
-                    data: {
-                        companyId: client.companyId,
-                        userId: owner.id,
-                        type: "NEW_MESSAGE_RECEIVED",
-                        channel: "IN_APP",
-                        status: "SENT",
-                        title: `Nouveau SMS de ${client.firstName} ${client.lastName}`,
-                        body: Body.slice(0, 100),
-                        entityType: "sms",
-                        entityId: smsLog.id
-                    }
-                });
-            }
+        // 1. Validation de la signature Twilio
+        const isSignatureValid = validateTwilioWebhookSignature(req);
+        if (!isSignatureValid) {
+            return res.status(403).send("<Response><Message>Signature invalide</Message></Response>");
         }
 
+        const { From, To, Body, MessageSid } = req.body || req.query || {};
+
+        if (!From || !Body) {
+            return res.status(400).send("<Response><Message>Parametres manquants</Message></Response>");
+        }
+
+        // 2. Traitement via TwilioSmsService
+        await TwilioSmsService.handleIncomingSms({
+            from: From,
+            to: To,
+            body: Body,
+            messageSid: MessageSid,
+            rawPayload: req.body
+        });
+
+        // 3. Réponse TwiML standard (200 OK avec XML vide pour ne pas renvoyer de SMS automatique non désiré)
         res.set("Content-Type", "text/xml");
         return res.status(200).send("<Response></Response>");
     } catch (error) {
-        console.error("TWILIO WEBHOOK ERROR:", error.message);
+        console.error("[TWILIO INCOMING WEBHOOK ERROR]:", error.message);
         res.set("Content-Type", "text/xml");
-        return res.status(500).send("<Response><Message>Erreur serveur</Message></Response>");
+        return res.status(500).send("<Response><Message>Erreur de traitement</Message></Response>");
+    }
+};
+
+/**
+ * Webhook Twilio pour les changements de statut de livraison des SMS
+ * POST /api/v1/webhooks/twilio/status
+ */
+export const handleTwilioStatusWebhook = async (req, res) => {
+    try {
+        const { TwilioSmsService, validateTwilioWebhookSignature } = await import("../services/messaging/sms/twilio.service.js");
+
+        const isSignatureValid = validateTwilioWebhookSignature(req);
+        if (!isSignatureValid) {
+            return res.status(403).json({ success: false, message: "Signature invalide" });
+        }
+
+        const { MessageSid, MessageStatus, SmsStatus, ErrorCode, ErrorMessage } = req.body || {};
+        const status = MessageStatus || SmsStatus;
+
+        if (MessageSid && status) {
+            await TwilioSmsService.handleStatusCallback({
+                messageSid: MessageSid,
+                messageStatus: status,
+                errorCode: ErrorCode,
+                errorMessage: ErrorMessage
+            });
+        }
+
+        return res.status(200).json({ success: true, received: true });
+    } catch (error) {
+        console.error("[TWILIO STATUS WEBHOOK ERROR]:", error.message);
+        return res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -525,3 +529,4 @@ export const handleB2brouterWebhook = async (req, res) => {
         return res.status(500).json({ success: false, error: error.message });
     }
 };
+

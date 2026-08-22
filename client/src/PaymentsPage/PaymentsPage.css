@@ -270,6 +270,10 @@
 }
 
 /* Mobile responsive card list */
+.payments-mobile-cards {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .payments-table-card {
         background: transparent;

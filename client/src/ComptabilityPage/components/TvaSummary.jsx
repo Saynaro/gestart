@@ -3,43 +3,78 @@ import { Info, CheckCircle2, AlertCircle, Calendar } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 function TvaSummary() {
-    const [selectedQuarter, setSelectedQuarter] = useState("T1");
-    const [selectedYear, setSelectedYear] = useState("2026");
-    const [isDeclared, setIsDeclared] = useState(false);
+    const now = new Date();
+    const currentQ = now.getMonth() <= 2 ? "T1" : now.getMonth() <= 5 ? "T2" : now.getMonth() <= 8 ? "T3" : "T4";
+    const currentY = String(now.getFullYear());
+
+    const [selectedQuarter, setSelectedQuarter] = useState(currentQ);
+    const [selectedYear, setSelectedYear] = useState(currentY);
+    const [tvaRegime, setTvaRegime] = useState("encaissements"); // 'encaissements' or 'debits'
     const [tvaReport, setTvaReport] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const fetchReport = async () => {
+        try {
+            const data = await apiFetch(`/v1/reports/revenue?year=${selectedYear}`);
+            setTvaReport(data.data || data);
+        } catch (err) {
+            console.warn("API report/revenue non disponible:", err.message);
+        }
+    };
 
     useEffect(() => {
-        const fetchReport = async () => {
-            try {
-                const data = await apiFetch('/v1/reports/revenue');
-                setTvaReport(data.data || data);
-            } catch (err) {
-                console.warn("API report/revenue non disponible:", err.message);
-            }
-        };
-
         fetchReport();
-    }, [selectedQuarter, selectedYear]);
+    }, [selectedYear]);
+
+    const declarationKey = `${selectedYear}-${selectedQuarter}`;
+    const declarationInfo = tvaReport?.declarations?.[declarationKey];
+    const isDeclared = !!declarationInfo?.declared;
+    const declaredAtDate = declarationInfo?.declaredAt 
+        ? new Date(declarationInfo.declaredAt).toLocaleDateString("fr-FR")
+        : null;
+
+    // Active quarters data based on selected regime
+    const activeQuartersMap = tvaRegime === "encaissements"
+        ? (tvaReport?.quartersEncaissements || tvaReport?.quarters)
+        : (tvaReport?.quartersDebits || tvaReport?.quarters);
 
     const current = {
         period: selectedQuarter === "T1" ? `01 janv → 31 mars ${selectedYear}` : selectedQuarter === "T2" ? `01 avr → 30 juin ${selectedYear}` : selectedQuarter === "T3" ? `01 juil → 30 sept ${selectedYear}` : `01 oct → 31 déc ${selectedYear}`,
-        base0: tvaReport?.quarters?.[selectedQuarter]?.base0 || 0,
-        tva0: tvaReport?.quarters?.[selectedQuarter]?.tva0 || 0,
-        base5: tvaReport?.quarters?.[selectedQuarter]?.base5 || 0,
-        tva5: tvaReport?.quarters?.[selectedQuarter]?.tva5 || 0,
-        base10: tvaReport?.quarters?.[selectedQuarter]?.base10 || 0,
-        tva10: tvaReport?.quarters?.[selectedQuarter]?.tva10 || 0,
-        base20: tvaReport?.quarters?.[selectedQuarter]?.base20 || 0,
-        tva20: tvaReport?.quarters?.[selectedQuarter]?.tva20 || 0,
-        totalBase: tvaReport?.quarters?.[selectedQuarter]?.totalBase || 0,
-        totalTva: tvaReport?.quarters?.[selectedQuarter]?.totalTva || 0
+        base0: activeQuartersMap?.[selectedQuarter]?.base0 || 0,
+        tva0: activeQuartersMap?.[selectedQuarter]?.tva0 || 0,
+        base5: activeQuartersMap?.[selectedQuarter]?.base5 || 0,
+        tva5: activeQuartersMap?.[selectedQuarter]?.tva5 || 0,
+        base10: activeQuartersMap?.[selectedQuarter]?.base10 || 0,
+        tva10: activeQuartersMap?.[selectedQuarter]?.tva10 || 0,
+        base20: activeQuartersMap?.[selectedQuarter]?.base20 || 0,
+        tva20: activeQuartersMap?.[selectedQuarter]?.tva20 || 0,
+        totalBase: activeQuartersMap?.[selectedQuarter]?.totalBase || 0,
+        totalTva: activeQuartersMap?.[selectedQuarter]?.totalTva || 0
     };
 
     const quarters = ["T1", "T2", "T3", "T4"];
     const years = ["2026", "2025"];
 
-    const handleMarkDeclared = () => {
-        setIsDeclared(!isDeclared);
+    const handleMarkDeclared = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+        try {
+            const nextStatus = !isDeclared;
+            await apiFetch('/v1/reports/tva-declaration', {
+                method: 'POST',
+                body: {
+                    year: selectedYear,
+                    quarter: selectedQuarter,
+                    declared: nextStatus
+                }
+            });
+            // Refresh report to get updated declarations from DB
+            await fetchReport();
+        } catch (e) {
+            console.error("Erreur déclaration TVA:", e.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -58,13 +93,45 @@ function TvaSummary() {
                     </div>
                 </div>
 
+                {/* Sélecteur de régime TVA (Encaissements vs Débits) */}
+                <div className="tva-regime-switcher-row">
+                    <button 
+                        type="button"
+                        className={`regime-switch-btn ${tvaRegime === "encaissements" ? "active" : ""}`}
+                        onClick={() => setTvaRegime("encaissements")}
+                    >
+                        <span className="regime-title">TVA sur les encaissements</span>
+                        <span className="regime-badge-recommended">Recommandé • Factures payées</span>
+                    </button>
+                    <button 
+                        type="button"
+                        className={`regime-switch-btn ${tvaRegime === "debits" ? "active" : ""}`}
+                        onClick={() => setTvaRegime("debits")}
+                    >
+                        <span className="regime-title">TVA sur les débits</span>
+                        <span className="regime-subtext">Toutes factures émises</span>
+                    </button>
+                </div>
+
+                {/* Explication règle fiscale */}
+                <div className="tva-regime-info-banner">
+                    <Info size={16} className="info-icon-svg" />
+                    <div className="info-text">
+                        {tvaRegime === "encaissements" ? (
+                            <span><strong>Règle fiscale (Art. 269-2-c CGI) :</strong> La TVA est exigible uniquement lors du règlement effectif par le client. Recommandé pour les prestations de services et l'installation.</span>
+                        ) : (
+                            <span><strong>Option sur les débits :</strong> La TVA est exigible dès l'émission de la facture, même si le paiement n'a pas encore été perçu.</span>
+                        )}
+                    </div>
+                </div>
+
                 <div className="tva-selectors">
                     <div className="quarter-selector-row">
                         {quarters.map((q) => (
                             <button
                                 key={q}
                                 className={`quarter-btn ${selectedQuarter === q ? "active" : ""}`}
-                                onClick={() => { setSelectedQuarter(q); setIsDeclared(false); }}
+                                onClick={() => { setSelectedQuarter(q); }}
                             >
                                 {q}
                             </button>
@@ -83,7 +150,7 @@ function TvaSummary() {
                 </div>
 
                 <div className="active-period-indicator">
-                    <span>Période : <strong>{current.period}</strong></span>
+                    <span>Période : <strong>{current.period}</strong> ({tvaRegime === "encaissements" ? "Factures encaissées" : "Factures émises"})</span>
                 </div>
 
                 <div className="table-responsive">
@@ -176,7 +243,7 @@ function TvaSummary() {
                         <div className="status-badge">
                             {isDeclared ? (
                                 <span className="declared text-success">
-                                    <CheckCircle2 size={16} /> Déclaré
+                                    <CheckCircle2 size={16} /> Déclaré {declaredAtDate ? `le ${declaredAtDate}` : ""}
                                 </span>
                             ) : (
                                 <span className="non-declared text-warning">

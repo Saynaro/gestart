@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-function FinancialChart() {
+function FinancialChart({ data = [] }) {
     const [viewType, setViewType] = useState("mixed"); // 'mixed' (bar + line), 'table', 'line'
-    const [dateRange, setDateRange] = useState("19/04/2026 • 19/07/2026");
+    const [dateRange, setDateRange] = useState("6 derniers mois");
     const [resolution, setResolution] = useState("Mois");
     const [sources, setSources] = useState("Sources 2");
     
@@ -11,16 +11,18 @@ function FinancialChart() {
     const [resDropdownOpen, setResDropdownOpen] = useState(false);
     const [srcDropdownOpen, setSrcDropdownOpen] = useState(false);
 
-    // Mock data matching the screenshots
-    const chartData = [
-        { month: "avr. 26", entrees: 0.00, sorties: 0.00, resultat: 5.00 },
-        { month: "mai 26", entrees: 0.00, sorties: 0.00, resultat: 5.00 },
-        { month: "juin 26", entrees: 0.00, sorties: 0.00, resultat: 5.00 },
-        { month: "juil. 26", entrees: 152.33, sorties: 31.52, resultat: 120.81 }
+    // Données réelles issues de l'API (ou fallback propre si 0 facture)
+    const chartData = (data && data.length > 0) ? data : [
+        { month: "avr. 26", entrees: 0, sorties: 0, resultat: 0 },
+        { month: "mai 26", entrees: 0, sorties: 0, resultat: 0 },
+        { month: "juin 26", entrees: 0, sorties: 0, resultat: 0 },
+        { month: "juil. 26", entrees: 0, sorties: 0, resultat: 0 },
+        { month: "août 26", entrees: 0, sorties: 0, resultat: 0 }
     ];
 
-    const maxVal = 160;
-    const yGridLines = [160, 140, 120, 100, 80, 60, 40, 20, 0];
+    const highestVal = Math.max(...chartData.map(d => Math.max(d.entrees || 0, d.sorties || 0, d.resultat || 0)), 100);
+    const maxVal = Math.ceil(highestVal * 1.25 / 50) * 50 || 100;
+    const yGridLines = [maxVal, maxVal * 0.75, maxVal * 0.5, maxVal * 0.25, 0];
 
     // SVG Layout Config
     const chartWidth = 500;
@@ -34,8 +36,8 @@ function FinancialChart() {
     const graphHeight = chartHeight - paddingTop - paddingBottom;
 
     // Helper: Map data value to SVG Y coordinate
-    const getX = (index) => paddingLeft + (index / (chartData.length - 1)) * graphWidth;
-    const getY = (val) => paddingTop + graphHeight - (val / maxVal) * graphHeight;
+    const getX = (index) => paddingLeft + (index / Math.max(1, chartData.length - 1)) * graphWidth;
+    const getY = (val) => paddingTop + graphHeight - (Math.max(0, val || 0) / maxVal) * graphHeight;
 
     // Build line path
     let linePath = "";

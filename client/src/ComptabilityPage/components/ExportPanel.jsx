@@ -1,19 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Download, FileSpreadsheet, FileText, CalendarDays } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 function ExportPanel() {
-    const [startDate, setStartDate] = useState("2026-01-01");
-    const [endDate, setEndDate] = useState("2026-03-31");
-    const [exportType, setExportType] = useState("trimestriel");
+    const now = new Date();
+    const defaultStart = new Date(now.getFullYear(), 0, 1).toISOString().split("T")[0];
+    const defaultEnd = new Date(now.getFullYear(), 11, 31).toISOString().split("T")[0];
 
-    // Dynamic mock stats based on dates
-    const stats = {
-        invoicesCount: 15,
-        totalHT: 12400,
-        paidCount: 12,
-        pendingCount: 3
-    };
+    const [startDate, setStartDate] = useState(defaultStart);
+    const [endDate, setEndDate] = useState(defaultEnd);
+    const [exportType, setExportType] = useState("annuel");
+
+    // Real stats from database
+    const [stats, setStats] = useState({
+        invoicesCount: 0,
+        totalHT: 0,
+        paidCount: 0,
+        pendingCount: 0
+    });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const data = await apiFetch(`/v1/reports/revenue?startDate=${startDate}&endDate=${endDate}`);
+                if (data.data?.summary) {
+                    setStats({
+                        invoicesCount: data.data.summary.totalInvoices || 0,
+                        totalHT: data.data.summary.totalHT || 0,
+                        paidCount: data.data.monthly?.filter(m => m.paid > 0).reduce((acc, m) => acc + m.count, 0) || 0,
+                        pendingCount: Math.max(0, (data.data.summary.totalInvoices || 0) - (data.data.monthly?.filter(m => m.paid > 0).reduce((acc, m) => acc + m.count, 0) || 0))
+                    });
+                }
+            } catch (e) {
+                console.warn("Export stats error:", e);
+            }
+        };
+        fetchStats();
+    }, [startDate, endDate]);
 
     const handleExportExcel = async () => {
         try {

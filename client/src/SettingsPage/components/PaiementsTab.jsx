@@ -14,7 +14,10 @@ import {
     Percent,
     Landmark,
     Check,
-    Copy
+    Copy,
+    Calculator,
+    User,
+    Wallet
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { formatIBAN, formatBIC } from "../../utils/bankValidator";
@@ -54,6 +57,7 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
     const [onboardingLoading, setOnboardingLoading] = useState(false);
     const [syncingStripe, setSyncingStripe] = useState(false);
     const [ibanCopied, setIbanCopied] = useState(false);
+    const [simAmount, setSimAmount] = useState(1000);
 
     // Fetch payment settings and Stripe status
     const loadPaymentData = async () => {
@@ -147,6 +151,28 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
     };
 
     // Déconnexion de Stripe
+    // Simulation en mode test local
+    const handleSimulateTestOnboarding = async () => {
+        setOnboardingLoading(true);
+        try {
+            const res = await apiFetch("/v1/stripe/connect/test-simulate", { method: "POST" });
+            setStripeStatus({
+                stripeAccountId: res.data?.stripeAccountId || "acct_test_mock",
+                onboardingStatus: "COMPLETE",
+                chargesEnabled: true,
+                payoutsEnabled: true,
+                detailsSubmitted: true,
+                onlinePaymentEnabled: true
+            });
+            setStripePaymentEnabled(true);
+            triggerToast("Stripe Connect activé en mode Test ! Vous pouvez tester les paiements.");
+        } catch (err) {
+            triggerToast(err.message || "Erreur simulation", true);
+        } finally {
+            setOnboardingLoading(false);
+        }
+    };
+
     const handleDisconnectStripe = async () => {
         if (!window.confirm("Êtes-vous sûr de vouloir déconnecter votre compte Stripe ? Vos clients ne pourront plus payer en ligne.")) {
             return;
@@ -247,7 +273,7 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                             <CreditCard size={20} style={{ color: "var(--primary)" }} />
                             Méthodes de paiement acceptées sur les factures
                         </h3>
-                        <p style="color: var(--muted-foreground); font-size: 13px; margin: 4px 0 0 0;">
+                        <p style={{ color: "var(--muted-foreground)", fontSize: "13px", margin: "4px 0 0 0" }}>
                             Définissez les options de règlement proposées à vos clients par défaut.
                         </p>
                     </div>
@@ -520,33 +546,57 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                     {!isStripeComplete ? (
-                                        <button
-                                            type="button"
-                                            onClick={handleStartOnboarding}
-                                            disabled={onboardingLoading}
-                                            style={{
-                                                display: "inline-flex",
-                                                alignItems: "center",
-                                                gap: "8px",
-                                                padding: "10px 20px",
-                                                borderRadius: "8px",
-                                                backgroundColor: "#635BFF",
-                                                color: "#FFFFFF",
-                                                border: "none",
-                                                fontWeight: 600,
-                                                fontSize: "13.5px",
-                                                cursor: onboardingLoading ? "not-allowed" : "pointer",
-                                                boxShadow: "0 2px 8px rgba(99, 91, 255, 0.3)",
-                                                transition: "all 0.2s ease"
-                                            }}
-                                        >
-                                            {onboardingLoading ? (
-                                                <Loader2 size={16} className="animate-spin" />
-                                            ) : (
-                                                <ExternalLink size={16} />
-                                            )}
-                                            {isStripeInProgress ? "Continuer la configuration Stripe" : (isStripeRequiresInfo ? "Compléter les informations Stripe" : "Activer le paiement en ligne (Stripe)")}
-                                        </button>
+                                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                                            <button
+                                                type="button"
+                                                onClick={handleStartOnboarding}
+                                                disabled={onboardingLoading}
+                                                style={{
+                                                    display: "inline-flex",
+                                                    alignItems: "center",
+                                                    gap: "8px",
+                                                    padding: "10px 20px",
+                                                    borderRadius: "8px",
+                                                    backgroundColor: "#635BFF",
+                                                    color: "#FFFFFF",
+                                                    border: "none",
+                                                    fontWeight: 600,
+                                                    fontSize: "13.5px",
+                                                    cursor: onboardingLoading ? "not-allowed" : "pointer",
+                                                    boxShadow: "0 2px 8px rgba(99, 91, 255, 0.3)",
+                                                    transition: "all 0.2s ease"
+                                                }}
+                                            >
+                                                {onboardingLoading ? (
+                                                    <Loader2 size={16} className="animate-spin" />
+                                                ) : (
+                                                    <ExternalLink size={16} />
+                                                )}
+                                                {isStripeInProgress ? "Continuer la configuration Stripe" : (isStripeRequiresInfo ? "Compléter les informations Stripe" : "Activer le paiement en ligne (Stripe)")}
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={handleSimulateTestOnboarding}
+                                                disabled={onboardingLoading}
+                                                title="Activer directement en mode test sans attendre la validation de profil Stripe"
+                                                style={{
+                                                    display: "inline-flex",
+                                                    alignItems: "center",
+                                                    gap: "6px",
+                                                    padding: "10px 14px",
+                                                    borderRadius: "8px",
+                                                    backgroundColor: "var(--muted)",
+                                                    color: "var(--foreground)",
+                                                    border: "1px dashed var(--border)",
+                                                    fontWeight: 600,
+                                                    fontSize: "13px",
+                                                    cursor: onboardingLoading ? "not-allowed" : "pointer"
+                                                }}
+                                            >
+                                                ⚡ Simuler l'activation (Test Dev)
+                                            </button>
+                                        </div>
                                     ) : (
                                         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                                             <span style={{ fontSize: "13px", color: "var(--foreground)", fontFamily: "monospace" }}>
@@ -696,6 +746,137 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                         </div>
                     </div>
                 </div>
+
+                {/* ── SIMULATION INTERACTIVE DES FRAIS ── */}
+                {(() => {
+                    const numSim = Number(simAmount) || 0;
+                    const stripePercent = 0.015;
+                    const stripeFixed = 0.25;
+
+                    let clientPays = numSim;
+                    let stripeFee = 0;
+                    let companyReceives = numSim;
+
+                    if (numSim > 0) {
+                        if (stripeFeeBearer === "CLIENT") {
+                            clientPays = Math.round(((numSim + stripeFixed) / (1 - stripePercent)) * 100) / 100;
+                            stripeFee = Math.round((clientPays - numSim) * 100) / 100;
+                            companyReceives = numSim;
+                        } else {
+                            clientPays = numSim;
+                            stripeFee = Math.round(((numSim * stripePercent) + stripeFixed) * 100) / 100;
+                            companyReceives = Math.max(0, Math.round((numSim - stripeFee) * 100) / 100);
+                        }
+                    }
+
+                    return (
+                        <div style={{
+                            marginTop: "16px",
+                            backgroundColor: "var(--background)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "12px",
+                            padding: "16px 20px"
+                        }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", marginBottom: "14px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <Calculator size={16} style={{ color: "var(--primary)" }} />
+                                    <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--foreground)" }}>
+                                        Exemple de calcul en direct :
+                                    </span>
+                                    <span style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>
+                                        (Tarif indicatif carte UE : 1,5% + 0,25 €)
+                                    </span>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <span style={{ fontSize: "12.5px", color: "var(--muted-foreground)", fontWeight: 500 }}>Montant facture TTC :</span>
+                                    <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+                                        <input
+                                            type="number"
+                                            value={simAmount}
+                                            onChange={(e) => setSimAmount(e.target.value)}
+                                            min="1"
+                                            step="10"
+                                            style={{
+                                                width: "110px",
+                                                padding: "6px 24px 6px 10px",
+                                                borderRadius: "6px",
+                                                border: "1px solid var(--border)",
+                                                backgroundColor: "var(--card)",
+                                                color: "var(--foreground)",
+                                                fontWeight: 700,
+                                                fontSize: "13.5px",
+                                                textAlign: "right"
+                                            }}
+                                        />
+                                        <span style={{ position: "absolute", right: "8px", fontSize: "13px", color: "var(--muted-foreground)", pointerEvents: "none" }}>€</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Cartes de décomposition de l'exemple */}
+                            <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr 1fr", gap: "12px" }}>
+                                
+                                {/* Facture / Paiement Client */}
+                                <div style={{
+                                    backgroundColor: "var(--card)",
+                                    padding: "12px 14px",
+                                    borderRadius: "8px",
+                                    border: "1px solid var(--border)"
+                                }}>
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "var(--muted-foreground)", marginBottom: "4px" }}>
+                                        <User size={13} style={{ color: "var(--muted-foreground)" }} />
+                                        Le client paie
+                                    </span>
+                                    <div style={{ fontSize: "18px", fontWeight: 800, color: "var(--foreground)" }}>
+                                        {clientPays.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                                    </div>
+                                    <span style={{ fontSize: "11px", color: stripeFeeBearer === "CLIENT" ? "#F59E0B" : "var(--muted-foreground)" }}>
+                                        {stripeFeeBearer === "CLIENT" ? `(Facture ${numSim.toFixed(2)} € + ${stripeFee.toFixed(2)} € frais)` : "(Montant exact de la facture)"}
+                                    </span>
+                                </div>
+
+                                {/* Frais Stripe */}
+                                <div style={{
+                                    backgroundColor: "var(--card)",
+                                    padding: "12px 14px",
+                                    borderRadius: "8px",
+                                    border: "1px solid var(--border)"
+                                }}>
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "var(--muted-foreground)", marginBottom: "4px" }}>
+                                        <CreditCard size={13} style={{ color: "#635BFF" }} />
+                                        Frais Stripe prélevés
+                                    </span>
+                                    <div style={{ fontSize: "18px", fontWeight: 800, color: "#635BFF" }}>
+                                        {stripeFee.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                                    </div>
+                                    <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                                        {stripeFeeBearer === "CLIENT" ? "Pris en charge par le client" : "Déduits de votre versement"}
+                                    </span>
+                                </div>
+
+                                {/* Ce que reçoit l'entreprise */}
+                                <div style={{
+                                    backgroundColor: "rgba(85, 107, 47, 0.08)",
+                                    padding: "12px 14px",
+                                    borderRadius: "8px",
+                                    border: "1px solid rgba(85, 107, 47, 0.3)"
+                                }}>
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "var(--primary)", fontWeight: 600, marginBottom: "4px" }}>
+                                        <Building2 size={13} style={{ color: "var(--primary)" }} />
+                                        Vous percevez (Net)
+                                    </span>
+                                    <div style={{ fontSize: "18px", fontWeight: 800, color: "var(--primary)" }}>
+                                        {companyReceives.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                                    </div>
+                                    <span style={{ fontSize: "11px", color: stripeFeeBearer === "CLIENT" ? "var(--primary)" : "var(--muted-foreground)", fontWeight: stripeFeeBearer === "CLIENT" ? 600 : 400 }}>
+                                        {stripeFeeBearer === "CLIENT" ? "✓ 100% du montant de votre facture" : "Versé sur votre compte bancaire"}
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
 
             {/* ─────────────────────────────────────────────────────────────

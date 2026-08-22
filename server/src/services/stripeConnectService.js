@@ -132,9 +132,14 @@ export const getOrCreateConnectedAccount = async (companyId) => {
         throw new Error("Entreprise introuvable");
     }
 
-    // Si le compte existe déjà, on le retourne
+    // Si le compte existe déjà dans la base, on vérifie qu'il existe bien sur le compte Stripe actuel
     if (company.stripeAccountId) {
-        return company.stripeAccountId;
+        try {
+            await stripe.accounts.retrieve(company.stripeAccountId);
+            return company.stripeAccountId;
+        } catch (err) {
+            console.warn(`[STRIPE CONNECT] Compte existant ${company.stripeAccountId} invalide ou non lié à cette clé API Stripe. Recréation...`);
+        }
     }
 
     // Préparation des données avec prefill CRM
@@ -165,23 +170,56 @@ export const createAccountOnboardingLink = async (companyId, customReturnUrl, cu
         throw new Error("Stripe n'est pas configuré sur le serveur");
     }
 
-    const stripeAccountId = await getOrCreateConnectedAccount(companyId);
+    let stripeAccountId = await getOrCreateConnectedAccount(companyId);
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
     const returnUrl = customReturnUrl || process.env.STRIPE_CONNECT_CALLBACK_URL || `${frontendUrl}/settings?tab=paiements&stripe=success`;
     const refreshUrl = customRefreshUrl || `${frontendUrl}/settings?tab=paiements&stripe=refresh`;
 
-    const accountLink = await stripe.accountLinks.create({
-        account: stripeAccountId,
-        refresh_url: refreshUrl,
-        return_url: returnUrl,
-        type: "account_onboarding",
-    });
+    try {
+        const accountLink = await stripe.accountLinks.create({
+            account: stripeAccountId,
+            refresh_url: refreshUrl,
+            return_url: returnUrl,
+            type: "account_onboarding",
+        });
 
-    return {
-        url: accountLink.url,
-        stripeAccountId
-    };
+        return {
+            url: accountLink.url,
+            stripeAccountId
+        };
+    } catch (err) {
+        // En cas d'erreur de compte introuvable ou non connecté à la plateforme actuelle
+        if (err.message && (err.message.includes("not connected to your platform") || err.message.includes("does not exist") || err.code === "resource_missing")) {
+            console.warn(`[STRIPE CONNECT] Recréation immédiate suite à l'erreur: ${err.message}`);
+            // Nettoyage en base
+            await prisma.company.update({
+                where: { id: companyId },
+                data: {
+                    stripeAccountId: null,
+                    stripeOnboardingStatus: "NOT_STARTED",
+                    stripeChargesEnabled: false,
+                    stripePayoutsEnabled: false,
+                    stripeDetailsSubmitted: false,
+                    onlinePaymentEnabled: false,
+                    stripeAccountStatus: null
+                }
+            });
+            // Création d'un nouveau compte
+            stripeAccountId = await getOrCreateConnectedAccount(companyId);
+            const accountLink = await stripe.accountLinks.create({
+                account: stripeAccountId,
+                refresh_url: refreshUrl,
+                return_url: returnUrl,
+                type: "account_onboarding",
+            });
+            return {
+                url: accountLink.url,
+                stripeAccountId
+            };
+        }
+        throw err;
+    }
 };
 
 /**
@@ -225,7 +263,7 @@ export const syncAccountStatus = async (companyId) => {
 
         const isOnlinePaymentReady = chargesEnabled && detailsSubmitted;
 
-        const updated = await prisma.company.update({
+        await prisma.company.update({
             where: { id: companyId },
             data: {
                 stripeOnboardingStatus: onboardingStatus,
@@ -247,6 +285,28 @@ export const syncAccountStatus = async (companyId) => {
             requirements: account.requirements?.currently_due || []
         };
     } catch (error) {
+        if (error.message && (error.message.includes("not connected to your platform") || error.message.includes("does not exist") || error.code === "resource_missing")) {
+            console.warn(`[STRIPE CONNECT SYNC] Compte ${company.stripeAccountId} obsolète ou introuvable. Réinitialisation en base...`);
+            await prisma.company.update({
+                where: { id: companyId },
+                data: {
+                    stripeAccountId: null,
+                    stripeOnboardingStatus: "NOT_STARTED",
+                    stripeChargesEnabled: false,
+                    stripePayoutsEnabled: false,
+                    stripeDetailsSubmitted: false,
+                    onlinePaymentEnabled: false,
+                    stripeAccountStatus: null
+                }
+            });
+            return {
+                stripeAccountId: null,
+                status: "NOT_STARTED",
+                chargesEnabled: false,
+                payoutsEnabled: false,
+                detailsSubmitted: false
+            };
+        }
         console.error(`[STRIPE CONNECT SYNC ERROR] Account ${company.stripeAccountId}:`, error.message);
         throw error;
     }

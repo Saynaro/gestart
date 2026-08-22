@@ -711,3 +711,84 @@
         padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px)) 16px !important;
     }
 }
+
+/* ── TVA REGIME SWITCHER ── */
+.tva-regime-switcher-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.regime-switch-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--foreground);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.regime-switch-btn:hover {
+    border-color: #556B2F;
+    background: var(--muted);
+}
+
+.regime-switch-btn.active {
+    border-color: #556B2F;
+    background: rgba(85, 107, 47, 0.08);
+    box-shadow: 0 0 0 1px #556B2F;
+}
+
+.regime-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.regime-badge-recommended {
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 2px 7px;
+    background: #E8F5E9;
+    color: #2E7D32;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.regime-subtext {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+}
+
+.tva-regime-info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--muted);
+    border-radius: 8px;
+    border-left: 3px solid #556B2F;
+    margin-bottom: 1.25rem;
+    font-size: 0.82rem;
+    color: var(--muted-foreground);
+    line-height: 1.4;
+}
+
+.tva-regime-info-banner .info-icon-svg {
+    color: #556B2F;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+@media (max-width: 600px) {
+    .tva-regime-switcher-row {
+        grid-template-columns: 1fr;
+    }
+}

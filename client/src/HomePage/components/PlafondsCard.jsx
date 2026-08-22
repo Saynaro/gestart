@@ -74,11 +74,11 @@ function PlafondTooltip({ title, text, details }) {
 }
 
 function PlafondsCard({
-    commercialCurrent = 57,
+    commercialCurrent = 0,
     commercialMax = 203100,
     commercialTva = 85000,
     commercialTvaMax = 93500,
-    servicesCurrent = 95,
+    servicesCurrent = 0,
     servicesMax = 77700,
     servicesTva = 37500,
     servicesTvaMax = 41250

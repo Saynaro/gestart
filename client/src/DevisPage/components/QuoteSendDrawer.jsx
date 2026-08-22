@@ -128,7 +128,7 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                             </div>
                             <div style={{ flex: 1, textAlign: 'left' }}>
                                 <span className="dv-send-option-label">Envoyer automatiquement</span>
-                                <span className="dv-send-option-desc">E-mail certifié avec PDF + lien de signature & paiement</span>
+                                <span className="dv-send-option-desc">E-mail certifié avec PDF + lien de signature en ligne</span>
                             </div>
                         </button>
                     </div>
@@ -328,7 +328,7 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                             <ShieldCheck size={22} style={{ color: '#556B2F', flexShrink: 0, marginTop: '2px' }} />
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 700, color: '#556B2F' }}>
-                                    Envoi certifié avec signature & lien de paiement
+                                    Envoi certifié avec signature électronique
                                 </h4>
                                 <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: 'var(--foreground)', lineHeight: 1.45 }}>
                                     Le devis <strong>{docNumber}</strong> ({totalTtc} € TTC) sera envoyé par e-mail avec :
@@ -336,7 +336,6 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                                 <ul style={{ margin: '6px 0 0 0', paddingLeft: '18px', fontSize: '12px', color: 'var(--muted-foreground)', lineHeight: 1.45 }}>
                                     <li>Le devis officiel en fichier <strong>PDF attaché</strong>.</li>
                                     <li>Un lien sécurisé pour <strong>signer en ligne avec valeur légale</strong>.</li>
-                                    <li>Une <strong>option de règlement en ligne par carte bancaire (Stripe)</strong>.</li>
                                 </ul>
                             </div>
                         </div>

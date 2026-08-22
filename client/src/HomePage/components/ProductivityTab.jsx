@@ -2,16 +2,14 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 function ProductivityTab({
-    onCreateBoard = () => window.location.href = "/rapports"
+    trackingColumns = [
+        { label: "À faire", count: 0, percent: 0, colorClass: "bg-blue-light" },
+        { label: "En cours", count: 0, percent: 0, colorClass: "bg-orange" },
+        { label: "Terminé", count: 0, percent: 0, colorClass: "bg-green" }
+    ],
+    onCreateBoard = () => window.location.href = "/planning"
 }) {
     const navigate = useNavigate();
-
-    // Mock data for Tracking Board status
-    const trackingColumns = [
-        { label: "À faire", count: 3, percent: 30, colorClass: "bg-blue-light" },
-        { label: "En cours", count: 1, percent: 10, colorClass: "bg-orange" },
-        { label: "Terminé", count: 6, percent: 60, colorClass: "bg-green" }
-    ];
 
     return (
         <div className="productivity-tab-grid single-widget">

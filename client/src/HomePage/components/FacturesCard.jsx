@@ -62,18 +62,26 @@ function FacturesCard({
             <div className="card-list-body">
                 {activeCount > 0 ? (
                     <div className="dashboard-mini-list">
-                        {activeInvoices.map((inv) => (
-                            <div key={inv.id} className="dashboard-mini-list-item" onClick={() => navigate(`/factures?id=${inv.id}`)}>
-                                <div className="mini-item-left">
-                                    <div className="mini-item-primary">{inv.ref}</div>
-                                    <div className="mini-item-secondary">{inv.client}</div>
+                        {activeInvoices.map((inv) => {
+                            const refLabel = inv.ref || inv.number || "Facture";
+                            const clientLabel = inv.client || inv.clientName || "Client";
+                            const amountVal = Number(inv.amount || inv.totalTtc || 0);
+                            const dueDate = inv.dueAt || inv.due;
+                            const formattedDue = dueDate ? new Date(dueDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) : null;
+
+                            return (
+                                <div key={inv.id} className="dashboard-mini-list-item" onClick={() => navigate(`/factures?id=${inv.id}`)}>
+                                    <div className="mini-item-left">
+                                        <div className="mini-item-primary">{refLabel}</div>
+                                        <div className="mini-item-secondary">{clientLabel}</div>
+                                    </div>
+                                    <div className="mini-item-right">
+                                        <div className="mini-item-amount">{formatCurrency(amountVal)}</div>
+                                        <div className="mini-item-secondary">{formattedDue ? `Éch: ${formattedDue}` : "—"}</div>
+                                    </div>
                                 </div>
-                                <div className="mini-item-right">
-                                    <div className="mini-item-amount">{formatCurrency(inv.amount)}</div>
-                                    <div className="mini-item-secondary">Éch: {inv.due.substring(0, 5)}</div>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                         <div className="card-list-action-row">
                             <button className="btn-card-action" onClick={onCreateFacture}>
                                 Créer une facture

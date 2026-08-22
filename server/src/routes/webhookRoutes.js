@@ -3,6 +3,7 @@ import {
     handleStripeWebhook,
     handleStripeConnectWebhook,
     handleTwilioWebhook,
+    handleTwilioStatusWebhook,
     handleB2brouterWebhook
 } from "../controllers/webhookController.js";
 
@@ -14,8 +15,12 @@ router.post("/stripe", express.raw({ type: "application/json" }), handleStripeWe
 // Webhook Stripe Connect pour les paiements de factures clients
 router.post("/stripe-connect", express.raw({ type: "application/json" }), handleStripeConnectWebhook);
 
-// Webhook Twilio pour les SMS entrants (urlencoded ou json)
+// Webhooks Twilio pour les SMS entrants (support des deux formats: /sms et /twilio)
+router.post("/twilio/sms", express.urlencoded({ extended: true }), handleTwilioWebhook);
 router.post("/twilio", express.urlencoded({ extended: true }), handleTwilioWebhook);
+
+// Webhook Twilio pour les changements de statut d'envoi / livraison
+router.post("/twilio/status", express.urlencoded({ extended: true }), handleTwilioStatusWebhook);
 
 // Webhook B2Brouter pour la Facturation Électronique (JSON)
 router.post("/b2brouter", express.json(), handleB2brouterWebhook);

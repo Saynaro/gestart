@@ -176,6 +176,52 @@ export const updatePaymentSettings = async (req, res) => {
 };
 
 /**
+ * Simule l'activation réussie de Stripe Connect en mode développement / test
+ * POST /api/v1/stripe/connect/test-simulate
+ */
+export const simulateOnboardingForTest = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        const mockStripeId = `acct_test_${Date.now().toString(36)}`;
+
+        await prisma.company.update({
+            where: { id: companyId },
+            data: {
+                stripeAccountId: mockStripeId,
+                stripeOnboardingStatus: "COMPLETE",
+                stripeChargesEnabled: true,
+                stripePayoutsEnabled: true,
+                stripeDetailsSubmitted: true,
+                onlinePaymentEnabled: true,
+                stripeAccountStatus: "active",
+                stripeConnectedAt: new Date(),
+                settings: {
+                    upsert: {
+                        create: { stripePaymentEnabled: true },
+                        update: { stripePaymentEnabled: true }
+                    }
+                }
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Stripe Connect activé avec succès en mode Test !",
+            data: {
+                stripeAccountId: mockStripeId,
+                onboardingStatus: "COMPLETE",
+                chargesEnabled: true,
+                onlinePaymentEnabled: true
+            }
+        });
+    } catch (error) {
+        console.error("SIMULATE ONBOARDING ERROR:", error.message);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+/**
  * Déconnecte le compte Stripe Connect
  * DELETE /api/v1/stripe/connect
  */

@@ -24,12 +24,13 @@ function RevenueWidget({ startDate, endDate }) {
     }, [startDate, endDate]);
 
     // Compute totals
-    const totalHT = monthlyData.reduce((acc, curr) => acc + curr.caHT, 0);
-    const totalTTC = monthlyData.reduce((acc, curr) => acc + curr.caTTC, 0);
-    const totalPaid = monthlyData.reduce((acc, curr) => acc + curr.paid, 0);
-    const totalPending = totalTTC - totalPaid;
-    const totalInvoices = monthlyData.reduce((acc, curr) => acc + curr.count, 0);
-    const avgInvoice = totalHT / (totalInvoices || 1);
+    const totalHT = monthlyData.reduce((acc, curr) => acc + (curr.caHT || 0), 0);
+    const totalTTC = monthlyData.reduce((acc, curr) => acc + (curr.caTTC || 0), 0);
+    const totalPaid = monthlyData.reduce((acc, curr) => acc + (curr.paid || 0), 0);
+    const totalPending = Math.max(0, totalTTC - totalPaid);
+    const totalInvoices = monthlyData.reduce((acc, curr) => acc + (curr.count || 0), 0);
+    const avgInvoice = totalInvoices > 0 ? (totalHT / totalInvoices) : 0;
+    const paidRate = totalTTC > 0 ? ((totalPaid / totalTTC) * 100).toFixed(1) : "0.0";
 
     // SVG configuration
     const width = 600;
@@ -42,11 +43,11 @@ function RevenueWidget({ startDate, endDate }) {
     const graphWidth = width - paddingLeft - paddingRight;
     const graphHeight = height - paddingTop - paddingBottom;
 
-    const maxVal = Math.max(...monthlyData.map(d => d.caTTC)) * 1.15 || 40000;
+    const maxVal = Math.max(...monthlyData.map(d => d.caTTC || 0), 100) * 1.15;
     const yTicks = [0, maxVal * 0.25, maxVal * 0.5, maxVal * 0.75, maxVal];
 
-    const getX = (idx) => paddingLeft + (idx / (monthlyData.length - 1)) * graphWidth;
-    const getY = (val) => paddingTop + graphHeight - (val / maxVal) * graphHeight;
+    const getX = (idx) => paddingLeft + (idx / Math.max(1, monthlyData.length - 1)) * graphWidth;
+    const getY = (val) => paddingTop + graphHeight - (Math.max(0, val || 0) / maxVal) * graphHeight;
 
     // Line paths for "Paid" trend
     let linePath = "";
@@ -98,7 +99,7 @@ function RevenueWidget({ startDate, endDate }) {
                 <div className="kpi-card success-accent">
                     <span className="kpi-label">CA Encaissé</span>
                     <span className="kpi-value text-success">{totalPaid.toLocaleString("fr-FR")} €</span>
-                    <span className="kpi-subtext">Taux: {((totalPaid / totalTTC) * 100).toFixed(1)}%</span>
+                    <span className="kpi-subtext">Taux: {paidRate}%</span>
                 </div>
                 <div className="kpi-card warning-accent">
                     <span className="kpi-label">Restant dû (TTC)</span>
@@ -108,7 +109,7 @@ function RevenueWidget({ startDate, endDate }) {
                 <div className="kpi-card">
                     <span className="kpi-label">Facture Moyenne (HT)</span>
                     <span className="kpi-value">{avgInvoice.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} €</span>
-                    <span className="kpi-subtext">Sur {totalInvoices} factures</span>
+                    <span className="kpi-subtext">Sur {totalInvoices} facture{totalInvoices > 1 ? 's' : ''}</span>
                 </div>
             </div>
 
@@ -139,12 +140,12 @@ function RevenueWidget({ startDate, endDate }) {
                             <tbody>
                                 {monthlyData.map((d, i) => (
                                     <tr key={i}>
-                                        <td><strong>{d.period}</strong></td>
-                                        <td className="text-right">{d.count}</td>
-                                        <td className="text-right">{d.caHT.toLocaleString("fr-FR")} €</td>
-                                        <td className="text-right">{d.caTTC.toLocaleString("fr-FR")} €</td>
-                                        <td className="text-right text-success">{d.paid.toLocaleString("fr-FR")} €</td>
-                                        <td className="text-right text-warning">{(d.caTTC - d.paid).toLocaleString("fr-FR")} €</td>
+                                        <td><strong>{d.month || d.period || `Mois ${i + 1}`}</strong></td>
+                                        <td className="text-right">{d.count || 0}</td>
+                                        <td className="text-right">{(d.caHT || 0).toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right">{(d.caTTC || 0).toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right text-success">{(d.paid || 0).toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right text-warning">{((d.caTTC || 0) - (d.paid || 0)).toLocaleString("fr-FR")} €</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -200,7 +201,7 @@ function RevenueWidget({ startDate, endDate }) {
                                         textAnchor="middle"
                                         className="axis-label"
                                     >
-                                        {d.period.split(" ")[0]}
+                                        {String(d.month || d.period || '').split(" ")[0] || `M${idx + 1}`}
                                     </text>
                                 ))}
 
@@ -208,8 +209,9 @@ function RevenueWidget({ startDate, endDate }) {
                                 {monthlyData.map((d, idx) => {
                                     const barWidth = 24;
                                     const x = getX(idx) - barWidth / 2;
-                                    const y = getY(d.caTTC);
+                                    const y = getY(d.caTTC || 0);
                                     const barH = getY(0) - y;
+                                    const label = d.month || d.period || `Mois ${idx + 1}`;
                                     return (
                                         <rect
                                             key={`bar-ttc-${idx}`}
@@ -222,7 +224,7 @@ function RevenueWidget({ startDate, endDate }) {
                                             opacity="0.25"
                                             className="chart-bar"
                                         >
-                                            <title>{`${d.period}: CA TTC ${d.caTTC.toLocaleString("fr-FR")} €`}</title>
+                                            <title>{`${label}: CA TTC ${(d.caTTC || 0).toLocaleString("fr-FR")} €`}</title>
                                         </rect>
                                     );
                                 })}
@@ -231,8 +233,9 @@ function RevenueWidget({ startDate, endDate }) {
                                 {monthlyData.map((d, idx) => {
                                     const barWidth = 14;
                                     const x = getX(idx) - barWidth / 2;
-                                    const y = getY(d.paid);
+                                    const y = getY(d.paid || 0);
                                     const barH = getY(0) - y;
+                                    const label = d.month || d.period || `Mois ${idx + 1}`;
                                     return (
                                         <rect
                                             key={`bar-paid-${idx}`}
@@ -245,7 +248,7 @@ function RevenueWidget({ startDate, endDate }) {
                                             opacity="0.85"
                                             className="chart-bar"
                                         >
-                                            <title>{`${d.period}: Encaissé ${d.paid.toLocaleString("fr-FR")} €`}</title>
+                                            <title>{`${label}: Encaissé ${(d.paid || 0).toLocaleString("fr-FR")} €`}</title>
                                         </rect>
                                     );
                                 })}

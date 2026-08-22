@@ -9,21 +9,21 @@
     border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
-    padding: 16px 12px;
+    padding: 10px 10px;
     overflow: hidden;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed {
     width: 72px;
-    padding: 16px 8px 8px 8px;
+    padding: 10px 8px 8px 8px;
     overflow: visible;
 }
 
 .sidebar-top {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 4px;
     flex: 1;
     transition: gap 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -37,17 +37,17 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding: 0 4px 10px 4px;
+    padding: 0 4px 8px 4px;
     border-bottom: 1px solid var(--sidebar-border);
-    margin-bottom: 2px;
+    margin-bottom: 0px;
     transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .logo-container {
     position: relative;
-    height: 42px;
-    padding: 0 0 10px 0;
-    margin-bottom: 12px;
+    height: 38px;
+    padding: 0 0 8px 0;
+    margin-bottom: 8px;
     border-bottom: 1px solid var(--sidebar-border);
     display: flex;
     align-items: center;
@@ -57,7 +57,7 @@
 .sidebar.collapsed .logo-icon-bg {
     position: absolute;
     left: 50%;
-    top: calc(50% - 5px);
+    top: calc(50% - 4px);
     transform: translate(-50%, -50%);
     opacity: 1;
     pointer-events: auto;
@@ -67,7 +67,7 @@
 .sidebar.collapsed .sidebar-toggle-btn {
     position: absolute;
     left: 50%;
-    top: calc(50% - 5px);
+    top: calc(50% - 4px);
     transform: translate(-50%, -50%);
     opacity: 0;
     pointer-events: none;
@@ -87,8 +87,8 @@
 .logo-icon-bg {
     background-color: var(--sidebar-primary);
     color: var(--sidebar-primary-foreground);
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -97,13 +97,13 @@
 }
 
 .logo-snowflake {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 .logo-text {
     font-family: var(--font-heading);
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 800;
     color: var(--sidebar-foreground);
     letter-spacing: -0.03em;
@@ -128,20 +128,20 @@
 
 .sidebar.collapsed .sidebar-section+.sidebar-section {
     border-top: 1px solid var(--sidebar-border);
-    margin-top: 10px;
-    padding-top: 10px;
+    margin-top: 6px;
+    padding-top: 6px;
 }
 
 .section-title {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
     color: var(--muted-foreground);
     letter-spacing: 0.08em;
-    margin: 10px 0 4px 8px;
+    margin: 6px 0 2px 8px;
     text-transform: uppercase;
     transition: opacity 0.15s ease, height 0.15s ease, margin 0.15s ease;
     overflow: hidden;
-    height: 16px;
+    height: 14px;
 }
 
 .sidebar.collapsed .section-title {
@@ -162,7 +162,7 @@
 
 .menu-item {
     position: relative;
-    border-radius: 8px;
+    border-radius: 7px;
     overflow: hidden;
 }
 
@@ -173,22 +173,22 @@
 .menu-link {
     display: flex;
     align-items: center;
-    padding: 4px 8px 4px 10px;
-    height: 40px;
+    padding: 2px 8px 2px 8px;
+    height: 32px;
     color: var(--sidebar-foreground);
-    opacity: 0.8;
+    opacity: 0.82;
     text-decoration: none;
-    font-size: 14.5px;
+    font-size: 13.5px;
     font-weight: var(--font-weight-medium);
-    border-radius: 8px;
-    gap: 10px;
+    border-radius: 7px;
+    gap: 9px;
     transition: all 0.15s ease-in-out;
 }
 
 .sidebar.collapsed .menu-link {
     justify-content: center;
-    padding: 4px 0;
-    height: 42px;
+    padding: 2px 0;
+    height: 34px;
     gap: 0;
 }
 
@@ -322,9 +322,9 @@
 
 /* Bottom / User Section */
 .sidebar-bottom {
-    margin-top: 8px;
+    margin-top: 4px;
     border-top: 1px solid var(--sidebar-border);
-    padding-top: 8px;
+    padding-top: 6px;
     flex-shrink: 0;
 }
 
@@ -335,7 +335,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     cursor: pointer;
-    padding: 6px;
+    padding: 4px 6px;
     border-radius: 8px;
 }
 
@@ -345,16 +345,16 @@
 
 .sidebar.collapsed .user-profile {
     justify-content: center;
-    padding: 6px 0;
+    padding: 4px 0;
 }
 
 .avatar {
     background-color: var(--sidebar-primary);
     color: var(--sidebar-primary-foreground);
     font-weight: 600;
-    font-size: 13px;
-    width: 36px;
-    height: 36px;
+    font-size: 12px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;

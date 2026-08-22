@@ -784,9 +784,9 @@ export const sendInvoice = async (req, res) => {
         }
 
         const paymentUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/invoice/${token}`;
-        const recipientEmail = invoice.client?.email;
+        const targetEmail = req.body?.recipientEmail || req.body?.email || invoice.client?.email;
 
-        if (recipientEmail) {
+        if (targetEmail) {
             const companySettings = (typeof invoice.company?.settings === 'object' && invoice.company.settings) ? invoice.company.settings : {};
             const effectiveCustomization = {
                 ...(companySettings.documentCustomization || {}),
@@ -795,17 +795,21 @@ export const sendInvoice = async (req, res) => {
                 primaryColor: req.body?.primaryColor || req.body?.customization?.primaryColor || invoice.documentCustomization?.primaryColor || companySettings.documentCustomization?.primaryColor || companySettings.primaryColor || "#556B2F"
             };
 
-            const isStripeActive = Boolean(
-                (invoice.stripeEnabled || companySettings.stripePaymentEnabled || invoice.company?.onlinePaymentEnabled) &&
-                invoice.company?.stripeAccountId
-            );
+            const isStripeActive = req.body?.stripePaymentEnabled !== undefined
+                ? Boolean(req.body.stripePaymentEnabled)
+                : Boolean(
+                    (invoice.stripeEnabled || companySettings.stripePaymentEnabled || invoice.company?.onlinePaymentEnabled) &&
+                    invoice.company?.stripeAccountId
+                );
 
-            const isBankTransferActive = Boolean(
-                invoice.bankTransferEnabled ?? (companySettings.bankTransferEnabled ?? true)
-            );
+            const isBankTransferActive = req.body?.bankTransferEnabled !== undefined
+                ? Boolean(req.body.bankTransferEnabled)
+                : Boolean(
+                    invoice.bankTransferEnabled ?? (companySettings.bankTransferEnabled ?? true)
+                );
 
             await sendInvoiceClientEmail({
-                to: recipientEmail,
+                to: targetEmail,
                 invoice,
                 company: invoice.company,
                 paymentUrl,
@@ -826,7 +830,6 @@ export const sendInvoice = async (req, res) => {
             });
         }
 
-
         const newStatus = (invoice.status === "PAID") 
             ? "PAID" 
             : "SENT";
@@ -836,13 +839,13 @@ export const sendInvoice = async (req, res) => {
             data: {
                 status: newStatus,
                 emailSentAt: new Date(),
-                emailSentTo: recipientEmail || undefined,
+                emailSentTo: targetEmail || undefined,
             }
         });
 
         return res.status(200).json({
             success: true,
-            message: `Facture ${invoice.number} envoyée avec succès à ${recipientEmail || 'client'}`,
+            message: `Facture ${invoice.number} envoyée avec succès à ${targetEmail || 'client'}`,
             data: {
                 invoice: updatedInvoice,
                 paymentToken: token,

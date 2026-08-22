@@ -55,8 +55,10 @@ app.get("/health", (req, res) => {
     });
 });
 
-// Webhook Routes (Must be before express.json() if raw signature body is parsed inside webhook handler)
+// Webhook Routes (Supports /api/v1/webhooks, /api/webhooks, and /webhooks for Twilio / Stripe compatibility)
 app.use("/api/v1/webhooks", webhookRoutes);
+app.use("/api/webhooks", webhookRoutes);
+app.use("/webhooks", webhookRoutes);
 
 // Routes API V1
 app.use("/api/v1/auth", authRoutes);

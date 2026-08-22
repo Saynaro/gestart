@@ -1,66 +1,241 @@
 import { prisma } from "../config/db.js";
 
-////// REVENUE REPORT //////
+////// REVENUE & TVA REPORT //////
 export const getRevenueReport = async (req, res) => {
     const companyId = req.user.companyId;
-    const { from, to, groupBy = "month" } = req.query;
+    const { from, to, startDate, endDate, groupBy = "month", year = new Date().getFullYear() } = req.query;
 
-    const fromDate = from ? new Date(from) : new Date(new Date().getFullYear(), 0, 1);
-    const toDate = to ? new Date(to) : new Date();
+    const fromDate = (startDate || from) ? new Date(startDate || from) : new Date(new Date().getFullYear(), 0, 1);
+    const toDate = (endDate || to) ? new Date(endDate || to) : new Date();
+    // Inclusivité de la fin de journée
+    toDate.setHours(23, 59, 59, 999);
 
     try {
-        const invoices = await prisma.invoice.findMany({
-            where: {
-                companyId,
-                status: "PAID",
-                paidAt: {
-                    gte: fromDate,
-                    lte: toDate
+        const [invoicesInRange, allInvoicesThisYear, companySettings] = await Promise.all([
+            // Factures dans la plage demandée
+            prisma.invoice.findMany({
+                where: {
+                    companyId,
+                    status: { not: "CANCELLED" },
+                    createdAt: {
+                        gte: fromDate,
+                        lte: toDate
+                    }
+                },
+                include: {
+                    lines: true
+                },
+                orderBy: { createdAt: "asc" }
+            }),
+
+            // Toutes les factures de l'année pour le résumé TVA trimestriel
+            prisma.invoice.findMany({
+                where: {
+                    companyId,
+                    status: { not: "CANCELLED" },
+                    createdAt: {
+                        gte: new Date(Number(year), 0, 1),
+                        lte: new Date(Number(year), 11, 31, 23, 59, 59, 999)
+                    }
+                },
+                include: {
+                    lines: true
                 }
-            },
-            select: {
-                amountHT: true,
-                amountTTC: true,
-                paidAt: true
-            },
-            orderBy: { paidAt: "asc" }
-        });
+            }),
 
-        // Groupement par jour / semaine / mois
-        const revenueMap = {};
+            // Paramètres de l'entreprise (pour l'historique des déclarations de TVA)
+            prisma.companySettings.findUnique({
+                where: { companyId },
+                select: { documentCustomization: true }
+            })
+        ]);
 
-        invoices.forEach(inv => {
-            const date = new Date(inv.paidAt);
-            let key = date.toISOString().slice(0, 7); // "YYYY-MM" por défaut
+        // 1. Groupement mensuel pour les Rapports
+        const monthNames = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+        const monthlyMap = {};
 
-            if (groupBy === "day") {
-                key = date.toISOString().slice(0, 10); // "YYYY-MM-DD"
-            } else if (groupBy === "week") {
-                const year = date.getFullYear();
-                const firstDayOfYear = new Date(year, 0, 1);
-                const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-                const weekNum = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-                key = `${year}-W${String(weekNum).padStart(2, '0')}`;
+        invoicesInRange.forEach(inv => {
+            const date = new Date(inv.createdAt);
+            const mIdx = date.getMonth();
+            const key = `${monthNames[mIdx]} ${date.getFullYear()}`;
+
+            if (!monthlyMap[key]) {
+                monthlyMap[key] = {
+                    month: key,
+                    caHT: 0,
+                    caTTC: 0,
+                    paid: 0,
+                    count: 0
+                };
             }
 
-            if (!revenueMap[key]) {
-                revenueMap[key] = { period: key, amountHT: 0, amountTTC: 0, count: 0 };
+            monthlyMap[key].caHT += (inv.amountHT || 0);
+            monthlyMap[key].caTTC += (inv.amountTTC || 0);
+            if (inv.status === "PAID") {
+                monthlyMap[key].paid += (inv.amountTTC || 0);
             }
-
-            revenueMap[key].amountHT += inv.amountHT;
-            revenueMap[key].amountTTC += inv.amountTTC;
-            revenueMap[key].count += 1;
+            monthlyMap[key].count += 1;
         });
 
-        const chartData = Object.values(revenueMap);
-        const totalHT = chartData.reduce((acc, curr) => acc + curr.amountHT, 0);
-        const totalTTC = chartData.reduce((acc, curr) => acc + curr.amountTTC, 0);
+        const monthly = Object.values(monthlyMap);
+        const totalHT = invoicesInRange.reduce((acc, curr) => acc + (curr.amountHT || 0), 0);
+        const totalTTC = invoicesInRange.reduce((acc, curr) => acc + (curr.amountTTC || 0), 0);
+        const totalPaid = invoicesInRange.filter(inv => inv.status === "PAID").reduce((acc, curr) => acc + (curr.amountTTC || 0), 0);
+        const totalPending = totalTTC - totalPaid;
+        const totalInvoices = invoicesInRange.length;
+        const avgInvoice = totalInvoices > 0 ? (totalHT / totalInvoices) : 0;
+
+        // 2. Calcul TVA par trimestre (T1, T2, T3, T4) pour Comptabilité
+        const createEmptyQuarters = () => ({
+            T1: { base0: 0, tva0: 0, base5: 0, tva5: 0, base10: 0, tva10: 0, base20: 0, tva20: 0, totalBase: 0, totalTva: 0 },
+            T2: { base0: 0, tva0: 0, base5: 0, tva5: 0, base10: 0, tva10: 0, base20: 0, tva20: 0, totalBase: 0, totalTva: 0 },
+            T3: { base0: 0, tva0: 0, base5: 0, tva5: 0, base10: 0, tva10: 0, base20: 0, tva20: 0, totalBase: 0, totalTva: 0 },
+            T4: { base0: 0, tva0: 0, base5: 0, tva5: 0, base10: 0, tva10: 0, base20: 0, tva20: 0, totalBase: 0, totalTva: 0 }
+        });
+
+        const quartersEncaissements = createEmptyQuarters();
+        const quartersDebits = createEmptyQuarters();
+
+        const addInvoiceToQuarter = (inv, targetQuarters) => {
+            const date = new Date(inv.paidAt || inv.createdAt);
+            const m = date.getMonth();
+            const qKey = m <= 2 ? "T1" : m <= 5 ? "T2" : m <= 8 ? "T3" : "T4";
+            const targetQ = targetQuarters[qKey];
+
+            if (inv.lines && inv.lines.length > 0) {
+                inv.lines.forEach(line => {
+                    const rate = Number(line.tvaRate !== undefined ? line.tvaRate : (inv.tvaRate || 20));
+                    const bHT = Number(line.total !== undefined ? line.total : (line.unitPrice * line.quantity) || 0);
+                    const tva = (bHT * rate) / 100;
+
+                    if (rate === 0) {
+                        targetQ.base0 += bHT;
+                        targetQ.tva0 += tva;
+                    } else if (rate === 5.5) {
+                        targetQ.base5 += bHT;
+                        targetQ.tva5 += tva;
+                    } else if (rate === 10) {
+                        targetQ.base10 += bHT;
+                        targetQ.tva10 += tva;
+                    } else {
+                        targetQ.base20 += bHT;
+                        targetQ.tva20 += tva;
+                    }
+                    targetQ.totalBase += bHT;
+                    targetQ.totalTva += tva;
+                });
+            } else {
+                const rate = Number(inv.tvaRate || 20);
+                const bHT = Number(inv.amountHT || 0);
+                const tva = (bHT * rate) / 100;
+                if (rate === 0) {
+                    targetQ.base0 += bHT;
+                    targetQ.tva0 += tva;
+                } else if (rate === 5.5) {
+                    targetQ.base5 += bHT;
+                    targetQ.tva5 += tva;
+                } else if (rate === 10) {
+                    targetQ.base10 += bHT;
+                    targetQ.tva10 += tva;
+                } else {
+                    targetQ.base20 += bHT;
+                    targetQ.tva20 += tva;
+                }
+                targetQ.totalBase += bHT;
+                targetQ.totalTva += tva;
+            }
+        };
+
+        allInvoicesThisYear.forEach(inv => {
+            // Débits: toutes les factures émises (non brouillon)
+            if (inv.status !== "DRAFT") {
+                addInvoiceToQuarter(inv, quartersDebits);
+            }
+            // Encaissements: uniquement les factures payées
+            if (inv.status === "PAID") {
+                addInvoiceToQuarter(inv, quartersEncaissements);
+            }
+        });
+
+        // Arrondir toutes les valeurs TVA
+        const roundQuarters = (qObj) => {
+            Object.keys(qObj).forEach(q => {
+                Object.keys(qObj[q]).forEach(field => {
+                    qObj[q][field] = Math.round(qObj[q][field] * 100) / 100;
+                });
+            });
+        };
+
+        roundQuarters(quartersEncaissements);
+        roundQuarters(quartersEncaissements);
+        roundQuarters(quartersDebits);
+
+        const customObj = companySettings?.documentCustomization || {};
+        const declarations = customObj.tvaDeclarations || {};
+        const urssafDeclarations = customObj.urssafDeclarations || {};
+        const fiscalProfile = customObj.fiscalProfile || {
+            legalStatus: "MICRO",
+            activityType: "BIC",
+            urssafRate: 21.2,
+            hasAcre: false,
+            cfpRate: 0.3,
+            versementLiberatoire: false,
+            versementLiberatoireRate: 1.7,
+            isTvaAssujetti: false,
+            periodicity: "TRIMESTRIELLE"
+        };
+
+        const baseUrssafRate = Number(fiscalProfile.urssafRate || 21.2);
+        const effectiveUrssafRate = fiscalProfile.hasAcre ? Math.round((baseUrssafRate / 2) * 10) / 10 : baseUrssafRate;
+        const cfpRate = Number(fiscalProfile.cfpRate || 0.3);
+        const vlRate = fiscalProfile.versementLiberatoire ? Number(fiscalProfile.versementLiberatoireRate || 1.7) : 0;
+        const totalTaxRate = Math.round((effectiveUrssafRate + cfpRate + vlRate) * 10) / 10;
+
+        const quartersUrssaf = {};
+        ["T1", "T2", "T3", "T4"].forEach(q => {
+            const caHT = quartersEncaissements[q]?.totalBase || 0;
+            const urssafDue = Math.round(caHT * (effectiveUrssafRate / 100) * 100) / 100;
+            const cfpDue = Math.round(caHT * (cfpRate / 100) * 100) / 100;
+            const vlDue = Math.round(caHT * (vlRate / 100) * 100) / 100;
+            const totalCharges = Math.round((urssafDue + cfpDue + vlDue) * 100) / 100;
+            const netEnPoche = Math.round((caHT - totalCharges) * 100) / 100;
+            const netPercent = caHT > 0 ? Math.round((netEnPoche / caHT) * 1000) / 10 : 100;
+
+            quartersUrssaf[q] = {
+                caHT,
+                effectiveUrssafRate,
+                urssafDue,
+                cfpRate,
+                cfpDue,
+                vlRate,
+                vlDue,
+                totalTaxRate,
+                totalCharges,
+                netEnPoche,
+                netPercent
+            };
+        });
 
         return res.status(200).json({
             success: true,
             data: {
-                summary: { totalHT, totalTTC, totalInvoices: invoices.length },
-                chartData
+                summary: {
+                    totalHT: Math.round(totalHT * 100) / 100,
+                    totalTTC: Math.round(totalTTC * 100) / 100,
+                    totalPaid: Math.round(totalPaid * 100) / 100,
+                    totalPending: Math.round(totalPending * 100) / 100,
+                    totalInvoices,
+                    avgInvoice: Math.round(avgInvoice * 100) / 100
+                },
+                monthly,
+                chartData: monthly,
+                quarters: quartersEncaissements,
+                quartersEncaissements,
+                quartersDebits,
+                quartersUrssaf,
+                fiscalProfile,
+                declarations,
+                urssafDeclarations
             }
         });
     } catch (error) {
@@ -68,6 +243,104 @@ export const getRevenueReport = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la génération du rapport de chiffre d'affaires"
+        });
+    }
+};
+
+////// PERSISTER LE STATUT DÉCLARÉ DE TVA //////
+export const toggleTvaDeclaration = async (req, res) => {
+    const companyId = req.user.companyId;
+    const { year = "2026", quarter = "T1", declared = true } = req.body;
+
+    try {
+        const settings = await prisma.companySettings.findUnique({ where: { companyId } });
+        const existingCustom = settings?.documentCustomization || {};
+        const tvaDeclarations = existingCustom.tvaDeclarations ? { ...existingCustom.tvaDeclarations } : {};
+
+        const key = `${year}-${quarter}`;
+        if (declared) {
+            tvaDeclarations[key] = {
+                declared: true,
+                declaredAt: new Date().toISOString()
+            };
+        } else {
+            delete tvaDeclarations[key];
+        }
+
+        await prisma.companySettings.upsert({
+            where: { companyId },
+            update: {
+                documentCustomization: {
+                    ...existingCustom,
+                    tvaDeclarations
+                }
+            },
+            create: {
+                companyId,
+                documentCustomization: {
+                    tvaDeclarations
+                }
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            tvaDeclarations
+        });
+    } catch (error) {
+        console.error("TOGGLE TVA DECLARATION ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de l'enregistrement de la déclaration"
+        });
+    }
+};
+
+////// PERSISTER LE STATUT DÉCLARÉ URSSAF //////
+export const toggleUrssafDeclaration = async (req, res) => {
+    const companyId = req.user.companyId;
+    const { year = "2026", quarter = "T1", declared = true } = req.body;
+
+    try {
+        const settings = await prisma.companySettings.findUnique({ where: { companyId } });
+        const existingCustom = settings?.documentCustomization || {};
+        const urssafDeclarations = existingCustom.urssafDeclarations ? { ...existingCustom.urssafDeclarations } : {};
+
+        const key = `${year}-${quarter}`;
+        if (declared) {
+            urssafDeclarations[key] = {
+                declared: true,
+                declaredAt: new Date().toISOString()
+            };
+        } else {
+            delete urssafDeclarations[key];
+        }
+
+        await prisma.companySettings.upsert({
+            where: { companyId },
+            update: {
+                documentCustomization: {
+                    ...existingCustom,
+                    urssafDeclarations
+                }
+            },
+            create: {
+                companyId,
+                documentCustomization: {
+                    urssafDeclarations
+                }
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            urssafDeclarations
+        });
+    } catch (error) {
+        console.error("TOGGLE URSSAF DECLARATION ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de l'enregistrement de la déclaration URSSAF"
         });
     }
 };

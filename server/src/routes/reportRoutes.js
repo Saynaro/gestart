@@ -5,7 +5,9 @@ import {
     getTechniciansReport,
     getClientsReport,
     getMaintenanceReport,
-    getSmsReport
+    getSmsReport,
+    toggleTvaDeclaration,
+    toggleUrssafDeclaration
 } from "../controllers/reportController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -18,6 +20,8 @@ router.use(authMiddleware);
 
 // Rapports accessibles aux Managers et Owner
 router.get("/revenue", requireManager, getRevenueReport);
+router.post("/tva-declaration", requireManager, toggleTvaDeclaration);
+router.post("/urssaf-declaration", requireManager, toggleUrssafDeclaration);
 router.get("/interventions", requireManager, getInterventionsReport);
 router.get("/clients", requireManager, getClientsReport);
 router.get("/maintenance", requireManager, getMaintenanceReport);

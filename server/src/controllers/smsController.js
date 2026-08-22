@@ -1,53 +1,19 @@
 import { prisma } from "../config/db.js";
+import { TwilioSmsService } from "../services/messaging/sms/twilio.service.js";
+import { emitToCompany } from "../config/socket.js";
 
-// Helper pour incrémenter le compteur de SMS
-const incrementSmsCount = async (companyId, count = 1) => {
-    try {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const year = now.getFullYear();
-
-        // Mise à jour de la souscription
-        await prisma.subscription.update({
-            where: { companyId },
-            data: {
-                smsUsedThisMonth: { increment: count }
-            }
-        });
-
-        // Upsert de l'utilisation mensuelle dans SmsUsage
-        await prisma.smsUsage.upsert({
-            where: {
-                companyId_month_year: {
-                    companyId,
-                    month,
-                    year
-                }
-            },
-            update: {
-                count: { increment: count }
-            },
-            create: {
-                companyId,
-                month,
-                year,
-                count
-            }
-        });
-    } catch (error) {
-        console.error("INCREMENT SMS COUNT ERROR:", error.message);
-    }
-};
-
-////// GET CONVERSATIONS INBOX //////
+/**
+ * Récupère la liste des conversations SMS pour l'entreprise connectée
+ * GET /api/v1/sms/inbox
+ */
 export const getSmsInbox = async (req, res) => {
     const companyId = req.user.companyId;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 50;
     const skip = (page - 1) * limit;
 
     try {
-        // Récupérer les clients ayant un historique de messages avec leur dernier message
+        // Récupérer les clients ayant au moins un message SMS
         const clientsWithSms = await prisma.client.findMany({
             where: {
                 companyId,
@@ -63,6 +29,10 @@ export const getSmsInbox = async (req, res) => {
                 companyName: true,
                 phone: true,
                 email: true,
+                address: true,
+                city: true,
+                postalCode: true,
+                status: true,
                 smsLogs: {
                     take: 1,
                     orderBy: { createdAt: "desc" }
@@ -79,15 +49,25 @@ export const getSmsInbox = async (req, res) => {
         });
 
         const conversations = clientsWithSms.map(client => ({
+            id: client.id,
+            clientId: client.id,
+            name: `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || client.phone,
             client: {
                 id: client.id,
                 firstName: client.firstName,
                 lastName: client.lastName,
                 companyName: client.companyName,
                 phone: client.phone,
+                email: client.email,
+                address: client.address,
+                city: client.city,
+                postalCode: client.postalCode,
+                status: client.status
             },
             lastMessage: client.smsLogs[0] || null,
-            unreadCount: client._count.smsLogs
+            time: client.smsLogs[0]?.createdAt || client.updatedAt,
+            unreadCount: client._count.smsLogs,
+            channel: "SMS"
         }));
 
         return res.status(200).json({
@@ -103,12 +83,42 @@ export const getSmsInbox = async (req, res) => {
     }
 };
 
-////// GET SMS HISTORY WITH SPECIFIC CLIENT //////
+/**
+ * Récupère l'historique complet des messages SMS avec un client
+ * GET /api/v1/sms/inbox/:clientId
+ */
 export const getClientSmsHistory = async (req, res) => {
     const { clientId } = req.params;
     const companyId = req.user.companyId;
 
     try {
+        // Multi-tenant check: vérifier que le client appartient bien à l'entreprise
+        const client = await prisma.client.findFirst({
+            where: { id: clientId, companyId, isActive: true },
+            include: {
+                equipment: true,
+                interventions: {
+                    orderBy: { scheduledAt: "desc" },
+                    take: 5
+                },
+                invoices: {
+                    orderBy: { createdAt: "desc" },
+                    take: 5
+                },
+                quotes: {
+                    orderBy: { createdAt: "desc" },
+                    take: 5
+                }
+            }
+        });
+
+        if (!client) {
+            return res.status(404).json({
+                success: false,
+                message: "Client introuvable ou accès non autorisé"
+            });
+        }
+
         const messages = await prisma.smsLog.findMany({
             where: { clientId, companyId },
             orderBy: { createdAt: "asc" }
@@ -116,7 +126,10 @@ export const getClientSmsHistory = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            data: { messages }
+            data: {
+                client,
+                messages
+            }
         });
     } catch (error) {
         console.error("GET CLIENT SMS HISTORY ERROR:", error.message);
@@ -127,12 +140,16 @@ export const getClientSmsHistory = async (req, res) => {
     }
 };
 
-////// SEND SINGLE SMS //////
+/**
+ * Envoi d'un message SMS individuel via Twilio
+ * POST /api/v1/sms/send
+ */
 export const sendSms = async (req, res) => {
     const companyId = req.user.companyId;
-    const { clientId, message } = req.body;
+    const { clientId, message, body } = req.body;
+    const messageText = (message || body || "").trim();
 
-    if (!clientId || !message) {
+    if (!clientId || !messageText) {
         return res.status(400).json({
             success: false,
             message: "Veuillez fournir le destinataire (clientId) et le message"
@@ -140,94 +157,69 @@ export const sendSms = async (req, res) => {
     }
 
     try {
-        const client = await prisma.client.findFirst({
-            where: { id: clientId, companyId, isActive: true }
+        const smsLog = await TwilioSmsService.sendSms({
+            companyId,
+            clientId,
+            body: messageText,
+            autoType: "manual"
         });
-
-        if (!client) {
-            return res.status(404).json({
-                success: false,
-                message: "Client introuvable"
-            });
-        }
-
-        // Création du log de message
-        const smsLog = await prisma.smsLog.create({
-            data: {
-                companyId,
-                clientId,
-                direction: "OUTGOING",
-                channel: "SMS",
-                body: message.trim(),
-                toNumber: client.phone,
-                status: "sent",
-                isRead: true,
-                autoType: "manual"
-            }
-        });
-
-        // Incrémentation du compteur de SMS
-        await incrementSmsCount(companyId, 1);
 
         return res.status(201).json({
             success: true,
-            message: `SMS envoyé avec succès à ${client.phone}`,
+            message: `SMS envoyé avec succès`,
             data: { smsLog }
         });
     } catch (error) {
         console.error("SEND SMS ERROR:", error.message);
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
-            message: "Erreur serveur lors de l'envoi du SMS"
+            message: error.message || "Erreur lors de l'envoi du SMS"
         });
     }
 };
 
-////// SEND BULK SMS //////
+/**
+ * Envoi groupé de SMS à plusieurs clients
+ * POST /api/v1/sms/send-bulk
+ */
 export const sendBulkSms = async (req, res) => {
     const companyId = req.user.companyId;
-    const { clientIds = [], message } = req.body;
+    const { clientIds = [], message, body } = req.body;
+    const messageText = (message || body || "").trim();
 
-    if (!Array.isArray(clientIds) || clientIds.length === 0 || !message) {
+    if (!Array.isArray(clientIds) || clientIds.length === 0 || !messageText) {
         return res.status(400).json({
             success: false,
-            message: "Veuillez fournir une liste de clients (clientIds[]) et le message"
+            message: "Veuillez fournir une liste de clients (clientIds[]) et le texte du message"
         });
     }
 
     try {
-        const clients = await prisma.client.findMany({
-            where: {
-                id: { in: clientIds },
-                companyId,
-                isActive: true
+        const results = [];
+        const errors = [];
+
+        for (const clientId of clientIds) {
+            try {
+                const log = await TwilioSmsService.sendSms({
+                    companyId,
+                    clientId,
+                    body: messageText,
+                    autoType: "bulk"
+                });
+                results.push(log);
+            } catch (err) {
+                errors.push({ clientId, error: err.message });
             }
-        });
-
-        const logs = await prisma.$transaction(
-            clients.map(c =>
-                prisma.smsLog.create({
-                    data: {
-                        companyId,
-                        clientId: c.id,
-                        direction: "OUTGOING",
-                        channel: "SMS",
-                        body: message.trim(),
-                        toNumber: c.phone,
-                        status: "sent",
-                        isRead: true,
-                        autoType: "bulk"
-                    }
-                })
-            )
-        );
-
-        await incrementSmsCount(companyId, clients.length);
+        }
 
         return res.status(201).json({
             success: true,
-            message: `SMS envoyés avec succès à ${clients.length} clients`,
-            data: { count: logs.length }
+            message: `${results.length} SMS envoyés avec succès (${errors.length} échecs)`,
+            data: {
+                sentCount: results.length,
+                failedCount: errors.length,
+                errors
+            }
         });
     } catch (error) {
         console.error("SEND BULK SMS ERROR:", error.message);
@@ -238,7 +230,10 @@ export const sendBulkSms = async (req, res) => {
     }
 };
 
-////// MARK CLIENT SMS AS READ //////
+/**
+ * Marque les SMS d'un client comme lus
+ * PATCH /api/v1/sms/read/:clientId
+ */
 export const markSmsAsRead = async (req, res) => {
     const { clientId } = req.params;
     const companyId = req.user.companyId;
@@ -256,6 +251,12 @@ export const markSmsAsRead = async (req, res) => {
             }
         });
 
+        // Informer en temps réel pour mettre à jour les badges
+        emitToCompany(companyId, "message:read", {
+            clientId,
+            conversationId: clientId
+        });
+
         return res.status(200).json({
             success: true,
             message: "Messages marqués comme lus"
@@ -269,7 +270,10 @@ export const markSmsAsRead = async (req, res) => {
     }
 };
 
-////// GET SMS USAGE STATS //////
+/**
+ * Récupère les statistiques de consommation SMS
+ * GET /api/v1/sms/usage
+ */
 export const getSmsUsage = async (req, res) => {
     const companyId = req.user.companyId;
     const now = new Date();
@@ -316,7 +320,10 @@ export const getSmsUsage = async (req, res) => {
     }
 };
 
-////// GET UNREAD SMS COUNT //////
+/**
+ * Récupère le nombre total de messages non lus
+ * GET /api/v1/sms/unread-count
+ */
 export const getUnreadSmsCount = async (req, res) => {
     const companyId = req.user.companyId;
 

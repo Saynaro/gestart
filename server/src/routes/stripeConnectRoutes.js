@@ -5,7 +5,8 @@ import {
     syncStatus,
     updatePaymentSettings,
     disconnectAccount,
-    handleConnectCallback
+    handleConnectCallback,
+    simulateOnboardingForTest
 } from "../controllers/stripeConnectController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner } from "../middlewares/checkRole.js";
@@ -23,6 +24,7 @@ router.post("/connect/sync", syncStatus);
 
 // Actions d'administration réservées au propriétaire (OWNER)
 router.post("/connect/onboard", requireOwner, startOnboarding);
+router.post("/connect/test-simulate", requireOwner, simulateOnboardingForTest);
 router.put("/connect/settings", requireOwner, updatePaymentSettings);
 router.delete("/connect", requireOwner, disconnectAccount);
 

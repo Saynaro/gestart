@@ -9,12 +9,13 @@ import Header from "../components/Header";
 
 // Modular accounting components
 import TvaSummary from "./components/TvaSummary";
+import UrssafSummary from "./components/UrssafSummary";
 import ExportPanel from "./components/ExportPanel";
 import ExportHistory from "./components/ExportHistory";
 import AccountingIntegration from "./components/AccountingIntegration";
 
 // Icons
-import { ArrowLeft, Landmark, FileSpreadsheet, History, Link2 } from "lucide-react";
+import { ArrowLeft, Landmark, Calculator, FileSpreadsheet, History, Link2 } from "lucide-react";
 import { useSubscription } from "../utils/useSubscription";
 import FeatureLockBanner from "../components/FeatureLockBanner";
 
@@ -36,6 +37,7 @@ function ComptabilityPage() {
 
     const subTabs = [
         { id: "tva", label: "Résumé TVA", icon: Landmark },
+        { id: "urssaf", label: "Déclaration URSSAF & Net", icon: Calculator },
         { id: "export", label: "Export comptable", icon: FileSpreadsheet },
         { id: "history", label: "Historique exports", icon: History },
         { id: "integration", label: "Intégration comptable", icon: Link2 }
@@ -45,6 +47,8 @@ function ComptabilityPage() {
         switch (activeSubTab) {
             case "tva":
                 return <TvaSummary />;
+            case "urssaf":
+                return <UrssafSummary />;
             case "export":
                 return <ExportPanel />;
             case "history":
@@ -88,6 +92,7 @@ function ComptabilityPage() {
                         /* Mobile View: Scrollable vertical stack of all widgets */
                         <div className="mobile-comptability-stack">
                             <TvaSummary />
+                            <UrssafSummary />
                             <ExportPanel />
                             <ExportHistory />
                             <AccountingIntegration />

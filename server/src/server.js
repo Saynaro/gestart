@@ -1,32 +1,19 @@
 import { createServer } from "http";
-// import { Server } from "socket.io";
 import app from "./app.js";
 import { connectDB, disconnectDB } from "./config/db.js";
-
+import { initSocket } from "./config/socket.js";
 
 const PORT = process.env.PORT || 5001;
 
 const httpServer = createServer(app);
 
-// const httpServer = createServer(app);
-
-// const io = new Server(httpServer, {
-//     cors: {
-//         origin: [
-//             process.env.FRONTEND_URL,
-//             "http://localhost:5173",
-//             "http://localhost:5174"
-//         ].filter(Boolean),
-//         credentials: true,
-//     },
-// });
-
+// Initialisation de Socket.io pour les mises à jour temps réel (SMS, notifications, statuts)
+initSocket(httpServer);
 
 const startServer = async () => {
     try {
         await connectDB();
 
-        // httpServer instead of app.listen(PORT) to support socket.io
         const server = httpServer.listen(PORT, '0.0.0.0', () => {
             console.log(`Server is running on PORT: ${PORT} : http://localhost:${PORT}`);
         });

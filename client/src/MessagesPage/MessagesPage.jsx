@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -14,21 +14,22 @@ import {
   FileText,
   Mail,
   MapPin,
-  Edit3,
   Calendar,
   MessageSquare,
   Search,
-  Plus
+  Plus,
+  Check,
+  CheckCheck,
+  AlertCircle,
+  Clock,
+  Smartphone
 } from "lucide-react";
 import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { apiFetch } from "../utils/api";
-
-// Mock data matching screenshot exactly plus detailed client database matching CRM styles
-const mockChatsData = [];
-const crmContactsList = [];
+import { getSocket } from "../utils/socket";
 
 function MessagesPage() {
   const navigate = useNavigate();
@@ -36,140 +37,57 @@ function MessagesPage() {
   const [searchParams] = useSearchParams();
 
   const [chats, setChats] = useState([]);
+  const [selectedClientData, setSelectedClientData] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [detailTab, setDetailTab] = useState("interventions");
   const [activeCall, setActiveCall] = useState(null);
+  const [isLoadingChats, setIsLoadingChats] = useState(true);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState(null);
 
-  // Auto-open chat for client passed in navigation state
-  useEffect(() => {
-    if (location.state?.clientName || location.state?.clientId) {
-      const clientName = location.state.clientName || "Client";
-      const clientId = location.state.clientId;
-      const existingChat = chats.find(c =>
-        (clientId && c.clientInfo?.id === clientId) ||
-        (c.name && c.name.toLowerCase() === clientName.toLowerCase())
-      );
-
-      if (existingChat) {
-        navigate(`/messages?chat=${existingChat.id}`, { replace: true });
-      } else {
-        const newChatId = Date.now();
-        const newChat = {
-          id: newChatId,
-          name: clientName,
-          lastMessage: "Nouvelle discussion SMS",
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-          unread: 0,
-          online: true,
-          statusText: "En ligne",
-          clientInfo: {
-            id: clientId,
-            phone: location.state.phone || "",
-            email: location.state.email || "",
-            address: location.state.address || "",
-            type: "particulier",
-            equipment: null,
-            maintenance: { status: "OK", nextMaintenance: "N/A" },
-            interventions: [],
-            factures: [],
-            devis: []
-          },
-          messages: [
-            { id: 1, sender: "agent", text: "Bonjour, comment puis-je vous aider ?", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }
-          ]
-        };
-        setChats(prev => [newChat, ...prev]);
-        navigate(`/messages?chat=${newChatId}`, { replace: true });
-      }
-    }
-  }, [location.state]);
-
-  useEffect(() => {
-    const fetchSmsMessages = async () => {
-      try {
-        const data = await apiFetch('/v1/sms');
-        const smsList = data.data?.sms || data.sms || (Array.isArray(data) ? data : []);
-        if (smsList.length > 0) {
-          const mappedChats = smsList.map((item, idx) => ({
-            id: item.id || idx + 1,
-            name: item.client ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() : (item.recipient || "Client"),
-            lastMessage: item.message || "Message SMS",
-            time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
-            unread: 0,
-            online: true,
-            statusText: item.status || "Envoyé",
-            clientInfo: {
-              phone: item.recipient || item.client?.phone || "",
-              email: item.client?.email || "",
-              address: item.client?.address || "",
-              zip: item.client?.postalCode || "",
-              city: item.client?.city || "",
-              type: "particulier",
-              equipment: null
-            },
-            messages: [
-              { id: 1, sender: "me", text: item.message, time: item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "" }
-            ]
-          }));
-          setChats(mappedChats);
-        } else {
-          setChats([]);
-        }
-      } catch (err) {
-        console.warn("API SMS error:", err.message);
-        setChats([]);
-      }
-    };
-
-    fetchSmsMessages();
-  }, []);
-
-  // Custom dialog selectors
+  // Client Selection Modal
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
+  const [crmClientsList, setCrmClientsList] = useState([]);
   const [modalSearchTerm, setModalSearchTerm] = useState("");
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
+
+  // Actions Dropdown
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
 
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
 
+  const activeChatIdParam = searchParams.get("chat");
+  const isInfoParam = searchParams.get("info") === "true";
+
+  const messagesContainerRef = useRef(null);
+  const chatPaneRef = useRef(null);
+
+  // Resize listener
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // lock html + body scroll on mobile chat
+  // Lock scroll on mobile
   useEffect(() => {
     if (!isMobile) return;
-
     const html = document.documentElement;
     const body = document.body;
 
-    const lock = (el) => {
-      const prev = {
-        overflow: el.style.overflow,
-        position: el.style.position,
-        width: el.style.width,
-        height: el.style.height
-      };
-      el.style.overflow = 'hidden';
-      el.style.position = 'fixed';
-      el.style.width = '100%';
-      el.style.height = '100%';
-      return prev;
-    };
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
 
-    const prevHtml = lock(html);
-    const prevBody = lock(body);
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
 
     return () => {
-      Object.assign(html.style, prevHtml);
-      Object.assign(body.style, prevBody);
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
     };
   }, [isMobile]);
-
-
 
   // Dropdown menu click outside listener
   useEffect(() => {
@@ -178,226 +96,327 @@ function MessagesPage() {
     window.addEventListener("click", closeActionsMenu);
     return () => window.removeEventListener("click", closeActionsMenu);
   }, [isActionsMenuOpen]);
-  // Sync state routing parameters
-  const activeChatIdParam = searchParams.get("chat");
-  const isInfoParam = searchParams.get("info") === "true";
 
-  // Compute selected chat ID from URL
-  const selectedChatId = activeChatIdParam ? parseInt(activeChatIdParam, 10) : null;
-  const selectedChat = selectedChatId ? (chats.find(c => c.id === selectedChatId) || null) : null;
-  const messages = selectedChat ? (selectedChat.messages || []) : [];
+  // Format initials
+  const getInitials = (name) => {
+    if (!name) return "CL";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
 
-  const messagesContainerRef = React.useRef(null);
-  const chatPaneRef = React.useRef(null);
-  const messagesLength = messages.length;
+  // Format message time
+  const formatMsgTime = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+    } catch {
+      return "";
+    }
+  };
+
+  // Fetch Conversation List
+  const fetchConversations = useCallback(async () => {
+    try {
+      setIsLoadingChats(true);
+      const res = await apiFetch("/v1/sms/inbox");
+      const convList = res.data?.conversations || [];
+      setChats(convList);
+    } catch (err) {
+      console.warn("[MESSAGES] Erreur chargement boite SMS:", err.message);
+    } finally {
+      setIsLoadingChats(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // Scroll to bottom instantly when switching chats
+    fetchConversations();
+  }, [fetchConversations]);
+
+  // Load clients for the "New Message" selection modal
+  const fetchCrmClients = async () => {
+    try {
+      setIsLoadingClients(true);
+      const res = await apiFetch("/v1/clients?limit=100");
+      const list = res.data?.clients || [];
+      setCrmClientsList(list);
+    } catch (err) {
+      console.error("Erreur chargement clients:", err.message);
+    } finally {
+      setIsLoadingClients(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isClientModalOpen) {
+      fetchCrmClients();
+    }
+  }, [isClientModalOpen]);
+
+  // Load Messages for Active Conversation
+  useEffect(() => {
+    if (!activeChatIdParam) {
+      setSelectedClientData(null);
+      setMessages([]);
+      return;
+    }
+
+    const loadConversation = async () => {
+      setIsLoadingMessages(true);
+      setSendError(null);
+      try {
+        const res = await apiFetch(`/v1/sms/inbox/${activeChatIdParam}`);
+        if (res.success && res.data) {
+          setSelectedClientData(res.data.client);
+          setMessages(res.data.messages || []);
+
+          // Marquer comme lus
+          try {
+            await apiFetch(`/v1/sms/read/${activeChatIdParam}`, { method: "PATCH" });
+            setChats(prev => prev.map(c => (c.clientId === activeChatIdParam || c.id === activeChatIdParam) ? { ...c, unreadCount: 0 } : c));
+          } catch (e) {
+            console.warn("Erreur marquage lecture:", e.message);
+          }
+        }
+      } catch (err) {
+        console.error("Erreur chargement historique messages:", err.message);
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    };
+
+    loadConversation();
+  }, [activeChatIdParam]);
+
+  // Handle Navigation State auto-open (e.g. from Client profile page)
+  useEffect(() => {
+    if (location.state?.clientId) {
+      const targetClientId = location.state.clientId;
+      navigate(`/messages?chat=${targetClientId}`, { replace: true });
+    }
+  }, [location.state, navigate]);
+
+  // Real-time Socket.io events listener
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handleNewMessage = (payload) => {
+      console.log("[REALTIME] Nouveau SMS reçu:", payload);
+      const { clientId, message } = payload;
+
+      // 1. Si la conversation est ouverte, ajouter le message en direct
+      if (activeChatIdParam && (activeChatIdParam === clientId || activeChatIdParam === message?.clientId)) {
+        setMessages(prev => {
+          if (prev.some(m => m.id === message.id || (m.twilioSid && m.twilioSid === message.twilioSid))) {
+            return prev;
+          }
+          return [...prev, message];
+        });
+
+        // Marquer comme lu immédiatement si nous sommes sur cette conversation
+        if (message.direction === "INCOMING") {
+          apiFetch(`/v1/sms/read/${clientId}`, { method: "PATCH" }).catch(() => {});
+        }
+      }
+
+      // 2. Mettre à jour la liste des conversations
+      setChats(prev => {
+        const existingIndex = prev.findIndex(c => c.clientId === clientId || c.id === clientId);
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          const isCurrentlyActive = activeChatIdParam === clientId;
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            lastMessage: message,
+            time: message.createdAt,
+            unreadCount: isCurrentlyActive ? 0 : ((updated[existingIndex].unreadCount || 0) + (message.direction === "INCOMING" ? 1 : 0))
+          };
+          // Remonter la conversation en haut de liste
+          const item = updated.splice(existingIndex, 1)[0];
+          return [item, ...updated];
+        } else {
+          // Nouvelle conversation
+          fetchConversations();
+          return prev;
+        }
+      });
+    };
+
+    const handleStatusUpdate = (payload) => {
+      console.log("[REALTIME] Mise à jour statut SMS:", payload);
+      const { messageId, twilioSid, status } = payload;
+
+      setMessages(prev => prev.map(m => {
+        if (m.id === messageId || (twilioSid && m.twilioSid === twilioSid)) {
+          return { ...m, status };
+        }
+        return m;
+      }));
+    };
+
+    const handleReadUpdate = (payload) => {
+      const { clientId } = payload;
+      setChats(prev => prev.map(c => (c.clientId === clientId || c.id === clientId) ? { ...c, unreadCount: 0 } : c));
+    };
+
+    socket.on("message:new", handleNewMessage);
+    socket.on("message:status", handleStatusUpdate);
+    socket.on("message:read", handleReadUpdate);
+
+    return () => {
+      socket.off("message:new", handleNewMessage);
+      socket.off("message:status", handleStatusUpdate);
+      socket.off("message:read", handleReadUpdate);
+    };
+  }, [activeChatIdParam, fetchConversations]);
+
+  // Scroll to bottom on message update
+  useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
-  }, [selectedChatId]);
+  }, [messages.length, isLoadingMessages]);
 
-  useEffect(() => {
-    // Scroll to bottom smoothly when a new message is appended (sent/received)
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: "smooth"
+  // Send SMS Handler
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!inputText.trim() || !activeChatIdParam || isSending) return;
+
+    const messageText = inputText.trim();
+    setSendError(null);
+    setIsSending(true);
+
+    // Optimistic UI update
+    const tempId = `temp_${Date.now()}`;
+    const optimisticMsg = {
+      id: tempId,
+      clientId: activeChatIdParam,
+      direction: "OUTGOING",
+      channel: "SMS",
+      body: messageText,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      isRead: true
+    };
+
+    setMessages(prev => [...prev, optimisticMsg]);
+    setInputText("");
+
+    try {
+      const res = await apiFetch("/v1/sms/send", {
+        method: "POST",
+        body: JSON.stringify({
+          clientId: activeChatIdParam,
+          message: messageText
+        })
       });
+
+      if (res.success && res.data?.smsLog) {
+        const savedLog = res.data.smsLog;
+        setMessages(prev => prev.map(m => m.id === tempId ? savedLog : m));
+
+        // Mettre à jour la conversation dans la liste
+        setChats(prev => {
+          const idx = prev.findIndex(c => c.clientId === activeChatIdParam || c.id === activeChatIdParam);
+          if (idx >= 0) {
+            const copy = [...prev];
+            copy[idx] = {
+              ...copy[idx],
+              lastMessage: savedLog,
+              time: savedLog.createdAt
+            };
+            const item = copy.splice(idx, 1)[0];
+            return [item, ...copy];
+          }
+          return prev;
+        });
+      }
+    } catch (err) {
+      console.error("[SMS SEND ERROR]", err.message);
+      setSendError(err.message || "Impossible d'envoyer le SMS.");
+      // Marquer le message optimiste comme échoué
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, status: "failed" } : m));
+    } finally {
+      setIsSending(false);
     }
-  }, [messagesLength]);
+  };
 
-  // Cross-browser keyboard fix for iOS Safari + Chrome
-  // Adjusts the PARENT container height when keyboard opens
-  const initialViewportHeight = React.useRef(null);
+  const handleSelectChat = (clientId) => {
+    navigate(`/messages?chat=${clientId}`);
+  };
 
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const pageContent = document.querySelector('.messages-page-content');
-    if (!pageContent) return;
-
-    const scrollToBottom = () => {
-      if (messagesContainerRef.current) {
-        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-      }
-    };
-
-    const onViewportChange = () => {
-      const vv = window.visualViewport;
-      if (!vv) return;
-
-      if (initialViewportHeight.current === null) {
-        initialViewportHeight.current = vv.height;
-      }
-
-      const heightDiff = initialViewportHeight.current - vv.height;
-
-      if (heightDiff > 100) {
-        pageContent.style.height = `${vv.height}px`;
-      } else {
-        pageContent.style.height = '';
-      }
-
-      scrollToBottom();
-    };
-
-    const onFocusIn = (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        window.scrollTo(0, 0);
-        requestAnimationFrame(() => window.scrollTo(0, 0));
-        setTimeout(scrollToBottom, 300);
-      }
-    };
-    const vv = window.visualViewport;
-    if (vv) {
-      vv.addEventListener('resize', onViewportChange);
-      // vv.addEventListener('scroll', onViewportChange);
+  const toggleClientInfo = () => {
+    if (isInfoParam) {
+      navigate(`/messages?chat=${activeChatIdParam}`, { replace: true });
+    } else {
+      navigate(`/messages?chat=${activeChatIdParam}&info=true`);
     }
-    document.addEventListener('focusin', onFocusIn);
+  };
 
-    return () => {
-      if (vv) {
-        vv.removeEventListener('resize', onViewportChange);
-        // vv.removeEventListener('scroll', onViewportChange);
-      }
-      document.removeEventListener('focusin', onFocusIn);
-      pageContent.style.height = '';
-      pageContent.style.bottom = '';
-    };
-  }, [isMobile, selectedChatId]);
+  const handleBackToChats = () => {
+    navigate("/messages");
+  };
 
+  const handleBackToChatPane = () => {
+    navigate(`/messages?chat=${activeChatIdParam}`);
+  };
 
-  // Compute mobile sub-view layout based on parameters
+  const handleStartChatWithContact = (client) => {
+    navigate(`/messages?chat=${client.id}`);
+    setIsClientModalOpen(false);
+    setModalSearchTerm("");
+  };
+
+  const filteredContactsList = crmClientsList.filter(client => {
+    const fullName = `${client.firstName || ''} ${client.lastName || ''}`.toLowerCase();
+    const phone = (client.phone || "").toLowerCase();
+    const email = (client.email || "").toLowerCase();
+    const query = modalSearchTerm.toLowerCase();
+    return fullName.includes(query) || phone.includes(query) || email.includes(query);
+  });
+
+  // Mobile layout state
   let mobileView = "list";
   if (activeChatIdParam) {
     mobileView = isInfoParam ? "info" : "chat";
   }
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim() || !selectedChat) return;
+  // Active client object
+  const activeChat = chats.find(c => (c.clientId === activeChatIdParam || c.id === activeChatIdParam));
+  const clientObj = selectedClientData || activeChat?.client || {};
+  const activeClientName = `${clientObj.firstName || ''} ${clientObj.lastName || ''}`.trim() || clientObj.companyName || clientObj.phone || activeChat?.name || "Client";
 
-    const messageText = inputText.trim();
-    const newMsg = {
-      id: Date.now(),
-      sender: "agent",
-      text: messageText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-    };
-
-    setChats(prevChats => prevChats.map(c => {
-      if (c.id === selectedChat.id) {
-        return {
-          ...c,
-          lastMessage: messageText,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-          messages: [...(c.messages || []), newMsg]
-        };
-      }
-      return c;
-    }));
-
-    setInputText("");
-
-    try {
-      await apiFetch('/v1/sms/send', {
-        method: 'POST',
-        body: JSON.stringify({
-          recipient: selectedChat.clientInfo?.phone || "0600000000",
-          message: messageText
-        })
-      });
-    } catch (err) {
-      console.error("Send SMS API error:", err);
+  // Delivery status icon renderer
+  const renderStatusIcon = (status) => {
+    switch (status) {
+      case "delivered":
+        return <CheckCheck size={14} className="text-emerald-500 inline ml-1" title="Délivré sur le téléphone du client" />;
+      case "sent":
+        return <Check size={14} className="text-blue-400 inline ml-1" title="Envoyé via Twilio" />;
+      case "failed":
+      case "undelivered":
+        return <AlertCircle size={14} className="text-red-500 inline ml-1" title="Échec de distribution" />;
+      case "pending":
+      default:
+        return <Clock size={12} className="opacity-60 inline ml-1" title="En cours d'envoi" />;
     }
   };
 
-  const handleSelectChat = (chatId) => {
-    navigate(`/messages?chat=${chatId}`);
-  };
-
-  const toggleClientInfo = () => {
-    if (isInfoParam) {
-      navigate(`/messages?chat=${selectedChatId}`, { replace: true });
-    } else {
-      navigate(`/messages?chat=${selectedChatId}&info=true`);
-    }
-  };
-
-  const handleBackToChats = () => {
-    navigate(-1);
-  };
-
-  const handleBackToChatPane = () => {
-    navigate(-1);
-  };
-
-  const getInitials = (name) => {
-    return name.split(" ").map(n => n[0]).join("");
-  };
-
-  const handleStartChatWithContact = (contact) => {
-    const fullName = `${contact.firstName} ${contact.lastName}`;
-    const existingChat = chats.find(c => c.name.toLowerCase() === fullName.toLowerCase());
-
-    if (existingChat) {
-      navigate(`/messages?chat=${existingChat.id}`);
-    } else {
-      const newChatId = chats.length + 1;
-      const newChat = {
-        id: newChatId,
-        name: fullName,
-        lastMessage: "Discussion créée.",
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-        unread: 0,
-        online: true,
-        statusText: "En ligne",
-        clientInfo: {
-          phone: contact.phone,
-          email: contact.email,
-          address: contact.address,
-          zip: contact.zip,
-          city: contact.city,
-          type: "particulier",
-          equipment: { model: "Daikin 3.5kW Inverter", installDate: "18/07/2026", serialNumber: "DK-NEW-0001" },
-          maintenance: { status: "OK", nextMaintenance: "18/07/2029" },
-          interventions: [],
-          factures: [],
-          devis: []
-        },
-        messages: [
-          { id: 1, sender: "agent", text: "Bonjour, comment puis-je vous aider ?", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }
-        ]
-      };
-      setChats([newChat, ...chats]);
-      navigate(`/messages?chat=${newChatId}`);
-    }
-    setIsClientModalOpen(false);
-    setModalSearchTerm("");
-  };
-
-  const filteredContactsList = crmContactsList.filter(contact => {
-    const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
-    return fullName.includes(modalSearchTerm.toLowerCase()) ||
-      contact.email.toLowerCase().includes(modalSearchTerm.toLowerCase());
-  });
-
+  // Render Client Info Sidebar / Drawer
   const renderClientInfoContent = (client) => {
-    const info = client.clientInfo || {};
-    const equipment = info.equipment || { model: "N/A", installDate: "N/A", serialNumber: "N/A" };
-    const maintenance = info.maintenance || { status: "OK", nextMaintenance: "N/A" };
-    const interventions = info.interventions || [];
-    const factures = info.factures || [];
-    const devis = info.devis || [];
+    const equipmentList = client?.equipment || [];
+    const equipment = equipmentList[0] || { model: "Non renseigné", installDate: "N/A", serialNumber: "N/A" };
+    const interventions = client?.interventions || [];
+    const factures = client?.invoices || [];
+    const devis = client?.quotes || [];
 
     return (
       <div className="client-info-drawer-content">
         <div className="info-profile-section">
-          <div className="info-avatar">{getInitials(client.name)}</div>
-          <h3 className="info-name">{client.name}</h3>
-          <span className="info-badge">{info.type === "particulier" ? "Particulier" : "Professionnel"}</span>
+          <div className="info-avatar">{getInitials(activeClientName)}</div>
+          <h3 className="info-name">{activeClientName}</h3>
+          <span className="info-badge">{client?.companyName ? "Professionnel" : "Particulier"}</span>
         </div>
 
         <div className="info-divider"></div>
@@ -405,16 +424,24 @@ function MessagesPage() {
         <div className="info-details-list">
           <div className="info-row">
             <Phone size={15} className="info-row-icon" />
-            <span>{info.phone || "Non renseigné"}</span>
+            <span className="font-mono">{client?.phone || "Aucun numéro"}</span>
           </div>
           <div className="info-row">
             <Mail size={15} className="info-row-icon" />
-            <span>{info.email || "Non renseigné"}</span>
+            <span>{client?.email || "Non renseigné"}</span>
           </div>
           <div className="info-row">
             <MapPin size={15} className="info-row-icon" />
-            <span>{info.address ? `${info.address}, ${info.zip} ${info.city}` : "Non renseigné"}</span>
+            <span>{client?.address ? `${client.address}, ${client.postalCode || ''} ${client.city || ''}` : "Non renseigné"}</span>
           </div>
+        </div>
+
+        <div className="info-divider"></div>
+
+        <h4 className="info-section-title">CANAL PRINCIPAL</h4>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", background: "var(--accent)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 600 }}>
+          <Smartphone size={16} style={{ color: "var(--sidebar-primary)" }} />
+          <span>SMS Bidirectionnel Twilio</span>
         </div>
 
         <div className="info-divider"></div>
@@ -423,26 +450,12 @@ function MessagesPage() {
         <div className="info-equipment-card">
           <div className="equipment-item">
             <span className="eq-label">Modèle</span>
-            <span className="eq-val">{equipment.model}</span>
-          </div>
-          <div className="equipment-item">
-            <span className="eq-label">Installé le</span>
-            <span className="eq-val">{equipment.installDate}</span>
+            <span className="eq-val">{equipment.brand ? `${equipment.brand} ${equipment.model || ''}` : equipment.model || "Aucun équipement"}</span>
           </div>
           <div className="equipment-item">
             <span className="eq-label">N° de série</span>
-            <span className="eq-val font-mono">{equipment.serialNumber}</span>
+            <span className="eq-val font-mono">{equipment.serialNumber || "—"}</span>
           </div>
-        </div>
-
-        <div className="info-divider"></div>
-
-        <h4 className="info-section-title">MAINTENANCE</h4>
-        <div className="info-maintenance-card">
-          <span className={`maintenance-status-pill ${maintenance.status.toLowerCase()}`}>
-            {maintenance.status}
-          </span>
-          <span className="maintenance-next-date">Prochain: {maintenance.nextMaintenance}</span>
         </div>
 
         <div className="info-divider"></div>
@@ -468,11 +481,10 @@ function MessagesPage() {
                 interventions.map((item, idx) => (
                   <div key={idx} className="panel-item-card">
                     <div className="panel-item-header">
-                      <h5>{item.title}</h5>
-                      <span className="panel-item-date">{item.date}</span>
+                      <h5>{item.title || "Intervention"}</h5>
+                      <span className="panel-item-date">{item.scheduledAt ? new Date(item.scheduledAt).toLocaleDateString() : "—"}</span>
                     </div>
-                    <p className="panel-item-body">Tech: {item.tech} · <span className="status-badge-ok">{item.status}</span></p>
-                    <p className="panel-item-desc">"{item.desc}"</p>
+                    <p className="panel-item-body">Statut: <span className="status-badge-ok">{item.status}</span></p>
                   </div>
                 ))
               )}
@@ -487,10 +499,10 @@ function MessagesPage() {
                 factures.map((item, idx) => (
                   <div key={idx} className="panel-item-card text-xs">
                     <div className="panel-item-header">
-                      <h5>{item.id}</h5>
-                      <span className="panel-item-date">{item.date}</span>
+                      <h5>{item.number || "Facture"}</h5>
+                      <span className="panel-item-date">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "—"}</span>
                     </div>
-                    <p className="panel-item-body">Montant: <strong>{item.amount}</strong> · <span className="status-badge-ok">{item.status}</span></p>
+                    <p className="panel-item-body">Montant: <strong>{item.amountTTC ? `${item.amountTTC} €` : "—"}</strong> · <span className="status-badge-ok">{item.status}</span></p>
                   </div>
                 ))
               )}
@@ -505,10 +517,10 @@ function MessagesPage() {
                 devis.map((item, idx) => (
                   <div key={idx} className="panel-item-card text-xs">
                     <div className="panel-item-header">
-                      <h5>{item.id}</h5>
-                      <span className="panel-item-date">{item.date}</span>
+                      <h5>{item.number || "Devis"}</h5>
+                      <span className="panel-item-date">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "—"}</span>
                     </div>
-                    <p className="panel-item-body">Montant: <strong>{item.amount}</strong> · <span className="status-badge-ok">{item.status}</span></p>
+                    <p className="panel-item-body">Montant: <strong>{item.amountTTC ? `${item.amountTTC} €` : "—"}</strong> · <span className="status-badge-ok">{item.status}</span></p>
                   </div>
                 ))
               )}
@@ -519,63 +531,83 @@ function MessagesPage() {
     );
   };
 
+  // Render Conversation List (Left Sidebar)
   const renderChatList = () => (
     <div className="inbox-sidebar flex-shrink-0">
       <div className="inbox-header">
-        <h2>Chats</h2>
+        <h2>SMS & Chats</h2>
         <div className="inbox-actions">
-          <button className="inbox-action-icon" title="Nouveau message" onClick={() => setIsClientModalOpen(true)}>
+          <button
+            className="inbox-action-icon"
+            title="Nouveau SMS"
+            onClick={() => setIsClientModalOpen(true)}
+            style={{ backgroundColor: "var(--sidebar-primary)", color: "#fff" }}
+          >
             <Plus size={18} />
           </button>
         </div>
       </div>
+
       <div className="chat-list">
-        {chats.length === 0 ? (
+        {isLoadingChats ? (
+          <div style={{ padding: "30px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
+            <p className="text-sm">Chargement des conversations...</p>
+          </div>
+        ) : chats.length === 0 ? (
           <div style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", color: "var(--muted-foreground)", width: "100%", boxSizing: "border-box" }}>
             <MessageSquare size={36} style={{ opacity: 0.4, margin: "0 auto 12px auto", display: "block" }} />
-            <p style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--foreground)", marginBottom: "4px" }}>
-              Vous n'avez pas encore de messages
+            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
+              Aucun échange SMS pour le moment
             </p>
-            <p style={{ fontSize: "0.8rem", marginBottom: "16px" }}>
-              Contactez vos clients ou envoyez des SMS directement.
+            <p style={{ fontSize: "0.8rem", marginBottom: "16px", lineHeight: "1.4" }}>
+              Envoyez un premier SMS à un client. Ses réponses apparaîtront ici en temps réel.
             </p>
             <button
-              onClick={() => navigate("/client")}
+              onClick={() => setIsClientModalOpen(true)}
               style={{
                 padding: "8px 16px",
                 backgroundColor: "var(--sidebar-primary)",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "8px",
-                fontSize: "0.8rem",
+                fontSize: "0.85rem",
                 fontWeight: 600,
-                cursor: "pointer"
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px"
               }}
             >
-              Voir mes clients
+              <Plus size={16} /> Nouveau SMS
             </button>
           </div>
         ) : (
           chats.map((chat) => {
-            const isActive = activeChatIdParam ? (selectedChatId === chat.id) : false;
+            const isSelected = activeChatIdParam === (chat.clientId || chat.id);
+            const previewText = chat.lastMessage?.body || "Discussion SMS";
+            const msgTime = formatMsgTime(chat.lastMessage?.createdAt || chat.time);
+
             return (
               <div
-                key={chat.id}
-                className={`chat-item ${isActive ? "active" : ""}`}
-                onClick={() => handleSelectChat(chat.id)}
+                key={chat.clientId || chat.id}
+                className={`chat-item ${isSelected ? "active" : ""}`}
+                onClick={() => handleSelectChat(chat.clientId || chat.id)}
               >
                 <div className="chat-avatar-wrapper">
                   <div className="chat-avatar">{getInitials(chat.name)}</div>
-                  {chat.online && <span className="online-indicator"></span>}
+                  <span className="online-indicator" title="En ligne"></span>
                 </div>
                 <div className="chat-meta">
                   <div className="chat-meta-row">
                     <span className="chat-name">{chat.name}</span>
-                    <span className="chat-time">{chat.time}</span>
+                    <span className="chat-time">{msgTime}</span>
                   </div>
-                  <div className="chat-preview-row">
-                    <p className="chat-preview">{chat.lastMessage}</p>
-                    {chat.unread > 0 && <span className="chat-unread-badge">{chat.unread}</span>}
+                  <div className="chat-preview-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: "0.65rem", padding: "1px 4px", borderRadius: "4px", backgroundColor: "rgba(95, 75, 219, 0.12)", color: "var(--sidebar-primary)", fontWeight: 700 }}>SMS</span>
+                      <p className="chat-preview" style={{ margin: 0 }}>{previewText}</p>
+                    </div>
+                    {chat.unreadCount > 0 && <span className="chat-unread-badge">{chat.unreadCount}</span>}
                   </div>
                 </div>
               </div>
@@ -586,30 +618,25 @@ function MessagesPage() {
     </div>
   );
 
+  // Render Chat Pane (Active Conversation)
   const renderChatPane = () => (
     <div className="chat-pane flex-1" ref={chatPaneRef}>
-
-      {/* Mobile header – rendered through a portal directly into the body,
-        so that position:fixed works relative to the window,
-        not relative to the animated motion.div */}
-      {isMobile && selectedChat && createPortal(
+      {/* Mobile Header via Portal */}
+      {isMobile && selectedClientData && createPortal(
         <div className="chat-pane-header">
           <button className="chat-back-btn" onClick={handleBackToChats}>
             <ArrowLeft size={20} />
           </button>
           <div className="chat-header-user-clickable" onClick={toggleClientInfo}>
-            <div className="active-chat-avatar">{getInitials(selectedChat.name)}</div>
+            <div className="active-chat-avatar">{getInitials(activeClientName)}</div>
             <div className="active-chat-info">
-              <h3>{selectedChat.name}</h3>
-              <span className="active-chat-status">{selectedChat.statusText}</span>
+              <h3>{activeClientName}</h3>
+              <span className="active-chat-status font-mono text-xs">{clientObj.phone || "Canal SMS"}</span>
             </div>
           </div>
           <div className="chat-pane-header-actions">
-            <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: selectedChat.name })}>
+            <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: activeClientName })}>
               <Phone size={17} />
-            </button>
-            <button className="pane-header-action-btn" title="Appel Vidéo" onClick={() => setActiveCall({ type: "video", contactName: selectedChat.name })}>
-              <Video size={18} />
             </button>
             <div className="pane-header-action-btn-wrapper" style={{ position: "relative" }}>
               <button
@@ -628,18 +655,13 @@ function MessagesPage() {
                     <Mail size={14} className="dropdown-action-icon" />
                     <span>Détails Client</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/planning', { state: { clientName: selectedChat.name } }); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/planning', { state: { clientName: activeClientName } }); }}>
                     <Calendar size={14} className="dropdown-action-icon" />
-                    <span>Planifier</span>
+                    <span>Planifier intervention</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/factures', { state: { clientName: selectedChat.name, openNewModal: true } }); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/factures', { state: { clientName: activeClientName, openNewModal: true } }); }}>
                     <FileText size={14} className="dropdown-action-icon" />
                     <span>Créer facture</span>
-                  </button>
-                  <div className="chat-action-divider"></div>
-                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); navigate('/messages'); }}>
-                    <X size={14} className="dropdown-action-icon" />
-                    <span>Archiver chat</span>
                   </button>
                 </div>
               )}
@@ -649,22 +671,24 @@ function MessagesPage() {
         document.body
       )}
 
-      {/* Десктопная шапка — рендерится как обычно, в потоке */}
+      {/* Desktop Header */}
       {!isMobile && (
         <div className="chat-pane-header">
           <div className="chat-header-user-clickable" onClick={toggleClientInfo}>
-            <div className="active-chat-avatar">{getInitials(selectedChat.name)}</div>
+            <div className="active-chat-avatar">{getInitials(activeClientName)}</div>
             <div className="active-chat-info">
-              <h3>{selectedChat.name}</h3>
-              <span className="active-chat-status">{selectedChat.statusText}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <h3>{activeClientName}</h3>
+                <span style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: "4px", backgroundColor: "rgba(95, 75, 219, 0.12)", color: "var(--sidebar-primary)", fontWeight: 700 }}>
+                  SMS Twilio
+                </span>
+              </div>
+              <span className="active-chat-status font-mono">{clientObj.phone || "Téléphone non renseigné"}</span>
             </div>
           </div>
           <div className="chat-pane-header-actions">
-            <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: selectedChat.name })}>
+            <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: activeClientName })}>
               <Phone size={17} />
-            </button>
-            <button className="pane-header-action-btn" title="Appel Vidéo" onClick={() => setActiveCall({ type: "video", contactName: selectedChat.name })}>
-              <Video size={18} />
             </button>
             <div className="pane-header-action-btn-wrapper" style={{ position: "relative" }}>
               <button
@@ -683,18 +707,13 @@ function MessagesPage() {
                     <Mail size={14} className="dropdown-action-icon" />
                     <span>Détails Client</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/planning', { state: { clientName: selectedChat.name } }); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/planning', { state: { clientName: activeClientName } }); }}>
                     <Calendar size={14} className="dropdown-action-icon" />
                     <span>Planifier</span>
                   </button>
-                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/factures', { state: { clientName: selectedChat.name, openNewModal: true } }); }}>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); navigate('/factures', { state: { clientName: activeClientName, openNewModal: true } }); }}>
                     <FileText size={14} className="dropdown-action-icon" />
                     <span>Créer facture</span>
-                  </button>
-                  <div className="chat-action-divider"></div>
-                  <button type="button" className="chat-action-item danger" onClick={() => { setIsActionsMenuOpen(false); setChats(prev => prev.filter(c => c.id !== selectedChat.id)); navigate('/messages'); }}>
-                    <X size={14} className="dropdown-action-icon" />
-                    <span>Archiver chat</span>
                   </button>
                 </div>
               )}
@@ -703,61 +722,89 @@ function MessagesPage() {
         </div>
       )}
 
+      {/* Messages Scroll Area */}
       <div className="chat-messages-container" ref={messagesContainerRef}>
-        {messages.map((msg) => {
-          const isMe = msg.sender === "agent";
-          if (msg.isFile) {
+        {isLoadingMessages ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--muted-foreground)" }}>
+            <p className="text-sm">Chargement des messages...</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--muted-foreground)", textAlign: "center" }}>
+            <Smartphone size={40} className="mb-2 opacity-40" />
+            <p style={{ fontWeight: 600, color: "var(--foreground)" }}>Début de la conversation SMS</p>
+            <p className="text-xs max-w-xs mt-1">
+              Les messages envoyés ici seront reçus directement comme SMS standard sur le téléphone du client ({clientObj.phone || "mobile"}).
+            </p>
+          </div>
+        ) : (
+          messages.map((msg) => {
+            const isMe = msg.direction === "OUTGOING" || msg.sender === "agent" || msg.sender === "me";
+            const timeStr = formatMsgTime(msg.createdAt || msg.time);
+
             return (
-              <div key={msg.id} className="message-bubble-wrapper them">
-                <div className="file-attachment-bubble">
-                  <div className="file-icon-box">
-                    <FileText size={20} />
+              <div key={msg.id} className={`message-bubble-wrapper ${isMe ? "me" : "them"}`}>
+                <div className="message-bubble">
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
+                    <span style={{ fontSize: "0.65rem", textTransform: "uppercase", opacity: 0.75, fontWeight: 700 }}>
+                      {isMe ? "CRM (Vous)" : activeClientName} · SMS
+                    </span>
                   </div>
-                  <div className="file-info-box">
-                    <span className="file-name">{msg.fileName}</span>
-                    <span className="file-size">{msg.fileSize}</span>
+                  <p className="message-text">{msg.body || msg.text}</p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px" }}>
+                    <span className="message-time">{timeStr}</span>
+                    {isMe && renderStatusIcon(msg.status)}
                   </div>
-                  <span className="file-time">{msg.time}</span>
                 </div>
               </div>
             );
-          }
-          return (
-            <div key={msg.id} className={`message-bubble-wrapper ${isMe ? "me" : "them"}`}>
-              <div className="message-bubble">
-                <p className="message-text">{msg.text}</p>
-                <span className="message-time">{msg.time}</span>
-              </div>
-            </div>
-          );
-        })}
+          })
+        )}
       </div>
 
+      {/* Send Error Notice */}
+      {sendError && (
+        <div style={{ padding: "8px 24px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", fontSize: "0.85rem", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(239, 68, 68, 0.2)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <AlertCircle size={15} />
+            <span>{sendError}</span>
+          </div>
+          <button onClick={() => setSendError(null)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Input Form */}
       <form className="chat-input-form" onSubmit={handleSendMessage}>
-        <button type="button" className="chat-form-action-btn" title="Joindre un fichier">
-          <Paperclip size={18} />
-        </button>
-        <div className="input-wrapper">
+        <div className="input-wrapper" style={{ position: "relative" }}>
           <input
             type="text"
-            placeholder="Write a message..."
+            placeholder={clientObj.phone ? `Envoyer un SMS à ${clientObj.phone}...` : "Écrire un SMS au client..."}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             className="chat-input"
+            disabled={isSending}
           />
-          <button type="button" className="chat-emoji-btn" title="Emojis">
-            <Smile size={18} />
-          </button>
+          <span style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", fontSize: "0.7rem", color: "var(--muted-foreground)", fontWeight: 600, pointerEvents: "none" }}>
+            Canal: SMS
+          </span>
         </div>
-        <button type="submit" className="chat-send-btn" title="Envoyer">
+        <button
+          type="submit"
+          className="chat-send-btn"
+          title="Envoyer le SMS"
+          disabled={!inputText.trim() || isSending}
+          style={{ opacity: (!inputText.trim() || isSending) ? 0.6 : 1 }}
+        >
           <Send size={16} />
         </button>
       </form>
     </div>
   );
+
   return (
     <div className={`home-page ${isMobile ? `mobile-view-${mobileView}` : ""}`}>
-      {/* Sidebar - hides on mobile active panes */}
+      {/* Sidebar */}
       {(!isMobile || (isMobile && mobileView === "list")) && <SideBar />}
 
       <div className="main-content">
@@ -770,22 +817,39 @@ function MessagesPage() {
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="messaging-container">
-
-            {/* Desktop View layout: 3 panes layout side-by-side */}
+            {/* Desktop View Layout */}
             {!isMobile && (
               <>
                 {renderChatList()}
-                {selectedChat ? renderChatPane() : (
+                {activeChatIdParam ? renderChatPane() : (
                   <div className="chat-pane-placeholder flex-1 flex flex-col items-center justify-center bg-card text-muted-foreground p-8 text-center" style={{ borderRight: "1px solid var(--border)" }}>
                     <MessageSquare size={48} className="mb-4 opacity-40" />
                     <h3 className="text-lg font-semibold text-foreground mb-2">Aucune discussion sélectionnée</h3>
-                    <p className="text-sm max-w-sm">Choisissez un contact dans la liste à gauche pour commencer la discussion.</p>
+                    <p className="text-sm max-w-sm mb-4">Choisissez un contact dans la liste à gauche ou cliquez sur Nouveau SMS pour démarrer une conversation.</p>
+                    <button
+                      onClick={() => setIsClientModalOpen(true)}
+                      style={{
+                        padding: "8px 16px",
+                        backgroundColor: "var(--sidebar-primary)",
+                        color: "#ffffff",
+                        border: "none",
+                        borderRadius: "8px",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                      }}
+                    >
+                      <Plus size={16} /> Démarrer un SMS
+                    </button>
                   </div>
                 )}
 
-                {/* Desktop Slide-out Side Drawer for client details */}
+                {/* Desktop Slide-out Client Info Drawer */}
                 <AnimatePresence>
-                  {isInfoParam && selectedChat && (
+                  {isInfoParam && activeChatIdParam && (
                     <motion.div
                       className="client-info-drawer-pane"
                       initial={{ width: 0, opacity: 0 }}
@@ -794,12 +858,12 @@ function MessagesPage() {
                       transition={{ type: "spring", bounce: 0, duration: 0.35 }}
                     >
                       <div className="drawer-header">
-                        <h4>Client Info</h4>
-                        <button className="drawer-close-btn" onClick={() => navigate(`/messages?chat=${selectedChatId}`, { replace: true })}>
+                        <h4>Détails Client</h4>
+                        <button className="drawer-close-btn" onClick={() => navigate(`/messages?chat=${activeChatIdParam}`, { replace: true })}>
                           <X size={18} />
                         </button>
                       </div>
-                      {renderClientInfoContent(selectedChat)}
+                      {renderClientInfoContent(selectedClientData || activeChat?.client)}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -817,27 +881,26 @@ function MessagesPage() {
                       <button className="mobile-info-back-btn" onClick={handleBackToChatPane}>
                         <ArrowLeft size={20} />
                       </button>
-                      <h4>Client Info</h4>
+                      <h4>Détails Client</h4>
                       <div style={{ width: 36 }}></div>
                     </div>
                     <div className="mobile-info-scroll-body flex-1 overflow-y-auto">
-                      {renderClientInfoContent(selectedChat)}
+                      {renderClientInfoContent(selectedClientData || activeChat?.client)}
                     </div>
                   </div>
                 )}
               </div>
             )}
-
           </div>
         </motion.div>
       </div>
 
-      {/* Client List Selection Modal */}
+      {/* Select Client for New SMS Modal */}
       {isClientModalOpen && (
         <div className="client-modal-overlay" onClick={() => setIsClientModalOpen(false)}>
           <div className="client-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="client-modal-header">
-              <h3>Sélectionner un client</h3>
+              <h3>Sélectionner un client pour SMS</h3>
               <button className="client-modal-close" onClick={() => setIsClientModalOpen(false)}>
                 <X size={20} />
               </button>
@@ -846,29 +909,32 @@ function MessagesPage() {
               <Search size={16} className="modal-search-icon" />
               <input
                 type="text"
-                placeholder="Rechercher un client..."
+                placeholder="Rechercher par nom ou numéro..."
                 value={modalSearchTerm}
                 onChange={(e) => setModalSearchTerm(e.target.value)}
+                autoFocus
               />
             </div>
             <div className="client-modal-list">
-              {filteredContactsList.length === 0 ? (
-                <p className="no-data">Aucun client trouvé</p>
+              {isLoadingClients ? (
+                <p className="no-data">Chargement de vos clients...</p>
+              ) : filteredContactsList.length === 0 ? (
+                <p className="no-data">Aucun client trouvé avec ce nom ou numéro</p>
               ) : (
-                filteredContactsList.map((contact, idx) => {
-                  const fullName = `${contact.firstName} ${contact.lastName}`;
+                filteredContactsList.map((client) => {
+                  const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || "Client";
                   return (
                     <div
-                      key={idx}
+                      key={client.id}
                       className="client-modal-item"
-                      onClick={() => handleStartChatWithContact(contact)}
+                      onClick={() => handleStartChatWithContact(client)}
                     >
                       <div className="client-modal-avatar">
-                        {contact.firstName[0]}{contact.lastName[0]}
+                        {getInitials(fullName)}
                       </div>
                       <div className="client-modal-info">
                         <span className="client-modal-name">{fullName}</span>
-                        <span className="client-modal-email">{contact.email}</span>
+                        <span className="client-modal-email font-mono">{client.phone || "Sans téléphone"}</span>
                       </div>
                     </div>
                   );
@@ -894,13 +960,13 @@ function MessagesPage() {
             fontSize: '2.2rem', fontWeight: 800, marginBottom: 24,
             boxShadow: '0 0 40px rgba(85, 107, 47, 0.4)'
           }}>
-            {activeCall.contactName ? activeCall.contactName.substring(0, 2).toUpperCase() : 'CS'}
+            {activeCall.contactName ? getInitials(activeCall.contactName) : 'CS'}
           </div>
           <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.02em' }}>
             {activeCall.contactName}
           </h3>
           <p style={{ color: '#94A3B8', fontSize: '1rem', marginBottom: 40 }}>
-            Appel {activeCall.type === 'video' ? 'Vidéo' : 'Audio'} en cours...
+            Appel en cours...
           </p>
           <button
             type="button"
@@ -909,8 +975,7 @@ function MessagesPage() {
               width: 64, height: 64, borderRadius: '50%', background: '#EF4444',
               border: 'none', color: '#fff', cursor: 'pointer', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)',
-              transition: 'transform 0.2s'
+              boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)'
             }}
             title="Raccrocher"
           >

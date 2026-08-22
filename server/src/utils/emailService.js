@@ -294,16 +294,165 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
 };
 
 /**
- * Send Invoice to Client with Online Payment Link + PDF Attachment
+ * Send Invoice to Client with Online Payment Link + Bank Transfer Details + PDF Attachment
  */
-export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl, senderEmail, primaryColor = "#556B2F", customization = {} }) => {
+export const sendInvoiceClientEmail = async ({
+    to,
+    invoice,
+    company,
+    paymentUrl,
+    senderEmail,
+    primaryColor = "#556B2F",
+    customization = {},
+    paymentOptions = {}
+}) => {
     const companyName = company?.name || "Votre entreprise";
     const clientName = invoice.client ? `${invoice.client.firstName || ''} ${invoice.client.lastName || invoice.client.companyName || ''}`.trim() : "Client";
     const totalTtc = Number(invoice.amountTTC || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const docNumber = invoice.number || "Facture";
     const accentColor = customization.primaryColor || company?.settings?.documentCustomization?.primaryColor || company?.settings?.primaryColor || primaryColor || "#556B2F";
 
+    const isStripeActive = Boolean(paymentOptions.stripeEnabled);
+    const isBankTransferActive = Boolean(paymentOptions.bankTransferEnabled);
+    const bankDetails = paymentOptions.bankDetails || {
+        iban: company?.settings?.bankIban,
+        bic: company?.settings?.bankBic,
+        accountOwner: company?.settings?.bankAccountOwner || company?.name,
+        reference: docNumber
+    };
+
     const subject = `Facture ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
+
+    // Construction conditionnelle des sections de paiement
+    let paymentSectionsHtml = "";
+    let paymentTextGuide = "";
+
+    if (isStripeActive && isBankTransferActive) {
+        // Option 1 : Les deux méthodes sont actives
+        paymentSectionsHtml = `
+            <div style="margin-top: 24px;">
+                <p style="color: #E2E8F0; font-size: 14px; margin-bottom: 16px; font-weight: 600;">
+                    Modes de règlement disponibles :
+                </p>
+
+                <!-- Option A : Paiement par carte en ligne -->
+                <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 16px;">
+                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px;">
+                        💳 Option 1 : Paiement sécurisé en ligne (Stripe)
+                    </div>
+                    <p style="color: #94A3B8; font-size: 13px; margin: 0 0 14px 0; line-height: 1.4;">
+                        Réglez instantanément par carte bancaire en quelques clics :
+                    </p>
+                    <div style="text-align: center;">
+                        <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
+                            Payer en ligne par carte bancaire
+                        </a>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 12px 0; color: #64748B; font-weight: 700; font-size: 12px; letter-spacing: 0.05em;">
+                    — OU PAR VIREMENT BANCAIRE —
+                </div>
+
+                <!-- Option B : Virement bancaire direct -->
+                <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
+                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px;">
+                        🏦 Option 2 : Virement bancaire
+                    </div>
+                    <table style="width: 100%; font-size: 13px; color: #CBD5E1; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 4px 0; color: #94A3B8; width: 120px;">Titulaire :</td>
+                            <td style="padding: 4px 0; font-weight: 600; color: #FFFFFF;">${bankDetails.accountOwner || companyName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 0; color: #94A3B8;">IBAN :</td>
+                            <td style="padding: 4px 0; font-family: monospace; font-size: 13px; font-weight: 700; color: #A3E635;">${bankDetails.iban || 'Communiqué sur facture'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 0; color: #94A3B8;">BIC :</td>
+                            <td style="padding: 4px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || '—'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 0; color: #94A3B8;">Référence :</td>
+                            <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 2px 8px; border-radius: 4px; border: 1px solid #475569;">${docNumber}</span> (obligatoire)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 0; color: #94A3B8;">Montant exact :</td>
+                            <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;">${totalTtc} €</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        `;
+        paymentTextGuide = `Modes de règlement :\n1. Carte bancaire en ligne : ${paymentUrl}\n2. Virement bancaire :\n- IBAN : ${bankDetails.iban}\n- BIC : ${bankDetails.bic}\n- Référence obligatoire : ${docNumber}\n- Montant : ${totalTtc} €`;
+    } else if (isStripeActive) {
+        // Option 2 : Uniquement Stripe
+        paymentSectionsHtml = `
+            <div style="margin-top: 24px;">
+                <p style="color: #E2E8F0; line-height: 1.5; font-size: 14px;">
+                    Vous pouvez consulter le détail de votre facture et <strong>effectuer votre paiement sécurisé en ligne par carte bancaire</strong> :
+                </p>
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
+                        Payer ma facture en ligne (${totalTtc} €)
+                    </a>
+                </div>
+                <p style="font-size: 13px; color: #94A3B8; text-align: center; margin-top: 14px;">
+                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #556B2F !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${paymentUrl}</a>
+                </p>
+            </div>
+        `;
+        paymentTextGuide = `Réglez votre facture en ligne par carte bancaire ici : ${paymentUrl}`;
+    } else if (isBankTransferActive && bankDetails.iban) {
+        // Option 3 : Uniquement Virement Bancaire
+        paymentSectionsHtml = `
+            <div style="margin-top: 24px;">
+                <div style="background: #0F172A; padding: 22px; border-radius: 10px; border: 1px solid #334155;">
+                    <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 12px;">
+                        🏦 Coordonnées pour virement bancaire :
+                    </div>
+                    <table style="width: 100%; font-size: 13.5px; color: #CBD5E1; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 5px 0; color: #94A3B8; width: 120px;">Titulaire :</td>
+                            <td style="padding: 5px 0; font-weight: 600; color: #FFFFFF;">${bankDetails.accountOwner || companyName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 0; color: #94A3B8;">IBAN :</td>
+                            <td style="padding: 5px 0; font-family: monospace; font-size: 14px; font-weight: 700; color: #A3E635;">${bankDetails.iban}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 0; color: #94A3B8;">BIC :</td>
+                            <td style="padding: 5px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || '—'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 0; color: #94A3B8;">Référence :</td>
+                            <td style="padding: 5px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 3px 8px; border-radius: 4px; border: 1px solid #475569;">${docNumber}</span> (à indiquer obligatoirement)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 0; color: #94A3B8;">Montant :</td>
+                            <td style="padding: 5px 0; font-weight: 700; color: #FFFFFF;">${totalTtc} €</td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="${paymentUrl}" target="_blank" style="color: #94A3B8; font-size: 13px; text-decoration: underline;">
+                        Consulter et télécharger la facture en ligne
+                    </a>
+                </div>
+            </div>
+        `;
+        paymentTextGuide = `Règlement par virement bancaire :\n- Titulaire : ${bankDetails.accountOwner || companyName}\n- IBAN : ${bankDetails.iban}\n- BIC : ${bankDetails.bic}\n- Référence obligatoire : ${docNumber}\n- Montant : ${totalTtc} €`;
+    } else {
+        // Fallback générique
+        paymentSectionsHtml = `
+            <div style="text-align: center; margin: 28px 0;">
+                <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
+                    Consulter ma facture en ligne
+                </a>
+            </div>
+        `;
+        paymentTextGuide = `Consultez votre facture en ligne ici : ${paymentUrl}`;
+    }
 
     const html = `
         <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: #0F172A; color: #F8FAFC; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
@@ -318,24 +467,12 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
                     Veuillez trouver ci-joint votre facture <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché).
                 </p>
 
-                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border: 1px solid #334155;">
+                <div style="margin: 20px 0; padding: 18px; background: #0F172A; border-radius: 10px; border: 1px solid #334155;">
                     <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Net à payer :</div>
                     <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">${totalTtc} € TTC</div>
                 </div>
-                
-                <p style="color: #E2E8F0; line-height: 1.5; font-size: 14px;">
-                    Vous pouvez consulter le détail de votre facture, la télécharger en PDF ou <strong>effectuer votre paiement en ligne par carte bancaire sécurisée</strong> :
-                </p>
 
-                <div style="text-align: center; margin: 28px 0;">
-                    <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
-                        Consulter & Payer ma facture
-                    </a>
-                </div>
-
-                <p style="font-size: 13px; color: #94A3B8; text-align: center; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #556B2F !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${paymentUrl}</a>
-                </p>
+                ${paymentSectionsHtml}
             </div>
 
             <div style="text-align: center; margin-top: 24px; color: #64748B; font-size: 12px; line-height: 1.5;">
@@ -346,8 +483,7 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
         </div>
     `;
 
-
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez la consulter et la régler en ligne ici : ${paymentUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\n${paymentTextGuide}\n\nLien direct de consultation : ${paymentUrl}\n\n(Si besoin, vérifiez vos spams. Expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
 
     let attachments = [];
     try {
@@ -365,7 +501,6 @@ export const sendInvoiceClientEmail = async ({ to, invoice, company, paymentUrl,
     } catch (pdfErr) {
         console.warn("Could not generate invoice PDF attachment:", pdfErr.message);
     }
-
 
     return await sendEmail({ to, subject, html, text, attachments });
 };

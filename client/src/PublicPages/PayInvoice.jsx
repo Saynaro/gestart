@@ -15,6 +15,8 @@ function PayInvoice() {
     const [isDownloading, setIsDownloading] = useState(false);
     const [ibanCopied, setIbanCopied] = useState(false);
 
+    const [paymentOptions, setPaymentOptions] = useState(null);
+
     useEffect(() => {
         if (!token) return;
         const fetchInvoice = async () => {
@@ -25,6 +27,9 @@ function PayInvoice() {
                 const inv = res.data?.invoice || res.invoice || res;
                 if (inv) {
                     setInvoice(inv);
+                    if (res.data?.paymentOptions) {
+                        setPaymentOptions(res.data.paymentOptions);
+                    }
                 } else {
                     setError("Facture introuvable.");
                 }
@@ -58,9 +63,10 @@ function PayInvoice() {
         }
     };
 
-    const handleCopyIban = (iban) => {
-        if (!iban) return;
-        navigator.clipboard.writeText(iban);
+    const handleCopyIban = (ibanToCopy) => {
+        const val = ibanToCopy || bankIban;
+        if (!val) return;
+        navigator.clipboard.writeText(val);
         setIbanCopied(true);
         setTimeout(() => setIbanCopied(false), 2500);
     };
@@ -744,7 +750,12 @@ function PayInvoice() {
                             <div className="paid-success-banner" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <CheckCircle2 size={24} color="#16a34a" />
-                                    <span>Facture acquittée et archivée</span>
+                                    <div>
+                                        <div style={{ fontWeight: 700, fontSize: "15px", color: "#16a34a" }}>Facture acquittée et archivée</div>
+                                        <div style={{ fontSize: "12px", color: "#64748B" }}>
+                                            Réglée le {invoice.paidAt ? new Date(invoice.paidAt).toLocaleDateString("fr-FR") : new Date().toLocaleDateString("fr-FR")}
+                                        </div>
+                                    </div>
                                 </div>
                                 <button
                                     type="button"
@@ -758,17 +769,128 @@ function PayInvoice() {
                                 </button>
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <button
-                                    type="button"
-                                    className="portal-primary-pay-btn"
-                                    onClick={handlePayOnline}
-                                    disabled={isPaying}
-                                >
-                                    <CreditCard size={18} />
-                                    <span>{isPaying ? "Redirection Stripe..." : `Payer ${totalTtc} € par Carte Bancaire`}</span>
-                                </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                
+                                {/* Option A : Paiement Stripe Carte Bancaire */}
+                                {(paymentOptions?.stripeEnabled !== false && (company.stripeAccountId || company.onlinePaymentEnabled || invoice.stripeEnabled)) && (
+                                    <div style={{
+                                        backgroundColor: '#0F172A',
+                                        color: '#FFFFFF',
+                                        padding: '20px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                                            <div style={{ fontWeight: 700, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <CreditCard size={18} style={{ color: '#635BFF' }} />
+                                                <span>Paiement sécurisé par carte bancaire (Stripe)</span>
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+                                                Protection 3D-Secure 256 bits
+                                            </div>
+                                        </div>
 
+                                        {paymentOptions?.feeBreakdown?.bearer === "CLIENT" && paymentOptions?.feeBreakdown?.feeAmount > 0 && (
+                                            <div style={{
+                                                backgroundColor: '#1E293B',
+                                                padding: '10px 14px',
+                                                borderRadius: '8px',
+                                                fontSize: '12.5px',
+                                                color: '#CBD5E1',
+                                                marginBottom: '14px',
+                                                display: 'flex',
+                                                justifyContent: 'space-between'
+                                            }}>
+                                                <span>Facture : <strong>{paymentOptions.feeBreakdown.invoiceAmount.toFixed(2)} €</strong> + Frais en ligne : <strong>{paymentOptions.feeBreakdown.feeAmount.toFixed(2)} €</strong></span>
+                                                <span style={{ color: '#A3E635', fontWeight: 700 }}>Total : {paymentOptions.feeBreakdown.totalAmount.toFixed(2)} €</span>
+                                            </div>
+                                        )}
+
+                                        <button
+                                            type="button"
+                                            className="portal-primary-pay-btn"
+                                            onClick={handlePayOnline}
+                                            disabled={isPaying}
+                                            style={{
+                                                width: '100%',
+                                                backgroundColor: '#635BFF',
+                                                color: '#FFFFFF',
+                                                padding: '14px',
+                                                borderRadius: '8px',
+                                                border: 'none',
+                                                fontWeight: 700,
+                                                fontSize: '15px',
+                                                cursor: isPaying ? 'wait' : 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px'
+                                            }}
+                                        >
+                                            <CreditCard size={18} />
+                                            <span>
+                                                {isPaying
+                                                    ? "Redirection vers Stripe..."
+                                                    : `Payer ${paymentOptions?.feeBreakdown?.bearer === "CLIENT" ? paymentOptions.feeBreakdown.totalAmount.toFixed(2) : totalTtc} € par carte en ligne`}
+                                            </span>
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Séparateur si les deux méthodes sont disponibles */}
+                                {(paymentOptions?.stripeEnabled !== false && (company.stripeAccountId || company.onlinePaymentEnabled)) && (bankIban || paymentOptions?.bankDetails?.iban) && (
+                                    <div style={{ textAlign: 'center', color: '#64748B', fontWeight: 700, fontSize: '12px', letterSpacing: '0.05em' }}>
+                                        — OU PAR VIREMENT BANCAIRE DIRECT —
+                                    </div>
+                                )}
+
+                                {/* Option B : Virement bancaire */}
+                                {(bankIban || paymentOptions?.bankDetails?.iban) && (
+                                    <div style={{
+                                        backgroundColor: '#FAFAF8',
+                                        border: '1px solid #EAEAE6',
+                                        padding: '18px',
+                                        borderRadius: '12px'
+                                    }}>
+                                        <div style={{ fontWeight: 700, fontSize: '14.5px', color: '#1A1A1A', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Building2 size={18} style={{ color: primaryColor }} />
+                                            <span>Coordonnées bancaires pour virement</span>
+                                        </div>
+
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', fontSize: '13px', color: '#334155' }}>
+                                            <div>
+                                                <span style={{ color: '#64748B', display: 'block', fontSize: '11.5px' }}>Titulaire du compte :</span>
+                                                <strong style={{ color: '#0F172A' }}>{paymentOptions?.bankDetails?.accountOwner || company.settings?.bankAccountOwner || company.name}</strong>
+                                            </div>
+                                            <div>
+                                                <span style={{ color: '#64748B', display: 'block', fontSize: '11.5px' }}>IBAN :</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <strong style={{ fontFamily: 'monospace', color: '#0F172A' }}>{paymentOptions?.bankDetails?.iban || bankIban}</strong>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleCopyIban(paymentOptions?.bankDetails?.iban || bankIban)}
+                                                        title="Copier l'IBAN"
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: ibanCopied ? '#16a34a' : '#64748B', padding: '2px' }}
+                                                    >
+                                                        {ibanCopied ? <Check size={15} /> : <Copy size={15} />}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span style={{ color: '#64748B', display: 'block', fontSize: '11.5px' }}>BIC / SWIFT :</span>
+                                                <strong style={{ fontFamily: 'monospace', color: '#0F172A' }}>{paymentOptions?.bankDetails?.bic || bankBic || '—'}</strong>
+                                            </div>
+                                            <div>
+                                                <span style={{ color: '#64748B', display: 'block', fontSize: '11.5px' }}>Référence obligatoire :</span>
+                                                <strong style={{ backgroundColor: '#E2E8F0', padding: '2px 6px', borderRadius: '4px', color: '#0F172A' }}>
+                                                    {invoice.number}
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Boutons Téléchargement et Impression */}
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <button
                                         type="button"

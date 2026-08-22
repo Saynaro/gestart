@@ -22,6 +22,9 @@ import webhookRoutes from "./routes/webhookRoutes.js";
 import catalogRoutes from "./routes/catalogRoutes.js";
 import publicRoutes from "./routes/publicRoutes.js";
 import eInvoicingRoutes from "./routes/eInvoicingRoutes.js";
+import stripeConnectRoutes from "./routes/stripeConnectRoutes.js";
+import paymentsRoutes from "./routes/paymentsRoutes.js";
+import bankingRoutes from "./routes/bankingRoutes.js";
 
 dotenv.config();
 
@@ -75,6 +78,9 @@ app.use("/api/v1/catalog", catalogRoutes);
 app.use("/api/v1/public", publicRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/v1/e-invoicing", eInvoicingRoutes);
+app.use("/api/v1/stripe", stripeConnectRoutes);
+app.use("/api/v1/payments", paymentsRoutes);
+app.use("/api/v1/banking", bankingRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack || err);

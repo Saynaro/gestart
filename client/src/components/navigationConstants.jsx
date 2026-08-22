@@ -38,6 +38,13 @@ export const Icons = {
             <line x1="16" y1="17" x2="8" y2="17"></line>
         </svg>
     ),
+    paiements: (
+        <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+            <line x1="6" y1="15" x2="10" y2="15"></line>
+        </svg>
+    ),
     devis: (
         <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
@@ -127,6 +134,7 @@ export const menuSections = [
             { title: "Techniciens", path: "/techniciens", iconKey: "techniciens", proOnly: true },
             { title: "Messages", path: "/messages", iconKey: "messages", badge: 2 },
             { title: "Factures", path: "/factures", iconKey: "factures" },
+            { title: "Paiements", path: "/payments", iconKey: "paiements" },
             { title: "Devis", path: "/devis", iconKey: "devis" },
             { title: "Rapports", path: "/rapports", iconKey: "rapports" },
             { title: "Comptabilité", path: "/comptabilite", iconKey: "comptabilite" },
@@ -158,6 +166,7 @@ export const profilePages = [
 export const section1Items = [
     { title: "Techniciens", path: "/techniciens", icon: Wrench, proOnly: true },
     { title: "Factures", path: "/factures", icon: FileText },
+    { title: "Paiements", path: "/payments", icon: FileText },
     { title: "Devis", path: "/devis", icon: FileSpreadsheet },
     { title: "Rapports", path: "/rapports", icon: BarChart2 },
     { title: "Catalogue", path: "/catalogue", icon: Package },

@@ -1207,17 +1207,49 @@ function InvoiceDetailDrawer({
                             {/* Encaissement (paid only) */}
                             {isPaid && (
                                 <div className="fp-drawer-section">
-                                    <div className="fp-drawer-section-title">Encaissement</div>
+                                    <div className="fp-drawer-section-title">Règlement & Encaissement</div>
                                     <div className="fp-drawer-row">
-                                        <span className="fp-drawer-row-label">Mode de paiement</span>
-                                        <span className="fp-drawer-row-value">Virement bancaire</span>
-                                    </div>
-                                    <div className="fp-drawer-row">
-                                        <span className="fp-drawer-row-label">Date de paiement</span>
-                                        <span className="fp-drawer-row-value">
-                                            {new Date(invoice.date).toLocaleDateString("fr-FR")}
+                                        <span className="fp-drawer-row-label">Statut du paiement</span>
+                                        <span style={{
+                                            fontSize: "0.78rem",
+                                            padding: "3px 10px",
+                                            borderRadius: "12px",
+                                            fontWeight: 700,
+                                            backgroundColor: "rgba(34, 197, 94, 0.12)",
+                                            color: "#16a34a",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "4px"
+                                        }}>
+                                            ✓ RÉGLÉE EN TOTALITÉ
                                         </span>
                                     </div>
+                                    <div className="fp-drawer-row">
+                                        <span className="fp-drawer-row-label">Mode de paiement</span>
+                                        <span className="fp-drawer-row-value" style={{ fontWeight: 600 }}>
+                                            {invoice.invoicePaymentMethod === "CARD" || invoice.paymentMethod === "CARD" || invoice.stripePaymentIntentId
+                                                ? "Carte bancaire (Stripe)"
+                                                : "Virement bancaire"}
+                                        </span>
+                                    </div>
+                                    <div className="fp-drawer-row">
+                                        <span className="fp-drawer-row-label">Date du règlement</span>
+                                        <span className="fp-drawer-row-value">
+                                            {new Date(invoice.paidAt || invoice.date || invoice.createdAt).toLocaleDateString("fr-FR", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "numeric"
+                                            })}
+                                        </span>
+                                    </div>
+                                    {(invoice.paymentRef || invoice.stripePaymentIntentId) && (
+                                        <div className="fp-drawer-row">
+                                            <span className="fp-drawer-row-label">Référence transaction</span>
+                                            <span className="fp-drawer-row-value" style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "var(--muted-foreground)" }}>
+                                                {invoice.paymentRef || invoice.stripePaymentIntentId}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

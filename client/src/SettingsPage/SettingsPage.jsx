@@ -64,6 +64,7 @@ import AvisTab from "./components/AvisTab";
 import ParrainageTab from "./components/ParrainageTab";
 import AboutTab from "./components/AboutTab";
 import EInvoicingTab from "./components/EInvoicingTab";
+import PaiementsTab from "./components/PaiementsTab";
 
 const monthsList = [
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -264,6 +265,7 @@ function SettingsPage() {
         {
             title: "Config",
             items: [
+                { id: "paiements", label: "Paiements", icon: CreditCard, subtitle: "Stripe Connect et virements" },
                 { id: "facturation", label: "Facturation", icon: Receipt, subtitle: "Réglages de facturation" },
                 { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
                 { id: "sms", label: "SMS", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
@@ -428,6 +430,8 @@ function SettingsPage() {
                             return <TransactionsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "categories-perso":
                             return <CategoriesPersoTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
+                        case "paiements":
+                            return <PaiementsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "facturation":
                             return <FacturationTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "e-invoicing":

@@ -220,6 +220,34 @@ enum TvaRate {
   NORMAL // 20%
 }
 
+// ── PAIEMENT ET STRIPE CONNECT ───────────────────────────
+enum StripeOnboardingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETE
+  REQUIRES_INFO
+  DISABLED
+}
+
+enum InvoicePaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  FAILED
+  CANCELLED
+}
+
+enum InvoicePaymentMethodType {
+  BANK_TRANSFER
+  CARD
+  OTHER
+}
+
+enum StripeFeeBearer {
+  COMPANY
+  CLIENT
+}
+
 // ── FACTURATION ÉLECTRONIQUE (RÉFORME 2026/2027) ─────────
 enum EInvoicingProviderType {
   B2BROUTER
@@ -348,27 +376,36 @@ model Company {
   // ── STRIPE CONNECT (paiement en ligne factures) ───────────
   // L'installateur connecte son propre compte Stripe
   // L'argent va directement sur son compte bancaire
-  stripeAccountId      String? @unique // ex: "acct_1ABC..."
-  stripeAccountStatus  String? // "pending", "active", "restricted"
-  onlinePaymentEnabled Boolean @default(false) // true quand Stripe connecté
+  stripeAccountId        String?                @unique // ex: "acct_1ABC..."
+  stripeAccountStatus    String? // "pending", "active", "restricted"
+  onlinePaymentEnabled   Boolean                @default(false) // true quand Stripe connecté
+  stripeOnboardingStatus StripeOnboardingStatus @default(NOT_STARTED)
+  stripeChargesEnabled   Boolean                @default(false)
+  stripePayoutsEnabled   Boolean                @default(false)
+  stripeDetailsSubmitted Boolean                @default(false)
+  stripeConnectedAt      DateTime?
 
   // Relations
-  users             User[]
-  clients           Client[]
-  interventions     Intervention[]
-  invoices          Invoice[]
-  quotes            Quote[]
-  smsLogs           SmsLog[]
-  notifications     Notification[]
-  invitations       Invitation[]
-  subscription      Subscription?
-  settings          CompanySettings?
-  smsUsage          SmsUsage[]
-  auditLogs         AuditLog[]
-  quoteRequests     QuoteRequest[]
-  catalogItems      CatalogItem[]
-  interventionTypes InterventionTypeItem[]
-  tradeCategories   CompanyTradeCategory[]
+  users               User[]
+  clients             Client[]
+  interventions       Intervention[]
+  invoices            Invoice[]
+  quotes              Quote[]
+  smsLogs             SmsLog[]
+  notifications       Notification[]
+  invitations         Invitation[]
+  subscription        Subscription?
+  settings            CompanySettings?
+  smsUsage            SmsUsage[]
+  auditLogs           AuditLog[]
+  quoteRequests       QuoteRequest[]
+  catalogItems        CatalogItem[]
+  interventionTypes   InterventionTypeItem[]
+  tradeCategories     CompanyTradeCategory[]
+  invoiceTransactions InvoiceTransaction[]
+  bankConnection      BankConnection?
+  bankAccounts        BankAccount[]
+  bankTransactions    BankTransaction[]
 
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
@@ -591,10 +628,13 @@ model CompanySettings {
   workDays      Int[] @default([1, 2, 3, 4, 5]) // 1=Lun, 7=Dim
 
   // ── COORDONNÉES BANCAIRES (RIB / IBAN FACTURES & DEVIS) ──
-  bankName         String? // "La Banque Postale", "BNP Paribas", "Boursorama Pro", etc.
-  bankIban         String? // "FR76 3000 3020 5001 2345 6789 012"
-  bankBic          String? // "BNPAFRPPXXX"
-  bankAccountOwner String? // "Dupont Climatisation SAS"
+  bankName             String? // "La Banque Postale", "BNP Paribas", "Boursorama Pro", etc.
+  bankIban             String? // "FR76 3000 3020 5001 2345 6789 012"
+  bankBic              String? // "BNPAFRPPXXX"
+  bankAccountOwner     String? // "Dupont Climatisation SAS"
+  bankTransferEnabled  Boolean         @default(true)
+  stripePaymentEnabled Boolean         @default(false)
+  stripeFeeBearer      StripeFeeBearer @default(COMPANY)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1273,18 +1313,22 @@ model Invoice {
   // PDF
   pdfUrl String? // URL du PDF généré (Cloudinary/S3)
 
-  // ── PAIEMENT EN LIGNE (optionnel — Stripe) ───────────────
-  // Activé si owner veut proposer paiement par carte au client
-  onlinePaymentEnabled    Boolean   @default(false)
+  // ── PAIEMENT EN LIGNE (optionnel — Stripe) & VIREMENT ─────
+  // Activé si owner veut proposer paiement par carte ou virement
+  paymentStatus           InvoicePaymentStatus      @default(PENDING)
+  invoicePaymentMethod    InvoicePaymentMethodType?
+  bankTransferEnabled     Boolean                   @default(true)
+  stripeEnabled           Boolean                   @default(false)
+  onlinePaymentEnabled    Boolean                   @default(false)
   // Stripe Payment Intent créé quand client clique "Payer en ligne"
-  stripePaymentIntentId   String?   @unique
+  stripePaymentIntentId   String?                   @unique
   // Lien Stripe Checkout envoyé au client
   stripeCheckoutUrl       String?
   // Session Stripe Checkout ID
-  stripeCheckoutSessionId String?   @unique
+  stripeCheckoutSessionId String?                   @unique
   // Token unique pour page de paiement public
   // Ex: climpro.fr/pay/invoice/abc123xyz
-  paymentToken            String?   @unique
+  paymentToken            String?                   @unique
   paymentTokenExpiry      DateTime?
   // Quand le client a ouvert le lien de paiement
   paymentLinkOpenedAt     DateTime?
@@ -1303,8 +1347,10 @@ model Invoice {
   reminder2SentAt DateTime? // J+14 après dueAt
   reminderSentAt  DateTime? // dernier rappel manuel (bouton "Relancer")
 
-  lines         InvoiceLine[]
-  paymentEvents InvoicePaymentEvent[]
+  lines                InvoiceLine[]
+  paymentEvents        InvoicePaymentEvent[]
+  transactions         InvoiceTransaction[]
+  bankTransactions     BankTransaction[]
 
   // ── FACTURATION ÉLECTRONIQUE (RÉFORME 2026/2027) ─────────
   einvoicingStatus         EInvoicingStatus?       @default(DRAFT)
@@ -1935,5 +1981,134 @@ model EInvoicingJob {
 
   @@index([status, nextRunAt])
   @@index([companyId])
+}
+
+// ============================================================
+// INVOICE TRANSACTION (Factures)
+// ─────────────────────────────────────────────────────────────
+// Historique des transactions de règlement pour les factures.
+// ============================================================
+
+model InvoiceTransaction {
+  id        String  @id @default(cuid())
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  type     InvoicePaymentMethodType
+  status   String                   @default("succeeded") // succeeded, failed, pending
+  amount   Float
+  currency String                   @default("EUR")
+
+  stripePaymentIntentId   String? @unique
+  stripeCheckoutSessionId String? @unique
+  stripeTransferId        String?
+  bankReference           String?
+
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([invoiceId])
+  @@index([companyId])
+  @@index([stripePaymentIntentId])
+  @@index([stripeCheckoutSessionId])
+}
+
+// ============================================================
+// STRIPE FEE CONFIG
+// ─────────────────────────────────────────────────────────────
+// Tarification Stripe dynamique et configurable.
+// ============================================================
+
+model StripeFeeConfig {
+  id       String  @id @default(cuid())
+  feeRate  Float   @default(0.015) // 1.5%
+  fixedFee Float   @default(0.25) // 0.25€
+  currency String  @default("EUR")
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================================
+// OPEN BANKING — CONNEXION BANCAIRE (POWENS / GOCARDLESS)
+// ============================================================
+
+model BankConnection {
+  id        String  @id @default(cuid())
+  companyId String  @unique
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  provider     String // "POWENS", "GOCARDLESS"
+  connectionId String
+  userId       String?
+
+  accessTokenEncrypted  String?
+  refreshTokenEncrypted String?
+  tokenExpiresAt        DateTime?
+  status                String    @default("PENDING") // PENDING, ACTIVE, ERROR, DISCONNECTED
+  lastSyncAt            DateTime?
+
+  accounts BankAccount[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+model BankAccount {
+  id               String         @id @default(cuid())
+  bankConnectionId String
+  bankConnection   BankConnection @relation(fields: [bankConnectionId], references: [id], onDelete: Cascade)
+  companyId        String
+  company          Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  externalId  String
+  iban        String?
+  bic         String?
+  accountName String?
+  balance     Float?
+  currency    String  @default("EUR")
+
+  transactions BankTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+model BankTransaction {
+  id            String      @id @default(cuid())
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  companyId     String
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  externalTransactionId String    @unique
+  amount                Float
+  currency              String    @default("EUR")
+  label                 String?
+  reference             String?
+  counterparty          String?
+  counterpartyIban      String?
+  transactionDate       DateTime
+  valueDate             DateTime?
+
+  reconciliationStatus String?   @default("PENDING") // MATCHED, PROBABLE, IGNORED, PENDING
+  confidenceScore      Float? // 0.0 → 1.0
+  matchedInvoiceId     String?
+  matchedInvoice       Invoice?  @relation(fields: [matchedInvoiceId], references: [id], onDelete: SetNull)
+  reconciledAt         DateTime?
+  reconciledBy         String? // "AUTO" | userId
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([externalTransactionId])
+  @@index([matchedInvoiceId])
 }
 

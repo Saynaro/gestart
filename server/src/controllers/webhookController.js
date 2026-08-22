@@ -1,15 +1,34 @@
 import { prisma } from "../config/db.js";
+import { stripe } from "../config/stripe.js";
+import { syncAccountStatus } from "../services/stripeConnectService.js";
 
-////// STRIPE WEBHOOK HANDLER //////
+/**
+ * Webhook Stripe pour la Plateforme & Abonnements SaaS (GestArt CRM)
+ * POST /api/v1/webhooks/stripe
+ */
 export const handleStripeWebhook = async (req, res) => {
     const sig = req.headers["stripe-signature"];
-    const event = req.body;
+    let event = req.body;
+
+    // Vérification cryptographique de la signature Stripe si le secret est configuré
+    if (process.env.STRIPE_WEBHOOK_SECRET && stripe && sig) {
+        try {
+            event = stripe.webhooks.constructEvent(
+                req.body,
+                sig,
+                process.env.STRIPE_WEBHOOK_SECRET
+            );
+        } catch (err) {
+            console.error(`[STRIPE WEBHOOK ERROR] Signature invalide:`, err.message);
+            return res.status(400).send(`Webhook Error: ${err.message}`);
+        }
+    }
 
     try {
         const eventType = event.type || event.eventType;
         const dataObject = event.data?.object || event;
 
-        console.log(`[STRIPE WEBHOOK] Event: ${eventType}`);
+        console.log(`[STRIPE PLATFORM WEBHOOK] Event: ${eventType}`);
 
         switch (eventType) {
             case "checkout.session.completed": {
@@ -22,19 +41,35 @@ export const handleStripeWebhook = async (req, res) => {
                     if (invoiceId) {
                         try {
                             const inv = await prisma.invoice.findUnique({ where: { id: invoiceId } });
-                            if (inv) {
-                                await prisma.invoice.update({
-                                    where: { id: invoiceId },
-                                    data: {
-                                        status: "PAID",
-                                        amountPaid: inv.amountTTC,
-                                        paidAt: new Date(),
-                                        paymentMethod: "CARD",
-                                        paymentRef: session.payment_intent || session.id
-                                    }
-                                });
+                            if (inv && inv.paymentStatus !== "PAID") {
+                                await prisma.$transaction([
+                                    prisma.invoice.update({
+                                        where: { id: invoiceId },
+                                        data: {
+                                            status: "PAID",
+                                            paymentStatus: "PAID",
+                                            invoicePaymentMethod: "CARD",
+                                            amountPaid: inv.amountTTC,
+                                            paidAt: new Date(),
+                                            paymentMethod: "CARD",
+                                            paymentRef: session.payment_intent || session.id
+                                        }
+                                    }),
+                                    prisma.invoiceTransaction.create({
+                                        data: {
+                                            invoiceId: inv.id,
+                                            companyId: inv.companyId,
+                                            type: "CARD",
+                                            status: "succeeded",
+                                            amount: inv.amountTTC,
+                                            currency: "EUR",
+                                            stripeCheckoutSessionId: session.id,
+                                            stripePaymentIntentId: session.payment_intent || null,
+                                            paidAt: new Date()
+                                        }
+                                    })
+                                ]);
 
-                                // Notification au propriétaire
                                 const owner = await prisma.user.findFirst({
                                     where: { companyId: inv.companyId, role: "OWNER" }
                                 });
@@ -47,7 +82,7 @@ export const handleStripeWebhook = async (req, res) => {
                                             channel: "IN_APP",
                                             status: "SENT",
                                             title: `Facture ${inv.number} payée en ligne !`,
-                                            body: `Le client a réglé la facture ${inv.number} (${inv.amountTTC}€) par carte bancaire (Stripe).`,
+                                            body: `Le client a réglé la facture ${inv.number} (${inv.amountTTC}€) par carte bancaire.`,
                                             entityType: "invoice",
                                             entityId: inv.id
                                         }
@@ -71,11 +106,11 @@ export const handleStripeWebhook = async (req, res) => {
                                     where: { id: quoteId },
                                     data: {
                                         status: "ACCEPTED",
-                                        acceptedAt: new Date()
+                                        acceptedAt: new Date(),
+                                        paidAt: new Date()
                                     }
                                 });
 
-                                // ⚡ Si une facture a déjà été générée à partir de ce devis -> la passer automatiquement en PAID !
                                 const linkedInvoice = await prisma.invoice.findFirst({
                                     where: { sourceQuoteId: quote.id }
                                 });
@@ -85,6 +120,8 @@ export const handleStripeWebhook = async (req, res) => {
                                         where: { id: linkedInvoice.id },
                                         data: {
                                             status: "PAID",
+                                            paymentStatus: "PAID",
+                                            invoicePaymentMethod: "CARD",
                                             amountPaid: linkedInvoice.amountTTC,
                                             paidAt: new Date(),
                                             paymentMethod: "CARD",
@@ -104,8 +141,8 @@ export const handleStripeWebhook = async (req, res) => {
                                             type: "INVOICE_PAID",
                                             channel: "IN_APP",
                                             status: "SENT",
-                                            title: `Devis ${quote.number} payé en ligne !`,
-                                            body: `Le client a validé et réglé le devis ${quote.number} (${quote.amountTTC || quote.totalTtc}€) par carte bancaire.`,
+                                            title: `Devis ${quote.number} validé et payé !`,
+                                            body: `Le devis ${quote.number} (${quote.amountTTC || quote.totalTtc}€) a été réglé en ligne.`,
                                             entityType: "quote",
                                             entityId: quote.id
                                         }
@@ -118,7 +155,7 @@ export const handleStripeWebhook = async (req, res) => {
                     }
                 }
 
-                // 3. SaaS Subscription Payment (GestArt CRM)
+                // 3. SaaS Subscription Payment (Platform CRM)
                 const companyId = session.client_reference_id || session.metadata?.companyId;
                 const customerId = session.customer;
                 const subscriptionId = session.subscription;
@@ -174,26 +211,6 @@ export const handleStripeWebhook = async (req, res) => {
                             where: { id: sub.id },
                             data: { status: "PAST_DUE" }
                         });
-
-                        const owner = await prisma.user.findFirst({
-                            where: { companyId: sub.companyId, role: "OWNER" }
-                        });
-
-                        if (owner) {
-                            await prisma.notification.create({
-                                data: {
-                                    companyId: sub.companyId,
-                                    userId: owner.id,
-                                    type: "PAYMENT_FAILED",
-                                    channel: "IN_APP",
-                                    status: "SENT",
-                                    title: "Échec du paiement de l'abonnement",
-                                    body: "Le paiement de votre abonnement a échoué. Veuillez mettre à jour vos coordonnées bancaires.",
-                                    entityType: "subscription",
-                                    entityId: sub.id
-                                }
-                            });
-                        }
                     }
                 }
                 break;
@@ -220,7 +237,7 @@ export const handleStripeWebhook = async (req, res) => {
             }
 
             default:
-                console.log(`[STRIPE WEBHOOK] Non traité: ${eventType}`);
+                console.log(`[STRIPE PLATFORM WEBHOOK] Event non traité: ${eventType}`);
         }
 
         return res.status(200).json({ received: true });
@@ -233,7 +250,203 @@ export const handleStripeWebhook = async (req, res) => {
     }
 };
 
-////// TWILIO INCOMING SMS WEBHOOK HANDLER //////
+/**
+ * Webhook Stripe Connect pour les paiements de factures des installateurs (Connected Accounts)
+ * POST /api/v1/webhooks/stripe-connect
+ */
+export const handleStripeConnectWebhook = async (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    const connectSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET;
+    let event = req.body;
+
+    // Vérification cryptographique de la signature Stripe Connect
+    if (connectSecret && stripe && sig) {
+        try {
+            event = stripe.webhooks.constructEvent(req.body, sig, connectSecret);
+        } catch (err) {
+            console.error(`[STRIPE CONNECT WEBHOOK ERROR] Signature invalide:`, err.message);
+            return res.status(400).send(`Webhook Connect Error: ${err.message}`);
+        }
+    }
+
+    try {
+        const eventType = event.type || event.eventType;
+        const dataObject = event.data?.object || event;
+
+        console.log(`[STRIPE CONNECT WEBHOOK] Event: ${eventType} (Event ID: ${event.id})`);
+
+        // Idempotence : vérification si l'événement a déjà été traité
+        if (event.id) {
+            const existingEvent = await prisma.invoicePaymentEvent.findUnique({
+                where: { stripeEventId: event.id }
+            });
+            if (existingEvent) {
+                console.log(`[STRIPE CONNECT WEBHOOK] Event ${event.id} déjà traité.`);
+                return res.status(200).json({ received: true, idempotent: true });
+            }
+        }
+
+        switch (eventType) {
+            case "checkout.session.completed": {
+                const session = dataObject;
+                const metadata = session.metadata || {};
+                const invoiceId = metadata.invoiceId || session.client_reference_id;
+
+                if (invoiceId) {
+                    const invoice = await prisma.invoice.findUnique({
+                        where: { id: invoiceId },
+                        include: { company: true }
+                    });
+
+                    if (invoice && invoice.paymentStatus !== "PAID") {
+                        await prisma.$transaction([
+                            prisma.invoice.update({
+                                where: { id: invoiceId },
+                                data: {
+                                    status: "PAID",
+                                    paymentStatus: "PAID",
+                                    invoicePaymentMethod: "CARD",
+                                    paymentMethod: "CARD",
+                                    amountPaid: invoice.amountTTC,
+                                    paidAt: new Date(),
+                                    paymentRef: session.payment_intent || session.id
+                                }
+                            }),
+                            prisma.invoiceTransaction.create({
+                                data: {
+                                    invoiceId: invoice.id,
+                                    companyId: invoice.companyId,
+                                    type: "CARD",
+                                    status: "succeeded",
+                                    amount: invoice.amountTTC,
+                                    currency: "EUR",
+                                    stripeCheckoutSessionId: session.id,
+                                    stripePaymentIntentId: session.payment_intent || null,
+                                    paidAt: new Date()
+                                }
+                            }),
+                            prisma.invoicePaymentEvent.create({
+                                data: {
+                                    invoiceId: invoice.id,
+                                    event: "checkout.completed",
+                                    amount: invoice.amountTTC,
+                                    currency: "EUR",
+                                    stripeEventId: event.id || `evt_mock_${Date.now()}`,
+                                    stripeData: session
+                                }
+                            })
+                        ]);
+
+                        // Notification au propriétaire
+                        const owner = await prisma.user.findFirst({
+                            where: { companyId: invoice.companyId, role: "OWNER" }
+                        });
+                        if (owner) {
+                            await prisma.notification.create({
+                                data: {
+                                    companyId: invoice.companyId,
+                                    userId: owner.id,
+                                    type: "INVOICE_PAID",
+                                    channel: "IN_APP",
+                                    status: "SENT",
+                                    title: `Facture ${invoice.number} réglée par carte !`,
+                                    body: `Paiement en ligne de ${invoice.amountTTC}€ reçu pour la facture ${invoice.number}.`,
+                                    entityType: "invoice",
+                                    entityId: invoice.id
+                                }
+                            });
+                        }
+                    }
+                }
+                break;
+            }
+
+            case "payment_intent.succeeded": {
+                const paymentIntent = dataObject;
+                const invoiceId = paymentIntent.metadata?.invoiceId;
+
+                if (invoiceId) {
+                    const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
+                    if (invoice && invoice.paymentStatus !== "PAID") {
+                        await prisma.invoice.update({
+                            where: { id: invoiceId },
+                            data: {
+                                status: "PAID",
+                                paymentStatus: "PAID",
+                                invoicePaymentMethod: "CARD",
+                                paymentMethod: "CARD",
+                                amountPaid: invoice.amountTTC,
+                                paidAt: new Date(),
+                                stripePaymentIntentId: paymentIntent.id,
+                                paymentRef: paymentIntent.id
+                            }
+                        });
+                    }
+                }
+                break;
+            }
+
+            case "payment_intent.payment_failed": {
+                const paymentIntent = dataObject;
+                const invoiceId = paymentIntent.metadata?.invoiceId;
+
+                if (invoiceId) {
+                    await prisma.invoice.update({
+                        where: { id: invoiceId },
+                        data: {
+                            paymentStatus: "FAILED"
+                        }
+                    });
+
+                    if (event.id) {
+                        await prisma.invoicePaymentEvent.create({
+                            data: {
+                                invoiceId,
+                                event: "payment.failed",
+                                amount: (paymentIntent.amount || 0) / 100,
+                                stripeEventId: event.id,
+                                stripeData: paymentIntent
+                            }
+                        });
+                    }
+                }
+                break;
+            }
+
+            case "account.updated": {
+                const account = dataObject;
+                const companyId = account.metadata?.companyId;
+
+                if (companyId) {
+                    await syncAccountStatus(companyId);
+                } else if (account.id) {
+                    const company = await prisma.company.findUnique({
+                        where: { stripeAccountId: account.id }
+                    });
+                    if (company) {
+                        await syncAccountStatus(company.id);
+                    }
+                }
+                break;
+            }
+
+            default:
+                console.log(`[STRIPE CONNECT WEBHOOK] Event non traité: ${eventType}`);
+        }
+
+        return res.status(200).json({ received: true });
+    } catch (error) {
+        console.error("STRIPE CONNECT WEBHOOK ERROR:", error.message);
+        return res.status(400).json({
+            success: false,
+            message: `Webhook Connect Error: ${error.message}`
+        });
+    }
+};
+
+/**
+ * Webhook Twilio pour les SMS entrants
+ */
 export const handleTwilioWebhook = async (req, res) => {
     const { From, To, Body, MessageSid } = req.body || req.query;
 
@@ -244,7 +457,6 @@ export const handleTwilioWebhook = async (req, res) => {
     try {
         const cleanFrom = From.replace(/\s+/g, "");
 
-        // Recherche du client par numéro de téléphone
         const client = await prisma.client.findFirst({
             where: {
                 phone: { contains: cleanFrom.slice(-9) },
@@ -253,7 +465,6 @@ export const handleTwilioWebhook = async (req, res) => {
         });
 
         if (client) {
-            // Création de la ligne SMS entrante
             const smsLog = await prisma.smsLog.create({
                 data: {
                     companyId: client.companyId,
@@ -269,7 +480,6 @@ export const handleTwilioWebhook = async (req, res) => {
                 }
             });
 
-            // Notification au propriétaire de l'entreprise
             const owner = await prisma.user.findFirst({
                 where: { companyId: client.companyId, role: "OWNER" }
             });
@@ -300,16 +510,14 @@ export const handleTwilioWebhook = async (req, res) => {
     }
 };
 
-////// B2BROUTER E-INVOICING WEBHOOK HANDLER //////
+/**
+ * Webhook B2Brouter pour la Facturation Électronique
+ */
 export const handleB2brouterWebhook = async (req, res) => {
     try {
         const { B2brouterWebhookHandler } = await import("../modules/e-invoicing/providers/b2brouter/B2brouterWebhookHandler.js");
-        
         const payload = req.body;
         const headers = req.headers;
-        
-        console.log(`[B2BROUTER WEBHOOK] Received event: ${payload?.event || payload?.type || 'unknown'}`);
-        
         const result = await B2brouterWebhookHandler.handleWebhook(payload, headers);
         return res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -317,4 +525,3 @@ export const handleB2brouterWebhook = async (req, res) => {
         return res.status(500).json({ success: false, error: error.message });
     }
 };
-

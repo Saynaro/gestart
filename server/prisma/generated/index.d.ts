@@ -203,6 +203,31 @@ export type EInvoicingEvent = $Result.DefaultSelection<Prisma.$EInvoicingEventPa
  * 
  */
 export type EInvoicingJob = $Result.DefaultSelection<Prisma.$EInvoicingJobPayload>
+/**
+ * Model InvoiceTransaction
+ * 
+ */
+export type InvoiceTransaction = $Result.DefaultSelection<Prisma.$InvoiceTransactionPayload>
+/**
+ * Model StripeFeeConfig
+ * 
+ */
+export type StripeFeeConfig = $Result.DefaultSelection<Prisma.$StripeFeeConfigPayload>
+/**
+ * Model BankConnection
+ * 
+ */
+export type BankConnection = $Result.DefaultSelection<Prisma.$BankConnectionPayload>
+/**
+ * Model BankAccount
+ * 
+ */
+export type BankAccount = $Result.DefaultSelection<Prisma.$BankAccountPayload>
+/**
+ * Model BankTransaction
+ * 
+ */
+export type BankTransaction = $Result.DefaultSelection<Prisma.$BankTransactionPayload>
 
 /**
  * Enums
@@ -430,6 +455,45 @@ export const TvaRate: {
 export type TvaRate = (typeof TvaRate)[keyof typeof TvaRate]
 
 
+export const StripeOnboardingStatus: {
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETE: 'COMPLETE',
+  REQUIRES_INFO: 'REQUIRES_INFO',
+  DISABLED: 'DISABLED'
+};
+
+export type StripeOnboardingStatus = (typeof StripeOnboardingStatus)[keyof typeof StripeOnboardingStatus]
+
+
+export const InvoicePaymentStatus: {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  PARTIALLY_PAID: 'PARTIALLY_PAID',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+};
+
+export type InvoicePaymentStatus = (typeof InvoicePaymentStatus)[keyof typeof InvoicePaymentStatus]
+
+
+export const InvoicePaymentMethodType: {
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  CARD: 'CARD',
+  OTHER: 'OTHER'
+};
+
+export type InvoicePaymentMethodType = (typeof InvoicePaymentMethodType)[keyof typeof InvoicePaymentMethodType]
+
+
+export const StripeFeeBearer: {
+  COMPANY: 'COMPANY',
+  CLIENT: 'CLIENT'
+};
+
+export type StripeFeeBearer = (typeof StripeFeeBearer)[keyof typeof StripeFeeBearer]
+
+
 export const EInvoicingProviderType: {
   B2BROUTER: 'B2BROUTER',
   PENNYLANE: 'PENNYLANE',
@@ -571,6 +635,22 @@ export const SystemRole: typeof $Enums.SystemRole
 export type TvaRate = $Enums.TvaRate
 
 export const TvaRate: typeof $Enums.TvaRate
+
+export type StripeOnboardingStatus = $Enums.StripeOnboardingStatus
+
+export const StripeOnboardingStatus: typeof $Enums.StripeOnboardingStatus
+
+export type InvoicePaymentStatus = $Enums.InvoicePaymentStatus
+
+export const InvoicePaymentStatus: typeof $Enums.InvoicePaymentStatus
+
+export type InvoicePaymentMethodType = $Enums.InvoicePaymentMethodType
+
+export const InvoicePaymentMethodType: typeof $Enums.InvoicePaymentMethodType
+
+export type StripeFeeBearer = $Enums.StripeFeeBearer
+
+export const StripeFeeBearer: typeof $Enums.StripeFeeBearer
 
 export type EInvoicingProviderType = $Enums.EInvoicingProviderType
 
@@ -1092,6 +1172,56 @@ export class PrismaClient<
     * ```
     */
   get eInvoicingJob(): Prisma.EInvoicingJobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.invoiceTransaction`: Exposes CRUD operations for the **InvoiceTransaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InvoiceTransactions
+    * const invoiceTransactions = await prisma.invoiceTransaction.findMany()
+    * ```
+    */
+  get invoiceTransaction(): Prisma.InvoiceTransactionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.stripeFeeConfig`: Exposes CRUD operations for the **StripeFeeConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StripeFeeConfigs
+    * const stripeFeeConfigs = await prisma.stripeFeeConfig.findMany()
+    * ```
+    */
+  get stripeFeeConfig(): Prisma.StripeFeeConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bankConnection`: Exposes CRUD operations for the **BankConnection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BankConnections
+    * const bankConnections = await prisma.bankConnection.findMany()
+    * ```
+    */
+  get bankConnection(): Prisma.BankConnectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bankAccount`: Exposes CRUD operations for the **BankAccount** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BankAccounts
+    * const bankAccounts = await prisma.bankAccount.findMany()
+    * ```
+    */
+  get bankAccount(): Prisma.BankAccountDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bankTransaction`: Exposes CRUD operations for the **BankTransaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BankTransactions
+    * const bankTransactions = await prisma.bankTransaction.findMany()
+    * ```
+    */
+  get bankTransaction(): Prisma.BankTransactionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1563,7 +1693,12 @@ export namespace Prisma {
     EInvoicingConnection: 'EInvoicingConnection',
     ReceivedInvoice: 'ReceivedInvoice',
     EInvoicingEvent: 'EInvoicingEvent',
-    EInvoicingJob: 'EInvoicingJob'
+    EInvoicingJob: 'EInvoicingJob',
+    InvoiceTransaction: 'InvoiceTransaction',
+    StripeFeeConfig: 'StripeFeeConfig',
+    BankConnection: 'BankConnection',
+    BankAccount: 'BankAccount',
+    BankTransaction: 'BankTransaction'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1579,7 +1714,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob"
+      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob" | "invoiceTransaction" | "stripeFeeConfig" | "bankConnection" | "bankAccount" | "bankTransaction"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4395,6 +4530,376 @@ export namespace Prisma {
           }
         }
       }
+      InvoiceTransaction: {
+        payload: Prisma.$InvoiceTransactionPayload<ExtArgs>
+        fields: Prisma.InvoiceTransactionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InvoiceTransactionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InvoiceTransactionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>
+          }
+          findFirst: {
+            args: Prisma.InvoiceTransactionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InvoiceTransactionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>
+          }
+          findMany: {
+            args: Prisma.InvoiceTransactionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>[]
+          }
+          create: {
+            args: Prisma.InvoiceTransactionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>
+          }
+          createMany: {
+            args: Prisma.InvoiceTransactionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InvoiceTransactionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>[]
+          }
+          delete: {
+            args: Prisma.InvoiceTransactionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>
+          }
+          update: {
+            args: Prisma.InvoiceTransactionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>
+          }
+          deleteMany: {
+            args: Prisma.InvoiceTransactionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InvoiceTransactionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.InvoiceTransactionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>[]
+          }
+          upsert: {
+            args: Prisma.InvoiceTransactionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoiceTransactionPayload>
+          }
+          aggregate: {
+            args: Prisma.InvoiceTransactionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInvoiceTransaction>
+          }
+          groupBy: {
+            args: Prisma.InvoiceTransactionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InvoiceTransactionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InvoiceTransactionCountArgs<ExtArgs>
+            result: $Utils.Optional<InvoiceTransactionCountAggregateOutputType> | number
+          }
+        }
+      }
+      StripeFeeConfig: {
+        payload: Prisma.$StripeFeeConfigPayload<ExtArgs>
+        fields: Prisma.StripeFeeConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StripeFeeConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StripeFeeConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.StripeFeeConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StripeFeeConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>
+          }
+          findMany: {
+            args: Prisma.StripeFeeConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>[]
+          }
+          create: {
+            args: Prisma.StripeFeeConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>
+          }
+          createMany: {
+            args: Prisma.StripeFeeConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StripeFeeConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.StripeFeeConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>
+          }
+          update: {
+            args: Prisma.StripeFeeConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.StripeFeeConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StripeFeeConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StripeFeeConfigUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>[]
+          }
+          upsert: {
+            args: Prisma.StripeFeeConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StripeFeeConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.StripeFeeConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStripeFeeConfig>
+          }
+          groupBy: {
+            args: Prisma.StripeFeeConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StripeFeeConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StripeFeeConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<StripeFeeConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      BankConnection: {
+        payload: Prisma.$BankConnectionPayload<ExtArgs>
+        fields: Prisma.BankConnectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BankConnectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BankConnectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>
+          }
+          findFirst: {
+            args: Prisma.BankConnectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BankConnectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>
+          }
+          findMany: {
+            args: Prisma.BankConnectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>[]
+          }
+          create: {
+            args: Prisma.BankConnectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>
+          }
+          createMany: {
+            args: Prisma.BankConnectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BankConnectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>[]
+          }
+          delete: {
+            args: Prisma.BankConnectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>
+          }
+          update: {
+            args: Prisma.BankConnectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.BankConnectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BankConnectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BankConnectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.BankConnectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankConnectionPayload>
+          }
+          aggregate: {
+            args: Prisma.BankConnectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBankConnection>
+          }
+          groupBy: {
+            args: Prisma.BankConnectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BankConnectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BankConnectionCountArgs<ExtArgs>
+            result: $Utils.Optional<BankConnectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      BankAccount: {
+        payload: Prisma.$BankAccountPayload<ExtArgs>
+        fields: Prisma.BankAccountFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BankAccountFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BankAccountFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>
+          }
+          findFirst: {
+            args: Prisma.BankAccountFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BankAccountFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>
+          }
+          findMany: {
+            args: Prisma.BankAccountFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>[]
+          }
+          create: {
+            args: Prisma.BankAccountCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>
+          }
+          createMany: {
+            args: Prisma.BankAccountCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BankAccountCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>[]
+          }
+          delete: {
+            args: Prisma.BankAccountDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>
+          }
+          update: {
+            args: Prisma.BankAccountUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>
+          }
+          deleteMany: {
+            args: Prisma.BankAccountDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BankAccountUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BankAccountUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>[]
+          }
+          upsert: {
+            args: Prisma.BankAccountUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankAccountPayload>
+          }
+          aggregate: {
+            args: Prisma.BankAccountAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBankAccount>
+          }
+          groupBy: {
+            args: Prisma.BankAccountGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BankAccountGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BankAccountCountArgs<ExtArgs>
+            result: $Utils.Optional<BankAccountCountAggregateOutputType> | number
+          }
+        }
+      }
+      BankTransaction: {
+        payload: Prisma.$BankTransactionPayload<ExtArgs>
+        fields: Prisma.BankTransactionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BankTransactionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BankTransactionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>
+          }
+          findFirst: {
+            args: Prisma.BankTransactionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BankTransactionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>
+          }
+          findMany: {
+            args: Prisma.BankTransactionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>[]
+          }
+          create: {
+            args: Prisma.BankTransactionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>
+          }
+          createMany: {
+            args: Prisma.BankTransactionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BankTransactionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>[]
+          }
+          delete: {
+            args: Prisma.BankTransactionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>
+          }
+          update: {
+            args: Prisma.BankTransactionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>
+          }
+          deleteMany: {
+            args: Prisma.BankTransactionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BankTransactionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BankTransactionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>[]
+          }
+          upsert: {
+            args: Prisma.BankTransactionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BankTransactionPayload>
+          }
+          aggregate: {
+            args: Prisma.BankTransactionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBankTransaction>
+          }
+          groupBy: {
+            args: Prisma.BankTransactionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BankTransactionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BankTransactionCountArgs<ExtArgs>
+            result: $Utils.Optional<BankTransactionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4541,6 +5046,11 @@ export namespace Prisma {
     receivedInvoice?: ReceivedInvoiceOmit
     eInvoicingEvent?: EInvoicingEventOmit
     eInvoicingJob?: EInvoicingJobOmit
+    invoiceTransaction?: InvoiceTransactionOmit
+    stripeFeeConfig?: StripeFeeConfigOmit
+    bankConnection?: BankConnectionOmit
+    bankAccount?: BankAccountOmit
+    bankTransaction?: BankTransactionOmit
   }
 
   /* Types for Logging */
@@ -4666,6 +5176,9 @@ export namespace Prisma {
     catalogItems: number
     interventionTypes: number
     tradeCategories: number
+    invoiceTransactions: number
+    bankAccounts: number
+    bankTransactions: number
     accountingExports: number
     tvaSummaries: number
     receivedInvoices: number
@@ -4688,6 +5201,9 @@ export namespace Prisma {
     catalogItems?: boolean | CompanyCountOutputTypeCountCatalogItemsArgs
     interventionTypes?: boolean | CompanyCountOutputTypeCountInterventionTypesArgs
     tradeCategories?: boolean | CompanyCountOutputTypeCountTradeCategoriesArgs
+    invoiceTransactions?: boolean | CompanyCountOutputTypeCountInvoiceTransactionsArgs
+    bankAccounts?: boolean | CompanyCountOutputTypeCountBankAccountsArgs
+    bankTransactions?: boolean | CompanyCountOutputTypeCountBankTransactionsArgs
     accountingExports?: boolean | CompanyCountOutputTypeCountAccountingExportsArgs
     tvaSummaries?: boolean | CompanyCountOutputTypeCountTvaSummariesArgs
     receivedInvoices?: boolean | CompanyCountOutputTypeCountReceivedInvoicesArgs
@@ -4802,6 +5318,27 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountTradeCategoriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CompanyTradeCategoryWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountInvoiceTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceTransactionWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountBankAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankAccountWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountBankTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankTransactionWhereInput
   }
 
   /**
@@ -5252,12 +5789,16 @@ export namespace Prisma {
   export type InvoiceCountOutputType = {
     lines: number
     paymentEvents: number
+    transactions: number
+    bankTransactions: number
     einvoicingEvents: number
   }
 
   export type InvoiceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     lines?: boolean | InvoiceCountOutputTypeCountLinesArgs
     paymentEvents?: boolean | InvoiceCountOutputTypeCountPaymentEventsArgs
+    transactions?: boolean | InvoiceCountOutputTypeCountTransactionsArgs
+    bankTransactions?: boolean | InvoiceCountOutputTypeCountBankTransactionsArgs
     einvoicingEvents?: boolean | InvoiceCountOutputTypeCountEinvoicingEventsArgs
   }
 
@@ -5284,6 +5825,20 @@ export namespace Prisma {
    */
   export type InvoiceCountOutputTypeCountPaymentEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InvoicePaymentEventWhereInput
+  }
+
+  /**
+   * InvoiceCountOutputType without action
+   */
+  export type InvoiceCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceTransactionWhereInput
+  }
+
+  /**
+   * InvoiceCountOutputType without action
+   */
+  export type InvoiceCountOutputTypeCountBankTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankTransactionWhereInput
   }
 
   /**
@@ -5362,6 +5917,68 @@ export namespace Prisma {
    */
   export type ReceivedInvoiceCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EInvoicingEventWhereInput
+  }
+
+
+  /**
+   * Count Type BankConnectionCountOutputType
+   */
+
+  export type BankConnectionCountOutputType = {
+    accounts: number
+  }
+
+  export type BankConnectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    accounts?: boolean | BankConnectionCountOutputTypeCountAccountsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BankConnectionCountOutputType without action
+   */
+  export type BankConnectionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnectionCountOutputType
+     */
+    select?: BankConnectionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BankConnectionCountOutputType without action
+   */
+  export type BankConnectionCountOutputTypeCountAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankAccountWhereInput
+  }
+
+
+  /**
+   * Count Type BankAccountCountOutputType
+   */
+
+  export type BankAccountCountOutputType = {
+    transactions: number
+  }
+
+  export type BankAccountCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transactions?: boolean | BankAccountCountOutputTypeCountTransactionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BankAccountCountOutputType without action
+   */
+  export type BankAccountCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccountCountOutputType
+     */
+    select?: BankAccountCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BankAccountCountOutputType without action
+   */
+  export type BankAccountCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankTransactionWhereInput
   }
 
 
@@ -6741,6 +7358,11 @@ export namespace Prisma {
     stripeAccountId: string | null
     stripeAccountStatus: string | null
     onlinePaymentEnabled: boolean | null
+    stripeOnboardingStatus: $Enums.StripeOnboardingStatus | null
+    stripeChargesEnabled: boolean | null
+    stripePayoutsEnabled: boolean | null
+    stripeDetailsSubmitted: boolean | null
+    stripeConnectedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6770,6 +7392,11 @@ export namespace Prisma {
     stripeAccountId: string | null
     stripeAccountStatus: string | null
     onlinePaymentEnabled: boolean | null
+    stripeOnboardingStatus: $Enums.StripeOnboardingStatus | null
+    stripeChargesEnabled: boolean | null
+    stripePayoutsEnabled: boolean | null
+    stripeDetailsSubmitted: boolean | null
+    stripeConnectedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6799,6 +7426,11 @@ export namespace Prisma {
     stripeAccountId: number
     stripeAccountStatus: number
     onlinePaymentEnabled: number
+    stripeOnboardingStatus: number
+    stripeChargesEnabled: number
+    stripePayoutsEnabled: number
+    stripeDetailsSubmitted: number
+    stripeConnectedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6830,6 +7462,11 @@ export namespace Prisma {
     stripeAccountId?: true
     stripeAccountStatus?: true
     onlinePaymentEnabled?: true
+    stripeOnboardingStatus?: true
+    stripeChargesEnabled?: true
+    stripePayoutsEnabled?: true
+    stripeDetailsSubmitted?: true
+    stripeConnectedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6859,6 +7496,11 @@ export namespace Prisma {
     stripeAccountId?: true
     stripeAccountStatus?: true
     onlinePaymentEnabled?: true
+    stripeOnboardingStatus?: true
+    stripeChargesEnabled?: true
+    stripePayoutsEnabled?: true
+    stripeDetailsSubmitted?: true
+    stripeConnectedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6888,6 +7530,11 @@ export namespace Prisma {
     stripeAccountId?: true
     stripeAccountStatus?: true
     onlinePaymentEnabled?: true
+    stripeOnboardingStatus?: true
+    stripeChargesEnabled?: true
+    stripePayoutsEnabled?: true
+    stripeDetailsSubmitted?: true
+    stripeConnectedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6990,6 +7637,11 @@ export namespace Prisma {
     stripeAccountId: string | null
     stripeAccountStatus: string | null
     onlinePaymentEnabled: boolean
+    stripeOnboardingStatus: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled: boolean
+    stripePayoutsEnabled: boolean
+    stripeDetailsSubmitted: boolean
+    stripeConnectedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: CompanyCountAggregateOutputType | null
@@ -7036,6 +7688,11 @@ export namespace Prisma {
     stripeAccountId?: boolean
     stripeAccountStatus?: boolean
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: boolean
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     users?: boolean | Company$usersArgs<ExtArgs>
@@ -7054,6 +7711,10 @@ export namespace Prisma {
     catalogItems?: boolean | Company$catalogItemsArgs<ExtArgs>
     interventionTypes?: boolean | Company$interventionTypesArgs<ExtArgs>
     tradeCategories?: boolean | Company$tradeCategoriesArgs<ExtArgs>
+    invoiceTransactions?: boolean | Company$invoiceTransactionsArgs<ExtArgs>
+    bankConnection?: boolean | Company$bankConnectionArgs<ExtArgs>
+    bankAccounts?: boolean | Company$bankAccountsArgs<ExtArgs>
+    bankTransactions?: boolean | Company$bankTransactionsArgs<ExtArgs>
     accountingExports?: boolean | Company$accountingExportsArgs<ExtArgs>
     tvaSummaries?: boolean | Company$tvaSummariesArgs<ExtArgs>
     accountingIntegration?: boolean | Company$accountingIntegrationArgs<ExtArgs>
@@ -7089,6 +7750,11 @@ export namespace Prisma {
     stripeAccountId?: boolean
     stripeAccountStatus?: boolean
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: boolean
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["company"]>
@@ -7118,6 +7784,11 @@ export namespace Prisma {
     stripeAccountId?: boolean
     stripeAccountStatus?: boolean
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: boolean
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["company"]>
@@ -7147,11 +7818,16 @@ export namespace Prisma {
     stripeAccountId?: boolean
     stripeAccountStatus?: boolean
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: boolean
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "siret" | "siren" | "tvaNumber" | "legalForm" | "rcsNumber" | "shareCapital" | "nafCode" | "isTvaFranchise" | "isSubcontractor" | "phone" | "email" | "address" | "city" | "postalCode" | "logoUrl" | "signatureUrl" | "website" | "slug" | "smsNumber" | "stripeAccountId" | "stripeAccountStatus" | "onlinePaymentEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
+  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "siret" | "siren" | "tvaNumber" | "legalForm" | "rcsNumber" | "shareCapital" | "nafCode" | "isTvaFranchise" | "isSubcontractor" | "phone" | "email" | "address" | "city" | "postalCode" | "logoUrl" | "signatureUrl" | "website" | "slug" | "smsNumber" | "stripeAccountId" | "stripeAccountStatus" | "onlinePaymentEnabled" | "stripeOnboardingStatus" | "stripeChargesEnabled" | "stripePayoutsEnabled" | "stripeDetailsSubmitted" | "stripeConnectedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Company$usersArgs<ExtArgs>
     clients?: boolean | Company$clientsArgs<ExtArgs>
@@ -7169,6 +7845,10 @@ export namespace Prisma {
     catalogItems?: boolean | Company$catalogItemsArgs<ExtArgs>
     interventionTypes?: boolean | Company$interventionTypesArgs<ExtArgs>
     tradeCategories?: boolean | Company$tradeCategoriesArgs<ExtArgs>
+    invoiceTransactions?: boolean | Company$invoiceTransactionsArgs<ExtArgs>
+    bankConnection?: boolean | Company$bankConnectionArgs<ExtArgs>
+    bankAccounts?: boolean | Company$bankAccountsArgs<ExtArgs>
+    bankTransactions?: boolean | Company$bankTransactionsArgs<ExtArgs>
     accountingExports?: boolean | Company$accountingExportsArgs<ExtArgs>
     tvaSummaries?: boolean | Company$tvaSummariesArgs<ExtArgs>
     accountingIntegration?: boolean | Company$accountingIntegrationArgs<ExtArgs>
@@ -7200,6 +7880,10 @@ export namespace Prisma {
       catalogItems: Prisma.$CatalogItemPayload<ExtArgs>[]
       interventionTypes: Prisma.$InterventionTypeItemPayload<ExtArgs>[]
       tradeCategories: Prisma.$CompanyTradeCategoryPayload<ExtArgs>[]
+      invoiceTransactions: Prisma.$InvoiceTransactionPayload<ExtArgs>[]
+      bankConnection: Prisma.$BankConnectionPayload<ExtArgs> | null
+      bankAccounts: Prisma.$BankAccountPayload<ExtArgs>[]
+      bankTransactions: Prisma.$BankTransactionPayload<ExtArgs>[]
       accountingExports: Prisma.$AccountingExportPayload<ExtArgs>[]
       tvaSummaries: Prisma.$TvaSummaryPayload<ExtArgs>[]
       accountingIntegration: Prisma.$AccountingIntegrationPayload<ExtArgs> | null
@@ -7233,6 +7917,11 @@ export namespace Prisma {
       stripeAccountId: string | null
       stripeAccountStatus: string | null
       onlinePaymentEnabled: boolean
+      stripeOnboardingStatus: $Enums.StripeOnboardingStatus
+      stripeChargesEnabled: boolean
+      stripePayoutsEnabled: boolean
+      stripeDetailsSubmitted: boolean
+      stripeConnectedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["company"]>
@@ -7645,6 +8334,10 @@ export namespace Prisma {
     catalogItems<T extends Company$catalogItemsArgs<ExtArgs> = {}>(args?: Subset<T, Company$catalogItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CatalogItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     interventionTypes<T extends Company$interventionTypesArgs<ExtArgs> = {}>(args?: Subset<T, Company$interventionTypesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionTypeItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tradeCategories<T extends Company$tradeCategoriesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tradeCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyTradeCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    invoiceTransactions<T extends Company$invoiceTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$invoiceTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bankConnection<T extends Company$bankConnectionArgs<ExtArgs> = {}>(args?: Subset<T, Company$bankConnectionArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    bankAccounts<T extends Company$bankAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Company$bankAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bankTransactions<T extends Company$bankTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$bankTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accountingExports<T extends Company$accountingExportsArgs<ExtArgs> = {}>(args?: Subset<T, Company$accountingExportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountingExportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tvaSummaries<T extends Company$tvaSummariesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tvaSummariesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TvaSummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accountingIntegration<T extends Company$accountingIntegrationArgs<ExtArgs> = {}>(args?: Subset<T, Company$accountingIntegrationArgs<ExtArgs>>): Prisma__AccountingIntegrationClient<$Result.GetResult<Prisma.$AccountingIntegrationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -7705,6 +8398,11 @@ export namespace Prisma {
     readonly stripeAccountId: FieldRef<"Company", 'String'>
     readonly stripeAccountStatus: FieldRef<"Company", 'String'>
     readonly onlinePaymentEnabled: FieldRef<"Company", 'Boolean'>
+    readonly stripeOnboardingStatus: FieldRef<"Company", 'StripeOnboardingStatus'>
+    readonly stripeChargesEnabled: FieldRef<"Company", 'Boolean'>
+    readonly stripePayoutsEnabled: FieldRef<"Company", 'Boolean'>
+    readonly stripeDetailsSubmitted: FieldRef<"Company", 'Boolean'>
+    readonly stripeConnectedAt: FieldRef<"Company", 'DateTime'>
     readonly createdAt: FieldRef<"Company", 'DateTime'>
     readonly updatedAt: FieldRef<"Company", 'DateTime'>
   }
@@ -8471,6 +9169,97 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CompanyTradeCategoryScalarFieldEnum | CompanyTradeCategoryScalarFieldEnum[]
+  }
+
+  /**
+   * Company.invoiceTransactions
+   */
+  export type Company$invoiceTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    where?: InvoiceTransactionWhereInput
+    orderBy?: InvoiceTransactionOrderByWithRelationInput | InvoiceTransactionOrderByWithRelationInput[]
+    cursor?: InvoiceTransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvoiceTransactionScalarFieldEnum | InvoiceTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * Company.bankConnection
+   */
+  export type Company$bankConnectionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    where?: BankConnectionWhereInput
+  }
+
+  /**
+   * Company.bankAccounts
+   */
+  export type Company$bankAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    where?: BankAccountWhereInput
+    orderBy?: BankAccountOrderByWithRelationInput | BankAccountOrderByWithRelationInput[]
+    cursor?: BankAccountWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BankAccountScalarFieldEnum | BankAccountScalarFieldEnum[]
+  }
+
+  /**
+   * Company.bankTransactions
+   */
+  export type Company$bankTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    where?: BankTransactionWhereInput
+    orderBy?: BankTransactionOrderByWithRelationInput | BankTransactionOrderByWithRelationInput[]
+    cursor?: BankTransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BankTransactionScalarFieldEnum | BankTransactionScalarFieldEnum[]
   }
 
   /**
@@ -13363,6 +14152,9 @@ export namespace Prisma {
     bankIban: string | null
     bankBic: string | null
     bankAccountOwner: string | null
+    bankTransferEnabled: boolean | null
+    stripePaymentEnabled: boolean | null
+    stripeFeeBearer: $Enums.StripeFeeBearer | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13409,6 +14201,9 @@ export namespace Prisma {
     bankIban: string | null
     bankBic: string | null
     bankAccountOwner: string | null
+    bankTransferEnabled: boolean | null
+    stripePaymentEnabled: boolean | null
+    stripeFeeBearer: $Enums.StripeFeeBearer | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13459,6 +14254,9 @@ export namespace Prisma {
     bankIban: number
     bankBic: number
     bankAccountOwner: number
+    bankTransferEnabled: number
+    stripePaymentEnabled: number
+    stripeFeeBearer: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -13533,6 +14331,9 @@ export namespace Prisma {
     bankIban?: true
     bankBic?: true
     bankAccountOwner?: true
+    bankTransferEnabled?: true
+    stripePaymentEnabled?: true
+    stripeFeeBearer?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13579,6 +14380,9 @@ export namespace Prisma {
     bankIban?: true
     bankBic?: true
     bankAccountOwner?: true
+    bankTransferEnabled?: true
+    stripePaymentEnabled?: true
+    stripeFeeBearer?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13629,6 +14433,9 @@ export namespace Prisma {
     bankIban?: true
     bankBic?: true
     bankAccountOwner?: true
+    bankTransferEnabled?: true
+    stripePaymentEnabled?: true
+    stripeFeeBearer?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -13766,6 +14573,9 @@ export namespace Prisma {
     bankIban: string | null
     bankBic: string | null
     bankAccountOwner: string | null
+    bankTransferEnabled: boolean
+    stripePaymentEnabled: boolean
+    stripeFeeBearer: $Enums.StripeFeeBearer
     createdAt: Date
     updatedAt: Date
     _count: CompanySettingsCountAggregateOutputType | null
@@ -13835,6 +14645,9 @@ export namespace Prisma {
     bankIban?: boolean
     bankBic?: boolean
     bankAccountOwner?: boolean
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -13886,6 +14699,9 @@ export namespace Prisma {
     bankIban?: boolean
     bankBic?: boolean
     bankAccountOwner?: boolean
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -13937,6 +14753,9 @@ export namespace Prisma {
     bankIban?: boolean
     bankBic?: boolean
     bankAccountOwner?: boolean
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -13988,11 +14807,14 @@ export namespace Prisma {
     bankIban?: boolean
     bankBic?: boolean
     bankAccountOwner?: boolean
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "documentCustomization" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "documentCustomization" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "bankTransferEnabled" | "stripePaymentEnabled" | "stripeFeeBearer" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -14054,6 +14876,9 @@ export namespace Prisma {
       bankIban: string | null
       bankBic: string | null
       bankAccountOwner: string | null
+      bankTransferEnabled: boolean
+      stripePaymentEnabled: boolean
+      stripeFeeBearer: $Enums.StripeFeeBearer
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["companySettings"]>
@@ -14525,6 +15350,9 @@ export namespace Prisma {
     readonly bankIban: FieldRef<"CompanySettings", 'String'>
     readonly bankBic: FieldRef<"CompanySettings", 'String'>
     readonly bankAccountOwner: FieldRef<"CompanySettings", 'String'>
+    readonly bankTransferEnabled: FieldRef<"CompanySettings", 'Boolean'>
+    readonly stripePaymentEnabled: FieldRef<"CompanySettings", 'Boolean'>
+    readonly stripeFeeBearer: FieldRef<"CompanySettings", 'StripeFeeBearer'>
     readonly createdAt: FieldRef<"CompanySettings", 'DateTime'>
     readonly updatedAt: FieldRef<"CompanySettings", 'DateTime'>
   }
@@ -31778,6 +32606,10 @@ export namespace Prisma {
     paymentMethod: $Enums.PaymentMethod | null
     paymentRef: string | null
     pdfUrl: string | null
+    paymentStatus: $Enums.InvoicePaymentStatus | null
+    invoicePaymentMethod: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled: boolean | null
+    stripeEnabled: boolean | null
     onlinePaymentEnabled: boolean | null
     stripePaymentIntentId: string | null
     stripeCheckoutUrl: string | null
@@ -31833,6 +32665,10 @@ export namespace Prisma {
     paymentMethod: $Enums.PaymentMethod | null
     paymentRef: string | null
     pdfUrl: string | null
+    paymentStatus: $Enums.InvoicePaymentStatus | null
+    invoicePaymentMethod: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled: boolean | null
+    stripeEnabled: boolean | null
     onlinePaymentEnabled: boolean | null
     stripePaymentIntentId: string | null
     stripeCheckoutUrl: string | null
@@ -31889,6 +32725,10 @@ export namespace Prisma {
     paymentMethod: number
     paymentRef: number
     pdfUrl: number
+    paymentStatus: number
+    invoicePaymentMethod: number
+    bankTransferEnabled: number
+    stripeEnabled: number
     onlinePaymentEnabled: number
     stripePaymentIntentId: number
     stripeCheckoutUrl: number
@@ -31965,6 +32805,10 @@ export namespace Prisma {
     paymentMethod?: true
     paymentRef?: true
     pdfUrl?: true
+    paymentStatus?: true
+    invoicePaymentMethod?: true
+    bankTransferEnabled?: true
+    stripeEnabled?: true
     onlinePaymentEnabled?: true
     stripePaymentIntentId?: true
     stripeCheckoutUrl?: true
@@ -32020,6 +32864,10 @@ export namespace Prisma {
     paymentMethod?: true
     paymentRef?: true
     pdfUrl?: true
+    paymentStatus?: true
+    invoicePaymentMethod?: true
+    bankTransferEnabled?: true
+    stripeEnabled?: true
     onlinePaymentEnabled?: true
     stripePaymentIntentId?: true
     stripeCheckoutUrl?: true
@@ -32076,6 +32924,10 @@ export namespace Prisma {
     paymentMethod?: true
     paymentRef?: true
     pdfUrl?: true
+    paymentStatus?: true
+    invoicePaymentMethod?: true
+    bankTransferEnabled?: true
+    stripeEnabled?: true
     onlinePaymentEnabled?: true
     stripePaymentIntentId?: true
     stripeCheckoutUrl?: true
@@ -32220,6 +33072,10 @@ export namespace Prisma {
     paymentMethod: $Enums.PaymentMethod | null
     paymentRef: string | null
     pdfUrl: string | null
+    paymentStatus: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled: boolean
+    stripeEnabled: boolean
     onlinePaymentEnabled: boolean
     stripePaymentIntentId: string | null
     stripeCheckoutUrl: string | null
@@ -32296,6 +33152,10 @@ export namespace Prisma {
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
+    paymentStatus?: boolean
+    invoicePaymentMethod?: boolean
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: boolean
     stripeCheckoutUrl?: boolean
@@ -32327,6 +33187,8 @@ export namespace Prisma {
     interventionType?: boolean | Invoice$interventionTypeArgs<ExtArgs>
     lines?: boolean | Invoice$linesArgs<ExtArgs>
     paymentEvents?: boolean | Invoice$paymentEventsArgs<ExtArgs>
+    transactions?: boolean | Invoice$transactionsArgs<ExtArgs>
+    bankTransactions?: boolean | Invoice$bankTransactionsArgs<ExtArgs>
     einvoicingEvents?: boolean | Invoice$einvoicingEventsArgs<ExtArgs>
     _count?: boolean | InvoiceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["invoice"]>
@@ -32361,6 +33223,10 @@ export namespace Prisma {
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
+    paymentStatus?: boolean
+    invoicePaymentMethod?: boolean
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: boolean
     stripeCheckoutUrl?: boolean
@@ -32422,6 +33288,10 @@ export namespace Prisma {
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
+    paymentStatus?: boolean
+    invoicePaymentMethod?: boolean
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: boolean
     stripeCheckoutUrl?: boolean
@@ -32483,6 +33353,10 @@ export namespace Prisma {
     paymentMethod?: boolean
     paymentRef?: boolean
     pdfUrl?: boolean
+    paymentStatus?: boolean
+    invoicePaymentMethod?: boolean
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: boolean
     stripeCheckoutUrl?: boolean
@@ -32510,7 +33384,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "documentCustomization" | "paymentMethod" | "paymentRef" | "pdfUrl" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "einvoicingStatus" | "einvoicingProvider" | "providerInvoiceId" | "einvoicingSentAt" | "einvoicingProcessedAt" | "einvoicingTransmissionId" | "einvoicingError" | "einvoicingRawPayload" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "documentCustomization" | "paymentMethod" | "paymentRef" | "pdfUrl" | "paymentStatus" | "invoicePaymentMethod" | "bankTransferEnabled" | "stripeEnabled" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "einvoicingStatus" | "einvoicingProvider" | "providerInvoiceId" | "einvoicingSentAt" | "einvoicingProcessedAt" | "einvoicingTransmissionId" | "einvoicingError" | "einvoicingRawPayload" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
   export type InvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
@@ -32518,6 +33392,8 @@ export namespace Prisma {
     interventionType?: boolean | Invoice$interventionTypeArgs<ExtArgs>
     lines?: boolean | Invoice$linesArgs<ExtArgs>
     paymentEvents?: boolean | Invoice$paymentEventsArgs<ExtArgs>
+    transactions?: boolean | Invoice$transactionsArgs<ExtArgs>
+    bankTransactions?: boolean | Invoice$bankTransactionsArgs<ExtArgs>
     einvoicingEvents?: boolean | Invoice$einvoicingEventsArgs<ExtArgs>
     _count?: boolean | InvoiceCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -32543,6 +33419,8 @@ export namespace Prisma {
       interventionType: Prisma.$InterventionTypeItemPayload<ExtArgs> | null
       lines: Prisma.$InvoiceLinePayload<ExtArgs>[]
       paymentEvents: Prisma.$InvoicePaymentEventPayload<ExtArgs>[]
+      transactions: Prisma.$InvoiceTransactionPayload<ExtArgs>[]
+      bankTransactions: Prisma.$BankTransactionPayload<ExtArgs>[]
       einvoicingEvents: Prisma.$EInvoicingEventPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -32575,6 +33453,10 @@ export namespace Prisma {
       paymentMethod: $Enums.PaymentMethod | null
       paymentRef: string | null
       pdfUrl: string | null
+      paymentStatus: $Enums.InvoicePaymentStatus
+      invoicePaymentMethod: $Enums.InvoicePaymentMethodType | null
+      bankTransferEnabled: boolean
+      stripeEnabled: boolean
       onlinePaymentEnabled: boolean
       stripePaymentIntentId: string | null
       stripeCheckoutUrl: string | null
@@ -33000,6 +33882,8 @@ export namespace Prisma {
     interventionType<T extends Invoice$interventionTypeArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$interventionTypeArgs<ExtArgs>>): Prisma__InterventionTypeItemClient<$Result.GetResult<Prisma.$InterventionTypeItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     lines<T extends Invoice$linesArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$linesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoiceLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     paymentEvents<T extends Invoice$paymentEventsArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$paymentEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePaymentEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    transactions<T extends Invoice$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bankTransactions<T extends Invoice$bankTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$bankTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     einvoicingEvents<T extends Invoice$einvoicingEventsArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$einvoicingEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -33059,6 +33943,10 @@ export namespace Prisma {
     readonly paymentMethod: FieldRef<"Invoice", 'PaymentMethod'>
     readonly paymentRef: FieldRef<"Invoice", 'String'>
     readonly pdfUrl: FieldRef<"Invoice", 'String'>
+    readonly paymentStatus: FieldRef<"Invoice", 'InvoicePaymentStatus'>
+    readonly invoicePaymentMethod: FieldRef<"Invoice", 'InvoicePaymentMethodType'>
+    readonly bankTransferEnabled: FieldRef<"Invoice", 'Boolean'>
+    readonly stripeEnabled: FieldRef<"Invoice", 'Boolean'>
     readonly onlinePaymentEnabled: FieldRef<"Invoice", 'Boolean'>
     readonly stripePaymentIntentId: FieldRef<"Invoice", 'String'>
     readonly stripeCheckoutUrl: FieldRef<"Invoice", 'String'>
@@ -33568,6 +34456,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: InvoicePaymentEventScalarFieldEnum | InvoicePaymentEventScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice.transactions
+   */
+  export type Invoice$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    where?: InvoiceTransactionWhereInput
+    orderBy?: InvoiceTransactionOrderByWithRelationInput | InvoiceTransactionOrderByWithRelationInput[]
+    cursor?: InvoiceTransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvoiceTransactionScalarFieldEnum | InvoiceTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice.bankTransactions
+   */
+  export type Invoice$bankTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    where?: BankTransactionWhereInput
+    orderBy?: BankTransactionOrderByWithRelationInput | BankTransactionOrderByWithRelationInput[]
+    cursor?: BankTransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BankTransactionScalarFieldEnum | BankTransactionScalarFieldEnum[]
   }
 
   /**
@@ -54152,6 +55088,5981 @@ export namespace Prisma {
 
 
   /**
+   * Model InvoiceTransaction
+   */
+
+  export type AggregateInvoiceTransaction = {
+    _count: InvoiceTransactionCountAggregateOutputType | null
+    _avg: InvoiceTransactionAvgAggregateOutputType | null
+    _sum: InvoiceTransactionSumAggregateOutputType | null
+    _min: InvoiceTransactionMinAggregateOutputType | null
+    _max: InvoiceTransactionMaxAggregateOutputType | null
+  }
+
+  export type InvoiceTransactionAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type InvoiceTransactionSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type InvoiceTransactionMinAggregateOutputType = {
+    id: string | null
+    invoiceId: string | null
+    companyId: string | null
+    type: $Enums.InvoicePaymentMethodType | null
+    status: string | null
+    amount: number | null
+    currency: string | null
+    stripePaymentIntentId: string | null
+    stripeCheckoutSessionId: string | null
+    stripeTransferId: string | null
+    bankReference: string | null
+    paidAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type InvoiceTransactionMaxAggregateOutputType = {
+    id: string | null
+    invoiceId: string | null
+    companyId: string | null
+    type: $Enums.InvoicePaymentMethodType | null
+    status: string | null
+    amount: number | null
+    currency: string | null
+    stripePaymentIntentId: string | null
+    stripeCheckoutSessionId: string | null
+    stripeTransferId: string | null
+    bankReference: string | null
+    paidAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type InvoiceTransactionCountAggregateOutputType = {
+    id: number
+    invoiceId: number
+    companyId: number
+    type: number
+    status: number
+    amount: number
+    currency: number
+    stripePaymentIntentId: number
+    stripeCheckoutSessionId: number
+    stripeTransferId: number
+    bankReference: number
+    paidAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type InvoiceTransactionAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type InvoiceTransactionSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type InvoiceTransactionMinAggregateInputType = {
+    id?: true
+    invoiceId?: true
+    companyId?: true
+    type?: true
+    status?: true
+    amount?: true
+    currency?: true
+    stripePaymentIntentId?: true
+    stripeCheckoutSessionId?: true
+    stripeTransferId?: true
+    bankReference?: true
+    paidAt?: true
+    createdAt?: true
+  }
+
+  export type InvoiceTransactionMaxAggregateInputType = {
+    id?: true
+    invoiceId?: true
+    companyId?: true
+    type?: true
+    status?: true
+    amount?: true
+    currency?: true
+    stripePaymentIntentId?: true
+    stripeCheckoutSessionId?: true
+    stripeTransferId?: true
+    bankReference?: true
+    paidAt?: true
+    createdAt?: true
+  }
+
+  export type InvoiceTransactionCountAggregateInputType = {
+    id?: true
+    invoiceId?: true
+    companyId?: true
+    type?: true
+    status?: true
+    amount?: true
+    currency?: true
+    stripePaymentIntentId?: true
+    stripeCheckoutSessionId?: true
+    stripeTransferId?: true
+    bankReference?: true
+    paidAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type InvoiceTransactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InvoiceTransaction to aggregate.
+     */
+    where?: InvoiceTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InvoiceTransactions to fetch.
+     */
+    orderBy?: InvoiceTransactionOrderByWithRelationInput | InvoiceTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InvoiceTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InvoiceTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InvoiceTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InvoiceTransactions
+    **/
+    _count?: true | InvoiceTransactionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: InvoiceTransactionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: InvoiceTransactionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InvoiceTransactionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InvoiceTransactionMaxAggregateInputType
+  }
+
+  export type GetInvoiceTransactionAggregateType<T extends InvoiceTransactionAggregateArgs> = {
+        [P in keyof T & keyof AggregateInvoiceTransaction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInvoiceTransaction[P]>
+      : GetScalarType<T[P], AggregateInvoiceTransaction[P]>
+  }
+
+
+
+
+  export type InvoiceTransactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceTransactionWhereInput
+    orderBy?: InvoiceTransactionOrderByWithAggregationInput | InvoiceTransactionOrderByWithAggregationInput[]
+    by: InvoiceTransactionScalarFieldEnum[] | InvoiceTransactionScalarFieldEnum
+    having?: InvoiceTransactionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InvoiceTransactionCountAggregateInputType | true
+    _avg?: InvoiceTransactionAvgAggregateInputType
+    _sum?: InvoiceTransactionSumAggregateInputType
+    _min?: InvoiceTransactionMinAggregateInputType
+    _max?: InvoiceTransactionMaxAggregateInputType
+  }
+
+  export type InvoiceTransactionGroupByOutputType = {
+    id: string
+    invoiceId: string
+    companyId: string
+    type: $Enums.InvoicePaymentMethodType
+    status: string
+    amount: number
+    currency: string
+    stripePaymentIntentId: string | null
+    stripeCheckoutSessionId: string | null
+    stripeTransferId: string | null
+    bankReference: string | null
+    paidAt: Date | null
+    createdAt: Date
+    _count: InvoiceTransactionCountAggregateOutputType | null
+    _avg: InvoiceTransactionAvgAggregateOutputType | null
+    _sum: InvoiceTransactionSumAggregateOutputType | null
+    _min: InvoiceTransactionMinAggregateOutputType | null
+    _max: InvoiceTransactionMaxAggregateOutputType | null
+  }
+
+  type GetInvoiceTransactionGroupByPayload<T extends InvoiceTransactionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InvoiceTransactionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InvoiceTransactionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InvoiceTransactionGroupByOutputType[P]>
+            : GetScalarType<T[P], InvoiceTransactionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InvoiceTransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    invoiceId?: boolean
+    companyId?: boolean
+    type?: boolean
+    status?: boolean
+    amount?: boolean
+    currency?: boolean
+    stripePaymentIntentId?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripeTransferId?: boolean
+    bankReference?: boolean
+    paidAt?: boolean
+    createdAt?: boolean
+    invoice?: boolean | InvoiceDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invoiceTransaction"]>
+
+  export type InvoiceTransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    invoiceId?: boolean
+    companyId?: boolean
+    type?: boolean
+    status?: boolean
+    amount?: boolean
+    currency?: boolean
+    stripePaymentIntentId?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripeTransferId?: boolean
+    bankReference?: boolean
+    paidAt?: boolean
+    createdAt?: boolean
+    invoice?: boolean | InvoiceDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invoiceTransaction"]>
+
+  export type InvoiceTransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    invoiceId?: boolean
+    companyId?: boolean
+    type?: boolean
+    status?: boolean
+    amount?: boolean
+    currency?: boolean
+    stripePaymentIntentId?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripeTransferId?: boolean
+    bankReference?: boolean
+    paidAt?: boolean
+    createdAt?: boolean
+    invoice?: boolean | InvoiceDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invoiceTransaction"]>
+
+  export type InvoiceTransactionSelectScalar = {
+    id?: boolean
+    invoiceId?: boolean
+    companyId?: boolean
+    type?: boolean
+    status?: boolean
+    amount?: boolean
+    currency?: boolean
+    stripePaymentIntentId?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripeTransferId?: boolean
+    bankReference?: boolean
+    paidAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type InvoiceTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "invoiceId" | "companyId" | "type" | "status" | "amount" | "currency" | "stripePaymentIntentId" | "stripeCheckoutSessionId" | "stripeTransferId" | "bankReference" | "paidAt" | "createdAt", ExtArgs["result"]["invoiceTransaction"]>
+  export type InvoiceTransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    invoice?: boolean | InvoiceDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type InvoiceTransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    invoice?: boolean | InvoiceDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type InvoiceTransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    invoice?: boolean | InvoiceDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $InvoiceTransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InvoiceTransaction"
+    objects: {
+      invoice: Prisma.$InvoicePayload<ExtArgs>
+      company: Prisma.$CompanyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      invoiceId: string
+      companyId: string
+      type: $Enums.InvoicePaymentMethodType
+      status: string
+      amount: number
+      currency: string
+      stripePaymentIntentId: string | null
+      stripeCheckoutSessionId: string | null
+      stripeTransferId: string | null
+      bankReference: string | null
+      paidAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["invoiceTransaction"]>
+    composites: {}
+  }
+
+  type InvoiceTransactionGetPayload<S extends boolean | null | undefined | InvoiceTransactionDefaultArgs> = $Result.GetResult<Prisma.$InvoiceTransactionPayload, S>
+
+  type InvoiceTransactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InvoiceTransactionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: InvoiceTransactionCountAggregateInputType | true
+    }
+
+  export interface InvoiceTransactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InvoiceTransaction'], meta: { name: 'InvoiceTransaction' } }
+    /**
+     * Find zero or one InvoiceTransaction that matches the filter.
+     * @param {InvoiceTransactionFindUniqueArgs} args - Arguments to find a InvoiceTransaction
+     * @example
+     * // Get one InvoiceTransaction
+     * const invoiceTransaction = await prisma.invoiceTransaction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InvoiceTransactionFindUniqueArgs>(args: SelectSubset<T, InvoiceTransactionFindUniqueArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one InvoiceTransaction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {InvoiceTransactionFindUniqueOrThrowArgs} args - Arguments to find a InvoiceTransaction
+     * @example
+     * // Get one InvoiceTransaction
+     * const invoiceTransaction = await prisma.invoiceTransaction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InvoiceTransactionFindUniqueOrThrowArgs>(args: SelectSubset<T, InvoiceTransactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first InvoiceTransaction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceTransactionFindFirstArgs} args - Arguments to find a InvoiceTransaction
+     * @example
+     * // Get one InvoiceTransaction
+     * const invoiceTransaction = await prisma.invoiceTransaction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InvoiceTransactionFindFirstArgs>(args?: SelectSubset<T, InvoiceTransactionFindFirstArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first InvoiceTransaction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceTransactionFindFirstOrThrowArgs} args - Arguments to find a InvoiceTransaction
+     * @example
+     * // Get one InvoiceTransaction
+     * const invoiceTransaction = await prisma.invoiceTransaction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InvoiceTransactionFindFirstOrThrowArgs>(args?: SelectSubset<T, InvoiceTransactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more InvoiceTransactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceTransactionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InvoiceTransactions
+     * const invoiceTransactions = await prisma.invoiceTransaction.findMany()
+     * 
+     * // Get first 10 InvoiceTransactions
+     * const invoiceTransactions = await prisma.invoiceTransaction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const invoiceTransactionWithIdOnly = await prisma.invoiceTransaction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InvoiceTransactionFindManyArgs>(args?: SelectSubset<T, InvoiceTransactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a InvoiceTransaction.
+     * @param {InvoiceTransactionCreateArgs} args - Arguments to create a InvoiceTransaction.
+     * @example
+     * // Create one InvoiceTransaction
+     * const InvoiceTransaction = await prisma.invoiceTransaction.create({
+     *   data: {
+     *     // ... data to create a InvoiceTransaction
+     *   }
+     * })
+     * 
+     */
+    create<T extends InvoiceTransactionCreateArgs>(args: SelectSubset<T, InvoiceTransactionCreateArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many InvoiceTransactions.
+     * @param {InvoiceTransactionCreateManyArgs} args - Arguments to create many InvoiceTransactions.
+     * @example
+     * // Create many InvoiceTransactions
+     * const invoiceTransaction = await prisma.invoiceTransaction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InvoiceTransactionCreateManyArgs>(args?: SelectSubset<T, InvoiceTransactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InvoiceTransactions and returns the data saved in the database.
+     * @param {InvoiceTransactionCreateManyAndReturnArgs} args - Arguments to create many InvoiceTransactions.
+     * @example
+     * // Create many InvoiceTransactions
+     * const invoiceTransaction = await prisma.invoiceTransaction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InvoiceTransactions and only return the `id`
+     * const invoiceTransactionWithIdOnly = await prisma.invoiceTransaction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InvoiceTransactionCreateManyAndReturnArgs>(args?: SelectSubset<T, InvoiceTransactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a InvoiceTransaction.
+     * @param {InvoiceTransactionDeleteArgs} args - Arguments to delete one InvoiceTransaction.
+     * @example
+     * // Delete one InvoiceTransaction
+     * const InvoiceTransaction = await prisma.invoiceTransaction.delete({
+     *   where: {
+     *     // ... filter to delete one InvoiceTransaction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InvoiceTransactionDeleteArgs>(args: SelectSubset<T, InvoiceTransactionDeleteArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one InvoiceTransaction.
+     * @param {InvoiceTransactionUpdateArgs} args - Arguments to update one InvoiceTransaction.
+     * @example
+     * // Update one InvoiceTransaction
+     * const invoiceTransaction = await prisma.invoiceTransaction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InvoiceTransactionUpdateArgs>(args: SelectSubset<T, InvoiceTransactionUpdateArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more InvoiceTransactions.
+     * @param {InvoiceTransactionDeleteManyArgs} args - Arguments to filter InvoiceTransactions to delete.
+     * @example
+     * // Delete a few InvoiceTransactions
+     * const { count } = await prisma.invoiceTransaction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InvoiceTransactionDeleteManyArgs>(args?: SelectSubset<T, InvoiceTransactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InvoiceTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceTransactionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InvoiceTransactions
+     * const invoiceTransaction = await prisma.invoiceTransaction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InvoiceTransactionUpdateManyArgs>(args: SelectSubset<T, InvoiceTransactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InvoiceTransactions and returns the data updated in the database.
+     * @param {InvoiceTransactionUpdateManyAndReturnArgs} args - Arguments to update many InvoiceTransactions.
+     * @example
+     * // Update many InvoiceTransactions
+     * const invoiceTransaction = await prisma.invoiceTransaction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more InvoiceTransactions and only return the `id`
+     * const invoiceTransactionWithIdOnly = await prisma.invoiceTransaction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InvoiceTransactionUpdateManyAndReturnArgs>(args: SelectSubset<T, InvoiceTransactionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one InvoiceTransaction.
+     * @param {InvoiceTransactionUpsertArgs} args - Arguments to update or create a InvoiceTransaction.
+     * @example
+     * // Update or create a InvoiceTransaction
+     * const invoiceTransaction = await prisma.invoiceTransaction.upsert({
+     *   create: {
+     *     // ... data to create a InvoiceTransaction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InvoiceTransaction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InvoiceTransactionUpsertArgs>(args: SelectSubset<T, InvoiceTransactionUpsertArgs<ExtArgs>>): Prisma__InvoiceTransactionClient<$Result.GetResult<Prisma.$InvoiceTransactionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of InvoiceTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceTransactionCountArgs} args - Arguments to filter InvoiceTransactions to count.
+     * @example
+     * // Count the number of InvoiceTransactions
+     * const count = await prisma.invoiceTransaction.count({
+     *   where: {
+     *     // ... the filter for the InvoiceTransactions we want to count
+     *   }
+     * })
+    **/
+    count<T extends InvoiceTransactionCountArgs>(
+      args?: Subset<T, InvoiceTransactionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InvoiceTransactionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InvoiceTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceTransactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InvoiceTransactionAggregateArgs>(args: Subset<T, InvoiceTransactionAggregateArgs>): Prisma.PrismaPromise<GetInvoiceTransactionAggregateType<T>>
+
+    /**
+     * Group by InvoiceTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceTransactionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InvoiceTransactionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InvoiceTransactionGroupByArgs['orderBy'] }
+        : { orderBy?: InvoiceTransactionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InvoiceTransactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInvoiceTransactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InvoiceTransaction model
+   */
+  readonly fields: InvoiceTransactionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InvoiceTransaction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InvoiceTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    invoice<T extends InvoiceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InvoiceDefaultArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InvoiceTransaction model
+   */
+  interface InvoiceTransactionFieldRefs {
+    readonly id: FieldRef<"InvoiceTransaction", 'String'>
+    readonly invoiceId: FieldRef<"InvoiceTransaction", 'String'>
+    readonly companyId: FieldRef<"InvoiceTransaction", 'String'>
+    readonly type: FieldRef<"InvoiceTransaction", 'InvoicePaymentMethodType'>
+    readonly status: FieldRef<"InvoiceTransaction", 'String'>
+    readonly amount: FieldRef<"InvoiceTransaction", 'Float'>
+    readonly currency: FieldRef<"InvoiceTransaction", 'String'>
+    readonly stripePaymentIntentId: FieldRef<"InvoiceTransaction", 'String'>
+    readonly stripeCheckoutSessionId: FieldRef<"InvoiceTransaction", 'String'>
+    readonly stripeTransferId: FieldRef<"InvoiceTransaction", 'String'>
+    readonly bankReference: FieldRef<"InvoiceTransaction", 'String'>
+    readonly paidAt: FieldRef<"InvoiceTransaction", 'DateTime'>
+    readonly createdAt: FieldRef<"InvoiceTransaction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InvoiceTransaction findUnique
+   */
+  export type InvoiceTransactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which InvoiceTransaction to fetch.
+     */
+    where: InvoiceTransactionWhereUniqueInput
+  }
+
+  /**
+   * InvoiceTransaction findUniqueOrThrow
+   */
+  export type InvoiceTransactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which InvoiceTransaction to fetch.
+     */
+    where: InvoiceTransactionWhereUniqueInput
+  }
+
+  /**
+   * InvoiceTransaction findFirst
+   */
+  export type InvoiceTransactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which InvoiceTransaction to fetch.
+     */
+    where?: InvoiceTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InvoiceTransactions to fetch.
+     */
+    orderBy?: InvoiceTransactionOrderByWithRelationInput | InvoiceTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InvoiceTransactions.
+     */
+    cursor?: InvoiceTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InvoiceTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InvoiceTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InvoiceTransactions.
+     */
+    distinct?: InvoiceTransactionScalarFieldEnum | InvoiceTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * InvoiceTransaction findFirstOrThrow
+   */
+  export type InvoiceTransactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which InvoiceTransaction to fetch.
+     */
+    where?: InvoiceTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InvoiceTransactions to fetch.
+     */
+    orderBy?: InvoiceTransactionOrderByWithRelationInput | InvoiceTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InvoiceTransactions.
+     */
+    cursor?: InvoiceTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InvoiceTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InvoiceTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InvoiceTransactions.
+     */
+    distinct?: InvoiceTransactionScalarFieldEnum | InvoiceTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * InvoiceTransaction findMany
+   */
+  export type InvoiceTransactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which InvoiceTransactions to fetch.
+     */
+    where?: InvoiceTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InvoiceTransactions to fetch.
+     */
+    orderBy?: InvoiceTransactionOrderByWithRelationInput | InvoiceTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InvoiceTransactions.
+     */
+    cursor?: InvoiceTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InvoiceTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InvoiceTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InvoiceTransactions.
+     */
+    distinct?: InvoiceTransactionScalarFieldEnum | InvoiceTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * InvoiceTransaction create
+   */
+  export type InvoiceTransactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InvoiceTransaction.
+     */
+    data: XOR<InvoiceTransactionCreateInput, InvoiceTransactionUncheckedCreateInput>
+  }
+
+  /**
+   * InvoiceTransaction createMany
+   */
+  export type InvoiceTransactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InvoiceTransactions.
+     */
+    data: InvoiceTransactionCreateManyInput | InvoiceTransactionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InvoiceTransaction createManyAndReturn
+   */
+  export type InvoiceTransactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * The data used to create many InvoiceTransactions.
+     */
+    data: InvoiceTransactionCreateManyInput | InvoiceTransactionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InvoiceTransaction update
+   */
+  export type InvoiceTransactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InvoiceTransaction.
+     */
+    data: XOR<InvoiceTransactionUpdateInput, InvoiceTransactionUncheckedUpdateInput>
+    /**
+     * Choose, which InvoiceTransaction to update.
+     */
+    where: InvoiceTransactionWhereUniqueInput
+  }
+
+  /**
+   * InvoiceTransaction updateMany
+   */
+  export type InvoiceTransactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InvoiceTransactions.
+     */
+    data: XOR<InvoiceTransactionUpdateManyMutationInput, InvoiceTransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which InvoiceTransactions to update
+     */
+    where?: InvoiceTransactionWhereInput
+    /**
+     * Limit how many InvoiceTransactions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * InvoiceTransaction updateManyAndReturn
+   */
+  export type InvoiceTransactionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * The data used to update InvoiceTransactions.
+     */
+    data: XOR<InvoiceTransactionUpdateManyMutationInput, InvoiceTransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which InvoiceTransactions to update
+     */
+    where?: InvoiceTransactionWhereInput
+    /**
+     * Limit how many InvoiceTransactions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InvoiceTransaction upsert
+   */
+  export type InvoiceTransactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InvoiceTransaction to update in case it exists.
+     */
+    where: InvoiceTransactionWhereUniqueInput
+    /**
+     * In case the InvoiceTransaction found by the `where` argument doesn't exist, create a new InvoiceTransaction with this data.
+     */
+    create: XOR<InvoiceTransactionCreateInput, InvoiceTransactionUncheckedCreateInput>
+    /**
+     * In case the InvoiceTransaction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InvoiceTransactionUpdateInput, InvoiceTransactionUncheckedUpdateInput>
+  }
+
+  /**
+   * InvoiceTransaction delete
+   */
+  export type InvoiceTransactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+    /**
+     * Filter which InvoiceTransaction to delete.
+     */
+    where: InvoiceTransactionWhereUniqueInput
+  }
+
+  /**
+   * InvoiceTransaction deleteMany
+   */
+  export type InvoiceTransactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InvoiceTransactions to delete
+     */
+    where?: InvoiceTransactionWhereInput
+    /**
+     * Limit how many InvoiceTransactions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * InvoiceTransaction without action
+   */
+  export type InvoiceTransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InvoiceTransaction
+     */
+    select?: InvoiceTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InvoiceTransaction
+     */
+    omit?: InvoiceTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceTransactionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model StripeFeeConfig
+   */
+
+  export type AggregateStripeFeeConfig = {
+    _count: StripeFeeConfigCountAggregateOutputType | null
+    _avg: StripeFeeConfigAvgAggregateOutputType | null
+    _sum: StripeFeeConfigSumAggregateOutputType | null
+    _min: StripeFeeConfigMinAggregateOutputType | null
+    _max: StripeFeeConfigMaxAggregateOutputType | null
+  }
+
+  export type StripeFeeConfigAvgAggregateOutputType = {
+    feeRate: number | null
+    fixedFee: number | null
+  }
+
+  export type StripeFeeConfigSumAggregateOutputType = {
+    feeRate: number | null
+    fixedFee: number | null
+  }
+
+  export type StripeFeeConfigMinAggregateOutputType = {
+    id: string | null
+    feeRate: number | null
+    fixedFee: number | null
+    currency: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StripeFeeConfigMaxAggregateOutputType = {
+    id: string | null
+    feeRate: number | null
+    fixedFee: number | null
+    currency: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StripeFeeConfigCountAggregateOutputType = {
+    id: number
+    feeRate: number
+    fixedFee: number
+    currency: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type StripeFeeConfigAvgAggregateInputType = {
+    feeRate?: true
+    fixedFee?: true
+  }
+
+  export type StripeFeeConfigSumAggregateInputType = {
+    feeRate?: true
+    fixedFee?: true
+  }
+
+  export type StripeFeeConfigMinAggregateInputType = {
+    id?: true
+    feeRate?: true
+    fixedFee?: true
+    currency?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StripeFeeConfigMaxAggregateInputType = {
+    id?: true
+    feeRate?: true
+    fixedFee?: true
+    currency?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StripeFeeConfigCountAggregateInputType = {
+    id?: true
+    feeRate?: true
+    fixedFee?: true
+    currency?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type StripeFeeConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StripeFeeConfig to aggregate.
+     */
+    where?: StripeFeeConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StripeFeeConfigs to fetch.
+     */
+    orderBy?: StripeFeeConfigOrderByWithRelationInput | StripeFeeConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StripeFeeConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StripeFeeConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StripeFeeConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StripeFeeConfigs
+    **/
+    _count?: true | StripeFeeConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: StripeFeeConfigAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StripeFeeConfigSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StripeFeeConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StripeFeeConfigMaxAggregateInputType
+  }
+
+  export type GetStripeFeeConfigAggregateType<T extends StripeFeeConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateStripeFeeConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStripeFeeConfig[P]>
+      : GetScalarType<T[P], AggregateStripeFeeConfig[P]>
+  }
+
+
+
+
+  export type StripeFeeConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StripeFeeConfigWhereInput
+    orderBy?: StripeFeeConfigOrderByWithAggregationInput | StripeFeeConfigOrderByWithAggregationInput[]
+    by: StripeFeeConfigScalarFieldEnum[] | StripeFeeConfigScalarFieldEnum
+    having?: StripeFeeConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StripeFeeConfigCountAggregateInputType | true
+    _avg?: StripeFeeConfigAvgAggregateInputType
+    _sum?: StripeFeeConfigSumAggregateInputType
+    _min?: StripeFeeConfigMinAggregateInputType
+    _max?: StripeFeeConfigMaxAggregateInputType
+  }
+
+  export type StripeFeeConfigGroupByOutputType = {
+    id: string
+    feeRate: number
+    fixedFee: number
+    currency: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: StripeFeeConfigCountAggregateOutputType | null
+    _avg: StripeFeeConfigAvgAggregateOutputType | null
+    _sum: StripeFeeConfigSumAggregateOutputType | null
+    _min: StripeFeeConfigMinAggregateOutputType | null
+    _max: StripeFeeConfigMaxAggregateOutputType | null
+  }
+
+  type GetStripeFeeConfigGroupByPayload<T extends StripeFeeConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StripeFeeConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StripeFeeConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StripeFeeConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], StripeFeeConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StripeFeeConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    feeRate?: boolean
+    fixedFee?: boolean
+    currency?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["stripeFeeConfig"]>
+
+  export type StripeFeeConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    feeRate?: boolean
+    fixedFee?: boolean
+    currency?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["stripeFeeConfig"]>
+
+  export type StripeFeeConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    feeRate?: boolean
+    fixedFee?: boolean
+    currency?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["stripeFeeConfig"]>
+
+  export type StripeFeeConfigSelectScalar = {
+    id?: boolean
+    feeRate?: boolean
+    fixedFee?: boolean
+    currency?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type StripeFeeConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "feeRate" | "fixedFee" | "currency" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["stripeFeeConfig"]>
+
+  export type $StripeFeeConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StripeFeeConfig"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      feeRate: number
+      fixedFee: number
+      currency: string
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["stripeFeeConfig"]>
+    composites: {}
+  }
+
+  type StripeFeeConfigGetPayload<S extends boolean | null | undefined | StripeFeeConfigDefaultArgs> = $Result.GetResult<Prisma.$StripeFeeConfigPayload, S>
+
+  type StripeFeeConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StripeFeeConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StripeFeeConfigCountAggregateInputType | true
+    }
+
+  export interface StripeFeeConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StripeFeeConfig'], meta: { name: 'StripeFeeConfig' } }
+    /**
+     * Find zero or one StripeFeeConfig that matches the filter.
+     * @param {StripeFeeConfigFindUniqueArgs} args - Arguments to find a StripeFeeConfig
+     * @example
+     * // Get one StripeFeeConfig
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StripeFeeConfigFindUniqueArgs>(args: SelectSubset<T, StripeFeeConfigFindUniqueArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StripeFeeConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StripeFeeConfigFindUniqueOrThrowArgs} args - Arguments to find a StripeFeeConfig
+     * @example
+     * // Get one StripeFeeConfig
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StripeFeeConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, StripeFeeConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StripeFeeConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StripeFeeConfigFindFirstArgs} args - Arguments to find a StripeFeeConfig
+     * @example
+     * // Get one StripeFeeConfig
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StripeFeeConfigFindFirstArgs>(args?: SelectSubset<T, StripeFeeConfigFindFirstArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StripeFeeConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StripeFeeConfigFindFirstOrThrowArgs} args - Arguments to find a StripeFeeConfig
+     * @example
+     * // Get one StripeFeeConfig
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StripeFeeConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, StripeFeeConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StripeFeeConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StripeFeeConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StripeFeeConfigs
+     * const stripeFeeConfigs = await prisma.stripeFeeConfig.findMany()
+     * 
+     * // Get first 10 StripeFeeConfigs
+     * const stripeFeeConfigs = await prisma.stripeFeeConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const stripeFeeConfigWithIdOnly = await prisma.stripeFeeConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StripeFeeConfigFindManyArgs>(args?: SelectSubset<T, StripeFeeConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StripeFeeConfig.
+     * @param {StripeFeeConfigCreateArgs} args - Arguments to create a StripeFeeConfig.
+     * @example
+     * // Create one StripeFeeConfig
+     * const StripeFeeConfig = await prisma.stripeFeeConfig.create({
+     *   data: {
+     *     // ... data to create a StripeFeeConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends StripeFeeConfigCreateArgs>(args: SelectSubset<T, StripeFeeConfigCreateArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StripeFeeConfigs.
+     * @param {StripeFeeConfigCreateManyArgs} args - Arguments to create many StripeFeeConfigs.
+     * @example
+     * // Create many StripeFeeConfigs
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StripeFeeConfigCreateManyArgs>(args?: SelectSubset<T, StripeFeeConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StripeFeeConfigs and returns the data saved in the database.
+     * @param {StripeFeeConfigCreateManyAndReturnArgs} args - Arguments to create many StripeFeeConfigs.
+     * @example
+     * // Create many StripeFeeConfigs
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StripeFeeConfigs and only return the `id`
+     * const stripeFeeConfigWithIdOnly = await prisma.stripeFeeConfig.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StripeFeeConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, StripeFeeConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StripeFeeConfig.
+     * @param {StripeFeeConfigDeleteArgs} args - Arguments to delete one StripeFeeConfig.
+     * @example
+     * // Delete one StripeFeeConfig
+     * const StripeFeeConfig = await prisma.stripeFeeConfig.delete({
+     *   where: {
+     *     // ... filter to delete one StripeFeeConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StripeFeeConfigDeleteArgs>(args: SelectSubset<T, StripeFeeConfigDeleteArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StripeFeeConfig.
+     * @param {StripeFeeConfigUpdateArgs} args - Arguments to update one StripeFeeConfig.
+     * @example
+     * // Update one StripeFeeConfig
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StripeFeeConfigUpdateArgs>(args: SelectSubset<T, StripeFeeConfigUpdateArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StripeFeeConfigs.
+     * @param {StripeFeeConfigDeleteManyArgs} args - Arguments to filter StripeFeeConfigs to delete.
+     * @example
+     * // Delete a few StripeFeeConfigs
+     * const { count } = await prisma.stripeFeeConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StripeFeeConfigDeleteManyArgs>(args?: SelectSubset<T, StripeFeeConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StripeFeeConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StripeFeeConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StripeFeeConfigs
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StripeFeeConfigUpdateManyArgs>(args: SelectSubset<T, StripeFeeConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StripeFeeConfigs and returns the data updated in the database.
+     * @param {StripeFeeConfigUpdateManyAndReturnArgs} args - Arguments to update many StripeFeeConfigs.
+     * @example
+     * // Update many StripeFeeConfigs
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StripeFeeConfigs and only return the `id`
+     * const stripeFeeConfigWithIdOnly = await prisma.stripeFeeConfig.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StripeFeeConfigUpdateManyAndReturnArgs>(args: SelectSubset<T, StripeFeeConfigUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StripeFeeConfig.
+     * @param {StripeFeeConfigUpsertArgs} args - Arguments to update or create a StripeFeeConfig.
+     * @example
+     * // Update or create a StripeFeeConfig
+     * const stripeFeeConfig = await prisma.stripeFeeConfig.upsert({
+     *   create: {
+     *     // ... data to create a StripeFeeConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StripeFeeConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StripeFeeConfigUpsertArgs>(args: SelectSubset<T, StripeFeeConfigUpsertArgs<ExtArgs>>): Prisma__StripeFeeConfigClient<$Result.GetResult<Prisma.$StripeFeeConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StripeFeeConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StripeFeeConfigCountArgs} args - Arguments to filter StripeFeeConfigs to count.
+     * @example
+     * // Count the number of StripeFeeConfigs
+     * const count = await prisma.stripeFeeConfig.count({
+     *   where: {
+     *     // ... the filter for the StripeFeeConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends StripeFeeConfigCountArgs>(
+      args?: Subset<T, StripeFeeConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StripeFeeConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StripeFeeConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StripeFeeConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StripeFeeConfigAggregateArgs>(args: Subset<T, StripeFeeConfigAggregateArgs>): Prisma.PrismaPromise<GetStripeFeeConfigAggregateType<T>>
+
+    /**
+     * Group by StripeFeeConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StripeFeeConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StripeFeeConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StripeFeeConfigGroupByArgs['orderBy'] }
+        : { orderBy?: StripeFeeConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StripeFeeConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStripeFeeConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StripeFeeConfig model
+   */
+  readonly fields: StripeFeeConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StripeFeeConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StripeFeeConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StripeFeeConfig model
+   */
+  interface StripeFeeConfigFieldRefs {
+    readonly id: FieldRef<"StripeFeeConfig", 'String'>
+    readonly feeRate: FieldRef<"StripeFeeConfig", 'Float'>
+    readonly fixedFee: FieldRef<"StripeFeeConfig", 'Float'>
+    readonly currency: FieldRef<"StripeFeeConfig", 'String'>
+    readonly isActive: FieldRef<"StripeFeeConfig", 'Boolean'>
+    readonly createdAt: FieldRef<"StripeFeeConfig", 'DateTime'>
+    readonly updatedAt: FieldRef<"StripeFeeConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StripeFeeConfig findUnique
+   */
+  export type StripeFeeConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which StripeFeeConfig to fetch.
+     */
+    where: StripeFeeConfigWhereUniqueInput
+  }
+
+  /**
+   * StripeFeeConfig findUniqueOrThrow
+   */
+  export type StripeFeeConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which StripeFeeConfig to fetch.
+     */
+    where: StripeFeeConfigWhereUniqueInput
+  }
+
+  /**
+   * StripeFeeConfig findFirst
+   */
+  export type StripeFeeConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which StripeFeeConfig to fetch.
+     */
+    where?: StripeFeeConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StripeFeeConfigs to fetch.
+     */
+    orderBy?: StripeFeeConfigOrderByWithRelationInput | StripeFeeConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StripeFeeConfigs.
+     */
+    cursor?: StripeFeeConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StripeFeeConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StripeFeeConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StripeFeeConfigs.
+     */
+    distinct?: StripeFeeConfigScalarFieldEnum | StripeFeeConfigScalarFieldEnum[]
+  }
+
+  /**
+   * StripeFeeConfig findFirstOrThrow
+   */
+  export type StripeFeeConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which StripeFeeConfig to fetch.
+     */
+    where?: StripeFeeConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StripeFeeConfigs to fetch.
+     */
+    orderBy?: StripeFeeConfigOrderByWithRelationInput | StripeFeeConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StripeFeeConfigs.
+     */
+    cursor?: StripeFeeConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StripeFeeConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StripeFeeConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StripeFeeConfigs.
+     */
+    distinct?: StripeFeeConfigScalarFieldEnum | StripeFeeConfigScalarFieldEnum[]
+  }
+
+  /**
+   * StripeFeeConfig findMany
+   */
+  export type StripeFeeConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which StripeFeeConfigs to fetch.
+     */
+    where?: StripeFeeConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StripeFeeConfigs to fetch.
+     */
+    orderBy?: StripeFeeConfigOrderByWithRelationInput | StripeFeeConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StripeFeeConfigs.
+     */
+    cursor?: StripeFeeConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StripeFeeConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StripeFeeConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StripeFeeConfigs.
+     */
+    distinct?: StripeFeeConfigScalarFieldEnum | StripeFeeConfigScalarFieldEnum[]
+  }
+
+  /**
+   * StripeFeeConfig create
+   */
+  export type StripeFeeConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to create a StripeFeeConfig.
+     */
+    data: XOR<StripeFeeConfigCreateInput, StripeFeeConfigUncheckedCreateInput>
+  }
+
+  /**
+   * StripeFeeConfig createMany
+   */
+  export type StripeFeeConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StripeFeeConfigs.
+     */
+    data: StripeFeeConfigCreateManyInput | StripeFeeConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StripeFeeConfig createManyAndReturn
+   */
+  export type StripeFeeConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * The data used to create many StripeFeeConfigs.
+     */
+    data: StripeFeeConfigCreateManyInput | StripeFeeConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StripeFeeConfig update
+   */
+  export type StripeFeeConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to update a StripeFeeConfig.
+     */
+    data: XOR<StripeFeeConfigUpdateInput, StripeFeeConfigUncheckedUpdateInput>
+    /**
+     * Choose, which StripeFeeConfig to update.
+     */
+    where: StripeFeeConfigWhereUniqueInput
+  }
+
+  /**
+   * StripeFeeConfig updateMany
+   */
+  export type StripeFeeConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StripeFeeConfigs.
+     */
+    data: XOR<StripeFeeConfigUpdateManyMutationInput, StripeFeeConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which StripeFeeConfigs to update
+     */
+    where?: StripeFeeConfigWhereInput
+    /**
+     * Limit how many StripeFeeConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StripeFeeConfig updateManyAndReturn
+   */
+  export type StripeFeeConfigUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * The data used to update StripeFeeConfigs.
+     */
+    data: XOR<StripeFeeConfigUpdateManyMutationInput, StripeFeeConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which StripeFeeConfigs to update
+     */
+    where?: StripeFeeConfigWhereInput
+    /**
+     * Limit how many StripeFeeConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StripeFeeConfig upsert
+   */
+  export type StripeFeeConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * The filter to search for the StripeFeeConfig to update in case it exists.
+     */
+    where: StripeFeeConfigWhereUniqueInput
+    /**
+     * In case the StripeFeeConfig found by the `where` argument doesn't exist, create a new StripeFeeConfig with this data.
+     */
+    create: XOR<StripeFeeConfigCreateInput, StripeFeeConfigUncheckedCreateInput>
+    /**
+     * In case the StripeFeeConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StripeFeeConfigUpdateInput, StripeFeeConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * StripeFeeConfig delete
+   */
+  export type StripeFeeConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+    /**
+     * Filter which StripeFeeConfig to delete.
+     */
+    where: StripeFeeConfigWhereUniqueInput
+  }
+
+  /**
+   * StripeFeeConfig deleteMany
+   */
+  export type StripeFeeConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StripeFeeConfigs to delete
+     */
+    where?: StripeFeeConfigWhereInput
+    /**
+     * Limit how many StripeFeeConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StripeFeeConfig without action
+   */
+  export type StripeFeeConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StripeFeeConfig
+     */
+    select?: StripeFeeConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StripeFeeConfig
+     */
+    omit?: StripeFeeConfigOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BankConnection
+   */
+
+  export type AggregateBankConnection = {
+    _count: BankConnectionCountAggregateOutputType | null
+    _min: BankConnectionMinAggregateOutputType | null
+    _max: BankConnectionMaxAggregateOutputType | null
+  }
+
+  export type BankConnectionMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: string | null
+    connectionId: string | null
+    userId: string | null
+    accessTokenEncrypted: string | null
+    refreshTokenEncrypted: string | null
+    tokenExpiresAt: Date | null
+    status: string | null
+    lastSyncAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BankConnectionMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: string | null
+    connectionId: string | null
+    userId: string | null
+    accessTokenEncrypted: string | null
+    refreshTokenEncrypted: string | null
+    tokenExpiresAt: Date | null
+    status: string | null
+    lastSyncAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BankConnectionCountAggregateOutputType = {
+    id: number
+    companyId: number
+    provider: number
+    connectionId: number
+    userId: number
+    accessTokenEncrypted: number
+    refreshTokenEncrypted: number
+    tokenExpiresAt: number
+    status: number
+    lastSyncAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BankConnectionMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    connectionId?: true
+    userId?: true
+    accessTokenEncrypted?: true
+    refreshTokenEncrypted?: true
+    tokenExpiresAt?: true
+    status?: true
+    lastSyncAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BankConnectionMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    connectionId?: true
+    userId?: true
+    accessTokenEncrypted?: true
+    refreshTokenEncrypted?: true
+    tokenExpiresAt?: true
+    status?: true
+    lastSyncAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BankConnectionCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    connectionId?: true
+    userId?: true
+    accessTokenEncrypted?: true
+    refreshTokenEncrypted?: true
+    tokenExpiresAt?: true
+    status?: true
+    lastSyncAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BankConnectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BankConnection to aggregate.
+     */
+    where?: BankConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankConnections to fetch.
+     */
+    orderBy?: BankConnectionOrderByWithRelationInput | BankConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BankConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BankConnections
+    **/
+    _count?: true | BankConnectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BankConnectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BankConnectionMaxAggregateInputType
+  }
+
+  export type GetBankConnectionAggregateType<T extends BankConnectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateBankConnection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBankConnection[P]>
+      : GetScalarType<T[P], AggregateBankConnection[P]>
+  }
+
+
+
+
+  export type BankConnectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankConnectionWhereInput
+    orderBy?: BankConnectionOrderByWithAggregationInput | BankConnectionOrderByWithAggregationInput[]
+    by: BankConnectionScalarFieldEnum[] | BankConnectionScalarFieldEnum
+    having?: BankConnectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BankConnectionCountAggregateInputType | true
+    _min?: BankConnectionMinAggregateInputType
+    _max?: BankConnectionMaxAggregateInputType
+  }
+
+  export type BankConnectionGroupByOutputType = {
+    id: string
+    companyId: string
+    provider: string
+    connectionId: string
+    userId: string | null
+    accessTokenEncrypted: string | null
+    refreshTokenEncrypted: string | null
+    tokenExpiresAt: Date | null
+    status: string
+    lastSyncAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: BankConnectionCountAggregateOutputType | null
+    _min: BankConnectionMinAggregateOutputType | null
+    _max: BankConnectionMaxAggregateOutputType | null
+  }
+
+  type GetBankConnectionGroupByPayload<T extends BankConnectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BankConnectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BankConnectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BankConnectionGroupByOutputType[P]>
+            : GetScalarType<T[P], BankConnectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BankConnectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    connectionId?: boolean
+    userId?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    status?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    accounts?: boolean | BankConnection$accountsArgs<ExtArgs>
+    _count?: boolean | BankConnectionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bankConnection"]>
+
+  export type BankConnectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    connectionId?: boolean
+    userId?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    status?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bankConnection"]>
+
+  export type BankConnectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    connectionId?: boolean
+    userId?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    status?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bankConnection"]>
+
+  export type BankConnectionSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    connectionId?: boolean
+    userId?: boolean
+    accessTokenEncrypted?: boolean
+    refreshTokenEncrypted?: boolean
+    tokenExpiresAt?: boolean
+    status?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BankConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "provider" | "connectionId" | "userId" | "accessTokenEncrypted" | "refreshTokenEncrypted" | "tokenExpiresAt" | "status" | "lastSyncAt" | "createdAt" | "updatedAt", ExtArgs["result"]["bankConnection"]>
+  export type BankConnectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    accounts?: boolean | BankConnection$accountsArgs<ExtArgs>
+    _count?: boolean | BankConnectionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BankConnectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type BankConnectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $BankConnectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BankConnection"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      accounts: Prisma.$BankAccountPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      provider: string
+      connectionId: string
+      userId: string | null
+      accessTokenEncrypted: string | null
+      refreshTokenEncrypted: string | null
+      tokenExpiresAt: Date | null
+      status: string
+      lastSyncAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["bankConnection"]>
+    composites: {}
+  }
+
+  type BankConnectionGetPayload<S extends boolean | null | undefined | BankConnectionDefaultArgs> = $Result.GetResult<Prisma.$BankConnectionPayload, S>
+
+  type BankConnectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BankConnectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BankConnectionCountAggregateInputType | true
+    }
+
+  export interface BankConnectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BankConnection'], meta: { name: 'BankConnection' } }
+    /**
+     * Find zero or one BankConnection that matches the filter.
+     * @param {BankConnectionFindUniqueArgs} args - Arguments to find a BankConnection
+     * @example
+     * // Get one BankConnection
+     * const bankConnection = await prisma.bankConnection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BankConnectionFindUniqueArgs>(args: SelectSubset<T, BankConnectionFindUniqueArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BankConnection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BankConnectionFindUniqueOrThrowArgs} args - Arguments to find a BankConnection
+     * @example
+     * // Get one BankConnection
+     * const bankConnection = await prisma.bankConnection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BankConnectionFindUniqueOrThrowArgs>(args: SelectSubset<T, BankConnectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BankConnection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankConnectionFindFirstArgs} args - Arguments to find a BankConnection
+     * @example
+     * // Get one BankConnection
+     * const bankConnection = await prisma.bankConnection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BankConnectionFindFirstArgs>(args?: SelectSubset<T, BankConnectionFindFirstArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BankConnection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankConnectionFindFirstOrThrowArgs} args - Arguments to find a BankConnection
+     * @example
+     * // Get one BankConnection
+     * const bankConnection = await prisma.bankConnection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BankConnectionFindFirstOrThrowArgs>(args?: SelectSubset<T, BankConnectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BankConnections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankConnectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BankConnections
+     * const bankConnections = await prisma.bankConnection.findMany()
+     * 
+     * // Get first 10 BankConnections
+     * const bankConnections = await prisma.bankConnection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bankConnectionWithIdOnly = await prisma.bankConnection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BankConnectionFindManyArgs>(args?: SelectSubset<T, BankConnectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BankConnection.
+     * @param {BankConnectionCreateArgs} args - Arguments to create a BankConnection.
+     * @example
+     * // Create one BankConnection
+     * const BankConnection = await prisma.bankConnection.create({
+     *   data: {
+     *     // ... data to create a BankConnection
+     *   }
+     * })
+     * 
+     */
+    create<T extends BankConnectionCreateArgs>(args: SelectSubset<T, BankConnectionCreateArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BankConnections.
+     * @param {BankConnectionCreateManyArgs} args - Arguments to create many BankConnections.
+     * @example
+     * // Create many BankConnections
+     * const bankConnection = await prisma.bankConnection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BankConnectionCreateManyArgs>(args?: SelectSubset<T, BankConnectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BankConnections and returns the data saved in the database.
+     * @param {BankConnectionCreateManyAndReturnArgs} args - Arguments to create many BankConnections.
+     * @example
+     * // Create many BankConnections
+     * const bankConnection = await prisma.bankConnection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BankConnections and only return the `id`
+     * const bankConnectionWithIdOnly = await prisma.bankConnection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BankConnectionCreateManyAndReturnArgs>(args?: SelectSubset<T, BankConnectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BankConnection.
+     * @param {BankConnectionDeleteArgs} args - Arguments to delete one BankConnection.
+     * @example
+     * // Delete one BankConnection
+     * const BankConnection = await prisma.bankConnection.delete({
+     *   where: {
+     *     // ... filter to delete one BankConnection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BankConnectionDeleteArgs>(args: SelectSubset<T, BankConnectionDeleteArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BankConnection.
+     * @param {BankConnectionUpdateArgs} args - Arguments to update one BankConnection.
+     * @example
+     * // Update one BankConnection
+     * const bankConnection = await prisma.bankConnection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BankConnectionUpdateArgs>(args: SelectSubset<T, BankConnectionUpdateArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BankConnections.
+     * @param {BankConnectionDeleteManyArgs} args - Arguments to filter BankConnections to delete.
+     * @example
+     * // Delete a few BankConnections
+     * const { count } = await prisma.bankConnection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BankConnectionDeleteManyArgs>(args?: SelectSubset<T, BankConnectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BankConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankConnectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BankConnections
+     * const bankConnection = await prisma.bankConnection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BankConnectionUpdateManyArgs>(args: SelectSubset<T, BankConnectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BankConnections and returns the data updated in the database.
+     * @param {BankConnectionUpdateManyAndReturnArgs} args - Arguments to update many BankConnections.
+     * @example
+     * // Update many BankConnections
+     * const bankConnection = await prisma.bankConnection.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BankConnections and only return the `id`
+     * const bankConnectionWithIdOnly = await prisma.bankConnection.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BankConnectionUpdateManyAndReturnArgs>(args: SelectSubset<T, BankConnectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BankConnection.
+     * @param {BankConnectionUpsertArgs} args - Arguments to update or create a BankConnection.
+     * @example
+     * // Update or create a BankConnection
+     * const bankConnection = await prisma.bankConnection.upsert({
+     *   create: {
+     *     // ... data to create a BankConnection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BankConnection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BankConnectionUpsertArgs>(args: SelectSubset<T, BankConnectionUpsertArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BankConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankConnectionCountArgs} args - Arguments to filter BankConnections to count.
+     * @example
+     * // Count the number of BankConnections
+     * const count = await prisma.bankConnection.count({
+     *   where: {
+     *     // ... the filter for the BankConnections we want to count
+     *   }
+     * })
+    **/
+    count<T extends BankConnectionCountArgs>(
+      args?: Subset<T, BankConnectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BankConnectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BankConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankConnectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BankConnectionAggregateArgs>(args: Subset<T, BankConnectionAggregateArgs>): Prisma.PrismaPromise<GetBankConnectionAggregateType<T>>
+
+    /**
+     * Group by BankConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankConnectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BankConnectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BankConnectionGroupByArgs['orderBy'] }
+        : { orderBy?: BankConnectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BankConnectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBankConnectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BankConnection model
+   */
+  readonly fields: BankConnectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BankConnection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BankConnectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    accounts<T extends BankConnection$accountsArgs<ExtArgs> = {}>(args?: Subset<T, BankConnection$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BankConnection model
+   */
+  interface BankConnectionFieldRefs {
+    readonly id: FieldRef<"BankConnection", 'String'>
+    readonly companyId: FieldRef<"BankConnection", 'String'>
+    readonly provider: FieldRef<"BankConnection", 'String'>
+    readonly connectionId: FieldRef<"BankConnection", 'String'>
+    readonly userId: FieldRef<"BankConnection", 'String'>
+    readonly accessTokenEncrypted: FieldRef<"BankConnection", 'String'>
+    readonly refreshTokenEncrypted: FieldRef<"BankConnection", 'String'>
+    readonly tokenExpiresAt: FieldRef<"BankConnection", 'DateTime'>
+    readonly status: FieldRef<"BankConnection", 'String'>
+    readonly lastSyncAt: FieldRef<"BankConnection", 'DateTime'>
+    readonly createdAt: FieldRef<"BankConnection", 'DateTime'>
+    readonly updatedAt: FieldRef<"BankConnection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BankConnection findUnique
+   */
+  export type BankConnectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankConnection to fetch.
+     */
+    where: BankConnectionWhereUniqueInput
+  }
+
+  /**
+   * BankConnection findUniqueOrThrow
+   */
+  export type BankConnectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankConnection to fetch.
+     */
+    where: BankConnectionWhereUniqueInput
+  }
+
+  /**
+   * BankConnection findFirst
+   */
+  export type BankConnectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankConnection to fetch.
+     */
+    where?: BankConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankConnections to fetch.
+     */
+    orderBy?: BankConnectionOrderByWithRelationInput | BankConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BankConnections.
+     */
+    cursor?: BankConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankConnections.
+     */
+    distinct?: BankConnectionScalarFieldEnum | BankConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * BankConnection findFirstOrThrow
+   */
+  export type BankConnectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankConnection to fetch.
+     */
+    where?: BankConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankConnections to fetch.
+     */
+    orderBy?: BankConnectionOrderByWithRelationInput | BankConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BankConnections.
+     */
+    cursor?: BankConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankConnections.
+     */
+    distinct?: BankConnectionScalarFieldEnum | BankConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * BankConnection findMany
+   */
+  export type BankConnectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankConnections to fetch.
+     */
+    where?: BankConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankConnections to fetch.
+     */
+    orderBy?: BankConnectionOrderByWithRelationInput | BankConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BankConnections.
+     */
+    cursor?: BankConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankConnections.
+     */
+    distinct?: BankConnectionScalarFieldEnum | BankConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * BankConnection create
+   */
+  export type BankConnectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BankConnection.
+     */
+    data: XOR<BankConnectionCreateInput, BankConnectionUncheckedCreateInput>
+  }
+
+  /**
+   * BankConnection createMany
+   */
+  export type BankConnectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BankConnections.
+     */
+    data: BankConnectionCreateManyInput | BankConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BankConnection createManyAndReturn
+   */
+  export type BankConnectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many BankConnections.
+     */
+    data: BankConnectionCreateManyInput | BankConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BankConnection update
+   */
+  export type BankConnectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BankConnection.
+     */
+    data: XOR<BankConnectionUpdateInput, BankConnectionUncheckedUpdateInput>
+    /**
+     * Choose, which BankConnection to update.
+     */
+    where: BankConnectionWhereUniqueInput
+  }
+
+  /**
+   * BankConnection updateMany
+   */
+  export type BankConnectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BankConnections.
+     */
+    data: XOR<BankConnectionUpdateManyMutationInput, BankConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which BankConnections to update
+     */
+    where?: BankConnectionWhereInput
+    /**
+     * Limit how many BankConnections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BankConnection updateManyAndReturn
+   */
+  export type BankConnectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to update BankConnections.
+     */
+    data: XOR<BankConnectionUpdateManyMutationInput, BankConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which BankConnections to update
+     */
+    where?: BankConnectionWhereInput
+    /**
+     * Limit how many BankConnections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BankConnection upsert
+   */
+  export type BankConnectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BankConnection to update in case it exists.
+     */
+    where: BankConnectionWhereUniqueInput
+    /**
+     * In case the BankConnection found by the `where` argument doesn't exist, create a new BankConnection with this data.
+     */
+    create: XOR<BankConnectionCreateInput, BankConnectionUncheckedCreateInput>
+    /**
+     * In case the BankConnection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BankConnectionUpdateInput, BankConnectionUncheckedUpdateInput>
+  }
+
+  /**
+   * BankConnection delete
+   */
+  export type BankConnectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+    /**
+     * Filter which BankConnection to delete.
+     */
+    where: BankConnectionWhereUniqueInput
+  }
+
+  /**
+   * BankConnection deleteMany
+   */
+  export type BankConnectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BankConnections to delete
+     */
+    where?: BankConnectionWhereInput
+    /**
+     * Limit how many BankConnections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BankConnection.accounts
+   */
+  export type BankConnection$accountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    where?: BankAccountWhereInput
+    orderBy?: BankAccountOrderByWithRelationInput | BankAccountOrderByWithRelationInput[]
+    cursor?: BankAccountWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BankAccountScalarFieldEnum | BankAccountScalarFieldEnum[]
+  }
+
+  /**
+   * BankConnection without action
+   */
+  export type BankConnectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankConnection
+     */
+    select?: BankConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankConnection
+     */
+    omit?: BankConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankConnectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BankAccount
+   */
+
+  export type AggregateBankAccount = {
+    _count: BankAccountCountAggregateOutputType | null
+    _avg: BankAccountAvgAggregateOutputType | null
+    _sum: BankAccountSumAggregateOutputType | null
+    _min: BankAccountMinAggregateOutputType | null
+    _max: BankAccountMaxAggregateOutputType | null
+  }
+
+  export type BankAccountAvgAggregateOutputType = {
+    balance: number | null
+  }
+
+  export type BankAccountSumAggregateOutputType = {
+    balance: number | null
+  }
+
+  export type BankAccountMinAggregateOutputType = {
+    id: string | null
+    bankConnectionId: string | null
+    companyId: string | null
+    externalId: string | null
+    iban: string | null
+    bic: string | null
+    accountName: string | null
+    balance: number | null
+    currency: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BankAccountMaxAggregateOutputType = {
+    id: string | null
+    bankConnectionId: string | null
+    companyId: string | null
+    externalId: string | null
+    iban: string | null
+    bic: string | null
+    accountName: string | null
+    balance: number | null
+    currency: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BankAccountCountAggregateOutputType = {
+    id: number
+    bankConnectionId: number
+    companyId: number
+    externalId: number
+    iban: number
+    bic: number
+    accountName: number
+    balance: number
+    currency: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BankAccountAvgAggregateInputType = {
+    balance?: true
+  }
+
+  export type BankAccountSumAggregateInputType = {
+    balance?: true
+  }
+
+  export type BankAccountMinAggregateInputType = {
+    id?: true
+    bankConnectionId?: true
+    companyId?: true
+    externalId?: true
+    iban?: true
+    bic?: true
+    accountName?: true
+    balance?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BankAccountMaxAggregateInputType = {
+    id?: true
+    bankConnectionId?: true
+    companyId?: true
+    externalId?: true
+    iban?: true
+    bic?: true
+    accountName?: true
+    balance?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BankAccountCountAggregateInputType = {
+    id?: true
+    bankConnectionId?: true
+    companyId?: true
+    externalId?: true
+    iban?: true
+    bic?: true
+    accountName?: true
+    balance?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BankAccountAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BankAccount to aggregate.
+     */
+    where?: BankAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankAccounts to fetch.
+     */
+    orderBy?: BankAccountOrderByWithRelationInput | BankAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BankAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BankAccounts
+    **/
+    _count?: true | BankAccountCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BankAccountAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BankAccountSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BankAccountMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BankAccountMaxAggregateInputType
+  }
+
+  export type GetBankAccountAggregateType<T extends BankAccountAggregateArgs> = {
+        [P in keyof T & keyof AggregateBankAccount]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBankAccount[P]>
+      : GetScalarType<T[P], AggregateBankAccount[P]>
+  }
+
+
+
+
+  export type BankAccountGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankAccountWhereInput
+    orderBy?: BankAccountOrderByWithAggregationInput | BankAccountOrderByWithAggregationInput[]
+    by: BankAccountScalarFieldEnum[] | BankAccountScalarFieldEnum
+    having?: BankAccountScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BankAccountCountAggregateInputType | true
+    _avg?: BankAccountAvgAggregateInputType
+    _sum?: BankAccountSumAggregateInputType
+    _min?: BankAccountMinAggregateInputType
+    _max?: BankAccountMaxAggregateInputType
+  }
+
+  export type BankAccountGroupByOutputType = {
+    id: string
+    bankConnectionId: string
+    companyId: string
+    externalId: string
+    iban: string | null
+    bic: string | null
+    accountName: string | null
+    balance: number | null
+    currency: string
+    createdAt: Date
+    updatedAt: Date
+    _count: BankAccountCountAggregateOutputType | null
+    _avg: BankAccountAvgAggregateOutputType | null
+    _sum: BankAccountSumAggregateOutputType | null
+    _min: BankAccountMinAggregateOutputType | null
+    _max: BankAccountMaxAggregateOutputType | null
+  }
+
+  type GetBankAccountGroupByPayload<T extends BankAccountGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BankAccountGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BankAccountGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BankAccountGroupByOutputType[P]>
+            : GetScalarType<T[P], BankAccountGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BankAccountSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bankConnectionId?: boolean
+    companyId?: boolean
+    externalId?: boolean
+    iban?: boolean
+    bic?: boolean
+    accountName?: boolean
+    balance?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    bankConnection?: boolean | BankConnectionDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    transactions?: boolean | BankAccount$transactionsArgs<ExtArgs>
+    _count?: boolean | BankAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bankAccount"]>
+
+  export type BankAccountSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bankConnectionId?: boolean
+    companyId?: boolean
+    externalId?: boolean
+    iban?: boolean
+    bic?: boolean
+    accountName?: boolean
+    balance?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    bankConnection?: boolean | BankConnectionDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bankAccount"]>
+
+  export type BankAccountSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bankConnectionId?: boolean
+    companyId?: boolean
+    externalId?: boolean
+    iban?: boolean
+    bic?: boolean
+    accountName?: boolean
+    balance?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    bankConnection?: boolean | BankConnectionDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bankAccount"]>
+
+  export type BankAccountSelectScalar = {
+    id?: boolean
+    bankConnectionId?: boolean
+    companyId?: boolean
+    externalId?: boolean
+    iban?: boolean
+    bic?: boolean
+    accountName?: boolean
+    balance?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BankAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "bankConnectionId" | "companyId" | "externalId" | "iban" | "bic" | "accountName" | "balance" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["bankAccount"]>
+  export type BankAccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bankConnection?: boolean | BankConnectionDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    transactions?: boolean | BankAccount$transactionsArgs<ExtArgs>
+    _count?: boolean | BankAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BankAccountIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bankConnection?: boolean | BankConnectionDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type BankAccountIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bankConnection?: boolean | BankConnectionDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $BankAccountPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BankAccount"
+    objects: {
+      bankConnection: Prisma.$BankConnectionPayload<ExtArgs>
+      company: Prisma.$CompanyPayload<ExtArgs>
+      transactions: Prisma.$BankTransactionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      bankConnectionId: string
+      companyId: string
+      externalId: string
+      iban: string | null
+      bic: string | null
+      accountName: string | null
+      balance: number | null
+      currency: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["bankAccount"]>
+    composites: {}
+  }
+
+  type BankAccountGetPayload<S extends boolean | null | undefined | BankAccountDefaultArgs> = $Result.GetResult<Prisma.$BankAccountPayload, S>
+
+  type BankAccountCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BankAccountFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BankAccountCountAggregateInputType | true
+    }
+
+  export interface BankAccountDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BankAccount'], meta: { name: 'BankAccount' } }
+    /**
+     * Find zero or one BankAccount that matches the filter.
+     * @param {BankAccountFindUniqueArgs} args - Arguments to find a BankAccount
+     * @example
+     * // Get one BankAccount
+     * const bankAccount = await prisma.bankAccount.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BankAccountFindUniqueArgs>(args: SelectSubset<T, BankAccountFindUniqueArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BankAccount that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BankAccountFindUniqueOrThrowArgs} args - Arguments to find a BankAccount
+     * @example
+     * // Get one BankAccount
+     * const bankAccount = await prisma.bankAccount.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BankAccountFindUniqueOrThrowArgs>(args: SelectSubset<T, BankAccountFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BankAccount that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankAccountFindFirstArgs} args - Arguments to find a BankAccount
+     * @example
+     * // Get one BankAccount
+     * const bankAccount = await prisma.bankAccount.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BankAccountFindFirstArgs>(args?: SelectSubset<T, BankAccountFindFirstArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BankAccount that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankAccountFindFirstOrThrowArgs} args - Arguments to find a BankAccount
+     * @example
+     * // Get one BankAccount
+     * const bankAccount = await prisma.bankAccount.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BankAccountFindFirstOrThrowArgs>(args?: SelectSubset<T, BankAccountFindFirstOrThrowArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BankAccounts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankAccountFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BankAccounts
+     * const bankAccounts = await prisma.bankAccount.findMany()
+     * 
+     * // Get first 10 BankAccounts
+     * const bankAccounts = await prisma.bankAccount.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bankAccountWithIdOnly = await prisma.bankAccount.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BankAccountFindManyArgs>(args?: SelectSubset<T, BankAccountFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BankAccount.
+     * @param {BankAccountCreateArgs} args - Arguments to create a BankAccount.
+     * @example
+     * // Create one BankAccount
+     * const BankAccount = await prisma.bankAccount.create({
+     *   data: {
+     *     // ... data to create a BankAccount
+     *   }
+     * })
+     * 
+     */
+    create<T extends BankAccountCreateArgs>(args: SelectSubset<T, BankAccountCreateArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BankAccounts.
+     * @param {BankAccountCreateManyArgs} args - Arguments to create many BankAccounts.
+     * @example
+     * // Create many BankAccounts
+     * const bankAccount = await prisma.bankAccount.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BankAccountCreateManyArgs>(args?: SelectSubset<T, BankAccountCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BankAccounts and returns the data saved in the database.
+     * @param {BankAccountCreateManyAndReturnArgs} args - Arguments to create many BankAccounts.
+     * @example
+     * // Create many BankAccounts
+     * const bankAccount = await prisma.bankAccount.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BankAccounts and only return the `id`
+     * const bankAccountWithIdOnly = await prisma.bankAccount.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BankAccountCreateManyAndReturnArgs>(args?: SelectSubset<T, BankAccountCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BankAccount.
+     * @param {BankAccountDeleteArgs} args - Arguments to delete one BankAccount.
+     * @example
+     * // Delete one BankAccount
+     * const BankAccount = await prisma.bankAccount.delete({
+     *   where: {
+     *     // ... filter to delete one BankAccount
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BankAccountDeleteArgs>(args: SelectSubset<T, BankAccountDeleteArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BankAccount.
+     * @param {BankAccountUpdateArgs} args - Arguments to update one BankAccount.
+     * @example
+     * // Update one BankAccount
+     * const bankAccount = await prisma.bankAccount.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BankAccountUpdateArgs>(args: SelectSubset<T, BankAccountUpdateArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BankAccounts.
+     * @param {BankAccountDeleteManyArgs} args - Arguments to filter BankAccounts to delete.
+     * @example
+     * // Delete a few BankAccounts
+     * const { count } = await prisma.bankAccount.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BankAccountDeleteManyArgs>(args?: SelectSubset<T, BankAccountDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BankAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankAccountUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BankAccounts
+     * const bankAccount = await prisma.bankAccount.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BankAccountUpdateManyArgs>(args: SelectSubset<T, BankAccountUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BankAccounts and returns the data updated in the database.
+     * @param {BankAccountUpdateManyAndReturnArgs} args - Arguments to update many BankAccounts.
+     * @example
+     * // Update many BankAccounts
+     * const bankAccount = await prisma.bankAccount.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BankAccounts and only return the `id`
+     * const bankAccountWithIdOnly = await prisma.bankAccount.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BankAccountUpdateManyAndReturnArgs>(args: SelectSubset<T, BankAccountUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BankAccount.
+     * @param {BankAccountUpsertArgs} args - Arguments to update or create a BankAccount.
+     * @example
+     * // Update or create a BankAccount
+     * const bankAccount = await prisma.bankAccount.upsert({
+     *   create: {
+     *     // ... data to create a BankAccount
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BankAccount we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BankAccountUpsertArgs>(args: SelectSubset<T, BankAccountUpsertArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BankAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankAccountCountArgs} args - Arguments to filter BankAccounts to count.
+     * @example
+     * // Count the number of BankAccounts
+     * const count = await prisma.bankAccount.count({
+     *   where: {
+     *     // ... the filter for the BankAccounts we want to count
+     *   }
+     * })
+    **/
+    count<T extends BankAccountCountArgs>(
+      args?: Subset<T, BankAccountCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BankAccountCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BankAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankAccountAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BankAccountAggregateArgs>(args: Subset<T, BankAccountAggregateArgs>): Prisma.PrismaPromise<GetBankAccountAggregateType<T>>
+
+    /**
+     * Group by BankAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankAccountGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BankAccountGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BankAccountGroupByArgs['orderBy'] }
+        : { orderBy?: BankAccountGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BankAccountGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBankAccountGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BankAccount model
+   */
+  readonly fields: BankAccountFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BankAccount.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BankAccountClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    bankConnection<T extends BankConnectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BankConnectionDefaultArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    transactions<T extends BankAccount$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, BankAccount$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BankAccount model
+   */
+  interface BankAccountFieldRefs {
+    readonly id: FieldRef<"BankAccount", 'String'>
+    readonly bankConnectionId: FieldRef<"BankAccount", 'String'>
+    readonly companyId: FieldRef<"BankAccount", 'String'>
+    readonly externalId: FieldRef<"BankAccount", 'String'>
+    readonly iban: FieldRef<"BankAccount", 'String'>
+    readonly bic: FieldRef<"BankAccount", 'String'>
+    readonly accountName: FieldRef<"BankAccount", 'String'>
+    readonly balance: FieldRef<"BankAccount", 'Float'>
+    readonly currency: FieldRef<"BankAccount", 'String'>
+    readonly createdAt: FieldRef<"BankAccount", 'DateTime'>
+    readonly updatedAt: FieldRef<"BankAccount", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BankAccount findUnique
+   */
+  export type BankAccountFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which BankAccount to fetch.
+     */
+    where: BankAccountWhereUniqueInput
+  }
+
+  /**
+   * BankAccount findUniqueOrThrow
+   */
+  export type BankAccountFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which BankAccount to fetch.
+     */
+    where: BankAccountWhereUniqueInput
+  }
+
+  /**
+   * BankAccount findFirst
+   */
+  export type BankAccountFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which BankAccount to fetch.
+     */
+    where?: BankAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankAccounts to fetch.
+     */
+    orderBy?: BankAccountOrderByWithRelationInput | BankAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BankAccounts.
+     */
+    cursor?: BankAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankAccounts.
+     */
+    distinct?: BankAccountScalarFieldEnum | BankAccountScalarFieldEnum[]
+  }
+
+  /**
+   * BankAccount findFirstOrThrow
+   */
+  export type BankAccountFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which BankAccount to fetch.
+     */
+    where?: BankAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankAccounts to fetch.
+     */
+    orderBy?: BankAccountOrderByWithRelationInput | BankAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BankAccounts.
+     */
+    cursor?: BankAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankAccounts.
+     */
+    distinct?: BankAccountScalarFieldEnum | BankAccountScalarFieldEnum[]
+  }
+
+  /**
+   * BankAccount findMany
+   */
+  export type BankAccountFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which BankAccounts to fetch.
+     */
+    where?: BankAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankAccounts to fetch.
+     */
+    orderBy?: BankAccountOrderByWithRelationInput | BankAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BankAccounts.
+     */
+    cursor?: BankAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankAccounts.
+     */
+    distinct?: BankAccountScalarFieldEnum | BankAccountScalarFieldEnum[]
+  }
+
+  /**
+   * BankAccount create
+   */
+  export type BankAccountCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BankAccount.
+     */
+    data: XOR<BankAccountCreateInput, BankAccountUncheckedCreateInput>
+  }
+
+  /**
+   * BankAccount createMany
+   */
+  export type BankAccountCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BankAccounts.
+     */
+    data: BankAccountCreateManyInput | BankAccountCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BankAccount createManyAndReturn
+   */
+  export type BankAccountCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * The data used to create many BankAccounts.
+     */
+    data: BankAccountCreateManyInput | BankAccountCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BankAccount update
+   */
+  export type BankAccountUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BankAccount.
+     */
+    data: XOR<BankAccountUpdateInput, BankAccountUncheckedUpdateInput>
+    /**
+     * Choose, which BankAccount to update.
+     */
+    where: BankAccountWhereUniqueInput
+  }
+
+  /**
+   * BankAccount updateMany
+   */
+  export type BankAccountUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BankAccounts.
+     */
+    data: XOR<BankAccountUpdateManyMutationInput, BankAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which BankAccounts to update
+     */
+    where?: BankAccountWhereInput
+    /**
+     * Limit how many BankAccounts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BankAccount updateManyAndReturn
+   */
+  export type BankAccountUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * The data used to update BankAccounts.
+     */
+    data: XOR<BankAccountUpdateManyMutationInput, BankAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which BankAccounts to update
+     */
+    where?: BankAccountWhereInput
+    /**
+     * Limit how many BankAccounts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BankAccount upsert
+   */
+  export type BankAccountUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BankAccount to update in case it exists.
+     */
+    where: BankAccountWhereUniqueInput
+    /**
+     * In case the BankAccount found by the `where` argument doesn't exist, create a new BankAccount with this data.
+     */
+    create: XOR<BankAccountCreateInput, BankAccountUncheckedCreateInput>
+    /**
+     * In case the BankAccount was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BankAccountUpdateInput, BankAccountUncheckedUpdateInput>
+  }
+
+  /**
+   * BankAccount delete
+   */
+  export type BankAccountDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+    /**
+     * Filter which BankAccount to delete.
+     */
+    where: BankAccountWhereUniqueInput
+  }
+
+  /**
+   * BankAccount deleteMany
+   */
+  export type BankAccountDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BankAccounts to delete
+     */
+    where?: BankAccountWhereInput
+    /**
+     * Limit how many BankAccounts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BankAccount.transactions
+   */
+  export type BankAccount$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    where?: BankTransactionWhereInput
+    orderBy?: BankTransactionOrderByWithRelationInput | BankTransactionOrderByWithRelationInput[]
+    cursor?: BankTransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BankTransactionScalarFieldEnum | BankTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * BankAccount without action
+   */
+  export type BankAccountDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankAccount
+     */
+    select?: BankAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankAccount
+     */
+    omit?: BankAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankAccountInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BankTransaction
+   */
+
+  export type AggregateBankTransaction = {
+    _count: BankTransactionCountAggregateOutputType | null
+    _avg: BankTransactionAvgAggregateOutputType | null
+    _sum: BankTransactionSumAggregateOutputType | null
+    _min: BankTransactionMinAggregateOutputType | null
+    _max: BankTransactionMaxAggregateOutputType | null
+  }
+
+  export type BankTransactionAvgAggregateOutputType = {
+    amount: number | null
+    confidenceScore: number | null
+  }
+
+  export type BankTransactionSumAggregateOutputType = {
+    amount: number | null
+    confidenceScore: number | null
+  }
+
+  export type BankTransactionMinAggregateOutputType = {
+    id: string | null
+    bankAccountId: string | null
+    companyId: string | null
+    externalTransactionId: string | null
+    amount: number | null
+    currency: string | null
+    label: string | null
+    reference: string | null
+    counterparty: string | null
+    counterpartyIban: string | null
+    transactionDate: Date | null
+    valueDate: Date | null
+    reconciliationStatus: string | null
+    confidenceScore: number | null
+    matchedInvoiceId: string | null
+    reconciledAt: Date | null
+    reconciledBy: string | null
+    createdAt: Date | null
+  }
+
+  export type BankTransactionMaxAggregateOutputType = {
+    id: string | null
+    bankAccountId: string | null
+    companyId: string | null
+    externalTransactionId: string | null
+    amount: number | null
+    currency: string | null
+    label: string | null
+    reference: string | null
+    counterparty: string | null
+    counterpartyIban: string | null
+    transactionDate: Date | null
+    valueDate: Date | null
+    reconciliationStatus: string | null
+    confidenceScore: number | null
+    matchedInvoiceId: string | null
+    reconciledAt: Date | null
+    reconciledBy: string | null
+    createdAt: Date | null
+  }
+
+  export type BankTransactionCountAggregateOutputType = {
+    id: number
+    bankAccountId: number
+    companyId: number
+    externalTransactionId: number
+    amount: number
+    currency: number
+    label: number
+    reference: number
+    counterparty: number
+    counterpartyIban: number
+    transactionDate: number
+    valueDate: number
+    reconciliationStatus: number
+    confidenceScore: number
+    matchedInvoiceId: number
+    reconciledAt: number
+    reconciledBy: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type BankTransactionAvgAggregateInputType = {
+    amount?: true
+    confidenceScore?: true
+  }
+
+  export type BankTransactionSumAggregateInputType = {
+    amount?: true
+    confidenceScore?: true
+  }
+
+  export type BankTransactionMinAggregateInputType = {
+    id?: true
+    bankAccountId?: true
+    companyId?: true
+    externalTransactionId?: true
+    amount?: true
+    currency?: true
+    label?: true
+    reference?: true
+    counterparty?: true
+    counterpartyIban?: true
+    transactionDate?: true
+    valueDate?: true
+    reconciliationStatus?: true
+    confidenceScore?: true
+    matchedInvoiceId?: true
+    reconciledAt?: true
+    reconciledBy?: true
+    createdAt?: true
+  }
+
+  export type BankTransactionMaxAggregateInputType = {
+    id?: true
+    bankAccountId?: true
+    companyId?: true
+    externalTransactionId?: true
+    amount?: true
+    currency?: true
+    label?: true
+    reference?: true
+    counterparty?: true
+    counterpartyIban?: true
+    transactionDate?: true
+    valueDate?: true
+    reconciliationStatus?: true
+    confidenceScore?: true
+    matchedInvoiceId?: true
+    reconciledAt?: true
+    reconciledBy?: true
+    createdAt?: true
+  }
+
+  export type BankTransactionCountAggregateInputType = {
+    id?: true
+    bankAccountId?: true
+    companyId?: true
+    externalTransactionId?: true
+    amount?: true
+    currency?: true
+    label?: true
+    reference?: true
+    counterparty?: true
+    counterpartyIban?: true
+    transactionDate?: true
+    valueDate?: true
+    reconciliationStatus?: true
+    confidenceScore?: true
+    matchedInvoiceId?: true
+    reconciledAt?: true
+    reconciledBy?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type BankTransactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BankTransaction to aggregate.
+     */
+    where?: BankTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankTransactions to fetch.
+     */
+    orderBy?: BankTransactionOrderByWithRelationInput | BankTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BankTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BankTransactions
+    **/
+    _count?: true | BankTransactionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BankTransactionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BankTransactionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BankTransactionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BankTransactionMaxAggregateInputType
+  }
+
+  export type GetBankTransactionAggregateType<T extends BankTransactionAggregateArgs> = {
+        [P in keyof T & keyof AggregateBankTransaction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBankTransaction[P]>
+      : GetScalarType<T[P], AggregateBankTransaction[P]>
+  }
+
+
+
+
+  export type BankTransactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BankTransactionWhereInput
+    orderBy?: BankTransactionOrderByWithAggregationInput | BankTransactionOrderByWithAggregationInput[]
+    by: BankTransactionScalarFieldEnum[] | BankTransactionScalarFieldEnum
+    having?: BankTransactionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BankTransactionCountAggregateInputType | true
+    _avg?: BankTransactionAvgAggregateInputType
+    _sum?: BankTransactionSumAggregateInputType
+    _min?: BankTransactionMinAggregateInputType
+    _max?: BankTransactionMaxAggregateInputType
+  }
+
+  export type BankTransactionGroupByOutputType = {
+    id: string
+    bankAccountId: string
+    companyId: string
+    externalTransactionId: string
+    amount: number
+    currency: string
+    label: string | null
+    reference: string | null
+    counterparty: string | null
+    counterpartyIban: string | null
+    transactionDate: Date
+    valueDate: Date | null
+    reconciliationStatus: string | null
+    confidenceScore: number | null
+    matchedInvoiceId: string | null
+    reconciledAt: Date | null
+    reconciledBy: string | null
+    createdAt: Date
+    _count: BankTransactionCountAggregateOutputType | null
+    _avg: BankTransactionAvgAggregateOutputType | null
+    _sum: BankTransactionSumAggregateOutputType | null
+    _min: BankTransactionMinAggregateOutputType | null
+    _max: BankTransactionMaxAggregateOutputType | null
+  }
+
+  type GetBankTransactionGroupByPayload<T extends BankTransactionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BankTransactionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BankTransactionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BankTransactionGroupByOutputType[P]>
+            : GetScalarType<T[P], BankTransactionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BankTransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bankAccountId?: boolean
+    companyId?: boolean
+    externalTransactionId?: boolean
+    amount?: boolean
+    currency?: boolean
+    label?: boolean
+    reference?: boolean
+    counterparty?: boolean
+    counterpartyIban?: boolean
+    transactionDate?: boolean
+    valueDate?: boolean
+    reconciliationStatus?: boolean
+    confidenceScore?: boolean
+    matchedInvoiceId?: boolean
+    reconciledAt?: boolean
+    reconciledBy?: boolean
+    createdAt?: boolean
+    bankAccount?: boolean | BankAccountDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    matchedInvoice?: boolean | BankTransaction$matchedInvoiceArgs<ExtArgs>
+  }, ExtArgs["result"]["bankTransaction"]>
+
+  export type BankTransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bankAccountId?: boolean
+    companyId?: boolean
+    externalTransactionId?: boolean
+    amount?: boolean
+    currency?: boolean
+    label?: boolean
+    reference?: boolean
+    counterparty?: boolean
+    counterpartyIban?: boolean
+    transactionDate?: boolean
+    valueDate?: boolean
+    reconciliationStatus?: boolean
+    confidenceScore?: boolean
+    matchedInvoiceId?: boolean
+    reconciledAt?: boolean
+    reconciledBy?: boolean
+    createdAt?: boolean
+    bankAccount?: boolean | BankAccountDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    matchedInvoice?: boolean | BankTransaction$matchedInvoiceArgs<ExtArgs>
+  }, ExtArgs["result"]["bankTransaction"]>
+
+  export type BankTransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bankAccountId?: boolean
+    companyId?: boolean
+    externalTransactionId?: boolean
+    amount?: boolean
+    currency?: boolean
+    label?: boolean
+    reference?: boolean
+    counterparty?: boolean
+    counterpartyIban?: boolean
+    transactionDate?: boolean
+    valueDate?: boolean
+    reconciliationStatus?: boolean
+    confidenceScore?: boolean
+    matchedInvoiceId?: boolean
+    reconciledAt?: boolean
+    reconciledBy?: boolean
+    createdAt?: boolean
+    bankAccount?: boolean | BankAccountDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    matchedInvoice?: boolean | BankTransaction$matchedInvoiceArgs<ExtArgs>
+  }, ExtArgs["result"]["bankTransaction"]>
+
+  export type BankTransactionSelectScalar = {
+    id?: boolean
+    bankAccountId?: boolean
+    companyId?: boolean
+    externalTransactionId?: boolean
+    amount?: boolean
+    currency?: boolean
+    label?: boolean
+    reference?: boolean
+    counterparty?: boolean
+    counterpartyIban?: boolean
+    transactionDate?: boolean
+    valueDate?: boolean
+    reconciliationStatus?: boolean
+    confidenceScore?: boolean
+    matchedInvoiceId?: boolean
+    reconciledAt?: boolean
+    reconciledBy?: boolean
+    createdAt?: boolean
+  }
+
+  export type BankTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "bankAccountId" | "companyId" | "externalTransactionId" | "amount" | "currency" | "label" | "reference" | "counterparty" | "counterpartyIban" | "transactionDate" | "valueDate" | "reconciliationStatus" | "confidenceScore" | "matchedInvoiceId" | "reconciledAt" | "reconciledBy" | "createdAt", ExtArgs["result"]["bankTransaction"]>
+  export type BankTransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bankAccount?: boolean | BankAccountDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    matchedInvoice?: boolean | BankTransaction$matchedInvoiceArgs<ExtArgs>
+  }
+  export type BankTransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bankAccount?: boolean | BankAccountDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    matchedInvoice?: boolean | BankTransaction$matchedInvoiceArgs<ExtArgs>
+  }
+  export type BankTransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bankAccount?: boolean | BankAccountDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    matchedInvoice?: boolean | BankTransaction$matchedInvoiceArgs<ExtArgs>
+  }
+
+  export type $BankTransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BankTransaction"
+    objects: {
+      bankAccount: Prisma.$BankAccountPayload<ExtArgs>
+      company: Prisma.$CompanyPayload<ExtArgs>
+      matchedInvoice: Prisma.$InvoicePayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      bankAccountId: string
+      companyId: string
+      externalTransactionId: string
+      amount: number
+      currency: string
+      label: string | null
+      reference: string | null
+      counterparty: string | null
+      counterpartyIban: string | null
+      transactionDate: Date
+      valueDate: Date | null
+      reconciliationStatus: string | null
+      confidenceScore: number | null
+      matchedInvoiceId: string | null
+      reconciledAt: Date | null
+      reconciledBy: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["bankTransaction"]>
+    composites: {}
+  }
+
+  type BankTransactionGetPayload<S extends boolean | null | undefined | BankTransactionDefaultArgs> = $Result.GetResult<Prisma.$BankTransactionPayload, S>
+
+  type BankTransactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BankTransactionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BankTransactionCountAggregateInputType | true
+    }
+
+  export interface BankTransactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BankTransaction'], meta: { name: 'BankTransaction' } }
+    /**
+     * Find zero or one BankTransaction that matches the filter.
+     * @param {BankTransactionFindUniqueArgs} args - Arguments to find a BankTransaction
+     * @example
+     * // Get one BankTransaction
+     * const bankTransaction = await prisma.bankTransaction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BankTransactionFindUniqueArgs>(args: SelectSubset<T, BankTransactionFindUniqueArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BankTransaction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BankTransactionFindUniqueOrThrowArgs} args - Arguments to find a BankTransaction
+     * @example
+     * // Get one BankTransaction
+     * const bankTransaction = await prisma.bankTransaction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BankTransactionFindUniqueOrThrowArgs>(args: SelectSubset<T, BankTransactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BankTransaction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankTransactionFindFirstArgs} args - Arguments to find a BankTransaction
+     * @example
+     * // Get one BankTransaction
+     * const bankTransaction = await prisma.bankTransaction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BankTransactionFindFirstArgs>(args?: SelectSubset<T, BankTransactionFindFirstArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BankTransaction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankTransactionFindFirstOrThrowArgs} args - Arguments to find a BankTransaction
+     * @example
+     * // Get one BankTransaction
+     * const bankTransaction = await prisma.bankTransaction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BankTransactionFindFirstOrThrowArgs>(args?: SelectSubset<T, BankTransactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BankTransactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankTransactionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BankTransactions
+     * const bankTransactions = await prisma.bankTransaction.findMany()
+     * 
+     * // Get first 10 BankTransactions
+     * const bankTransactions = await prisma.bankTransaction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bankTransactionWithIdOnly = await prisma.bankTransaction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BankTransactionFindManyArgs>(args?: SelectSubset<T, BankTransactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BankTransaction.
+     * @param {BankTransactionCreateArgs} args - Arguments to create a BankTransaction.
+     * @example
+     * // Create one BankTransaction
+     * const BankTransaction = await prisma.bankTransaction.create({
+     *   data: {
+     *     // ... data to create a BankTransaction
+     *   }
+     * })
+     * 
+     */
+    create<T extends BankTransactionCreateArgs>(args: SelectSubset<T, BankTransactionCreateArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BankTransactions.
+     * @param {BankTransactionCreateManyArgs} args - Arguments to create many BankTransactions.
+     * @example
+     * // Create many BankTransactions
+     * const bankTransaction = await prisma.bankTransaction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BankTransactionCreateManyArgs>(args?: SelectSubset<T, BankTransactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BankTransactions and returns the data saved in the database.
+     * @param {BankTransactionCreateManyAndReturnArgs} args - Arguments to create many BankTransactions.
+     * @example
+     * // Create many BankTransactions
+     * const bankTransaction = await prisma.bankTransaction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BankTransactions and only return the `id`
+     * const bankTransactionWithIdOnly = await prisma.bankTransaction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BankTransactionCreateManyAndReturnArgs>(args?: SelectSubset<T, BankTransactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BankTransaction.
+     * @param {BankTransactionDeleteArgs} args - Arguments to delete one BankTransaction.
+     * @example
+     * // Delete one BankTransaction
+     * const BankTransaction = await prisma.bankTransaction.delete({
+     *   where: {
+     *     // ... filter to delete one BankTransaction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BankTransactionDeleteArgs>(args: SelectSubset<T, BankTransactionDeleteArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BankTransaction.
+     * @param {BankTransactionUpdateArgs} args - Arguments to update one BankTransaction.
+     * @example
+     * // Update one BankTransaction
+     * const bankTransaction = await prisma.bankTransaction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BankTransactionUpdateArgs>(args: SelectSubset<T, BankTransactionUpdateArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BankTransactions.
+     * @param {BankTransactionDeleteManyArgs} args - Arguments to filter BankTransactions to delete.
+     * @example
+     * // Delete a few BankTransactions
+     * const { count } = await prisma.bankTransaction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BankTransactionDeleteManyArgs>(args?: SelectSubset<T, BankTransactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BankTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankTransactionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BankTransactions
+     * const bankTransaction = await prisma.bankTransaction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BankTransactionUpdateManyArgs>(args: SelectSubset<T, BankTransactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BankTransactions and returns the data updated in the database.
+     * @param {BankTransactionUpdateManyAndReturnArgs} args - Arguments to update many BankTransactions.
+     * @example
+     * // Update many BankTransactions
+     * const bankTransaction = await prisma.bankTransaction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BankTransactions and only return the `id`
+     * const bankTransactionWithIdOnly = await prisma.bankTransaction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BankTransactionUpdateManyAndReturnArgs>(args: SelectSubset<T, BankTransactionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BankTransaction.
+     * @param {BankTransactionUpsertArgs} args - Arguments to update or create a BankTransaction.
+     * @example
+     * // Update or create a BankTransaction
+     * const bankTransaction = await prisma.bankTransaction.upsert({
+     *   create: {
+     *     // ... data to create a BankTransaction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BankTransaction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BankTransactionUpsertArgs>(args: SelectSubset<T, BankTransactionUpsertArgs<ExtArgs>>): Prisma__BankTransactionClient<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BankTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankTransactionCountArgs} args - Arguments to filter BankTransactions to count.
+     * @example
+     * // Count the number of BankTransactions
+     * const count = await prisma.bankTransaction.count({
+     *   where: {
+     *     // ... the filter for the BankTransactions we want to count
+     *   }
+     * })
+    **/
+    count<T extends BankTransactionCountArgs>(
+      args?: Subset<T, BankTransactionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BankTransactionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BankTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankTransactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BankTransactionAggregateArgs>(args: Subset<T, BankTransactionAggregateArgs>): Prisma.PrismaPromise<GetBankTransactionAggregateType<T>>
+
+    /**
+     * Group by BankTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BankTransactionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BankTransactionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BankTransactionGroupByArgs['orderBy'] }
+        : { orderBy?: BankTransactionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BankTransactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBankTransactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BankTransaction model
+   */
+  readonly fields: BankTransactionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BankTransaction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BankTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    bankAccount<T extends BankAccountDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BankAccountDefaultArgs<ExtArgs>>): Prisma__BankAccountClient<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    matchedInvoice<T extends BankTransaction$matchedInvoiceArgs<ExtArgs> = {}>(args?: Subset<T, BankTransaction$matchedInvoiceArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BankTransaction model
+   */
+  interface BankTransactionFieldRefs {
+    readonly id: FieldRef<"BankTransaction", 'String'>
+    readonly bankAccountId: FieldRef<"BankTransaction", 'String'>
+    readonly companyId: FieldRef<"BankTransaction", 'String'>
+    readonly externalTransactionId: FieldRef<"BankTransaction", 'String'>
+    readonly amount: FieldRef<"BankTransaction", 'Float'>
+    readonly currency: FieldRef<"BankTransaction", 'String'>
+    readonly label: FieldRef<"BankTransaction", 'String'>
+    readonly reference: FieldRef<"BankTransaction", 'String'>
+    readonly counterparty: FieldRef<"BankTransaction", 'String'>
+    readonly counterpartyIban: FieldRef<"BankTransaction", 'String'>
+    readonly transactionDate: FieldRef<"BankTransaction", 'DateTime'>
+    readonly valueDate: FieldRef<"BankTransaction", 'DateTime'>
+    readonly reconciliationStatus: FieldRef<"BankTransaction", 'String'>
+    readonly confidenceScore: FieldRef<"BankTransaction", 'Float'>
+    readonly matchedInvoiceId: FieldRef<"BankTransaction", 'String'>
+    readonly reconciledAt: FieldRef<"BankTransaction", 'DateTime'>
+    readonly reconciledBy: FieldRef<"BankTransaction", 'String'>
+    readonly createdAt: FieldRef<"BankTransaction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BankTransaction findUnique
+   */
+  export type BankTransactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankTransaction to fetch.
+     */
+    where: BankTransactionWhereUniqueInput
+  }
+
+  /**
+   * BankTransaction findUniqueOrThrow
+   */
+  export type BankTransactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankTransaction to fetch.
+     */
+    where: BankTransactionWhereUniqueInput
+  }
+
+  /**
+   * BankTransaction findFirst
+   */
+  export type BankTransactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankTransaction to fetch.
+     */
+    where?: BankTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankTransactions to fetch.
+     */
+    orderBy?: BankTransactionOrderByWithRelationInput | BankTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BankTransactions.
+     */
+    cursor?: BankTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankTransactions.
+     */
+    distinct?: BankTransactionScalarFieldEnum | BankTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * BankTransaction findFirstOrThrow
+   */
+  export type BankTransactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankTransaction to fetch.
+     */
+    where?: BankTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankTransactions to fetch.
+     */
+    orderBy?: BankTransactionOrderByWithRelationInput | BankTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BankTransactions.
+     */
+    cursor?: BankTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankTransactions.
+     */
+    distinct?: BankTransactionScalarFieldEnum | BankTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * BankTransaction findMany
+   */
+  export type BankTransactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which BankTransactions to fetch.
+     */
+    where?: BankTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BankTransactions to fetch.
+     */
+    orderBy?: BankTransactionOrderByWithRelationInput | BankTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BankTransactions.
+     */
+    cursor?: BankTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BankTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BankTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BankTransactions.
+     */
+    distinct?: BankTransactionScalarFieldEnum | BankTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * BankTransaction create
+   */
+  export type BankTransactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BankTransaction.
+     */
+    data: XOR<BankTransactionCreateInput, BankTransactionUncheckedCreateInput>
+  }
+
+  /**
+   * BankTransaction createMany
+   */
+  export type BankTransactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BankTransactions.
+     */
+    data: BankTransactionCreateManyInput | BankTransactionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BankTransaction createManyAndReturn
+   */
+  export type BankTransactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * The data used to create many BankTransactions.
+     */
+    data: BankTransactionCreateManyInput | BankTransactionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BankTransaction update
+   */
+  export type BankTransactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BankTransaction.
+     */
+    data: XOR<BankTransactionUpdateInput, BankTransactionUncheckedUpdateInput>
+    /**
+     * Choose, which BankTransaction to update.
+     */
+    where: BankTransactionWhereUniqueInput
+  }
+
+  /**
+   * BankTransaction updateMany
+   */
+  export type BankTransactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BankTransactions.
+     */
+    data: XOR<BankTransactionUpdateManyMutationInput, BankTransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which BankTransactions to update
+     */
+    where?: BankTransactionWhereInput
+    /**
+     * Limit how many BankTransactions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BankTransaction updateManyAndReturn
+   */
+  export type BankTransactionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * The data used to update BankTransactions.
+     */
+    data: XOR<BankTransactionUpdateManyMutationInput, BankTransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which BankTransactions to update
+     */
+    where?: BankTransactionWhereInput
+    /**
+     * Limit how many BankTransactions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BankTransaction upsert
+   */
+  export type BankTransactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BankTransaction to update in case it exists.
+     */
+    where: BankTransactionWhereUniqueInput
+    /**
+     * In case the BankTransaction found by the `where` argument doesn't exist, create a new BankTransaction with this data.
+     */
+    create: XOR<BankTransactionCreateInput, BankTransactionUncheckedCreateInput>
+    /**
+     * In case the BankTransaction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BankTransactionUpdateInput, BankTransactionUncheckedUpdateInput>
+  }
+
+  /**
+   * BankTransaction delete
+   */
+  export type BankTransactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+    /**
+     * Filter which BankTransaction to delete.
+     */
+    where: BankTransactionWhereUniqueInput
+  }
+
+  /**
+   * BankTransaction deleteMany
+   */
+  export type BankTransactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BankTransactions to delete
+     */
+    where?: BankTransactionWhereInput
+    /**
+     * Limit how many BankTransactions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BankTransaction.matchedInvoice
+   */
+  export type BankTransaction$matchedInvoiceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    where?: InvoiceWhereInput
+  }
+
+  /**
+   * BankTransaction without action
+   */
+  export type BankTransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BankTransaction
+     */
+    select?: BankTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BankTransaction
+     */
+    omit?: BankTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BankTransactionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -54217,6 +61128,11 @@ export namespace Prisma {
     stripeAccountId: 'stripeAccountId',
     stripeAccountStatus: 'stripeAccountStatus',
     onlinePaymentEnabled: 'onlinePaymentEnabled',
+    stripeOnboardingStatus: 'stripeOnboardingStatus',
+    stripeChargesEnabled: 'stripeChargesEnabled',
+    stripePayoutsEnabled: 'stripePayoutsEnabled',
+    stripeDetailsSubmitted: 'stripeDetailsSubmitted',
+    stripeConnectedAt: 'stripeConnectedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -54331,6 +61247,9 @@ export namespace Prisma {
     bankIban: 'bankIban',
     bankBic: 'bankBic',
     bankAccountOwner: 'bankAccountOwner',
+    bankTransferEnabled: 'bankTransferEnabled',
+    stripePaymentEnabled: 'stripePaymentEnabled',
+    stripeFeeBearer: 'stripeFeeBearer',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -54650,6 +61569,10 @@ export namespace Prisma {
     paymentMethod: 'paymentMethod',
     paymentRef: 'paymentRef',
     pdfUrl: 'pdfUrl',
+    paymentStatus: 'paymentStatus',
+    invoicePaymentMethod: 'invoicePaymentMethod',
+    bankTransferEnabled: 'bankTransferEnabled',
+    stripeEnabled: 'stripeEnabled',
     onlinePaymentEnabled: 'onlinePaymentEnabled',
     stripePaymentIntentId: 'stripePaymentIntentId',
     stripeCheckoutUrl: 'stripeCheckoutUrl',
@@ -55018,6 +61941,97 @@ export namespace Prisma {
   export type EInvoicingJobScalarFieldEnum = (typeof EInvoicingJobScalarFieldEnum)[keyof typeof EInvoicingJobScalarFieldEnum]
 
 
+  export const InvoiceTransactionScalarFieldEnum: {
+    id: 'id',
+    invoiceId: 'invoiceId',
+    companyId: 'companyId',
+    type: 'type',
+    status: 'status',
+    amount: 'amount',
+    currency: 'currency',
+    stripePaymentIntentId: 'stripePaymentIntentId',
+    stripeCheckoutSessionId: 'stripeCheckoutSessionId',
+    stripeTransferId: 'stripeTransferId',
+    bankReference: 'bankReference',
+    paidAt: 'paidAt',
+    createdAt: 'createdAt'
+  };
+
+  export type InvoiceTransactionScalarFieldEnum = (typeof InvoiceTransactionScalarFieldEnum)[keyof typeof InvoiceTransactionScalarFieldEnum]
+
+
+  export const StripeFeeConfigScalarFieldEnum: {
+    id: 'id',
+    feeRate: 'feeRate',
+    fixedFee: 'fixedFee',
+    currency: 'currency',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type StripeFeeConfigScalarFieldEnum = (typeof StripeFeeConfigScalarFieldEnum)[keyof typeof StripeFeeConfigScalarFieldEnum]
+
+
+  export const BankConnectionScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    provider: 'provider',
+    connectionId: 'connectionId',
+    userId: 'userId',
+    accessTokenEncrypted: 'accessTokenEncrypted',
+    refreshTokenEncrypted: 'refreshTokenEncrypted',
+    tokenExpiresAt: 'tokenExpiresAt',
+    status: 'status',
+    lastSyncAt: 'lastSyncAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BankConnectionScalarFieldEnum = (typeof BankConnectionScalarFieldEnum)[keyof typeof BankConnectionScalarFieldEnum]
+
+
+  export const BankAccountScalarFieldEnum: {
+    id: 'id',
+    bankConnectionId: 'bankConnectionId',
+    companyId: 'companyId',
+    externalId: 'externalId',
+    iban: 'iban',
+    bic: 'bic',
+    accountName: 'accountName',
+    balance: 'balance',
+    currency: 'currency',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BankAccountScalarFieldEnum = (typeof BankAccountScalarFieldEnum)[keyof typeof BankAccountScalarFieldEnum]
+
+
+  export const BankTransactionScalarFieldEnum: {
+    id: 'id',
+    bankAccountId: 'bankAccountId',
+    companyId: 'companyId',
+    externalTransactionId: 'externalTransactionId',
+    amount: 'amount',
+    currency: 'currency',
+    label: 'label',
+    reference: 'reference',
+    counterparty: 'counterparty',
+    counterpartyIban: 'counterpartyIban',
+    transactionDate: 'transactionDate',
+    valueDate: 'valueDate',
+    reconciliationStatus: 'reconciliationStatus',
+    confidenceScore: 'confidenceScore',
+    matchedInvoiceId: 'matchedInvoiceId',
+    reconciledAt: 'reconciledAt',
+    reconciledBy: 'reconciledBy',
+    createdAt: 'createdAt'
+  };
+
+  export type BankTransactionScalarFieldEnum = (typeof BankTransactionScalarFieldEnum)[keyof typeof BankTransactionScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -55149,6 +62163,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'StripeOnboardingStatus'
+   */
+  export type EnumStripeOnboardingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StripeOnboardingStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'StripeOnboardingStatus[]'
+   */
+  export type ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StripeOnboardingStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'PlanStatus'
    */
   export type EnumPlanStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlanStatus'>
@@ -55229,6 +62257,20 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'StripeFeeBearer'
+   */
+  export type EnumStripeFeeBearerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StripeFeeBearer'>
+    
+
+
+  /**
+   * Reference to a field of type 'StripeFeeBearer[]'
+   */
+  export type ListEnumStripeFeeBearerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StripeFeeBearer[]'>
     
 
 
@@ -55341,6 +62383,34 @@ export namespace Prisma {
    * Reference to a field of type 'InvoiceStatus[]'
    */
   export type ListEnumInvoiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoiceStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'InvoicePaymentStatus'
+   */
+  export type EnumInvoicePaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoicePaymentStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'InvoicePaymentStatus[]'
+   */
+  export type ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoicePaymentStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'InvoicePaymentMethodType'
+   */
+  export type EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoicePaymentMethodType'>
+    
+
+
+  /**
+   * Reference to a field of type 'InvoicePaymentMethodType[]'
+   */
+  export type ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoicePaymentMethodType[]'>
     
 
 
@@ -55666,6 +62736,11 @@ export namespace Prisma {
     stripeAccountId?: StringNullableFilter<"Company"> | string | null
     stripeAccountStatus?: StringNullableFilter<"Company"> | string | null
     onlinePaymentEnabled?: BoolFilter<"Company"> | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFilter<"Company"> | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFilter<"Company"> | boolean
+    stripePayoutsEnabled?: BoolFilter<"Company"> | boolean
+    stripeDetailsSubmitted?: BoolFilter<"Company"> | boolean
+    stripeConnectedAt?: DateTimeNullableFilter<"Company"> | Date | string | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     users?: UserListRelationFilter
@@ -55684,6 +62759,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemListRelationFilter
     interventionTypes?: InterventionTypeItemListRelationFilter
     tradeCategories?: CompanyTradeCategoryListRelationFilter
+    invoiceTransactions?: InvoiceTransactionListRelationFilter
+    bankConnection?: XOR<BankConnectionNullableScalarRelationFilter, BankConnectionWhereInput> | null
+    bankAccounts?: BankAccountListRelationFilter
+    bankTransactions?: BankTransactionListRelationFilter
     accountingExports?: AccountingExportListRelationFilter
     tvaSummaries?: TvaSummaryListRelationFilter
     accountingIntegration?: XOR<AccountingIntegrationNullableScalarRelationFilter, AccountingIntegrationWhereInput> | null
@@ -55718,6 +62797,11 @@ export namespace Prisma {
     stripeAccountId?: SortOrderInput | SortOrder
     stripeAccountStatus?: SortOrderInput | SortOrder
     onlinePaymentEnabled?: SortOrder
+    stripeOnboardingStatus?: SortOrder
+    stripeChargesEnabled?: SortOrder
+    stripePayoutsEnabled?: SortOrder
+    stripeDetailsSubmitted?: SortOrder
+    stripeConnectedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     users?: UserOrderByRelationAggregateInput
@@ -55736,6 +62820,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemOrderByRelationAggregateInput
     interventionTypes?: InterventionTypeItemOrderByRelationAggregateInput
     tradeCategories?: CompanyTradeCategoryOrderByRelationAggregateInput
+    invoiceTransactions?: InvoiceTransactionOrderByRelationAggregateInput
+    bankConnection?: BankConnectionOrderByWithRelationInput
+    bankAccounts?: BankAccountOrderByRelationAggregateInput
+    bankTransactions?: BankTransactionOrderByRelationAggregateInput
     accountingExports?: AccountingExportOrderByRelationAggregateInput
     tvaSummaries?: TvaSummaryOrderByRelationAggregateInput
     accountingIntegration?: AccountingIntegrationOrderByWithRelationInput
@@ -55773,6 +62861,11 @@ export namespace Prisma {
     smsNumber?: StringNullableFilter<"Company"> | string | null
     stripeAccountStatus?: StringNullableFilter<"Company"> | string | null
     onlinePaymentEnabled?: BoolFilter<"Company"> | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFilter<"Company"> | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFilter<"Company"> | boolean
+    stripePayoutsEnabled?: BoolFilter<"Company"> | boolean
+    stripeDetailsSubmitted?: BoolFilter<"Company"> | boolean
+    stripeConnectedAt?: DateTimeNullableFilter<"Company"> | Date | string | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     users?: UserListRelationFilter
@@ -55791,6 +62884,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemListRelationFilter
     interventionTypes?: InterventionTypeItemListRelationFilter
     tradeCategories?: CompanyTradeCategoryListRelationFilter
+    invoiceTransactions?: InvoiceTransactionListRelationFilter
+    bankConnection?: XOR<BankConnectionNullableScalarRelationFilter, BankConnectionWhereInput> | null
+    bankAccounts?: BankAccountListRelationFilter
+    bankTransactions?: BankTransactionListRelationFilter
     accountingExports?: AccountingExportListRelationFilter
     tvaSummaries?: TvaSummaryListRelationFilter
     accountingIntegration?: XOR<AccountingIntegrationNullableScalarRelationFilter, AccountingIntegrationWhereInput> | null
@@ -55825,6 +62922,11 @@ export namespace Prisma {
     stripeAccountId?: SortOrderInput | SortOrder
     stripeAccountStatus?: SortOrderInput | SortOrder
     onlinePaymentEnabled?: SortOrder
+    stripeOnboardingStatus?: SortOrder
+    stripeChargesEnabled?: SortOrder
+    stripePayoutsEnabled?: SortOrder
+    stripeDetailsSubmitted?: SortOrder
+    stripeConnectedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CompanyCountOrderByAggregateInput
@@ -55860,6 +62962,11 @@ export namespace Prisma {
     stripeAccountId?: StringNullableWithAggregatesFilter<"Company"> | string | null
     stripeAccountStatus?: StringNullableWithAggregatesFilter<"Company"> | string | null
     onlinePaymentEnabled?: BoolWithAggregatesFilter<"Company"> | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusWithAggregatesFilter<"Company"> | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolWithAggregatesFilter<"Company"> | boolean
+    stripePayoutsEnabled?: BoolWithAggregatesFilter<"Company"> | boolean
+    stripeDetailsSubmitted?: BoolWithAggregatesFilter<"Company"> | boolean
+    stripeConnectedAt?: DateTimeNullableWithAggregatesFilter<"Company"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
   }
@@ -56234,6 +63341,9 @@ export namespace Prisma {
     bankIban?: StringNullableFilter<"CompanySettings"> | string | null
     bankBic?: StringNullableFilter<"CompanySettings"> | string | null
     bankAccountOwner?: StringNullableFilter<"CompanySettings"> | string | null
+    bankTransferEnabled?: BoolFilter<"CompanySettings"> | boolean
+    stripePaymentEnabled?: BoolFilter<"CompanySettings"> | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFilter<"CompanySettings"> | $Enums.StripeFeeBearer
     createdAt?: DateTimeFilter<"CompanySettings"> | Date | string
     updatedAt?: DateTimeFilter<"CompanySettings"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -56285,6 +63395,9 @@ export namespace Prisma {
     bankIban?: SortOrderInput | SortOrder
     bankBic?: SortOrderInput | SortOrder
     bankAccountOwner?: SortOrderInput | SortOrder
+    bankTransferEnabled?: SortOrder
+    stripePaymentEnabled?: SortOrder
+    stripeFeeBearer?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
@@ -56339,6 +63452,9 @@ export namespace Prisma {
     bankIban?: StringNullableFilter<"CompanySettings"> | string | null
     bankBic?: StringNullableFilter<"CompanySettings"> | string | null
     bankAccountOwner?: StringNullableFilter<"CompanySettings"> | string | null
+    bankTransferEnabled?: BoolFilter<"CompanySettings"> | boolean
+    stripePaymentEnabled?: BoolFilter<"CompanySettings"> | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFilter<"CompanySettings"> | $Enums.StripeFeeBearer
     createdAt?: DateTimeFilter<"CompanySettings"> | Date | string
     updatedAt?: DateTimeFilter<"CompanySettings"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -56390,6 +63506,9 @@ export namespace Prisma {
     bankIban?: SortOrderInput | SortOrder
     bankBic?: SortOrderInput | SortOrder
     bankAccountOwner?: SortOrderInput | SortOrder
+    bankTransferEnabled?: SortOrder
+    stripePaymentEnabled?: SortOrder
+    stripeFeeBearer?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CompanySettingsCountOrderByAggregateInput
@@ -56448,6 +63567,9 @@ export namespace Prisma {
     bankIban?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     bankBic?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     bankAccountOwner?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    bankTransferEnabled?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
+    stripePaymentEnabled?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerWithAggregatesFilter<"CompanySettings"> | $Enums.StripeFeeBearer
     createdAt?: DateTimeWithAggregatesFilter<"CompanySettings"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CompanySettings"> | Date | string
   }
@@ -58008,6 +65130,10 @@ export namespace Prisma {
     paymentMethod?: EnumPaymentMethodNullableFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFilter<"Invoice"> | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: EnumInvoicePaymentMethodTypeNullableFilter<"Invoice"> | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFilter<"Invoice"> | boolean
+    stripeEnabled?: BoolFilter<"Invoice"> | boolean
     onlinePaymentEnabled?: BoolFilter<"Invoice"> | boolean
     stripePaymentIntentId?: StringNullableFilter<"Invoice"> | string | null
     stripeCheckoutUrl?: StringNullableFilter<"Invoice"> | string | null
@@ -58039,6 +65165,8 @@ export namespace Prisma {
     interventionType?: XOR<InterventionTypeItemNullableScalarRelationFilter, InterventionTypeItemWhereInput> | null
     lines?: InvoiceLineListRelationFilter
     paymentEvents?: InvoicePaymentEventListRelationFilter
+    transactions?: InvoiceTransactionListRelationFilter
+    bankTransactions?: BankTransactionListRelationFilter
     einvoicingEvents?: EInvoicingEventListRelationFilter
   }
 
@@ -58072,6 +65200,10 @@ export namespace Prisma {
     paymentMethod?: SortOrderInput | SortOrder
     paymentRef?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
+    paymentStatus?: SortOrder
+    invoicePaymentMethod?: SortOrderInput | SortOrder
+    bankTransferEnabled?: SortOrder
+    stripeEnabled?: SortOrder
     onlinePaymentEnabled?: SortOrder
     stripePaymentIntentId?: SortOrderInput | SortOrder
     stripeCheckoutUrl?: SortOrderInput | SortOrder
@@ -58103,6 +65235,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemOrderByWithRelationInput
     lines?: InvoiceLineOrderByRelationAggregateInput
     paymentEvents?: InvoicePaymentEventOrderByRelationAggregateInput
+    transactions?: InvoiceTransactionOrderByRelationAggregateInput
+    bankTransactions?: BankTransactionOrderByRelationAggregateInput
     einvoicingEvents?: EInvoicingEventOrderByRelationAggregateInput
   }
 
@@ -58142,6 +65276,10 @@ export namespace Prisma {
     paymentMethod?: EnumPaymentMethodNullableFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFilter<"Invoice"> | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: EnumInvoicePaymentMethodTypeNullableFilter<"Invoice"> | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFilter<"Invoice"> | boolean
+    stripeEnabled?: BoolFilter<"Invoice"> | boolean
     onlinePaymentEnabled?: BoolFilter<"Invoice"> | boolean
     stripeCheckoutUrl?: StringNullableFilter<"Invoice"> | string | null
     paymentTokenExpiry?: DateTimeNullableFilter<"Invoice"> | Date | string | null
@@ -58170,6 +65308,8 @@ export namespace Prisma {
     interventionType?: XOR<InterventionTypeItemNullableScalarRelationFilter, InterventionTypeItemWhereInput> | null
     lines?: InvoiceLineListRelationFilter
     paymentEvents?: InvoicePaymentEventListRelationFilter
+    transactions?: InvoiceTransactionListRelationFilter
+    bankTransactions?: BankTransactionListRelationFilter
     einvoicingEvents?: EInvoicingEventListRelationFilter
   }, "id" | "interventionId" | "sourceQuoteId" | "stripePaymentIntentId" | "stripeCheckoutSessionId" | "paymentToken">
 
@@ -58203,6 +65343,10 @@ export namespace Prisma {
     paymentMethod?: SortOrderInput | SortOrder
     paymentRef?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
+    paymentStatus?: SortOrder
+    invoicePaymentMethod?: SortOrderInput | SortOrder
+    bankTransferEnabled?: SortOrder
+    stripeEnabled?: SortOrder
     onlinePaymentEnabled?: SortOrder
     stripePaymentIntentId?: SortOrderInput | SortOrder
     stripeCheckoutUrl?: SortOrderInput | SortOrder
@@ -58268,6 +65412,10 @@ export namespace Prisma {
     paymentMethod?: EnumPaymentMethodNullableWithAggregatesFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    paymentStatus?: EnumInvoicePaymentStatusWithAggregatesFilter<"Invoice"> | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: EnumInvoicePaymentMethodTypeNullableWithAggregatesFilter<"Invoice"> | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolWithAggregatesFilter<"Invoice"> | boolean
+    stripeEnabled?: BoolWithAggregatesFilter<"Invoice"> | boolean
     onlinePaymentEnabled?: BoolWithAggregatesFilter<"Invoice"> | boolean
     stripePaymentIntentId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     stripeCheckoutUrl?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
@@ -60026,6 +67174,484 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"EInvoicingJob"> | Date | string
   }
 
+  export type InvoiceTransactionWhereInput = {
+    AND?: InvoiceTransactionWhereInput | InvoiceTransactionWhereInput[]
+    OR?: InvoiceTransactionWhereInput[]
+    NOT?: InvoiceTransactionWhereInput | InvoiceTransactionWhereInput[]
+    id?: StringFilter<"InvoiceTransaction"> | string
+    invoiceId?: StringFilter<"InvoiceTransaction"> | string
+    companyId?: StringFilter<"InvoiceTransaction"> | string
+    type?: EnumInvoicePaymentMethodTypeFilter<"InvoiceTransaction"> | $Enums.InvoicePaymentMethodType
+    status?: StringFilter<"InvoiceTransaction"> | string
+    amount?: FloatFilter<"InvoiceTransaction"> | number
+    currency?: StringFilter<"InvoiceTransaction"> | string
+    stripePaymentIntentId?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    stripeCheckoutSessionId?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    stripeTransferId?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    bankReference?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    paidAt?: DateTimeNullableFilter<"InvoiceTransaction"> | Date | string | null
+    createdAt?: DateTimeFilter<"InvoiceTransaction"> | Date | string
+    invoice?: XOR<InvoiceScalarRelationFilter, InvoiceWhereInput>
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }
+
+  export type InvoiceTransactionOrderByWithRelationInput = {
+    id?: SortOrder
+    invoiceId?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    stripePaymentIntentId?: SortOrderInput | SortOrder
+    stripeCheckoutSessionId?: SortOrderInput | SortOrder
+    stripeTransferId?: SortOrderInput | SortOrder
+    bankReference?: SortOrderInput | SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    invoice?: InvoiceOrderByWithRelationInput
+    company?: CompanyOrderByWithRelationInput
+  }
+
+  export type InvoiceTransactionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    stripePaymentIntentId?: string
+    stripeCheckoutSessionId?: string
+    AND?: InvoiceTransactionWhereInput | InvoiceTransactionWhereInput[]
+    OR?: InvoiceTransactionWhereInput[]
+    NOT?: InvoiceTransactionWhereInput | InvoiceTransactionWhereInput[]
+    invoiceId?: StringFilter<"InvoiceTransaction"> | string
+    companyId?: StringFilter<"InvoiceTransaction"> | string
+    type?: EnumInvoicePaymentMethodTypeFilter<"InvoiceTransaction"> | $Enums.InvoicePaymentMethodType
+    status?: StringFilter<"InvoiceTransaction"> | string
+    amount?: FloatFilter<"InvoiceTransaction"> | number
+    currency?: StringFilter<"InvoiceTransaction"> | string
+    stripeTransferId?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    bankReference?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    paidAt?: DateTimeNullableFilter<"InvoiceTransaction"> | Date | string | null
+    createdAt?: DateTimeFilter<"InvoiceTransaction"> | Date | string
+    invoice?: XOR<InvoiceScalarRelationFilter, InvoiceWhereInput>
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }, "id" | "stripePaymentIntentId" | "stripeCheckoutSessionId">
+
+  export type InvoiceTransactionOrderByWithAggregationInput = {
+    id?: SortOrder
+    invoiceId?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    stripePaymentIntentId?: SortOrderInput | SortOrder
+    stripeCheckoutSessionId?: SortOrderInput | SortOrder
+    stripeTransferId?: SortOrderInput | SortOrder
+    bankReference?: SortOrderInput | SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: InvoiceTransactionCountOrderByAggregateInput
+    _avg?: InvoiceTransactionAvgOrderByAggregateInput
+    _max?: InvoiceTransactionMaxOrderByAggregateInput
+    _min?: InvoiceTransactionMinOrderByAggregateInput
+    _sum?: InvoiceTransactionSumOrderByAggregateInput
+  }
+
+  export type InvoiceTransactionScalarWhereWithAggregatesInput = {
+    AND?: InvoiceTransactionScalarWhereWithAggregatesInput | InvoiceTransactionScalarWhereWithAggregatesInput[]
+    OR?: InvoiceTransactionScalarWhereWithAggregatesInput[]
+    NOT?: InvoiceTransactionScalarWhereWithAggregatesInput | InvoiceTransactionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InvoiceTransaction"> | string
+    invoiceId?: StringWithAggregatesFilter<"InvoiceTransaction"> | string
+    companyId?: StringWithAggregatesFilter<"InvoiceTransaction"> | string
+    type?: EnumInvoicePaymentMethodTypeWithAggregatesFilter<"InvoiceTransaction"> | $Enums.InvoicePaymentMethodType
+    status?: StringWithAggregatesFilter<"InvoiceTransaction"> | string
+    amount?: FloatWithAggregatesFilter<"InvoiceTransaction"> | number
+    currency?: StringWithAggregatesFilter<"InvoiceTransaction"> | string
+    stripePaymentIntentId?: StringNullableWithAggregatesFilter<"InvoiceTransaction"> | string | null
+    stripeCheckoutSessionId?: StringNullableWithAggregatesFilter<"InvoiceTransaction"> | string | null
+    stripeTransferId?: StringNullableWithAggregatesFilter<"InvoiceTransaction"> | string | null
+    bankReference?: StringNullableWithAggregatesFilter<"InvoiceTransaction"> | string | null
+    paidAt?: DateTimeNullableWithAggregatesFilter<"InvoiceTransaction"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"InvoiceTransaction"> | Date | string
+  }
+
+  export type StripeFeeConfigWhereInput = {
+    AND?: StripeFeeConfigWhereInput | StripeFeeConfigWhereInput[]
+    OR?: StripeFeeConfigWhereInput[]
+    NOT?: StripeFeeConfigWhereInput | StripeFeeConfigWhereInput[]
+    id?: StringFilter<"StripeFeeConfig"> | string
+    feeRate?: FloatFilter<"StripeFeeConfig"> | number
+    fixedFee?: FloatFilter<"StripeFeeConfig"> | number
+    currency?: StringFilter<"StripeFeeConfig"> | string
+    isActive?: BoolFilter<"StripeFeeConfig"> | boolean
+    createdAt?: DateTimeFilter<"StripeFeeConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"StripeFeeConfig"> | Date | string
+  }
+
+  export type StripeFeeConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    feeRate?: SortOrder
+    fixedFee?: SortOrder
+    currency?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StripeFeeConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: StripeFeeConfigWhereInput | StripeFeeConfigWhereInput[]
+    OR?: StripeFeeConfigWhereInput[]
+    NOT?: StripeFeeConfigWhereInput | StripeFeeConfigWhereInput[]
+    feeRate?: FloatFilter<"StripeFeeConfig"> | number
+    fixedFee?: FloatFilter<"StripeFeeConfig"> | number
+    currency?: StringFilter<"StripeFeeConfig"> | string
+    isActive?: BoolFilter<"StripeFeeConfig"> | boolean
+    createdAt?: DateTimeFilter<"StripeFeeConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"StripeFeeConfig"> | Date | string
+  }, "id">
+
+  export type StripeFeeConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    feeRate?: SortOrder
+    fixedFee?: SortOrder
+    currency?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: StripeFeeConfigCountOrderByAggregateInput
+    _avg?: StripeFeeConfigAvgOrderByAggregateInput
+    _max?: StripeFeeConfigMaxOrderByAggregateInput
+    _min?: StripeFeeConfigMinOrderByAggregateInput
+    _sum?: StripeFeeConfigSumOrderByAggregateInput
+  }
+
+  export type StripeFeeConfigScalarWhereWithAggregatesInput = {
+    AND?: StripeFeeConfigScalarWhereWithAggregatesInput | StripeFeeConfigScalarWhereWithAggregatesInput[]
+    OR?: StripeFeeConfigScalarWhereWithAggregatesInput[]
+    NOT?: StripeFeeConfigScalarWhereWithAggregatesInput | StripeFeeConfigScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"StripeFeeConfig"> | string
+    feeRate?: FloatWithAggregatesFilter<"StripeFeeConfig"> | number
+    fixedFee?: FloatWithAggregatesFilter<"StripeFeeConfig"> | number
+    currency?: StringWithAggregatesFilter<"StripeFeeConfig"> | string
+    isActive?: BoolWithAggregatesFilter<"StripeFeeConfig"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"StripeFeeConfig"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"StripeFeeConfig"> | Date | string
+  }
+
+  export type BankConnectionWhereInput = {
+    AND?: BankConnectionWhereInput | BankConnectionWhereInput[]
+    OR?: BankConnectionWhereInput[]
+    NOT?: BankConnectionWhereInput | BankConnectionWhereInput[]
+    id?: StringFilter<"BankConnection"> | string
+    companyId?: StringFilter<"BankConnection"> | string
+    provider?: StringFilter<"BankConnection"> | string
+    connectionId?: StringFilter<"BankConnection"> | string
+    userId?: StringNullableFilter<"BankConnection"> | string | null
+    accessTokenEncrypted?: StringNullableFilter<"BankConnection"> | string | null
+    refreshTokenEncrypted?: StringNullableFilter<"BankConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableFilter<"BankConnection"> | Date | string | null
+    status?: StringFilter<"BankConnection"> | string
+    lastSyncAt?: DateTimeNullableFilter<"BankConnection"> | Date | string | null
+    createdAt?: DateTimeFilter<"BankConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"BankConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    accounts?: BankAccountListRelationFilter
+  }
+
+  export type BankConnectionOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    connectionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    accessTokenEncrypted?: SortOrderInput | SortOrder
+    refreshTokenEncrypted?: SortOrderInput | SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    status?: SortOrder
+    lastSyncAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    accounts?: BankAccountOrderByRelationAggregateInput
+  }
+
+  export type BankConnectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    companyId?: string
+    AND?: BankConnectionWhereInput | BankConnectionWhereInput[]
+    OR?: BankConnectionWhereInput[]
+    NOT?: BankConnectionWhereInput | BankConnectionWhereInput[]
+    provider?: StringFilter<"BankConnection"> | string
+    connectionId?: StringFilter<"BankConnection"> | string
+    userId?: StringNullableFilter<"BankConnection"> | string | null
+    accessTokenEncrypted?: StringNullableFilter<"BankConnection"> | string | null
+    refreshTokenEncrypted?: StringNullableFilter<"BankConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableFilter<"BankConnection"> | Date | string | null
+    status?: StringFilter<"BankConnection"> | string
+    lastSyncAt?: DateTimeNullableFilter<"BankConnection"> | Date | string | null
+    createdAt?: DateTimeFilter<"BankConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"BankConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    accounts?: BankAccountListRelationFilter
+  }, "id" | "companyId">
+
+  export type BankConnectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    connectionId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    accessTokenEncrypted?: SortOrderInput | SortOrder
+    refreshTokenEncrypted?: SortOrderInput | SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    status?: SortOrder
+    lastSyncAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BankConnectionCountOrderByAggregateInput
+    _max?: BankConnectionMaxOrderByAggregateInput
+    _min?: BankConnectionMinOrderByAggregateInput
+  }
+
+  export type BankConnectionScalarWhereWithAggregatesInput = {
+    AND?: BankConnectionScalarWhereWithAggregatesInput | BankConnectionScalarWhereWithAggregatesInput[]
+    OR?: BankConnectionScalarWhereWithAggregatesInput[]
+    NOT?: BankConnectionScalarWhereWithAggregatesInput | BankConnectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BankConnection"> | string
+    companyId?: StringWithAggregatesFilter<"BankConnection"> | string
+    provider?: StringWithAggregatesFilter<"BankConnection"> | string
+    connectionId?: StringWithAggregatesFilter<"BankConnection"> | string
+    userId?: StringNullableWithAggregatesFilter<"BankConnection"> | string | null
+    accessTokenEncrypted?: StringNullableWithAggregatesFilter<"BankConnection"> | string | null
+    refreshTokenEncrypted?: StringNullableWithAggregatesFilter<"BankConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"BankConnection"> | Date | string | null
+    status?: StringWithAggregatesFilter<"BankConnection"> | string
+    lastSyncAt?: DateTimeNullableWithAggregatesFilter<"BankConnection"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BankConnection"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BankConnection"> | Date | string
+  }
+
+  export type BankAccountWhereInput = {
+    AND?: BankAccountWhereInput | BankAccountWhereInput[]
+    OR?: BankAccountWhereInput[]
+    NOT?: BankAccountWhereInput | BankAccountWhereInput[]
+    id?: StringFilter<"BankAccount"> | string
+    bankConnectionId?: StringFilter<"BankAccount"> | string
+    companyId?: StringFilter<"BankAccount"> | string
+    externalId?: StringFilter<"BankAccount"> | string
+    iban?: StringNullableFilter<"BankAccount"> | string | null
+    bic?: StringNullableFilter<"BankAccount"> | string | null
+    accountName?: StringNullableFilter<"BankAccount"> | string | null
+    balance?: FloatNullableFilter<"BankAccount"> | number | null
+    currency?: StringFilter<"BankAccount"> | string
+    createdAt?: DateTimeFilter<"BankAccount"> | Date | string
+    updatedAt?: DateTimeFilter<"BankAccount"> | Date | string
+    bankConnection?: XOR<BankConnectionScalarRelationFilter, BankConnectionWhereInput>
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    transactions?: BankTransactionListRelationFilter
+  }
+
+  export type BankAccountOrderByWithRelationInput = {
+    id?: SortOrder
+    bankConnectionId?: SortOrder
+    companyId?: SortOrder
+    externalId?: SortOrder
+    iban?: SortOrderInput | SortOrder
+    bic?: SortOrderInput | SortOrder
+    accountName?: SortOrderInput | SortOrder
+    balance?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    bankConnection?: BankConnectionOrderByWithRelationInput
+    company?: CompanyOrderByWithRelationInput
+    transactions?: BankTransactionOrderByRelationAggregateInput
+  }
+
+  export type BankAccountWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BankAccountWhereInput | BankAccountWhereInput[]
+    OR?: BankAccountWhereInput[]
+    NOT?: BankAccountWhereInput | BankAccountWhereInput[]
+    bankConnectionId?: StringFilter<"BankAccount"> | string
+    companyId?: StringFilter<"BankAccount"> | string
+    externalId?: StringFilter<"BankAccount"> | string
+    iban?: StringNullableFilter<"BankAccount"> | string | null
+    bic?: StringNullableFilter<"BankAccount"> | string | null
+    accountName?: StringNullableFilter<"BankAccount"> | string | null
+    balance?: FloatNullableFilter<"BankAccount"> | number | null
+    currency?: StringFilter<"BankAccount"> | string
+    createdAt?: DateTimeFilter<"BankAccount"> | Date | string
+    updatedAt?: DateTimeFilter<"BankAccount"> | Date | string
+    bankConnection?: XOR<BankConnectionScalarRelationFilter, BankConnectionWhereInput>
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    transactions?: BankTransactionListRelationFilter
+  }, "id">
+
+  export type BankAccountOrderByWithAggregationInput = {
+    id?: SortOrder
+    bankConnectionId?: SortOrder
+    companyId?: SortOrder
+    externalId?: SortOrder
+    iban?: SortOrderInput | SortOrder
+    bic?: SortOrderInput | SortOrder
+    accountName?: SortOrderInput | SortOrder
+    balance?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BankAccountCountOrderByAggregateInput
+    _avg?: BankAccountAvgOrderByAggregateInput
+    _max?: BankAccountMaxOrderByAggregateInput
+    _min?: BankAccountMinOrderByAggregateInput
+    _sum?: BankAccountSumOrderByAggregateInput
+  }
+
+  export type BankAccountScalarWhereWithAggregatesInput = {
+    AND?: BankAccountScalarWhereWithAggregatesInput | BankAccountScalarWhereWithAggregatesInput[]
+    OR?: BankAccountScalarWhereWithAggregatesInput[]
+    NOT?: BankAccountScalarWhereWithAggregatesInput | BankAccountScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BankAccount"> | string
+    bankConnectionId?: StringWithAggregatesFilter<"BankAccount"> | string
+    companyId?: StringWithAggregatesFilter<"BankAccount"> | string
+    externalId?: StringWithAggregatesFilter<"BankAccount"> | string
+    iban?: StringNullableWithAggregatesFilter<"BankAccount"> | string | null
+    bic?: StringNullableWithAggregatesFilter<"BankAccount"> | string | null
+    accountName?: StringNullableWithAggregatesFilter<"BankAccount"> | string | null
+    balance?: FloatNullableWithAggregatesFilter<"BankAccount"> | number | null
+    currency?: StringWithAggregatesFilter<"BankAccount"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"BankAccount"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BankAccount"> | Date | string
+  }
+
+  export type BankTransactionWhereInput = {
+    AND?: BankTransactionWhereInput | BankTransactionWhereInput[]
+    OR?: BankTransactionWhereInput[]
+    NOT?: BankTransactionWhereInput | BankTransactionWhereInput[]
+    id?: StringFilter<"BankTransaction"> | string
+    bankAccountId?: StringFilter<"BankTransaction"> | string
+    companyId?: StringFilter<"BankTransaction"> | string
+    externalTransactionId?: StringFilter<"BankTransaction"> | string
+    amount?: FloatFilter<"BankTransaction"> | number
+    currency?: StringFilter<"BankTransaction"> | string
+    label?: StringNullableFilter<"BankTransaction"> | string | null
+    reference?: StringNullableFilter<"BankTransaction"> | string | null
+    counterparty?: StringNullableFilter<"BankTransaction"> | string | null
+    counterpartyIban?: StringNullableFilter<"BankTransaction"> | string | null
+    transactionDate?: DateTimeFilter<"BankTransaction"> | Date | string
+    valueDate?: DateTimeNullableFilter<"BankTransaction"> | Date | string | null
+    reconciliationStatus?: StringNullableFilter<"BankTransaction"> | string | null
+    confidenceScore?: FloatNullableFilter<"BankTransaction"> | number | null
+    matchedInvoiceId?: StringNullableFilter<"BankTransaction"> | string | null
+    reconciledAt?: DateTimeNullableFilter<"BankTransaction"> | Date | string | null
+    reconciledBy?: StringNullableFilter<"BankTransaction"> | string | null
+    createdAt?: DateTimeFilter<"BankTransaction"> | Date | string
+    bankAccount?: XOR<BankAccountScalarRelationFilter, BankAccountWhereInput>
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    matchedInvoice?: XOR<InvoiceNullableScalarRelationFilter, InvoiceWhereInput> | null
+  }
+
+  export type BankTransactionOrderByWithRelationInput = {
+    id?: SortOrder
+    bankAccountId?: SortOrder
+    companyId?: SortOrder
+    externalTransactionId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    label?: SortOrderInput | SortOrder
+    reference?: SortOrderInput | SortOrder
+    counterparty?: SortOrderInput | SortOrder
+    counterpartyIban?: SortOrderInput | SortOrder
+    transactionDate?: SortOrder
+    valueDate?: SortOrderInput | SortOrder
+    reconciliationStatus?: SortOrderInput | SortOrder
+    confidenceScore?: SortOrderInput | SortOrder
+    matchedInvoiceId?: SortOrderInput | SortOrder
+    reconciledAt?: SortOrderInput | SortOrder
+    reconciledBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    bankAccount?: BankAccountOrderByWithRelationInput
+    company?: CompanyOrderByWithRelationInput
+    matchedInvoice?: InvoiceOrderByWithRelationInput
+  }
+
+  export type BankTransactionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    externalTransactionId?: string
+    AND?: BankTransactionWhereInput | BankTransactionWhereInput[]
+    OR?: BankTransactionWhereInput[]
+    NOT?: BankTransactionWhereInput | BankTransactionWhereInput[]
+    bankAccountId?: StringFilter<"BankTransaction"> | string
+    companyId?: StringFilter<"BankTransaction"> | string
+    amount?: FloatFilter<"BankTransaction"> | number
+    currency?: StringFilter<"BankTransaction"> | string
+    label?: StringNullableFilter<"BankTransaction"> | string | null
+    reference?: StringNullableFilter<"BankTransaction"> | string | null
+    counterparty?: StringNullableFilter<"BankTransaction"> | string | null
+    counterpartyIban?: StringNullableFilter<"BankTransaction"> | string | null
+    transactionDate?: DateTimeFilter<"BankTransaction"> | Date | string
+    valueDate?: DateTimeNullableFilter<"BankTransaction"> | Date | string | null
+    reconciliationStatus?: StringNullableFilter<"BankTransaction"> | string | null
+    confidenceScore?: FloatNullableFilter<"BankTransaction"> | number | null
+    matchedInvoiceId?: StringNullableFilter<"BankTransaction"> | string | null
+    reconciledAt?: DateTimeNullableFilter<"BankTransaction"> | Date | string | null
+    reconciledBy?: StringNullableFilter<"BankTransaction"> | string | null
+    createdAt?: DateTimeFilter<"BankTransaction"> | Date | string
+    bankAccount?: XOR<BankAccountScalarRelationFilter, BankAccountWhereInput>
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    matchedInvoice?: XOR<InvoiceNullableScalarRelationFilter, InvoiceWhereInput> | null
+  }, "id" | "externalTransactionId">
+
+  export type BankTransactionOrderByWithAggregationInput = {
+    id?: SortOrder
+    bankAccountId?: SortOrder
+    companyId?: SortOrder
+    externalTransactionId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    label?: SortOrderInput | SortOrder
+    reference?: SortOrderInput | SortOrder
+    counterparty?: SortOrderInput | SortOrder
+    counterpartyIban?: SortOrderInput | SortOrder
+    transactionDate?: SortOrder
+    valueDate?: SortOrderInput | SortOrder
+    reconciliationStatus?: SortOrderInput | SortOrder
+    confidenceScore?: SortOrderInput | SortOrder
+    matchedInvoiceId?: SortOrderInput | SortOrder
+    reconciledAt?: SortOrderInput | SortOrder
+    reconciledBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: BankTransactionCountOrderByAggregateInput
+    _avg?: BankTransactionAvgOrderByAggregateInput
+    _max?: BankTransactionMaxOrderByAggregateInput
+    _min?: BankTransactionMinOrderByAggregateInput
+    _sum?: BankTransactionSumOrderByAggregateInput
+  }
+
+  export type BankTransactionScalarWhereWithAggregatesInput = {
+    AND?: BankTransactionScalarWhereWithAggregatesInput | BankTransactionScalarWhereWithAggregatesInput[]
+    OR?: BankTransactionScalarWhereWithAggregatesInput[]
+    NOT?: BankTransactionScalarWhereWithAggregatesInput | BankTransactionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BankTransaction"> | string
+    bankAccountId?: StringWithAggregatesFilter<"BankTransaction"> | string
+    companyId?: StringWithAggregatesFilter<"BankTransaction"> | string
+    externalTransactionId?: StringWithAggregatesFilter<"BankTransaction"> | string
+    amount?: FloatWithAggregatesFilter<"BankTransaction"> | number
+    currency?: StringWithAggregatesFilter<"BankTransaction"> | string
+    label?: StringNullableWithAggregatesFilter<"BankTransaction"> | string | null
+    reference?: StringNullableWithAggregatesFilter<"BankTransaction"> | string | null
+    counterparty?: StringNullableWithAggregatesFilter<"BankTransaction"> | string | null
+    counterpartyIban?: StringNullableWithAggregatesFilter<"BankTransaction"> | string | null
+    transactionDate?: DateTimeWithAggregatesFilter<"BankTransaction"> | Date | string
+    valueDate?: DateTimeNullableWithAggregatesFilter<"BankTransaction"> | Date | string | null
+    reconciliationStatus?: StringNullableWithAggregatesFilter<"BankTransaction"> | string | null
+    confidenceScore?: FloatNullableWithAggregatesFilter<"BankTransaction"> | number | null
+    matchedInvoiceId?: StringNullableWithAggregatesFilter<"BankTransaction"> | string | null
+    reconciledAt?: DateTimeNullableWithAggregatesFilter<"BankTransaction"> | Date | string | null
+    reconciledBy?: StringNullableWithAggregatesFilter<"BankTransaction"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BankTransaction"> | Date | string
+  }
+
   export type PlanCreateInput = {
     id?: string
     name: $Enums.PlanName
@@ -60223,6 +67849,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -60241,6 +67872,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -60275,6 +67910,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -60293,6 +67933,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -60327,6 +67971,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -60345,6 +67994,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -60379,6 +68032,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -60397,6 +68055,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -60431,6 +68093,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -60460,6 +68127,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -60489,6 +68161,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -60884,6 +68561,9 @@ export namespace Prisma {
     bankIban?: string | null
     bankBic?: string | null
     bankAccountOwner?: string | null
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: $Enums.StripeFeeBearer
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutSettingsInput
@@ -60935,6 +68615,9 @@ export namespace Prisma {
     bankIban?: string | null
     bankBic?: string | null
     bankAccountOwner?: string | null
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: $Enums.StripeFeeBearer
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -60984,6 +68667,9 @@ export namespace Prisma {
     bankIban?: NullableStringFieldUpdateOperationsInput | string | null
     bankBic?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFieldUpdateOperationsInput | $Enums.StripeFeeBearer
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutSettingsNestedInput
@@ -61035,6 +68721,9 @@ export namespace Prisma {
     bankIban?: NullableStringFieldUpdateOperationsInput | string | null
     bankBic?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFieldUpdateOperationsInput | $Enums.StripeFeeBearer
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61085,6 +68774,9 @@ export namespace Prisma {
     bankIban?: string | null
     bankBic?: string | null
     bankAccountOwner?: string | null
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: $Enums.StripeFeeBearer
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -61134,6 +68826,9 @@ export namespace Prisma {
     bankIban?: NullableStringFieldUpdateOperationsInput | string | null
     bankBic?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFieldUpdateOperationsInput | $Enums.StripeFeeBearer
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61184,6 +68879,9 @@ export namespace Prisma {
     bankIban?: NullableStringFieldUpdateOperationsInput | string | null
     bankBic?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFieldUpdateOperationsInput | $Enums.StripeFeeBearer
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -62984,6 +70682,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -63015,6 +70717,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
@@ -63048,6 +70752,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -63075,6 +70783,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
@@ -63104,6 +70814,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63135,6 +70849,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -63168,6 +70884,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63195,6 +70915,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -63228,6 +70950,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -63281,6 +71007,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63338,6 +71068,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65364,6 +73098,538 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type InvoiceTransactionCreateInput = {
+    id?: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+    invoice: InvoiceCreateNestedOneWithoutTransactionsInput
+    company: CompanyCreateNestedOneWithoutInvoiceTransactionsInput
+  }
+
+  export type InvoiceTransactionUncheckedCreateInput = {
+    id?: string
+    invoiceId: string
+    companyId: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type InvoiceTransactionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoice?: InvoiceUpdateOneRequiredWithoutTransactionsNestedInput
+    company?: CompanyUpdateOneRequiredWithoutInvoiceTransactionsNestedInput
+  }
+
+  export type InvoiceTransactionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceTransactionCreateManyInput = {
+    id?: string
+    invoiceId: string
+    companyId: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type InvoiceTransactionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceTransactionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StripeFeeConfigCreateInput = {
+    id?: string
+    feeRate?: number
+    fixedFee?: number
+    currency?: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StripeFeeConfigUncheckedCreateInput = {
+    id?: string
+    feeRate?: number
+    fixedFee?: number
+    currency?: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StripeFeeConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeRate?: FloatFieldUpdateOperationsInput | number
+    fixedFee?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StripeFeeConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeRate?: FloatFieldUpdateOperationsInput | number
+    fixedFee?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StripeFeeConfigCreateManyInput = {
+    id?: string
+    feeRate?: number
+    fixedFee?: number
+    currency?: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StripeFeeConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeRate?: FloatFieldUpdateOperationsInput | number
+    fixedFee?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StripeFeeConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeRate?: FloatFieldUpdateOperationsInput | number
+    fixedFee?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankConnectionCreateInput = {
+    id?: string
+    provider: string
+    connectionId: string
+    userId?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    status?: string
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutBankConnectionInput
+    accounts?: BankAccountCreateNestedManyWithoutBankConnectionInput
+  }
+
+  export type BankConnectionUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    provider: string
+    connectionId: string
+    userId?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    status?: string
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: BankAccountUncheckedCreateNestedManyWithoutBankConnectionInput
+  }
+
+  export type BankConnectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBankConnectionNestedInput
+    accounts?: BankAccountUpdateManyWithoutBankConnectionNestedInput
+  }
+
+  export type BankConnectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: BankAccountUncheckedUpdateManyWithoutBankConnectionNestedInput
+  }
+
+  export type BankConnectionCreateManyInput = {
+    id?: string
+    companyId: string
+    provider: string
+    connectionId: string
+    userId?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    status?: string
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BankConnectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankConnectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankAccountCreateInput = {
+    id?: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bankConnection: BankConnectionCreateNestedOneWithoutAccountsInput
+    company: CompanyCreateNestedOneWithoutBankAccountsInput
+    transactions?: BankTransactionCreateNestedManyWithoutBankAccountInput
+  }
+
+  export type BankAccountUncheckedCreateInput = {
+    id?: string
+    bankConnectionId: string
+    companyId: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactions?: BankTransactionUncheckedCreateNestedManyWithoutBankAccountInput
+  }
+
+  export type BankAccountUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bankConnection?: BankConnectionUpdateOneRequiredWithoutAccountsNestedInput
+    company?: CompanyUpdateOneRequiredWithoutBankAccountsNestedInput
+    transactions?: BankTransactionUpdateManyWithoutBankAccountNestedInput
+  }
+
+  export type BankAccountUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankConnectionId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: BankTransactionUncheckedUpdateManyWithoutBankAccountNestedInput
+  }
+
+  export type BankAccountCreateManyInput = {
+    id?: string
+    bankConnectionId: string
+    companyId: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BankAccountUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankAccountUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankConnectionId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionCreateInput = {
+    id?: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+    bankAccount: BankAccountCreateNestedOneWithoutTransactionsInput
+    company: CompanyCreateNestedOneWithoutBankTransactionsInput
+    matchedInvoice?: InvoiceCreateNestedOneWithoutBankTransactionsInput
+  }
+
+  export type BankTransactionUncheckedCreateInput = {
+    id?: string
+    bankAccountId: string
+    companyId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    matchedInvoiceId?: string | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BankTransactionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bankAccount?: BankAccountUpdateOneRequiredWithoutTransactionsNestedInput
+    company?: CompanyUpdateOneRequiredWithoutBankTransactionsNestedInput
+    matchedInvoice?: InvoiceUpdateOneWithoutBankTransactionsNestedInput
+  }
+
+  export type BankTransactionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankAccountId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    matchedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionCreateManyInput = {
+    id?: string
+    bankAccountId: string
+    companyId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    matchedInvoiceId?: string | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BankTransactionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankAccountId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    matchedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -65644,6 +73910,24 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type EnumStripeOnboardingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeOnboardingStatus | EnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeOnboardingStatusFilter<$PrismaModel> | $Enums.StripeOnboardingStatus
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type UserListRelationFilter = {
     every?: UserWhereInput
     some?: UserWhereInput
@@ -65736,6 +74020,29 @@ export namespace Prisma {
     every?: CompanyTradeCategoryWhereInput
     some?: CompanyTradeCategoryWhereInput
     none?: CompanyTradeCategoryWhereInput
+  }
+
+  export type InvoiceTransactionListRelationFilter = {
+    every?: InvoiceTransactionWhereInput
+    some?: InvoiceTransactionWhereInput
+    none?: InvoiceTransactionWhereInput
+  }
+
+  export type BankConnectionNullableScalarRelationFilter = {
+    is?: BankConnectionWhereInput | null
+    isNot?: BankConnectionWhereInput | null
+  }
+
+  export type BankAccountListRelationFilter = {
+    every?: BankAccountWhereInput
+    some?: BankAccountWhereInput
+    none?: BankAccountWhereInput
+  }
+
+  export type BankTransactionListRelationFilter = {
+    every?: BankTransactionWhereInput
+    some?: BankTransactionWhereInput
+    none?: BankTransactionWhereInput
   }
 
   export type AccountingExportListRelationFilter = {
@@ -65834,6 +74141,18 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type InvoiceTransactionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BankAccountOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BankTransactionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type AccountingExportOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -65879,6 +74198,11 @@ export namespace Prisma {
     stripeAccountId?: SortOrder
     stripeAccountStatus?: SortOrder
     onlinePaymentEnabled?: SortOrder
+    stripeOnboardingStatus?: SortOrder
+    stripeChargesEnabled?: SortOrder
+    stripePayoutsEnabled?: SortOrder
+    stripeDetailsSubmitted?: SortOrder
+    stripeConnectedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -65908,6 +74232,11 @@ export namespace Prisma {
     stripeAccountId?: SortOrder
     stripeAccountStatus?: SortOrder
     onlinePaymentEnabled?: SortOrder
+    stripeOnboardingStatus?: SortOrder
+    stripeChargesEnabled?: SortOrder
+    stripePayoutsEnabled?: SortOrder
+    stripeDetailsSubmitted?: SortOrder
+    stripeConnectedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -65937,8 +74266,37 @@ export namespace Prisma {
     stripeAccountId?: SortOrder
     stripeAccountStatus?: SortOrder
     onlinePaymentEnabled?: SortOrder
+    stripeOnboardingStatus?: SortOrder
+    stripeChargesEnabled?: SortOrder
+    stripePayoutsEnabled?: SortOrder
+    stripeDetailsSubmitted?: SortOrder
+    stripeConnectedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EnumStripeOnboardingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeOnboardingStatus | EnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeOnboardingStatusWithAggregatesFilter<$PrismaModel> | $Enums.StripeOnboardingStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStripeOnboardingStatusFilter<$PrismaModel>
+    _max?: NestedEnumStripeOnboardingStatusFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type CompanyScalarRelationFilter = {
@@ -66030,17 +74388,6 @@ export namespace Prisma {
     in?: $Enums.PlanBillingCycle[] | ListEnumPlanBillingCycleFieldRefInput<$PrismaModel>
     notIn?: $Enums.PlanBillingCycle[] | ListEnumPlanBillingCycleFieldRefInput<$PrismaModel>
     not?: NestedEnumPlanBillingCycleFilter<$PrismaModel> | $Enums.PlanBillingCycle
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type PlanScalarRelationFilter = {
@@ -66138,20 +74485,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPlanBillingCycleFilter<$PrismaModel>
     _max?: NestedEnumPlanBillingCycleFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type EnumPaymentMethodNullableFilter<$PrismaModel = never> = {
@@ -66269,6 +74602,13 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
+  export type EnumStripeFeeBearerFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeFeeBearer | EnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeFeeBearerFilter<$PrismaModel> | $Enums.StripeFeeBearer
+  }
+
   export type CompanySettingsCountOrderByAggregateInput = {
     id?: SortOrder
     companyId?: SortOrder
@@ -66315,6 +74655,9 @@ export namespace Prisma {
     bankIban?: SortOrder
     bankBic?: SortOrder
     bankAccountOwner?: SortOrder
+    bankTransferEnabled?: SortOrder
+    stripePaymentEnabled?: SortOrder
+    stripeFeeBearer?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -66374,6 +74717,9 @@ export namespace Prisma {
     bankIban?: SortOrder
     bankBic?: SortOrder
     bankAccountOwner?: SortOrder
+    bankTransferEnabled?: SortOrder
+    stripePaymentEnabled?: SortOrder
+    stripeFeeBearer?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -66420,6 +74766,9 @@ export namespace Prisma {
     bankIban?: SortOrder
     bankBic?: SortOrder
     bankAccountOwner?: SortOrder
+    bankTransferEnabled?: SortOrder
+    stripePaymentEnabled?: SortOrder
+    stripeFeeBearer?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -66471,6 +74820,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type EnumStripeFeeBearerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeFeeBearer | EnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeFeeBearerWithAggregatesFilter<$PrismaModel> | $Enums.StripeFeeBearer
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStripeFeeBearerFilter<$PrismaModel>
+    _max?: NestedEnumStripeFeeBearerFilter<$PrismaModel>
   }
 
   export type EnumUserRoleFilter<$PrismaModel = never> = {
@@ -67604,6 +75963,20 @@ export namespace Prisma {
     not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
   }
 
+  export type EnumInvoicePaymentStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentStatus | EnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentStatusFilter<$PrismaModel> | $Enums.InvoicePaymentStatus
+  }
+
+  export type EnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType | null
+  }
+
   export type EnumEInvoicingStatusNullableFilter<$PrismaModel = never> = {
     equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
     in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
@@ -67658,6 +76031,10 @@ export namespace Prisma {
     paymentMethod?: SortOrder
     paymentRef?: SortOrder
     pdfUrl?: SortOrder
+    paymentStatus?: SortOrder
+    invoicePaymentMethod?: SortOrder
+    bankTransferEnabled?: SortOrder
+    stripeEnabled?: SortOrder
     onlinePaymentEnabled?: SortOrder
     stripePaymentIntentId?: SortOrder
     stripeCheckoutUrl?: SortOrder
@@ -67723,6 +76100,10 @@ export namespace Prisma {
     paymentMethod?: SortOrder
     paymentRef?: SortOrder
     pdfUrl?: SortOrder
+    paymentStatus?: SortOrder
+    invoicePaymentMethod?: SortOrder
+    bankTransferEnabled?: SortOrder
+    stripeEnabled?: SortOrder
     onlinePaymentEnabled?: SortOrder
     stripePaymentIntentId?: SortOrder
     stripeCheckoutUrl?: SortOrder
@@ -67778,6 +76159,10 @@ export namespace Prisma {
     paymentMethod?: SortOrder
     paymentRef?: SortOrder
     pdfUrl?: SortOrder
+    paymentStatus?: SortOrder
+    invoicePaymentMethod?: SortOrder
+    bankTransferEnabled?: SortOrder
+    stripeEnabled?: SortOrder
     onlinePaymentEnabled?: SortOrder
     stripePaymentIntentId?: SortOrder
     stripeCheckoutUrl?: SortOrder
@@ -67821,6 +76206,26 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInvoiceStatusFilter<$PrismaModel>
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+  }
+
+  export type EnumInvoicePaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentStatus | EnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.InvoicePaymentStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInvoicePaymentStatusFilter<$PrismaModel>
+    _max?: NestedEnumInvoicePaymentStatusFilter<$PrismaModel>
+  }
+
+  export type EnumInvoicePaymentMethodTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumInvoicePaymentMethodTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel>
   }
 
   export type EnumEInvoicingStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -69102,6 +77507,297 @@ export namespace Prisma {
     _max?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel>
   }
 
+  export type EnumInvoicePaymentMethodTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType
+  }
+
+  export type InvoiceTransactionCountOrderByAggregateInput = {
+    id?: SortOrder
+    invoiceId?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    stripePaymentIntentId?: SortOrder
+    stripeCheckoutSessionId?: SortOrder
+    stripeTransferId?: SortOrder
+    bankReference?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type InvoiceTransactionAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type InvoiceTransactionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    invoiceId?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    stripePaymentIntentId?: SortOrder
+    stripeCheckoutSessionId?: SortOrder
+    stripeTransferId?: SortOrder
+    bankReference?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type InvoiceTransactionMinOrderByAggregateInput = {
+    id?: SortOrder
+    invoiceId?: SortOrder
+    companyId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    stripePaymentIntentId?: SortOrder
+    stripeCheckoutSessionId?: SortOrder
+    stripeTransferId?: SortOrder
+    bankReference?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type InvoiceTransactionSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type EnumInvoicePaymentMethodTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentMethodTypeWithAggregatesFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel>
+    _max?: NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel>
+  }
+
+  export type StripeFeeConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    feeRate?: SortOrder
+    fixedFee?: SortOrder
+    currency?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StripeFeeConfigAvgOrderByAggregateInput = {
+    feeRate?: SortOrder
+    fixedFee?: SortOrder
+  }
+
+  export type StripeFeeConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    feeRate?: SortOrder
+    fixedFee?: SortOrder
+    currency?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StripeFeeConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    feeRate?: SortOrder
+    fixedFee?: SortOrder
+    currency?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StripeFeeConfigSumOrderByAggregateInput = {
+    feeRate?: SortOrder
+    fixedFee?: SortOrder
+  }
+
+  export type BankConnectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    connectionId?: SortOrder
+    userId?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    tokenExpiresAt?: SortOrder
+    status?: SortOrder
+    lastSyncAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BankConnectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    connectionId?: SortOrder
+    userId?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    tokenExpiresAt?: SortOrder
+    status?: SortOrder
+    lastSyncAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BankConnectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    connectionId?: SortOrder
+    userId?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    tokenExpiresAt?: SortOrder
+    status?: SortOrder
+    lastSyncAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BankConnectionScalarRelationFilter = {
+    is?: BankConnectionWhereInput
+    isNot?: BankConnectionWhereInput
+  }
+
+  export type BankAccountCountOrderByAggregateInput = {
+    id?: SortOrder
+    bankConnectionId?: SortOrder
+    companyId?: SortOrder
+    externalId?: SortOrder
+    iban?: SortOrder
+    bic?: SortOrder
+    accountName?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BankAccountAvgOrderByAggregateInput = {
+    balance?: SortOrder
+  }
+
+  export type BankAccountMaxOrderByAggregateInput = {
+    id?: SortOrder
+    bankConnectionId?: SortOrder
+    companyId?: SortOrder
+    externalId?: SortOrder
+    iban?: SortOrder
+    bic?: SortOrder
+    accountName?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BankAccountMinOrderByAggregateInput = {
+    id?: SortOrder
+    bankConnectionId?: SortOrder
+    companyId?: SortOrder
+    externalId?: SortOrder
+    iban?: SortOrder
+    bic?: SortOrder
+    accountName?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BankAccountSumOrderByAggregateInput = {
+    balance?: SortOrder
+  }
+
+  export type BankAccountScalarRelationFilter = {
+    is?: BankAccountWhereInput
+    isNot?: BankAccountWhereInput
+  }
+
+  export type BankTransactionCountOrderByAggregateInput = {
+    id?: SortOrder
+    bankAccountId?: SortOrder
+    companyId?: SortOrder
+    externalTransactionId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    reference?: SortOrder
+    counterparty?: SortOrder
+    counterpartyIban?: SortOrder
+    transactionDate?: SortOrder
+    valueDate?: SortOrder
+    reconciliationStatus?: SortOrder
+    confidenceScore?: SortOrder
+    matchedInvoiceId?: SortOrder
+    reconciledAt?: SortOrder
+    reconciledBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BankTransactionAvgOrderByAggregateInput = {
+    amount?: SortOrder
+    confidenceScore?: SortOrder
+  }
+
+  export type BankTransactionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    bankAccountId?: SortOrder
+    companyId?: SortOrder
+    externalTransactionId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    reference?: SortOrder
+    counterparty?: SortOrder
+    counterpartyIban?: SortOrder
+    transactionDate?: SortOrder
+    valueDate?: SortOrder
+    reconciliationStatus?: SortOrder
+    confidenceScore?: SortOrder
+    matchedInvoiceId?: SortOrder
+    reconciledAt?: SortOrder
+    reconciledBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BankTransactionMinOrderByAggregateInput = {
+    id?: SortOrder
+    bankAccountId?: SortOrder
+    companyId?: SortOrder
+    externalTransactionId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    reference?: SortOrder
+    counterparty?: SortOrder
+    counterpartyIban?: SortOrder
+    transactionDate?: SortOrder
+    valueDate?: SortOrder
+    reconciliationStatus?: SortOrder
+    confidenceScore?: SortOrder
+    matchedInvoiceId?: SortOrder
+    reconciledAt?: SortOrder
+    reconciledBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BankTransactionSumOrderByAggregateInput = {
+    amount?: SortOrder
+    confidenceScore?: SortOrder
+  }
+
   export type SubscriptionCreateNestedManyWithoutPlanInput = {
     create?: XOR<SubscriptionCreateWithoutPlanInput, SubscriptionUncheckedCreateWithoutPlanInput> | SubscriptionCreateWithoutPlanInput[] | SubscriptionUncheckedCreateWithoutPlanInput[]
     connectOrCreate?: SubscriptionCreateOrConnectWithoutPlanInput | SubscriptionCreateOrConnectWithoutPlanInput[]
@@ -69290,6 +77986,33 @@ export namespace Prisma {
     connect?: CompanyTradeCategoryWhereUniqueInput | CompanyTradeCategoryWhereUniqueInput[]
   }
 
+  export type InvoiceTransactionCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutCompanyInput, InvoiceTransactionUncheckedCreateWithoutCompanyInput> | InvoiceTransactionCreateWithoutCompanyInput[] | InvoiceTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutCompanyInput | InvoiceTransactionCreateOrConnectWithoutCompanyInput[]
+    createMany?: InvoiceTransactionCreateManyCompanyInputEnvelope
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+  }
+
+  export type BankConnectionCreateNestedOneWithoutCompanyInput = {
+    create?: XOR<BankConnectionCreateWithoutCompanyInput, BankConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: BankConnectionCreateOrConnectWithoutCompanyInput
+    connect?: BankConnectionWhereUniqueInput
+  }
+
+  export type BankAccountCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<BankAccountCreateWithoutCompanyInput, BankAccountUncheckedCreateWithoutCompanyInput> | BankAccountCreateWithoutCompanyInput[] | BankAccountUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutCompanyInput | BankAccountCreateOrConnectWithoutCompanyInput[]
+    createMany?: BankAccountCreateManyCompanyInputEnvelope
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+  }
+
+  export type BankTransactionCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<BankTransactionCreateWithoutCompanyInput, BankTransactionUncheckedCreateWithoutCompanyInput> | BankTransactionCreateWithoutCompanyInput[] | BankTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutCompanyInput | BankTransactionCreateOrConnectWithoutCompanyInput[]
+    createMany?: BankTransactionCreateManyCompanyInputEnvelope
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+  }
+
   export type AccountingExportCreateNestedManyWithoutCompanyInput = {
     create?: XOR<AccountingExportCreateWithoutCompanyInput, AccountingExportUncheckedCreateWithoutCompanyInput> | AccountingExportCreateWithoutCompanyInput[] | AccountingExportUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: AccountingExportCreateOrConnectWithoutCompanyInput | AccountingExportCreateOrConnectWithoutCompanyInput[]
@@ -69447,6 +78170,33 @@ export namespace Prisma {
     connect?: CompanyTradeCategoryWhereUniqueInput | CompanyTradeCategoryWhereUniqueInput[]
   }
 
+  export type InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutCompanyInput, InvoiceTransactionUncheckedCreateWithoutCompanyInput> | InvoiceTransactionCreateWithoutCompanyInput[] | InvoiceTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutCompanyInput | InvoiceTransactionCreateOrConnectWithoutCompanyInput[]
+    createMany?: InvoiceTransactionCreateManyCompanyInputEnvelope
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+  }
+
+  export type BankConnectionUncheckedCreateNestedOneWithoutCompanyInput = {
+    create?: XOR<BankConnectionCreateWithoutCompanyInput, BankConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: BankConnectionCreateOrConnectWithoutCompanyInput
+    connect?: BankConnectionWhereUniqueInput
+  }
+
+  export type BankAccountUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<BankAccountCreateWithoutCompanyInput, BankAccountUncheckedCreateWithoutCompanyInput> | BankAccountCreateWithoutCompanyInput[] | BankAccountUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutCompanyInput | BankAccountCreateOrConnectWithoutCompanyInput[]
+    createMany?: BankAccountCreateManyCompanyInputEnvelope
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+  }
+
+  export type BankTransactionUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<BankTransactionCreateWithoutCompanyInput, BankTransactionUncheckedCreateWithoutCompanyInput> | BankTransactionCreateWithoutCompanyInput[] | BankTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutCompanyInput | BankTransactionCreateOrConnectWithoutCompanyInput[]
+    createMany?: BankTransactionCreateManyCompanyInputEnvelope
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+  }
+
   export type AccountingExportUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<AccountingExportCreateWithoutCompanyInput, AccountingExportUncheckedCreateWithoutCompanyInput> | AccountingExportCreateWithoutCompanyInput[] | AccountingExportUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: AccountingExportCreateOrConnectWithoutCompanyInput | AccountingExportCreateOrConnectWithoutCompanyInput[]
@@ -69492,6 +78242,14 @@ export namespace Prisma {
     connectOrCreate?: EInvoicingJobCreateOrConnectWithoutCompanyInput | EInvoicingJobCreateOrConnectWithoutCompanyInput[]
     createMany?: EInvoicingJobCreateManyCompanyInputEnvelope
     connect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+  }
+
+  export type EnumStripeOnboardingStatusFieldUpdateOperationsInput = {
+    set?: $Enums.StripeOnboardingStatus
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type UserUpdateManyWithoutCompanyNestedInput = {
@@ -69708,6 +78466,58 @@ export namespace Prisma {
     update?: CompanyTradeCategoryUpdateWithWhereUniqueWithoutCompanyInput | CompanyTradeCategoryUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: CompanyTradeCategoryUpdateManyWithWhereWithoutCompanyInput | CompanyTradeCategoryUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: CompanyTradeCategoryScalarWhereInput | CompanyTradeCategoryScalarWhereInput[]
+  }
+
+  export type InvoiceTransactionUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutCompanyInput, InvoiceTransactionUncheckedCreateWithoutCompanyInput> | InvoiceTransactionCreateWithoutCompanyInput[] | InvoiceTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutCompanyInput | InvoiceTransactionCreateOrConnectWithoutCompanyInput[]
+    upsert?: InvoiceTransactionUpsertWithWhereUniqueWithoutCompanyInput | InvoiceTransactionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: InvoiceTransactionCreateManyCompanyInputEnvelope
+    set?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    disconnect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    delete?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    update?: InvoiceTransactionUpdateWithWhereUniqueWithoutCompanyInput | InvoiceTransactionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: InvoiceTransactionUpdateManyWithWhereWithoutCompanyInput | InvoiceTransactionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: InvoiceTransactionScalarWhereInput | InvoiceTransactionScalarWhereInput[]
+  }
+
+  export type BankConnectionUpdateOneWithoutCompanyNestedInput = {
+    create?: XOR<BankConnectionCreateWithoutCompanyInput, BankConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: BankConnectionCreateOrConnectWithoutCompanyInput
+    upsert?: BankConnectionUpsertWithoutCompanyInput
+    disconnect?: BankConnectionWhereInput | boolean
+    delete?: BankConnectionWhereInput | boolean
+    connect?: BankConnectionWhereUniqueInput
+    update?: XOR<XOR<BankConnectionUpdateToOneWithWhereWithoutCompanyInput, BankConnectionUpdateWithoutCompanyInput>, BankConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type BankAccountUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<BankAccountCreateWithoutCompanyInput, BankAccountUncheckedCreateWithoutCompanyInput> | BankAccountCreateWithoutCompanyInput[] | BankAccountUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutCompanyInput | BankAccountCreateOrConnectWithoutCompanyInput[]
+    upsert?: BankAccountUpsertWithWhereUniqueWithoutCompanyInput | BankAccountUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: BankAccountCreateManyCompanyInputEnvelope
+    set?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    disconnect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    delete?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    update?: BankAccountUpdateWithWhereUniqueWithoutCompanyInput | BankAccountUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: BankAccountUpdateManyWithWhereWithoutCompanyInput | BankAccountUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: BankAccountScalarWhereInput | BankAccountScalarWhereInput[]
+  }
+
+  export type BankTransactionUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<BankTransactionCreateWithoutCompanyInput, BankTransactionUncheckedCreateWithoutCompanyInput> | BankTransactionCreateWithoutCompanyInput[] | BankTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutCompanyInput | BankTransactionCreateOrConnectWithoutCompanyInput[]
+    upsert?: BankTransactionUpsertWithWhereUniqueWithoutCompanyInput | BankTransactionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: BankTransactionCreateManyCompanyInputEnvelope
+    set?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    disconnect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    delete?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    update?: BankTransactionUpdateWithWhereUniqueWithoutCompanyInput | BankTransactionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: BankTransactionUpdateManyWithWhereWithoutCompanyInput | BankTransactionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
   }
 
   export type AccountingExportUpdateManyWithoutCompanyNestedInput = {
@@ -70016,6 +78826,58 @@ export namespace Prisma {
     deleteMany?: CompanyTradeCategoryScalarWhereInput | CompanyTradeCategoryScalarWhereInput[]
   }
 
+  export type InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutCompanyInput, InvoiceTransactionUncheckedCreateWithoutCompanyInput> | InvoiceTransactionCreateWithoutCompanyInput[] | InvoiceTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutCompanyInput | InvoiceTransactionCreateOrConnectWithoutCompanyInput[]
+    upsert?: InvoiceTransactionUpsertWithWhereUniqueWithoutCompanyInput | InvoiceTransactionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: InvoiceTransactionCreateManyCompanyInputEnvelope
+    set?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    disconnect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    delete?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    update?: InvoiceTransactionUpdateWithWhereUniqueWithoutCompanyInput | InvoiceTransactionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: InvoiceTransactionUpdateManyWithWhereWithoutCompanyInput | InvoiceTransactionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: InvoiceTransactionScalarWhereInput | InvoiceTransactionScalarWhereInput[]
+  }
+
+  export type BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput = {
+    create?: XOR<BankConnectionCreateWithoutCompanyInput, BankConnectionUncheckedCreateWithoutCompanyInput>
+    connectOrCreate?: BankConnectionCreateOrConnectWithoutCompanyInput
+    upsert?: BankConnectionUpsertWithoutCompanyInput
+    disconnect?: BankConnectionWhereInput | boolean
+    delete?: BankConnectionWhereInput | boolean
+    connect?: BankConnectionWhereUniqueInput
+    update?: XOR<XOR<BankConnectionUpdateToOneWithWhereWithoutCompanyInput, BankConnectionUpdateWithoutCompanyInput>, BankConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type BankAccountUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<BankAccountCreateWithoutCompanyInput, BankAccountUncheckedCreateWithoutCompanyInput> | BankAccountCreateWithoutCompanyInput[] | BankAccountUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutCompanyInput | BankAccountCreateOrConnectWithoutCompanyInput[]
+    upsert?: BankAccountUpsertWithWhereUniqueWithoutCompanyInput | BankAccountUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: BankAccountCreateManyCompanyInputEnvelope
+    set?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    disconnect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    delete?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    update?: BankAccountUpdateWithWhereUniqueWithoutCompanyInput | BankAccountUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: BankAccountUpdateManyWithWhereWithoutCompanyInput | BankAccountUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: BankAccountScalarWhereInput | BankAccountScalarWhereInput[]
+  }
+
+  export type BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<BankTransactionCreateWithoutCompanyInput, BankTransactionUncheckedCreateWithoutCompanyInput> | BankTransactionCreateWithoutCompanyInput[] | BankTransactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutCompanyInput | BankTransactionCreateOrConnectWithoutCompanyInput[]
+    upsert?: BankTransactionUpsertWithWhereUniqueWithoutCompanyInput | BankTransactionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: BankTransactionCreateManyCompanyInputEnvelope
+    set?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    disconnect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    delete?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    update?: BankTransactionUpdateWithWhereUniqueWithoutCompanyInput | BankTransactionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: BankTransactionUpdateManyWithWhereWithoutCompanyInput | BankTransactionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+  }
+
   export type AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<AccountingExportCreateWithoutCompanyInput, AccountingExportUncheckedCreateWithoutCompanyInput> | AccountingExportCreateWithoutCompanyInput[] | AccountingExportUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: AccountingExportCreateOrConnectWithoutCompanyInput | AccountingExportCreateOrConnectWithoutCompanyInput[]
@@ -70210,10 +79072,6 @@ export namespace Prisma {
     set?: $Enums.PlanBillingCycle
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type CompanyUpdateOneRequiredWithoutSubscriptionNestedInput = {
     create?: XOR<CompanyCreateWithoutSubscriptionInput, CompanyUncheckedCreateWithoutSubscriptionInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutSubscriptionInput
@@ -70311,6 +79169,10 @@ export namespace Prisma {
   export type CompanySettingsUpdateworkDaysInput = {
     set?: number[]
     push?: number | number[]
+  }
+
+  export type EnumStripeFeeBearerFieldUpdateOperationsInput = {
+    set?: $Enums.StripeFeeBearer
   }
 
   export type CompanyUpdateOneRequiredWithoutSettingsNestedInput = {
@@ -71693,6 +80555,20 @@ export namespace Prisma {
     connect?: InvoicePaymentEventWhereUniqueInput | InvoicePaymentEventWhereUniqueInput[]
   }
 
+  export type InvoiceTransactionCreateNestedManyWithoutInvoiceInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutInvoiceInput, InvoiceTransactionUncheckedCreateWithoutInvoiceInput> | InvoiceTransactionCreateWithoutInvoiceInput[] | InvoiceTransactionUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutInvoiceInput | InvoiceTransactionCreateOrConnectWithoutInvoiceInput[]
+    createMany?: InvoiceTransactionCreateManyInvoiceInputEnvelope
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+  }
+
+  export type BankTransactionCreateNestedManyWithoutMatchedInvoiceInput = {
+    create?: XOR<BankTransactionCreateWithoutMatchedInvoiceInput, BankTransactionUncheckedCreateWithoutMatchedInvoiceInput> | BankTransactionCreateWithoutMatchedInvoiceInput[] | BankTransactionUncheckedCreateWithoutMatchedInvoiceInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutMatchedInvoiceInput | BankTransactionCreateOrConnectWithoutMatchedInvoiceInput[]
+    createMany?: BankTransactionCreateManyMatchedInvoiceInputEnvelope
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+  }
+
   export type EInvoicingEventCreateNestedManyWithoutInvoiceInput = {
     create?: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput> | EInvoicingEventCreateWithoutInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutInvoiceInput[]
     connectOrCreate?: EInvoicingEventCreateOrConnectWithoutInvoiceInput | EInvoicingEventCreateOrConnectWithoutInvoiceInput[]
@@ -71714,6 +80590,20 @@ export namespace Prisma {
     connect?: InvoicePaymentEventWhereUniqueInput | InvoicePaymentEventWhereUniqueInput[]
   }
 
+  export type InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutInvoiceInput, InvoiceTransactionUncheckedCreateWithoutInvoiceInput> | InvoiceTransactionCreateWithoutInvoiceInput[] | InvoiceTransactionUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutInvoiceInput | InvoiceTransactionCreateOrConnectWithoutInvoiceInput[]
+    createMany?: InvoiceTransactionCreateManyInvoiceInputEnvelope
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+  }
+
+  export type BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput = {
+    create?: XOR<BankTransactionCreateWithoutMatchedInvoiceInput, BankTransactionUncheckedCreateWithoutMatchedInvoiceInput> | BankTransactionCreateWithoutMatchedInvoiceInput[] | BankTransactionUncheckedCreateWithoutMatchedInvoiceInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutMatchedInvoiceInput | BankTransactionCreateOrConnectWithoutMatchedInvoiceInput[]
+    createMany?: BankTransactionCreateManyMatchedInvoiceInputEnvelope
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+  }
+
   export type EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput = {
     create?: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput> | EInvoicingEventCreateWithoutInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutInvoiceInput[]
     connectOrCreate?: EInvoicingEventCreateOrConnectWithoutInvoiceInput | EInvoicingEventCreateOrConnectWithoutInvoiceInput[]
@@ -71723,6 +80613,14 @@ export namespace Prisma {
 
   export type EnumInvoiceStatusFieldUpdateOperationsInput = {
     set?: $Enums.InvoiceStatus
+  }
+
+  export type EnumInvoicePaymentStatusFieldUpdateOperationsInput = {
+    set?: $Enums.InvoicePaymentStatus
+  }
+
+  export type NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput = {
+    set?: $Enums.InvoicePaymentMethodType | null
   }
 
   export type NullableEnumEInvoicingStatusFieldUpdateOperationsInput = {
@@ -71797,6 +80695,34 @@ export namespace Prisma {
     deleteMany?: InvoicePaymentEventScalarWhereInput | InvoicePaymentEventScalarWhereInput[]
   }
 
+  export type InvoiceTransactionUpdateManyWithoutInvoiceNestedInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutInvoiceInput, InvoiceTransactionUncheckedCreateWithoutInvoiceInput> | InvoiceTransactionCreateWithoutInvoiceInput[] | InvoiceTransactionUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutInvoiceInput | InvoiceTransactionCreateOrConnectWithoutInvoiceInput[]
+    upsert?: InvoiceTransactionUpsertWithWhereUniqueWithoutInvoiceInput | InvoiceTransactionUpsertWithWhereUniqueWithoutInvoiceInput[]
+    createMany?: InvoiceTransactionCreateManyInvoiceInputEnvelope
+    set?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    disconnect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    delete?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    update?: InvoiceTransactionUpdateWithWhereUniqueWithoutInvoiceInput | InvoiceTransactionUpdateWithWhereUniqueWithoutInvoiceInput[]
+    updateMany?: InvoiceTransactionUpdateManyWithWhereWithoutInvoiceInput | InvoiceTransactionUpdateManyWithWhereWithoutInvoiceInput[]
+    deleteMany?: InvoiceTransactionScalarWhereInput | InvoiceTransactionScalarWhereInput[]
+  }
+
+  export type BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput = {
+    create?: XOR<BankTransactionCreateWithoutMatchedInvoiceInput, BankTransactionUncheckedCreateWithoutMatchedInvoiceInput> | BankTransactionCreateWithoutMatchedInvoiceInput[] | BankTransactionUncheckedCreateWithoutMatchedInvoiceInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutMatchedInvoiceInput | BankTransactionCreateOrConnectWithoutMatchedInvoiceInput[]
+    upsert?: BankTransactionUpsertWithWhereUniqueWithoutMatchedInvoiceInput | BankTransactionUpsertWithWhereUniqueWithoutMatchedInvoiceInput[]
+    createMany?: BankTransactionCreateManyMatchedInvoiceInputEnvelope
+    set?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    disconnect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    delete?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    update?: BankTransactionUpdateWithWhereUniqueWithoutMatchedInvoiceInput | BankTransactionUpdateWithWhereUniqueWithoutMatchedInvoiceInput[]
+    updateMany?: BankTransactionUpdateManyWithWhereWithoutMatchedInvoiceInput | BankTransactionUpdateManyWithWhereWithoutMatchedInvoiceInput[]
+    deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+  }
+
   export type EInvoicingEventUpdateManyWithoutInvoiceNestedInput = {
     create?: XOR<EInvoicingEventCreateWithoutInvoiceInput, EInvoicingEventUncheckedCreateWithoutInvoiceInput> | EInvoicingEventCreateWithoutInvoiceInput[] | EInvoicingEventUncheckedCreateWithoutInvoiceInput[]
     connectOrCreate?: EInvoicingEventCreateOrConnectWithoutInvoiceInput | EInvoicingEventCreateOrConnectWithoutInvoiceInput[]
@@ -71837,6 +80763,34 @@ export namespace Prisma {
     update?: InvoicePaymentEventUpdateWithWhereUniqueWithoutInvoiceInput | InvoicePaymentEventUpdateWithWhereUniqueWithoutInvoiceInput[]
     updateMany?: InvoicePaymentEventUpdateManyWithWhereWithoutInvoiceInput | InvoicePaymentEventUpdateManyWithWhereWithoutInvoiceInput[]
     deleteMany?: InvoicePaymentEventScalarWhereInput | InvoicePaymentEventScalarWhereInput[]
+  }
+
+  export type InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput = {
+    create?: XOR<InvoiceTransactionCreateWithoutInvoiceInput, InvoiceTransactionUncheckedCreateWithoutInvoiceInput> | InvoiceTransactionCreateWithoutInvoiceInput[] | InvoiceTransactionUncheckedCreateWithoutInvoiceInput[]
+    connectOrCreate?: InvoiceTransactionCreateOrConnectWithoutInvoiceInput | InvoiceTransactionCreateOrConnectWithoutInvoiceInput[]
+    upsert?: InvoiceTransactionUpsertWithWhereUniqueWithoutInvoiceInput | InvoiceTransactionUpsertWithWhereUniqueWithoutInvoiceInput[]
+    createMany?: InvoiceTransactionCreateManyInvoiceInputEnvelope
+    set?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    disconnect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    delete?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    connect?: InvoiceTransactionWhereUniqueInput | InvoiceTransactionWhereUniqueInput[]
+    update?: InvoiceTransactionUpdateWithWhereUniqueWithoutInvoiceInput | InvoiceTransactionUpdateWithWhereUniqueWithoutInvoiceInput[]
+    updateMany?: InvoiceTransactionUpdateManyWithWhereWithoutInvoiceInput | InvoiceTransactionUpdateManyWithWhereWithoutInvoiceInput[]
+    deleteMany?: InvoiceTransactionScalarWhereInput | InvoiceTransactionScalarWhereInput[]
+  }
+
+  export type BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput = {
+    create?: XOR<BankTransactionCreateWithoutMatchedInvoiceInput, BankTransactionUncheckedCreateWithoutMatchedInvoiceInput> | BankTransactionCreateWithoutMatchedInvoiceInput[] | BankTransactionUncheckedCreateWithoutMatchedInvoiceInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutMatchedInvoiceInput | BankTransactionCreateOrConnectWithoutMatchedInvoiceInput[]
+    upsert?: BankTransactionUpsertWithWhereUniqueWithoutMatchedInvoiceInput | BankTransactionUpsertWithWhereUniqueWithoutMatchedInvoiceInput[]
+    createMany?: BankTransactionCreateManyMatchedInvoiceInputEnvelope
+    set?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    disconnect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    delete?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    update?: BankTransactionUpdateWithWhereUniqueWithoutMatchedInvoiceInput | BankTransactionUpdateWithWhereUniqueWithoutMatchedInvoiceInput[]
+    updateMany?: BankTransactionUpdateManyWithWhereWithoutMatchedInvoiceInput | BankTransactionUpdateManyWithWhereWithoutMatchedInvoiceInput[]
+    deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
   }
 
   export type EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput = {
@@ -72343,6 +81297,208 @@ export namespace Prisma {
     update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutEinvoicingJobsInput, CompanyUpdateWithoutEinvoicingJobsInput>, CompanyUncheckedUpdateWithoutEinvoicingJobsInput>
   }
 
+  export type InvoiceCreateNestedOneWithoutTransactionsInput = {
+    create?: XOR<InvoiceCreateWithoutTransactionsInput, InvoiceUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: InvoiceCreateOrConnectWithoutTransactionsInput
+    connect?: InvoiceWhereUniqueInput
+  }
+
+  export type CompanyCreateNestedOneWithoutInvoiceTransactionsInput = {
+    create?: XOR<CompanyCreateWithoutInvoiceTransactionsInput, CompanyUncheckedCreateWithoutInvoiceTransactionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutInvoiceTransactionsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput = {
+    set?: $Enums.InvoicePaymentMethodType
+  }
+
+  export type InvoiceUpdateOneRequiredWithoutTransactionsNestedInput = {
+    create?: XOR<InvoiceCreateWithoutTransactionsInput, InvoiceUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: InvoiceCreateOrConnectWithoutTransactionsInput
+    upsert?: InvoiceUpsertWithoutTransactionsInput
+    connect?: InvoiceWhereUniqueInput
+    update?: XOR<XOR<InvoiceUpdateToOneWithWhereWithoutTransactionsInput, InvoiceUpdateWithoutTransactionsInput>, InvoiceUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type CompanyUpdateOneRequiredWithoutInvoiceTransactionsNestedInput = {
+    create?: XOR<CompanyCreateWithoutInvoiceTransactionsInput, CompanyUncheckedCreateWithoutInvoiceTransactionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutInvoiceTransactionsInput
+    upsert?: CompanyUpsertWithoutInvoiceTransactionsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutInvoiceTransactionsInput, CompanyUpdateWithoutInvoiceTransactionsInput>, CompanyUncheckedUpdateWithoutInvoiceTransactionsInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutBankConnectionInput = {
+    create?: XOR<CompanyCreateWithoutBankConnectionInput, CompanyUncheckedCreateWithoutBankConnectionInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutBankConnectionInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type BankAccountCreateNestedManyWithoutBankConnectionInput = {
+    create?: XOR<BankAccountCreateWithoutBankConnectionInput, BankAccountUncheckedCreateWithoutBankConnectionInput> | BankAccountCreateWithoutBankConnectionInput[] | BankAccountUncheckedCreateWithoutBankConnectionInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutBankConnectionInput | BankAccountCreateOrConnectWithoutBankConnectionInput[]
+    createMany?: BankAccountCreateManyBankConnectionInputEnvelope
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+  }
+
+  export type BankAccountUncheckedCreateNestedManyWithoutBankConnectionInput = {
+    create?: XOR<BankAccountCreateWithoutBankConnectionInput, BankAccountUncheckedCreateWithoutBankConnectionInput> | BankAccountCreateWithoutBankConnectionInput[] | BankAccountUncheckedCreateWithoutBankConnectionInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutBankConnectionInput | BankAccountCreateOrConnectWithoutBankConnectionInput[]
+    createMany?: BankAccountCreateManyBankConnectionInputEnvelope
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutBankConnectionNestedInput = {
+    create?: XOR<CompanyCreateWithoutBankConnectionInput, CompanyUncheckedCreateWithoutBankConnectionInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutBankConnectionInput
+    upsert?: CompanyUpsertWithoutBankConnectionInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutBankConnectionInput, CompanyUpdateWithoutBankConnectionInput>, CompanyUncheckedUpdateWithoutBankConnectionInput>
+  }
+
+  export type BankAccountUpdateManyWithoutBankConnectionNestedInput = {
+    create?: XOR<BankAccountCreateWithoutBankConnectionInput, BankAccountUncheckedCreateWithoutBankConnectionInput> | BankAccountCreateWithoutBankConnectionInput[] | BankAccountUncheckedCreateWithoutBankConnectionInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutBankConnectionInput | BankAccountCreateOrConnectWithoutBankConnectionInput[]
+    upsert?: BankAccountUpsertWithWhereUniqueWithoutBankConnectionInput | BankAccountUpsertWithWhereUniqueWithoutBankConnectionInput[]
+    createMany?: BankAccountCreateManyBankConnectionInputEnvelope
+    set?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    disconnect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    delete?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    update?: BankAccountUpdateWithWhereUniqueWithoutBankConnectionInput | BankAccountUpdateWithWhereUniqueWithoutBankConnectionInput[]
+    updateMany?: BankAccountUpdateManyWithWhereWithoutBankConnectionInput | BankAccountUpdateManyWithWhereWithoutBankConnectionInput[]
+    deleteMany?: BankAccountScalarWhereInput | BankAccountScalarWhereInput[]
+  }
+
+  export type BankAccountUncheckedUpdateManyWithoutBankConnectionNestedInput = {
+    create?: XOR<BankAccountCreateWithoutBankConnectionInput, BankAccountUncheckedCreateWithoutBankConnectionInput> | BankAccountCreateWithoutBankConnectionInput[] | BankAccountUncheckedCreateWithoutBankConnectionInput[]
+    connectOrCreate?: BankAccountCreateOrConnectWithoutBankConnectionInput | BankAccountCreateOrConnectWithoutBankConnectionInput[]
+    upsert?: BankAccountUpsertWithWhereUniqueWithoutBankConnectionInput | BankAccountUpsertWithWhereUniqueWithoutBankConnectionInput[]
+    createMany?: BankAccountCreateManyBankConnectionInputEnvelope
+    set?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    disconnect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    delete?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    connect?: BankAccountWhereUniqueInput | BankAccountWhereUniqueInput[]
+    update?: BankAccountUpdateWithWhereUniqueWithoutBankConnectionInput | BankAccountUpdateWithWhereUniqueWithoutBankConnectionInput[]
+    updateMany?: BankAccountUpdateManyWithWhereWithoutBankConnectionInput | BankAccountUpdateManyWithWhereWithoutBankConnectionInput[]
+    deleteMany?: BankAccountScalarWhereInput | BankAccountScalarWhereInput[]
+  }
+
+  export type BankConnectionCreateNestedOneWithoutAccountsInput = {
+    create?: XOR<BankConnectionCreateWithoutAccountsInput, BankConnectionUncheckedCreateWithoutAccountsInput>
+    connectOrCreate?: BankConnectionCreateOrConnectWithoutAccountsInput
+    connect?: BankConnectionWhereUniqueInput
+  }
+
+  export type CompanyCreateNestedOneWithoutBankAccountsInput = {
+    create?: XOR<CompanyCreateWithoutBankAccountsInput, CompanyUncheckedCreateWithoutBankAccountsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutBankAccountsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type BankTransactionCreateNestedManyWithoutBankAccountInput = {
+    create?: XOR<BankTransactionCreateWithoutBankAccountInput, BankTransactionUncheckedCreateWithoutBankAccountInput> | BankTransactionCreateWithoutBankAccountInput[] | BankTransactionUncheckedCreateWithoutBankAccountInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutBankAccountInput | BankTransactionCreateOrConnectWithoutBankAccountInput[]
+    createMany?: BankTransactionCreateManyBankAccountInputEnvelope
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+  }
+
+  export type BankTransactionUncheckedCreateNestedManyWithoutBankAccountInput = {
+    create?: XOR<BankTransactionCreateWithoutBankAccountInput, BankTransactionUncheckedCreateWithoutBankAccountInput> | BankTransactionCreateWithoutBankAccountInput[] | BankTransactionUncheckedCreateWithoutBankAccountInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutBankAccountInput | BankTransactionCreateOrConnectWithoutBankAccountInput[]
+    createMany?: BankTransactionCreateManyBankAccountInputEnvelope
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+  }
+
+  export type BankConnectionUpdateOneRequiredWithoutAccountsNestedInput = {
+    create?: XOR<BankConnectionCreateWithoutAccountsInput, BankConnectionUncheckedCreateWithoutAccountsInput>
+    connectOrCreate?: BankConnectionCreateOrConnectWithoutAccountsInput
+    upsert?: BankConnectionUpsertWithoutAccountsInput
+    connect?: BankConnectionWhereUniqueInput
+    update?: XOR<XOR<BankConnectionUpdateToOneWithWhereWithoutAccountsInput, BankConnectionUpdateWithoutAccountsInput>, BankConnectionUncheckedUpdateWithoutAccountsInput>
+  }
+
+  export type CompanyUpdateOneRequiredWithoutBankAccountsNestedInput = {
+    create?: XOR<CompanyCreateWithoutBankAccountsInput, CompanyUncheckedCreateWithoutBankAccountsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutBankAccountsInput
+    upsert?: CompanyUpsertWithoutBankAccountsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutBankAccountsInput, CompanyUpdateWithoutBankAccountsInput>, CompanyUncheckedUpdateWithoutBankAccountsInput>
+  }
+
+  export type BankTransactionUpdateManyWithoutBankAccountNestedInput = {
+    create?: XOR<BankTransactionCreateWithoutBankAccountInput, BankTransactionUncheckedCreateWithoutBankAccountInput> | BankTransactionCreateWithoutBankAccountInput[] | BankTransactionUncheckedCreateWithoutBankAccountInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutBankAccountInput | BankTransactionCreateOrConnectWithoutBankAccountInput[]
+    upsert?: BankTransactionUpsertWithWhereUniqueWithoutBankAccountInput | BankTransactionUpsertWithWhereUniqueWithoutBankAccountInput[]
+    createMany?: BankTransactionCreateManyBankAccountInputEnvelope
+    set?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    disconnect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    delete?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    update?: BankTransactionUpdateWithWhereUniqueWithoutBankAccountInput | BankTransactionUpdateWithWhereUniqueWithoutBankAccountInput[]
+    updateMany?: BankTransactionUpdateManyWithWhereWithoutBankAccountInput | BankTransactionUpdateManyWithWhereWithoutBankAccountInput[]
+    deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+  }
+
+  export type BankTransactionUncheckedUpdateManyWithoutBankAccountNestedInput = {
+    create?: XOR<BankTransactionCreateWithoutBankAccountInput, BankTransactionUncheckedCreateWithoutBankAccountInput> | BankTransactionCreateWithoutBankAccountInput[] | BankTransactionUncheckedCreateWithoutBankAccountInput[]
+    connectOrCreate?: BankTransactionCreateOrConnectWithoutBankAccountInput | BankTransactionCreateOrConnectWithoutBankAccountInput[]
+    upsert?: BankTransactionUpsertWithWhereUniqueWithoutBankAccountInput | BankTransactionUpsertWithWhereUniqueWithoutBankAccountInput[]
+    createMany?: BankTransactionCreateManyBankAccountInputEnvelope
+    set?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    disconnect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    delete?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+    update?: BankTransactionUpdateWithWhereUniqueWithoutBankAccountInput | BankTransactionUpdateWithWhereUniqueWithoutBankAccountInput[]
+    updateMany?: BankTransactionUpdateManyWithWhereWithoutBankAccountInput | BankTransactionUpdateManyWithWhereWithoutBankAccountInput[]
+    deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+  }
+
+  export type BankAccountCreateNestedOneWithoutTransactionsInput = {
+    create?: XOR<BankAccountCreateWithoutTransactionsInput, BankAccountUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: BankAccountCreateOrConnectWithoutTransactionsInput
+    connect?: BankAccountWhereUniqueInput
+  }
+
+  export type CompanyCreateNestedOneWithoutBankTransactionsInput = {
+    create?: XOR<CompanyCreateWithoutBankTransactionsInput, CompanyUncheckedCreateWithoutBankTransactionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutBankTransactionsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type InvoiceCreateNestedOneWithoutBankTransactionsInput = {
+    create?: XOR<InvoiceCreateWithoutBankTransactionsInput, InvoiceUncheckedCreateWithoutBankTransactionsInput>
+    connectOrCreate?: InvoiceCreateOrConnectWithoutBankTransactionsInput
+    connect?: InvoiceWhereUniqueInput
+  }
+
+  export type BankAccountUpdateOneRequiredWithoutTransactionsNestedInput = {
+    create?: XOR<BankAccountCreateWithoutTransactionsInput, BankAccountUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: BankAccountCreateOrConnectWithoutTransactionsInput
+    upsert?: BankAccountUpsertWithoutTransactionsInput
+    connect?: BankAccountWhereUniqueInput
+    update?: XOR<XOR<BankAccountUpdateToOneWithWhereWithoutTransactionsInput, BankAccountUpdateWithoutTransactionsInput>, BankAccountUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type CompanyUpdateOneRequiredWithoutBankTransactionsNestedInput = {
+    create?: XOR<CompanyCreateWithoutBankTransactionsInput, CompanyUncheckedCreateWithoutBankTransactionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutBankTransactionsInput
+    upsert?: CompanyUpsertWithoutBankTransactionsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutBankTransactionsInput, CompanyUpdateWithoutBankTransactionsInput>, CompanyUncheckedUpdateWithoutBankTransactionsInput>
+  }
+
+  export type InvoiceUpdateOneWithoutBankTransactionsNestedInput = {
+    create?: XOR<InvoiceCreateWithoutBankTransactionsInput, InvoiceUncheckedCreateWithoutBankTransactionsInput>
+    connectOrCreate?: InvoiceCreateOrConnectWithoutBankTransactionsInput
+    upsert?: InvoiceUpsertWithoutBankTransactionsInput
+    disconnect?: InvoiceWhereInput | boolean
+    delete?: InvoiceWhereInput | boolean
+    connect?: InvoiceWhereUniqueInput
+    update?: XOR<XOR<InvoiceUpdateToOneWithWhereWithoutBankTransactionsInput, InvoiceUpdateWithoutBankTransactionsInput>, InvoiceUncheckedUpdateWithoutBankTransactionsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -72525,6 +81681,48 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumStripeOnboardingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeOnboardingStatus | EnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeOnboardingStatusFilter<$PrismaModel> | $Enums.StripeOnboardingStatus
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedEnumStripeOnboardingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeOnboardingStatus | EnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeOnboardingStatus[] | ListEnumStripeOnboardingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeOnboardingStatusWithAggregatesFilter<$PrismaModel> | $Enums.StripeOnboardingStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStripeOnboardingStatusFilter<$PrismaModel>
+    _max?: NestedEnumStripeOnboardingStatusFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumPlanStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PlanStatus | EnumPlanStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PlanStatus[] | ListEnumPlanStatusFieldRefInput<$PrismaModel>
@@ -72537,17 +81735,6 @@ export namespace Prisma {
     in?: $Enums.PlanBillingCycle[] | ListEnumPlanBillingCycleFieldRefInput<$PrismaModel>
     notIn?: $Enums.PlanBillingCycle[] | ListEnumPlanBillingCycleFieldRefInput<$PrismaModel>
     not?: NestedEnumPlanBillingCycleFilter<$PrismaModel> | $Enums.PlanBillingCycle
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedEnumPlanStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -72568,20 +81755,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPlanBillingCycleFilter<$PrismaModel>
     _max?: NestedEnumPlanBillingCycleFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumPaymentMethodNullableFilter<$PrismaModel = never> = {
@@ -72606,6 +81779,13 @@ export namespace Prisma {
     in?: $Enums.PreferredChannel[] | ListEnumPreferredChannelFieldRefInput<$PrismaModel>
     notIn?: $Enums.PreferredChannel[] | ListEnumPreferredChannelFieldRefInput<$PrismaModel>
     not?: NestedEnumPreferredChannelFilter<$PrismaModel> | $Enums.PreferredChannel
+  }
+
+  export type NestedEnumStripeFeeBearerFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeFeeBearer | EnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeFeeBearerFilter<$PrismaModel> | $Enums.StripeFeeBearer
   }
 
   export type NestedEnumPreferredChannelWithAggregatesFilter<$PrismaModel = never> = {
@@ -72639,6 +81819,16 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumStripeFeeBearerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StripeFeeBearer | EnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    in?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StripeFeeBearer[] | ListEnumStripeFeeBearerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStripeFeeBearerWithAggregatesFilter<$PrismaModel> | $Enums.StripeFeeBearer
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStripeFeeBearerFilter<$PrismaModel>
+    _max?: NestedEnumStripeFeeBearerFilter<$PrismaModel>
   }
 
   export type NestedEnumUserRoleFilter<$PrismaModel = never> = {
@@ -72827,6 +82017,20 @@ export namespace Prisma {
     not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
   }
 
+  export type NestedEnumInvoicePaymentStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentStatus | EnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentStatusFilter<$PrismaModel> | $Enums.InvoicePaymentStatus
+  }
+
+  export type NestedEnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType | null
+  }
+
   export type NestedEnumEInvoicingStatusNullableFilter<$PrismaModel = never> = {
     equals?: $Enums.EInvoicingStatus | EnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
     in?: $Enums.EInvoicingStatus[] | ListEnumEInvoicingStatusFieldRefInput<$PrismaModel> | null
@@ -72849,6 +82053,26 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInvoiceStatusFilter<$PrismaModel>
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumInvoicePaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentStatus | EnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentStatus[] | ListEnumInvoicePaymentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.InvoicePaymentStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInvoicePaymentStatusFilter<$PrismaModel>
+    _max?: NestedEnumInvoicePaymentStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumInvoicePaymentMethodTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumInvoicePaymentMethodTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumInvoicePaymentMethodTypeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumEInvoicingStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -73096,6 +82320,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel>
     _max?: NestedEnumEInvoicingJobStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType
+  }
+
+  export type NestedEnumInvoicePaymentMethodTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoicePaymentMethodType | EnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoicePaymentMethodType[] | ListEnumInvoicePaymentMethodTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoicePaymentMethodTypeWithAggregatesFilter<$PrismaModel> | $Enums.InvoicePaymentMethodType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel>
+    _max?: NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel>
   }
 
   export type SubscriptionCreateWithoutPlanInput = {
@@ -73431,6 +82672,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -73461,6 +82706,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
@@ -73493,6 +82740,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -73520,6 +82771,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
@@ -73837,6 +83090,9 @@ export namespace Prisma {
     bankIban?: string | null
     bankBic?: string | null
     bankAccountOwner?: string | null
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: $Enums.StripeFeeBearer
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -73886,6 +83142,9 @@ export namespace Prisma {
     bankIban?: string | null
     bankBic?: string | null
     bankAccountOwner?: string | null
+    bankTransferEnabled?: boolean
+    stripePaymentEnabled?: boolean
+    stripeFeeBearer?: $Enums.StripeFeeBearer
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -74100,6 +83359,169 @@ export namespace Prisma {
 
   export type CompanyTradeCategoryCreateManyCompanyInputEnvelope = {
     data: CompanyTradeCategoryCreateManyCompanyInput | CompanyTradeCategoryCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InvoiceTransactionCreateWithoutCompanyInput = {
+    id?: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+    invoice: InvoiceCreateNestedOneWithoutTransactionsInput
+  }
+
+  export type InvoiceTransactionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    invoiceId: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type InvoiceTransactionCreateOrConnectWithoutCompanyInput = {
+    where: InvoiceTransactionWhereUniqueInput
+    create: XOR<InvoiceTransactionCreateWithoutCompanyInput, InvoiceTransactionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type InvoiceTransactionCreateManyCompanyInputEnvelope = {
+    data: InvoiceTransactionCreateManyCompanyInput | InvoiceTransactionCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BankConnectionCreateWithoutCompanyInput = {
+    id?: string
+    provider: string
+    connectionId: string
+    userId?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    status?: string
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: BankAccountCreateNestedManyWithoutBankConnectionInput
+  }
+
+  export type BankConnectionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    provider: string
+    connectionId: string
+    userId?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    status?: string
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: BankAccountUncheckedCreateNestedManyWithoutBankConnectionInput
+  }
+
+  export type BankConnectionCreateOrConnectWithoutCompanyInput = {
+    where: BankConnectionWhereUniqueInput
+    create: XOR<BankConnectionCreateWithoutCompanyInput, BankConnectionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type BankAccountCreateWithoutCompanyInput = {
+    id?: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bankConnection: BankConnectionCreateNestedOneWithoutAccountsInput
+    transactions?: BankTransactionCreateNestedManyWithoutBankAccountInput
+  }
+
+  export type BankAccountUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    bankConnectionId: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactions?: BankTransactionUncheckedCreateNestedManyWithoutBankAccountInput
+  }
+
+  export type BankAccountCreateOrConnectWithoutCompanyInput = {
+    where: BankAccountWhereUniqueInput
+    create: XOR<BankAccountCreateWithoutCompanyInput, BankAccountUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type BankAccountCreateManyCompanyInputEnvelope = {
+    data: BankAccountCreateManyCompanyInput | BankAccountCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BankTransactionCreateWithoutCompanyInput = {
+    id?: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+    bankAccount: BankAccountCreateNestedOneWithoutTransactionsInput
+    matchedInvoice?: InvoiceCreateNestedOneWithoutBankTransactionsInput
+  }
+
+  export type BankTransactionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    bankAccountId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    matchedInvoiceId?: string | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BankTransactionCreateOrConnectWithoutCompanyInput = {
+    where: BankTransactionWhereUniqueInput
+    create: XOR<BankTransactionCreateWithoutCompanyInput, BankTransactionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type BankTransactionCreateManyCompanyInputEnvelope = {
+    data: BankTransactionCreateManyCompanyInput | BankTransactionCreateManyCompanyInput[]
     skipDuplicates?: boolean
   }
 
@@ -74629,6 +84051,10 @@ export namespace Prisma {
     paymentMethod?: EnumPaymentMethodNullableFilter<"Invoice"> | $Enums.PaymentMethod | null
     paymentRef?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFilter<"Invoice"> | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: EnumInvoicePaymentMethodTypeNullableFilter<"Invoice"> | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFilter<"Invoice"> | boolean
+    stripeEnabled?: BoolFilter<"Invoice"> | boolean
     onlinePaymentEnabled?: BoolFilter<"Invoice"> | boolean
     stripePaymentIntentId?: StringNullableFilter<"Invoice"> | string | null
     stripeCheckoutUrl?: StringNullableFilter<"Invoice"> | string | null
@@ -74927,6 +84353,9 @@ export namespace Prisma {
     bankIban?: NullableStringFieldUpdateOperationsInput | string | null
     bankBic?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFieldUpdateOperationsInput | $Enums.StripeFeeBearer
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -74976,6 +84405,9 @@ export namespace Prisma {
     bankIban?: NullableStringFieldUpdateOperationsInput | string | null
     bankBic?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeFeeBearer?: EnumStripeFeeBearerFieldUpdateOperationsInput | $Enums.StripeFeeBearer
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75167,6 +84599,155 @@ export namespace Prisma {
     companyId?: StringFilter<"CompanyTradeCategory"> | string
     tradeCategoryId?: StringFilter<"CompanyTradeCategory"> | string
     createdAt?: DateTimeFilter<"CompanyTradeCategory"> | Date | string
+  }
+
+  export type InvoiceTransactionUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: InvoiceTransactionWhereUniqueInput
+    update: XOR<InvoiceTransactionUpdateWithoutCompanyInput, InvoiceTransactionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<InvoiceTransactionCreateWithoutCompanyInput, InvoiceTransactionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type InvoiceTransactionUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: InvoiceTransactionWhereUniqueInput
+    data: XOR<InvoiceTransactionUpdateWithoutCompanyInput, InvoiceTransactionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type InvoiceTransactionUpdateManyWithWhereWithoutCompanyInput = {
+    where: InvoiceTransactionScalarWhereInput
+    data: XOR<InvoiceTransactionUpdateManyMutationInput, InvoiceTransactionUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type InvoiceTransactionScalarWhereInput = {
+    AND?: InvoiceTransactionScalarWhereInput | InvoiceTransactionScalarWhereInput[]
+    OR?: InvoiceTransactionScalarWhereInput[]
+    NOT?: InvoiceTransactionScalarWhereInput | InvoiceTransactionScalarWhereInput[]
+    id?: StringFilter<"InvoiceTransaction"> | string
+    invoiceId?: StringFilter<"InvoiceTransaction"> | string
+    companyId?: StringFilter<"InvoiceTransaction"> | string
+    type?: EnumInvoicePaymentMethodTypeFilter<"InvoiceTransaction"> | $Enums.InvoicePaymentMethodType
+    status?: StringFilter<"InvoiceTransaction"> | string
+    amount?: FloatFilter<"InvoiceTransaction"> | number
+    currency?: StringFilter<"InvoiceTransaction"> | string
+    stripePaymentIntentId?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    stripeCheckoutSessionId?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    stripeTransferId?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    bankReference?: StringNullableFilter<"InvoiceTransaction"> | string | null
+    paidAt?: DateTimeNullableFilter<"InvoiceTransaction"> | Date | string | null
+    createdAt?: DateTimeFilter<"InvoiceTransaction"> | Date | string
+  }
+
+  export type BankConnectionUpsertWithoutCompanyInput = {
+    update: XOR<BankConnectionUpdateWithoutCompanyInput, BankConnectionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<BankConnectionCreateWithoutCompanyInput, BankConnectionUncheckedCreateWithoutCompanyInput>
+    where?: BankConnectionWhereInput
+  }
+
+  export type BankConnectionUpdateToOneWithWhereWithoutCompanyInput = {
+    where?: BankConnectionWhereInput
+    data: XOR<BankConnectionUpdateWithoutCompanyInput, BankConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type BankConnectionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: BankAccountUpdateManyWithoutBankConnectionNestedInput
+  }
+
+  export type BankConnectionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: BankAccountUncheckedUpdateManyWithoutBankConnectionNestedInput
+  }
+
+  export type BankAccountUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: BankAccountWhereUniqueInput
+    update: XOR<BankAccountUpdateWithoutCompanyInput, BankAccountUncheckedUpdateWithoutCompanyInput>
+    create: XOR<BankAccountCreateWithoutCompanyInput, BankAccountUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type BankAccountUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: BankAccountWhereUniqueInput
+    data: XOR<BankAccountUpdateWithoutCompanyInput, BankAccountUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type BankAccountUpdateManyWithWhereWithoutCompanyInput = {
+    where: BankAccountScalarWhereInput
+    data: XOR<BankAccountUpdateManyMutationInput, BankAccountUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type BankAccountScalarWhereInput = {
+    AND?: BankAccountScalarWhereInput | BankAccountScalarWhereInput[]
+    OR?: BankAccountScalarWhereInput[]
+    NOT?: BankAccountScalarWhereInput | BankAccountScalarWhereInput[]
+    id?: StringFilter<"BankAccount"> | string
+    bankConnectionId?: StringFilter<"BankAccount"> | string
+    companyId?: StringFilter<"BankAccount"> | string
+    externalId?: StringFilter<"BankAccount"> | string
+    iban?: StringNullableFilter<"BankAccount"> | string | null
+    bic?: StringNullableFilter<"BankAccount"> | string | null
+    accountName?: StringNullableFilter<"BankAccount"> | string | null
+    balance?: FloatNullableFilter<"BankAccount"> | number | null
+    currency?: StringFilter<"BankAccount"> | string
+    createdAt?: DateTimeFilter<"BankAccount"> | Date | string
+    updatedAt?: DateTimeFilter<"BankAccount"> | Date | string
+  }
+
+  export type BankTransactionUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: BankTransactionWhereUniqueInput
+    update: XOR<BankTransactionUpdateWithoutCompanyInput, BankTransactionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<BankTransactionCreateWithoutCompanyInput, BankTransactionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type BankTransactionUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: BankTransactionWhereUniqueInput
+    data: XOR<BankTransactionUpdateWithoutCompanyInput, BankTransactionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type BankTransactionUpdateManyWithWhereWithoutCompanyInput = {
+    where: BankTransactionScalarWhereInput
+    data: XOR<BankTransactionUpdateManyMutationInput, BankTransactionUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type BankTransactionScalarWhereInput = {
+    AND?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+    OR?: BankTransactionScalarWhereInput[]
+    NOT?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+    id?: StringFilter<"BankTransaction"> | string
+    bankAccountId?: StringFilter<"BankTransaction"> | string
+    companyId?: StringFilter<"BankTransaction"> | string
+    externalTransactionId?: StringFilter<"BankTransaction"> | string
+    amount?: FloatFilter<"BankTransaction"> | number
+    currency?: StringFilter<"BankTransaction"> | string
+    label?: StringNullableFilter<"BankTransaction"> | string | null
+    reference?: StringNullableFilter<"BankTransaction"> | string | null
+    counterparty?: StringNullableFilter<"BankTransaction"> | string | null
+    counterpartyIban?: StringNullableFilter<"BankTransaction"> | string | null
+    transactionDate?: DateTimeFilter<"BankTransaction"> | Date | string
+    valueDate?: DateTimeNullableFilter<"BankTransaction"> | Date | string | null
+    reconciliationStatus?: StringNullableFilter<"BankTransaction"> | string | null
+    confidenceScore?: FloatNullableFilter<"BankTransaction"> | number | null
+    matchedInvoiceId?: StringNullableFilter<"BankTransaction"> | string | null
+    reconciledAt?: DateTimeNullableFilter<"BankTransaction"> | Date | string | null
+    reconciledBy?: StringNullableFilter<"BankTransaction"> | string | null
+    createdAt?: DateTimeFilter<"BankTransaction"> | Date | string
   }
 
   export type AccountingExportUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -75489,6 +85070,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -75506,6 +85092,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -75540,6 +85130,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -75557,6 +85152,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -75634,6 +85233,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -75651,6 +85255,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -75685,6 +85293,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -75702,6 +85315,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -75807,6 +85424,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -75824,6 +85446,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -75858,6 +85484,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -75875,6 +85506,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -76012,6 +85647,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -76029,6 +85669,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -76063,6 +85707,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -76080,6 +85729,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -76293,6 +85946,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -76310,6 +85968,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -76344,6 +86006,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -76361,6 +86028,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -76411,6 +86082,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -76428,6 +86104,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -76462,6 +86142,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -76479,6 +86164,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -76513,6 +86202,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     clients?: ClientCreateNestedManyWithoutCompanyInput
@@ -76530,6 +86224,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -76564,6 +86262,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
@@ -76581,6 +86284,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -77019,6 +86726,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     clients?: ClientUpdateManyWithoutCompanyNestedInput
@@ -77036,6 +86748,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -77070,6 +86786,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
@@ -77087,6 +86808,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -77723,6 +87448,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -77740,6 +87470,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -77774,6 +87508,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -77791,6 +87530,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -77841,6 +87584,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -77858,6 +87606,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -77892,6 +87644,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -77909,6 +87666,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -77943,6 +87704,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -77960,6 +87726,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -77994,6 +87764,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -78011,6 +87786,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -78141,6 +87920,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -78158,6 +87942,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -78192,6 +87980,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -78209,6 +88002,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -78313,6 +88110,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -78330,6 +88132,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -78364,6 +88170,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -78381,6 +88192,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -78487,6 +88302,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -78517,6 +88336,8 @@ export namespace Prisma {
     intervention?: InterventionCreateNestedOneWithoutInvoiceInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
@@ -78549,6 +88370,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -78576,6 +88401,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
@@ -78711,6 +88538,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -78728,6 +88560,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -78762,6 +88598,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -78779,6 +88620,10 @@ export namespace Prisma {
     quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -78861,6 +88706,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -78878,6 +88728,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -78912,6 +88766,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -78929,6 +88788,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -79154,6 +89017,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -79184,6 +89051,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
@@ -79216,6 +89085,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -79243,6 +89116,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
@@ -79426,6 +89301,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -79443,6 +89323,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -79477,6 +89361,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -79494,6 +89383,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -79952,6 +89845,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -79969,6 +89867,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -80003,6 +89905,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -80020,6 +89927,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -80381,6 +90292,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -80411,6 +90326,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
@@ -80443,6 +90360,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -80470,6 +90391,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
@@ -80595,6 +90518,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -80612,6 +90540,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -80646,6 +90578,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -80663,6 +90600,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -81062,6 +91003,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81092,6 +91037,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -81124,6 +91071,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81151,6 +91102,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -81394,6 +91347,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -81411,6 +91369,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -81445,6 +91407,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -81462,6 +91429,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -81725,6 +91696,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -81742,6 +91718,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -81776,6 +91756,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -81793,6 +91778,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -82290,6 +92279,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -82307,6 +92301,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -82341,6 +92339,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -82358,6 +92361,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -82617,6 +92624,96 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type InvoiceTransactionCreateWithoutInvoiceInput = {
+    id?: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInvoiceTransactionsInput
+  }
+
+  export type InvoiceTransactionUncheckedCreateWithoutInvoiceInput = {
+    id?: string
+    companyId: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type InvoiceTransactionCreateOrConnectWithoutInvoiceInput = {
+    where: InvoiceTransactionWhereUniqueInput
+    create: XOR<InvoiceTransactionCreateWithoutInvoiceInput, InvoiceTransactionUncheckedCreateWithoutInvoiceInput>
+  }
+
+  export type InvoiceTransactionCreateManyInvoiceInputEnvelope = {
+    data: InvoiceTransactionCreateManyInvoiceInput | InvoiceTransactionCreateManyInvoiceInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BankTransactionCreateWithoutMatchedInvoiceInput = {
+    id?: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+    bankAccount: BankAccountCreateNestedOneWithoutTransactionsInput
+    company: CompanyCreateNestedOneWithoutBankTransactionsInput
+  }
+
+  export type BankTransactionUncheckedCreateWithoutMatchedInvoiceInput = {
+    id?: string
+    bankAccountId: string
+    companyId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BankTransactionCreateOrConnectWithoutMatchedInvoiceInput = {
+    where: BankTransactionWhereUniqueInput
+    create: XOR<BankTransactionCreateWithoutMatchedInvoiceInput, BankTransactionUncheckedCreateWithoutMatchedInvoiceInput>
+  }
+
+  export type BankTransactionCreateManyMatchedInvoiceInputEnvelope = {
+    data: BankTransactionCreateManyMatchedInvoiceInput | BankTransactionCreateManyMatchedInvoiceInput[]
+    skipDuplicates?: boolean
+  }
+
   export type EInvoicingEventCreateWithoutInvoiceInput = {
     id?: string
     provider: string
@@ -82695,6 +92792,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -82712,6 +92814,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -82746,6 +92852,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -82763,6 +92874,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -83010,6 +93125,38 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"InvoicePaymentEvent"> | Date | string
   }
 
+  export type InvoiceTransactionUpsertWithWhereUniqueWithoutInvoiceInput = {
+    where: InvoiceTransactionWhereUniqueInput
+    update: XOR<InvoiceTransactionUpdateWithoutInvoiceInput, InvoiceTransactionUncheckedUpdateWithoutInvoiceInput>
+    create: XOR<InvoiceTransactionCreateWithoutInvoiceInput, InvoiceTransactionUncheckedCreateWithoutInvoiceInput>
+  }
+
+  export type InvoiceTransactionUpdateWithWhereUniqueWithoutInvoiceInput = {
+    where: InvoiceTransactionWhereUniqueInput
+    data: XOR<InvoiceTransactionUpdateWithoutInvoiceInput, InvoiceTransactionUncheckedUpdateWithoutInvoiceInput>
+  }
+
+  export type InvoiceTransactionUpdateManyWithWhereWithoutInvoiceInput = {
+    where: InvoiceTransactionScalarWhereInput
+    data: XOR<InvoiceTransactionUpdateManyMutationInput, InvoiceTransactionUncheckedUpdateManyWithoutInvoiceInput>
+  }
+
+  export type BankTransactionUpsertWithWhereUniqueWithoutMatchedInvoiceInput = {
+    where: BankTransactionWhereUniqueInput
+    update: XOR<BankTransactionUpdateWithoutMatchedInvoiceInput, BankTransactionUncheckedUpdateWithoutMatchedInvoiceInput>
+    create: XOR<BankTransactionCreateWithoutMatchedInvoiceInput, BankTransactionUncheckedCreateWithoutMatchedInvoiceInput>
+  }
+
+  export type BankTransactionUpdateWithWhereUniqueWithoutMatchedInvoiceInput = {
+    where: BankTransactionWhereUniqueInput
+    data: XOR<BankTransactionUpdateWithoutMatchedInvoiceInput, BankTransactionUncheckedUpdateWithoutMatchedInvoiceInput>
+  }
+
+  export type BankTransactionUpdateManyWithWhereWithoutMatchedInvoiceInput = {
+    where: BankTransactionScalarWhereInput
+    data: XOR<BankTransactionUpdateManyMutationInput, BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceInput>
+  }
+
   export type EInvoicingEventUpsertWithWhereUniqueWithoutInvoiceInput = {
     where: EInvoicingEventWhereUniqueInput
     update: XOR<EInvoicingEventUpdateWithoutInvoiceInput, EInvoicingEventUncheckedUpdateWithoutInvoiceInput>
@@ -83052,6 +93199,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -83082,6 +93233,8 @@ export namespace Prisma {
     intervention?: InterventionCreateNestedOneWithoutInvoiceInput
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
@@ -83115,6 +93268,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -83141,6 +93298,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
@@ -83227,6 +93386,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83257,6 +93420,8 @@ export namespace Prisma {
     intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -83290,6 +93455,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83316,6 +93485,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -83391,6 +93562,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -83408,6 +93584,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -83442,6 +93622,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -83459,6 +93644,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -83588,6 +93777,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -83605,6 +93799,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -83639,6 +93837,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -83656,6 +93859,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -83775,6 +93982,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -83792,6 +94004,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -83826,6 +94042,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -83843,6 +94064,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -83893,6 +94118,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -83910,6 +94140,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -83944,6 +94178,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -83961,6 +94200,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -83995,6 +94238,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -84012,6 +94260,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -84046,6 +94298,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -84063,6 +94320,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -84182,6 +94443,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -84199,6 +94465,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -84233,6 +94503,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -84250,6 +94525,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -84359,6 +94638,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -84376,6 +94660,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -84410,6 +94698,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -84427,6 +94720,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -84477,6 +94774,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -84494,6 +94796,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -84528,6 +94834,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -84545,6 +94856,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -84579,6 +94894,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -84597,6 +94917,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
@@ -84630,6 +94954,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -84648,6 +94977,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
@@ -84697,6 +95030,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -84715,6 +95053,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
@@ -84748,6 +95090,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -84766,6 +95113,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -84799,6 +95150,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -84817,6 +95173,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
@@ -84850,6 +95210,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -84868,6 +95233,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
@@ -84917,6 +95286,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -84935,6 +95309,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
@@ -84968,6 +95346,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -84986,6 +95369,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -85019,6 +95406,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -85037,6 +95429,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
@@ -85070,6 +95466,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -85088,6 +95489,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
@@ -85137,6 +95542,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -85155,6 +95565,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
@@ -85188,6 +95602,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -85206,6 +95625,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -85240,6 +95663,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -85270,6 +95697,8 @@ export namespace Prisma {
     intervention?: InterventionCreateNestedOneWithoutInvoiceInput
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
   }
 
@@ -85303,6 +95732,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -85329,6 +95762,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
   }
 
@@ -85374,6 +95809,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85404,6 +95843,8 @@ export namespace Prisma {
     intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -85437,6 +95878,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85463,6 +95908,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -85491,6 +95938,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -85508,6 +95960,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -85542,6 +95998,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -85559,6 +96020,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -85678,6 +96143,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -85695,6 +96165,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -85729,6 +96203,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -85746,6 +96225,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -86127,6 +96610,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -86145,6 +96633,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -86178,6 +96670,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -86196,6 +96693,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -86245,6 +96746,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -86263,6 +96769,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -86296,6 +96806,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -86314,6 +96829,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -86347,6 +96866,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -86365,6 +96889,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -86398,6 +96926,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -86416,6 +96949,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -86507,6 +97044,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -86525,6 +97067,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -86558,6 +97104,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -86576,6 +97127,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -86625,6 +97180,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -86643,6 +97203,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -86676,6 +97240,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -86694,6 +97263,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -86733,6 +97306,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -86764,6 +97341,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
     lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
   }
 
   export type InvoiceUncheckedCreateWithoutEinvoicingEventsInput = {
@@ -86796,6 +97375,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -86823,6 +97406,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
     paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
   }
 
   export type InvoiceCreateOrConnectWithoutEinvoicingEventsInput = {
@@ -86931,6 +97516,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -86949,6 +97539,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -86982,6 +97576,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -87000,6 +97599,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -87045,6 +97648,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87076,6 +97683,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
   }
 
   export type InvoiceUncheckedUpdateWithoutEinvoicingEventsInput = {
@@ -87108,6 +97717,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87135,6 +97748,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
   }
 
   export type ReceivedInvoiceUpsertWithoutEventsInput = {
@@ -87233,6 +97848,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
@@ -87251,6 +97871,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -87284,6 +97908,11 @@ export namespace Prisma {
     stripeAccountId?: string | null
     stripeAccountStatus?: string | null
     onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
@@ -87302,6 +97931,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
     interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
     tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -87351,6 +97984,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
@@ -87369,6 +98007,10 @@ export namespace Prisma {
     catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -87402,6 +98044,11 @@ export namespace Prisma {
     stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
@@ -87420,12 +98067,1860 @@ export namespace Prisma {
     catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
     interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
     tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type InvoiceCreateWithoutTransactionsInput = {
+    id?: string
+    sourceQuoteId?: string | null
+    number: string
+    status?: $Enums.InvoiceStatus
+    amountHT: number
+    tvaRate?: number
+    amountTTC: number
+    amountPaid?: number
+    serviceDate?: Date | string | null
+    operationType?: string | null
+    penaltyRate?: number
+    recoveryFee?: number
+    discountTerms?: string | null
+    tvaOnDebit?: boolean
+    isTvaFranchise?: boolean
+    isAutoLiquidation?: boolean
+    orderNumber?: string | null
+    workDescription?: string | null
+    subject?: string | null
+    notes?: string | null
+    conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: $Enums.PaymentMethod | null
+    paymentRef?: string | null
+    pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
+    onlinePaymentEnabled?: boolean
+    stripePaymentIntentId?: string | null
+    stripeCheckoutUrl?: string | null
+    stripeCheckoutSessionId?: string | null
+    paymentToken?: string | null
+    paymentTokenExpiry?: Date | string | null
+    paymentLinkOpenedAt?: Date | string | null
+    issuedAt?: Date | string
+    dueAt?: Date | string | null
+    paidAt?: Date | string | null
+    emailSentAt?: Date | string | null
+    emailSentTo?: string | null
+    reminder1SentAt?: Date | string | null
+    reminder2SentAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInvoicesInput
+    client: ClientCreateNestedOneWithoutInvoicesInput
+    intervention?: InterventionCreateNestedOneWithoutInvoiceInput
+    interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
+    lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
+    paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutMatchedInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
+  }
+
+  export type InvoiceUncheckedCreateWithoutTransactionsInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    interventionId?: string | null
+    sourceQuoteId?: string | null
+    interventionTypeId?: string | null
+    number: string
+    status?: $Enums.InvoiceStatus
+    amountHT: number
+    tvaRate?: number
+    amountTTC: number
+    amountPaid?: number
+    serviceDate?: Date | string | null
+    operationType?: string | null
+    penaltyRate?: number
+    recoveryFee?: number
+    discountTerms?: string | null
+    tvaOnDebit?: boolean
+    isTvaFranchise?: boolean
+    isAutoLiquidation?: boolean
+    orderNumber?: string | null
+    workDescription?: string | null
+    subject?: string | null
+    notes?: string | null
+    conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: $Enums.PaymentMethod | null
+    paymentRef?: string | null
+    pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
+    onlinePaymentEnabled?: boolean
+    stripePaymentIntentId?: string | null
+    stripeCheckoutUrl?: string | null
+    stripeCheckoutSessionId?: string | null
+    paymentToken?: string | null
+    paymentTokenExpiry?: Date | string | null
+    paymentLinkOpenedAt?: Date | string | null
+    issuedAt?: Date | string
+    dueAt?: Date | string | null
+    paidAt?: Date | string | null
+    emailSentAt?: Date | string | null
+    emailSentTo?: string | null
+    reminder1SentAt?: Date | string | null
+    reminder2SentAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
+    paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutMatchedInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
+  }
+
+  export type InvoiceCreateOrConnectWithoutTransactionsInput = {
+    where: InvoiceWhereUniqueInput
+    create: XOR<InvoiceCreateWithoutTransactionsInput, InvoiceUncheckedCreateWithoutTransactionsInput>
+  }
+
+  export type CompanyCreateWithoutInvoiceTransactionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutInvoiceTransactionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutInvoiceTransactionsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutInvoiceTransactionsInput, CompanyUncheckedCreateWithoutInvoiceTransactionsInput>
+  }
+
+  export type InvoiceUpsertWithoutTransactionsInput = {
+    update: XOR<InvoiceUpdateWithoutTransactionsInput, InvoiceUncheckedUpdateWithoutTransactionsInput>
+    create: XOR<InvoiceCreateWithoutTransactionsInput, InvoiceUncheckedCreateWithoutTransactionsInput>
+    where?: InvoiceWhereInput
+  }
+
+  export type InvoiceUpdateToOneWithWhereWithoutTransactionsInput = {
+    where?: InvoiceWhereInput
+    data: XOR<InvoiceUpdateWithoutTransactionsInput, InvoiceUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type InvoiceUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceQuoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    number?: StringFieldUpdateOperationsInput | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    amountHT?: FloatFieldUpdateOperationsInput | number
+    tvaRate?: FloatFieldUpdateOperationsInput | number
+    amountTTC?: FloatFieldUpdateOperationsInput | number
+    amountPaid?: FloatFieldUpdateOperationsInput | number
+    serviceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    operationType?: NullableStringFieldUpdateOperationsInput | string | null
+    penaltyRate?: FloatFieldUpdateOperationsInput | number
+    recoveryFee?: FloatFieldUpdateOperationsInput | number
+    discountTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaOnDebit?: BoolFieldUpdateOperationsInput | boolean
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isAutoLiquidation?: BoolFieldUpdateOperationsInput | boolean
+    orderNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    workDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentLinkOpenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
+    client?: ClientUpdateOneRequiredWithoutInvoicesNestedInput
+    intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
+    interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
+    lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
+    paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceQuoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    interventionTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    number?: StringFieldUpdateOperationsInput | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    amountHT?: FloatFieldUpdateOperationsInput | number
+    tvaRate?: FloatFieldUpdateOperationsInput | number
+    amountTTC?: FloatFieldUpdateOperationsInput | number
+    amountPaid?: FloatFieldUpdateOperationsInput | number
+    serviceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    operationType?: NullableStringFieldUpdateOperationsInput | string | null
+    penaltyRate?: FloatFieldUpdateOperationsInput | number
+    recoveryFee?: FloatFieldUpdateOperationsInput | number
+    discountTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaOnDebit?: BoolFieldUpdateOperationsInput | boolean
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isAutoLiquidation?: BoolFieldUpdateOperationsInput | boolean
+    orderNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    workDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentLinkOpenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
+    paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
+  }
+
+  export type CompanyUpsertWithoutInvoiceTransactionsInput = {
+    update: XOR<CompanyUpdateWithoutInvoiceTransactionsInput, CompanyUncheckedUpdateWithoutInvoiceTransactionsInput>
+    create: XOR<CompanyCreateWithoutInvoiceTransactionsInput, CompanyUncheckedCreateWithoutInvoiceTransactionsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutInvoiceTransactionsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutInvoiceTransactionsInput, CompanyUncheckedUpdateWithoutInvoiceTransactionsInput>
+  }
+
+  export type CompanyUpdateWithoutInvoiceTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutInvoiceTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyCreateWithoutBankConnectionInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutBankConnectionInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutBankConnectionInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutBankConnectionInput, CompanyUncheckedCreateWithoutBankConnectionInput>
+  }
+
+  export type BankAccountCreateWithoutBankConnectionInput = {
+    id?: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutBankAccountsInput
+    transactions?: BankTransactionCreateNestedManyWithoutBankAccountInput
+  }
+
+  export type BankAccountUncheckedCreateWithoutBankConnectionInput = {
+    id?: string
+    companyId: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactions?: BankTransactionUncheckedCreateNestedManyWithoutBankAccountInput
+  }
+
+  export type BankAccountCreateOrConnectWithoutBankConnectionInput = {
+    where: BankAccountWhereUniqueInput
+    create: XOR<BankAccountCreateWithoutBankConnectionInput, BankAccountUncheckedCreateWithoutBankConnectionInput>
+  }
+
+  export type BankAccountCreateManyBankConnectionInputEnvelope = {
+    data: BankAccountCreateManyBankConnectionInput | BankAccountCreateManyBankConnectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutBankConnectionInput = {
+    update: XOR<CompanyUpdateWithoutBankConnectionInput, CompanyUncheckedUpdateWithoutBankConnectionInput>
+    create: XOR<CompanyCreateWithoutBankConnectionInput, CompanyUncheckedCreateWithoutBankConnectionInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutBankConnectionInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutBankConnectionInput, CompanyUncheckedUpdateWithoutBankConnectionInput>
+  }
+
+  export type CompanyUpdateWithoutBankConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutBankConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type BankAccountUpsertWithWhereUniqueWithoutBankConnectionInput = {
+    where: BankAccountWhereUniqueInput
+    update: XOR<BankAccountUpdateWithoutBankConnectionInput, BankAccountUncheckedUpdateWithoutBankConnectionInput>
+    create: XOR<BankAccountCreateWithoutBankConnectionInput, BankAccountUncheckedCreateWithoutBankConnectionInput>
+  }
+
+  export type BankAccountUpdateWithWhereUniqueWithoutBankConnectionInput = {
+    where: BankAccountWhereUniqueInput
+    data: XOR<BankAccountUpdateWithoutBankConnectionInput, BankAccountUncheckedUpdateWithoutBankConnectionInput>
+  }
+
+  export type BankAccountUpdateManyWithWhereWithoutBankConnectionInput = {
+    where: BankAccountScalarWhereInput
+    data: XOR<BankAccountUpdateManyMutationInput, BankAccountUncheckedUpdateManyWithoutBankConnectionInput>
+  }
+
+  export type BankConnectionCreateWithoutAccountsInput = {
+    id?: string
+    provider: string
+    connectionId: string
+    userId?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    status?: string
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutBankConnectionInput
+  }
+
+  export type BankConnectionUncheckedCreateWithoutAccountsInput = {
+    id?: string
+    companyId: string
+    provider: string
+    connectionId: string
+    userId?: string | null
+    accessTokenEncrypted?: string | null
+    refreshTokenEncrypted?: string | null
+    tokenExpiresAt?: Date | string | null
+    status?: string
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BankConnectionCreateOrConnectWithoutAccountsInput = {
+    where: BankConnectionWhereUniqueInput
+    create: XOR<BankConnectionCreateWithoutAccountsInput, BankConnectionUncheckedCreateWithoutAccountsInput>
+  }
+
+  export type CompanyCreateWithoutBankAccountsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutBankAccountsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutBankAccountsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutBankAccountsInput, CompanyUncheckedCreateWithoutBankAccountsInput>
+  }
+
+  export type BankTransactionCreateWithoutBankAccountInput = {
+    id?: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutBankTransactionsInput
+    matchedInvoice?: InvoiceCreateNestedOneWithoutBankTransactionsInput
+  }
+
+  export type BankTransactionUncheckedCreateWithoutBankAccountInput = {
+    id?: string
+    companyId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    matchedInvoiceId?: string | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BankTransactionCreateOrConnectWithoutBankAccountInput = {
+    where: BankTransactionWhereUniqueInput
+    create: XOR<BankTransactionCreateWithoutBankAccountInput, BankTransactionUncheckedCreateWithoutBankAccountInput>
+  }
+
+  export type BankTransactionCreateManyBankAccountInputEnvelope = {
+    data: BankTransactionCreateManyBankAccountInput | BankTransactionCreateManyBankAccountInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BankConnectionUpsertWithoutAccountsInput = {
+    update: XOR<BankConnectionUpdateWithoutAccountsInput, BankConnectionUncheckedUpdateWithoutAccountsInput>
+    create: XOR<BankConnectionCreateWithoutAccountsInput, BankConnectionUncheckedCreateWithoutAccountsInput>
+    where?: BankConnectionWhereInput
+  }
+
+  export type BankConnectionUpdateToOneWithWhereWithoutAccountsInput = {
+    where?: BankConnectionWhereInput
+    data: XOR<BankConnectionUpdateWithoutAccountsInput, BankConnectionUncheckedUpdateWithoutAccountsInput>
+  }
+
+  export type BankConnectionUpdateWithoutAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBankConnectionNestedInput
+  }
+
+  export type BankConnectionUncheckedUpdateWithoutAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    connectionId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyUpsertWithoutBankAccountsInput = {
+    update: XOR<CompanyUpdateWithoutBankAccountsInput, CompanyUncheckedUpdateWithoutBankAccountsInput>
+    create: XOR<CompanyCreateWithoutBankAccountsInput, CompanyUncheckedCreateWithoutBankAccountsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutBankAccountsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutBankAccountsInput, CompanyUncheckedUpdateWithoutBankAccountsInput>
+  }
+
+  export type CompanyUpdateWithoutBankAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutBankAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type BankTransactionUpsertWithWhereUniqueWithoutBankAccountInput = {
+    where: BankTransactionWhereUniqueInput
+    update: XOR<BankTransactionUpdateWithoutBankAccountInput, BankTransactionUncheckedUpdateWithoutBankAccountInput>
+    create: XOR<BankTransactionCreateWithoutBankAccountInput, BankTransactionUncheckedCreateWithoutBankAccountInput>
+  }
+
+  export type BankTransactionUpdateWithWhereUniqueWithoutBankAccountInput = {
+    where: BankTransactionWhereUniqueInput
+    data: XOR<BankTransactionUpdateWithoutBankAccountInput, BankTransactionUncheckedUpdateWithoutBankAccountInput>
+  }
+
+  export type BankTransactionUpdateManyWithWhereWithoutBankAccountInput = {
+    where: BankTransactionScalarWhereInput
+    data: XOR<BankTransactionUpdateManyMutationInput, BankTransactionUncheckedUpdateManyWithoutBankAccountInput>
+  }
+
+  export type BankAccountCreateWithoutTransactionsInput = {
+    id?: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bankConnection: BankConnectionCreateNestedOneWithoutAccountsInput
+    company: CompanyCreateNestedOneWithoutBankAccountsInput
+  }
+
+  export type BankAccountUncheckedCreateWithoutTransactionsInput = {
+    id?: string
+    bankConnectionId: string
+    companyId: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BankAccountCreateOrConnectWithoutTransactionsInput = {
+    where: BankAccountWhereUniqueInput
+    create: XOR<BankAccountCreateWithoutTransactionsInput, BankAccountUncheckedCreateWithoutTransactionsInput>
+  }
+
+  export type CompanyCreateWithoutBankTransactionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutBankTransactionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutBankTransactionsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutBankTransactionsInput, CompanyUncheckedCreateWithoutBankTransactionsInput>
+  }
+
+  export type InvoiceCreateWithoutBankTransactionsInput = {
+    id?: string
+    sourceQuoteId?: string | null
+    number: string
+    status?: $Enums.InvoiceStatus
+    amountHT: number
+    tvaRate?: number
+    amountTTC: number
+    amountPaid?: number
+    serviceDate?: Date | string | null
+    operationType?: string | null
+    penaltyRate?: number
+    recoveryFee?: number
+    discountTerms?: string | null
+    tvaOnDebit?: boolean
+    isTvaFranchise?: boolean
+    isAutoLiquidation?: boolean
+    orderNumber?: string | null
+    workDescription?: string | null
+    subject?: string | null
+    notes?: string | null
+    conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: $Enums.PaymentMethod | null
+    paymentRef?: string | null
+    pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
+    onlinePaymentEnabled?: boolean
+    stripePaymentIntentId?: string | null
+    stripeCheckoutUrl?: string | null
+    stripeCheckoutSessionId?: string | null
+    paymentToken?: string | null
+    paymentTokenExpiry?: Date | string | null
+    paymentLinkOpenedAt?: Date | string | null
+    issuedAt?: Date | string
+    dueAt?: Date | string | null
+    paidAt?: Date | string | null
+    emailSentAt?: Date | string | null
+    emailSentTo?: string | null
+    reminder1SentAt?: Date | string | null
+    reminder2SentAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInvoicesInput
+    client: ClientCreateNestedOneWithoutInvoicesInput
+    intervention?: InterventionCreateNestedOneWithoutInvoiceInput
+    interventionType?: InterventionTypeItemCreateNestedOneWithoutInvoicesInput
+    lines?: InvoiceLineCreateNestedManyWithoutInvoiceInput
+    paymentEvents?: InvoicePaymentEventCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutInvoiceInput
+  }
+
+  export type InvoiceUncheckedCreateWithoutBankTransactionsInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    interventionId?: string | null
+    sourceQuoteId?: string | null
+    interventionTypeId?: string | null
+    number: string
+    status?: $Enums.InvoiceStatus
+    amountHT: number
+    tvaRate?: number
+    amountTTC: number
+    amountPaid?: number
+    serviceDate?: Date | string | null
+    operationType?: string | null
+    penaltyRate?: number
+    recoveryFee?: number
+    discountTerms?: string | null
+    tvaOnDebit?: boolean
+    isTvaFranchise?: boolean
+    isAutoLiquidation?: boolean
+    orderNumber?: string | null
+    workDescription?: string | null
+    subject?: string | null
+    notes?: string | null
+    conditions?: string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: $Enums.PaymentMethod | null
+    paymentRef?: string | null
+    pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
+    onlinePaymentEnabled?: boolean
+    stripePaymentIntentId?: string | null
+    stripeCheckoutUrl?: string | null
+    stripeCheckoutSessionId?: string | null
+    paymentToken?: string | null
+    paymentTokenExpiry?: Date | string | null
+    paymentLinkOpenedAt?: Date | string | null
+    issuedAt?: Date | string
+    dueAt?: Date | string | null
+    paidAt?: Date | string | null
+    emailSentAt?: Date | string | null
+    emailSentTo?: string | null
+    reminder1SentAt?: Date | string | null
+    reminder2SentAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    einvoicingStatus?: $Enums.EInvoicingStatus | null
+    einvoicingProvider?: $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: string | null
+    einvoicingSentAt?: Date | string | null
+    einvoicingProcessedAt?: Date | string | null
+    einvoicingTransmissionId?: string | null
+    einvoicingError?: string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lines?: InvoiceLineUncheckedCreateNestedManyWithoutInvoiceInput
+    paymentEvents?: InvoicePaymentEventUncheckedCreateNestedManyWithoutInvoiceInput
+    transactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutInvoiceInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutInvoiceInput
+  }
+
+  export type InvoiceCreateOrConnectWithoutBankTransactionsInput = {
+    where: InvoiceWhereUniqueInput
+    create: XOR<InvoiceCreateWithoutBankTransactionsInput, InvoiceUncheckedCreateWithoutBankTransactionsInput>
+  }
+
+  export type BankAccountUpsertWithoutTransactionsInput = {
+    update: XOR<BankAccountUpdateWithoutTransactionsInput, BankAccountUncheckedUpdateWithoutTransactionsInput>
+    create: XOR<BankAccountCreateWithoutTransactionsInput, BankAccountUncheckedCreateWithoutTransactionsInput>
+    where?: BankAccountWhereInput
+  }
+
+  export type BankAccountUpdateToOneWithWhereWithoutTransactionsInput = {
+    where?: BankAccountWhereInput
+    data: XOR<BankAccountUpdateWithoutTransactionsInput, BankAccountUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type BankAccountUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bankConnection?: BankConnectionUpdateOneRequiredWithoutAccountsNestedInput
+    company?: CompanyUpdateOneRequiredWithoutBankAccountsNestedInput
+  }
+
+  export type BankAccountUncheckedUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankConnectionId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyUpsertWithoutBankTransactionsInput = {
+    update: XOR<CompanyUpdateWithoutBankTransactionsInput, CompanyUncheckedUpdateWithoutBankTransactionsInput>
+    create: XOR<CompanyCreateWithoutBankTransactionsInput, CompanyUncheckedCreateWithoutBankTransactionsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutBankTransactionsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutBankTransactionsInput, CompanyUncheckedUpdateWithoutBankTransactionsInput>
+  }
+
+  export type CompanyUpdateWithoutBankTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutBankTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type InvoiceUpsertWithoutBankTransactionsInput = {
+    update: XOR<InvoiceUpdateWithoutBankTransactionsInput, InvoiceUncheckedUpdateWithoutBankTransactionsInput>
+    create: XOR<InvoiceCreateWithoutBankTransactionsInput, InvoiceUncheckedCreateWithoutBankTransactionsInput>
+    where?: InvoiceWhereInput
+  }
+
+  export type InvoiceUpdateToOneWithWhereWithoutBankTransactionsInput = {
+    where?: InvoiceWhereInput
+    data: XOR<InvoiceUpdateWithoutBankTransactionsInput, InvoiceUncheckedUpdateWithoutBankTransactionsInput>
+  }
+
+  export type InvoiceUpdateWithoutBankTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceQuoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    number?: StringFieldUpdateOperationsInput | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    amountHT?: FloatFieldUpdateOperationsInput | number
+    tvaRate?: FloatFieldUpdateOperationsInput | number
+    amountTTC?: FloatFieldUpdateOperationsInput | number
+    amountPaid?: FloatFieldUpdateOperationsInput | number
+    serviceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    operationType?: NullableStringFieldUpdateOperationsInput | string | null
+    penaltyRate?: FloatFieldUpdateOperationsInput | number
+    recoveryFee?: FloatFieldUpdateOperationsInput | number
+    discountTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaOnDebit?: BoolFieldUpdateOperationsInput | boolean
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isAutoLiquidation?: BoolFieldUpdateOperationsInput | boolean
+    orderNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    workDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentLinkOpenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInvoicesNestedInput
+    client?: ClientUpdateOneRequiredWithoutInvoicesNestedInput
+    intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
+    interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
+    lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
+    paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateWithoutBankTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceQuoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    interventionTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    number?: StringFieldUpdateOperationsInput | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    amountHT?: FloatFieldUpdateOperationsInput | number
+    tvaRate?: FloatFieldUpdateOperationsInput | number
+    amountTTC?: FloatFieldUpdateOperationsInput | number
+    amountPaid?: FloatFieldUpdateOperationsInput | number
+    serviceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    operationType?: NullableStringFieldUpdateOperationsInput | string | null
+    penaltyRate?: FloatFieldUpdateOperationsInput | number
+    recoveryFee?: FloatFieldUpdateOperationsInput | number
+    discountTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaOnDebit?: BoolFieldUpdateOperationsInput | boolean
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isAutoLiquidation?: BoolFieldUpdateOperationsInput | boolean
+    orderNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    workDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    conditions?: NullableStringFieldUpdateOperationsInput | string | null
+    documentCustomization?: NullableJsonNullValueInput | InputJsonValue
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentLinkOpenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
+    reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
+    einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
+    providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    einvoicingTransmissionId?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingError?: NullableStringFieldUpdateOperationsInput | string | null
+    einvoicingRawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
+    paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
   export type SubscriptionCreateManyPlanInput = {
@@ -87608,6 +100103,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -87789,6 +100288,54 @@ export namespace Prisma {
   export type CompanyTradeCategoryCreateManyCompanyInput = {
     id?: string
     tradeCategoryId: string
+    createdAt?: Date | string
+  }
+
+  export type InvoiceTransactionCreateManyCompanyInput = {
+    id?: string
+    invoiceId: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type BankAccountCreateManyCompanyInput = {
+    id?: string
+    bankConnectionId: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BankTransactionCreateManyCompanyInput = {
+    id?: string
+    bankAccountId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    matchedInvoiceId?: string | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
     createdAt?: Date | string
   }
 
@@ -88194,6 +100741,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -88224,6 +100775,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -88256,6 +100809,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -88283,6 +100840,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -88315,6 +100874,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -88822,6 +101385,152 @@ export namespace Prisma {
   export type CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tradeCategoryId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceTransactionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoice?: InvoiceUpdateOneRequiredWithoutTransactionsNestedInput
+  }
+
+  export type InvoiceTransactionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceTransactionUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankAccountUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bankConnection?: BankConnectionUpdateOneRequiredWithoutAccountsNestedInput
+    transactions?: BankTransactionUpdateManyWithoutBankAccountNestedInput
+  }
+
+  export type BankAccountUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankConnectionId?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: BankTransactionUncheckedUpdateManyWithoutBankAccountNestedInput
+  }
+
+  export type BankAccountUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankConnectionId?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bankAccount?: BankAccountUpdateOneRequiredWithoutTransactionsNestedInput
+    matchedInvoice?: InvoiceUpdateOneWithoutBankTransactionsNestedInput
+  }
+
+  export type BankTransactionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankAccountId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    matchedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankAccountId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    matchedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -89970,6 +102679,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -90141,6 +102854,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90171,6 +102888,8 @@ export namespace Prisma {
     intervention?: InterventionUpdateOneWithoutInvoiceNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -90203,6 +102922,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90230,6 +102953,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -90262,6 +102987,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90475,6 +103204,10 @@ export namespace Prisma {
     paymentMethod?: $Enums.PaymentMethod | null
     paymentRef?: string | null
     pdfUrl?: string | null
+    paymentStatus?: $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: boolean
+    stripeEnabled?: boolean
     onlinePaymentEnabled?: boolean
     stripePaymentIntentId?: string | null
     stripeCheckoutUrl?: string | null
@@ -90724,6 +103457,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90754,6 +103491,8 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInvoicesNestedInput
     lines?: InvoiceLineUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -90786,6 +103525,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90813,6 +103556,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: InvoiceLineUncheckedUpdateManyWithoutInvoiceNestedInput
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
+    transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
   }
 
@@ -90845,6 +103590,10 @@ export namespace Prisma {
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     paymentRef?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: EnumInvoicePaymentStatusFieldUpdateOperationsInput | $Enums.InvoicePaymentStatus
+    invoicePaymentMethod?: NullableEnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType | null
+    bankTransferEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeEnabled?: BoolFieldUpdateOperationsInput | boolean
     onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeCheckoutUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -91266,6 +104015,41 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type InvoiceTransactionCreateManyInvoiceInput = {
+    id?: string
+    companyId: string
+    type: $Enums.InvoicePaymentMethodType
+    status?: string
+    amount: number
+    currency?: string
+    stripePaymentIntentId?: string | null
+    stripeCheckoutSessionId?: string | null
+    stripeTransferId?: string | null
+    bankReference?: string | null
+    paidAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type BankTransactionCreateManyMatchedInvoiceInput = {
+    id?: string
+    bankAccountId: string
+    companyId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+  }
+
   export type EInvoicingEventCreateManyInvoiceInput = {
     id?: string
     companyId: string
@@ -91357,6 +104141,111 @@ export namespace Prisma {
     stripeEventId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeData?: NullableJsonNullValueInput | InputJsonValue
     clientIp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceTransactionUpdateWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInvoiceTransactionsNestedInput
+  }
+
+  export type InvoiceTransactionUncheckedUpdateWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceTransactionUncheckedUpdateManyWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: EnumInvoicePaymentMethodTypeFieldUpdateOperationsInput | $Enums.InvoicePaymentMethodType
+    status?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeTransferId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankReference?: NullableStringFieldUpdateOperationsInput | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionUpdateWithoutMatchedInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bankAccount?: BankAccountUpdateOneRequiredWithoutTransactionsNestedInput
+    company?: CompanyUpdateOneRequiredWithoutBankTransactionsNestedInput
+  }
+
+  export type BankTransactionUncheckedUpdateWithoutMatchedInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankAccountId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionUncheckedUpdateManyWithoutMatchedInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    bankAccountId?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -91549,6 +104438,140 @@ export namespace Prisma {
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankAccountCreateManyBankConnectionInput = {
+    id?: string
+    companyId: string
+    externalId: string
+    iban?: string | null
+    bic?: string | null
+    accountName?: string | null
+    balance?: number | null
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BankAccountUpdateWithoutBankConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBankAccountsNestedInput
+    transactions?: BankTransactionUpdateManyWithoutBankAccountNestedInput
+  }
+
+  export type BankAccountUncheckedUpdateWithoutBankConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: BankTransactionUncheckedUpdateManyWithoutBankAccountNestedInput
+  }
+
+  export type BankAccountUncheckedUpdateManyWithoutBankConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalId?: StringFieldUpdateOperationsInput | string
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    bic?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionCreateManyBankAccountInput = {
+    id?: string
+    companyId: string
+    externalTransactionId: string
+    amount: number
+    currency?: string
+    label?: string | null
+    reference?: string | null
+    counterparty?: string | null
+    counterpartyIban?: string | null
+    transactionDate: Date | string
+    valueDate?: Date | string | null
+    reconciliationStatus?: string | null
+    confidenceScore?: number | null
+    matchedInvoiceId?: string | null
+    reconciledAt?: Date | string | null
+    reconciledBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BankTransactionUpdateWithoutBankAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBankTransactionsNestedInput
+    matchedInvoice?: InvoiceUpdateOneWithoutBankTransactionsNestedInput
+  }
+
+  export type BankTransactionUncheckedUpdateWithoutBankAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    matchedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BankTransactionUncheckedUpdateManyWithoutBankAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    externalTransactionId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    counterparty?: NullableStringFieldUpdateOperationsInput | string | null
+    counterpartyIban?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    valueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciliationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    matchedInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

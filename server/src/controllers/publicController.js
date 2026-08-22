@@ -176,11 +176,15 @@ export const getPublicInvoiceByToken = async (req, res) => {
                         city: true,
                         postalCode: true,
                         siret: true,
+                        stripeAccountId: true,
+                        stripeOnboardingStatus: true,
+                        onlinePaymentEnabled: true,
                         settings: true
                     }
                 },
                 client: {
                     select: {
+                        id: true,
                         firstName: true,
                         lastName: true,
                         companyName: true,
@@ -208,9 +212,37 @@ export const getPublicInvoiceByToken = async (req, res) => {
             });
         }
 
+        // Calcul des frais Stripe prévisionnels pour affichage client
+        const { calculateStripeFee } = await import("../services/stripeFeeService.js");
+        const feeBearer = invoice.company?.settings?.stripeFeeBearer || "COMPANY";
+        const feeBreakdown = await calculateStripeFee(invoice.amountTTC, feeBearer);
+
+        const isStripeActive = Boolean(
+            (invoice.stripeEnabled || invoice.company?.settings?.stripePaymentEnabled || invoice.onlinePaymentEnabled) &&
+            invoice.company?.stripeAccountId
+        );
+
+        const isBankTransferActive = Boolean(
+            invoice.bankTransferEnabled ?? (invoice.company?.settings?.bankTransferEnabled ?? true)
+        );
+
         return res.status(200).json({
             success: true,
-            data: { invoice }
+            data: {
+                invoice,
+                paymentOptions: {
+                    stripeEnabled: isStripeActive,
+                    bankTransferEnabled: isBankTransferActive,
+                    feeBreakdown,
+                    bankDetails: {
+                        iban: invoice.company?.settings?.bankIban || null,
+                        bic: invoice.company?.settings?.bankBic || null,
+                        accountOwner: invoice.company?.settings?.bankAccountOwner || invoice.company?.name || null,
+                        bankName: invoice.company?.settings?.bankName || null,
+                        reference: invoice.number
+                    }
+                }
+            }
         });
     } catch (error) {
         console.error("GET PUBLIC INVOICE ERROR:", error.message);
@@ -233,17 +265,30 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
                     { id: paymentToken }
                 ]
             },
-            include: { company: true, client: true }
+            include: {
+                company: {
+                    include: { settings: true }
+                },
+                client: true
+            }
         });
 
-        if (!invoice || invoice.status === "PAID") {
+        if (!invoice || invoice.status === "PAID" || invoice.paymentStatus === "PAID") {
             return res.status(400).json({
                 success: false,
-                message: invoice?.status === "PAID" ? "Cette facture a déjà été réglée" : "Facture introuvable"
+                message: (invoice?.status === "PAID" || invoice?.paymentStatus === "PAID")
+                    ? "Cette facture a déjà été réglée"
+                    : "Facture introuvable"
             });
         }
 
-        const amountInCents = Math.round(Number(invoice.amountTTC) * 100);
+        // Calcul dynamique et sécurisé du montant depuis la base de données
+        const { calculateStripeFee } = await import("../services/stripeFeeService.js");
+        const feeBearer = invoice.company?.settings?.stripeFeeBearer || "COMPANY";
+        const feeBreakdown = await calculateStripeFee(invoice.amountTTC, feeBearer);
+
+        const totalToCharge = feeBreakdown.totalAmount;
+        const amountInCents = Math.round(totalToCharge * 100);
 
         if (amountInCents < 50) {
             return res.status(400).json({
@@ -255,44 +300,75 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
         let checkoutUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?invoiceId=${invoice.id}`;
 
         if (stripe) {
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
+            const stripeAccountId = invoice.company?.stripeAccountId;
+            const stripeRequestOptions = stripeAccountId ? { stripeAccount: stripeAccountId } : {};
+
+            const lineItems = [
+                {
+                    price_data: {
+                        currency: "eur",
+                        product_data: {
+                            name: `Facture ${invoice.number} - ${invoice.company?.name || 'Prestation'}`,
+                            description: invoice.subject || `Règlement facture ${invoice.number}`,
+                        },
+                        unit_amount: Math.round(Number(invoice.amountTTC) * 100),
+                    },
+                    quantity: 1,
+                }
+            ];
+
+            // Si les frais sont à la charge du client, on ajoute une ligne explicite pour les frais
+            if (feeBearer === "CLIENT" && feeBreakdown.feeAmount > 0) {
+                lineItems.push({
+                    price_data: {
+                        currency: "eur",
+                        product_data: {
+                            name: "Frais de traitement bancaire en ligne",
+                            description: "Frais de transaction sécurisée par carte",
+                        },
+                        unit_amount: Math.round(feeBreakdown.feeAmount * 100),
+                    },
+                    quantity: 1,
+                });
+            }
+
+            const sessionParams = {
+                payment_method_types: ["card"],
                 payment_method_options: {
                     card: {
-                        request_three_d_secure: 'any',
+                        request_three_d_secure: "any",
                     },
                 },
-                payment_intent_data: {
-                    metadata: {
-                        invoiceId: invoice.id,
-                        companyId: invoice.companyId,
-                        type: 'INVOICE_PAYMENT'
-                    },
-                },
-                line_items: [
-                    {
-                        price_data: {
-                            currency: 'eur',
-                            product_data: {
-                                name: `Facture ${invoice.number} - ${invoice.company?.name || 'Prestation'}`,
-                                description: invoice.subject || 'Règlement de facture',
-                            },
-                            unit_amount: amountInCents,
-                        },
-                        quantity: 1,
-                    },
-                ],
-                mode: 'payment',
+                line_items: lineItems,
+                mode: "payment",
                 customer_email: invoice.client?.email || undefined,
                 client_reference_id: invoice.id,
                 metadata: {
                     invoiceId: invoice.id,
                     companyId: invoice.companyId,
-                    type: 'INVOICE_PAYMENT'
+                    customerId: invoice.clientId || "",
+                    invoiceNumber: invoice.number,
+                    invoiceAmount: String(invoice.amountTTC),
+                    feeAmount: String(feeBreakdown.feeAmount),
+                    totalAmount: String(feeBreakdown.totalAmount),
+                    feeBearer: feeBearer,
+                    type: "INVOICE_PAYMENT"
                 },
                 success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/success?invoiceId=${invoice.id}&session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/invoice/${paymentToken}?canceled=true`,
-            });
+                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pay/invoice/${invoice.paymentToken || paymentToken}?canceled=true`,
+            };
+
+            const session = await stripe.checkout.sessions.create(sessionParams, stripeRequestOptions);
+
+            if (session?.id) {
+                await prisma.invoice.update({
+                    where: { id: invoice.id },
+                    data: {
+                        stripeCheckoutSessionId: session.id,
+                        stripeCheckoutUrl: session.url || undefined
+                    }
+                });
+            }
 
             if (session?.url) {
                 checkoutUrl = session.url;
@@ -305,6 +381,7 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
             data: {
                 checkoutUrl,
                 amountTTC: invoice.amountTTC,
+                feeBreakdown,
                 invoiceNumber: invoice.number
             }
         });

@@ -169,6 +169,11 @@ exports.Prisma.CompanyScalarFieldEnum = {
   stripeAccountId: 'stripeAccountId',
   stripeAccountStatus: 'stripeAccountStatus',
   onlinePaymentEnabled: 'onlinePaymentEnabled',
+  stripeOnboardingStatus: 'stripeOnboardingStatus',
+  stripeChargesEnabled: 'stripeChargesEnabled',
+  stripePayoutsEnabled: 'stripePayoutsEnabled',
+  stripeDetailsSubmitted: 'stripeDetailsSubmitted',
+  stripeConnectedAt: 'stripeConnectedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -268,6 +273,9 @@ exports.Prisma.CompanySettingsScalarFieldEnum = {
   bankIban: 'bankIban',
   bankBic: 'bankBic',
   bankAccountOwner: 'bankAccountOwner',
+  bankTransferEnabled: 'bankTransferEnabled',
+  stripePaymentEnabled: 'stripePaymentEnabled',
+  stripeFeeBearer: 'stripeFeeBearer',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -545,6 +553,10 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   paymentRef: 'paymentRef',
   pdfUrl: 'pdfUrl',
+  paymentStatus: 'paymentStatus',
+  invoicePaymentMethod: 'invoicePaymentMethod',
+  bankTransferEnabled: 'bankTransferEnabled',
+  stripeEnabled: 'stripeEnabled',
   onlinePaymentEnabled: 'onlinePaymentEnabled',
   stripePaymentIntentId: 'stripePaymentIntentId',
   stripeCheckoutUrl: 'stripeCheckoutUrl',
@@ -859,6 +871,82 @@ exports.Prisma.EInvoicingJobScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.InvoiceTransactionScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  companyId: 'companyId',
+  type: 'type',
+  status: 'status',
+  amount: 'amount',
+  currency: 'currency',
+  stripePaymentIntentId: 'stripePaymentIntentId',
+  stripeCheckoutSessionId: 'stripeCheckoutSessionId',
+  stripeTransferId: 'stripeTransferId',
+  bankReference: 'bankReference',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StripeFeeConfigScalarFieldEnum = {
+  id: 'id',
+  feeRate: 'feeRate',
+  fixedFee: 'fixedFee',
+  currency: 'currency',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BankConnectionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  provider: 'provider',
+  connectionId: 'connectionId',
+  userId: 'userId',
+  accessTokenEncrypted: 'accessTokenEncrypted',
+  refreshTokenEncrypted: 'refreshTokenEncrypted',
+  tokenExpiresAt: 'tokenExpiresAt',
+  status: 'status',
+  lastSyncAt: 'lastSyncAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BankAccountScalarFieldEnum = {
+  id: 'id',
+  bankConnectionId: 'bankConnectionId',
+  companyId: 'companyId',
+  externalId: 'externalId',
+  iban: 'iban',
+  bic: 'bic',
+  accountName: 'accountName',
+  balance: 'balance',
+  currency: 'currency',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BankTransactionScalarFieldEnum = {
+  id: 'id',
+  bankAccountId: 'bankAccountId',
+  companyId: 'companyId',
+  externalTransactionId: 'externalTransactionId',
+  amount: 'amount',
+  currency: 'currency',
+  label: 'label',
+  reference: 'reference',
+  counterparty: 'counterparty',
+  counterpartyIban: 'counterpartyIban',
+  transactionDate: 'transactionDate',
+  valueDate: 'valueDate',
+  reconciliationStatus: 'reconciliationStatus',
+  confidenceScore: 'confidenceScore',
+  matchedInvoiceId: 'matchedInvoiceId',
+  reconciledAt: 'reconciledAt',
+  reconciledBy: 'reconciledBy',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -894,6 +982,14 @@ exports.PlanName = exports.$Enums.PlanName = {
   UNLIMITED: 'UNLIMITED'
 };
 
+exports.StripeOnboardingStatus = exports.$Enums.StripeOnboardingStatus = {
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETE: 'COMPLETE',
+  REQUIRES_INFO: 'REQUIRES_INFO',
+  DISABLED: 'DISABLED'
+};
+
 exports.PlanStatus = exports.$Enums.PlanStatus = {
   TRIALING: 'TRIALING',
   ACTIVE: 'ACTIVE',
@@ -919,6 +1015,11 @@ exports.PreferredChannel = exports.$Enums.PreferredChannel = {
   SMS: 'SMS',
   EMAIL: 'EMAIL',
   WHATSAPP: 'WHATSAPP'
+};
+
+exports.StripeFeeBearer = exports.$Enums.StripeFeeBearer = {
+  COMPANY: 'COMPANY',
+  CLIENT: 'CLIENT'
 };
 
 exports.NotificationChannel = exports.$Enums.NotificationChannel = {
@@ -986,6 +1087,20 @@ exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
   PAID: 'PAID',
   OVERDUE: 'OVERDUE',
   CANCELLED: 'CANCELLED'
+};
+
+exports.InvoicePaymentStatus = exports.$Enums.InvoicePaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  PARTIALLY_PAID: 'PARTIALLY_PAID',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.InvoicePaymentMethodType = exports.$Enums.InvoicePaymentMethodType = {
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  CARD: 'CARD',
+  OTHER: 'OTHER'
 };
 
 exports.EInvoicingStatus = exports.$Enums.EInvoicingStatus = {
@@ -1120,7 +1235,12 @@ exports.Prisma.ModelName = {
   EInvoicingConnection: 'EInvoicingConnection',
   ReceivedInvoice: 'ReceivedInvoice',
   EInvoicingEvent: 'EInvoicingEvent',
-  EInvoicingJob: 'EInvoicingJob'
+  EInvoicingJob: 'EInvoicingJob',
+  InvoiceTransaction: 'InvoiceTransaction',
+  StripeFeeConfig: 'StripeFeeConfig',
+  BankConnection: 'BankConnection',
+  BankAccount: 'BankAccount',
+  BankTransaction: 'BankTransaction'
 };
 
 /**

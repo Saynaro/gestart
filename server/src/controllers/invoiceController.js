@@ -795,6 +795,15 @@ export const sendInvoice = async (req, res) => {
                 primaryColor: req.body?.primaryColor || req.body?.customization?.primaryColor || invoice.documentCustomization?.primaryColor || companySettings.documentCustomization?.primaryColor || companySettings.primaryColor || "#556B2F"
             };
 
+            const isStripeActive = Boolean(
+                (invoice.stripeEnabled || companySettings.stripePaymentEnabled || invoice.company?.onlinePaymentEnabled) &&
+                invoice.company?.stripeAccountId
+            );
+
+            const isBankTransferActive = Boolean(
+                invoice.bankTransferEnabled ?? (companySettings.bankTransferEnabled ?? true)
+            );
+
             await sendInvoiceClientEmail({
                 to: recipientEmail,
                 invoice,
@@ -802,7 +811,18 @@ export const sendInvoice = async (req, res) => {
                 paymentUrl,
                 senderEmail: req.user?.email || invoice.company?.email,
                 primaryColor: effectiveCustomization.primaryColor,
-                customization: effectiveCustomization
+                customization: effectiveCustomization,
+                paymentOptions: {
+                    stripeEnabled: isStripeActive,
+                    bankTransferEnabled: isBankTransferActive,
+                    bankDetails: {
+                        iban: companySettings.bankIban || null,
+                        bic: companySettings.bankBic || null,
+                        accountOwner: companySettings.bankAccountOwner || invoice.company?.name || null,
+                        bankName: companySettings.bankName || null,
+                        reference: invoice.number
+                    }
+                }
             });
         }
 
@@ -858,17 +878,34 @@ export const markInvoicePaid = async (req, res) => {
 
         const paymentDate = paidAt ? new Date(paidAt) : new Date();
         const safePaymentMethod = normalizePaymentMethod(paymentMethod) || "TRANSFER";
+        const txType = safePaymentMethod === "CARD" ? "CARD" : (safePaymentMethod === "TRANSFER" ? "BANK_TRANSFER" : "OTHER");
 
-        const updatedInvoice = await prisma.invoice.update({
-            where: { id },
-            data: {
-                status: "PAID",
-                amountPaid: invoice.amountTTC,
-                paidAt: paymentDate,
-                paymentMethod: safePaymentMethod,
-                paymentRef: paymentRef || (typeof paymentMethod === "string" ? paymentMethod : undefined),
-            }
-        });
+        const [updatedInvoice] = await prisma.$transaction([
+            prisma.invoice.update({
+                where: { id },
+                data: {
+                    status: "PAID",
+                    paymentStatus: "PAID",
+                    amountPaid: invoice.amountTTC,
+                    paidAt: paymentDate,
+                    paymentMethod: safePaymentMethod,
+                    invoicePaymentMethod: txType === "BANK_TRANSFER" ? "BANK_TRANSFER" : (txType === "CARD" ? "CARD" : "OTHER"),
+                    paymentRef: paymentRef || (typeof paymentMethod === "string" ? paymentMethod : undefined),
+                }
+            }),
+            prisma.invoiceTransaction.create({
+                data: {
+                    invoiceId: id,
+                    companyId,
+                    type: txType === "BANK_TRANSFER" ? "BANK_TRANSFER" : (txType === "CARD" ? "CARD" : "OTHER"),
+                    status: "succeeded",
+                    amount: invoice.amountTTC,
+                    currency: "EUR",
+                    bankReference: paymentRef || (typeof paymentMethod === "string" ? paymentMethod : "Règlement manuel"),
+                    paidAt: paymentDate
+                }
+            })
+        ]);
 
         // Notification au propriétaire
         const owner = await prisma.user.findFirst({

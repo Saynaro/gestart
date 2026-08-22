@@ -21,6 +21,7 @@ import SettingsPage from './SettingsPage/SettingsPage'
 import RapportsPage from './RapportsPage/RapportsPage'
 import ComptabilityPage from './ComptabilityPage/ComptabilityPage'
 import FacturesPage from './FacturesPage/FacturesPage'
+import PaymentsPage from './PaymentsPage/PaymentsPage'
 import DevisPage from './DevisPage/DevisPage'
 import PremiumPage from './PremiumPage/PremiumPage'
 import CataloguePage from './CataloguePage.jsx/CataloguePage'
@@ -158,6 +159,7 @@ function App() {
             <Route path="/planning" element={<ProtectedRoute><PlanningPage /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
             <Route path="/factures" element={<ProtectedRoute><FacturesPage /></ProtectedRoute>} />
+            <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
             <Route path="/devis" element={<ProtectedRoute><DevisPage /></ProtectedRoute>} />
             <Route path="/rapports" element={<ProtectedRoute><RapportsPage /></ProtectedRoute>} />
             <Route path="/comptabilite" element={<ProtectedRoute><ComptabilityPage /></ProtectedRoute>} />

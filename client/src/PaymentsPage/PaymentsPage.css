@@ -1,0 +1,296 @@
+.payments-page-wrapper {
+    min-height: 100vh;
+    background-color: var(--background);
+}
+
+.payments-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.payments-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.payments-kpi-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payments-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.payments-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.payments-kpi-info {
+    flex: 1;
+}
+
+.payments-kpi-label {
+    font-size: 13px;
+    color: var(--muted-foreground);
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.payments-kpi-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--foreground);
+    letter-spacing: -0.02em;
+}
+
+/* Toolbar & Filters */
+.payments-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.payments-filter-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--card);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.payments-filter-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.payments-filter-tab:hover {
+    color: var(--foreground);
+}
+
+.payments-filter-tab.active {
+    background-color: var(--primary);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(85, 107, 47, 0.3);
+}
+
+.payments-filter-badge {
+    padding: 2px 6px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+}
+
+.payments-filter-tab.active .payments-filter-badge {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+}
+
+.payments-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    min-width: 260px;
+}
+
+.payments-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--foreground);
+    font-size: 13.5px;
+    width: 100%;
+}
+
+/* Reconciliation Banner / Section */
+.payments-reconciliation-card {
+    background: linear-gradient(135deg, rgba(85, 107, 47, 0.08) 0%, rgba(99, 91, 255, 0.05) 100%);
+    border: 1px solid rgba(85, 107, 47, 0.3);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.payments-reconciliation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.payments-reconciliation-item {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+/* Main Transactions Table */
+.payments-table-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.payments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+.payments-table th {
+    background-color: var(--background);
+    color: var(--muted-foreground);
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.payments-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+}
+
+.payments-table tr:last-child td {
+    border-bottom: none;
+}
+
+.payments-table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Badges */
+.badge-method-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: rgba(99, 91, 255, 0.12);
+    color: #635BFF;
+    border: 1px solid rgba(99, 91, 255, 0.25);
+}
+
+.badge-method-transfer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: rgba(85, 107, 47, 0.12);
+    color: var(--primary);
+    border: 1px solid rgba(85, 107, 47, 0.25);
+}
+
+.badge-status-paid {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    background-color: rgba(16, 185, 129, 0.12);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.badge-status-pending {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: rgba(245, 158, 11, 0.12);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* Mobile responsive card list */
+@media (max-width: 768px) {
+    .payments-table-card {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+
+    .payments-table {
+        display: none;
+    }
+
+    .payments-mobile-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .payments-mobile-card {
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+}

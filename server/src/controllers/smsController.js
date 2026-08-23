@@ -70,6 +70,12 @@ export const getSmsInbox = async (req, res) => {
             channel: "SMS"
         }));
 
+        conversations.sort((a, b) => {
+            const timeA = new Date(a.time || a.lastMessage?.createdAt || 0).getTime();
+            const timeB = new Date(b.time || b.lastMessage?.createdAt || 0).getTime();
+            return timeB - timeA;
+        });
+
         return res.status(200).json({
             success: true,
             data: { conversations }

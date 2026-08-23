@@ -7,6 +7,8 @@ import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
+import { apiFetch } from "../utils/api";
+import { getSocket } from "../utils/socket";
 
 function SideBar({ onFabClick, hideFab = false }) {
     const navigate = useNavigate();
@@ -15,6 +17,53 @@ function SideBar({ onFabClick, hideFab = false }) {
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
     const { isStarter, displayName } = useSubscription();
     const { fullName, initials, email, avatarUrl } = useUser();
+    const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+
+    // Track dynamic unread messages count
+    useEffect(() => {
+        const fetchUnread = async () => {
+            try {
+                const res = await apiFetch("/v1/messages/unread-count");
+                if (res.success && typeof res.data?.total === "number") {
+                    setUnreadMessagesCount(res.data.total);
+                }
+            } catch (e) {
+                // Endpoint might not be available or network error
+            }
+        };
+        fetchUnread();
+
+        // Listen for internal app event when user reads messages
+        const handleCustomReadEvent = () => fetchUnread();
+        window.addEventListener("messages-read", handleCustomReadEvent);
+
+        const socket = getSocket();
+        if (socket) {
+            const handleNewMessage = (msg) => {
+                if (msg?.direction === "INCOMING") {
+                    setUnreadMessagesCount(prev => prev + 1);
+                }
+            };
+            const handleMessageRead = () => {
+                fetchUnread();
+            };
+
+            socket.on("message:new", handleNewMessage);
+            socket.on("message:received", handleNewMessage);
+            socket.on("message:read", handleMessageRead);
+
+            return () => {
+                window.removeEventListener("messages-read", handleCustomReadEvent);
+                socket.off("message:new", handleNewMessage);
+                socket.off("message:received", handleNewMessage);
+                socket.off("message:read", handleMessageRead);
+            };
+        }
+
+        return () => {
+            window.removeEventListener("messages-read", handleCustomReadEvent);
+        };
+    }, []);
 
     // Close bottom sheet on route changes (including back navigation)
     useEffect(() => {
@@ -157,7 +206,10 @@ function SideBar({ onFabClick, hideFab = false }) {
                             <ul className="menu-list">
                                 {section.items.map((item, iIndex) => {
                                     const isActive = item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home"));
-                                    const badge = (item.proOnly && isStarter) ? "PRO" : item.badge;
+                                    let badge = (item.proOnly && isStarter) ? "PRO" : item.badge;
+                                    if (item.path === "/messages") {
+                                        badge = unreadMessagesCount > 0 ? unreadMessagesCount : undefined;
+                                    }
                                     return (
                                         <li key={iIndex} className={`menu-item ${isActive ? "active" : ""}`}>
                                             <a 

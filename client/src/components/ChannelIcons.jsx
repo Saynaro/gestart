@@ -40,7 +40,7 @@ export const EmailIcon = ({ size = 18, className = "", style = {} }) => (
   </svg>
 );
 
-export const SmsIcon = ({ size = 18, className = "", style = {} }) => (
+export const SmsIcon = ({ size = 18, color = "currentColor", className = "", style = {} }) => (
   <svg
     width={size}
     height={size}
@@ -48,9 +48,9 @@ export const SmsIcon = ({ size = 18, className = "", style = {} }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
-    style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0, ...style }}
+    style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0, color, ...style }}
   >
-    <rect x="3" y="3" width="18" height="18" rx="4.5" fill="#5B4DDB" fillOpacity="0.16" stroke="#5B4DDB" strokeWidth="1.8" />
-    <path d="M7 8H17M7 12H14M7 16H11" stroke="#5B4DDB" strokeWidth="1.8" strokeLinecap="round" />
+    <rect x="3" y="3" width="18" height="18" rx="4.5" fill="currentColor" fillOpacity="0.16" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M7 8H17M7 12H14M7 16H11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );

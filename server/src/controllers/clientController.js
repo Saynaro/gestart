@@ -48,10 +48,7 @@ export const getClients = async (req, res) => {
                         include: {
                             lines: { orderBy: { position: "asc" } },
                             client: true,
-                            company: true,
-                            sourceQuote: {
-                                include: { client: true, lines: true }
-                            }
+                            company: true
                         },
                         orderBy: { createdAt: "desc" }
                     },
@@ -59,10 +56,7 @@ export const getClients = async (req, res) => {
                         include: {
                             lines: { orderBy: { position: "asc" } },
                             client: true,
-                            company: true,
-                            invoices: {
-                                include: { client: true, lines: true }
-                            }
+                            company: true
                         },
                         orderBy: { createdAt: "desc" }
                     },
@@ -194,10 +188,7 @@ export const getClientById = async (req, res) => {
                     include: {
                         lines: { orderBy: { position: "asc" } },
                         client: true,
-                        company: true,
-                        sourceQuote: {
-                            include: { client: true, lines: true }
-                        }
+                        company: true
                     },
                     orderBy: { createdAt: "desc" }
                 },
@@ -205,10 +196,7 @@ export const getClientById = async (req, res) => {
                     include: {
                         lines: { orderBy: { position: "asc" } },
                         client: true,
-                        company: true,
-                        invoices: {
-                            include: { client: true, lines: true }
-                        }
+                        company: true
                     },
                     orderBy: { createdAt: "desc" }
                 },

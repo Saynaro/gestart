@@ -864,7 +864,7 @@
 
 /* Reuse PDF styles from FacturesPage */
 .pdf-viewer-overlay {
-    z-index: 1300 !important;
+    z-index: 99999 !important;
 }
 
 .invoice-modal-overlay {

@@ -40,6 +40,8 @@ const initialContacts = [];
 const initialOrganisations = [];
 
 import { apiFetch } from "../utils/api";
+import { getAuthToken } from "../utils/auth";
+import { getApiUrl } from "../utils/config";
 
 function ClientPage() {
     const navigate = useNavigate();
@@ -253,14 +255,23 @@ function ClientPage() {
 
     const handleOpenInvoiceDrawer = async (inv) => {
         if (!inv) return;
-        const clientFallback = inv.client || selectedClient || {};
+        // selectedClient (mapped) stores company name in 'name' not 'companyName'; firstName/lastName are direct
+        const rawSelected = selectedClient || {};
+        const invClient = inv.client || {};
+        const resolvedClient = {
+            ...invClient,
+            companyName: invClient.companyName || rawSelected.companyName || (rawSelected.type === 'organisation' ? rawSelected.name : "") || "",
+            firstName: invClient.firstName || rawSelected.firstName || "",
+            lastName: invClient.lastName || rawSelected.lastName || (rawSelected.type !== 'organisation' ? rawSelected.name : "") || "",
+            email: invClient.email || rawSelected.email || "",
+            phone: invClient.phone || rawSelected.phone || "",
+            address: invClient.address || rawSelected.address || "",
+            postalCode: invClient.postalCode || rawSelected.zip || rawSelected.postalCode || "",
+            city: invClient.city || rawSelected.city || ""
+        };
         const initialInv = {
             ...inv,
-            client: clientFallback,
-            clientName: inv.clientName || clientFallback.companyName || `${clientFallback.firstName || ''} ${clientFallback.lastName || ''}`.trim() || "Client",
-            clientEmail: inv.clientEmail || clientFallback.email || "",
-            clientPhone: inv.clientPhone || clientFallback.phone || "",
-            clientAddress: inv.clientAddress || clientFallback.address || "",
+            client: resolvedClient,
             linkedDevis: inv.linkedDevis || inv.linkedQuote || inv.sourceQuote || null
         };
         setActiveInvoiceForDrawer(initialInv);
@@ -268,10 +279,22 @@ function ClientPage() {
             try {
                 const res = await apiFetch(`/v1/invoices/${inv.id}`);
                 if (res?.data?.invoice) {
+                    const fetchedInv = res.data.invoice;
+                    const fetchedClient = fetchedInv.client || {};
                     setActiveInvoiceForDrawer({
-                        ...res.data.invoice,
-                        client: res.data.invoice.client || clientFallback,
-                        linkedDevis: res.data.invoice.linkedDevis || res.data.invoice.linkedQuote || res.data.invoice.sourceQuote
+                        ...fetchedInv,
+                        client: {
+                            ...fetchedClient,
+                            companyName: fetchedClient.companyName || rawSelected.companyName || (rawSelected.type === 'organisation' ? rawSelected.name : "") || "",
+                            firstName: fetchedClient.firstName || rawSelected.firstName || "",
+                            lastName: fetchedClient.lastName || rawSelected.lastName || (rawSelected.type !== 'organisation' ? rawSelected.name : "") || "",
+                            email: fetchedClient.email || rawSelected.email || "",
+                            phone: fetchedClient.phone || rawSelected.phone || "",
+                            address: fetchedClient.address || rawSelected.address || "",
+                            postalCode: fetchedClient.postalCode || rawSelected.zip || rawSelected.postalCode || "",
+                            city: fetchedClient.city || rawSelected.city || ""
+                        },
+                        linkedDevis: fetchedInv.linkedDevis || fetchedInv.linkedQuote || fetchedInv.sourceQuote
                     });
                 }
             } catch (e) {
@@ -282,14 +305,22 @@ function ClientPage() {
 
     const handleOpenQuoteDrawer = async (q) => {
         if (!q) return;
-        const clientFallback = q.client || selectedClient || {};
+        const rawSelected = selectedClient || {};
+        const qClient = q.client || {};
+        const resolvedClient = {
+            ...qClient,
+            companyName: qClient.companyName || rawSelected.companyName || (rawSelected.type === 'organisation' ? rawSelected.name : "") || "",
+            firstName: qClient.firstName || rawSelected.firstName || "",
+            lastName: qClient.lastName || rawSelected.lastName || (rawSelected.type !== 'organisation' ? rawSelected.name : "") || "",
+            email: qClient.email || rawSelected.email || "",
+            phone: qClient.phone || rawSelected.phone || "",
+            address: qClient.address || rawSelected.address || "",
+            postalCode: qClient.postalCode || rawSelected.zip || rawSelected.postalCode || "",
+            city: qClient.city || rawSelected.city || ""
+        };
         const initialQuote = {
             ...q,
-            client: clientFallback,
-            clientName: q.clientName || clientFallback.companyName || `${clientFallback.firstName || ''} ${clientFallback.lastName || ''}`.trim() || "Client",
-            clientEmail: q.clientEmail || clientFallback.email || "",
-            clientPhone: q.clientPhone || clientFallback.phone || "",
-            clientAddress: q.clientAddress || clientFallback.address || "",
+            client: resolvedClient,
             linkedFacture: q.linkedFacture || q.linkedInvoice || (q.invoices && q.invoices[0]) || null
         };
         setActiveQuoteForDrawer(initialQuote);
@@ -297,15 +328,99 @@ function ClientPage() {
             try {
                 const res = await apiFetch(`/v1/quotes/${q.id}`);
                 if (res?.data?.quote) {
+                    const fetchedQ = res.data.quote;
+                    const fetchedClient = fetchedQ.client || {};
                     setActiveQuoteForDrawer({
-                        ...res.data.quote,
-                        client: res.data.quote.client || clientFallback,
-                        linkedFacture: res.data.quote.linkedFacture || res.data.quote.linkedInvoice || (res.data.quote.invoices && res.data.quote.invoices[0])
+                        ...fetchedQ,
+                        client: {
+                            ...fetchedClient,
+                            companyName: fetchedClient.companyName || rawSelected.companyName || (rawSelected.type === 'organisation' ? rawSelected.name : "") || "",
+                            firstName: fetchedClient.firstName || rawSelected.firstName || "",
+                            lastName: fetchedClient.lastName || rawSelected.lastName || (rawSelected.type !== 'organisation' ? rawSelected.name : "") || "",
+                            email: fetchedClient.email || rawSelected.email || "",
+                            phone: fetchedClient.phone || rawSelected.phone || "",
+                            address: fetchedClient.address || rawSelected.address || "",
+                            postalCode: fetchedClient.postalCode || rawSelected.zip || rawSelected.postalCode || "",
+                            city: fetchedClient.city || rawSelected.city || ""
+                        },
+                        linkedFacture: fetchedQ.linkedFacture || fetchedQ.linkedInvoice || (fetchedQ.invoices && fetchedQ.invoices[0])
                     });
                 }
             } catch (e) {
                 console.warn("[FETCH_QUOTE_DETAILS_WARN]", e.message);
             }
+        }
+    };
+
+    const handleDownloadInvoicePdf = async (inv, customOverride = null) => {
+        try {
+            const token = getAuthToken();
+            const targetInv = inv || activeInvoiceForDrawer || pdfModalInvoice;
+            if (!targetInv?.id) {
+                window.print();
+                return;
+            }
+            let endpointUrl = `/v1/invoices/${targetInv.id}/pdf`;
+            if (customOverride) {
+                const cleanCustom = { ...customOverride };
+                if (cleanCustom.logoUrl && cleanCustom.logoUrl.startsWith('data:')) delete cleanCustom.logoUrl;
+                if (cleanCustom.signatureUrl && cleanCustom.signatureUrl.startsWith('data:')) delete cleanCustom.signatureUrl;
+                const customParam = encodeURIComponent(JSON.stringify(cleanCustom));
+                endpointUrl += `?customization=${customParam}`;
+            }
+            const res = await fetch(getApiUrl(endpointUrl), {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error("Erreur téléchargement PDF");
+            const blob = await res.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            console.error("Erreur téléchargement PDF facture:", err);
+            window.print();
+        }
+    };
+
+    const handleDownloadQuotePdf = async (q, customOverride = null) => {
+        try {
+            const token = getAuthToken();
+            const targetQ = q || activeQuoteForDrawer || pdfModalQuote;
+            if (!targetQ?.id) {
+                window.print();
+                return;
+            }
+            let endpointUrl = `/v1/quotes/${targetQ.id}/pdf`;
+            if (customOverride) {
+                const cleanCustom = { ...customOverride };
+                if (cleanCustom.logoUrl && cleanCustom.logoUrl.startsWith('data:')) delete cleanCustom.logoUrl;
+                if (cleanCustom.signatureUrl && cleanCustom.signatureUrl.startsWith('data:')) delete cleanCustom.signatureUrl;
+                const customParam = encodeURIComponent(JSON.stringify(cleanCustom));
+                endpointUrl += `?customization=${customParam}`;
+            }
+            const res = await fetch(getApiUrl(endpointUrl), {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error("Erreur téléchargement PDF");
+            const blob = await res.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `Devis_${(targetQ.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            console.error("Erreur téléchargement PDF devis:", err);
+            window.print();
         }
     };
 
@@ -624,8 +739,8 @@ function ClientPage() {
                                     detailTab={detailTab}
                                     setDetailTab={setDetailTab}
                                     onEdit={handleOpenEdit}
-                                    onOpenInvoice={(inv) => setActiveInvoiceForDrawer(inv)}
-                                    onOpenQuote={(q) => setActiveQuoteForDrawer(q)}
+                                    onOpenInvoice={handleOpenInvoiceDrawer}
+                                    onOpenQuote={handleOpenQuoteDrawer}
                                 />
                             ) : (
                                 <>
@@ -800,7 +915,7 @@ function ClientPage() {
                 <InvoicePdfView
                     invoice={pdfModalInvoice}
                     onClose={() => setPdfModalInvoice(null)}
-                    onDownload={() => window.print()}
+                    onDownload={handleDownloadInvoicePdf}
                 />
             )}
 
@@ -808,7 +923,7 @@ function ClientPage() {
                 <QuotePdfView
                     quote={pdfModalQuote}
                     onClose={() => setPdfModalQuote(null)}
-                    onDownload={() => window.print()}
+                    onDownload={handleDownloadQuotePdf}
                 />
             )}
 

@@ -132,7 +132,7 @@ export const menuSections = [
         category: "GESTION",
         items: [
             { title: "Techniciens", path: "/techniciens", iconKey: "techniciens", proOnly: true },
-            { title: "Messages", path: "/messages", iconKey: "messages", badge: 2 },
+            { title: "Messages", path: "/messages", iconKey: "messages" },
             { title: "Factures", path: "/factures", iconKey: "factures" },
             { title: "Paiements", path: "/payments", iconKey: "paiements" },
             { title: "Devis", path: "/devis", iconKey: "devis" },

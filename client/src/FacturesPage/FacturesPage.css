@@ -1290,7 +1290,7 @@
 }
 
 .pdf-viewer-overlay {
-    z-index: 1300 !important;
+    z-index: 99999 !important;
     background-color: rgba(0, 0, 0, 0.75);
     flex-direction: column;
     justify-content: flex-start;

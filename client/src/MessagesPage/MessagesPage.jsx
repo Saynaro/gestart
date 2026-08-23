@@ -40,6 +40,8 @@ import Header from "../components/Header";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 import QuotePdfView from "../DevisPage/components/QuotePdfView";
 import { apiFetch } from "../utils/api";
+import { getAuthToken } from "../utils/auth";
+import { getApiUrl } from "../utils/config";
 import { getSocket } from "../utils/socket";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../components/ChannelIcons";
 
@@ -266,12 +268,23 @@ function MessagesPage() {
       setIsLoadingChats(true);
       const res = await apiFetch("/v1/messages/inbox");
       const convList = res.data?.conversations || [];
+      convList.sort((a, b) => {
+        const timeA = new Date(a.lastMessage?.createdAt || a.time || 0).getTime();
+        const timeB = new Date(b.lastMessage?.createdAt || b.time || 0).getTime();
+        return timeB - timeA;
+      });
       setChats(convList);
     } catch (err) {
       // Fallback sur /v1/sms/inbox
       try {
         const resFallback = await apiFetch("/v1/sms/inbox");
-        setChats(resFallback.data?.conversations || []);
+        const list = resFallback.data?.conversations || [];
+        list.sort((a, b) => {
+          const timeA = new Date(a.lastMessage?.createdAt || a.time || 0).getTime();
+          const timeB = new Date(b.lastMessage?.createdAt || b.time || 0).getTime();
+          return timeB - timeA;
+        });
+        setChats(list);
       } catch (e) {
         console.warn("[MESSAGES] Erreur chargement boite:", e.message);
       }
@@ -319,12 +332,12 @@ function MessagesPage() {
         const res = await apiFetch(`/v1/messages/inbox/${activeChatIdParam}`);
         if (res.success && res.data) {
           setSelectedClientData(res.data.client);
-          
+
           // Deduplicate messages by ID to prevent any duplicate keys
           const rawMsgs = res.data.messages || [];
           const uniqueMsgs = Array.from(new Map(rawMsgs.map(m => [m.id || m.twilioSid || m.whatsappMessageId || Math.random(), m])).values());
           setMessages(uniqueMsgs);
-          
+
           setChannelAvailability(res.data.channels || {});
           setRecommendationReason(res.data.recommendationReason || "");
 
@@ -343,6 +356,7 @@ function MessagesPage() {
           try {
             await apiFetch(`/v1/messages/read/${activeChatIdParam}`, { method: "PATCH" });
             setChats(prev => prev.map(c => (c.clientId === activeChatIdParam || c.id === activeChatIdParam) ? { ...c, unreadCount: 0 } : c));
+            window.dispatchEvent(new Event("messages-read"));
           } catch (e) {
             console.warn("Erreur marquage lecture:", e.message);
           }
@@ -390,7 +404,7 @@ function MessagesPage() {
 
         // Marquer comme lu immédiatement si nous sommes sur cette conversation
         if (message.direction === "INCOMING") {
-          apiFetch(`/v1/messages/read/${clientId}`, { method: "PATCH" }).catch(() => {});
+          apiFetch(`/v1/messages/read/${clientId}`, { method: "PATCH" }).catch(() => { });
         }
       }
 
@@ -431,6 +445,7 @@ function MessagesPage() {
     const handleReadUpdate = (payload) => {
       const { clientId } = payload;
       setChats(prev => prev.map(c => (c.clientId === clientId || c.id === clientId) ? { ...c, unreadCount: 0 } : c));
+      window.dispatchEvent(new Event("messages-read"));
     };
 
     socket.on("message:new", handleNewMessage);
@@ -561,43 +576,146 @@ function MessagesPage() {
     const isInvoice = explicitType === "invoice" || item.type === "invoice" || item.invoiceId || (item.filename && item.filename.toLowerCase().startsWith("facture_")) || (item.name && item.name.toLowerCase().startsWith("facture_"));
 
     const docId = item.id || item.quoteId || item.invoiceId;
-    const docNumber = item.number || (item.filename ? item.filename.replace(/^(Devis_|Facture_)/i, "").replace(/\.pdf$/i, "") : null);
+    let docNumber = item.number;
+    if (!docNumber && (item.filename || item.name)) {
+      docNumber = (item.filename || item.name).replace(/^(Devis_|Facture_)/i, "").replace(/\.pdf$/i, "");
+    }
+
+    const targetClient = item.client || activeChat?.client || clientObj || {};
 
     try {
       if (isQuote) {
-        if (item.lines && item.client) {
+        // 1. If item already has full lines and client
+        if (item.lines && item.lines.length > 0 && item.client) {
           setPreviewQuote(item);
           return;
         }
-        if (docId) {
-          const res = await apiFetch(`/v1/quotes/${docId}`);
-          if (res.success && res.data) {
-            setPreviewQuote(res.data);
+        // 2. Fetch full quote by ID
+        if (docId && typeof docId === "string" && docId.length > 10) {
+          try {
+            const res = await apiFetch(`/v1/quotes/${docId}`);
+            const q = res?.data?.quote || res?.quote || res?.data;
+            if (q && q.id) {
+              setPreviewQuote({
+                ...q,
+                client: q.client || targetClient
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn("[FETCH_QUOTE_PREVIEW_WARN]", e.message);
+          }
+        }
+        // 3. Search in clientObj.quotes
+        const found = clientObj.quotes?.find(q => q.id === docId || (docNumber && q.number === docNumber));
+        if (found) {
+          try {
+            const detailedRes = await apiFetch(`/v1/quotes/${found.id}`);
+            const q = detailedRes?.data?.quote || detailedRes?.quote || detailedRes?.data || found;
+            setPreviewQuote({
+              ...q,
+              client: q.client || targetClient
+            });
+            return;
+          } catch {
+            setPreviewQuote({
+              ...found,
+              client: found.client || targetClient
+            });
             return;
           }
         }
-        const found = clientObj.quotes?.find(q => q.id === docId || q.number === docNumber);
-        if (found) {
-          const detailedRes = await apiFetch(`/v1/quotes/${found.id}`);
-          setPreviewQuote(detailedRes?.data || found);
+        // 4. Fallback search by number
+        if (docNumber) {
+          try {
+            const resSearch = await apiFetch(`/v1/quotes?search=${encodeURIComponent(docNumber)}`);
+            const quotes = resSearch?.data?.quotes || resSearch?.quotes || [];
+            const matched = quotes.find(q => q.number === docNumber);
+            if (matched) {
+              const detailedRes = await apiFetch(`/v1/quotes/${matched.id}`);
+              const q = detailedRes?.data?.quote || detailedRes?.quote || detailedRes?.data || matched;
+              setPreviewQuote({
+                ...q,
+                client: q.client || targetClient
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn("[SEARCH_QUOTE_WARN]", e.message);
+          }
         }
+        // 5. Direct fallback
+        setPreviewQuote({
+          ...item,
+          number: docNumber || item.number || "Devis",
+          client: targetClient
+        });
       } else if (isInvoice) {
-        if (item.lines && item.client) {
+        // 1. If item already has full lines and client
+        if (item.lines && item.lines.length > 0 && item.client) {
           setPreviewInvoice(item);
           return;
         }
-        if (docId) {
-          const res = await apiFetch(`/v1/invoices/${docId}`);
-          if (res.success && res.data) {
-            setPreviewInvoice(res.data);
+        // 2. Fetch full invoice by ID
+        if (docId && typeof docId === "string" && docId.length > 10) {
+          try {
+            const res = await apiFetch(`/v1/invoices/${docId}`);
+            const inv = res?.data?.invoice || res?.invoice || res?.data;
+            if (inv && inv.id) {
+              setPreviewInvoice({
+                ...inv,
+                client: inv.client || targetClient
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn("[FETCH_INVOICE_PREVIEW_WARN]", e.message);
+          }
+        }
+        // 3. Search in clientObj.invoices
+        const found = clientObj.invoices?.find(inv => inv.id === docId || (docNumber && inv.number === docNumber));
+        if (found) {
+          try {
+            const detailedRes = await apiFetch(`/v1/invoices/${found.id}`);
+            const inv = detailedRes?.data?.invoice || detailedRes?.invoice || detailedRes?.data || found;
+            setPreviewInvoice({
+              ...inv,
+              client: inv.client || targetClient
+            });
+            return;
+          } catch {
+            setPreviewInvoice({
+              ...found,
+              client: found.client || targetClient
+            });
             return;
           }
         }
-        const found = clientObj.invoices?.find(inv => inv.id === docId || inv.number === docNumber);
-        if (found) {
-          const detailedRes = await apiFetch(`/v1/invoices/${found.id}`);
-          setPreviewInvoice(detailedRes?.data || found);
+        // 4. Fallback search by number
+        if (docNumber) {
+          try {
+            const resSearch = await apiFetch(`/v1/invoices?search=${encodeURIComponent(docNumber)}`);
+            const invoices = resSearch?.data?.invoices || resSearch?.invoices || [];
+            const matched = invoices.find(inv => inv.number === docNumber);
+            if (matched) {
+              const detailedRes = await apiFetch(`/v1/invoices/${matched.id}`);
+              const inv = detailedRes?.data?.invoice || detailedRes?.invoice || detailedRes?.data || matched;
+              setPreviewInvoice({
+                ...inv,
+                client: inv.client || targetClient
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn("[SEARCH_INVOICE_WARN]", e.message);
+          }
         }
+        // 5. Direct fallback
+        setPreviewInvoice({
+          ...item,
+          number: docNumber || item.number || "Facture",
+          client: targetClient
+        });
       }
     } catch (e) {
       console.error("[PREVIEW_DOC_ERROR]", e);
@@ -605,25 +723,31 @@ function MessagesPage() {
   };
 
   // Filter conversations list
-  const filteredChats = chats.filter(chat => {
-    // 1. Channel Filter
-    if (filterChannel === "UNREAD" && (!chat.unreadCount || chat.unreadCount === 0)) return false;
-    if (filterChannel === "SMS" && chat.channel !== "SMS") return false;
-    if (filterChannel === "WHATSAPP" && chat.channel !== "WHATSAPP") return false;
-    if (filterChannel === "EMAIL" && chat.channel !== "EMAIL") return false;
+  const filteredChats = chats
+    .filter(chat => {
+      // 1. Channel Filter
+      if (filterChannel === "UNREAD" && (!chat.unreadCount || chat.unreadCount === 0)) return false;
+      if (filterChannel === "SMS" && chat.channel !== "SMS") return false;
+      if (filterChannel === "WHATSAPP" && chat.channel !== "WHATSAPP") return false;
+      if (filterChannel === "EMAIL" && chat.channel !== "EMAIL") return false;
 
-    // 2. Search Filter
-    if (searchTerm.trim()) {
-      const q = searchTerm.toLowerCase();
-      const name = (chat.name || "").toLowerCase();
-      const phone = (chat.client?.phone || "").toLowerCase();
-      const email = (chat.client?.email || "").toLowerCase();
-      const preview = (chat.lastMessage?.body || chat.lastMessage?.subject || "").toLowerCase();
-      return name.includes(q) || phone.includes(q) || email.includes(q) || preview.includes(q);
-    }
+      // 2. Search Filter
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        const name = (chat.name || "").toLowerCase();
+        const phone = (chat.client?.phone || "").toLowerCase();
+        const email = (chat.client?.email || "").toLowerCase();
+        const preview = (chat.lastMessage?.body || chat.lastMessage?.subject || "").toLowerCase();
+        return name.includes(q) || phone.includes(q) || email.includes(q) || preview.includes(q);
+      }
 
-    return true;
-  });
+      return true;
+    })
+    .sort((a, b) => {
+      const timeA = new Date(a.lastMessage?.createdAt || a.time || 0).getTime();
+      const timeB = new Date(b.lastMessage?.createdAt || b.time || 0).getTime();
+      return timeB - timeA;
+    });
 
   const filteredContactsList = crmClientsList.filter(client => {
     const fullName = `${client.firstName || ''} ${client.lastName || ''}`.toLowerCase();
@@ -952,6 +1076,7 @@ function MessagesPage() {
         ) : (
           filteredChats.map((chat, idx) => {
             const isSelected = activeChatIdParam === (chat.clientId || chat.id);
+            const isUnread = (chat.unreadCount || 0) > 0;
             const previewText = chat.lastMessage?.subject
               ? `[${chat.lastMessage.subject}] ${chat.lastMessage?.body || ''}`
               : (chat.lastMessage?.body || "Discussion démarrée");
@@ -961,12 +1086,11 @@ function MessagesPage() {
             return (
               <div
                 key={chat.clientId ? `chat_${chat.clientId}` : (chat.id ? `chat_${chat.id}` : `chat_${idx}`)}
-                className={`chat-item ${isSelected ? "active" : ""}`}
+                className={`chat-item ${isSelected ? "active" : ""} ${isUnread ? "unread" : ""}`}
                 onClick={() => handleSelectChat(chat.clientId || chat.id)}
               >
                 <div className="chat-avatar-wrapper">
                   <div className="chat-avatar">{getInitials(chat.name)}</div>
-                  <span className="online-indicator" title="Actif"></span>
                 </div>
                 <div className="chat-meta">
                   <div className="chat-meta-row">
@@ -978,7 +1102,7 @@ function MessagesPage() {
                       {renderChannelBadge(lastChannel, "sm")}
                       <p className="chat-preview" style={{ margin: 0 }}>{previewText}</p>
                     </div>
-                    {chat.unreadCount > 0 && <span className="chat-unread-badge">{chat.unreadCount}</span>}
+                    {isUnread && <span className="chat-unread-badge">{chat.unreadCount}</span>}
                   </div>
                 </div>
               </div>
@@ -1072,7 +1196,7 @@ function MessagesPage() {
                     if (res.success && res.data) {
                       setMessages(res.data.messages || []);
                     }
-                  }).catch(() => {});
+                  }).catch(() => { });
                 }
               }}
             >
@@ -1142,13 +1266,13 @@ function MessagesPage() {
                 onClick={() => setActiveDetailMessage(activeDetailMessage?.id === msg.id ? null : msg)}
               >
                 <div className={`message-bubble ${isEmail ? "email-bubble-card" : ""} ${isWhatsApp ? "whatsapp-bubble-card" : ""}`}>
-                  
+
                   {/* Channel Header Indicator */}
                   <div className="bubble-channel-header">
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       {renderChannelBadge(channel, "sm")}
                       <span className="bubble-author-name">
-                        {isMe ? "Vous (CRM)" : activeClientName}
+                        {isMe ? "Vous" : activeClientName}
                       </span>
                     </div>
                     {msg.autoType && msg.autoType !== "manual" && (
@@ -1159,7 +1283,7 @@ function MessagesPage() {
                   {/* Email Specific Subject Header */}
                   {isEmail && msg.subject && (
                     <div className="email-bubble-subject">
-                      <Mail size={13} style={{ color: "#3b82f6", flexShrink: 0 }} />
+                      <Mail size={13} style={{ color: "#556B2F", flexShrink: 0 }} />
                       <strong>Objet : {msg.subject}</strong>
                     </div>
                   )}
@@ -1246,7 +1370,7 @@ function MessagesPage() {
 
       {/* Adaptive Omnichannel Composer */}
       <div className={`omnichannel-composer-container ${selectedChannel === "EMAIL" ? "email-mode" : ""}`}>
-        
+
         {/* Composer Controls Bar */}
         <div className="composer-top-bar">
           {/* Smart Channel Selector Dropdown */}
@@ -1485,7 +1609,7 @@ function MessagesPage() {
                 <X size={20} />
               </button>
             </div>
-            
+
             <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
               <p style={{ fontSize: "13px", color: "var(--foreground)", margin: 0, fontWeight: 500 }}>
                 Documents de <strong>{activeClientName}</strong> :
@@ -1505,9 +1629,11 @@ function MessagesPage() {
                         key={q.id}
                         className="attachment-pick-item"
                       >
-                        <FileText size={18} style={{ color: "var(--sidebar-primary)", flexShrink: 0 }} />
+                        <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(85, 107, 47, 0.12)", color: "#556B2F" }}>
+                          <FileText size={19} />
+                        </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Devis {q.number}</div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--foreground)" }}>Devis {q.number}</div>
                           <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
                             Montant : <strong style={{ color: "var(--foreground)" }}>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
                           </div>
@@ -1522,18 +1648,18 @@ function MessagesPage() {
                               handleOpenDocPreview(q, "quote");
                             }}
                           >
-                            <Eye size={15} />
+                            <Eye size={16} />
                           </button>
                           <button
                             type="button"
                             className="attachment-join-btn"
-                            style={{ color: "var(--sidebar-primary)", backgroundColor: "rgba(91, 77, 219, 0.08)" }}
+                            style={{ color: "#ffffff", backgroundColor: "#556B2F", boxShadow: "0 2px 8px rgba(85, 107, 47, 0.25)" }}
                             onClick={() => {
                               setEmailAttachments(prev => [...prev, { filename: `Devis_${q.number}.pdf`, id: q.id, quoteId: q.id, type: "quote", number: q.number, total: q.amountTTC ?? q.totalTtc ?? q.total ?? 0, ...q }]);
                               setIsAttachModalOpen(false);
                             }}
                           >
-                            Joindre
+                            <Plus size={14} /> Joindre
                           </button>
                         </div>
                       </div>
@@ -1554,9 +1680,11 @@ function MessagesPage() {
                         key={inv.id}
                         className="attachment-pick-item"
                       >
-                        <FileText size={18} style={{ color: "#22c55e", flexShrink: 0 }} />
+                        <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#16a34a" }}>
+                          <FileText size={19} />
+                        </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Facture {inv.number}</div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--foreground)" }}>Facture {inv.number}</div>
                           <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
                             Montant : <strong style={{ color: "var(--foreground)" }}>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
                           </div>
@@ -1571,18 +1699,18 @@ function MessagesPage() {
                               handleOpenDocPreview(inv, "invoice");
                             }}
                           >
-                            <Eye size={15} />
+                            <Eye size={16} />
                           </button>
                           <button
                             type="button"
                             className="attachment-join-btn"
-                            style={{ color: "#22c55e", backgroundColor: "rgba(34, 197, 94, 0.08)" }}
+                            style={{ color: "#ffffff", backgroundColor: "#16a34a", boxShadow: "0 2px 8px rgba(22, 163, 74, 0.25)" }}
                             onClick={() => {
                               setEmailAttachments(prev => [...prev, { filename: `Facture_${inv.number}.pdf`, id: inv.id, invoiceId: inv.id, type: "invoice", number: inv.number, total: inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0, ...inv }]);
                               setIsAttachModalOpen(false);
                             }}
                           >
-                            Joindre
+                            <Plus size={14} /> Joindre
                           </button>
                         </div>
                       </div>
@@ -1786,6 +1914,74 @@ function MessagesPage() {
             <X size={28} />
           </button>
         </div>
+      )}
+      {/* Document PDF Previews */}
+      {previewQuote && (
+        <QuotePdfView
+          quote={previewQuote}
+          onClose={() => setPreviewQuote(null)}
+          onDownload={async (q) => {
+            const targetQ = q || previewQuote;
+            if (targetQ?.id && typeof targetQ.id === "string" && targetQ.id.length > 10) {
+              const token = getAuthToken();
+              try {
+                const res = await fetch(getApiUrl(`/v1/quotes/${targetQ.id}/pdf`), {
+                  headers: token ? { Authorization: `Bearer ${token}` } : {},
+                  credentials: "include"
+                });
+                if (res.ok) {
+                  const blob = await res.blob();
+                  const blobUrl = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = blobUrl;
+                  link.download = `Devis_${(targetQ.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(blobUrl);
+                  return;
+                }
+              } catch (err) {
+                console.error("Erreur téléchargement PDF devis:", err);
+              }
+            }
+            window.print();
+          }}
+        />
+      )}
+
+      {previewInvoice && (
+        <InvoicePdfView
+          invoice={previewInvoice}
+          onClose={() => setPreviewInvoice(null)}
+          onDownload={async (inv) => {
+            const targetInv = inv || previewInvoice;
+            if (targetInv?.id && typeof targetInv.id === "string" && targetInv.id.length > 10) {
+              const token = getAuthToken();
+              try {
+                const res = await fetch(getApiUrl(`/v1/invoices/${targetInv.id}/pdf`), {
+                  headers: token ? { Authorization: `Bearer ${token}` } : {},
+                  credentials: "include"
+                });
+                if (res.ok) {
+                  const blob = await res.blob();
+                  const blobUrl = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = blobUrl;
+                  link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(blobUrl);
+                  return;
+                }
+              } catch (err) {
+                console.error("Erreur téléchargement PDF facture:", err);
+              }
+            }
+            window.print();
+          }}
+        />
       )}
     </div>
   );

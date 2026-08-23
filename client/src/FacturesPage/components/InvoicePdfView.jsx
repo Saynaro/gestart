@@ -22,6 +22,18 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
     const companyIban = company?.settings?.bankIban || company?.bankIban || company?.iban || invoice.company?.settings?.bankIban || invoice.company?.bankIban || "";
     const companySignature = company?.signatureUrl || company?.signature || company?.settings?.signatureUrl || company?.settings?.signature;
 
+    const rawInvoiceDate = invoice.issuedAt || invoice.date || invoice.createdAt;
+    const formattedInvoiceDate = rawInvoiceDate ? new Date(rawInvoiceDate).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
+    
+    const rawInvoiceDueDate = invoice.dueAt || invoice.dueDate || (rawInvoiceDate ? new Date(new Date(rawInvoiceDate).getTime() + (invoice.paymentDelay || 30) * 86400000) : null);
+    const formattedInvoiceDueDate = rawInvoiceDueDate ? new Date(rawInvoiceDueDate).toLocaleDateString('fr-FR') : formattedInvoiceDate;
+
+    const client = invoice.client || {};
+    const clientDisplayName = client.companyName || `${client.firstName || ''} ${client.lastName || ''}`.trim() || invoice.clientName || "Client";
+    const clientDisplayAddress = client.address || invoice.clientAddress || (client.city ? `${client.postalCode || ''} ${client.city}` : "");
+    const clientDisplayEmail = client.email || invoice.clientEmail || "";
+    const clientDisplayPhone = client.phone || invoice.clientPhone || "";
+
     const invoiceLines = (invoice.lines || []).map(l => ({
         ...l,
         qty: Number(l.quantity || l.qty || 1),
@@ -56,7 +68,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
     const resetZoom = () => setZoom(isMobile ? 0.65 : 1.0);
 
     return (
-        <div className="invoice-modal-overlay pdf-viewer-overlay">
+        <div className="invoice-modal-overlay pdf-viewer-overlay" style={{ zIndex: 99999 }}>
             <div className="pdf-viewer-top-bar">
                 <div className="pdf-viewer-top-bar-inner">
                     <div className="pdf-top-row">
@@ -236,8 +248,8 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                     }}
                                 >
                                     <div><strong>Numéro : </strong> {invoice.number || `INV-${invoice.id}`}</div>
-                                    <div><strong>Date : </strong> {new Date(invoice.date).toLocaleDateString("fr-FR")}</div>
-                                    <div><strong>Échéance : </strong> {new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}</div>
+                                    <div><strong>Date : </strong> {formattedInvoiceDate}</div>
+                                    <div><strong>Échéance : </strong> {formattedInvoiceDueDate}</div>
                                 </div>
 
                                 {docCustomization.clientBoxPosition === "right" ? (
@@ -260,10 +272,10 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             <span style={{ fontSize: "0.78em", fontWeight: 700, opacity: 0.65, letterSpacing: "0.5px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
                                                 FACTURÉ À :
                                             </span>
-                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{invoice.clientName}</div>
-                                            {invoice.clientAddress && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{invoice.clientAddress}</div>}
-                                            {invoice.clientEmail && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{invoice.clientEmail}</div>}
-                                            {invoice.clientPhone && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{invoice.clientPhone}</div>}
+                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                            {clientDisplayAddress && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{clientDisplayAddress}</div>}
+                                            {clientDisplayEmail && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{clientDisplayEmail}</div>}
+                                            {clientDisplayPhone && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{clientDisplayPhone}</div>}
                                         </div>
                                     </div>
                                 ) : (
@@ -285,10 +297,10 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             <span style={{ fontSize: "0.78em", fontWeight: 700, opacity: 0.65, letterSpacing: "0.5px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
                                                 FACTURÉ À :
                                             </span>
-                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{invoice.clientName}</div>
-                                            {invoice.clientAddress && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{invoice.clientAddress}</div>}
-                                            {invoice.clientEmail && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{invoice.clientEmail}</div>}
-                                            {invoice.clientPhone && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{invoice.clientPhone}</div>}
+                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                            {clientDisplayAddress && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{clientDisplayAddress}</div>}
+                                            {clientDisplayEmail && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{clientDisplayEmail}</div>}
+                                            {clientDisplayPhone && <div style={{ fontSize: "0.9em", opacity: 0.85 }}>{clientDisplayPhone}</div>}
                                         </div>
                                     </div>
                                 )}
@@ -358,7 +370,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                         FACTURE N° {invoice.number || `INV-${invoice.id}`}
                                                     </div>
                                                     <div style={{ fontSize: "0.88em", opacity: 0.85 }}>
-                                                        Date : <strong>{new Date(invoice.date).toLocaleDateString("fr-FR")}</strong> • Échéance : <strong>{new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}</strong>
+                                                        Date : <strong>{formattedInvoiceDate}</strong> • Échéance : <strong>{formattedInvoiceDueDate}</strong>
                                                     </div>
                                                 </div>
                                             </div>
@@ -383,7 +395,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                         FACTURE N° {invoice.number || `INV-${invoice.id}`}
                                                     </div>
                                                     <div style={{ fontSize: "0.88em", opacity: 0.85 }}>
-                                                        Date : <strong>{new Date(invoice.date).toLocaleDateString("fr-FR")}</strong> • Échéance : <strong>{new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}</strong>
+                                                        Date : <strong>{formattedInvoiceDate}</strong> • Échéance : <strong>{formattedInvoiceDueDate}</strong>
                                                     </div>
                                                 </div>
                                             </div>
@@ -467,10 +479,10 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             <span style={{ fontSize: "0.78em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
                                                 FACTURÉ À :
                                             </span>
-                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{invoice.clientName}</div>
-                                            {invoice.clientAddress && <div>{invoice.clientAddress}</div>}
-                                            {invoice.clientEmail && <div>{invoice.clientEmail}</div>}
-                                            {invoice.clientPhone && <div>{invoice.clientPhone}</div>}
+                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                            {clientDisplayAddress && <div>{clientDisplayAddress}</div>}
+                                            {clientDisplayEmail && <div>{clientDisplayEmail}</div>}
+                                            {clientDisplayPhone && <div>{clientDisplayPhone}</div>}
                                         </div>
                                     </div>
                                 ) : (
@@ -509,10 +521,10 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             <span style={{ fontSize: "0.78em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
                                                 FACTURÉ À :
                                             </span>
-                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{invoice.clientName}</div>
-                                            {invoice.clientAddress && <div>{invoice.clientAddress}</div>}
-                                            {invoice.clientEmail && <div>{invoice.clientEmail}</div>}
-                                            {invoice.clientPhone && <div>{invoice.clientPhone}</div>}
+                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                            {clientDisplayAddress && <div>{clientDisplayAddress}</div>}
+                                            {clientDisplayEmail && <div>{clientDisplayEmail}</div>}
+                                            {clientDisplayPhone && <div>{clientDisplayPhone}</div>}
                                         </div>
                                     </div>
                                 )}
@@ -550,7 +562,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                     FACTURE
                                                 </h1>
                                                 <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                                                    N° {invoice.number || `INV-${invoice.id}`} • {new Date(invoice.date).toLocaleDateString("fr-FR")}
+                                                    N° {invoice.number || `INV-${invoice.id}`} • {formattedInvoiceDate}
                                                 </div>
                                             </div>
                                         </>
@@ -561,7 +573,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                     FACTURE
                                                 </h1>
                                                 <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                                                    N° {invoice.number || `INV-${invoice.id}`} • {new Date(invoice.date).toLocaleDateString("fr-FR")}
+                                                    N° {invoice.number || `INV-${invoice.id}`} • {formattedInvoiceDate}
                                                 </div>
                                             </div>
 
@@ -601,10 +613,10 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             <span style={{ fontSize: "0.78em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", letterSpacing: "1px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
                                                 FACTURÉ À :
                                             </span>
-                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{invoice.clientName}</div>
-                                            {invoice.clientAddress && <div style={{ color: "#4A4A4A" }}>{invoice.clientAddress}</div>}
-                                            {invoice.clientEmail && <div style={{ color: "#4A4A4A" }}>{invoice.clientEmail}</div>}
-                                            {invoice.clientPhone && <div style={{ color: "#4A4A4A" }}>{invoice.clientPhone}</div>}
+                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                            {clientDisplayAddress && <div style={{ color: "#4A4A4A" }}>{clientDisplayAddress}</div>}
+                                            {clientDisplayEmail && <div style={{ color: "#4A4A4A" }}>{clientDisplayEmail}</div>}
+                                            {clientDisplayPhone && <div style={{ color: "#4A4A4A" }}>{clientDisplayPhone}</div>}
                                         </div>
                                     </div>
                                 ) : (
@@ -620,10 +632,10 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             <span style={{ fontSize: "0.78em", fontWeight: 700, color: docCustomization.primaryColor || "#556B2F", letterSpacing: "1px", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
                                                 FACTURÉ À :
                                             </span>
-                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{invoice.clientName}</div>
-                                            {invoice.clientAddress && <div style={{ color: "#4A4A4A" }}>{invoice.clientAddress}</div>}
-                                            {invoice.clientEmail && <div style={{ color: "#4A4A4A" }}>{invoice.clientEmail}</div>}
-                                            {invoice.clientPhone && <div style={{ color: "#4A4A4A" }}>{invoice.clientPhone}</div>}
+                                            <div style={{ fontWeight: 700, fontSize: "1.05em", color: "#1A1A1A" }}>{clientDisplayName}</div>
+                                            {clientDisplayAddress && <div style={{ color: "#4A4A4A" }}>{clientDisplayAddress}</div>}
+                                            {clientDisplayEmail && <div style={{ color: "#4A4A4A" }}>{clientDisplayEmail}</div>}
+                                            {clientDisplayPhone && <div style={{ color: "#4A4A4A" }}>{clientDisplayPhone}</div>}
                                         </div>
                                     </div>
                                 )}
@@ -692,11 +704,11 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                         </tr>
                                                         <tr>
                                                             <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Date :</strong></td>
-                                                            <td>{new Date(invoice.date).toLocaleDateString("fr-FR")}</td>
+                                                            <td>{formattedInvoiceDate}</td>
                                                         </tr>
                                                         <tr>
                                                             <td style={{ textAlign: "right", paddingRight: "6px" }}><strong>Échéance :</strong></td>
-                                                            <td>{new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}</td>
+                                                            <td>{formattedInvoiceDueDate}</td>
                                                         </tr>
                                                         {docCustomization.showDeliveryDate && invoice.deliveryDate && (
                                                             <tr>
@@ -720,11 +732,11 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                         </tr>
                                                         <tr>
                                                             <td style={{ textAlign: "left", paddingRight: "6px" }}><strong>Date :</strong></td>
-                                                            <td>{new Date(invoice.date).toLocaleDateString("fr-FR")}</td>
+                                                            <td>{formattedInvoiceDate}</td>
                                                         </tr>
                                                         <tr>
                                                             <td style={{ textAlign: "left", paddingRight: "6px" }}><strong>Échéance :</strong></td>
-                                                            <td>{new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}</td>
+                                                            <td>{formattedInvoiceDueDate}</td>
                                                         </tr>
                                                         {docCustomization.showDeliveryDate && invoice.deliveryDate && (
                                                             <tr>
@@ -806,21 +818,21 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                 FACTURÉ À :
                                             </span>
                                             <h4 className="client-name" style={{ fontSize: "1.1em", fontWeight: 700, margin: 0, color: "#1A1A1A", lineHeight: 1.3 }}>
-                                                {invoice.clientName}
+                                                {clientDisplayName}
                                             </h4>
-                                            {invoice.clientAddress && (
+                                            {clientDisplayAddress && (
                                                 <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                                    {invoice.clientAddress}
+                                                    {clientDisplayAddress}
                                                 </div>
                                             )}
-                                            {invoice.clientEmail && (
+                                            {clientDisplayEmail && (
                                                 <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                                    {invoice.clientEmail}
+                                                    {clientDisplayEmail}
                                                 </div>
                                             )}
-                                            {invoice.clientPhone && (
+                                            {clientDisplayPhone && (
                                                 <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                                    {invoice.clientPhone}
+                                                    {clientDisplayPhone}
                                                 </div>
                                             )}
                                         </div>
@@ -845,21 +857,21 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                             FACTURÉ À :
                                         </span>
                                         <h4 className="client-name" style={{ fontSize: "1.1em", fontWeight: 700, margin: 0, color: "#1A1A1A", lineHeight: 1.3 }}>
-                                            {invoice.clientName}
+                                            {clientDisplayName}
                                         </h4>
-                                        {invoice.clientAddress && (
+                                        {clientDisplayAddress && (
                                             <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                                {invoice.clientAddress}
+                                                {clientDisplayAddress}
                                             </div>
                                         )}
-                                        {invoice.clientEmail && (
+                                        {clientDisplayEmail && (
                                             <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                                {invoice.clientEmail}
+                                                {clientDisplayEmail}
                                             </div>
                                         )}
-                                        {invoice.clientPhone && (
+                                        {clientDisplayPhone && (
                                             <div style={{ fontSize: "0.92em", opacity: 0.85, lineHeight: 1.35 }}>
-                                                {invoice.clientPhone}
+                                                {clientDisplayPhone}
                                             </div>
                                         )}
                                     </div>
@@ -988,7 +1000,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                                     style={{ maxHeight: "36px", maxWidth: "90%", objectFit: "contain" }} 
                                                 />
                                                 <span style={{ fontSize: "7pt", color: "#16a34a", fontWeight: 600, marginTop: "2px" }}>
-                                                    ✓ Signé le {new Date(invoice.paidAt || invoice.date || invoice.createdAt || Date.now()).toLocaleDateString("fr-FR")}
+                                                    ✓ Signé le {new Date(invoice.paidAt || rawInvoiceDate || Date.now()).toLocaleDateString("fr-FR")}
                                                 </span>
                                             </div>
                                         ) : (
@@ -1047,7 +1059,7 @@ function InvoicePdfView({ invoice, onClose, onDownload }) {
                                 </div>
                             )}
                             <div className="legal-notes">
-                                <strong>Conditions de paiement : </strong> {invoice.paymentConditions || "Paiement à 30 jours"} (Échéance le {new Date(invoice.dueDate || invoice.date).toLocaleDateString("fr-FR")}).<br />
+                                <strong>Conditions de paiement : </strong> {invoice.paymentConditions || "Paiement à 30 jours"} (Échéance le {formattedInvoiceDueDate}).<br />
                                 <strong>Pénalités de retard : </strong> En cas de retard de paiement, application d'un taux d'intérêt égal au taux de la BCE majoré de 10 points de pourcentage.<br />
                                 <strong>Indemnité forfaitaire pour frais de recouvrement : </strong> 40 € dus de plein droit par tout professionnel.<br />
                                 {invoice.tvaRate === 0 && <span style={{ fontWeight: 700, color: "#556B2F" }}>TVA non applicable — art. 293 B du CGI.</span>}

@@ -283,6 +283,13 @@ export const OmnichannelService = {
             };
         });
 
+        // Tri par date du dernier message (le plus récent en premier)
+        conversations.sort((a, b) => {
+            const timeA = new Date(a.time || a.lastMessage?.createdAt || 0).getTime();
+            const timeB = new Date(b.time || b.lastMessage?.createdAt || 0).getTime();
+            return timeB - timeA;
+        });
+
         return { conversations };
     },
 
@@ -309,10 +316,7 @@ export const OmnichannelService = {
                     include: {
                         lines: { orderBy: { position: "asc" } },
                         client: true,
-                        company: true,
-                        sourceQuote: {
-                            include: { client: true, lines: true }
-                        }
+                        company: true
                     },
                     orderBy: { createdAt: "desc" },
                     take: 25
@@ -322,10 +326,7 @@ export const OmnichannelService = {
                     include: {
                         lines: { orderBy: { position: "asc" } },
                         client: true,
-                        company: true,
-                        invoices: {
-                            include: { client: true, lines: true }
-                        }
+                        company: true
                     },
                     orderBy: { createdAt: "desc" },
                     take: 25

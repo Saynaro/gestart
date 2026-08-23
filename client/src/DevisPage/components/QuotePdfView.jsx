@@ -68,7 +68,7 @@ function QuotePdfView({ quote, onClose, onDownload }) {
     const resetZoom = () => setZoom(isMobile ? 0.65 : 1.0);
 
     return (
-        <div className="invoice-modal-overlay pdf-viewer-overlay">
+        <div className="invoice-modal-overlay pdf-viewer-overlay" style={{ zIndex: 99999 }}>
             <div className="pdf-viewer-top-bar">
                 <div className="pdf-viewer-top-bar-inner">
                     <div className="pdf-top-row">
@@ -1053,7 +1053,7 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                                 </div>
                             )}
                             <div className="legal-notes">
-                                <strong>Conditions de paiement : </strong> {quote.paymentConditions || "Paiement à 30 jours"} (Échéance le {new Date(quote.dueDate || quote.date).toLocaleDateString("fr-FR")}).<br />
+                                <strong>Conditions de paiement : </strong> {quote.paymentConditions || "Paiement à 30 jours"} (Échéance le {formattedQuoteDueDate}).<br />
                                 <strong>Validité du devis : </strong> 30 jours à compter de la date d'émission (art. L. 221-5 et L. 111-1 C.conso). Devis gratuit avant exécution des travaux (art. L. 111-3 C.conso).<br />
                                 <strong>Conditions d'exécution : </strong> Les travaux débuteront après signature du devis accompagné d'un acompte.<br />
                                 {quote.tvaRate === 0 && <span style={{ fontWeight: 700, color: "#556B2F" }}>TVA non applicable — art. 293 B du CGI.</span>}

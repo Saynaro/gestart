@@ -129,6 +129,16 @@ export type InvoiceLine = $Result.DefaultSelection<Prisma.$InvoiceLinePayload>
  */
 export type SmsLog = $Result.DefaultSelection<Prisma.$SmsLogPayload>
 /**
+ * Model WhatsAppConnection
+ * 
+ */
+export type WhatsAppConnection = $Result.DefaultSelection<Prisma.$WhatsAppConnectionPayload>
+/**
+ * Model EmailConnection
+ * 
+ */
+export type EmailConnection = $Result.DefaultSelection<Prisma.$EmailConnectionPayload>
+/**
  * Model SmsUsage
  * 
  */
@@ -1024,6 +1034,26 @@ export class PrismaClient<
   get smsLog(): Prisma.SmsLogDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.whatsAppConnection`: Exposes CRUD operations for the **WhatsAppConnection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WhatsAppConnections
+    * const whatsAppConnections = await prisma.whatsAppConnection.findMany()
+    * ```
+    */
+  get whatsAppConnection(): Prisma.WhatsAppConnectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.emailConnection`: Exposes CRUD operations for the **EmailConnection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailConnections
+    * const emailConnections = await prisma.emailConnection.findMany()
+    * ```
+    */
+  get emailConnection(): Prisma.EmailConnectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.smsUsage`: Exposes CRUD operations for the **SmsUsage** model.
     * Example usage:
     * ```ts
@@ -1679,6 +1709,8 @@ export namespace Prisma {
     Invoice: 'Invoice',
     InvoiceLine: 'InvoiceLine',
     SmsLog: 'SmsLog',
+    WhatsAppConnection: 'WhatsAppConnection',
+    EmailConnection: 'EmailConnection',
     SmsUsage: 'SmsUsage',
     Notification: 'Notification',
     QuoteRequest: 'QuoteRequest',
@@ -1714,7 +1746,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob" | "invoiceTransaction" | "stripeFeeConfig" | "bankConnection" | "bankAccount" | "bankTransaction"
+      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "whatsAppConnection" | "emailConnection" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob" | "invoiceTransaction" | "stripeFeeConfig" | "bankConnection" | "bankAccount" | "bankTransaction"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3420,6 +3452,154 @@ export namespace Prisma {
           }
         }
       }
+      WhatsAppConnection: {
+        payload: Prisma.$WhatsAppConnectionPayload<ExtArgs>
+        fields: Prisma.WhatsAppConnectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WhatsAppConnectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WhatsAppConnectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>
+          }
+          findFirst: {
+            args: Prisma.WhatsAppConnectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WhatsAppConnectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>
+          }
+          findMany: {
+            args: Prisma.WhatsAppConnectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>[]
+          }
+          create: {
+            args: Prisma.WhatsAppConnectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>
+          }
+          createMany: {
+            args: Prisma.WhatsAppConnectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WhatsAppConnectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>[]
+          }
+          delete: {
+            args: Prisma.WhatsAppConnectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>
+          }
+          update: {
+            args: Prisma.WhatsAppConnectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.WhatsAppConnectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WhatsAppConnectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WhatsAppConnectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.WhatsAppConnectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppConnectionPayload>
+          }
+          aggregate: {
+            args: Prisma.WhatsAppConnectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWhatsAppConnection>
+          }
+          groupBy: {
+            args: Prisma.WhatsAppConnectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WhatsAppConnectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WhatsAppConnectionCountArgs<ExtArgs>
+            result: $Utils.Optional<WhatsAppConnectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmailConnection: {
+        payload: Prisma.$EmailConnectionPayload<ExtArgs>
+        fields: Prisma.EmailConnectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailConnectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailConnectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailConnectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailConnectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>
+          }
+          findMany: {
+            args: Prisma.EmailConnectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>[]
+          }
+          create: {
+            args: Prisma.EmailConnectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>
+          }
+          createMany: {
+            args: Prisma.EmailConnectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailConnectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailConnectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>
+          }
+          update: {
+            args: Prisma.EmailConnectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailConnectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailConnectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmailConnectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmailConnectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailConnectionPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailConnectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmailConnection>
+          }
+          groupBy: {
+            args: Prisma.EmailConnectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailConnectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailConnectionCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailConnectionCountAggregateOutputType> | number
+          }
+        }
+      }
       SmsUsage: {
         payload: Prisma.$SmsUsagePayload<ExtArgs>
         fields: Prisma.SmsUsageFieldRefs
@@ -5031,6 +5211,8 @@ export namespace Prisma {
     invoice?: InvoiceOmit
     invoiceLine?: InvoiceLineOmit
     smsLog?: SmsLogOmit
+    whatsAppConnection?: WhatsAppConnectionOmit
+    emailConnection?: EmailConnectionOmit
     smsUsage?: SmsUsageOmit
     notification?: NotificationOmit
     quoteRequest?: QuoteRequestOmit
@@ -5168,6 +5350,8 @@ export namespace Prisma {
     invoices: number
     quotes: number
     smsLogs: number
+    whatsappConnections: number
+    emailConnections: number
     notifications: number
     invitations: number
     smsUsage: number
@@ -5193,6 +5377,8 @@ export namespace Prisma {
     invoices?: boolean | CompanyCountOutputTypeCountInvoicesArgs
     quotes?: boolean | CompanyCountOutputTypeCountQuotesArgs
     smsLogs?: boolean | CompanyCountOutputTypeCountSmsLogsArgs
+    whatsappConnections?: boolean | CompanyCountOutputTypeCountWhatsappConnectionsArgs
+    emailConnections?: boolean | CompanyCountOutputTypeCountEmailConnectionsArgs
     notifications?: boolean | CompanyCountOutputTypeCountNotificationsArgs
     invitations?: boolean | CompanyCountOutputTypeCountInvitationsArgs
     smsUsage?: boolean | CompanyCountOutputTypeCountSmsUsageArgs
@@ -5262,6 +5448,20 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountSmsLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SmsLogWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountWhatsappConnectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WhatsAppConnectionWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountEmailConnectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailConnectionWhereInput
   }
 
   /**
@@ -5846,6 +6046,68 @@ export namespace Prisma {
    */
   export type InvoiceCountOutputTypeCountEinvoicingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EInvoicingEventWhereInput
+  }
+
+
+  /**
+   * Count Type WhatsAppConnectionCountOutputType
+   */
+
+  export type WhatsAppConnectionCountOutputType = {
+    messages: number
+  }
+
+  export type WhatsAppConnectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    messages?: boolean | WhatsAppConnectionCountOutputTypeCountMessagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * WhatsAppConnectionCountOutputType without action
+   */
+  export type WhatsAppConnectionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnectionCountOutputType
+     */
+    select?: WhatsAppConnectionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * WhatsAppConnectionCountOutputType without action
+   */
+  export type WhatsAppConnectionCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsLogWhereInput
+  }
+
+
+  /**
+   * Count Type EmailConnectionCountOutputType
+   */
+
+  export type EmailConnectionCountOutputType = {
+    messages: number
+  }
+
+  export type EmailConnectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    messages?: boolean | EmailConnectionCountOutputTypeCountMessagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * EmailConnectionCountOutputType without action
+   */
+  export type EmailConnectionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnectionCountOutputType
+     */
+    select?: EmailConnectionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * EmailConnectionCountOutputType without action
+   */
+  export type EmailConnectionCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsLogWhereInput
   }
 
 
@@ -7701,6 +7963,8 @@ export namespace Prisma {
     invoices?: boolean | Company$invoicesArgs<ExtArgs>
     quotes?: boolean | Company$quotesArgs<ExtArgs>
     smsLogs?: boolean | Company$smsLogsArgs<ExtArgs>
+    whatsappConnections?: boolean | Company$whatsappConnectionsArgs<ExtArgs>
+    emailConnections?: boolean | Company$emailConnectionsArgs<ExtArgs>
     notifications?: boolean | Company$notificationsArgs<ExtArgs>
     invitations?: boolean | Company$invitationsArgs<ExtArgs>
     subscription?: boolean | Company$subscriptionArgs<ExtArgs>
@@ -7835,6 +8099,8 @@ export namespace Prisma {
     invoices?: boolean | Company$invoicesArgs<ExtArgs>
     quotes?: boolean | Company$quotesArgs<ExtArgs>
     smsLogs?: boolean | Company$smsLogsArgs<ExtArgs>
+    whatsappConnections?: boolean | Company$whatsappConnectionsArgs<ExtArgs>
+    emailConnections?: boolean | Company$emailConnectionsArgs<ExtArgs>
     notifications?: boolean | Company$notificationsArgs<ExtArgs>
     invitations?: boolean | Company$invitationsArgs<ExtArgs>
     subscription?: boolean | Company$subscriptionArgs<ExtArgs>
@@ -7870,6 +8136,8 @@ export namespace Prisma {
       invoices: Prisma.$InvoicePayload<ExtArgs>[]
       quotes: Prisma.$QuotePayload<ExtArgs>[]
       smsLogs: Prisma.$SmsLogPayload<ExtArgs>[]
+      whatsappConnections: Prisma.$WhatsAppConnectionPayload<ExtArgs>[]
+      emailConnections: Prisma.$EmailConnectionPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       invitations: Prisma.$InvitationPayload<ExtArgs>[]
       subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
@@ -8324,6 +8592,8 @@ export namespace Prisma {
     invoices<T extends Company$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, Company$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotes<T extends Company$quotesArgs<ExtArgs> = {}>(args?: Subset<T, Company$quotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     smsLogs<T extends Company$smsLogsArgs<ExtArgs> = {}>(args?: Subset<T, Company$smsLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    whatsappConnections<T extends Company$whatsappConnectionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$whatsappConnectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    emailConnections<T extends Company$emailConnectionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$emailConnectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends Company$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Company$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invitations<T extends Company$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Company$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends Company$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Company$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -8939,6 +9209,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * Company.whatsappConnections
+   */
+  export type Company$whatsappConnectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    where?: WhatsAppConnectionWhereInput
+    orderBy?: WhatsAppConnectionOrderByWithRelationInput | WhatsAppConnectionOrderByWithRelationInput[]
+    cursor?: WhatsAppConnectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WhatsAppConnectionScalarFieldEnum | WhatsAppConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * Company.emailConnections
+   */
+  export type Company$emailConnectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    where?: EmailConnectionWhereInput
+    orderBy?: EmailConnectionOrderByWithRelationInput | EmailConnectionOrderByWithRelationInput[]
+    cursor?: EmailConnectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmailConnectionScalarFieldEnum | EmailConnectionScalarFieldEnum[]
   }
 
   /**
@@ -35821,10 +36139,23 @@ export namespace Prisma {
     toEmail: string | null
     isRead: boolean | null
     readAt: Date | null
+    deliveredAt: Date | null
     twilioSid: string | null
+    whatsappMessageId: string | null
+    emailMessageId: string | null
+    externalMessageId: string | null
     status: string | null
+    whatsAppConnectionId: string | null
+    emailConnectionId: string | null
+    threadId: string | null
+    inReplyTo: string | null
+    references: string | null
     autoType: string | null
+    templateName: string | null
+    errorCode: string | null
+    errorMessage: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type SmsLogMaxAggregateOutputType = {
@@ -35841,10 +36172,23 @@ export namespace Prisma {
     toEmail: string | null
     isRead: boolean | null
     readAt: Date | null
+    deliveredAt: Date | null
     twilioSid: string | null
+    whatsappMessageId: string | null
+    emailMessageId: string | null
+    externalMessageId: string | null
     status: string | null
+    whatsAppConnectionId: string | null
+    emailConnectionId: string | null
+    threadId: string | null
+    inReplyTo: string | null
+    references: string | null
     autoType: string | null
+    templateName: string | null
+    errorCode: string | null
+    errorMessage: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type SmsLogCountAggregateOutputType = {
@@ -35861,10 +36205,25 @@ export namespace Prisma {
     toEmail: number
     isRead: number
     readAt: number
+    deliveredAt: number
     twilioSid: number
+    whatsappMessageId: number
+    emailMessageId: number
+    externalMessageId: number
     status: number
+    whatsAppConnectionId: number
+    emailConnectionId: number
+    threadId: number
+    inReplyTo: number
+    references: number
+    attachments: number
     autoType: number
+    templateName: number
+    errorCode: number
+    errorMessage: number
+    metadata: number
     createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -35883,10 +36242,23 @@ export namespace Prisma {
     toEmail?: true
     isRead?: true
     readAt?: true
+    deliveredAt?: true
     twilioSid?: true
+    whatsappMessageId?: true
+    emailMessageId?: true
+    externalMessageId?: true
     status?: true
+    whatsAppConnectionId?: true
+    emailConnectionId?: true
+    threadId?: true
+    inReplyTo?: true
+    references?: true
     autoType?: true
+    templateName?: true
+    errorCode?: true
+    errorMessage?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type SmsLogMaxAggregateInputType = {
@@ -35903,10 +36275,23 @@ export namespace Prisma {
     toEmail?: true
     isRead?: true
     readAt?: true
+    deliveredAt?: true
     twilioSid?: true
+    whatsappMessageId?: true
+    emailMessageId?: true
+    externalMessageId?: true
     status?: true
+    whatsAppConnectionId?: true
+    emailConnectionId?: true
+    threadId?: true
+    inReplyTo?: true
+    references?: true
     autoType?: true
+    templateName?: true
+    errorCode?: true
+    errorMessage?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type SmsLogCountAggregateInputType = {
@@ -35923,10 +36308,25 @@ export namespace Prisma {
     toEmail?: true
     isRead?: true
     readAt?: true
+    deliveredAt?: true
     twilioSid?: true
+    whatsappMessageId?: true
+    emailMessageId?: true
+    externalMessageId?: true
     status?: true
+    whatsAppConnectionId?: true
+    emailConnectionId?: true
+    threadId?: true
+    inReplyTo?: true
+    references?: true
+    attachments?: true
     autoType?: true
+    templateName?: true
+    errorCode?: true
+    errorMessage?: true
+    metadata?: true
     createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -36016,10 +36416,25 @@ export namespace Prisma {
     toEmail: string | null
     isRead: boolean
     readAt: Date | null
+    deliveredAt: Date | null
     twilioSid: string | null
+    whatsappMessageId: string | null
+    emailMessageId: string | null
+    externalMessageId: string | null
     status: string | null
+    whatsAppConnectionId: string | null
+    emailConnectionId: string | null
+    threadId: string | null
+    inReplyTo: string | null
+    references: string | null
+    attachments: JsonValue | null
     autoType: string | null
+    templateName: string | null
+    errorCode: string | null
+    errorMessage: string | null
+    metadata: JsonValue | null
     createdAt: Date
+    updatedAt: Date
     _count: SmsLogCountAggregateOutputType | null
     _min: SmsLogMinAggregateOutputType | null
     _max: SmsLogMaxAggregateOutputType | null
@@ -36053,12 +36468,29 @@ export namespace Prisma {
     toEmail?: boolean
     isRead?: boolean
     readAt?: boolean
+    deliveredAt?: boolean
     twilioSid?: boolean
+    whatsappMessageId?: boolean
+    emailMessageId?: boolean
+    externalMessageId?: boolean
     status?: boolean
+    whatsAppConnectionId?: boolean
+    emailConnectionId?: boolean
+    threadId?: boolean
+    inReplyTo?: boolean
+    references?: boolean
+    attachments?: boolean
     autoType?: boolean
+    templateName?: boolean
+    errorCode?: boolean
+    errorMessage?: boolean
+    metadata?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
+    emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
   }, ExtArgs["result"]["smsLog"]>
 
   export type SmsLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -36075,12 +36507,29 @@ export namespace Prisma {
     toEmail?: boolean
     isRead?: boolean
     readAt?: boolean
+    deliveredAt?: boolean
     twilioSid?: boolean
+    whatsappMessageId?: boolean
+    emailMessageId?: boolean
+    externalMessageId?: boolean
     status?: boolean
+    whatsAppConnectionId?: boolean
+    emailConnectionId?: boolean
+    threadId?: boolean
+    inReplyTo?: boolean
+    references?: boolean
+    attachments?: boolean
     autoType?: boolean
+    templateName?: boolean
+    errorCode?: boolean
+    errorMessage?: boolean
+    metadata?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
+    emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
   }, ExtArgs["result"]["smsLog"]>
 
   export type SmsLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -36097,12 +36546,29 @@ export namespace Prisma {
     toEmail?: boolean
     isRead?: boolean
     readAt?: boolean
+    deliveredAt?: boolean
     twilioSid?: boolean
+    whatsappMessageId?: boolean
+    emailMessageId?: boolean
+    externalMessageId?: boolean
     status?: boolean
+    whatsAppConnectionId?: boolean
+    emailConnectionId?: boolean
+    threadId?: boolean
+    inReplyTo?: boolean
+    references?: boolean
+    attachments?: boolean
     autoType?: boolean
+    templateName?: boolean
+    errorCode?: boolean
+    errorMessage?: boolean
+    metadata?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
+    emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
   }, ExtArgs["result"]["smsLog"]>
 
   export type SmsLogSelectScalar = {
@@ -36119,24 +36585,45 @@ export namespace Prisma {
     toEmail?: boolean
     isRead?: boolean
     readAt?: boolean
+    deliveredAt?: boolean
     twilioSid?: boolean
+    whatsappMessageId?: boolean
+    emailMessageId?: boolean
+    externalMessageId?: boolean
     status?: boolean
+    whatsAppConnectionId?: boolean
+    emailConnectionId?: boolean
+    threadId?: boolean
+    inReplyTo?: boolean
+    references?: boolean
+    attachments?: boolean
     autoType?: boolean
+    templateName?: boolean
+    errorCode?: boolean
+    errorMessage?: boolean
+    metadata?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type SmsLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "direction" | "channel" | "body" | "subject" | "fromNumber" | "toNumber" | "fromEmail" | "toEmail" | "isRead" | "readAt" | "twilioSid" | "status" | "autoType" | "createdAt", ExtArgs["result"]["smsLog"]>
+  export type SmsLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "direction" | "channel" | "body" | "subject" | "fromNumber" | "toNumber" | "fromEmail" | "toEmail" | "isRead" | "readAt" | "deliveredAt" | "twilioSid" | "whatsappMessageId" | "emailMessageId" | "externalMessageId" | "status" | "whatsAppConnectionId" | "emailConnectionId" | "threadId" | "inReplyTo" | "references" | "attachments" | "autoType" | "templateName" | "errorCode" | "errorMessage" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["smsLog"]>
   export type SmsLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
+    emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
   }
   export type SmsLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
+    emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
   }
   export type SmsLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
+    whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
+    emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
   }
 
   export type $SmsLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -36144,6 +36631,8 @@ export namespace Prisma {
     objects: {
       company: Prisma.$CompanyPayload<ExtArgs>
       client: Prisma.$ClientPayload<ExtArgs>
+      whatsAppConnection: Prisma.$WhatsAppConnectionPayload<ExtArgs> | null
+      emailConnection: Prisma.$EmailConnectionPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -36159,10 +36648,25 @@ export namespace Prisma {
       toEmail: string | null
       isRead: boolean
       readAt: Date | null
+      deliveredAt: Date | null
       twilioSid: string | null
+      whatsappMessageId: string | null
+      emailMessageId: string | null
+      externalMessageId: string | null
       status: string | null
+      whatsAppConnectionId: string | null
+      emailConnectionId: string | null
+      threadId: string | null
+      inReplyTo: string | null
+      references: string | null
+      attachments: Prisma.JsonValue | null
       autoType: string | null
+      templateName: string | null
+      errorCode: string | null
+      errorMessage: string | null
+      metadata: Prisma.JsonValue | null
       createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["smsLog"]>
     composites: {}
   }
@@ -36559,6 +37063,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    whatsAppConnection<T extends SmsLog$whatsAppConnectionArgs<ExtArgs> = {}>(args?: Subset<T, SmsLog$whatsAppConnectionArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    emailConnection<T extends SmsLog$emailConnectionArgs<ExtArgs> = {}>(args?: Subset<T, SmsLog$emailConnectionArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -36601,10 +37107,25 @@ export namespace Prisma {
     readonly toEmail: FieldRef<"SmsLog", 'String'>
     readonly isRead: FieldRef<"SmsLog", 'Boolean'>
     readonly readAt: FieldRef<"SmsLog", 'DateTime'>
+    readonly deliveredAt: FieldRef<"SmsLog", 'DateTime'>
     readonly twilioSid: FieldRef<"SmsLog", 'String'>
+    readonly whatsappMessageId: FieldRef<"SmsLog", 'String'>
+    readonly emailMessageId: FieldRef<"SmsLog", 'String'>
+    readonly externalMessageId: FieldRef<"SmsLog", 'String'>
     readonly status: FieldRef<"SmsLog", 'String'>
+    readonly whatsAppConnectionId: FieldRef<"SmsLog", 'String'>
+    readonly emailConnectionId: FieldRef<"SmsLog", 'String'>
+    readonly threadId: FieldRef<"SmsLog", 'String'>
+    readonly inReplyTo: FieldRef<"SmsLog", 'String'>
+    readonly references: FieldRef<"SmsLog", 'String'>
+    readonly attachments: FieldRef<"SmsLog", 'Json'>
     readonly autoType: FieldRef<"SmsLog", 'String'>
+    readonly templateName: FieldRef<"SmsLog", 'String'>
+    readonly errorCode: FieldRef<"SmsLog", 'String'>
+    readonly errorMessage: FieldRef<"SmsLog", 'String'>
+    readonly metadata: FieldRef<"SmsLog", 'Json'>
     readonly createdAt: FieldRef<"SmsLog", 'DateTime'>
+    readonly updatedAt: FieldRef<"SmsLog", 'DateTime'>
   }
     
 
@@ -37006,6 +37527,44 @@ export namespace Prisma {
   }
 
   /**
+   * SmsLog.whatsAppConnection
+   */
+  export type SmsLog$whatsAppConnectionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    where?: WhatsAppConnectionWhereInput
+  }
+
+  /**
+   * SmsLog.emailConnection
+   */
+  export type SmsLog$emailConnectionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    where?: EmailConnectionWhereInput
+  }
+
+  /**
    * SmsLog without action
    */
   export type SmsLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -37021,6 +37580,2512 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SmsLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WhatsAppConnection
+   */
+
+  export type AggregateWhatsAppConnection = {
+    _count: WhatsAppConnectionCountAggregateOutputType | null
+    _min: WhatsAppConnectionMinAggregateOutputType | null
+    _max: WhatsAppConnectionMaxAggregateOutputType | null
+  }
+
+  export type WhatsAppConnectionMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    name: string | null
+    phoneNumberId: string | null
+    wabaId: string | null
+    displayPhoneNumber: string | null
+    verifiedName: string | null
+    qualityRating: string | null
+    encryptedAccessToken: string | null
+    status: string | null
+    isDefault: boolean | null
+    webhookVerified: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WhatsAppConnectionMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    name: string | null
+    phoneNumberId: string | null
+    wabaId: string | null
+    displayPhoneNumber: string | null
+    verifiedName: string | null
+    qualityRating: string | null
+    encryptedAccessToken: string | null
+    status: string | null
+    isDefault: boolean | null
+    webhookVerified: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WhatsAppConnectionCountAggregateOutputType = {
+    id: number
+    companyId: number
+    name: number
+    phoneNumberId: number
+    wabaId: number
+    displayPhoneNumber: number
+    verifiedName: number
+    qualityRating: number
+    encryptedAccessToken: number
+    status: number
+    isDefault: number
+    webhookVerified: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WhatsAppConnectionMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    name?: true
+    phoneNumberId?: true
+    wabaId?: true
+    displayPhoneNumber?: true
+    verifiedName?: true
+    qualityRating?: true
+    encryptedAccessToken?: true
+    status?: true
+    isDefault?: true
+    webhookVerified?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WhatsAppConnectionMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    name?: true
+    phoneNumberId?: true
+    wabaId?: true
+    displayPhoneNumber?: true
+    verifiedName?: true
+    qualityRating?: true
+    encryptedAccessToken?: true
+    status?: true
+    isDefault?: true
+    webhookVerified?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WhatsAppConnectionCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    name?: true
+    phoneNumberId?: true
+    wabaId?: true
+    displayPhoneNumber?: true
+    verifiedName?: true
+    qualityRating?: true
+    encryptedAccessToken?: true
+    status?: true
+    isDefault?: true
+    webhookVerified?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WhatsAppConnectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhatsAppConnection to aggregate.
+     */
+    where?: WhatsAppConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppConnections to fetch.
+     */
+    orderBy?: WhatsAppConnectionOrderByWithRelationInput | WhatsAppConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WhatsAppConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WhatsAppConnections
+    **/
+    _count?: true | WhatsAppConnectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WhatsAppConnectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WhatsAppConnectionMaxAggregateInputType
+  }
+
+  export type GetWhatsAppConnectionAggregateType<T extends WhatsAppConnectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateWhatsAppConnection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWhatsAppConnection[P]>
+      : GetScalarType<T[P], AggregateWhatsAppConnection[P]>
+  }
+
+
+
+
+  export type WhatsAppConnectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WhatsAppConnectionWhereInput
+    orderBy?: WhatsAppConnectionOrderByWithAggregationInput | WhatsAppConnectionOrderByWithAggregationInput[]
+    by: WhatsAppConnectionScalarFieldEnum[] | WhatsAppConnectionScalarFieldEnum
+    having?: WhatsAppConnectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WhatsAppConnectionCountAggregateInputType | true
+    _min?: WhatsAppConnectionMinAggregateInputType
+    _max?: WhatsAppConnectionMaxAggregateInputType
+  }
+
+  export type WhatsAppConnectionGroupByOutputType = {
+    id: string
+    companyId: string
+    name: string
+    phoneNumberId: string
+    wabaId: string | null
+    displayPhoneNumber: string | null
+    verifiedName: string | null
+    qualityRating: string | null
+    encryptedAccessToken: string | null
+    status: string
+    isDefault: boolean
+    webhookVerified: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: WhatsAppConnectionCountAggregateOutputType | null
+    _min: WhatsAppConnectionMinAggregateOutputType | null
+    _max: WhatsAppConnectionMaxAggregateOutputType | null
+  }
+
+  type GetWhatsAppConnectionGroupByPayload<T extends WhatsAppConnectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WhatsAppConnectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WhatsAppConnectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WhatsAppConnectionGroupByOutputType[P]>
+            : GetScalarType<T[P], WhatsAppConnectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WhatsAppConnectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    phoneNumberId?: boolean
+    wabaId?: boolean
+    displayPhoneNumber?: boolean
+    verifiedName?: boolean
+    qualityRating?: boolean
+    encryptedAccessToken?: boolean
+    status?: boolean
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    messages?: boolean | WhatsAppConnection$messagesArgs<ExtArgs>
+    _count?: boolean | WhatsAppConnectionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whatsAppConnection"]>
+
+  export type WhatsAppConnectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    phoneNumberId?: boolean
+    wabaId?: boolean
+    displayPhoneNumber?: boolean
+    verifiedName?: boolean
+    qualityRating?: boolean
+    encryptedAccessToken?: boolean
+    status?: boolean
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whatsAppConnection"]>
+
+  export type WhatsAppConnectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    phoneNumberId?: boolean
+    wabaId?: boolean
+    displayPhoneNumber?: boolean
+    verifiedName?: boolean
+    qualityRating?: boolean
+    encryptedAccessToken?: boolean
+    status?: boolean
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whatsAppConnection"]>
+
+  export type WhatsAppConnectionSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    phoneNumberId?: boolean
+    wabaId?: boolean
+    displayPhoneNumber?: boolean
+    verifiedName?: boolean
+    qualityRating?: boolean
+    encryptedAccessToken?: boolean
+    status?: boolean
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WhatsAppConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "name" | "phoneNumberId" | "wabaId" | "displayPhoneNumber" | "verifiedName" | "qualityRating" | "encryptedAccessToken" | "status" | "isDefault" | "webhookVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsAppConnection"]>
+  export type WhatsAppConnectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    messages?: boolean | WhatsAppConnection$messagesArgs<ExtArgs>
+    _count?: boolean | WhatsAppConnectionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type WhatsAppConnectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type WhatsAppConnectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $WhatsAppConnectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WhatsAppConnection"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      messages: Prisma.$SmsLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      name: string
+      phoneNumberId: string
+      wabaId: string | null
+      displayPhoneNumber: string | null
+      verifiedName: string | null
+      qualityRating: string | null
+      encryptedAccessToken: string | null
+      status: string
+      isDefault: boolean
+      webhookVerified: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["whatsAppConnection"]>
+    composites: {}
+  }
+
+  type WhatsAppConnectionGetPayload<S extends boolean | null | undefined | WhatsAppConnectionDefaultArgs> = $Result.GetResult<Prisma.$WhatsAppConnectionPayload, S>
+
+  type WhatsAppConnectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WhatsAppConnectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WhatsAppConnectionCountAggregateInputType | true
+    }
+
+  export interface WhatsAppConnectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WhatsAppConnection'], meta: { name: 'WhatsAppConnection' } }
+    /**
+     * Find zero or one WhatsAppConnection that matches the filter.
+     * @param {WhatsAppConnectionFindUniqueArgs} args - Arguments to find a WhatsAppConnection
+     * @example
+     * // Get one WhatsAppConnection
+     * const whatsAppConnection = await prisma.whatsAppConnection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WhatsAppConnectionFindUniqueArgs>(args: SelectSubset<T, WhatsAppConnectionFindUniqueArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WhatsAppConnection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WhatsAppConnectionFindUniqueOrThrowArgs} args - Arguments to find a WhatsAppConnection
+     * @example
+     * // Get one WhatsAppConnection
+     * const whatsAppConnection = await prisma.whatsAppConnection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WhatsAppConnectionFindUniqueOrThrowArgs>(args: SelectSubset<T, WhatsAppConnectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhatsAppConnection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppConnectionFindFirstArgs} args - Arguments to find a WhatsAppConnection
+     * @example
+     * // Get one WhatsAppConnection
+     * const whatsAppConnection = await prisma.whatsAppConnection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WhatsAppConnectionFindFirstArgs>(args?: SelectSubset<T, WhatsAppConnectionFindFirstArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhatsAppConnection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppConnectionFindFirstOrThrowArgs} args - Arguments to find a WhatsAppConnection
+     * @example
+     * // Get one WhatsAppConnection
+     * const whatsAppConnection = await prisma.whatsAppConnection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WhatsAppConnectionFindFirstOrThrowArgs>(args?: SelectSubset<T, WhatsAppConnectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WhatsAppConnections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppConnectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WhatsAppConnections
+     * const whatsAppConnections = await prisma.whatsAppConnection.findMany()
+     * 
+     * // Get first 10 WhatsAppConnections
+     * const whatsAppConnections = await prisma.whatsAppConnection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const whatsAppConnectionWithIdOnly = await prisma.whatsAppConnection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WhatsAppConnectionFindManyArgs>(args?: SelectSubset<T, WhatsAppConnectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WhatsAppConnection.
+     * @param {WhatsAppConnectionCreateArgs} args - Arguments to create a WhatsAppConnection.
+     * @example
+     * // Create one WhatsAppConnection
+     * const WhatsAppConnection = await prisma.whatsAppConnection.create({
+     *   data: {
+     *     // ... data to create a WhatsAppConnection
+     *   }
+     * })
+     * 
+     */
+    create<T extends WhatsAppConnectionCreateArgs>(args: SelectSubset<T, WhatsAppConnectionCreateArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WhatsAppConnections.
+     * @param {WhatsAppConnectionCreateManyArgs} args - Arguments to create many WhatsAppConnections.
+     * @example
+     * // Create many WhatsAppConnections
+     * const whatsAppConnection = await prisma.whatsAppConnection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WhatsAppConnectionCreateManyArgs>(args?: SelectSubset<T, WhatsAppConnectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WhatsAppConnections and returns the data saved in the database.
+     * @param {WhatsAppConnectionCreateManyAndReturnArgs} args - Arguments to create many WhatsAppConnections.
+     * @example
+     * // Create many WhatsAppConnections
+     * const whatsAppConnection = await prisma.whatsAppConnection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WhatsAppConnections and only return the `id`
+     * const whatsAppConnectionWithIdOnly = await prisma.whatsAppConnection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WhatsAppConnectionCreateManyAndReturnArgs>(args?: SelectSubset<T, WhatsAppConnectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WhatsAppConnection.
+     * @param {WhatsAppConnectionDeleteArgs} args - Arguments to delete one WhatsAppConnection.
+     * @example
+     * // Delete one WhatsAppConnection
+     * const WhatsAppConnection = await prisma.whatsAppConnection.delete({
+     *   where: {
+     *     // ... filter to delete one WhatsAppConnection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WhatsAppConnectionDeleteArgs>(args: SelectSubset<T, WhatsAppConnectionDeleteArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WhatsAppConnection.
+     * @param {WhatsAppConnectionUpdateArgs} args - Arguments to update one WhatsAppConnection.
+     * @example
+     * // Update one WhatsAppConnection
+     * const whatsAppConnection = await prisma.whatsAppConnection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WhatsAppConnectionUpdateArgs>(args: SelectSubset<T, WhatsAppConnectionUpdateArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WhatsAppConnections.
+     * @param {WhatsAppConnectionDeleteManyArgs} args - Arguments to filter WhatsAppConnections to delete.
+     * @example
+     * // Delete a few WhatsAppConnections
+     * const { count } = await prisma.whatsAppConnection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WhatsAppConnectionDeleteManyArgs>(args?: SelectSubset<T, WhatsAppConnectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WhatsAppConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppConnectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WhatsAppConnections
+     * const whatsAppConnection = await prisma.whatsAppConnection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WhatsAppConnectionUpdateManyArgs>(args: SelectSubset<T, WhatsAppConnectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WhatsAppConnections and returns the data updated in the database.
+     * @param {WhatsAppConnectionUpdateManyAndReturnArgs} args - Arguments to update many WhatsAppConnections.
+     * @example
+     * // Update many WhatsAppConnections
+     * const whatsAppConnection = await prisma.whatsAppConnection.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WhatsAppConnections and only return the `id`
+     * const whatsAppConnectionWithIdOnly = await prisma.whatsAppConnection.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WhatsAppConnectionUpdateManyAndReturnArgs>(args: SelectSubset<T, WhatsAppConnectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WhatsAppConnection.
+     * @param {WhatsAppConnectionUpsertArgs} args - Arguments to update or create a WhatsAppConnection.
+     * @example
+     * // Update or create a WhatsAppConnection
+     * const whatsAppConnection = await prisma.whatsAppConnection.upsert({
+     *   create: {
+     *     // ... data to create a WhatsAppConnection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WhatsAppConnection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WhatsAppConnectionUpsertArgs>(args: SelectSubset<T, WhatsAppConnectionUpsertArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WhatsAppConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppConnectionCountArgs} args - Arguments to filter WhatsAppConnections to count.
+     * @example
+     * // Count the number of WhatsAppConnections
+     * const count = await prisma.whatsAppConnection.count({
+     *   where: {
+     *     // ... the filter for the WhatsAppConnections we want to count
+     *   }
+     * })
+    **/
+    count<T extends WhatsAppConnectionCountArgs>(
+      args?: Subset<T, WhatsAppConnectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WhatsAppConnectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WhatsAppConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppConnectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WhatsAppConnectionAggregateArgs>(args: Subset<T, WhatsAppConnectionAggregateArgs>): Prisma.PrismaPromise<GetWhatsAppConnectionAggregateType<T>>
+
+    /**
+     * Group by WhatsAppConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppConnectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WhatsAppConnectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WhatsAppConnectionGroupByArgs['orderBy'] }
+        : { orderBy?: WhatsAppConnectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WhatsAppConnectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWhatsAppConnectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WhatsAppConnection model
+   */
+  readonly fields: WhatsAppConnectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WhatsAppConnection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WhatsAppConnectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    messages<T extends WhatsAppConnection$messagesArgs<ExtArgs> = {}>(args?: Subset<T, WhatsAppConnection$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WhatsAppConnection model
+   */
+  interface WhatsAppConnectionFieldRefs {
+    readonly id: FieldRef<"WhatsAppConnection", 'String'>
+    readonly companyId: FieldRef<"WhatsAppConnection", 'String'>
+    readonly name: FieldRef<"WhatsAppConnection", 'String'>
+    readonly phoneNumberId: FieldRef<"WhatsAppConnection", 'String'>
+    readonly wabaId: FieldRef<"WhatsAppConnection", 'String'>
+    readonly displayPhoneNumber: FieldRef<"WhatsAppConnection", 'String'>
+    readonly verifiedName: FieldRef<"WhatsAppConnection", 'String'>
+    readonly qualityRating: FieldRef<"WhatsAppConnection", 'String'>
+    readonly encryptedAccessToken: FieldRef<"WhatsAppConnection", 'String'>
+    readonly status: FieldRef<"WhatsAppConnection", 'String'>
+    readonly isDefault: FieldRef<"WhatsAppConnection", 'Boolean'>
+    readonly webhookVerified: FieldRef<"WhatsAppConnection", 'Boolean'>
+    readonly createdAt: FieldRef<"WhatsAppConnection", 'DateTime'>
+    readonly updatedAt: FieldRef<"WhatsAppConnection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WhatsAppConnection findUnique
+   */
+  export type WhatsAppConnectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppConnection to fetch.
+     */
+    where: WhatsAppConnectionWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppConnection findUniqueOrThrow
+   */
+  export type WhatsAppConnectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppConnection to fetch.
+     */
+    where: WhatsAppConnectionWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppConnection findFirst
+   */
+  export type WhatsAppConnectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppConnection to fetch.
+     */
+    where?: WhatsAppConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppConnections to fetch.
+     */
+    orderBy?: WhatsAppConnectionOrderByWithRelationInput | WhatsAppConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhatsAppConnections.
+     */
+    cursor?: WhatsAppConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppConnections.
+     */
+    distinct?: WhatsAppConnectionScalarFieldEnum | WhatsAppConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppConnection findFirstOrThrow
+   */
+  export type WhatsAppConnectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppConnection to fetch.
+     */
+    where?: WhatsAppConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppConnections to fetch.
+     */
+    orderBy?: WhatsAppConnectionOrderByWithRelationInput | WhatsAppConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhatsAppConnections.
+     */
+    cursor?: WhatsAppConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppConnections.
+     */
+    distinct?: WhatsAppConnectionScalarFieldEnum | WhatsAppConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppConnection findMany
+   */
+  export type WhatsAppConnectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppConnections to fetch.
+     */
+    where?: WhatsAppConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppConnections to fetch.
+     */
+    orderBy?: WhatsAppConnectionOrderByWithRelationInput | WhatsAppConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WhatsAppConnections.
+     */
+    cursor?: WhatsAppConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppConnections.
+     */
+    distinct?: WhatsAppConnectionScalarFieldEnum | WhatsAppConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppConnection create
+   */
+  export type WhatsAppConnectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WhatsAppConnection.
+     */
+    data: XOR<WhatsAppConnectionCreateInput, WhatsAppConnectionUncheckedCreateInput>
+  }
+
+  /**
+   * WhatsAppConnection createMany
+   */
+  export type WhatsAppConnectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WhatsAppConnections.
+     */
+    data: WhatsAppConnectionCreateManyInput | WhatsAppConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WhatsAppConnection createManyAndReturn
+   */
+  export type WhatsAppConnectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many WhatsAppConnections.
+     */
+    data: WhatsAppConnectionCreateManyInput | WhatsAppConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WhatsAppConnection update
+   */
+  export type WhatsAppConnectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WhatsAppConnection.
+     */
+    data: XOR<WhatsAppConnectionUpdateInput, WhatsAppConnectionUncheckedUpdateInput>
+    /**
+     * Choose, which WhatsAppConnection to update.
+     */
+    where: WhatsAppConnectionWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppConnection updateMany
+   */
+  export type WhatsAppConnectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WhatsAppConnections.
+     */
+    data: XOR<WhatsAppConnectionUpdateManyMutationInput, WhatsAppConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which WhatsAppConnections to update
+     */
+    where?: WhatsAppConnectionWhereInput
+    /**
+     * Limit how many WhatsAppConnections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhatsAppConnection updateManyAndReturn
+   */
+  export type WhatsAppConnectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to update WhatsAppConnections.
+     */
+    data: XOR<WhatsAppConnectionUpdateManyMutationInput, WhatsAppConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which WhatsAppConnections to update
+     */
+    where?: WhatsAppConnectionWhereInput
+    /**
+     * Limit how many WhatsAppConnections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WhatsAppConnection upsert
+   */
+  export type WhatsAppConnectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WhatsAppConnection to update in case it exists.
+     */
+    where: WhatsAppConnectionWhereUniqueInput
+    /**
+     * In case the WhatsAppConnection found by the `where` argument doesn't exist, create a new WhatsAppConnection with this data.
+     */
+    create: XOR<WhatsAppConnectionCreateInput, WhatsAppConnectionUncheckedCreateInput>
+    /**
+     * In case the WhatsAppConnection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WhatsAppConnectionUpdateInput, WhatsAppConnectionUncheckedUpdateInput>
+  }
+
+  /**
+   * WhatsAppConnection delete
+   */
+  export type WhatsAppConnectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+    /**
+     * Filter which WhatsAppConnection to delete.
+     */
+    where: WhatsAppConnectionWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppConnection deleteMany
+   */
+  export type WhatsAppConnectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhatsAppConnections to delete
+     */
+    where?: WhatsAppConnectionWhereInput
+    /**
+     * Limit how many WhatsAppConnections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhatsAppConnection.messages
+   */
+  export type WhatsAppConnection$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    where?: SmsLogWhereInput
+    orderBy?: SmsLogOrderByWithRelationInput | SmsLogOrderByWithRelationInput[]
+    cursor?: SmsLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppConnection without action
+   */
+  export type WhatsAppConnectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppConnection
+     */
+    select?: WhatsAppConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppConnection
+     */
+    omit?: WhatsAppConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppConnectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmailConnection
+   */
+
+  export type AggregateEmailConnection = {
+    _count: EmailConnectionCountAggregateOutputType | null
+    _avg: EmailConnectionAvgAggregateOutputType | null
+    _sum: EmailConnectionSumAggregateOutputType | null
+    _min: EmailConnectionMinAggregateOutputType | null
+    _max: EmailConnectionMaxAggregateOutputType | null
+  }
+
+  export type EmailConnectionAvgAggregateOutputType = {
+    smtpPort: number | null
+  }
+
+  export type EmailConnectionSumAggregateOutputType = {
+    smtpPort: number | null
+  }
+
+  export type EmailConnectionMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: string | null
+    emailAddress: string | null
+    displayName: string | null
+    providerAccountId: string | null
+    encryptedAccessToken: string | null
+    encryptedRefreshToken: string | null
+    tokenExpiresAt: Date | null
+    smtpHost: string | null
+    smtpPort: number | null
+    smtpUser: string | null
+    encryptedSmtpPass: string | null
+    status: string | null
+    isDefault: boolean | null
+    lastSyncAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailConnectionMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    provider: string | null
+    emailAddress: string | null
+    displayName: string | null
+    providerAccountId: string | null
+    encryptedAccessToken: string | null
+    encryptedRefreshToken: string | null
+    tokenExpiresAt: Date | null
+    smtpHost: string | null
+    smtpPort: number | null
+    smtpUser: string | null
+    encryptedSmtpPass: string | null
+    status: string | null
+    isDefault: boolean | null
+    lastSyncAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailConnectionCountAggregateOutputType = {
+    id: number
+    companyId: number
+    provider: number
+    emailAddress: number
+    displayName: number
+    providerAccountId: number
+    encryptedAccessToken: number
+    encryptedRefreshToken: number
+    tokenExpiresAt: number
+    smtpHost: number
+    smtpPort: number
+    smtpUser: number
+    encryptedSmtpPass: number
+    status: number
+    isDefault: number
+    lastSyncAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmailConnectionAvgAggregateInputType = {
+    smtpPort?: true
+  }
+
+  export type EmailConnectionSumAggregateInputType = {
+    smtpPort?: true
+  }
+
+  export type EmailConnectionMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    emailAddress?: true
+    displayName?: true
+    providerAccountId?: true
+    encryptedAccessToken?: true
+    encryptedRefreshToken?: true
+    tokenExpiresAt?: true
+    smtpHost?: true
+    smtpPort?: true
+    smtpUser?: true
+    encryptedSmtpPass?: true
+    status?: true
+    isDefault?: true
+    lastSyncAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailConnectionMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    emailAddress?: true
+    displayName?: true
+    providerAccountId?: true
+    encryptedAccessToken?: true
+    encryptedRefreshToken?: true
+    tokenExpiresAt?: true
+    smtpHost?: true
+    smtpPort?: true
+    smtpUser?: true
+    encryptedSmtpPass?: true
+    status?: true
+    isDefault?: true
+    lastSyncAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailConnectionCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    provider?: true
+    emailAddress?: true
+    displayName?: true
+    providerAccountId?: true
+    encryptedAccessToken?: true
+    encryptedRefreshToken?: true
+    tokenExpiresAt?: true
+    smtpHost?: true
+    smtpPort?: true
+    smtpUser?: true
+    encryptedSmtpPass?: true
+    status?: true
+    isDefault?: true
+    lastSyncAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmailConnectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailConnection to aggregate.
+     */
+    where?: EmailConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailConnections to fetch.
+     */
+    orderBy?: EmailConnectionOrderByWithRelationInput | EmailConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmailConnections
+    **/
+    _count?: true | EmailConnectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmailConnectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmailConnectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailConnectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailConnectionMaxAggregateInputType
+  }
+
+  export type GetEmailConnectionAggregateType<T extends EmailConnectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmailConnection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmailConnection[P]>
+      : GetScalarType<T[P], AggregateEmailConnection[P]>
+  }
+
+
+
+
+  export type EmailConnectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailConnectionWhereInput
+    orderBy?: EmailConnectionOrderByWithAggregationInput | EmailConnectionOrderByWithAggregationInput[]
+    by: EmailConnectionScalarFieldEnum[] | EmailConnectionScalarFieldEnum
+    having?: EmailConnectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailConnectionCountAggregateInputType | true
+    _avg?: EmailConnectionAvgAggregateInputType
+    _sum?: EmailConnectionSumAggregateInputType
+    _min?: EmailConnectionMinAggregateInputType
+    _max?: EmailConnectionMaxAggregateInputType
+  }
+
+  export type EmailConnectionGroupByOutputType = {
+    id: string
+    companyId: string
+    provider: string
+    emailAddress: string
+    displayName: string | null
+    providerAccountId: string | null
+    encryptedAccessToken: string | null
+    encryptedRefreshToken: string | null
+    tokenExpiresAt: Date | null
+    smtpHost: string | null
+    smtpPort: number | null
+    smtpUser: string | null
+    encryptedSmtpPass: string | null
+    status: string
+    isDefault: boolean
+    lastSyncAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EmailConnectionCountAggregateOutputType | null
+    _avg: EmailConnectionAvgAggregateOutputType | null
+    _sum: EmailConnectionSumAggregateOutputType | null
+    _min: EmailConnectionMinAggregateOutputType | null
+    _max: EmailConnectionMaxAggregateOutputType | null
+  }
+
+  type GetEmailConnectionGroupByPayload<T extends EmailConnectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailConnectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailConnectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailConnectionGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailConnectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailConnectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    emailAddress?: boolean
+    displayName?: boolean
+    providerAccountId?: boolean
+    encryptedAccessToken?: boolean
+    encryptedRefreshToken?: boolean
+    tokenExpiresAt?: boolean
+    smtpHost?: boolean
+    smtpPort?: boolean
+    smtpUser?: boolean
+    encryptedSmtpPass?: boolean
+    status?: boolean
+    isDefault?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    messages?: boolean | EmailConnection$messagesArgs<ExtArgs>
+    _count?: boolean | EmailConnectionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailConnection"]>
+
+  export type EmailConnectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    emailAddress?: boolean
+    displayName?: boolean
+    providerAccountId?: boolean
+    encryptedAccessToken?: boolean
+    encryptedRefreshToken?: boolean
+    tokenExpiresAt?: boolean
+    smtpHost?: boolean
+    smtpPort?: boolean
+    smtpUser?: boolean
+    encryptedSmtpPass?: boolean
+    status?: boolean
+    isDefault?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailConnection"]>
+
+  export type EmailConnectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    emailAddress?: boolean
+    displayName?: boolean
+    providerAccountId?: boolean
+    encryptedAccessToken?: boolean
+    encryptedRefreshToken?: boolean
+    tokenExpiresAt?: boolean
+    smtpHost?: boolean
+    smtpPort?: boolean
+    smtpUser?: boolean
+    encryptedSmtpPass?: boolean
+    status?: boolean
+    isDefault?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailConnection"]>
+
+  export type EmailConnectionSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    provider?: boolean
+    emailAddress?: boolean
+    displayName?: boolean
+    providerAccountId?: boolean
+    encryptedAccessToken?: boolean
+    encryptedRefreshToken?: boolean
+    tokenExpiresAt?: boolean
+    smtpHost?: boolean
+    smtpPort?: boolean
+    smtpUser?: boolean
+    encryptedSmtpPass?: boolean
+    status?: boolean
+    isDefault?: boolean
+    lastSyncAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmailConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "provider" | "emailAddress" | "displayName" | "providerAccountId" | "encryptedAccessToken" | "encryptedRefreshToken" | "tokenExpiresAt" | "smtpHost" | "smtpPort" | "smtpUser" | "encryptedSmtpPass" | "status" | "isDefault" | "lastSyncAt" | "createdAt" | "updatedAt", ExtArgs["result"]["emailConnection"]>
+  export type EmailConnectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    messages?: boolean | EmailConnection$messagesArgs<ExtArgs>
+    _count?: boolean | EmailConnectionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type EmailConnectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type EmailConnectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $EmailConnectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmailConnection"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      messages: Prisma.$SmsLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      provider: string
+      emailAddress: string
+      displayName: string | null
+      providerAccountId: string | null
+      encryptedAccessToken: string | null
+      encryptedRefreshToken: string | null
+      tokenExpiresAt: Date | null
+      smtpHost: string | null
+      smtpPort: number | null
+      smtpUser: string | null
+      encryptedSmtpPass: string | null
+      status: string
+      isDefault: boolean
+      lastSyncAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["emailConnection"]>
+    composites: {}
+  }
+
+  type EmailConnectionGetPayload<S extends boolean | null | undefined | EmailConnectionDefaultArgs> = $Result.GetResult<Prisma.$EmailConnectionPayload, S>
+
+  type EmailConnectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailConnectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailConnectionCountAggregateInputType | true
+    }
+
+  export interface EmailConnectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmailConnection'], meta: { name: 'EmailConnection' } }
+    /**
+     * Find zero or one EmailConnection that matches the filter.
+     * @param {EmailConnectionFindUniqueArgs} args - Arguments to find a EmailConnection
+     * @example
+     * // Get one EmailConnection
+     * const emailConnection = await prisma.emailConnection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailConnectionFindUniqueArgs>(args: SelectSubset<T, EmailConnectionFindUniqueArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmailConnection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailConnectionFindUniqueOrThrowArgs} args - Arguments to find a EmailConnection
+     * @example
+     * // Get one EmailConnection
+     * const emailConnection = await prisma.emailConnection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailConnectionFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailConnectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailConnection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailConnectionFindFirstArgs} args - Arguments to find a EmailConnection
+     * @example
+     * // Get one EmailConnection
+     * const emailConnection = await prisma.emailConnection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailConnectionFindFirstArgs>(args?: SelectSubset<T, EmailConnectionFindFirstArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailConnection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailConnectionFindFirstOrThrowArgs} args - Arguments to find a EmailConnection
+     * @example
+     * // Get one EmailConnection
+     * const emailConnection = await prisma.emailConnection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailConnectionFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailConnectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmailConnections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailConnectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmailConnections
+     * const emailConnections = await prisma.emailConnection.findMany()
+     * 
+     * // Get first 10 EmailConnections
+     * const emailConnections = await prisma.emailConnection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailConnectionWithIdOnly = await prisma.emailConnection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailConnectionFindManyArgs>(args?: SelectSubset<T, EmailConnectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmailConnection.
+     * @param {EmailConnectionCreateArgs} args - Arguments to create a EmailConnection.
+     * @example
+     * // Create one EmailConnection
+     * const EmailConnection = await prisma.emailConnection.create({
+     *   data: {
+     *     // ... data to create a EmailConnection
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailConnectionCreateArgs>(args: SelectSubset<T, EmailConnectionCreateArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmailConnections.
+     * @param {EmailConnectionCreateManyArgs} args - Arguments to create many EmailConnections.
+     * @example
+     * // Create many EmailConnections
+     * const emailConnection = await prisma.emailConnection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailConnectionCreateManyArgs>(args?: SelectSubset<T, EmailConnectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmailConnections and returns the data saved in the database.
+     * @param {EmailConnectionCreateManyAndReturnArgs} args - Arguments to create many EmailConnections.
+     * @example
+     * // Create many EmailConnections
+     * const emailConnection = await prisma.emailConnection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmailConnections and only return the `id`
+     * const emailConnectionWithIdOnly = await prisma.emailConnection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailConnectionCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailConnectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmailConnection.
+     * @param {EmailConnectionDeleteArgs} args - Arguments to delete one EmailConnection.
+     * @example
+     * // Delete one EmailConnection
+     * const EmailConnection = await prisma.emailConnection.delete({
+     *   where: {
+     *     // ... filter to delete one EmailConnection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailConnectionDeleteArgs>(args: SelectSubset<T, EmailConnectionDeleteArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmailConnection.
+     * @param {EmailConnectionUpdateArgs} args - Arguments to update one EmailConnection.
+     * @example
+     * // Update one EmailConnection
+     * const emailConnection = await prisma.emailConnection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailConnectionUpdateArgs>(args: SelectSubset<T, EmailConnectionUpdateArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmailConnections.
+     * @param {EmailConnectionDeleteManyArgs} args - Arguments to filter EmailConnections to delete.
+     * @example
+     * // Delete a few EmailConnections
+     * const { count } = await prisma.emailConnection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailConnectionDeleteManyArgs>(args?: SelectSubset<T, EmailConnectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailConnectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmailConnections
+     * const emailConnection = await prisma.emailConnection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailConnectionUpdateManyArgs>(args: SelectSubset<T, EmailConnectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailConnections and returns the data updated in the database.
+     * @param {EmailConnectionUpdateManyAndReturnArgs} args - Arguments to update many EmailConnections.
+     * @example
+     * // Update many EmailConnections
+     * const emailConnection = await prisma.emailConnection.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmailConnections and only return the `id`
+     * const emailConnectionWithIdOnly = await prisma.emailConnection.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmailConnectionUpdateManyAndReturnArgs>(args: SelectSubset<T, EmailConnectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmailConnection.
+     * @param {EmailConnectionUpsertArgs} args - Arguments to update or create a EmailConnection.
+     * @example
+     * // Update or create a EmailConnection
+     * const emailConnection = await prisma.emailConnection.upsert({
+     *   create: {
+     *     // ... data to create a EmailConnection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmailConnection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailConnectionUpsertArgs>(args: SelectSubset<T, EmailConnectionUpsertArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmailConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailConnectionCountArgs} args - Arguments to filter EmailConnections to count.
+     * @example
+     * // Count the number of EmailConnections
+     * const count = await prisma.emailConnection.count({
+     *   where: {
+     *     // ... the filter for the EmailConnections we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailConnectionCountArgs>(
+      args?: Subset<T, EmailConnectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailConnectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmailConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailConnectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailConnectionAggregateArgs>(args: Subset<T, EmailConnectionAggregateArgs>): Prisma.PrismaPromise<GetEmailConnectionAggregateType<T>>
+
+    /**
+     * Group by EmailConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailConnectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailConnectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailConnectionGroupByArgs['orderBy'] }
+        : { orderBy?: EmailConnectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailConnectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailConnectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmailConnection model
+   */
+  readonly fields: EmailConnectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmailConnection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailConnectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    messages<T extends EmailConnection$messagesArgs<ExtArgs> = {}>(args?: Subset<T, EmailConnection$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmailConnection model
+   */
+  interface EmailConnectionFieldRefs {
+    readonly id: FieldRef<"EmailConnection", 'String'>
+    readonly companyId: FieldRef<"EmailConnection", 'String'>
+    readonly provider: FieldRef<"EmailConnection", 'String'>
+    readonly emailAddress: FieldRef<"EmailConnection", 'String'>
+    readonly displayName: FieldRef<"EmailConnection", 'String'>
+    readonly providerAccountId: FieldRef<"EmailConnection", 'String'>
+    readonly encryptedAccessToken: FieldRef<"EmailConnection", 'String'>
+    readonly encryptedRefreshToken: FieldRef<"EmailConnection", 'String'>
+    readonly tokenExpiresAt: FieldRef<"EmailConnection", 'DateTime'>
+    readonly smtpHost: FieldRef<"EmailConnection", 'String'>
+    readonly smtpPort: FieldRef<"EmailConnection", 'Int'>
+    readonly smtpUser: FieldRef<"EmailConnection", 'String'>
+    readonly encryptedSmtpPass: FieldRef<"EmailConnection", 'String'>
+    readonly status: FieldRef<"EmailConnection", 'String'>
+    readonly isDefault: FieldRef<"EmailConnection", 'Boolean'>
+    readonly lastSyncAt: FieldRef<"EmailConnection", 'DateTime'>
+    readonly createdAt: FieldRef<"EmailConnection", 'DateTime'>
+    readonly updatedAt: FieldRef<"EmailConnection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmailConnection findUnique
+   */
+  export type EmailConnectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailConnection to fetch.
+     */
+    where: EmailConnectionWhereUniqueInput
+  }
+
+  /**
+   * EmailConnection findUniqueOrThrow
+   */
+  export type EmailConnectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailConnection to fetch.
+     */
+    where: EmailConnectionWhereUniqueInput
+  }
+
+  /**
+   * EmailConnection findFirst
+   */
+  export type EmailConnectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailConnection to fetch.
+     */
+    where?: EmailConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailConnections to fetch.
+     */
+    orderBy?: EmailConnectionOrderByWithRelationInput | EmailConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailConnections.
+     */
+    cursor?: EmailConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailConnections.
+     */
+    distinct?: EmailConnectionScalarFieldEnum | EmailConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * EmailConnection findFirstOrThrow
+   */
+  export type EmailConnectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailConnection to fetch.
+     */
+    where?: EmailConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailConnections to fetch.
+     */
+    orderBy?: EmailConnectionOrderByWithRelationInput | EmailConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailConnections.
+     */
+    cursor?: EmailConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailConnections.
+     */
+    distinct?: EmailConnectionScalarFieldEnum | EmailConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * EmailConnection findMany
+   */
+  export type EmailConnectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailConnections to fetch.
+     */
+    where?: EmailConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailConnections to fetch.
+     */
+    orderBy?: EmailConnectionOrderByWithRelationInput | EmailConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmailConnections.
+     */
+    cursor?: EmailConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailConnections.
+     */
+    distinct?: EmailConnectionScalarFieldEnum | EmailConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * EmailConnection create
+   */
+  export type EmailConnectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmailConnection.
+     */
+    data: XOR<EmailConnectionCreateInput, EmailConnectionUncheckedCreateInput>
+  }
+
+  /**
+   * EmailConnection createMany
+   */
+  export type EmailConnectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmailConnections.
+     */
+    data: EmailConnectionCreateManyInput | EmailConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailConnection createManyAndReturn
+   */
+  export type EmailConnectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmailConnections.
+     */
+    data: EmailConnectionCreateManyInput | EmailConnectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmailConnection update
+   */
+  export type EmailConnectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmailConnection.
+     */
+    data: XOR<EmailConnectionUpdateInput, EmailConnectionUncheckedUpdateInput>
+    /**
+     * Choose, which EmailConnection to update.
+     */
+    where: EmailConnectionWhereUniqueInput
+  }
+
+  /**
+   * EmailConnection updateMany
+   */
+  export type EmailConnectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmailConnections.
+     */
+    data: XOR<EmailConnectionUpdateManyMutationInput, EmailConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailConnections to update
+     */
+    where?: EmailConnectionWhereInput
+    /**
+     * Limit how many EmailConnections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailConnection updateManyAndReturn
+   */
+  export type EmailConnectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to update EmailConnections.
+     */
+    data: XOR<EmailConnectionUpdateManyMutationInput, EmailConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailConnections to update
+     */
+    where?: EmailConnectionWhereInput
+    /**
+     * Limit how many EmailConnections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmailConnection upsert
+   */
+  export type EmailConnectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmailConnection to update in case it exists.
+     */
+    where: EmailConnectionWhereUniqueInput
+    /**
+     * In case the EmailConnection found by the `where` argument doesn't exist, create a new EmailConnection with this data.
+     */
+    create: XOR<EmailConnectionCreateInput, EmailConnectionUncheckedCreateInput>
+    /**
+     * In case the EmailConnection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailConnectionUpdateInput, EmailConnectionUncheckedUpdateInput>
+  }
+
+  /**
+   * EmailConnection delete
+   */
+  export type EmailConnectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
+    /**
+     * Filter which EmailConnection to delete.
+     */
+    where: EmailConnectionWhereUniqueInput
+  }
+
+  /**
+   * EmailConnection deleteMany
+   */
+  export type EmailConnectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailConnections to delete
+     */
+    where?: EmailConnectionWhereInput
+    /**
+     * Limit how many EmailConnections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailConnection.messages
+   */
+  export type EmailConnection$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    where?: SmsLogWhereInput
+    orderBy?: SmsLogOrderByWithRelationInput | SmsLogOrderByWithRelationInput[]
+    cursor?: SmsLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * EmailConnection without action
+   */
+  export type EmailConnectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailConnection
+     */
+    select?: EmailConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailConnection
+     */
+    omit?: EmailConnectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailConnectionInclude<ExtArgs> | null
   }
 
 
@@ -61636,13 +64701,72 @@ export namespace Prisma {
     toEmail: 'toEmail',
     isRead: 'isRead',
     readAt: 'readAt',
+    deliveredAt: 'deliveredAt',
     twilioSid: 'twilioSid',
+    whatsappMessageId: 'whatsappMessageId',
+    emailMessageId: 'emailMessageId',
+    externalMessageId: 'externalMessageId',
     status: 'status',
+    whatsAppConnectionId: 'whatsAppConnectionId',
+    emailConnectionId: 'emailConnectionId',
+    threadId: 'threadId',
+    inReplyTo: 'inReplyTo',
+    references: 'references',
+    attachments: 'attachments',
     autoType: 'autoType',
-    createdAt: 'createdAt'
+    templateName: 'templateName',
+    errorCode: 'errorCode',
+    errorMessage: 'errorMessage',
+    metadata: 'metadata',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type SmsLogScalarFieldEnum = (typeof SmsLogScalarFieldEnum)[keyof typeof SmsLogScalarFieldEnum]
+
+
+  export const WhatsAppConnectionScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    name: 'name',
+    phoneNumberId: 'phoneNumberId',
+    wabaId: 'wabaId',
+    displayPhoneNumber: 'displayPhoneNumber',
+    verifiedName: 'verifiedName',
+    qualityRating: 'qualityRating',
+    encryptedAccessToken: 'encryptedAccessToken',
+    status: 'status',
+    isDefault: 'isDefault',
+    webhookVerified: 'webhookVerified',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WhatsAppConnectionScalarFieldEnum = (typeof WhatsAppConnectionScalarFieldEnum)[keyof typeof WhatsAppConnectionScalarFieldEnum]
+
+
+  export const EmailConnectionScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    provider: 'provider',
+    emailAddress: 'emailAddress',
+    displayName: 'displayName',
+    providerAccountId: 'providerAccountId',
+    encryptedAccessToken: 'encryptedAccessToken',
+    encryptedRefreshToken: 'encryptedRefreshToken',
+    tokenExpiresAt: 'tokenExpiresAt',
+    smtpHost: 'smtpHost',
+    smtpPort: 'smtpPort',
+    smtpUser: 'smtpUser',
+    encryptedSmtpPass: 'encryptedSmtpPass',
+    status: 'status',
+    isDefault: 'isDefault',
+    lastSyncAt: 'lastSyncAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmailConnectionScalarFieldEnum = (typeof EmailConnectionScalarFieldEnum)[keyof typeof EmailConnectionScalarFieldEnum]
 
 
   export const SmsUsageScalarFieldEnum: {
@@ -62749,6 +65873,8 @@ export namespace Prisma {
     invoices?: InvoiceListRelationFilter
     quotes?: QuoteListRelationFilter
     smsLogs?: SmsLogListRelationFilter
+    whatsappConnections?: WhatsAppConnectionListRelationFilter
+    emailConnections?: EmailConnectionListRelationFilter
     notifications?: NotificationListRelationFilter
     invitations?: InvitationListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
@@ -62810,6 +65936,8 @@ export namespace Prisma {
     invoices?: InvoiceOrderByRelationAggregateInput
     quotes?: QuoteOrderByRelationAggregateInput
     smsLogs?: SmsLogOrderByRelationAggregateInput
+    whatsappConnections?: WhatsAppConnectionOrderByRelationAggregateInput
+    emailConnections?: EmailConnectionOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
     invitations?: InvitationOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
@@ -62874,6 +66002,8 @@ export namespace Prisma {
     invoices?: InvoiceListRelationFilter
     quotes?: QuoteListRelationFilter
     smsLogs?: SmsLogListRelationFilter
+    whatsappConnections?: WhatsAppConnectionListRelationFilter
+    emailConnections?: EmailConnectionListRelationFilter
     notifications?: NotificationListRelationFilter
     invitations?: InvitationListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
@@ -65560,12 +68690,29 @@ export namespace Prisma {
     toEmail?: StringNullableFilter<"SmsLog"> | string | null
     isRead?: BoolFilter<"SmsLog"> | boolean
     readAt?: DateTimeNullableFilter<"SmsLog"> | Date | string | null
+    deliveredAt?: DateTimeNullableFilter<"SmsLog"> | Date | string | null
     twilioSid?: StringNullableFilter<"SmsLog"> | string | null
+    whatsappMessageId?: StringNullableFilter<"SmsLog"> | string | null
+    emailMessageId?: StringNullableFilter<"SmsLog"> | string | null
+    externalMessageId?: StringNullableFilter<"SmsLog"> | string | null
     status?: StringNullableFilter<"SmsLog"> | string | null
+    whatsAppConnectionId?: StringNullableFilter<"SmsLog"> | string | null
+    emailConnectionId?: StringNullableFilter<"SmsLog"> | string | null
+    threadId?: StringNullableFilter<"SmsLog"> | string | null
+    inReplyTo?: StringNullableFilter<"SmsLog"> | string | null
+    references?: StringNullableFilter<"SmsLog"> | string | null
+    attachments?: JsonNullableFilter<"SmsLog">
     autoType?: StringNullableFilter<"SmsLog"> | string | null
+    templateName?: StringNullableFilter<"SmsLog"> | string | null
+    errorCode?: StringNullableFilter<"SmsLog"> | string | null
+    errorMessage?: StringNullableFilter<"SmsLog"> | string | null
+    metadata?: JsonNullableFilter<"SmsLog">
     createdAt?: DateTimeFilter<"SmsLog"> | Date | string
+    updatedAt?: DateTimeFilter<"SmsLog"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    whatsAppConnection?: XOR<WhatsAppConnectionNullableScalarRelationFilter, WhatsAppConnectionWhereInput> | null
+    emailConnection?: XOR<EmailConnectionNullableScalarRelationFilter, EmailConnectionWhereInput> | null
   }
 
   export type SmsLogOrderByWithRelationInput = {
@@ -65582,17 +68729,36 @@ export namespace Prisma {
     toEmail?: SortOrderInput | SortOrder
     isRead?: SortOrder
     readAt?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
     twilioSid?: SortOrderInput | SortOrder
+    whatsappMessageId?: SortOrderInput | SortOrder
+    emailMessageId?: SortOrderInput | SortOrder
+    externalMessageId?: SortOrderInput | SortOrder
     status?: SortOrderInput | SortOrder
+    whatsAppConnectionId?: SortOrderInput | SortOrder
+    emailConnectionId?: SortOrderInput | SortOrder
+    threadId?: SortOrderInput | SortOrder
+    inReplyTo?: SortOrderInput | SortOrder
+    references?: SortOrderInput | SortOrder
+    attachments?: SortOrderInput | SortOrder
     autoType?: SortOrderInput | SortOrder
+    templateName?: SortOrderInput | SortOrder
+    errorCode?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     client?: ClientOrderByWithRelationInput
+    whatsAppConnection?: WhatsAppConnectionOrderByWithRelationInput
+    emailConnection?: EmailConnectionOrderByWithRelationInput
   }
 
   export type SmsLogWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     twilioSid?: string
+    whatsappMessageId?: string
+    emailMessageId?: string
     AND?: SmsLogWhereInput | SmsLogWhereInput[]
     OR?: SmsLogWhereInput[]
     NOT?: SmsLogWhereInput | SmsLogWhereInput[]
@@ -65608,12 +68774,27 @@ export namespace Prisma {
     toEmail?: StringNullableFilter<"SmsLog"> | string | null
     isRead?: BoolFilter<"SmsLog"> | boolean
     readAt?: DateTimeNullableFilter<"SmsLog"> | Date | string | null
+    deliveredAt?: DateTimeNullableFilter<"SmsLog"> | Date | string | null
+    externalMessageId?: StringNullableFilter<"SmsLog"> | string | null
     status?: StringNullableFilter<"SmsLog"> | string | null
+    whatsAppConnectionId?: StringNullableFilter<"SmsLog"> | string | null
+    emailConnectionId?: StringNullableFilter<"SmsLog"> | string | null
+    threadId?: StringNullableFilter<"SmsLog"> | string | null
+    inReplyTo?: StringNullableFilter<"SmsLog"> | string | null
+    references?: StringNullableFilter<"SmsLog"> | string | null
+    attachments?: JsonNullableFilter<"SmsLog">
     autoType?: StringNullableFilter<"SmsLog"> | string | null
+    templateName?: StringNullableFilter<"SmsLog"> | string | null
+    errorCode?: StringNullableFilter<"SmsLog"> | string | null
+    errorMessage?: StringNullableFilter<"SmsLog"> | string | null
+    metadata?: JsonNullableFilter<"SmsLog">
     createdAt?: DateTimeFilter<"SmsLog"> | Date | string
+    updatedAt?: DateTimeFilter<"SmsLog"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
-  }, "id" | "twilioSid">
+    whatsAppConnection?: XOR<WhatsAppConnectionNullableScalarRelationFilter, WhatsAppConnectionWhereInput> | null
+    emailConnection?: XOR<EmailConnectionNullableScalarRelationFilter, EmailConnectionWhereInput> | null
+  }, "id" | "twilioSid" | "whatsappMessageId" | "emailMessageId">
 
   export type SmsLogOrderByWithAggregationInput = {
     id?: SortOrder
@@ -65629,10 +68810,25 @@ export namespace Prisma {
     toEmail?: SortOrderInput | SortOrder
     isRead?: SortOrder
     readAt?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
     twilioSid?: SortOrderInput | SortOrder
+    whatsappMessageId?: SortOrderInput | SortOrder
+    emailMessageId?: SortOrderInput | SortOrder
+    externalMessageId?: SortOrderInput | SortOrder
     status?: SortOrderInput | SortOrder
+    whatsAppConnectionId?: SortOrderInput | SortOrder
+    emailConnectionId?: SortOrderInput | SortOrder
+    threadId?: SortOrderInput | SortOrder
+    inReplyTo?: SortOrderInput | SortOrder
+    references?: SortOrderInput | SortOrder
+    attachments?: SortOrderInput | SortOrder
     autoType?: SortOrderInput | SortOrder
+    templateName?: SortOrderInput | SortOrder
+    errorCode?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: SmsLogCountOrderByAggregateInput
     _max?: SmsLogMaxOrderByAggregateInput
     _min?: SmsLogMinOrderByAggregateInput
@@ -65655,10 +68851,255 @@ export namespace Prisma {
     toEmail?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
     isRead?: BoolWithAggregatesFilter<"SmsLog"> | boolean
     readAt?: DateTimeNullableWithAggregatesFilter<"SmsLog"> | Date | string | null
+    deliveredAt?: DateTimeNullableWithAggregatesFilter<"SmsLog"> | Date | string | null
     twilioSid?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    whatsappMessageId?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    emailMessageId?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    externalMessageId?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
     status?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    whatsAppConnectionId?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    emailConnectionId?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    threadId?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    inReplyTo?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    references?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    attachments?: JsonNullableWithAggregatesFilter<"SmsLog">
     autoType?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    templateName?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    errorCode?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    errorMessage?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    metadata?: JsonNullableWithAggregatesFilter<"SmsLog">
     createdAt?: DateTimeWithAggregatesFilter<"SmsLog"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SmsLog"> | Date | string
+  }
+
+  export type WhatsAppConnectionWhereInput = {
+    AND?: WhatsAppConnectionWhereInput | WhatsAppConnectionWhereInput[]
+    OR?: WhatsAppConnectionWhereInput[]
+    NOT?: WhatsAppConnectionWhereInput | WhatsAppConnectionWhereInput[]
+    id?: StringFilter<"WhatsAppConnection"> | string
+    companyId?: StringFilter<"WhatsAppConnection"> | string
+    name?: StringFilter<"WhatsAppConnection"> | string
+    phoneNumberId?: StringFilter<"WhatsAppConnection"> | string
+    wabaId?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    displayPhoneNumber?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    verifiedName?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    qualityRating?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    encryptedAccessToken?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    status?: StringFilter<"WhatsAppConnection"> | string
+    isDefault?: BoolFilter<"WhatsAppConnection"> | boolean
+    webhookVerified?: BoolFilter<"WhatsAppConnection"> | boolean
+    createdAt?: DateTimeFilter<"WhatsAppConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"WhatsAppConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    messages?: SmsLogListRelationFilter
+  }
+
+  export type WhatsAppConnectionOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    phoneNumberId?: SortOrder
+    wabaId?: SortOrderInput | SortOrder
+    displayPhoneNumber?: SortOrderInput | SortOrder
+    verifiedName?: SortOrderInput | SortOrder
+    qualityRating?: SortOrderInput | SortOrder
+    encryptedAccessToken?: SortOrderInput | SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    webhookVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    messages?: SmsLogOrderByRelationAggregateInput
+  }
+
+  export type WhatsAppConnectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    companyId_phoneNumberId?: WhatsAppConnectionCompanyIdPhoneNumberIdCompoundUniqueInput
+    AND?: WhatsAppConnectionWhereInput | WhatsAppConnectionWhereInput[]
+    OR?: WhatsAppConnectionWhereInput[]
+    NOT?: WhatsAppConnectionWhereInput | WhatsAppConnectionWhereInput[]
+    companyId?: StringFilter<"WhatsAppConnection"> | string
+    name?: StringFilter<"WhatsAppConnection"> | string
+    phoneNumberId?: StringFilter<"WhatsAppConnection"> | string
+    wabaId?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    displayPhoneNumber?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    verifiedName?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    qualityRating?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    encryptedAccessToken?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    status?: StringFilter<"WhatsAppConnection"> | string
+    isDefault?: BoolFilter<"WhatsAppConnection"> | boolean
+    webhookVerified?: BoolFilter<"WhatsAppConnection"> | boolean
+    createdAt?: DateTimeFilter<"WhatsAppConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"WhatsAppConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    messages?: SmsLogListRelationFilter
+  }, "id" | "companyId_phoneNumberId">
+
+  export type WhatsAppConnectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    phoneNumberId?: SortOrder
+    wabaId?: SortOrderInput | SortOrder
+    displayPhoneNumber?: SortOrderInput | SortOrder
+    verifiedName?: SortOrderInput | SortOrder
+    qualityRating?: SortOrderInput | SortOrder
+    encryptedAccessToken?: SortOrderInput | SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    webhookVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WhatsAppConnectionCountOrderByAggregateInput
+    _max?: WhatsAppConnectionMaxOrderByAggregateInput
+    _min?: WhatsAppConnectionMinOrderByAggregateInput
+  }
+
+  export type WhatsAppConnectionScalarWhereWithAggregatesInput = {
+    AND?: WhatsAppConnectionScalarWhereWithAggregatesInput | WhatsAppConnectionScalarWhereWithAggregatesInput[]
+    OR?: WhatsAppConnectionScalarWhereWithAggregatesInput[]
+    NOT?: WhatsAppConnectionScalarWhereWithAggregatesInput | WhatsAppConnectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WhatsAppConnection"> | string
+    companyId?: StringWithAggregatesFilter<"WhatsAppConnection"> | string
+    name?: StringWithAggregatesFilter<"WhatsAppConnection"> | string
+    phoneNumberId?: StringWithAggregatesFilter<"WhatsAppConnection"> | string
+    wabaId?: StringNullableWithAggregatesFilter<"WhatsAppConnection"> | string | null
+    displayPhoneNumber?: StringNullableWithAggregatesFilter<"WhatsAppConnection"> | string | null
+    verifiedName?: StringNullableWithAggregatesFilter<"WhatsAppConnection"> | string | null
+    qualityRating?: StringNullableWithAggregatesFilter<"WhatsAppConnection"> | string | null
+    encryptedAccessToken?: StringNullableWithAggregatesFilter<"WhatsAppConnection"> | string | null
+    status?: StringWithAggregatesFilter<"WhatsAppConnection"> | string
+    isDefault?: BoolWithAggregatesFilter<"WhatsAppConnection"> | boolean
+    webhookVerified?: BoolWithAggregatesFilter<"WhatsAppConnection"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"WhatsAppConnection"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WhatsAppConnection"> | Date | string
+  }
+
+  export type EmailConnectionWhereInput = {
+    AND?: EmailConnectionWhereInput | EmailConnectionWhereInput[]
+    OR?: EmailConnectionWhereInput[]
+    NOT?: EmailConnectionWhereInput | EmailConnectionWhereInput[]
+    id?: StringFilter<"EmailConnection"> | string
+    companyId?: StringFilter<"EmailConnection"> | string
+    provider?: StringFilter<"EmailConnection"> | string
+    emailAddress?: StringFilter<"EmailConnection"> | string
+    displayName?: StringNullableFilter<"EmailConnection"> | string | null
+    providerAccountId?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedAccessToken?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedRefreshToken?: StringNullableFilter<"EmailConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableFilter<"EmailConnection"> | Date | string | null
+    smtpHost?: StringNullableFilter<"EmailConnection"> | string | null
+    smtpPort?: IntNullableFilter<"EmailConnection"> | number | null
+    smtpUser?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedSmtpPass?: StringNullableFilter<"EmailConnection"> | string | null
+    status?: StringFilter<"EmailConnection"> | string
+    isDefault?: BoolFilter<"EmailConnection"> | boolean
+    lastSyncAt?: DateTimeNullableFilter<"EmailConnection"> | Date | string | null
+    createdAt?: DateTimeFilter<"EmailConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    messages?: SmsLogListRelationFilter
+  }
+
+  export type EmailConnectionOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    emailAddress?: SortOrder
+    displayName?: SortOrderInput | SortOrder
+    providerAccountId?: SortOrderInput | SortOrder
+    encryptedAccessToken?: SortOrderInput | SortOrder
+    encryptedRefreshToken?: SortOrderInput | SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    smtpHost?: SortOrderInput | SortOrder
+    smtpPort?: SortOrderInput | SortOrder
+    smtpUser?: SortOrderInput | SortOrder
+    encryptedSmtpPass?: SortOrderInput | SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    lastSyncAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    messages?: SmsLogOrderByRelationAggregateInput
+  }
+
+  export type EmailConnectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    companyId_emailAddress?: EmailConnectionCompanyIdEmailAddressCompoundUniqueInput
+    AND?: EmailConnectionWhereInput | EmailConnectionWhereInput[]
+    OR?: EmailConnectionWhereInput[]
+    NOT?: EmailConnectionWhereInput | EmailConnectionWhereInput[]
+    companyId?: StringFilter<"EmailConnection"> | string
+    provider?: StringFilter<"EmailConnection"> | string
+    emailAddress?: StringFilter<"EmailConnection"> | string
+    displayName?: StringNullableFilter<"EmailConnection"> | string | null
+    providerAccountId?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedAccessToken?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedRefreshToken?: StringNullableFilter<"EmailConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableFilter<"EmailConnection"> | Date | string | null
+    smtpHost?: StringNullableFilter<"EmailConnection"> | string | null
+    smtpPort?: IntNullableFilter<"EmailConnection"> | number | null
+    smtpUser?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedSmtpPass?: StringNullableFilter<"EmailConnection"> | string | null
+    status?: StringFilter<"EmailConnection"> | string
+    isDefault?: BoolFilter<"EmailConnection"> | boolean
+    lastSyncAt?: DateTimeNullableFilter<"EmailConnection"> | Date | string | null
+    createdAt?: DateTimeFilter<"EmailConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailConnection"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    messages?: SmsLogListRelationFilter
+  }, "id" | "companyId_emailAddress">
+
+  export type EmailConnectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    emailAddress?: SortOrder
+    displayName?: SortOrderInput | SortOrder
+    providerAccountId?: SortOrderInput | SortOrder
+    encryptedAccessToken?: SortOrderInput | SortOrder
+    encryptedRefreshToken?: SortOrderInput | SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    smtpHost?: SortOrderInput | SortOrder
+    smtpPort?: SortOrderInput | SortOrder
+    smtpUser?: SortOrderInput | SortOrder
+    encryptedSmtpPass?: SortOrderInput | SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    lastSyncAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmailConnectionCountOrderByAggregateInput
+    _avg?: EmailConnectionAvgOrderByAggregateInput
+    _max?: EmailConnectionMaxOrderByAggregateInput
+    _min?: EmailConnectionMinOrderByAggregateInput
+    _sum?: EmailConnectionSumOrderByAggregateInput
+  }
+
+  export type EmailConnectionScalarWhereWithAggregatesInput = {
+    AND?: EmailConnectionScalarWhereWithAggregatesInput | EmailConnectionScalarWhereWithAggregatesInput[]
+    OR?: EmailConnectionScalarWhereWithAggregatesInput[]
+    NOT?: EmailConnectionScalarWhereWithAggregatesInput | EmailConnectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EmailConnection"> | string
+    companyId?: StringWithAggregatesFilter<"EmailConnection"> | string
+    provider?: StringWithAggregatesFilter<"EmailConnection"> | string
+    emailAddress?: StringWithAggregatesFilter<"EmailConnection"> | string
+    displayName?: StringNullableWithAggregatesFilter<"EmailConnection"> | string | null
+    providerAccountId?: StringNullableWithAggregatesFilter<"EmailConnection"> | string | null
+    encryptedAccessToken?: StringNullableWithAggregatesFilter<"EmailConnection"> | string | null
+    encryptedRefreshToken?: StringNullableWithAggregatesFilter<"EmailConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"EmailConnection"> | Date | string | null
+    smtpHost?: StringNullableWithAggregatesFilter<"EmailConnection"> | string | null
+    smtpPort?: IntNullableWithAggregatesFilter<"EmailConnection"> | number | null
+    smtpUser?: StringNullableWithAggregatesFilter<"EmailConnection"> | string | null
+    encryptedSmtpPass?: StringNullableWithAggregatesFilter<"EmailConnection"> | string | null
+    status?: StringWithAggregatesFilter<"EmailConnection"> | string
+    isDefault?: BoolWithAggregatesFilter<"EmailConnection"> | boolean
+    lastSyncAt?: DateTimeNullableWithAggregatesFilter<"EmailConnection"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EmailConnection"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EmailConnection"> | Date | string
   }
 
   export type SmsUsageWhereInput = {
@@ -67862,6 +71303,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -67923,6 +71366,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -67984,6 +71429,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -68045,6 +71492,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -71221,12 +74670,27 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutSmsLogsInput
     client: ClientCreateNestedOneWithoutSmsLogsInput
+    whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
+    emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
   }
 
   export type SmsLogUncheckedCreateInput = {
@@ -71243,10 +74707,25 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    whatsAppConnectionId?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SmsLogUpdateInput = {
@@ -71261,12 +74740,27 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
     client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
+    whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
+    emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
   }
 
   export type SmsLogUncheckedUpdateInput = {
@@ -71283,10 +74777,25 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SmsLogCreateManyInput = {
@@ -71303,10 +74812,25 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    whatsAppConnectionId?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SmsLogUpdateManyMutationInput = {
@@ -71321,10 +74845,23 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SmsLogUncheckedUpdateManyInput = {
@@ -71341,10 +74878,297 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppConnectionCreateInput = {
+    id?: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutWhatsappConnectionsInput
+    messages?: SmsLogCreateNestedManyWithoutWhatsAppConnectionInput
+  }
+
+  export type WhatsAppConnectionUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: SmsLogUncheckedCreateNestedManyWithoutWhatsAppConnectionInput
+  }
+
+  export type WhatsAppConnectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutWhatsappConnectionsNestedInput
+    messages?: SmsLogUpdateManyWithoutWhatsAppConnectionNestedInput
+  }
+
+  export type WhatsAppConnectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: SmsLogUncheckedUpdateManyWithoutWhatsAppConnectionNestedInput
+  }
+
+  export type WhatsAppConnectionCreateManyInput = {
+    id?: string
+    companyId: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhatsAppConnectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppConnectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailConnectionCreateInput = {
+    id?: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEmailConnectionsInput
+    messages?: SmsLogCreateNestedManyWithoutEmailConnectionInput
+  }
+
+  export type EmailConnectionUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: SmsLogUncheckedCreateNestedManyWithoutEmailConnectionInput
+  }
+
+  export type EmailConnectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEmailConnectionsNestedInput
+    messages?: SmsLogUpdateManyWithoutEmailConnectionNestedInput
+  }
+
+  export type EmailConnectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: SmsLogUncheckedUpdateManyWithoutEmailConnectionNestedInput
+  }
+
+  export type EmailConnectionCreateManyInput = {
+    id?: string
+    companyId: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailConnectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailConnectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SmsUsageCreateInput = {
@@ -73964,6 +77788,18 @@ export namespace Prisma {
     none?: SmsLogWhereInput
   }
 
+  export type WhatsAppConnectionListRelationFilter = {
+    every?: WhatsAppConnectionWhereInput
+    some?: WhatsAppConnectionWhereInput
+    none?: WhatsAppConnectionWhereInput
+  }
+
+  export type EmailConnectionListRelationFilter = {
+    every?: EmailConnectionWhereInput
+    some?: EmailConnectionWhereInput
+    none?: EmailConnectionWhereInput
+  }
+
   export type NotificationListRelationFilter = {
     every?: NotificationWhereInput
     some?: NotificationWhereInput
@@ -74106,6 +77942,14 @@ export namespace Prisma {
   }
 
   export type SmsLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WhatsAppConnectionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmailConnectionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -76326,6 +80170,16 @@ export namespace Prisma {
     not?: NestedEnumMessageDirectionFilter<$PrismaModel> | $Enums.MessageDirection
   }
 
+  export type WhatsAppConnectionNullableScalarRelationFilter = {
+    is?: WhatsAppConnectionWhereInput | null
+    isNot?: WhatsAppConnectionWhereInput | null
+  }
+
+  export type EmailConnectionNullableScalarRelationFilter = {
+    is?: EmailConnectionWhereInput | null
+    isNot?: EmailConnectionWhereInput | null
+  }
+
   export type SmsLogCountOrderByAggregateInput = {
     id?: SortOrder
     companyId?: SortOrder
@@ -76340,10 +80194,25 @@ export namespace Prisma {
     toEmail?: SortOrder
     isRead?: SortOrder
     readAt?: SortOrder
+    deliveredAt?: SortOrder
     twilioSid?: SortOrder
+    whatsappMessageId?: SortOrder
+    emailMessageId?: SortOrder
+    externalMessageId?: SortOrder
     status?: SortOrder
+    whatsAppConnectionId?: SortOrder
+    emailConnectionId?: SortOrder
+    threadId?: SortOrder
+    inReplyTo?: SortOrder
+    references?: SortOrder
+    attachments?: SortOrder
     autoType?: SortOrder
+    templateName?: SortOrder
+    errorCode?: SortOrder
+    errorMessage?: SortOrder
+    metadata?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type SmsLogMaxOrderByAggregateInput = {
@@ -76360,10 +80229,23 @@ export namespace Prisma {
     toEmail?: SortOrder
     isRead?: SortOrder
     readAt?: SortOrder
+    deliveredAt?: SortOrder
     twilioSid?: SortOrder
+    whatsappMessageId?: SortOrder
+    emailMessageId?: SortOrder
+    externalMessageId?: SortOrder
     status?: SortOrder
+    whatsAppConnectionId?: SortOrder
+    emailConnectionId?: SortOrder
+    threadId?: SortOrder
+    inReplyTo?: SortOrder
+    references?: SortOrder
     autoType?: SortOrder
+    templateName?: SortOrder
+    errorCode?: SortOrder
+    errorMessage?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type SmsLogMinOrderByAggregateInput = {
@@ -76380,10 +80262,23 @@ export namespace Prisma {
     toEmail?: SortOrder
     isRead?: SortOrder
     readAt?: SortOrder
+    deliveredAt?: SortOrder
     twilioSid?: SortOrder
+    whatsappMessageId?: SortOrder
+    emailMessageId?: SortOrder
+    externalMessageId?: SortOrder
     status?: SortOrder
+    whatsAppConnectionId?: SortOrder
+    emailConnectionId?: SortOrder
+    threadId?: SortOrder
+    inReplyTo?: SortOrder
+    references?: SortOrder
     autoType?: SortOrder
+    templateName?: SortOrder
+    errorCode?: SortOrder
+    errorMessage?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type EnumMessageDirectionWithAggregatesFilter<$PrismaModel = never> = {
@@ -76394,6 +80289,138 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMessageDirectionFilter<$PrismaModel>
     _max?: NestedEnumMessageDirectionFilter<$PrismaModel>
+  }
+
+  export type WhatsAppConnectionCompanyIdPhoneNumberIdCompoundUniqueInput = {
+    companyId: string
+    phoneNumberId: string
+  }
+
+  export type WhatsAppConnectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    phoneNumberId?: SortOrder
+    wabaId?: SortOrder
+    displayPhoneNumber?: SortOrder
+    verifiedName?: SortOrder
+    qualityRating?: SortOrder
+    encryptedAccessToken?: SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    webhookVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WhatsAppConnectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    phoneNumberId?: SortOrder
+    wabaId?: SortOrder
+    displayPhoneNumber?: SortOrder
+    verifiedName?: SortOrder
+    qualityRating?: SortOrder
+    encryptedAccessToken?: SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    webhookVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WhatsAppConnectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    phoneNumberId?: SortOrder
+    wabaId?: SortOrder
+    displayPhoneNumber?: SortOrder
+    verifiedName?: SortOrder
+    qualityRating?: SortOrder
+    encryptedAccessToken?: SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    webhookVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailConnectionCompanyIdEmailAddressCompoundUniqueInput = {
+    companyId: string
+    emailAddress: string
+  }
+
+  export type EmailConnectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    emailAddress?: SortOrder
+    displayName?: SortOrder
+    providerAccountId?: SortOrder
+    encryptedAccessToken?: SortOrder
+    encryptedRefreshToken?: SortOrder
+    tokenExpiresAt?: SortOrder
+    smtpHost?: SortOrder
+    smtpPort?: SortOrder
+    smtpUser?: SortOrder
+    encryptedSmtpPass?: SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    lastSyncAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailConnectionAvgOrderByAggregateInput = {
+    smtpPort?: SortOrder
+  }
+
+  export type EmailConnectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    emailAddress?: SortOrder
+    displayName?: SortOrder
+    providerAccountId?: SortOrder
+    encryptedAccessToken?: SortOrder
+    encryptedRefreshToken?: SortOrder
+    tokenExpiresAt?: SortOrder
+    smtpHost?: SortOrder
+    smtpPort?: SortOrder
+    smtpUser?: SortOrder
+    encryptedSmtpPass?: SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    lastSyncAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailConnectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    provider?: SortOrder
+    emailAddress?: SortOrder
+    displayName?: SortOrder
+    providerAccountId?: SortOrder
+    encryptedAccessToken?: SortOrder
+    encryptedRefreshToken?: SortOrder
+    tokenExpiresAt?: SortOrder
+    smtpHost?: SortOrder
+    smtpPort?: SortOrder
+    smtpUser?: SortOrder
+    encryptedSmtpPass?: SortOrder
+    status?: SortOrder
+    isDefault?: SortOrder
+    lastSyncAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailConnectionSumOrderByAggregateInput = {
+    smtpPort?: SortOrder
   }
 
   export type SmsUsageCompanyIdMonthYearCompoundUniqueInput = {
@@ -77918,6 +81945,20 @@ export namespace Prisma {
     connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
   }
 
+  export type WhatsAppConnectionCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<WhatsAppConnectionCreateWithoutCompanyInput, WhatsAppConnectionUncheckedCreateWithoutCompanyInput> | WhatsAppConnectionCreateWithoutCompanyInput[] | WhatsAppConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: WhatsAppConnectionCreateOrConnectWithoutCompanyInput | WhatsAppConnectionCreateOrConnectWithoutCompanyInput[]
+    createMany?: WhatsAppConnectionCreateManyCompanyInputEnvelope
+    connect?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+  }
+
+  export type EmailConnectionCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EmailConnectionCreateWithoutCompanyInput, EmailConnectionUncheckedCreateWithoutCompanyInput> | EmailConnectionCreateWithoutCompanyInput[] | EmailConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmailConnectionCreateOrConnectWithoutCompanyInput | EmailConnectionCreateOrConnectWithoutCompanyInput[]
+    createMany?: EmailConnectionCreateManyCompanyInputEnvelope
+    connect?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+  }
+
   export type NotificationCreateNestedManyWithoutCompanyInput = {
     create?: XOR<NotificationCreateWithoutCompanyInput, NotificationUncheckedCreateWithoutCompanyInput> | NotificationCreateWithoutCompanyInput[] | NotificationUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: NotificationCreateOrConnectWithoutCompanyInput | NotificationCreateOrConnectWithoutCompanyInput[]
@@ -78100,6 +82141,20 @@ export namespace Prisma {
     connectOrCreate?: SmsLogCreateOrConnectWithoutCompanyInput | SmsLogCreateOrConnectWithoutCompanyInput[]
     createMany?: SmsLogCreateManyCompanyInputEnvelope
     connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<WhatsAppConnectionCreateWithoutCompanyInput, WhatsAppConnectionUncheckedCreateWithoutCompanyInput> | WhatsAppConnectionCreateWithoutCompanyInput[] | WhatsAppConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: WhatsAppConnectionCreateOrConnectWithoutCompanyInput | WhatsAppConnectionCreateOrConnectWithoutCompanyInput[]
+    createMany?: WhatsAppConnectionCreateManyCompanyInputEnvelope
+    connect?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+  }
+
+  export type EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EmailConnectionCreateWithoutCompanyInput, EmailConnectionUncheckedCreateWithoutCompanyInput> | EmailConnectionCreateWithoutCompanyInput[] | EmailConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmailConnectionCreateOrConnectWithoutCompanyInput | EmailConnectionCreateOrConnectWithoutCompanyInput[]
+    createMany?: EmailConnectionCreateManyCompanyInputEnvelope
+    connect?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
   }
 
   export type NotificationUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -78334,6 +82389,34 @@ export namespace Prisma {
     update?: SmsLogUpdateWithWhereUniqueWithoutCompanyInput | SmsLogUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: SmsLogUpdateManyWithWhereWithoutCompanyInput | SmsLogUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type WhatsAppConnectionUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<WhatsAppConnectionCreateWithoutCompanyInput, WhatsAppConnectionUncheckedCreateWithoutCompanyInput> | WhatsAppConnectionCreateWithoutCompanyInput[] | WhatsAppConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: WhatsAppConnectionCreateOrConnectWithoutCompanyInput | WhatsAppConnectionCreateOrConnectWithoutCompanyInput[]
+    upsert?: WhatsAppConnectionUpsertWithWhereUniqueWithoutCompanyInput | WhatsAppConnectionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: WhatsAppConnectionCreateManyCompanyInputEnvelope
+    set?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    disconnect?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    delete?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    connect?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    update?: WhatsAppConnectionUpdateWithWhereUniqueWithoutCompanyInput | WhatsAppConnectionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: WhatsAppConnectionUpdateManyWithWhereWithoutCompanyInput | WhatsAppConnectionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: WhatsAppConnectionScalarWhereInput | WhatsAppConnectionScalarWhereInput[]
+  }
+
+  export type EmailConnectionUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EmailConnectionCreateWithoutCompanyInput, EmailConnectionUncheckedCreateWithoutCompanyInput> | EmailConnectionCreateWithoutCompanyInput[] | EmailConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmailConnectionCreateOrConnectWithoutCompanyInput | EmailConnectionCreateOrConnectWithoutCompanyInput[]
+    upsert?: EmailConnectionUpsertWithWhereUniqueWithoutCompanyInput | EmailConnectionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EmailConnectionCreateManyCompanyInputEnvelope
+    set?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    disconnect?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    delete?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    connect?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    update?: EmailConnectionUpdateWithWhereUniqueWithoutCompanyInput | EmailConnectionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EmailConnectionUpdateManyWithWhereWithoutCompanyInput | EmailConnectionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EmailConnectionScalarWhereInput | EmailConnectionScalarWhereInput[]
   }
 
   export type NotificationUpdateManyWithoutCompanyNestedInput = {
@@ -78692,6 +82775,34 @@ export namespace Prisma {
     update?: SmsLogUpdateWithWhereUniqueWithoutCompanyInput | SmsLogUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: SmsLogUpdateManyWithWhereWithoutCompanyInput | SmsLogUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<WhatsAppConnectionCreateWithoutCompanyInput, WhatsAppConnectionUncheckedCreateWithoutCompanyInput> | WhatsAppConnectionCreateWithoutCompanyInput[] | WhatsAppConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: WhatsAppConnectionCreateOrConnectWithoutCompanyInput | WhatsAppConnectionCreateOrConnectWithoutCompanyInput[]
+    upsert?: WhatsAppConnectionUpsertWithWhereUniqueWithoutCompanyInput | WhatsAppConnectionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: WhatsAppConnectionCreateManyCompanyInputEnvelope
+    set?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    disconnect?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    delete?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    connect?: WhatsAppConnectionWhereUniqueInput | WhatsAppConnectionWhereUniqueInput[]
+    update?: WhatsAppConnectionUpdateWithWhereUniqueWithoutCompanyInput | WhatsAppConnectionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: WhatsAppConnectionUpdateManyWithWhereWithoutCompanyInput | WhatsAppConnectionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: WhatsAppConnectionScalarWhereInput | WhatsAppConnectionScalarWhereInput[]
+  }
+
+  export type EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EmailConnectionCreateWithoutCompanyInput, EmailConnectionUncheckedCreateWithoutCompanyInput> | EmailConnectionCreateWithoutCompanyInput[] | EmailConnectionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmailConnectionCreateOrConnectWithoutCompanyInput | EmailConnectionCreateOrConnectWithoutCompanyInput[]
+    upsert?: EmailConnectionUpsertWithWhereUniqueWithoutCompanyInput | EmailConnectionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EmailConnectionCreateManyCompanyInputEnvelope
+    set?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    disconnect?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    delete?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    connect?: EmailConnectionWhereUniqueInput | EmailConnectionWhereUniqueInput[]
+    update?: EmailConnectionUpdateWithWhereUniqueWithoutCompanyInput | EmailConnectionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EmailConnectionUpdateManyWithWhereWithoutCompanyInput | EmailConnectionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EmailConnectionScalarWhereInput | EmailConnectionScalarWhereInput[]
   }
 
   export type NotificationUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -80849,6 +84960,18 @@ export namespace Prisma {
     connect?: ClientWhereUniqueInput
   }
 
+  export type WhatsAppConnectionCreateNestedOneWithoutMessagesInput = {
+    create?: XOR<WhatsAppConnectionCreateWithoutMessagesInput, WhatsAppConnectionUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: WhatsAppConnectionCreateOrConnectWithoutMessagesInput
+    connect?: WhatsAppConnectionWhereUniqueInput
+  }
+
+  export type EmailConnectionCreateNestedOneWithoutMessagesInput = {
+    create?: XOR<EmailConnectionCreateWithoutMessagesInput, EmailConnectionUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: EmailConnectionCreateOrConnectWithoutMessagesInput
+    connect?: EmailConnectionWhereUniqueInput
+  }
+
   export type EnumMessageDirectionFieldUpdateOperationsInput = {
     set?: $Enums.MessageDirection
   }
@@ -80867,6 +84990,138 @@ export namespace Prisma {
     upsert?: ClientUpsertWithoutSmsLogsInput
     connect?: ClientWhereUniqueInput
     update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutSmsLogsInput, ClientUpdateWithoutSmsLogsInput>, ClientUncheckedUpdateWithoutSmsLogsInput>
+  }
+
+  export type WhatsAppConnectionUpdateOneWithoutMessagesNestedInput = {
+    create?: XOR<WhatsAppConnectionCreateWithoutMessagesInput, WhatsAppConnectionUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: WhatsAppConnectionCreateOrConnectWithoutMessagesInput
+    upsert?: WhatsAppConnectionUpsertWithoutMessagesInput
+    disconnect?: WhatsAppConnectionWhereInput | boolean
+    delete?: WhatsAppConnectionWhereInput | boolean
+    connect?: WhatsAppConnectionWhereUniqueInput
+    update?: XOR<XOR<WhatsAppConnectionUpdateToOneWithWhereWithoutMessagesInput, WhatsAppConnectionUpdateWithoutMessagesInput>, WhatsAppConnectionUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type EmailConnectionUpdateOneWithoutMessagesNestedInput = {
+    create?: XOR<EmailConnectionCreateWithoutMessagesInput, EmailConnectionUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: EmailConnectionCreateOrConnectWithoutMessagesInput
+    upsert?: EmailConnectionUpsertWithoutMessagesInput
+    disconnect?: EmailConnectionWhereInput | boolean
+    delete?: EmailConnectionWhereInput | boolean
+    connect?: EmailConnectionWhereUniqueInput
+    update?: XOR<XOR<EmailConnectionUpdateToOneWithWhereWithoutMessagesInput, EmailConnectionUpdateWithoutMessagesInput>, EmailConnectionUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutWhatsappConnectionsInput = {
+    create?: XOR<CompanyCreateWithoutWhatsappConnectionsInput, CompanyUncheckedCreateWithoutWhatsappConnectionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutWhatsappConnectionsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type SmsLogCreateNestedManyWithoutWhatsAppConnectionInput = {
+    create?: XOR<SmsLogCreateWithoutWhatsAppConnectionInput, SmsLogUncheckedCreateWithoutWhatsAppConnectionInput> | SmsLogCreateWithoutWhatsAppConnectionInput[] | SmsLogUncheckedCreateWithoutWhatsAppConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutWhatsAppConnectionInput | SmsLogCreateOrConnectWithoutWhatsAppConnectionInput[]
+    createMany?: SmsLogCreateManyWhatsAppConnectionInputEnvelope
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type SmsLogUncheckedCreateNestedManyWithoutWhatsAppConnectionInput = {
+    create?: XOR<SmsLogCreateWithoutWhatsAppConnectionInput, SmsLogUncheckedCreateWithoutWhatsAppConnectionInput> | SmsLogCreateWithoutWhatsAppConnectionInput[] | SmsLogUncheckedCreateWithoutWhatsAppConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutWhatsAppConnectionInput | SmsLogCreateOrConnectWithoutWhatsAppConnectionInput[]
+    createMany?: SmsLogCreateManyWhatsAppConnectionInputEnvelope
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutWhatsappConnectionsNestedInput = {
+    create?: XOR<CompanyCreateWithoutWhatsappConnectionsInput, CompanyUncheckedCreateWithoutWhatsappConnectionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutWhatsappConnectionsInput
+    upsert?: CompanyUpsertWithoutWhatsappConnectionsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutWhatsappConnectionsInput, CompanyUpdateWithoutWhatsappConnectionsInput>, CompanyUncheckedUpdateWithoutWhatsappConnectionsInput>
+  }
+
+  export type SmsLogUpdateManyWithoutWhatsAppConnectionNestedInput = {
+    create?: XOR<SmsLogCreateWithoutWhatsAppConnectionInput, SmsLogUncheckedCreateWithoutWhatsAppConnectionInput> | SmsLogCreateWithoutWhatsAppConnectionInput[] | SmsLogUncheckedCreateWithoutWhatsAppConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutWhatsAppConnectionInput | SmsLogCreateOrConnectWithoutWhatsAppConnectionInput[]
+    upsert?: SmsLogUpsertWithWhereUniqueWithoutWhatsAppConnectionInput | SmsLogUpsertWithWhereUniqueWithoutWhatsAppConnectionInput[]
+    createMany?: SmsLogCreateManyWhatsAppConnectionInputEnvelope
+    set?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    disconnect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    delete?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    update?: SmsLogUpdateWithWhereUniqueWithoutWhatsAppConnectionInput | SmsLogUpdateWithWhereUniqueWithoutWhatsAppConnectionInput[]
+    updateMany?: SmsLogUpdateManyWithWhereWithoutWhatsAppConnectionInput | SmsLogUpdateManyWithWhereWithoutWhatsAppConnectionInput[]
+    deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type SmsLogUncheckedUpdateManyWithoutWhatsAppConnectionNestedInput = {
+    create?: XOR<SmsLogCreateWithoutWhatsAppConnectionInput, SmsLogUncheckedCreateWithoutWhatsAppConnectionInput> | SmsLogCreateWithoutWhatsAppConnectionInput[] | SmsLogUncheckedCreateWithoutWhatsAppConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutWhatsAppConnectionInput | SmsLogCreateOrConnectWithoutWhatsAppConnectionInput[]
+    upsert?: SmsLogUpsertWithWhereUniqueWithoutWhatsAppConnectionInput | SmsLogUpsertWithWhereUniqueWithoutWhatsAppConnectionInput[]
+    createMany?: SmsLogCreateManyWhatsAppConnectionInputEnvelope
+    set?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    disconnect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    delete?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    update?: SmsLogUpdateWithWhereUniqueWithoutWhatsAppConnectionInput | SmsLogUpdateWithWhereUniqueWithoutWhatsAppConnectionInput[]
+    updateMany?: SmsLogUpdateManyWithWhereWithoutWhatsAppConnectionInput | SmsLogUpdateManyWithWhereWithoutWhatsAppConnectionInput[]
+    deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type CompanyCreateNestedOneWithoutEmailConnectionsInput = {
+    create?: XOR<CompanyCreateWithoutEmailConnectionsInput, CompanyUncheckedCreateWithoutEmailConnectionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEmailConnectionsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type SmsLogCreateNestedManyWithoutEmailConnectionInput = {
+    create?: XOR<SmsLogCreateWithoutEmailConnectionInput, SmsLogUncheckedCreateWithoutEmailConnectionInput> | SmsLogCreateWithoutEmailConnectionInput[] | SmsLogUncheckedCreateWithoutEmailConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutEmailConnectionInput | SmsLogCreateOrConnectWithoutEmailConnectionInput[]
+    createMany?: SmsLogCreateManyEmailConnectionInputEnvelope
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type SmsLogUncheckedCreateNestedManyWithoutEmailConnectionInput = {
+    create?: XOR<SmsLogCreateWithoutEmailConnectionInput, SmsLogUncheckedCreateWithoutEmailConnectionInput> | SmsLogCreateWithoutEmailConnectionInput[] | SmsLogUncheckedCreateWithoutEmailConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutEmailConnectionInput | SmsLogCreateOrConnectWithoutEmailConnectionInput[]
+    createMany?: SmsLogCreateManyEmailConnectionInputEnvelope
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutEmailConnectionsNestedInput = {
+    create?: XOR<CompanyCreateWithoutEmailConnectionsInput, CompanyUncheckedCreateWithoutEmailConnectionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEmailConnectionsInput
+    upsert?: CompanyUpsertWithoutEmailConnectionsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutEmailConnectionsInput, CompanyUpdateWithoutEmailConnectionsInput>, CompanyUncheckedUpdateWithoutEmailConnectionsInput>
+  }
+
+  export type SmsLogUpdateManyWithoutEmailConnectionNestedInput = {
+    create?: XOR<SmsLogCreateWithoutEmailConnectionInput, SmsLogUncheckedCreateWithoutEmailConnectionInput> | SmsLogCreateWithoutEmailConnectionInput[] | SmsLogUncheckedCreateWithoutEmailConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutEmailConnectionInput | SmsLogCreateOrConnectWithoutEmailConnectionInput[]
+    upsert?: SmsLogUpsertWithWhereUniqueWithoutEmailConnectionInput | SmsLogUpsertWithWhereUniqueWithoutEmailConnectionInput[]
+    createMany?: SmsLogCreateManyEmailConnectionInputEnvelope
+    set?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    disconnect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    delete?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    update?: SmsLogUpdateWithWhereUniqueWithoutEmailConnectionInput | SmsLogUpdateWithWhereUniqueWithoutEmailConnectionInput[]
+    updateMany?: SmsLogUpdateManyWithWhereWithoutEmailConnectionInput | SmsLogUpdateManyWithWhereWithoutEmailConnectionInput[]
+    deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type SmsLogUncheckedUpdateManyWithoutEmailConnectionNestedInput = {
+    create?: XOR<SmsLogCreateWithoutEmailConnectionInput, SmsLogUncheckedCreateWithoutEmailConnectionInput> | SmsLogCreateWithoutEmailConnectionInput[] | SmsLogUncheckedCreateWithoutEmailConnectionInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutEmailConnectionInput | SmsLogCreateOrConnectWithoutEmailConnectionInput[]
+    upsert?: SmsLogUpsertWithWhereUniqueWithoutEmailConnectionInput | SmsLogUpsertWithWhereUniqueWithoutEmailConnectionInput[]
+    createMany?: SmsLogCreateManyEmailConnectionInputEnvelope
+    set?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    disconnect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    delete?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    update?: SmsLogUpdateWithWhereUniqueWithoutEmailConnectionInput | SmsLogUpdateWithWhereUniqueWithoutEmailConnectionInput[]
+    updateMany?: SmsLogUpdateManyWithWhereWithoutEmailConnectionInput | SmsLogUpdateManyWithWhereWithoutEmailConnectionInput[]
+    deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
   }
 
   export type CompanyCreateNestedOneWithoutSmsUsageInput = {
@@ -82884,11 +87139,26 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
     client: ClientCreateNestedOneWithoutSmsLogsInput
+    whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
+    emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
   }
 
   export type SmsLogUncheckedCreateWithoutCompanyInput = {
@@ -82904,10 +87174,25 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    whatsAppConnectionId?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SmsLogCreateOrConnectWithoutCompanyInput = {
@@ -82917,6 +87202,102 @@ export namespace Prisma {
 
   export type SmsLogCreateManyCompanyInputEnvelope = {
     data: SmsLogCreateManyCompanyInput | SmsLogCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WhatsAppConnectionCreateWithoutCompanyInput = {
+    id?: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: SmsLogCreateNestedManyWithoutWhatsAppConnectionInput
+  }
+
+  export type WhatsAppConnectionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: SmsLogUncheckedCreateNestedManyWithoutWhatsAppConnectionInput
+  }
+
+  export type WhatsAppConnectionCreateOrConnectWithoutCompanyInput = {
+    where: WhatsAppConnectionWhereUniqueInput
+    create: XOR<WhatsAppConnectionCreateWithoutCompanyInput, WhatsAppConnectionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type WhatsAppConnectionCreateManyCompanyInputEnvelope = {
+    data: WhatsAppConnectionCreateManyCompanyInput | WhatsAppConnectionCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EmailConnectionCreateWithoutCompanyInput = {
+    id?: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: SmsLogCreateNestedManyWithoutEmailConnectionInput
+  }
+
+  export type EmailConnectionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: SmsLogUncheckedCreateNestedManyWithoutEmailConnectionInput
+  }
+
+  export type EmailConnectionCreateOrConnectWithoutCompanyInput = {
+    where: EmailConnectionWhereUniqueInput
+    create: XOR<EmailConnectionCreateWithoutCompanyInput, EmailConnectionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EmailConnectionCreateManyCompanyInputEnvelope = {
+    data: EmailConnectionCreateManyCompanyInput | EmailConnectionCreateManyCompanyInput[]
     skipDuplicates?: boolean
   }
 
@@ -84172,10 +88553,101 @@ export namespace Prisma {
     toEmail?: StringNullableFilter<"SmsLog"> | string | null
     isRead?: BoolFilter<"SmsLog"> | boolean
     readAt?: DateTimeNullableFilter<"SmsLog"> | Date | string | null
+    deliveredAt?: DateTimeNullableFilter<"SmsLog"> | Date | string | null
     twilioSid?: StringNullableFilter<"SmsLog"> | string | null
+    whatsappMessageId?: StringNullableFilter<"SmsLog"> | string | null
+    emailMessageId?: StringNullableFilter<"SmsLog"> | string | null
+    externalMessageId?: StringNullableFilter<"SmsLog"> | string | null
     status?: StringNullableFilter<"SmsLog"> | string | null
+    whatsAppConnectionId?: StringNullableFilter<"SmsLog"> | string | null
+    emailConnectionId?: StringNullableFilter<"SmsLog"> | string | null
+    threadId?: StringNullableFilter<"SmsLog"> | string | null
+    inReplyTo?: StringNullableFilter<"SmsLog"> | string | null
+    references?: StringNullableFilter<"SmsLog"> | string | null
+    attachments?: JsonNullableFilter<"SmsLog">
     autoType?: StringNullableFilter<"SmsLog"> | string | null
+    templateName?: StringNullableFilter<"SmsLog"> | string | null
+    errorCode?: StringNullableFilter<"SmsLog"> | string | null
+    errorMessage?: StringNullableFilter<"SmsLog"> | string | null
+    metadata?: JsonNullableFilter<"SmsLog">
     createdAt?: DateTimeFilter<"SmsLog"> | Date | string
+    updatedAt?: DateTimeFilter<"SmsLog"> | Date | string
+  }
+
+  export type WhatsAppConnectionUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: WhatsAppConnectionWhereUniqueInput
+    update: XOR<WhatsAppConnectionUpdateWithoutCompanyInput, WhatsAppConnectionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<WhatsAppConnectionCreateWithoutCompanyInput, WhatsAppConnectionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type WhatsAppConnectionUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: WhatsAppConnectionWhereUniqueInput
+    data: XOR<WhatsAppConnectionUpdateWithoutCompanyInput, WhatsAppConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type WhatsAppConnectionUpdateManyWithWhereWithoutCompanyInput = {
+    where: WhatsAppConnectionScalarWhereInput
+    data: XOR<WhatsAppConnectionUpdateManyMutationInput, WhatsAppConnectionUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type WhatsAppConnectionScalarWhereInput = {
+    AND?: WhatsAppConnectionScalarWhereInput | WhatsAppConnectionScalarWhereInput[]
+    OR?: WhatsAppConnectionScalarWhereInput[]
+    NOT?: WhatsAppConnectionScalarWhereInput | WhatsAppConnectionScalarWhereInput[]
+    id?: StringFilter<"WhatsAppConnection"> | string
+    companyId?: StringFilter<"WhatsAppConnection"> | string
+    name?: StringFilter<"WhatsAppConnection"> | string
+    phoneNumberId?: StringFilter<"WhatsAppConnection"> | string
+    wabaId?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    displayPhoneNumber?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    verifiedName?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    qualityRating?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    encryptedAccessToken?: StringNullableFilter<"WhatsAppConnection"> | string | null
+    status?: StringFilter<"WhatsAppConnection"> | string
+    isDefault?: BoolFilter<"WhatsAppConnection"> | boolean
+    webhookVerified?: BoolFilter<"WhatsAppConnection"> | boolean
+    createdAt?: DateTimeFilter<"WhatsAppConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"WhatsAppConnection"> | Date | string
+  }
+
+  export type EmailConnectionUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: EmailConnectionWhereUniqueInput
+    update: XOR<EmailConnectionUpdateWithoutCompanyInput, EmailConnectionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<EmailConnectionCreateWithoutCompanyInput, EmailConnectionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EmailConnectionUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: EmailConnectionWhereUniqueInput
+    data: XOR<EmailConnectionUpdateWithoutCompanyInput, EmailConnectionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type EmailConnectionUpdateManyWithWhereWithoutCompanyInput = {
+    where: EmailConnectionScalarWhereInput
+    data: XOR<EmailConnectionUpdateManyMutationInput, EmailConnectionUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type EmailConnectionScalarWhereInput = {
+    AND?: EmailConnectionScalarWhereInput | EmailConnectionScalarWhereInput[]
+    OR?: EmailConnectionScalarWhereInput[]
+    NOT?: EmailConnectionScalarWhereInput | EmailConnectionScalarWhereInput[]
+    id?: StringFilter<"EmailConnection"> | string
+    companyId?: StringFilter<"EmailConnection"> | string
+    provider?: StringFilter<"EmailConnection"> | string
+    emailAddress?: StringFilter<"EmailConnection"> | string
+    displayName?: StringNullableFilter<"EmailConnection"> | string | null
+    providerAccountId?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedAccessToken?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedRefreshToken?: StringNullableFilter<"EmailConnection"> | string | null
+    tokenExpiresAt?: DateTimeNullableFilter<"EmailConnection"> | Date | string | null
+    smtpHost?: StringNullableFilter<"EmailConnection"> | string | null
+    smtpPort?: IntNullableFilter<"EmailConnection"> | number | null
+    smtpUser?: StringNullableFilter<"EmailConnection"> | string | null
+    encryptedSmtpPass?: StringNullableFilter<"EmailConnection"> | string | null
+    status?: StringFilter<"EmailConnection"> | string
+    isDefault?: BoolFilter<"EmailConnection"> | boolean
+    lastSyncAt?: DateTimeNullableFilter<"EmailConnection"> | Date | string | null
+    createdAt?: DateTimeFilter<"EmailConnection"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailConnection"> | Date | string
   }
 
   export type NotificationUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -85083,6 +89555,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -85143,6 +89617,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -85246,6 +89722,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -85306,6 +89784,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -85437,6 +89917,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
@@ -85497,6 +89979,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
@@ -85660,6 +90144,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
@@ -85720,6 +90206,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
@@ -85959,6 +90447,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -86019,6 +90509,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -86095,6 +90587,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -86155,6 +90649,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -86214,6 +90710,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -86274,6 +90772,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -86738,6 +91238,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -86798,6 +91300,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -87461,6 +91965,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
     settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
@@ -87521,6 +92027,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
     settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
@@ -87597,6 +92105,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
     settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
@@ -87657,6 +92167,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
     settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
@@ -87717,6 +92229,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -87777,6 +92291,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -87933,6 +92449,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -87993,6 +92511,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -88123,6 +92643,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -88183,6 +92705,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -88551,6 +93075,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -88611,6 +93137,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -88718,6 +93246,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -88778,6 +93308,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -89229,11 +93761,26 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutSmsLogsInput
+    whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
+    emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
   }
 
   export type SmsLogUncheckedCreateWithoutClientInput = {
@@ -89249,10 +93796,25 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    whatsAppConnectionId?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SmsLogCreateOrConnectWithoutClientInput = {
@@ -89313,6 +93875,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -89373,6 +93937,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -89857,6 +94423,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -89917,6 +94485,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -90530,6 +95100,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -90590,6 +95162,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -91359,6 +95933,8 @@ export namespace Prisma {
     interventions?: InterventionCreateNestedManyWithoutCompanyInput
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -91419,6 +95995,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -91708,6 +96286,8 @@ export namespace Prisma {
     interventions?: InterventionUpdateManyWithoutCompanyNestedInput
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -91768,6 +96348,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -92291,6 +96873,8 @@ export namespace Prisma {
     interventions?: InterventionCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -92351,6 +96935,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -92804,6 +97390,8 @@ export namespace Prisma {
     interventions?: InterventionUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -92864,6 +97452,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -93574,6 +98164,8 @@ export namespace Prisma {
     interventions?: InterventionCreateNestedManyWithoutCompanyInput
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -93634,6 +98226,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -93741,6 +98335,92 @@ export namespace Prisma {
     create: XOR<ClientCreateWithoutSmsLogsInput, ClientUncheckedCreateWithoutSmsLogsInput>
   }
 
+  export type WhatsAppConnectionCreateWithoutMessagesInput = {
+    id?: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutWhatsappConnectionsInput
+  }
+
+  export type WhatsAppConnectionUncheckedCreateWithoutMessagesInput = {
+    id?: string
+    companyId: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhatsAppConnectionCreateOrConnectWithoutMessagesInput = {
+    where: WhatsAppConnectionWhereUniqueInput
+    create: XOR<WhatsAppConnectionCreateWithoutMessagesInput, WhatsAppConnectionUncheckedCreateWithoutMessagesInput>
+  }
+
+  export type EmailConnectionCreateWithoutMessagesInput = {
+    id?: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEmailConnectionsInput
+  }
+
+  export type EmailConnectionUncheckedCreateWithoutMessagesInput = {
+    id?: string
+    companyId: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailConnectionCreateOrConnectWithoutMessagesInput = {
+    where: EmailConnectionWhereUniqueInput
+    create: XOR<EmailConnectionCreateWithoutMessagesInput, EmailConnectionUncheckedCreateWithoutMessagesInput>
+  }
+
   export type CompanyUpsertWithoutSmsLogsInput = {
     update: XOR<CompanyUpdateWithoutSmsLogsInput, CompanyUncheckedUpdateWithoutSmsLogsInput>
     create: XOR<CompanyCreateWithoutSmsLogsInput, CompanyUncheckedCreateWithoutSmsLogsInput>
@@ -93789,6 +98469,8 @@ export namespace Prisma {
     interventions?: InterventionUpdateManyWithoutCompanyNestedInput
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -93849,6 +98531,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -93957,6 +98641,820 @@ export namespace Prisma {
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
   }
 
+  export type WhatsAppConnectionUpsertWithoutMessagesInput = {
+    update: XOR<WhatsAppConnectionUpdateWithoutMessagesInput, WhatsAppConnectionUncheckedUpdateWithoutMessagesInput>
+    create: XOR<WhatsAppConnectionCreateWithoutMessagesInput, WhatsAppConnectionUncheckedCreateWithoutMessagesInput>
+    where?: WhatsAppConnectionWhereInput
+  }
+
+  export type WhatsAppConnectionUpdateToOneWithWhereWithoutMessagesInput = {
+    where?: WhatsAppConnectionWhereInput
+    data: XOR<WhatsAppConnectionUpdateWithoutMessagesInput, WhatsAppConnectionUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type WhatsAppConnectionUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutWhatsappConnectionsNestedInput
+  }
+
+  export type WhatsAppConnectionUncheckedUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailConnectionUpsertWithoutMessagesInput = {
+    update: XOR<EmailConnectionUpdateWithoutMessagesInput, EmailConnectionUncheckedUpdateWithoutMessagesInput>
+    create: XOR<EmailConnectionCreateWithoutMessagesInput, EmailConnectionUncheckedCreateWithoutMessagesInput>
+    where?: EmailConnectionWhereInput
+  }
+
+  export type EmailConnectionUpdateToOneWithWhereWithoutMessagesInput = {
+    where?: EmailConnectionWhereInput
+    data: XOR<EmailConnectionUpdateWithoutMessagesInput, EmailConnectionUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type EmailConnectionUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEmailConnectionsNestedInput
+  }
+
+  export type EmailConnectionUncheckedUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyCreateWithoutWhatsappConnectionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutWhatsappConnectionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutWhatsappConnectionsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutWhatsappConnectionsInput, CompanyUncheckedCreateWithoutWhatsappConnectionsInput>
+  }
+
+  export type SmsLogCreateWithoutWhatsAppConnectionInput = {
+    id?: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutSmsLogsInput
+    client: ClientCreateNestedOneWithoutSmsLogsInput
+    emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
+  }
+
+  export type SmsLogUncheckedCreateWithoutWhatsAppConnectionInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SmsLogCreateOrConnectWithoutWhatsAppConnectionInput = {
+    where: SmsLogWhereUniqueInput
+    create: XOR<SmsLogCreateWithoutWhatsAppConnectionInput, SmsLogUncheckedCreateWithoutWhatsAppConnectionInput>
+  }
+
+  export type SmsLogCreateManyWhatsAppConnectionInputEnvelope = {
+    data: SmsLogCreateManyWhatsAppConnectionInput | SmsLogCreateManyWhatsAppConnectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutWhatsappConnectionsInput = {
+    update: XOR<CompanyUpdateWithoutWhatsappConnectionsInput, CompanyUncheckedUpdateWithoutWhatsappConnectionsInput>
+    create: XOR<CompanyCreateWithoutWhatsappConnectionsInput, CompanyUncheckedCreateWithoutWhatsappConnectionsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutWhatsappConnectionsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutWhatsappConnectionsInput, CompanyUncheckedUpdateWithoutWhatsappConnectionsInput>
+  }
+
+  export type CompanyUpdateWithoutWhatsappConnectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutWhatsappConnectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type SmsLogUpsertWithWhereUniqueWithoutWhatsAppConnectionInput = {
+    where: SmsLogWhereUniqueInput
+    update: XOR<SmsLogUpdateWithoutWhatsAppConnectionInput, SmsLogUncheckedUpdateWithoutWhatsAppConnectionInput>
+    create: XOR<SmsLogCreateWithoutWhatsAppConnectionInput, SmsLogUncheckedCreateWithoutWhatsAppConnectionInput>
+  }
+
+  export type SmsLogUpdateWithWhereUniqueWithoutWhatsAppConnectionInput = {
+    where: SmsLogWhereUniqueInput
+    data: XOR<SmsLogUpdateWithoutWhatsAppConnectionInput, SmsLogUncheckedUpdateWithoutWhatsAppConnectionInput>
+  }
+
+  export type SmsLogUpdateManyWithWhereWithoutWhatsAppConnectionInput = {
+    where: SmsLogScalarWhereInput
+    data: XOR<SmsLogUpdateManyMutationInput, SmsLogUncheckedUpdateManyWithoutWhatsAppConnectionInput>
+  }
+
+  export type CompanyCreateWithoutEmailConnectionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutEmailConnectionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutEmailConnectionsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutEmailConnectionsInput, CompanyUncheckedCreateWithoutEmailConnectionsInput>
+  }
+
+  export type SmsLogCreateWithoutEmailConnectionInput = {
+    id?: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutSmsLogsInput
+    client: ClientCreateNestedOneWithoutSmsLogsInput
+    whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
+  }
+
+  export type SmsLogUncheckedCreateWithoutEmailConnectionInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    whatsAppConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SmsLogCreateOrConnectWithoutEmailConnectionInput = {
+    where: SmsLogWhereUniqueInput
+    create: XOR<SmsLogCreateWithoutEmailConnectionInput, SmsLogUncheckedCreateWithoutEmailConnectionInput>
+  }
+
+  export type SmsLogCreateManyEmailConnectionInputEnvelope = {
+    data: SmsLogCreateManyEmailConnectionInput | SmsLogCreateManyEmailConnectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutEmailConnectionsInput = {
+    update: XOR<CompanyUpdateWithoutEmailConnectionsInput, CompanyUncheckedUpdateWithoutEmailConnectionsInput>
+    create: XOR<CompanyCreateWithoutEmailConnectionsInput, CompanyUncheckedCreateWithoutEmailConnectionsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutEmailConnectionsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutEmailConnectionsInput, CompanyUncheckedUpdateWithoutEmailConnectionsInput>
+  }
+
+  export type CompanyUpdateWithoutEmailConnectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutEmailConnectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type SmsLogUpsertWithWhereUniqueWithoutEmailConnectionInput = {
+    where: SmsLogWhereUniqueInput
+    update: XOR<SmsLogUpdateWithoutEmailConnectionInput, SmsLogUncheckedUpdateWithoutEmailConnectionInput>
+    create: XOR<SmsLogCreateWithoutEmailConnectionInput, SmsLogUncheckedCreateWithoutEmailConnectionInput>
+  }
+
+  export type SmsLogUpdateWithWhereUniqueWithoutEmailConnectionInput = {
+    where: SmsLogWhereUniqueInput
+    data: XOR<SmsLogUpdateWithoutEmailConnectionInput, SmsLogUncheckedUpdateWithoutEmailConnectionInput>
+  }
+
+  export type SmsLogUpdateManyWithWhereWithoutEmailConnectionInput = {
+    where: SmsLogScalarWhereInput
+    data: XOR<SmsLogUpdateManyMutationInput, SmsLogUncheckedUpdateManyWithoutEmailConnectionInput>
+  }
+
   export type CompanyCreateWithoutSmsUsageInput = {
     id?: string
     name: string
@@ -93995,6 +99493,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -94055,6 +99555,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -94131,6 +99633,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -94191,6 +99695,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -94251,6 +99757,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
     settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
@@ -94311,6 +99819,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
     settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
@@ -94456,6 +99966,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
     settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
@@ -94516,6 +100028,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
     settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
@@ -94651,6 +100165,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -94711,6 +100227,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -94787,6 +100305,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -94847,6 +100367,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -94907,6 +100429,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -94967,6 +100491,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -95043,6 +100569,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -95103,6 +100631,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -95163,6 +100693,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -95223,6 +100755,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -95299,6 +100833,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -95359,6 +100895,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -95419,6 +100957,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -95479,6 +101019,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -95555,6 +101097,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -95615,6 +101159,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -95951,6 +101497,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -96011,6 +101559,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -96156,6 +101706,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -96216,6 +101768,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -96623,6 +102177,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -96683,6 +102239,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -96759,6 +102317,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -96819,6 +102379,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -96879,6 +102441,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -96939,6 +102503,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -97057,6 +102623,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -97117,6 +102685,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -97193,6 +102763,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -97253,6 +102825,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -97529,6 +103103,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -97589,6 +103165,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -97861,6 +103439,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -97921,6 +103501,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -97997,6 +103579,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -98057,6 +103641,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -98252,6 +103838,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -98312,6 +103900,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -98529,6 +104119,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -98589,6 +104181,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -98649,6 +104243,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -98709,6 +104305,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -98823,6 +104421,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -98883,6 +104483,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -98994,6 +104596,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -99054,6 +104658,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -99221,6 +104827,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -99281,6 +104889,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -99390,6 +105000,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutCompanyInput
     quotes?: QuoteCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
     notifications?: NotificationCreateNestedManyWithoutCompanyInput
     invitations?: InvitationCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
@@ -99450,6 +105062,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
@@ -99700,6 +105314,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
@@ -99760,6 +105376,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -100184,10 +105802,61 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    whatsAppConnectionId?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhatsAppConnectionCreateManyCompanyInput = {
+    id?: string
+    name?: string
+    phoneNumberId: string
+    wabaId?: string | null
+    displayPhoneNumber?: string | null
+    verifiedName?: string | null
+    qualityRating?: string | null
+    encryptedAccessToken?: string | null
+    status?: string
+    isDefault?: boolean
+    webhookVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailConnectionCreateManyCompanyInput = {
+    id?: string
+    provider: string
+    emailAddress: string
+    displayName?: string | null
+    providerAccountId?: string | null
+    encryptedAccessToken?: string | null
+    encryptedRefreshToken?: string | null
+    tokenExpiresAt?: Date | string | null
+    smtpHost?: string | null
+    smtpPort?: number | null
+    smtpUser?: string | null
+    encryptedSmtpPass?: string | null
+    status?: string
+    isDefault?: boolean
+    lastSyncAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type NotificationCreateManyCompanyInput = {
@@ -101030,11 +106699,26 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
+    whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
+    emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
   }
 
   export type SmsLogUncheckedUpdateWithoutCompanyInput = {
@@ -101050,10 +106734,25 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SmsLogUncheckedUpdateManyWithoutCompanyInput = {
@@ -101069,10 +106768,137 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppConnectionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: SmsLogUpdateManyWithoutWhatsAppConnectionNestedInput
+  }
+
+  export type WhatsAppConnectionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: SmsLogUncheckedUpdateManyWithoutWhatsAppConnectionNestedInput
+  }
+
+  export type WhatsAppConnectionUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phoneNumberId?: StringFieldUpdateOperationsInput | string
+    wabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
+    qualityRating?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    webhookVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailConnectionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: SmsLogUpdateManyWithoutEmailConnectionNestedInput
+  }
+
+  export type EmailConnectionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: SmsLogUncheckedUpdateManyWithoutEmailConnectionNestedInput
+  }
+
+  export type EmailConnectionUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    emailAddress?: StringFieldUpdateOperationsInput | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smtpHost?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpPort?: NullableIntFieldUpdateOperationsInput | number | null
+    smtpUser?: NullableStringFieldUpdateOperationsInput | string | null
+    encryptedSmtpPass?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificationUpdateWithoutCompanyInput = {
@@ -103285,10 +109111,25 @@ export namespace Prisma {
     toEmail?: string | null
     isRead?: boolean
     readAt?: Date | string | null
+    deliveredAt?: Date | string | null
     twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
     status?: string | null
+    whatsAppConnectionId?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type EquipmentUpdateWithoutClientInput = {
@@ -103746,11 +109587,26 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
+    whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
+    emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
   }
 
   export type SmsLogUncheckedUpdateWithoutClientInput = {
@@ -103766,10 +109622,25 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SmsLogUncheckedUpdateManyWithoutClientInput = {
@@ -103785,10 +109656,25 @@ export namespace Prisma {
     toEmail?: NullableStringFieldUpdateOperationsInput | string | null
     isRead?: BoolFieldUpdateOperationsInput | boolean
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
     autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InterventionCreateManyEquipmentInput = {
@@ -104295,6 +110181,278 @@ export namespace Prisma {
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogCreateManyWhatsAppConnectionInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SmsLogUpdateWithoutWhatsAppConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
+    client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
+    emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
+  }
+
+  export type SmsLogUncheckedUpdateWithoutWhatsAppConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogUncheckedUpdateManyWithoutWhatsAppConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogCreateManyEmailConnectionInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    whatsAppConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SmsLogUpdateWithoutEmailConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
+    client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
+    whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
+  }
+
+  export type SmsLogUncheckedUpdateWithoutEmailConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogUncheckedUpdateManyWithoutEmailConnectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminSessionCreateManyAdminUserInput = {

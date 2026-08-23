@@ -530,3 +530,65 @@ export const handleB2brouterWebhook = async (req, res) => {
     }
 };
 
+/**
+ * Webhook Meta WhatsApp : Vérification du Challenge lors de la configuration
+ * GET /api/v1/webhooks/whatsapp
+ */
+export const handleWhatsAppVerificationWebhook = async (req, res) => {
+    const mode = req.query["hub.mode"];
+    const token = req.query["hub.verify_token"];
+    const challenge = req.query["hub.challenge"];
+
+    const verifyToken = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || "gestart_whatsapp_webhook_verify_secret_token";
+
+    if (mode && token) {
+        if (mode === "subscribe" && token === verifyToken) {
+            console.log("[WHATSAPP_WEBHOOK_VERIFIED] Challenge Meta accepté avec succès");
+            return res.status(200).send(challenge);
+        } else {
+            console.warn("[WHATSAPP_WEBHOOK_VERIFY_FAILED] Token de vérification invalide:", token);
+            return res.sendStatus(403);
+        }
+    }
+
+    return res.sendStatus(400);
+};
+
+/**
+ * Webhook Meta WhatsApp : Réception des messages et statuts
+ * POST /api/v1/webhooks/whatsapp
+ */
+export const handleWhatsAppWebhook = async (req, res) => {
+    try {
+        const { whatsAppProvider } = await import("../services/messaging/providers/whatsapp/WhatsAppProvider.js");
+        const payload = req.body;
+
+        await whatsAppProvider.handleIncomingWebhook(payload);
+
+        // Meta exige une réponse 200 OK immédiate
+        return res.status(200).json({ status: "EVENT_RECEIVED" });
+    } catch (error) {
+        console.error("[WHATSAPP WEBHOOK ERROR]:", error.message);
+        return res.status(200).json({ status: "ERROR_HANDLED", error: error.message });
+    }
+};
+
+/**
+ * Webhook Inbound Email : Réception des emails entrants
+ * POST /api/v1/webhooks/email
+ */
+export const handleEmailWebhook = async (req, res) => {
+    try {
+        const { emailProvider } = await import("../services/messaging/providers/email/EmailProvider.js");
+        const payload = req.body;
+
+        await emailProvider.handleIncomingWebhook(payload);
+
+        return res.status(200).json({ success: true, message: "Email traité" });
+    } catch (error) {
+        console.error("[EMAIL WEBHOOK ERROR]:", error.message);
+        return res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+

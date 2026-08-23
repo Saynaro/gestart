@@ -25,6 +25,8 @@ import eInvoicingRoutes from "./routes/eInvoicingRoutes.js";
 import stripeConnectRoutes from "./routes/stripeConnectRoutes.js";
 import paymentsRoutes from "./routes/paymentsRoutes.js";
 import bankingRoutes from "./routes/bankingRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
+import channelRoutes from "./routes/channelRoutes.js";
 
 dotenv.config();
 
@@ -83,6 +85,8 @@ app.use("/api/v1/e-invoicing", eInvoicingRoutes);
 app.use("/api/v1/stripe", stripeConnectRoutes);
 app.use("/api/v1/payments", paymentsRoutes);
 app.use("/api/v1/banking", bankingRoutes);
+app.use("/api/v1/messages", messageRoutes);
+app.use("/api/v1/communication", channelRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack || err);

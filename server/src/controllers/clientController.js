@@ -45,9 +45,25 @@ export const getClients = async (req, res) => {
                         orderBy: { scheduledAt: "desc" }
                     },
                     invoices: {
+                        include: {
+                            lines: { orderBy: { position: "asc" } },
+                            client: true,
+                            company: true,
+                            sourceQuote: {
+                                include: { client: true, lines: true }
+                            }
+                        },
                         orderBy: { createdAt: "desc" }
                     },
                     quotes: {
+                        include: {
+                            lines: { orderBy: { position: "asc" } },
+                            client: true,
+                            company: true,
+                            invoices: {
+                                include: { client: true, lines: true }
+                            }
+                        },
                         orderBy: { createdAt: "desc" }
                     },
                     smsLogs: {
@@ -175,9 +191,25 @@ export const getClientById = async (req, res) => {
                     orderBy: { scheduledAt: "desc" }
                 },
                 invoices: {
+                    include: {
+                        lines: { orderBy: { position: "asc" } },
+                        client: true,
+                        company: true,
+                        sourceQuote: {
+                            include: { client: true, lines: true }
+                        }
+                    },
                     orderBy: { createdAt: "desc" }
                 },
                 quotes: {
+                    include: {
+                        lines: { orderBy: { position: "asc" } },
+                        client: true,
+                        company: true,
+                        invoices: {
+                            include: { client: true, lines: true }
+                        }
+                    },
                     orderBy: { createdAt: "desc" }
                 },
                 smsLogs: {

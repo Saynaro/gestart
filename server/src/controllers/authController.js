@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { prisma } from "../config/db.js";
 import { generateAccessToken, generateRefreshToken, setRefreshCookie, setAuthCookies } from "../utils/generateToken.js";
 import { sendVerificationEmail, sendPasswordResetEmail, sendTwoFactorCodeEmail } from "../utils/emailService.js";
+import { ChannelConnectionService } from "../services/messaging/ChannelConnectionService.js";
 
 const parseDeviceInfo = (req) => {
     const ua = req.headers['user-agent'] || '';
@@ -1188,6 +1189,35 @@ export const googleCallback = async (req, res) => {
         const photoUrl = profile.picture;
 
         const formattedEmail = email.toLowerCase().trim();
+
+        // 1. Détection de la connexion de boîte Email d'entreprise depuis Paramètres -> Communication
+        let stateData = null;
+        if (req.query.state) {
+            try {
+                stateData = JSON.parse(Buffer.from(req.query.state, "base64").toString("utf-8"));
+            } catch (e) {
+                // Ignore parsing errors for standard auth
+            }
+        }
+
+        if (stateData && stateData.type === "email_channel" && stateData.companyId) {
+            try {
+                await ChannelConnectionService.connectEmail({
+                    companyId: stateData.companyId,
+                    provider: "GOOGLE",
+                    emailAddress: formattedEmail,
+                    displayName: profile.name || `${firstName} ${lastName}`.trim() || formattedEmail,
+                    accessToken: tokenData.access_token,
+                    refreshToken: tokenData.refresh_token,
+                    expiresIn: tokenData.expires_in
+                });
+
+                return res.redirect(`${frontendUrl}/settings?tab=communication&connected=google`);
+            } catch (chanErr) {
+                console.error("Erreur enregistrement connexion Google Email:", chanErr.message);
+                return res.redirect(`${frontendUrl}/settings?tab=communication&error=${encodeURIComponent(chanErr.message)}`);
+            }
+        }
 
         let user = await prisma.user.findUnique({
             where: { email: formattedEmail },

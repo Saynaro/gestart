@@ -57,6 +57,7 @@ import TransactionsTab from "./components/TransactionsTab";
 import CategoriesPersoTab from "./components/CategoriesPersoTab";
 import FacturationTab from "./components/FacturationTab";
 import SmsTab from "./components/SmsTab";
+import CommunicationTab from "./components/CommunicationTab";
 import NotificationsTab from "./components/NotificationsTab";
 import PremiumTab from "./components/PremiumTab";
 import SupportTab from "./components/SupportTab";
@@ -265,10 +266,11 @@ function SettingsPage() {
         {
             title: "Config",
             items: [
+                { id: "communication", label: "Communication & Canaux", icon: MessageSquare, subtitle: "Twilio SMS, WhatsApp Business, Email" },
                 { id: "paiements", label: "Paiements", icon: CreditCard, subtitle: "Stripe Connect et virements" },
                 { id: "facturation", label: "Facturation", icon: Receipt, subtitle: "Réglages de facturation" },
                 { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
-                { id: "sms", label: "SMS", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
+                { id: "sms", label: "SMS & Modèles", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
                 { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" },
                 { id: "premium", label: "Premium", icon: Star, subtitle: "Fonctionnalités Pro avancées", badge: "PRO" }
             ]
@@ -436,6 +438,8 @@ function SettingsPage() {
                             return <FacturationTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "e-invoicing":
                             return <EInvoicingTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
+                        case "communication":
+                            return <CommunicationTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "sms":
                             return <SmsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "notifications":

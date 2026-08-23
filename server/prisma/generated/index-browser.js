@@ -614,10 +614,63 @@ exports.Prisma.SmsLogScalarFieldEnum = {
   toEmail: 'toEmail',
   isRead: 'isRead',
   readAt: 'readAt',
+  deliveredAt: 'deliveredAt',
   twilioSid: 'twilioSid',
+  whatsappMessageId: 'whatsappMessageId',
+  emailMessageId: 'emailMessageId',
+  externalMessageId: 'externalMessageId',
   status: 'status',
+  whatsAppConnectionId: 'whatsAppConnectionId',
+  emailConnectionId: 'emailConnectionId',
+  threadId: 'threadId',
+  inReplyTo: 'inReplyTo',
+  references: 'references',
+  attachments: 'attachments',
   autoType: 'autoType',
-  createdAt: 'createdAt'
+  templateName: 'templateName',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WhatsAppConnectionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  name: 'name',
+  phoneNumberId: 'phoneNumberId',
+  wabaId: 'wabaId',
+  displayPhoneNumber: 'displayPhoneNumber',
+  verifiedName: 'verifiedName',
+  qualityRating: 'qualityRating',
+  encryptedAccessToken: 'encryptedAccessToken',
+  status: 'status',
+  isDefault: 'isDefault',
+  webhookVerified: 'webhookVerified',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EmailConnectionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  provider: 'provider',
+  emailAddress: 'emailAddress',
+  displayName: 'displayName',
+  providerAccountId: 'providerAccountId',
+  encryptedAccessToken: 'encryptedAccessToken',
+  encryptedRefreshToken: 'encryptedRefreshToken',
+  tokenExpiresAt: 'tokenExpiresAt',
+  smtpHost: 'smtpHost',
+  smtpPort: 'smtpPort',
+  smtpUser: 'smtpUser',
+  encryptedSmtpPass: 'encryptedSmtpPass',
+  status: 'status',
+  isDefault: 'isDefault',
+  lastSyncAt: 'lastSyncAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SmsUsageScalarFieldEnum = {
@@ -1221,6 +1274,8 @@ exports.Prisma.ModelName = {
   Invoice: 'Invoice',
   InvoiceLine: 'InvoiceLine',
   SmsLog: 'SmsLog',
+  WhatsAppConnection: 'WhatsAppConnection',
+  EmailConnection: 'EmailConnection',
   SmsUsage: 'SmsUsage',
   Notification: 'Notification',
   QuoteRequest: 'QuoteRequest',

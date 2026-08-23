@@ -327,44 +327,76 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
-/* Screenshot styling matches:
-   - Me (agent): Black bubble, white text.
-   - Them (client): Light gray bubble, dark text.
-*/
-.message-bubble-wrapper.me .message-bubble {
+/* Standard Chat Bubbles (SMS / WhatsApp) */
+.message-bubble-wrapper.me .message-bubble:not(.email-bubble-card) {
     background-color: var(--sidebar-primary);
-    color: var(--sidebar-primary-foreground);
+    color: #ffffff !important;
     border-bottom-right-radius: 4px;
 }
 
-.dark .message-bubble-wrapper.me .message-bubble {
+.message-bubble-wrapper.me .message-bubble:not(.email-bubble-card) .message-text {
+    color: #ffffff !important;
+}
+
+.message-bubble-wrapper.me .message-bubble:not(.email-bubble-card) .bubble-author-name {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.message-bubble-wrapper.me .message-bubble:not(.email-bubble-card) .message-time {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.dark .message-bubble-wrapper.me .message-bubble:not(.email-bubble-card) {
     background-color: var(--sidebar-primary);
-    color: var(--sidebar-primary-foreground);
+    color: #ffffff !important;
     border: none;
 }
 
-.message-bubble-wrapper.them .message-bubble {
+.message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) {
     background-color: #f1f5f9;
-    color: #0f172a;
+    color: #0f172a !important;
     border-bottom-left-radius: 4px;
 }
 
-.dark .message-bubble-wrapper.them .message-bubble {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--foreground);
+.message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) .message-text {
+    color: #0f172a !important;
+}
+
+.message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) .bubble-author-name {
+    color: #475569 !important;
+}
+
+.message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) .message-time {
+    color: #64748b !important;
+}
+
+.dark .message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #f8fafc !important;
+}
+
+.dark .message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) .message-text {
+    color: #f8fafc !important;
+}
+
+.dark .message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) .bubble-author-name {
+    color: #94a3b8 !important;
+}
+
+.dark .message-bubble-wrapper.them .message-bubble:not(.email-bubble-card) .message-time {
+    color: #94a3b8 !important;
 }
 
 .message-text {
     margin: 0 0 6px 0;
-    font-size: 15px;
-    line-height: 1.45;
+    font-size: 14.5px;
+    line-height: 1.5;
 }
 
 .message-time {
     font-size: 11px;
-    display: block;
+    display: inline-block;
     text-align: right;
-    opacity: 0.6;
 }
 
 /* Custom layout for file attachment message */
@@ -1247,4 +1279,581 @@
 .dark .mobile-info-view-container,
 .dark .chat-pane-placeholder {
     background-color: var(--background) !important;
+}
+
+/* ==========================================================================
+   9. Omnichannel Inbox & Composer Styles (SMS, WhatsApp, Email)
+   ========================================================================== */
+
+/* Channel Badges */
+.channel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+}
+
+.channel-badge-sms {
+    background-color: rgba(91, 77, 219, 0.12);
+    color: var(--sidebar-primary);
+    border: 1px solid rgba(91, 77, 219, 0.2);
+}
+
+.channel-badge-whatsapp {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.channel-badge-email {
+    background-color: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-sms { background-color: var(--sidebar-primary); }
+.dot-whatsapp { background-color: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.6); }
+.dot-email { background-color: #3b82f6; }
+
+/* Filter Chips Bar */
+.channel-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px 12px 16px;
+    overflow-x: auto;
+}
+
+.channel-filter-chip {
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background-color: transparent;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.channel-filter-chip:hover {
+    background-color: var(--accent);
+    color: var(--foreground);
+}
+
+.channel-filter-chip.active {
+    background-color: var(--sidebar-primary);
+    color: #ffffff;
+    border-color: var(--sidebar-primary);
+}
+
+/* Omnichannel Composer */
+.omnichannel-composer-container {
+    padding: 10px 16px;
+    background-color: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.omnichannel-composer-container.email-mode {
+    background-color: var(--card);
+    padding: 14px 18px;
+}
+
+.composer-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.channel-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background-color: var(--background);
+    color: var(--foreground);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.channel-dropdown-btn:hover {
+    background-color: var(--accent);
+}
+
+.channel-dropdown-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    width: 270px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    z-index: 50;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.channel-option-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    width: 100%;
+    color: var(--foreground);
+    transition: background-color 0.15s;
+}
+
+.channel-option-item:hover:not(:disabled) {
+    background-color: var(--accent);
+}
+
+.channel-option-item:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.channel-option-item.active {
+    background-color: rgba(91, 77, 219, 0.08);
+}
+
+.channel-icon-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.channel-icon-avatar.sms {
+    background-color: rgba(91, 77, 219, 0.12);
+}
+
+.channel-icon-avatar.whatsapp {
+    background-color: rgba(37, 211, 102, 0.14);
+}
+
+.channel-icon-avatar.email {
+    background-color: rgba(59, 130, 246, 0.12);
+}
+
+.input-channel-tag {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted-foreground);
+    pointer-events: none;
+}
+
+/* Email Composer Specifics */
+.email-composer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.email-composer-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background-color: var(--background);
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.email-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+}
+
+.email-meta-label {
+    width: 50px;
+    font-weight: 700;
+    color: var(--muted-foreground);
+}
+
+.email-meta-recipient {
+    color: var(--foreground);
+    font-weight: 600;
+}
+
+.email-subject-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--foreground);
+    font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
+}
+
+.email-body-textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    background-color: var(--background);
+    color: var(--foreground);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+}
+
+.email-body-textarea:focus {
+    border-color: #3b82f6;
+}
+
+.email-attached-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.email-attached-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.email-composer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.email-attach-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.email-attach-btn:hover {
+    background-color: var(--accent);
+    color: var(--foreground);
+}
+
+.email-send-btn {
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #3b82f6 !important;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* Enhanced Message Bubbles */
+.bubble-channel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.bubble-author-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.email-bubble-card {
+    background: #ffffff !important;
+    border: 1px solid #bfdbfe !important;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.08) !important;
+    min-width: 280px;
+    max-width: 620px !important;
+    color: #0f172a !important;
+}
+
+.email-bubble-card .message-text,
+.email-text-body {
+    color: #0f172a !important;
+    font-size: 14.5px !important;
+    line-height: 1.55 !important;
+    font-weight: 500 !important;
+    margin: 0 0 6px 0 !important;
+    white-space: pre-wrap !important;
+}
+
+.email-bubble-card .bubble-author-name {
+    color: #334155 !important;
+    font-weight: 700;
+}
+
+.email-bubble-card .message-time {
+    color: #64748b !important;
+    font-size: 11px;
+}
+
+.dark .email-bubble-card {
+    background: #1e293b !important;
+    border: 1px solid rgba(59, 130, 246, 0.35) !important;
+    color: #f8fafc !important;
+}
+
+.dark .email-bubble-card .message-text,
+.dark .email-text-body {
+    color: #f8fafc !important;
+}
+
+.dark .email-bubble-card .bubble-author-name {
+    color: #94a3b8 !important;
+}
+
+.dark .email-bubble-card .message-time {
+    color: #94a3b8 !important;
+}
+
+.email-bubble-subject {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.86rem;
+    color: #1d4ed8 !important;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .email-bubble-subject {
+    color: #60a5fa !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.email-quoted-section {
+    margin-top: 8px;
+    border-top: 1px dashed rgba(59, 130, 246, 0.25);
+    padding-top: 6px;
+}
+
+.email-quote-toggle-btn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.email-quote-toggle-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.email-quoted-content {
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-left: 3px solid #60a5fa;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: #334155;
+    line-height: 1.5;
+}
+
+.email-quoted-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #2563eb;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed rgba(37, 99, 235, 0.2);
+}
+
+.email-quoted-body {
+    white-space: pre-wrap;
+    color: #475569;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.dark .email-quoted-content {
+    background: rgba(15, 23, 42, 0.5);
+    border-left-color: #3b82f6;
+    color: #cbd5e1;
+}
+
+.dark .email-quoted-header {
+    color: #93c5fd;
+    border-bottom: 1px dashed rgba(147, 197, 253, 0.2);
+}
+
+.dark .email-quoted-body {
+    color: #94a3b8;
+}
+
+.whatsapp-bubble-card {
+    border-left: 3px solid #22c55e !important;
+}
+
+.bubble-meta-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.status-icon-read {
+    color: #22c55e !important;
+}
+
+.message-quick-details {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    font-size: 0.75rem;
+    color: #475569 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.message-bubble-wrapper.me .message-bubble:not(.email-bubble-card) .message-quick-details {
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.email-bubble-card .message-quick-details,
+.message-bubble-wrapper.me .email-bubble-card .message-quick-details {
+    color: #334155 !important;
+    border-top: 1px solid #bfdbfe !important;
+    background: #f8fafc !important;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.email-bubble-card .message-quick-details div,
+.message-bubble-wrapper.me .email-bubble-card .message-quick-details div,
+.email-bubble-card .message-quick-details strong,
+.message-bubble-wrapper.me .email-bubble-card .message-quick-details strong,
+.email-bubble-card .message-quick-details span,
+.message-bubble-wrapper.me .email-bubble-card .message-quick-details span {
+    color: #0f172a !important;
+}
+
+.dark .email-bubble-card .message-quick-details,
+.dark .message-bubble-wrapper.me .email-bubble-card .message-quick-details {
+    color: #cbd5e1 !important;
+    border-top: 1px solid rgba(59, 130, 246, 0.3) !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+}
+
+.dark .email-bubble-card .message-quick-details div,
+.dark .message-bubble-wrapper.me .email-bubble-card .message-quick-details div,
+.dark .email-bubble-card .message-quick-details strong,
+.dark .message-bubble-wrapper.me .email-bubble-card .message-quick-details strong,
+.dark .email-bubble-card .message-quick-details span,
+.dark .message-bubble-wrapper.me .email-bubble-card .message-quick-details span {
+    color: #f8fafc !important;
+}
+
+.dark .message-quick-details {
+    color: #cbd5e1 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.message-attachments-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.attachment-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #f1f5f9 !important;
+    border: 1px solid #93c5fd !important;
+    color: #1e3a8a !important;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.dark .attachment-chip {
+    background-color: #0f172a !important;
+    border: 1px solid #3b82f6 !important;
+    color: #93c5fd !important;
+}
+
+.attachment-pick-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--background);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.attachment-pick-item:hover {
+    background-color: var(--accent);
 }

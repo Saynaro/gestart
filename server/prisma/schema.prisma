@@ -392,6 +392,8 @@ model Company {
   invoices            Invoice[]
   quotes              Quote[]
   smsLogs             SmsLog[]
+  whatsappConnections WhatsAppConnection[]
+  emailConnections    EmailConnection[]
   notifications       Notification[]
   invitations         Invitation[]
   subscription        Subscription?
@@ -1440,13 +1442,40 @@ model SmsLog {
   toEmail    String? // si channel=EMAIL
   isRead     Boolean          @default(false)
   readAt     DateTime?
+  deliveredAt DateTime?
 
-  twilioSid String? @unique
-  status    String? // sent, delivered, failed, received
+  // Identifiants externes selon le provider
+  twilioSid          String? @unique
+  whatsappMessageId  String? @unique
+  emailMessageId     String? @unique
+  externalMessageId  String?
+  status             String? // sent, delivered, read, failed, received
+
+  // Connexion de canal associée (multi-tenant)
+  whatsAppConnectionId String?
+  whatsAppConnection   WhatsAppConnection? @relation(fields: [whatsAppConnectionId], references: [id], onDelete: SetNull)
+  emailConnectionId    String?
+  emailConnection      EmailConnection?    @relation(fields: [emailConnectionId], references: [id], onDelete: SetNull)
+
+  // Threading Email
+  threadId    String?
+  inReplyTo   String?
+  references  String?
+
+  // Pièces jointes (PDF factures, devis, fichiers...)
+  attachments Json?
+
   // Type de message automatique envoyé par le système
-  autoType  String? // "maintenance_reminder", "appointment_confirm", "manual"
+  autoType  String? // "maintenance_reminder", "appointment_confirm", "manual", "bulk"
+  templateName String?
+
+  // Erreurs éventuelles
+  errorCode    String?
+  errorMessage String?
+  metadata     Json?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([companyId])
   @@index([clientId])
@@ -1454,6 +1483,82 @@ model SmsLog {
   @@index([toNumber])
   @@index([fromNumber]) // pour trouver le client à la réception d'un SMS
   @@index([isRead])
+  @@index([channel])
+  @@index([threadId])
+  @@index([externalMessageId])
+}
+
+// ============================================================
+// WHATSAPP CONNECTION (MULTI-TENANT)
+// ─────────────────────────────────────────────────────────────
+// Connexion WhatsApp Business Cloud API par Company.
+// Permet à chaque installateur d'utiliser son propre numéro.
+// Supporte 1 ou N numéros par entreprise.
+// ============================================================
+
+model WhatsAppConnection {
+  id                   String   @id @default(cuid())
+  companyId            String
+  company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  name                 String   @default("Principal") // "Général", "SAV"
+  phoneNumberId        String   // Phone Number ID Meta Graph API
+  wabaId               String?  // WhatsApp Business Account ID Meta
+  displayPhoneNumber   String?  // Ex: "+33 6 12 34 56 78"
+  verifiedName         String?  // Nom officiel vérifié par Meta
+  qualityRating        String?  // "GREEN", "YELLOW", "RED"
+  encryptedAccessToken String?  // Token d'accès chiffré AES-256-GCM
+
+  status               String   @default("CONNECTED") // CONNECTED, ERROR, REAUTH_REQUIRED, DISCONNECTED
+  isDefault            Boolean  @default(true)
+  webhookVerified      Boolean  @default(true)
+
+  messages             SmsLog[]
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([companyId, phoneNumberId])
+  @@index([phoneNumberId])
+  @@index([companyId])
+}
+
+// ============================================================
+// EMAIL CONNECTION (MULTI-TENANT)
+// ─────────────────────────────────────────────────────────────
+// Connexion Email (Google Workspace, Microsoft 365, SMTP) par Company.
+// ============================================================
+
+model EmailConnection {
+  id                    String    @id @default(cuid())
+  companyId             String
+  company               Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  provider              String    // "GOOGLE", "MICROSOFT", "SMTP"
+  emailAddress          String    // "contact@climpro.fr"
+  displayName           String?   // "Dupont Climatisation"
+  providerAccountId     String?   // ID du compte Google/Microsoft
+
+  encryptedAccessToken  String?   // OAuth Access Token chiffré AES-256-GCM
+  encryptedRefreshToken String?   // OAuth Refresh Token chiffré AES-256-GCM
+  tokenExpiresAt        DateTime?
+
+  smtpHost              String?
+  smtpPort              Int?
+  smtpUser              String?
+  encryptedSmtpPass     String?   // Pass chiffré AES-256-GCM
+
+  status                String    @default("CONNECTED") // CONNECTED, ERROR, REAUTH_REQUIRED, DISCONNECTED
+  isDefault             Boolean   @default(true)
+  lastSyncAt            DateTime?
+
+  messages              SmsLog[]
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([companyId, emailAddress])
+  @@index([companyId])
 }
 
 // ============================================================

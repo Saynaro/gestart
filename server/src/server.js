@@ -18,9 +18,27 @@ const startServer = async () => {
             console.log(`Server is running on PORT: ${PORT} : http://localhost:${PORT}`);
         });
 
+        // Worker en arrière-plan : Synchronisation automatique des emails entrants (Gmail) toutes les 20 secondes
+        const syncInterval = setInterval(async () => {
+            try {
+                const { prisma } = await import("./config/db.js");
+                const { emailProvider } = await import("./services/messaging/providers/email/EmailProvider.js");
+                const activeGoogleConnections = await prisma.emailConnection.findMany({
+                    where: { provider: "GOOGLE", status: "CONNECTED" },
+                    select: { companyId: true },
+                    distinct: ["companyId"]
+                });
+
+                for (const conn of activeGoogleConnections) {
+                    await emailProvider.syncGoogleInbox(conn.companyId).catch(() => {});
+                }
+            } catch (e) {}
+        }, 20000);
+
         // graceful shutdown for docker
         // make sure that the server is closed before the database
         const gracefulShutdown = async () => {
+            clearInterval(syncInterval);
             console.log('Signal received. Shutting down...');
 
             const forceExitTimeout = setTimeout(() => {

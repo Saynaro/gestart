@@ -68,7 +68,7 @@ function QuoteDetailDrawer({
     const clientDisplayEmail = client.email || quote.clientEmail || "";
     const clientDisplayPhone = client.phone || quote.clientPhone || "";
 
-    const linkedFacture = quote.linkedFacture || quote.linkedInvoice || quote.invoice;
+    const linkedFacture = quote.linkedFacture || quote.linkedInvoice || quote.invoice || (quote.invoices && quote.invoices[0]);
     const isEditable = !isAccepted && !Boolean(linkedFacture || quote.invoiceId || quote.linkedInvoice || (quote.amountFactured && quote.amountFactured > 0));
 
     const rawDocDate = quote.date || quote.createdAt || quote.issuedAt;

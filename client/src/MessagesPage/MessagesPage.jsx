@@ -22,14 +22,129 @@ import {
   CheckCheck,
   AlertCircle,
   Clock,
-  Smartphone
+  Smartphone,
+  ChevronDown,
+  FileDown,
+  Sparkles,
+  Info,
+  ShieldCheck,
+  Zap,
+  Filter,
+  RefreshCw,
+  Eye
 } from "lucide-react";
 import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
+import QuotePdfView from "../DevisPage/components/QuotePdfView";
 import { apiFetch } from "../utils/api";
 import { getSocket } from "../utils/socket";
+import { WhatsAppIcon, EmailIcon, SmsIcon } from "../components/ChannelIcons";
+
+// Clean Email Content Component with Clean Quoted History (No raw > characters)
+const FormattedEmailContent = ({ body }) => {
+  const [showHistory, setShowHistory] = useState(false);
+
+  if (!body) return null;
+
+  // Split on common email quote reply markers
+  const quoteSplitRegex = /(\n\s*(?:On\s+.+?wrote:|Le\s+.+?a écrit\s*:|[а-яa-z]{2,3},\s*\d{1,2}\s+[а-яa-z]{3,}\.?\s+\d{4}.+?:|-----Original Message-----|________________________________)\s*\n[\s\S]*$)|(\n\s*>[\s\S]*$)/i;
+
+  const match = body.match(quoteSplitRegex);
+
+  if (!match) {
+    return <p className="message-text email-text-body">{body}</p>;
+  }
+
+  const mainText = body.slice(0, match.index).trim();
+  const rawQuoted = body.slice(match.index).trim();
+
+  // Clean raw quoted email string (strip all leading > symbols, remove boilerplate headers/footers)
+  const parseQuoted = (raw) => {
+    if (!raw) return { header: null, text: "" };
+    const rawLines = raw.split("\n");
+    let header = null;
+    const cleanedLines = [];
+
+    const isBoilerplate = (line) => {
+      const t = line.trim();
+      if (!t) return false;
+      if (/^(?:Envoyé par|Pour toute question|Sent from|Get Outlook|Échange avec|Objet\s*:|Subject\s*:|De\s*:|From\s*:|À\s*:|To\s*:|Date\s*:)/i.test(t)) return true;
+      if (/via (?:ClimPro|GestArt|CRM)/i.test(t)) return true;
+      if (/^[A-Z0-9\s-]{3,40}$/.test(t) && !/[a-z]/.test(t)) return true;
+      return false;
+    };
+
+    for (let line of rawLines) {
+      const trimmed = line.trim();
+      // Check if line is the reply attribution header
+      if (!header && (/(?:On\s+.+?wrote|Le\s+.+?a écrit|[а-яa-z]{2,3},\s*\d{1,2}\s+[а-яa-z]{3,}\.?\s+\d{4}.+?|-----Original Message-----)/i.test(trimmed))) {
+        header = trimmed.replace(/^[-_\s]+|[-_\s:]+$/g, "");
+        continue;
+      }
+      // Strip all leading > or >> symbols
+      const stripped = line.replace(/^\s*>+\s?/, "");
+
+      // Filter out boilerplate lines
+      if (isBoilerplate(stripped)) {
+        continue;
+      }
+
+      if (stripped.trim() === "" && cleanedLines[cleanedLines.length - 1] === "") {
+        continue;
+      }
+      cleanedLines.push(stripped);
+    }
+
+    while (cleanedLines.length > 0 && cleanedLines[0].trim() === "") cleanedLines.shift();
+    while (cleanedLines.length > 0 && cleanedLines[cleanedLines.length - 1].trim() === "") cleanedLines.pop();
+
+    return { header, text: cleanedLines.join("\n") };
+  };
+
+  const quotedParsed = parseQuoted(rawQuoted);
+
+  return (
+    <div className="email-body-container">
+      {mainText ? (
+        <p className="message-text email-text-body">{mainText}</p>
+      ) : (
+        <p className="message-text email-text-body" style={{ fontStyle: "italic", opacity: 0.7 }}>[Réponse dans l'historique]</p>
+      )}
+      {rawQuoted && (
+        <div className="email-quoted-section">
+          <button
+            type="button"
+            className="email-quote-toggle-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowHistory(prev => !prev);
+            }}
+          >
+            <span>{showHistory ? "▲ Masquer l'historique du message" : "••• Historique des messages"}</span>
+          </button>
+          {showHistory && (
+            <div className="email-quoted-content">
+              {quotedParsed.header && (
+                <div className="email-quoted-header">
+                  <Clock size={12} style={{ flexShrink: 0 }} />
+                  <span>{quotedParsed.header}</span>
+                </div>
+              )}
+              {quotedParsed.text && (
+                <div className="email-quoted-body">
+                  {quotedParsed.text}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 function MessagesPage() {
   const navigate = useNavigate();
@@ -40,6 +155,15 @@ function MessagesPage() {
   const [selectedClientData, setSelectedClientData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailAttachments, setEmailAttachments] = useState([]);
+  const [selectedChannel, setSelectedChannel] = useState("SMS"); // SMS, WHATSAPP, EMAIL
+  const [channelAvailability, setChannelAvailability] = useState({});
+  const [recommendationReason, setRecommendationReason] = useState("");
+
+  const [filterChannel, setFilterChannel] = useState("ALL"); // ALL, UNREAD, SMS, WHATSAPP, EMAIL
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [detailTab, setDetailTab] = useState("interventions");
   const [activeCall, setActiveCall] = useState(null);
   const [isLoadingChats, setIsLoadingChats] = useState(true);
@@ -47,11 +171,22 @@ function MessagesPage() {
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState(null);
 
+  // Channel dropdown in composer
+  const [isChannelDropdownOpen, setIsChannelDropdownOpen] = useState(false);
+
+  // Attachment Picker Modal
+  const [isAttachModalOpen, setIsAttachModalOpen] = useState(false);
+  const [previewQuote, setPreviewQuote] = useState(null);
+  const [previewInvoice, setPreviewInvoice] = useState(null);
+
   // Client Selection Modal
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [crmClientsList, setCrmClientsList] = useState([]);
   const [modalSearchTerm, setModalSearchTerm] = useState("");
   const [isLoadingClients, setIsLoadingClients] = useState(false);
+
+  // Message details popover
+  const [activeDetailMessage, setActiveDetailMessage] = useState(null);
 
   // Actions Dropdown
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
@@ -91,11 +226,13 @@ function MessagesPage() {
 
   // Dropdown menu click outside listener
   useEffect(() => {
-    if (!isActionsMenuOpen) return;
-    const closeActionsMenu = () => setIsActionsMenuOpen(false);
-    window.addEventListener("click", closeActionsMenu);
-    return () => window.removeEventListener("click", closeActionsMenu);
-  }, [isActionsMenuOpen]);
+    const handleOutsideClick = () => {
+      setIsActionsMenuOpen(false);
+      setIsChannelDropdownOpen(false);
+    };
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
+  }, []);
 
   // Format initials
   const getInitials = (name) => {
@@ -116,15 +253,28 @@ function MessagesPage() {
     }
   };
 
+  // Format price helper (2 decimal places)
+  const formatPrice = (val) => {
+    const num = typeof val === "number" ? val : parseFloat(val || 0);
+    if (isNaN(num)) return "0,00 €";
+    return num.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " € TTC";
+  };
+
   // Fetch Conversation List
   const fetchConversations = useCallback(async () => {
     try {
       setIsLoadingChats(true);
-      const res = await apiFetch("/v1/sms/inbox");
+      const res = await apiFetch("/v1/messages/inbox");
       const convList = res.data?.conversations || [];
       setChats(convList);
     } catch (err) {
-      console.warn("[MESSAGES] Erreur chargement boite SMS:", err.message);
+      // Fallback sur /v1/sms/inbox
+      try {
+        const resFallback = await apiFetch("/v1/sms/inbox");
+        setChats(resFallback.data?.conversations || []);
+      } catch (e) {
+        console.warn("[MESSAGES] Erreur chargement boite:", e.message);
+      }
     } finally {
       setIsLoadingChats(false);
     }
@@ -154,7 +304,7 @@ function MessagesPage() {
     }
   }, [isClientModalOpen]);
 
-  // Load Messages for Active Conversation
+  // Load Messages & Channel Availability for Active Conversation
   useEffect(() => {
     if (!activeChatIdParam) {
       setSelectedClientData(null);
@@ -166,14 +316,32 @@ function MessagesPage() {
       setIsLoadingMessages(true);
       setSendError(null);
       try {
-        const res = await apiFetch(`/v1/sms/inbox/${activeChatIdParam}`);
+        const res = await apiFetch(`/v1/messages/inbox/${activeChatIdParam}`);
         if (res.success && res.data) {
           setSelectedClientData(res.data.client);
-          setMessages(res.data.messages || []);
+          
+          // Deduplicate messages by ID to prevent any duplicate keys
+          const rawMsgs = res.data.messages || [];
+          const uniqueMsgs = Array.from(new Map(rawMsgs.map(m => [m.id || m.twilioSid || m.whatsappMessageId || Math.random(), m])).values());
+          setMessages(uniqueMsgs);
+          
+          setChannelAvailability(res.data.channels || {});
+          setRecommendationReason(res.data.recommendationReason || "");
+
+          // Sélection automatique intelligente du canal (Dernier message reçu > Préféré > Fallback)
+          if (res.data.recommendedChannel) {
+            setSelectedChannel(res.data.recommendedChannel);
+          }
+
+          // Pré-remplir l'objet de l'email si sélectionné
+          if (res.data.client) {
+            const clientName = `${res.data.client.firstName || ''} ${res.data.client.lastName || ''}`.trim();
+            setEmailSubject(`Échange avec ${clientName}`);
+          }
 
           // Marquer comme lus
           try {
-            await apiFetch(`/v1/sms/read/${activeChatIdParam}`, { method: "PATCH" });
+            await apiFetch(`/v1/messages/read/${activeChatIdParam}`, { method: "PATCH" });
             setChats(prev => prev.map(c => (c.clientId === activeChatIdParam || c.id === activeChatIdParam) ? { ...c, unreadCount: 0 } : c));
           } catch (e) {
             console.warn("Erreur marquage lecture:", e.message);
@@ -202,21 +370,27 @@ function MessagesPage() {
     const socket = getSocket();
 
     const handleNewMessage = (payload) => {
-      console.log("[REALTIME] Nouveau SMS reçu:", payload);
+      console.log("[REALTIME] Nouveau message omnicanal reçu:", payload);
       const { clientId, message } = payload;
 
       // 1. Si la conversation est ouverte, ajouter le message en direct
       if (activeChatIdParam && (activeChatIdParam === clientId || activeChatIdParam === message?.clientId)) {
         setMessages(prev => {
-          if (prev.some(m => m.id === message.id || (m.twilioSid && m.twilioSid === message.twilioSid))) {
+          if (prev.some(m => m.id === message.id || (m.twilioSid && m.twilioSid === message.twilioSid) || (m.whatsappMessageId && m.whatsappMessageId === message.whatsappMessageId))) {
             return prev;
           }
           return [...prev, message];
         });
 
+        // Mettre à jour automatiquement le sélecteur si c'est un message entrant
+        if (message.direction === "INCOMING" && message.channel) {
+          setSelectedChannel(message.channel);
+          setRecommendationReason(`Basculé automatiquement sur ${message.channel} suite au message reçu`);
+        }
+
         // Marquer comme lu immédiatement si nous sommes sur cette conversation
         if (message.direction === "INCOMING") {
-          apiFetch(`/v1/sms/read/${clientId}`, { method: "PATCH" }).catch(() => {});
+          apiFetch(`/v1/messages/read/${clientId}`, { method: "PATCH" }).catch(() => {});
         }
       }
 
@@ -229,14 +403,13 @@ function MessagesPage() {
           updated[existingIndex] = {
             ...updated[existingIndex],
             lastMessage: message,
+            channel: message.channel || updated[existingIndex].channel,
             time: message.createdAt,
             unreadCount: isCurrentlyActive ? 0 : ((updated[existingIndex].unreadCount || 0) + (message.direction === "INCOMING" ? 1 : 0))
           };
-          // Remonter la conversation en haut de liste
           const item = updated.splice(existingIndex, 1)[0];
           return [item, ...updated];
         } else {
-          // Nouvelle conversation
           fetchConversations();
           return prev;
         }
@@ -244,11 +417,11 @@ function MessagesPage() {
     };
 
     const handleStatusUpdate = (payload) => {
-      console.log("[REALTIME] Mise à jour statut SMS:", payload);
-      const { messageId, twilioSid, status } = payload;
+      console.log("[REALTIME] Mise à jour statut message:", payload);
+      const { messageId, twilioSid, whatsappMessageId, status } = payload;
 
       setMessages(prev => prev.map(m => {
-        if (m.id === messageId || (twilioSid && m.twilioSid === twilioSid)) {
+        if (m.id === messageId || (twilioSid && m.twilioSid === twilioSid) || (whatsappMessageId && m.whatsappMessageId === whatsappMessageId)) {
           return { ...m, status };
         }
         return m;
@@ -278,10 +451,16 @@ function MessagesPage() {
     }
   }, [messages.length, isLoadingMessages]);
 
-  // Send SMS Handler
+  // Send Omnichannel Message Handler
   const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim() || !activeChatIdParam || isSending) return;
+    if (e) e.preventDefault();
+    if (!inputText.trim() && emailAttachments.length === 0) return;
+    if (!activeChatIdParam || isSending) return;
+
+    if (selectedChannel === "EMAIL" && !emailSubject.trim()) {
+      setSendError("L'objet de l'email est obligatoire.");
+      return;
+    }
 
     const messageText = inputText.trim();
     setSendError(null);
@@ -293,8 +472,10 @@ function MessagesPage() {
       id: tempId,
       clientId: activeChatIdParam,
       direction: "OUTGOING",
-      channel: "SMS",
+      channel: selectedChannel,
       body: messageText,
+      subject: selectedChannel === "EMAIL" ? emailSubject.trim() : undefined,
+      attachments: emailAttachments.length > 0 ? emailAttachments : undefined,
       status: "pending",
       createdAt: new Date().toISOString(),
       isRead: true
@@ -302,18 +483,23 @@ function MessagesPage() {
 
     setMessages(prev => [...prev, optimisticMsg]);
     setInputText("");
+    const sentAttachments = [...emailAttachments];
+    setEmailAttachments([]);
 
     try {
-      const res = await apiFetch("/v1/sms/send", {
+      const res = await apiFetch("/v1/messages/send", {
         method: "POST",
         body: JSON.stringify({
           clientId: activeChatIdParam,
-          message: messageText
+          channel: selectedChannel,
+          message: messageText,
+          subject: selectedChannel === "EMAIL" ? emailSubject.trim() : undefined,
+          attachments: sentAttachments
         })
       });
 
-      if (res.success && res.data?.smsLog) {
-        const savedLog = res.data.smsLog;
+      if (res.success && res.data?.messageLog) {
+        const savedLog = res.data.messageLog;
         setMessages(prev => prev.map(m => m.id === tempId ? savedLog : m));
 
         // Mettre à jour la conversation dans la liste
@@ -324,6 +510,7 @@ function MessagesPage() {
             copy[idx] = {
               ...copy[idx],
               lastMessage: savedLog,
+              channel: savedLog.channel,
               time: savedLog.createdAt
             };
             const item = copy.splice(idx, 1)[0];
@@ -333,10 +520,9 @@ function MessagesPage() {
         });
       }
     } catch (err) {
-      console.error("[SMS SEND ERROR]", err.message);
-      setSendError(err.message || "Impossible d'envoyer le SMS.");
-      // Marquer le message optimiste comme échoué
-      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, status: "failed" } : m));
+      console.error("[MESSAGE SEND ERROR]", err.message);
+      setSendError(err.message || "Impossible d'envoyer le message.");
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, status: "failed", errorMessage: err.message } : m));
     } finally {
       setIsSending(false);
     }
@@ -368,6 +554,77 @@ function MessagesPage() {
     setModalSearchTerm("");
   };
 
+  const handleOpenDocPreview = async (item, explicitType) => {
+    if (!item) return;
+
+    const isQuote = explicitType === "quote" || item.type === "quote" || item.quoteId || (item.filename && item.filename.toLowerCase().startsWith("devis_")) || (item.name && item.name.toLowerCase().startsWith("devis_"));
+    const isInvoice = explicitType === "invoice" || item.type === "invoice" || item.invoiceId || (item.filename && item.filename.toLowerCase().startsWith("facture_")) || (item.name && item.name.toLowerCase().startsWith("facture_"));
+
+    const docId = item.id || item.quoteId || item.invoiceId;
+    const docNumber = item.number || (item.filename ? item.filename.replace(/^(Devis_|Facture_)/i, "").replace(/\.pdf$/i, "") : null);
+
+    try {
+      if (isQuote) {
+        if (item.lines && item.client) {
+          setPreviewQuote(item);
+          return;
+        }
+        if (docId) {
+          const res = await apiFetch(`/v1/quotes/${docId}`);
+          if (res.success && res.data) {
+            setPreviewQuote(res.data);
+            return;
+          }
+        }
+        const found = clientObj.quotes?.find(q => q.id === docId || q.number === docNumber);
+        if (found) {
+          const detailedRes = await apiFetch(`/v1/quotes/${found.id}`);
+          setPreviewQuote(detailedRes?.data || found);
+        }
+      } else if (isInvoice) {
+        if (item.lines && item.client) {
+          setPreviewInvoice(item);
+          return;
+        }
+        if (docId) {
+          const res = await apiFetch(`/v1/invoices/${docId}`);
+          if (res.success && res.data) {
+            setPreviewInvoice(res.data);
+            return;
+          }
+        }
+        const found = clientObj.invoices?.find(inv => inv.id === docId || inv.number === docNumber);
+        if (found) {
+          const detailedRes = await apiFetch(`/v1/invoices/${found.id}`);
+          setPreviewInvoice(detailedRes?.data || found);
+        }
+      }
+    } catch (e) {
+      console.error("[PREVIEW_DOC_ERROR]", e);
+    }
+  };
+
+  // Filter conversations list
+  const filteredChats = chats.filter(chat => {
+    // 1. Channel Filter
+    if (filterChannel === "UNREAD" && (!chat.unreadCount || chat.unreadCount === 0)) return false;
+    if (filterChannel === "SMS" && chat.channel !== "SMS") return false;
+    if (filterChannel === "WHATSAPP" && chat.channel !== "WHATSAPP") return false;
+    if (filterChannel === "EMAIL" && chat.channel !== "EMAIL") return false;
+
+    // 2. Search Filter
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      const name = (chat.name || "").toLowerCase();
+      const phone = (chat.client?.phone || "").toLowerCase();
+      const email = (chat.client?.email || "").toLowerCase();
+      const preview = (chat.lastMessage?.body || chat.lastMessage?.subject || "").toLowerCase();
+      return name.includes(q) || phone.includes(q) || email.includes(q) || preview.includes(q);
+    }
+
+    return true;
+  });
+
   const filteredContactsList = crmClientsList.filter(client => {
     const fullName = `${client.firstName || ''} ${client.lastName || ''}`.toLowerCase();
     const phone = (client.phone || "").toLowerCase();
@@ -387,13 +644,43 @@ function MessagesPage() {
   const clientObj = selectedClientData || activeChat?.client || {};
   const activeClientName = `${clientObj.firstName || ''} ${clientObj.lastName || ''}`.trim() || clientObj.companyName || clientObj.phone || activeChat?.name || "Client";
 
+  // Channel Icon / Badge Renderer
+  const renderChannelBadge = (channel, size = "sm") => {
+    const c = (channel || "SMS").toUpperCase();
+    if (c === "WHATSAPP") {
+      return (
+        <span className={`channel-badge channel-badge-whatsapp ${size === "lg" ? "channel-badge-lg" : ""}`} title="Canal WhatsApp">
+          <WhatsAppIcon size={size === "lg" ? 15 : 13} />
+          <span>WhatsApp</span>
+        </span>
+      );
+    }
+    if (c === "EMAIL") {
+      return (
+        <span className={`channel-badge channel-badge-email ${size === "lg" ? "channel-badge-lg" : ""}`} title="Canal Email">
+          <EmailIcon size={size === "lg" ? 15 : 13} />
+          <span>Email</span>
+        </span>
+      );
+    }
+    return (
+      <span className={`channel-badge channel-badge-sms ${size === "lg" ? "channel-badge-lg" : ""}`} title="Canal SMS">
+        <SmsIcon size={size === "lg" ? 15 : 13} />
+        <span>SMS</span>
+      </span>
+    );
+  };
+
   // Delivery status icon renderer
-  const renderStatusIcon = (status) => {
+  const renderStatusIcon = (status, channel) => {
+    const isWhatsApp = channel === "WHATSAPP";
     switch (status) {
+      case "read":
+        return <CheckCheck size={14} className="text-emerald-500 inline ml-1 status-icon-read" title="Lu par le destinataire" />;
       case "delivered":
-        return <CheckCheck size={14} className="text-emerald-500 inline ml-1" title="Délivré sur le téléphone du client" />;
+        return <CheckCheck size={14} className="text-muted-foreground inline ml-1" title="Délivré sur le téléphone / boîte" />;
       case "sent":
-        return <Check size={14} className="text-blue-400 inline ml-1" title="Envoyé via Twilio" />;
+        return <Check size={14} className="text-blue-400 inline ml-1" title="Envoyé via le provider" />;
       case "failed":
       case "undelivered":
         return <AlertCircle size={14} className="text-red-500 inline ml-1" title="Échec de distribution" />;
@@ -411,12 +698,46 @@ function MessagesPage() {
     const factures = client?.invoices || [];
     const devis = client?.quotes || [];
 
+    const isSmsAvail = Boolean(client?.phone);
+    const isWaAvail = Boolean(client?.phone);
+    const isEmailAvail = Boolean(client?.email && client?.email.includes("@"));
+
     return (
       <div className="client-info-drawer-content">
         <div className="info-profile-section">
           <div className="info-avatar">{getInitials(activeClientName)}</div>
           <h3 className="info-name">{activeClientName}</h3>
-          <span className="info-badge">{client?.companyName ? "Professionnel" : "Particulier"}</span>
+          <span className="info-badge">{client?.companyName ? "Professionnel (B2B)" : "Particulier"}</span>
+        </div>
+
+        <div className="info-divider"></div>
+
+        {/* Canaux de communication disponibles */}
+        <h4 className="info-section-title">CANAUX DISPONIBLES</h4>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "var(--accent)", borderRadius: "8px", fontSize: "0.85rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <SmsIcon size={16} />
+              <span style={{ fontWeight: 600 }}>SMS Direct</span>
+            </div>
+            {isSmsAvail ? <Check size={15} style={{ color: "#22c55e" }} /> : <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>Indisponible</span>}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "var(--accent)", borderRadius: "8px", fontSize: "0.85rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <WhatsAppIcon size={16} />
+              <span style={{ fontWeight: 600 }}>WhatsApp Business</span>
+            </div>
+            {isWaAvail ? <Check size={15} style={{ color: "#22c55e" }} /> : <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>Indisponible</span>}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "var(--accent)", borderRadius: "8px", fontSize: "0.85rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <EmailIcon size={16} />
+              <span style={{ fontWeight: 600 }}>Email Pro</span>
+            </div>
+            {isEmailAvail ? <Check size={15} style={{ color: "#22c55e" }} /> : <span style={{ fontSize: "11px", color: "#ef4444" }}>Sans email</span>}
+          </div>
         </div>
 
         <div className="info-divider"></div>
@@ -434,14 +755,6 @@ function MessagesPage() {
             <MapPin size={15} className="info-row-icon" />
             <span>{client?.address ? `${client.address}, ${client.postalCode || ''} ${client.city || ''}` : "Non renseigné"}</span>
           </div>
-        </div>
-
-        <div className="info-divider"></div>
-
-        <h4 className="info-section-title">CANAL PRINCIPAL</h4>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", background: "var(--accent)", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 600 }}>
-          <Smartphone size={16} style={{ color: "var(--sidebar-primary)" }} />
-          <span>SMS Bidirectionnel Twilio</span>
         </div>
 
         <div className="info-divider"></div>
@@ -535,11 +848,16 @@ function MessagesPage() {
   const renderChatList = () => (
     <div className="inbox-sidebar flex-shrink-0">
       <div className="inbox-header">
-        <h2>SMS & Chats</h2>
+        <div>
+          <h2>Messagerie</h2>
+          <span style={{ fontSize: "11.5px", color: "var(--muted-foreground)", fontWeight: 500 }}>
+            Inbox Omnicanal Unifié
+          </span>
+        </div>
         <div className="inbox-actions">
           <button
             className="inbox-action-icon"
-            title="Nouveau SMS"
+            title="Nouveau Message"
             onClick={() => setIsClientModalOpen(true)}
             style={{ backgroundColor: "var(--sidebar-primary)", color: "#fff" }}
           >
@@ -548,19 +866,69 @@ function MessagesPage() {
         </div>
       </div>
 
+      {/* Search Input */}
+      <div style={{ padding: "0 16px 12px 16px" }}>
+        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+          <Search size={15} style={{ position: "absolute", left: "12px", color: "var(--muted-foreground)", pointerEvents: "none" }} />
+          <input
+            type="text"
+            placeholder="Rechercher contact, message..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px 12px 8px 34px",
+              borderRadius: "8px",
+              border: "1px solid var(--border)",
+              backgroundColor: "var(--background)",
+              color: "var(--foreground)",
+              fontSize: "12.5px"
+            }}
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm("")} style={{ position: "absolute", right: "10px", background: "none", border: "none", color: "var(--muted-foreground)", cursor: "pointer" }}>
+              <X size={13} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Channel Filters */}
+      <div className="channel-filter-bar">
+        {[
+          { id: "ALL", label: "Tous" },
+          { id: "UNREAD", label: "Non lus" },
+          { id: "SMS", label: "SMS", icon: SmsIcon },
+          { id: "WHATSAPP", label: "WhatsApp", icon: WhatsAppIcon },
+          { id: "EMAIL", label: "Email", icon: EmailIcon }
+        ].map(filter => {
+          const IconComp = filter.icon;
+          return (
+            <button
+              key={filter.id}
+              className={`channel-filter-chip ${filterChannel === filter.id ? "active" : ""}`}
+              onClick={() => setFilterChannel(filter.id)}
+            >
+              {IconComp && <IconComp size={13} />}
+              <span>{filter.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="chat-list">
         {isLoadingChats ? (
           <div style={{ padding: "30px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
             <p className="text-sm">Chargement des conversations...</p>
           </div>
-        ) : chats.length === 0 ? (
+        ) : filteredChats.length === 0 ? (
           <div style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", color: "var(--muted-foreground)", width: "100%", boxSizing: "border-box" }}>
             <MessageSquare size={36} style={{ opacity: 0.4, margin: "0 auto 12px auto", display: "block" }} />
             <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
-              Aucun échange SMS pour le moment
+              Aucun échange trouvé
             </p>
             <p style={{ fontSize: "0.8rem", marginBottom: "16px", lineHeight: "1.4" }}>
-              Envoyez un premier SMS à un client. Ses réponses apparaîtront ici en temps réel.
+              Envoyez un message par SMS, WhatsApp ou Email. Les réponses apparaîtront ici.
             </p>
             <button
               onClick={() => setIsClientModalOpen(true)}
@@ -578,33 +946,36 @@ function MessagesPage() {
                 gap: "6px"
               }}
             >
-              <Plus size={16} /> Nouveau SMS
+              <Plus size={16} /> Nouveau message
             </button>
           </div>
         ) : (
-          chats.map((chat) => {
+          filteredChats.map((chat, idx) => {
             const isSelected = activeChatIdParam === (chat.clientId || chat.id);
-            const previewText = chat.lastMessage?.body || "Discussion SMS";
+            const previewText = chat.lastMessage?.subject
+              ? `[${chat.lastMessage.subject}] ${chat.lastMessage?.body || ''}`
+              : (chat.lastMessage?.body || "Discussion démarrée");
             const msgTime = formatMsgTime(chat.lastMessage?.createdAt || chat.time);
+            const lastChannel = chat.lastMessage?.channel || chat.channel || "SMS";
 
             return (
               <div
-                key={chat.clientId || chat.id}
+                key={chat.clientId ? `chat_${chat.clientId}` : (chat.id ? `chat_${chat.id}` : `chat_${idx}`)}
                 className={`chat-item ${isSelected ? "active" : ""}`}
                 onClick={() => handleSelectChat(chat.clientId || chat.id)}
               >
                 <div className="chat-avatar-wrapper">
                   <div className="chat-avatar">{getInitials(chat.name)}</div>
-                  <span className="online-indicator" title="En ligne"></span>
+                  <span className="online-indicator" title="Actif"></span>
                 </div>
                 <div className="chat-meta">
                   <div className="chat-meta-row">
                     <span className="chat-name">{chat.name}</span>
                     <span className="chat-time">{msgTime}</span>
                   </div>
-                  <div className="chat-preview-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div className="chat-preview-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "2px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      <span style={{ fontSize: "0.65rem", padding: "1px 4px", borderRadius: "4px", backgroundColor: "rgba(95, 75, 219, 0.12)", color: "var(--sidebar-primary)", fontWeight: 700 }}>SMS</span>
+                      {renderChannelBadge(lastChannel, "sm")}
                       <p className="chat-preview" style={{ margin: 0 }}>{previewText}</p>
                     </div>
                     {chat.unreadCount > 0 && <span className="chat-unread-badge">{chat.unreadCount}</span>}
@@ -618,7 +989,7 @@ function MessagesPage() {
     </div>
   );
 
-  // Render Chat Pane (Active Conversation)
+  // Render Chat Pane (Active Omnichannel Conversation)
   const renderChatPane = () => (
     <div className="chat-pane flex-1" ref={chatPaneRef}>
       {/* Mobile Header via Portal */}
@@ -631,7 +1002,10 @@ function MessagesPage() {
             <div className="active-chat-avatar">{getInitials(activeClientName)}</div>
             <div className="active-chat-info">
               <h3>{activeClientName}</h3>
-              <span className="active-chat-status font-mono text-xs">{clientObj.phone || "Canal SMS"}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                {renderChannelBadge(selectedChannel, "sm")}
+                <span className="active-chat-status font-mono text-xs">{clientObj.phone || clientObj.email || "Contact"}</span>
+              </div>
             </div>
           </div>
           <div className="chat-pane-header-actions">
@@ -679,14 +1053,31 @@ function MessagesPage() {
             <div className="active-chat-info">
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <h3>{activeClientName}</h3>
-                <span style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: "4px", backgroundColor: "rgba(95, 75, 219, 0.12)", color: "var(--sidebar-primary)", fontWeight: 700 }}>
-                  SMS Twilio
-                </span>
+                {renderChannelBadge(selectedChannel, "sm")}
               </div>
-              <span className="active-chat-status font-mono">{clientObj.phone || "Téléphone non renseigné"}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "2px" }}>
+                <span className="active-chat-status font-mono">{clientObj.phone || "Sans téléphone"}</span>
+                {clientObj.email && <span className="active-chat-status">· {clientObj.email}</span>}
+              </div>
             </div>
           </div>
           <div className="chat-pane-header-actions">
+            <button
+              className="pane-header-action-btn"
+              title="Actualiser et synchroniser les emails"
+              onClick={() => {
+                fetchConversations();
+                if (activeChatIdParam) {
+                  apiFetch(`/v1/messages/inbox/${activeChatIdParam}`).then(res => {
+                    if (res.success && res.data) {
+                      setMessages(res.data.messages || []);
+                    }
+                  }).catch(() => {});
+                }
+              }}
+            >
+              <RefreshCw size={16} className={isLoadingChats ? "animate-spin" : ""} />
+            </button>
             <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: activeClientName })}>
               <Phone size={17} />
             </button>
@@ -726,34 +1117,99 @@ function MessagesPage() {
       <div className="chat-messages-container" ref={messagesContainerRef}>
         {isLoadingMessages ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--muted-foreground)" }}>
-            <p className="text-sm">Chargement des messages...</p>
+            <p className="text-sm">Chargement des messages chronologiques...</p>
           </div>
         ) : messages.length === 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--muted-foreground)", textAlign: "center" }}>
-            <Smartphone size={40} className="mb-2 opacity-40" />
-            <p style={{ fontWeight: 600, color: "var(--foreground)" }}>Début de la conversation SMS</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--muted-foreground)", textAlign: "center", padding: "20px" }}>
+            <Sparkles size={40} className="mb-2 opacity-40" />
+            <p style={{ fontWeight: 600, color: "var(--foreground)" }}>Début du fil omnicanal avec {activeClientName}</p>
             <p className="text-xs max-w-xs mt-1">
-              Les messages envoyés ici seront reçus directement comme SMS standard sur le téléphone du client ({clientObj.phone || "mobile"}).
+              Tous vos échanges par SMS, WhatsApp et Email avec ce client apparaîtront ici dans l'ordre chronologique.
             </p>
           </div>
         ) : (
-          messages.map((msg) => {
+          messages.map((msg, idx) => {
             const isMe = msg.direction === "OUTGOING" || msg.sender === "agent" || msg.sender === "me";
             const timeStr = formatMsgTime(msg.createdAt || msg.time);
+            const channel = (msg.channel || "SMS").toUpperCase();
+            const isEmail = channel === "EMAIL";
+            const isWhatsApp = channel === "WHATSAPP";
 
             return (
-              <div key={msg.id} className={`message-bubble-wrapper ${isMe ? "me" : "them"}`}>
-                <div className="message-bubble">
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
-                    <span style={{ fontSize: "0.65rem", textTransform: "uppercase", opacity: 0.75, fontWeight: 700 }}>
-                      {isMe ? "CRM (Vous)" : activeClientName} · SMS
-                    </span>
+              <div
+                key={msg.id ? `msg_${msg.id}_${idx}` : `msg_${idx}`}
+                className={`message-bubble-wrapper ${isMe ? "me" : "them"} channel-${channel.toLowerCase()}`}
+                onClick={() => setActiveDetailMessage(activeDetailMessage?.id === msg.id ? null : msg)}
+              >
+                <div className={`message-bubble ${isEmail ? "email-bubble-card" : ""} ${isWhatsApp ? "whatsapp-bubble-card" : ""}`}>
+                  
+                  {/* Channel Header Indicator */}
+                  <div className="bubble-channel-header">
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      {renderChannelBadge(channel, "sm")}
+                      <span className="bubble-author-name">
+                        {isMe ? "Vous (CRM)" : activeClientName}
+                      </span>
+                    </div>
+                    {msg.autoType && msg.autoType !== "manual" && (
+                      <span style={{ fontSize: "0.6rem", opacity: 0.7, textTransform: "uppercase" }}>Auto: {msg.autoType}</span>
+                    )}
                   </div>
-                  <p className="message-text">{msg.body || msg.text}</p>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px" }}>
+
+                  {/* Email Specific Subject Header */}
+                  {isEmail && msg.subject && (
+                    <div className="email-bubble-subject">
+                      <Mail size={13} style={{ color: "#3b82f6", flexShrink: 0 }} />
+                      <strong>Objet : {msg.subject}</strong>
+                    </div>
+                  )}
+
+                  {/* Message Body */}
+                  {isEmail ? (
+                    <FormattedEmailContent body={msg.body || msg.text} />
+                  ) : (
+                    <p className="message-text" style={{ whiteSpace: "pre-wrap" }}>
+                      {msg.body || msg.text}
+                    </p>
+                  )}
+
+                  {/* Attachments if any */}
+                  {msg.attachments && Array.isArray(msg.attachments) && msg.attachments.length > 0 && (
+                    <div className="message-attachments-list">
+                      {msg.attachments.map((att, i) => (
+                        <div
+                          key={i}
+                          className="attachment-chip clickable"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDocPreview(att);
+                          }}
+                          title="Cliquer pour prévisualiser le document"
+                        >
+                          <FileDown size={13} />
+                          <span>{att.filename || att.name || "Document.pdf"}</span>
+                          <Eye size={12} style={{ opacity: 0.75, marginLeft: 3 }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Message Meta Footer */}
+                  <div className="bubble-meta-footer">
                     <span className="message-time">{timeStr}</span>
-                    {isMe && renderStatusIcon(msg.status)}
+                    {isMe && renderStatusIcon(msg.status, channel)}
                   </div>
+
+                  {/* Popover detail on click */}
+                  {activeDetailMessage?.id === msg.id && (
+                    <div className="message-quick-details">
+                      <div>Canal : <strong>{channel}</strong></div>
+                      <div>Date : <span>{new Date(msg.createdAt).toLocaleString()}</span></div>
+                      <div>Statut : <strong>{msg.status || "Délivré"}</strong></div>
+                      {msg.externalMessageId && <div className="font-mono text-xs">ID : {msg.externalMessageId.slice(0, 24)}...</div>}
+                      {msg.errorMessage && <div style={{ color: "#ef4444" }}>Erreur : {msg.errorMessage}</div>}
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -763,42 +1219,387 @@ function MessagesPage() {
 
       {/* Send Error Notice */}
       {sendError && (
-        <div style={{ padding: "8px 24px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", fontSize: "0.85rem", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(239, 68, 68, 0.2)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <AlertCircle size={15} />
+        <div style={{ padding: "10px 20px", backgroundColor: "rgba(239, 68, 68, 0.12)", color: "#ef4444", fontSize: "0.85rem", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(239, 68, 68, 0.25)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <AlertCircle size={16} />
             <span>{sendError}</span>
           </div>
-          <button onClick={() => setSendError(null)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
-            <X size={14} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {selectedChannel === "WHATSAPP" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedChannel("SMS");
+                  setSendError(null);
+                }}
+                style={{ padding: "4px 10px", backgroundColor: "var(--sidebar-primary)", color: "#fff", border: "none", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+              >
+                📱 Basculer sur SMS
+              </button>
+            )}
+            <button onClick={() => setSendError(null)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
+              <X size={14} />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Input Form */}
-      <form className="chat-input-form" onSubmit={handleSendMessage}>
-        <div className="input-wrapper" style={{ position: "relative" }}>
-          <input
-            type="text"
-            placeholder={clientObj.phone ? `Envoyer un SMS à ${clientObj.phone}...` : "Écrire un SMS au client..."}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            className="chat-input"
-            disabled={isSending}
-          />
-          <span style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", fontSize: "0.7rem", color: "var(--muted-foreground)", fontWeight: 600, pointerEvents: "none" }}>
-            Canal: SMS
-          </span>
+      {/* Adaptive Omnichannel Composer */}
+      <div className={`omnichannel-composer-container ${selectedChannel === "EMAIL" ? "email-mode" : ""}`}>
+        
+        {/* Composer Controls Bar */}
+        <div className="composer-top-bar">
+          {/* Smart Channel Selector Dropdown */}
+          <div style={{ position: "relative" }}>
+            <button
+              type="button"
+              className="channel-dropdown-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsChannelDropdownOpen(!isChannelDropdownOpen);
+              }}
+            >
+              {renderChannelBadge(selectedChannel, "sm")}
+              <ChevronDown size={14} />
+            </button>
+
+            {isChannelDropdownOpen && (
+              <div className="channel-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                <div style={{ padding: "8px 12px", fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase" }}>
+                  Choisir le canal d'envoi
+                </div>
+
+                {/* SMS */}
+                <button
+                  type="button"
+                  className={`channel-option-item ${selectedChannel === "SMS" ? "active" : ""}`}
+                  disabled={channelAvailability.SMS?.available === false}
+                  onClick={() => {
+                    setSelectedChannel("SMS");
+                    setIsChannelDropdownOpen(false);
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div className="channel-icon-avatar sms">
+                      <SmsIcon size={18} />
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>SMS Direct</div>
+                      <div style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                        {channelAvailability.SMS?.available === false ? (channelAvailability.SMS?.reason || "Non disponible") : "Sur le mobile du client"}
+                      </div>
+                    </div>
+                  </div>
+                  {selectedChannel === "SMS" && <Check size={15} style={{ color: "var(--sidebar-primary)" }} />}
+                </button>
+
+                {/* WhatsApp */}
+                <button
+                  type="button"
+                  className={`channel-option-item ${selectedChannel === "WHATSAPP" ? "active" : ""}`}
+                  disabled={channelAvailability.WHATSAPP?.available === false}
+                  onClick={() => {
+                    setSelectedChannel("WHATSAPP");
+                    setIsChannelDropdownOpen(false);
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div className="channel-icon-avatar whatsapp">
+                      <WhatsAppIcon size={18} />
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>WhatsApp Business</div>
+                      <div style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                        {channelAvailability.WHATSAPP?.available === false ? (channelAvailability.WHATSAPP?.reason || "Non disponible") : "Meta Cloud API"}
+                      </div>
+                    </div>
+                  </div>
+                  {selectedChannel === "WHATSAPP" && <Check size={15} style={{ color: "#22c55e" }} />}
+                </button>
+
+                {/* Email */}
+                <button
+                  type="button"
+                  className={`channel-option-item ${selectedChannel === "EMAIL" ? "active" : ""}`}
+                  disabled={channelAvailability.EMAIL?.available === false}
+                  onClick={() => {
+                    setSelectedChannel("EMAIL");
+                    setIsChannelDropdownOpen(false);
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div className="channel-icon-avatar email">
+                      <EmailIcon size={18} />
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Email Professionnel</div>
+                      <div style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                        {channelAvailability.EMAIL?.available === false ? (channelAvailability.EMAIL?.reason || "Sans email") : (clientObj.email || "Email client")}
+                      </div>
+                    </div>
+                  </div>
+                  {selectedChannel === "EMAIL" && <Check size={15} style={{ color: "#3b82f6" }} />}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Recommendation tooltip notice */}
+          {recommendationReason && (
+            <span style={{ fontSize: "11px", color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: "4px" }}>
+              <Sparkles size={12} style={{ color: "#A3E635" }} />
+              {recommendationReason}
+            </span>
+          )}
         </div>
-        <button
-          type="submit"
-          className="chat-send-btn"
-          title="Envoyer le SMS"
-          disabled={!inputText.trim() || isSending}
-          style={{ opacity: (!inputText.trim() || isSending) ? 0.6 : 1 }}
-        >
-          <Send size={16} />
-        </button>
-      </form>
+
+        {/* 1. EMAIL COMPOSER (Rich mode) */}
+        {selectedChannel === "EMAIL" ? (
+          <form className="email-composer-form" onSubmit={handleSendMessage}>
+            <div className="email-composer-meta">
+              <div className="email-meta-row">
+                <span className="email-meta-label">À :</span>
+                <span className="email-meta-recipient font-mono">{activeClientName} &lt;{clientObj.email || "aucun email"}&gt;</span>
+              </div>
+              <div className="email-meta-row">
+                <span className="email-meta-label">Objet :</span>
+                <input
+                  type="text"
+                  placeholder="Objet obligatoire de l'email..."
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  className="email-subject-input"
+                  required
+                />
+              </div>
+            </div>
+
+            <textarea
+              placeholder={`Rédigez votre email à ${activeClientName}...`}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              className="email-body-textarea"
+              rows={4}
+              disabled={isSending}
+            />
+
+            {/* Email Attachments List */}
+            {emailAttachments.length > 0 && (
+              <div className="email-attached-pills">
+                {emailAttachments.map((att, idx) => (
+                  <div key={idx} className="email-attached-pill">
+                    <FileText size={13} />
+                    <span>{att.filename || att.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setEmailAttachments(emailAttachments.filter((_, i) => i !== idx))}
+                      style={{ background: "none", border: "none", color: "var(--muted-foreground)", cursor: "pointer" }}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="email-composer-bottom">
+              <button
+                type="button"
+                className="email-attach-btn"
+                onClick={() => setIsAttachModalOpen(true)}
+                title="Joindre un devis, facture ou document"
+              >
+                <Paperclip size={15} />
+                <span>Joindre document / devis PDF</span>
+              </button>
+
+              <button
+                type="submit"
+                className="chat-send-btn email-send-btn"
+                disabled={(!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending}
+              >
+                <Send size={15} />
+                <span>Envoyer l'email</span>
+              </button>
+            </div>
+          </form>
+        ) : (
+          /* 2. CHAT COMPOSER (SMS & WhatsApp mode) */
+          <form className="chat-input-form" onSubmit={handleSendMessage}>
+            {selectedChannel === "WHATSAPP" && (
+              <button
+                type="button"
+                className="composer-action-btn"
+                title="Joindre un devis ou document"
+                onClick={() => setIsAttachModalOpen(true)}
+              >
+                <Paperclip size={18} />
+              </button>
+            )}
+
+            <div className="input-wrapper" style={{ position: "relative" }}>
+              <input
+                type="text"
+                placeholder={
+                  selectedChannel === "WHATSAPP"
+                    ? `Envoyer un message WhatsApp à ${clientObj.phone || activeClientName}...`
+                    : `Envoyer un SMS à ${clientObj.phone || activeClientName}...`
+                }
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                className="chat-input"
+                disabled={isSending}
+              />
+              <span className="input-channel-tag">
+                {selectedChannel === "WHATSAPP" ? (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "#22c55e" }}><WhatsAppIcon size={14} /> WhatsApp</span>
+                ) : (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--sidebar-primary)" }}><SmsIcon size={14} /> SMS</span>
+                )}
+              </span>
+            </div>
+
+            <button
+              type="submit"
+              className="chat-send-btn"
+              title={`Envoyer via ${selectedChannel}`}
+              disabled={!inputText.trim() || isSending}
+              style={{ opacity: (!inputText.trim() || isSending) ? 0.6 : 1 }}
+            >
+              <Send size={16} />
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Document / PDF Attachment Modal */}
+      {isAttachModalOpen && (
+        <div className="client-modal-overlay" onClick={() => setIsAttachModalOpen(false)}>
+          <div className="client-modal-card" style={{ maxHeight: "85vh", display: "flex", flexDirection: "column", width: "100%", maxWidth: "520px" }} onClick={(e) => e.stopPropagation()}>
+            <div className="client-modal-header" style={{ flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <FileText size={18} style={{ color: "var(--sidebar-primary)" }} />
+                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Joindre un document</h3>
+              </div>
+              <button className="client-modal-close" onClick={() => setIsAttachModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
+              <p style={{ fontSize: "13px", color: "var(--foreground)", margin: 0, fontWeight: 500 }}>
+                Documents de <strong>{activeClientName}</strong> :
+              </p>
+            </div>
+
+            <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
+              {/* Devis du client */}
+              {clientObj.quotes && clientObj.quotes.length > 0 && (
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                    Devis ({clientObj.quotes.length})
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {clientObj.quotes.map((q) => (
+                      <div
+                        key={q.id}
+                        className="attachment-pick-item"
+                      >
+                        <FileText size={18} style={{ color: "var(--sidebar-primary)", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Devis {q.number}</div>
+                          <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                            Montant : <strong style={{ color: "var(--foreground)" }}>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                          <button
+                            type="button"
+                            className="attachment-action-icon-btn"
+                            title="Prévisualiser ce devis"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenDocPreview(q, "quote");
+                            }}
+                          >
+                            <Eye size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="attachment-join-btn"
+                            style={{ color: "var(--sidebar-primary)", backgroundColor: "rgba(91, 77, 219, 0.08)" }}
+                            onClick={() => {
+                              setEmailAttachments(prev => [...prev, { filename: `Devis_${q.number}.pdf`, id: q.id, quoteId: q.id, type: "quote", number: q.number, total: q.amountTTC ?? q.totalTtc ?? q.total ?? 0, ...q }]);
+                              setIsAttachModalOpen(false);
+                            }}
+                          >
+                            Joindre
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Factures du client */}
+              {clientObj.invoices && clientObj.invoices.length > 0 && (
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                    Factures ({clientObj.invoices.length})
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {clientObj.invoices.map((inv) => (
+                      <div
+                        key={inv.id}
+                        className="attachment-pick-item"
+                      >
+                        <FileText size={18} style={{ color: "#22c55e", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Facture {inv.number}</div>
+                          <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                            Montant : <strong style={{ color: "var(--foreground)" }}>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                          <button
+                            type="button"
+                            className="attachment-action-icon-btn"
+                            title="Prévisualiser cette facture"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenDocPreview(inv, "invoice");
+                            }}
+                          >
+                            <Eye size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="attachment-join-btn"
+                            style={{ color: "#22c55e", backgroundColor: "rgba(34, 197, 94, 0.08)" }}
+                            onClick={() => {
+                              setEmailAttachments(prev => [...prev, { filename: `Facture_${inv.number}.pdf`, id: inv.id, invoiceId: inv.id, type: "invoice", number: inv.number, total: inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0, ...inv }]);
+                              setIsAttachModalOpen(false);
+                            }}
+                          >
+                            Joindre
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(!clientObj.quotes || clientObj.quotes.length === 0) && (!clientObj.invoices || clientObj.invoices.length === 0) && (
+                <div style={{ padding: "30px 16px", textAlign: "center", color: "var(--muted-foreground)" }}>
+                  <p className="no-data" style={{ margin: 0 }}>Aucun devis ni facture trouvé pour {activeClientName}.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -825,7 +1626,7 @@ function MessagesPage() {
                   <div className="chat-pane-placeholder flex-1 flex flex-col items-center justify-center bg-card text-muted-foreground p-8 text-center" style={{ borderRight: "1px solid var(--border)" }}>
                     <MessageSquare size={48} className="mb-4 opacity-40" />
                     <h3 className="text-lg font-semibold text-foreground mb-2">Aucune discussion sélectionnée</h3>
-                    <p className="text-sm max-w-sm mb-4">Choisissez un contact dans la liste à gauche ou cliquez sur Nouveau SMS pour démarrer une conversation.</p>
+                    <p className="text-sm max-w-sm mb-4">Choisissez un contact dans la boîte de réception à gauche ou cliquez sur Nouveau Message pour échanger par SMS, WhatsApp ou Email.</p>
                     <button
                       onClick={() => setIsClientModalOpen(true)}
                       style={{
@@ -842,7 +1643,7 @@ function MessagesPage() {
                         gap: "6px"
                       }}
                     >
-                      <Plus size={16} /> Démarrer un SMS
+                      <Plus size={16} /> Démarrer un message
                     </button>
                   </div>
                 )}
@@ -895,12 +1696,12 @@ function MessagesPage() {
         </motion.div>
       </div>
 
-      {/* Select Client for New SMS Modal */}
+      {/* Select Client for New Message Modal */}
       {isClientModalOpen && (
         <div className="client-modal-overlay" onClick={() => setIsClientModalOpen(false)}>
           <div className="client-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="client-modal-header">
-              <h3>Sélectionner un client pour SMS</h3>
+              <h3>Sélectionner un contact pour écrire</h3>
               <button className="client-modal-close" onClick={() => setIsClientModalOpen(false)}>
                 <X size={20} />
               </button>
@@ -909,7 +1710,7 @@ function MessagesPage() {
               <Search size={16} className="modal-search-icon" />
               <input
                 type="text"
-                placeholder="Rechercher par nom ou numéro..."
+                placeholder="Rechercher par nom, téléphone ou email..."
                 value={modalSearchTerm}
                 onChange={(e) => setModalSearchTerm(e.target.value)}
                 autoFocus
@@ -919,7 +1720,7 @@ function MessagesPage() {
               {isLoadingClients ? (
                 <p className="no-data">Chargement de vos clients...</p>
               ) : filteredContactsList.length === 0 ? (
-                <p className="no-data">Aucun client trouvé avec ce nom ou numéro</p>
+                <p className="no-data">Aucun client trouvé avec ce nom, téléphone ou email</p>
               ) : (
                 filteredContactsList.map((client) => {
                   const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || "Client";
@@ -934,7 +1735,10 @@ function MessagesPage() {
                       </div>
                       <div className="client-modal-info">
                         <span className="client-modal-name">{fullName}</span>
-                        <span className="client-modal-email font-mono">{client.phone || "Sans téléphone"}</span>
+                        <div style={{ display: "flex", gap: "8px", fontSize: "11.5px", color: "var(--muted-foreground)" }}>
+                          {client.phone && <span className="font-mono">{client.phone}</span>}
+                          {client.email && <span>· {client.email}</span>}
+                        </div>
                       </div>
                     </div>
                   );

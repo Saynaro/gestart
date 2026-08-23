@@ -271,7 +271,7 @@ function PhoneInput({
                 required={required}
                 disabled={disabled}
                 autoFocus={autoFocus}
-                autoComplete="tel"
+                autoComplete="off"
             />
 
             {/* Clear Button */}

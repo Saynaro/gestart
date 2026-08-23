@@ -13,6 +13,8 @@ export const authMiddleware = async (req, res, next) => {
         token = req.cookies.token;
     } else if (req.cookies?.gestart_access) {
         token = req.cookies.gestart_access;
+    } else if (req.query?.token) {
+        token = req.query.token;
     }
 
     if (!token) {

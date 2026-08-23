@@ -251,6 +251,64 @@ function ClientPage() {
     const [pdfModalInvoice, setPdfModalInvoice] = useState(null);
     const [pdfModalQuote, setPdfModalQuote] = useState(null);
 
+    const handleOpenInvoiceDrawer = async (inv) => {
+        if (!inv) return;
+        const clientFallback = inv.client || selectedClient || {};
+        const initialInv = {
+            ...inv,
+            client: clientFallback,
+            clientName: inv.clientName || clientFallback.companyName || `${clientFallback.firstName || ''} ${clientFallback.lastName || ''}`.trim() || "Client",
+            clientEmail: inv.clientEmail || clientFallback.email || "",
+            clientPhone: inv.clientPhone || clientFallback.phone || "",
+            clientAddress: inv.clientAddress || clientFallback.address || "",
+            linkedDevis: inv.linkedDevis || inv.linkedQuote || inv.sourceQuote || null
+        };
+        setActiveInvoiceForDrawer(initialInv);
+        if (inv.id) {
+            try {
+                const res = await apiFetch(`/v1/invoices/${inv.id}`);
+                if (res?.data?.invoice) {
+                    setActiveInvoiceForDrawer({
+                        ...res.data.invoice,
+                        client: res.data.invoice.client || clientFallback,
+                        linkedDevis: res.data.invoice.linkedDevis || res.data.invoice.linkedQuote || res.data.invoice.sourceQuote
+                    });
+                }
+            } catch (e) {
+                console.warn("[FETCH_INVOICE_DETAILS_WARN]", e.message);
+            }
+        }
+    };
+
+    const handleOpenQuoteDrawer = async (q) => {
+        if (!q) return;
+        const clientFallback = q.client || selectedClient || {};
+        const initialQuote = {
+            ...q,
+            client: clientFallback,
+            clientName: q.clientName || clientFallback.companyName || `${clientFallback.firstName || ''} ${clientFallback.lastName || ''}`.trim() || "Client",
+            clientEmail: q.clientEmail || clientFallback.email || "",
+            clientPhone: q.clientPhone || clientFallback.phone || "",
+            clientAddress: q.clientAddress || clientFallback.address || "",
+            linkedFacture: q.linkedFacture || q.linkedInvoice || (q.invoices && q.invoices[0]) || null
+        };
+        setActiveQuoteForDrawer(initialQuote);
+        if (q.id) {
+            try {
+                const res = await apiFetch(`/v1/quotes/${q.id}`);
+                if (res?.data?.quote) {
+                    setActiveQuoteForDrawer({
+                        ...res.data.quote,
+                        client: res.data.quote.client || clientFallback,
+                        linkedFacture: res.data.quote.linkedFacture || res.data.quote.linkedInvoice || (res.data.quote.invoices && res.data.quote.invoices[0])
+                    });
+                }
+            } catch (e) {
+                console.warn("[FETCH_QUOTE_DETAILS_WARN]", e.message);
+            }
+        }
+    };
+
     // Form temporary states
     const [editFirstName, setEditFirstName] = useState("");
     const [editLastName, setEditLastName] = useState("");
@@ -490,8 +548,8 @@ function ClientPage() {
                         detailTab={detailTab}
                         setDetailTab={setDetailTab}
                         onEdit={handleOpenEdit}
-                        onOpenInvoice={(inv) => setActiveInvoiceForDrawer(inv)}
-                        onOpenQuote={(q) => setActiveQuoteForDrawer(q)}
+                        onOpenInvoice={handleOpenInvoiceDrawer}
+                        onOpenQuote={handleOpenQuoteDrawer}
                     />
                 ) : (
                     <div className="mobile-contacts-view">
@@ -709,6 +767,10 @@ function ClientPage() {
                     onPreview={() => setPdfModalInvoice(activeInvoiceForDrawer)}
                     onEdit={() => setActiveInvoiceForDrawer(null)}
                     onSend={() => setActiveInvoiceForDrawer(null)}
+                    onOpenLinkedDevis={(devis) => {
+                        setActiveInvoiceForDrawer(null);
+                        handleOpenQuoteDrawer(devis);
+                    }}
                     onFinalise={() => {}}
                     onMarkPaid={() => {}}
                     onMarkUnpaid={() => {}}
@@ -723,6 +785,10 @@ function ClientPage() {
                     overlayStyle={{ zIndex: 1200 }}
                     onPreview={() => setPdfModalQuote(activeQuoteForDrawer)}
                     onSend={() => setActiveQuoteForDrawer(null)}
+                    onOpenLinkedInvoice={(facture) => {
+                        setActiveQuoteForDrawer(null);
+                        handleOpenInvoiceDrawer(facture);
+                    }}
                     onConvertToInvoice={() => {}}
                     onChangeStatus={() => {}}
                     onEdit={() => setActiveQuoteForDrawer(null)}

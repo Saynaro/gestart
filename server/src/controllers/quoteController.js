@@ -734,9 +734,17 @@ export const sendQuote = async (req, res) => {
         });
     } catch (error) {
         console.error("SEND QUOTE ERROR:", error.message);
+        if (error.code === "EMAIL_NOT_CONFIGURED" || error.message?.includes("EMAIL_NOT_CONFIGURED")) {
+            return res.status(400).json({
+                success: false,
+                code: "EMAIL_NOT_CONFIGURED",
+                message: error.message.replace(/^EMAIL_NOT_CONFIGURED:\s*/, ""),
+                redirectUrl: "/settings?tab=communication"
+            });
+        }
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de l'envoi du devis"
+            message: error.message || "Erreur serveur lors de l'envoi du devis"
         });
     }
 };

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, AlertTriangle, CreditCard, Building } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../utils/useUser";
+import { apiFetch } from "../../utils/api";
 
 function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf }) {
     const navigate = useNavigate();
@@ -10,8 +11,28 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
     const [copied, setCopied] = useState(false);
     const [targetEmail, setTargetEmail] = useState(() => quote?.clientEmail || quote?.client?.email || "");
     const [isSending, setIsSending] = useState(false);
+    const [channelStatus, setChannelStatus] = useState(null);
+
+    useEffect(() => {
+        const fetchChannels = async () => {
+            try {
+                const res = await apiFetch("/v1/communication/channels");
+                if (res.success && res.data) {
+                    setChannelStatus(res.data);
+                }
+            } catch (e) {
+                // Ignore
+            }
+        };
+        fetchChannels();
+    }, []);
 
     if (!quote) return null;
+
+    const emailChannel = channelStatus?.channels?.email || channelStatus?.email;
+    const isEmailConnected = emailChannel?.status === "CONNECTED";
+    const companyDisplayName = company?.name || quote?.company?.name || "Votre entreprise";
+    const senderEmailAddress = emailChannel?.emailAddress || company?.email || "votre-email@entreprise.fr";
 
     const hasIban = !!(company?.settings?.bankIban || company?.bankIban || company?.iban);
     const docNumber = quote.number || `D-${quote.id}`;
@@ -340,6 +361,62 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                             </div>
                         </div>
 
+                        {/* Email Connection Status Badge */}
+                        {isEmailConnected ? (
+                            <div style={{
+                                padding: '10px 14px',
+                                borderRadius: '8px',
+                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
+                                border: '1px solid rgba(85, 107, 47, 0.25)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}>
+                                <Check size={16} style={{ color: '#556B2F', flexShrink: 0 }} />
+                                <span style={{ fontSize: '12px', color: 'var(--foreground)' }}>
+                                    Expéditeur : <strong>{companyDisplayName}</strong> ({senderEmailAddress})
+                                </span>
+                            </div>
+                        ) : (
+                            <div style={{
+                                padding: '12px 14px',
+                                borderRadius: '8px',
+                                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                                border: '1px solid rgba(239, 68, 68, 0.25)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '6px'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
+                                    <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#ef4444' }}>
+                                        Adresse email professionnelle non connectée
+                                    </span>
+                                </div>
+                                <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', margin: 0, lineHeight: 1.4 }}>
+                                    Connectez votre compte Google / Email dans les Paramètres pour envoyer vos devis depuis votre propre adresse.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/settings?tab=communication')}
+                                    style={{
+                                        alignSelf: 'flex-start',
+                                        marginTop: '4px',
+                                        backgroundColor: '#556B2F',
+                                        color: '#ffffff',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        padding: '6px 12px',
+                                        fontSize: '11.5px',
+                                        fontWeight: 700,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Connecter mon compte Google
+                                </button>
+                            </div>
+                        )}
+
                         {/* Recipient Email Input */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
@@ -382,7 +459,7 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                             color: 'var(--muted-foreground)',
                             lineHeight: '1.4'
                         }}>
-                            💡 <strong>Information d'expédition :</strong> L'e-mail est expédié via <strong>GestArt (support.gestart@gmail.com)</strong>. Si votre client ne le trouve pas dans sa boîte de réception, conseillez-lui de vérifier son dossier <strong>Spam / Courriers indésirables</strong>.
+                            💡 <strong>Information d'expédition :</strong> L'e-mail est expédié de la part de <strong>{companyDisplayName}</strong>. Si votre client ne le trouve pas dans sa boîte de réception, conseillez-lui de vérifier son dossier <strong>Spam / Courriers indésirables</strong>.
                         </div>
 
                         {/* Confirmation Button */}

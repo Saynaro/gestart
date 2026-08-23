@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, CreditCard, Building2, Eye, EyeOff } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, CreditCard, Building2, Eye, EyeOff, AlertTriangle } from "lucide-react";
 import { useUser } from "../../utils/useUser";
+import { apiFetch } from "../../utils/api";
 
 function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloadPdf }) {
     const { company, user } = useUser();
@@ -9,9 +10,27 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
     const [targetEmail, setTargetEmail] = useState(() => invoice?.clientEmail || invoice?.client?.email || "");
     const [isSending, setIsSending] = useState(false);
     const [showEmailPreview, setShowEmailPreview] = useState(false);
+    const [channelStatus, setChannelStatus] = useState(null);
+
+    useEffect(() => {
+        const fetchChannels = async () => {
+            try {
+                const res = await apiFetch("/v1/communication/channels");
+                if (res.success && res.data) {
+                    setChannelStatus(res.data);
+                }
+            } catch (e) {
+                // Ignore
+            }
+        };
+        fetchChannels();
+    }, []);
 
     // Nom de l'entreprise et coordonnées bancaires depuis le profil/settings
+    const emailChannel = channelStatus?.channels?.email || channelStatus?.email;
+    const isEmailConnected = emailChannel?.status === "CONNECTED";
     const companyDisplayName = company?.name || invoice?.company?.name || invoice?.emitterName || "Mon Entreprise";
+    const senderEmailAddress = emailChannel?.emailAddress || company?.email || "votre-email@entreprise.fr";
     const bankIban = company?.settings?.bankIban || invoice?.company?.settings?.bankIban || invoice?.company?.bankIban || "FR76 3000 6000 0112 3456 7890 189";
     const bankBic = company?.settings?.bankBic || invoice?.company?.settings?.bankBic || invoice?.company?.bankBic || "PSSTFRPPMAR";
     const bankOwner = company?.settings?.bankAccountOwner || invoice?.company?.settings?.bankAccountOwner || company?.name || companyDisplayName;
@@ -206,7 +225,7 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                 {/* VIEW 3: Auto Send with Reminder Confirmation */}
                 {viewMode === "auto" && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '4px 0' }}>
-                        {/* Info Banner */}
+                        {/* Info Banner & Sender Status */}
                         <div style={{
                             padding: '12px 16px',
                             borderRadius: '10px',
@@ -217,15 +236,71 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                             alignItems: 'flex-start'
                         }}>
                             <ShieldCheck size={20} style={{ color: '#556B2F', flexShrink: 0, marginTop: '2px' }} />
-                            <div>
+                            <div style={{ flex: 1 }}>
                                 <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#556B2F' }}>
                                     Envoi par e-mail automatique
                                 </h4>
                                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>
-                                    La facture <strong>{docNumber}</strong> ({totalTtc} € TTC) sera envoyée automatiquement par e-mail au client avec la facture en pièce jointe et les coordonnées de paiement.
+                                    La facture <strong>{docNumber}</strong> ({totalTtc} € TTC) sera envoyée avec la facture PDF et le lien de paiement.
                                 </p>
                             </div>
                         </div>
+
+                        {/* Email Connection Status Badge */}
+                        {isEmailConnected ? (
+                            <div style={{
+                                padding: '10px 14px',
+                                borderRadius: '8px',
+                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
+                                border: '1px solid rgba(85, 107, 47, 0.25)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}>
+                                <Check size={16} style={{ color: '#556B2F', flexShrink: 0 }} />
+                                <span style={{ fontSize: '12px', color: 'var(--foreground)' }}>
+                                    Expéditeur : <strong>{companyDisplayName}</strong> ({senderEmailAddress})
+                                </span>
+                            </div>
+                        ) : (
+                            <div style={{
+                                padding: '12px 14px',
+                                borderRadius: '8px',
+                                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                                border: '1px solid rgba(239, 68, 68, 0.25)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '6px'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
+                                    <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#ef4444' }}>
+                                        Adresse email professionnelle non connectée
+                                    </span>
+                                </div>
+                                <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', margin: 0, lineHeight: 1.4 }}>
+                                    Connectez votre compte Google / Email dans les Paramètres pour envoyer vos factures depuis votre propre adresse.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => window.location.href = '/settings?tab=communication'}
+                                    style={{
+                                        alignSelf: 'flex-start',
+                                        marginTop: '4px',
+                                        backgroundColor: '#556B2F',
+                                        color: '#ffffff',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        padding: '6px 12px',
+                                        fontSize: '11.5px',
+                                        fontWeight: 700,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Connecter mon compte Google
+                                </button>
+                            </div>
+                        )}
 
                         {/* Modes de paiement à inclure dans l'e-mail */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -466,7 +541,7 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                                 flexDirection: 'column',
                                 gap: '3px'
                             }}>
-                                <div><strong style={{ color: '#CBD5E1' }}>De :</strong> GestArt &lt;support.gestart@gmail.com&gt;</div>
+                                <div><strong style={{ color: '#CBD5E1' }}>De :</strong> {companyDisplayName} &lt;{senderEmailAddress}&gt;</div>
                                 <div><strong style={{ color: '#CBD5E1' }}>À :</strong> {targetEmail || 'email.client@exemple.fr'}</div>
                                 <div><strong style={{ color: '#CBD5E1' }}>Objet :</strong> Facture {docNumber} ({totalTtc} € TTC) — {companyDisplayName}</div>
                             </div>

@@ -7,7 +7,7 @@ import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
 
-const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
+const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCount = 0 }) => {
     const navigate = useNavigate();
     const { isStarter } = useSubscription();
     const { role } = useUser();
@@ -135,7 +135,12 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
                                                     }`}
                                                 />
                                                 <span className="text-[17px] font-medium">{item.title}</span>
-                                                {(item.isPremium || (item.proOnly && isStarter)) && (
+                                                {item.path === "/messages" && unreadMessagesCount > 0 && (
+                                                    <span className="ml-auto bg-[#556B2F] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                                                        {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                                                    </span>
+                                                )}
+                                                {(item.isPremium || (item.proOnly && isStarter)) && item.path !== "/messages" && (
                                                     <span className="ml-auto bg-sidebar-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)' }}>
                                                         PRO
                                                     </span>

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { Bell, MessageSquare, Send, X } from "lucide-react";
+import { Bell, MessageSquare, Send, X, ExternalLink } from "lucide-react";
 import "./Header.css";
 import { profilePages, DropdownIcons } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
@@ -9,6 +9,8 @@ import { apiFetch } from "../utils/api";
 import { setAuthToken } from "../utils/auth";
 import { useUser } from "../utils/useUser";
 import { useSubscription } from "../utils/useSubscription";
+import { getSocket } from "../utils/socket";
+import { WhatsAppIcon, EmailIcon, SmsIcon } from "./ChannelIcons";
 
 function Header() {
     const navigate = useNavigate();
@@ -22,9 +24,132 @@ function Header() {
     const [smsSuccessMsg, setSmsSuccessMsg] = useState("");
 
     const [smsList, setSmsList] = useState([]);
+    const [unreadMsgCount, setUnreadMsgCount] = useState(0);
     const [notificationsList, setNotificationsList] = useState([]);
     const [pendingInvites, setPendingInvites] = useState([]);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    // Clean email quotes and extract a clean single-line snippet
+    const cleanSnippet = (text) => {
+        if (!text) return "Nouveau message";
+        const splitRegex = /(\r?\n\s*(?:On\s+.+?wrote:|Le\s+.+?a écrit\s*:|[а-яa-z]{2,3},\s*\d{1,2}\s+[а-яa-z]{3,}\.?\s+\d{4}.+?:|-----Original Message-----|________________________________)\s*\n[\s\S]*$)|(\r?\n\s*>[\s\S]*$)/i;
+        const match = text.match(splitRegex);
+        let cleaned = match ? text.slice(0, match.index) : text;
+        cleaned = cleaned.replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim();
+        cleaned = cleaned.replace(/^[>•\s-]+/, "").trim();
+        return cleaned || "Nouveau message";
+    };
+
+    // Format relative time helper
+    const formatMsgDate = (dateString) => {
+        if (!dateString) return "";
+        try {
+            const date = new Date(dateString);
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
+            const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+            if (isToday) return `Aujourd'hui à ${timeStr}`;
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (date.toDateString() === yesterday.toDateString()) return `Hier à ${timeStr}`;
+
+            return `${date.toLocaleDateString([], { day: "2-digit", month: "2-digit" })} à ${timeStr}`;
+        } catch {
+            return "";
+        }
+    };
+
+    // Fetch received messages and exact unread count
+    const fetchReceivedMessages = useCallback(async () => {
+        try {
+            const [inboxRes, countRes] = await Promise.allSettled([
+                apiFetch("/v1/messages/inbox"),
+                apiFetch("/v1/messages/unread-count")
+            ]);
+
+            if (countRes.status === "fulfilled" && countRes.value?.success && typeof countRes.value.data?.total === "number") {
+                setUnreadMsgCount(countRes.value.data.total);
+            }
+
+            if (inboxRes.status === "fulfilled" && inboxRes.value?.success) {
+                const convs = inboxRes.value.data?.conversations || [];
+                const mapped = convs.map(c => {
+                    const clientName = c.client ? `${c.client.firstName || ''} ${c.client.lastName || c.client.companyName || ''}`.trim() : (c.clientName || c.sender || c.phone || "Client");
+                    const channel = (c.channel || c.lastMessage?.channel || "SMS").toUpperCase();
+                    const rawMsg = c.lastMessage?.text || c.lastMessage?.body || c.lastMessageText || c.text || "";
+                    const cleanMsg = cleanSnippet(rawMsg);
+                    const date = c.lastMessage?.createdAt || c.time || c.createdAt;
+                    const isUnread = Boolean(c.unreadCount && c.unreadCount > 0);
+
+                    return {
+                        id: c.id || c.clientId || String(Math.random()),
+                        clientId: c.clientId || c.client?.id || c.id,
+                        sender: clientName,
+                        channel,
+                        msg: cleanMsg,
+                        date: formatMsgDate(date),
+                        isUnread,
+                        unreadCount: c.unreadCount || 0,
+                        phone: c.client?.phone || c.phone || ""
+                    };
+                });
+                setSmsList(mapped);
+            }
+        } catch (err) {
+            // Fallback sur /v1/sms/inbox
+            try {
+                const resFallback = await apiFetch("/v1/sms/inbox");
+                const list = resFallback.data?.conversations || [];
+                const mappedFallback = list.map(c => ({
+                    id: c.id || c.clientId || String(Math.random()),
+                    clientId: c.clientId || c.client?.id || c.id,
+                    sender: c.clientName || c.sender || c.phone || "Client",
+                    channel: (c.channel || "SMS").toUpperCase(),
+                    msg: cleanSnippet(c.lastMessageText || c.text || ""),
+                    date: formatMsgDate(c.lastMessage?.createdAt || c.time),
+                    isUnread: Boolean(c.unreadCount && c.unreadCount > 0),
+                    unreadCount: c.unreadCount || 0,
+                    phone: c.phone || ""
+                }));
+                setSmsList(mappedFallback);
+                const unreads = mappedFallback.filter(m => m.isUnread).length;
+                setUnreadMsgCount(unreads);
+            } catch (e) {
+                // Ignore silent error
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchReceivedMessages();
+    }, [fetchReceivedMessages]);
+
+    // Socket real-time updates for notifications & incoming messages
+    useEffect(() => {
+        const socket = getSocket();
+        if (!socket) return;
+
+        const handleNewMessage = () => {
+            fetchReceivedMessages();
+        };
+        const handleMessageRead = () => {
+            fetchReceivedMessages();
+        };
+
+        socket.on("message:new", handleNewMessage);
+        socket.on("message:received", handleNewMessage);
+        socket.on("message:read", handleMessageRead);
+
+        window.addEventListener("messages-read", fetchReceivedMessages);
+
+        return () => {
+            socket.off("message:new", handleNewMessage);
+            socket.off("message:received", handleNewMessage);
+            socket.off("message:read", handleMessageRead);
+            window.removeEventListener("messages-read", fetchReceivedMessages);
+        };
+    }, [fetchReceivedMessages]);
 
     useEffect(() => {
         const fetchPendingInvites = async () => {
@@ -184,6 +309,10 @@ function Header() {
         return "Home";
     };
 
+    const unreadMessagesCount = Math.max(unreadMsgCount, smsList.filter(s => s.isUnread).length);
+    const totalUnread = unreadMessagesCount + notificationsList.length + pendingInvites.length;
+    const hasUnread = totalUnread > 0;
+
     return (
         <div className="header">
             <div className="header-left">
@@ -195,26 +324,28 @@ function Header() {
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                     </svg>
-                    <span className="notification-dot"></span>
+                    {hasUnread && <span className="notification-dot"></span>}
 
                     {bellOpen && createPortal(
                         <div className="bell-overlay-wrapper" onClick={handleCloseNotifications}>
-                            <div
-                                className="bell-full-page-panel"
-                                onClick={(e) => e.stopPropagation()}
-                                onTouchStart={handleTouchStart}
-                                onTouchMove={handleTouchMove}
-                                onTouchEnd={handleTouchEnd}
-                            >
-                                <div className="bell-panel-header">
-                                    <div className="bell-panel-title-group">
-                                        <span className="bell-panel-title">Notifications</span>
-                                        <span className="bell-unread-badge">{notificationsList.length} nouvelles</span>
-                                    </div>
-                                    <button type="button" className="bell-panel-close-btn" onClick={handleCloseNotifications}>
-                                        <X size={22} />
-                                    </button>
-                                </div>
+                                    <div
+                                        className="bell-full-page-panel"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onTouchStart={handleTouchStart}
+                                        onTouchMove={handleTouchMove}
+                                        onTouchEnd={handleTouchEnd}
+                                    >
+                                        <div className="bell-panel-header">
+                                            <div className="bell-panel-title-group">
+                                                <span className="bell-panel-title">Notifications</span>
+                                                <span className="bell-unread-badge">
+                                                    {totalUnread > 0 ? `${totalUnread} nouvelle${totalUnread > 1 ? 's' : ''}` : '0 nouvelle'}
+                                                </span>
+                                            </div>
+                                            <button type="button" className="bell-panel-close-btn" onClick={handleCloseNotifications}>
+                                                <X size={22} />
+                                            </button>
+                                        </div>
 
                                 <div className="bell-tabs-header">
                                     <button
@@ -229,7 +360,7 @@ function Header() {
                                         className={`bell-tab-btn ${bellTab === "sms" ? "active" : ""}`}
                                         onClick={() => setBellTab("sms")}
                                     >
-                                        <MessageSquare size={15} /> SMS reçus ({smsList.length})
+                                        <MessageSquare size={15} /> Messages reçus ({smsList.length})
                                     </button>
                                 </div>
 
@@ -283,51 +414,72 @@ function Header() {
                                         <div className="sms-notifications-list">
                                             {smsList.length === 0 ? (
                                                 <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
-                                                    Aucun SMS reçu
+                                                    Aucun message reçu pour le moment
                                                 </p>
                                             ) : (
                                                 smsList.map(s => (
-                                                    <div key={s.id} className="sms-notification-item">
-                                                        <div className="meta">
-                                                            <span className="sender">{s.sender}</span>
-                                                            <span className="date">{s.date}</span>
-                                                        </div>
-                                                        <p className="msg">{s.msg}</p>
-
-                                                        {activeSmsReplyId === s.id ? (
-                                                            <div className="sms-reply-form">
-                                                                <input
-                                                                    type="text"
-                                                                    className="reply-input"
-                                                                    placeholder="Votre réponse..."
-                                                                    value={replyText}
-                                                                    onChange={(e) => setReplyText(e.target.value)}
-                                                                />
-                                                                <button
-                                                                    className="reply-send-btn"
-                                                                    onClick={() => {
-                                                                        if (!replyText.trim()) return;
-                                                                        const targetSender = s.sender;
-                                                                        setReplyText("");
-                                                                        setActiveSmsReplyId(null);
-                                                                        setSmsSuccessMsg(`✓ SMS envoyé à ${targetSender}`);
-                                                                        setTimeout(() => setSmsSuccessMsg(""), 3500);
-                                                                    }}
-                                                                >
-                                                                    <Send size={12} />
-                                                                </button>
+                                                    <div 
+                                                        key={s.id} 
+                                                        className="sms-notification-item"
+                                                        onClick={() => {
+                                                            handleCloseNotifications();
+                                                            navigate(`/messages?chat=${encodeURIComponent(s.clientId || s.id)}`);
+                                                        }}
+                                                        style={{
+                                                            cursor: 'pointer',
+                                                            borderLeft: s.isUnread ? '4px solid #556B2F' : '1px solid var(--border)',
+                                                            backgroundColor: s.isUnread ? 'rgba(85, 107, 47, 0.05)' : 'var(--card)'
+                                                        }}
+                                                    >
+                                                        <div className="meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+                                                                {s.isUnread && (
+                                                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#556B2F', flexShrink: 0 }} />
+                                                                )}
+                                                                <span className="sender" style={{ fontWeight: s.isUnread ? 800 : 700, fontSize: '0.9rem', color: 'var(--foreground)' }}>
+                                                                    {s.sender}
+                                                                </span>
                                                             </div>
-                                                        ) : (
-                                                            <button
-                                                                className="sms-reply-trigger"
-                                                                onClick={() => {
-                                                                    setActiveSmsReplyId(s.id);
-                                                                    setReplyText("");
-                                                                }}
-                                                            >
-                                                                Répondre par SMS
-                                                            </button>
-                                                        )}
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                                                                {s.channel === "WHATSAPP" ? (
+                                                                    <span style={{ backgroundColor: 'rgba(37, 211, 102, 0.12)', color: '#25D366', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                        <WhatsAppIcon size={12} /> WhatsApp
+                                                                    </span>
+                                                                ) : s.channel === "EMAIL" ? (
+                                                                    <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                        <EmailIcon size={12} /> Email
+                                                                    </span>
+                                                                ) : (
+                                                                    <span style={{ backgroundColor: 'rgba(85, 107, 47, 0.12)', color: '#556B2F', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                        <SmsIcon size={12} /> SMS
+                                                                    </span>
+                                                                )}
+                                                                <span className="date" style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{s.date}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <p 
+                                                            className="msg" 
+                                                            style={{ 
+                                                                margin: '4px 0 8px 0', 
+                                                                fontSize: '0.85rem', 
+                                                                color: s.isUnread ? 'var(--foreground)' : '#94a3b8', 
+                                                                fontWeight: s.isUnread ? 600 : 400,
+                                                                whiteSpace: 'nowrap',
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                                display: 'block',
+                                                                maxWidth: '100%'
+                                                            }}
+                                                        >
+                                                            {s.msg}
+                                                        </p>
+
+                                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                            <span style={{ color: '#556B2F', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                Ouvrir le chat <ExternalLink size={12} />
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 ))
                                             )}

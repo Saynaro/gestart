@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
 import { generateQuotePdfBuffer, generateInvoicePdfBuffer } from "./pdfGenerator.js";
+import { prisma } from "../config/db.js";
+import { emailProvider } from "../services/messaging/providers/email/EmailProvider.js";
+import { emitToCompany } from "../config/socket.js";
 
 /**
  * Direct Nodemailer Transporter Configuration
@@ -219,14 +222,39 @@ export const sendTwoFactorCodeEmail = async ({ to, code, firstName = "Utilisateu
 
 /**
  * Send Quote to Client with Signature & Online Payment Link + PDF Attachment
+ * Utilise l'adresse email connectée (Google / SMTP / Microsoft) de l'entreprise
  */
 export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, senderEmail, primaryColor = "#556B2F", customization = {} }) => {
-    const companyName = company?.name || "Votre entreprise";
+    const companyId = company?.id || quote.companyId;
+    const companyName = company?.name || quote.company?.name || "Votre entreprise";
     const clientName = quote.client ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim() : "Client";
     const totalTtc = Number(quote.amountTTC || quote.totalTtc || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const docNumber = quote.number || "Devis";
     const accentColor = customization.primaryColor || company?.settings?.documentCustomization?.primaryColor || company?.settings?.primaryColor || primaryColor || "#556B2F";
 
+    // 1. Vérifier la connexion email active de l'entreprise
+    const connection = await prisma.emailConnection.findFirst({
+        where: {
+            companyId,
+            status: "CONNECTED"
+        },
+        orderBy: { isDefault: "desc" }
+    });
+
+    if (!connection) {
+        const error = new Error("EMAIL_NOT_CONFIGURED: Aucune adresse email professionnelle n'est connectée pour votre entreprise. Veuillez connecter votre compte Google/Email dans les Paramètres pour envoyer vos devis.");
+        error.code = "EMAIL_NOT_CONFIGURED";
+        throw error;
+    }
+
+    const { transporter } = await emailProvider.getCompanyTransporter(companyId);
+    if (!transporter) {
+        const error = new Error(`EMAIL_NOT_CONFIGURED: Impossible d'initialiser l'envoi depuis votre adresse email connectée (${connection.emailAddress}). Veuillez vérifier votre connexion dans les Paramètres.`);
+        error.code = "EMAIL_NOT_CONFIGURED";
+        throw error;
+    }
+
+    const fromAddress = `"${companyName}" <${connection.emailAddress}>`;
     const subject = `Devis ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
     const html = `
@@ -252,26 +280,26 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
                 </p>
 
                 <div style="text-align: center; margin: 28px 0;">
-                    <a href="${signatureUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
+                    <a href="${signatureUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
                         Signer le devis en ligne
                     </a>
                 </div>
 
                 <p style="font-size: 13px; color: #94A3B8; text-align: center; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${signatureUrl}" style="color: #556B2F !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${signatureUrl}</a>
+                    Lien direct sécurisé : <a href="${signatureUrl}" style="color: #A3E635 !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${signatureUrl}</a>
                 </p>
             </div>
 
             <div style="text-align: center; margin-top: 24px; color: #64748B; font-size: 12px; line-height: 1.5;">
-                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>. Envoyé via <strong>GestArt (support.gestart@gmail.com)</strong>.</p>
-                <p>Pour toute question relative à ce devis, vous pouvez répondre directement à cet email (${senderEmail || company?.email || ''}).</p>
+                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>.</p>
+                <p>Envoyé par <strong>${companyName}</strong> (${connection.emailAddress}).</p>
+                <p>Pour toute question relative à ce devis, vous pouvez répondre directement à cet email (<a href="mailto:${connection.emailAddress}" style="color: #94A3B8; text-decoration: underline;">${connection.emailAddress}</a>).</p>
                 <p>© ${new Date().getFullYear()} ${companyName} • Tous droits réservés.</p>
             </div>
         </div>
     `;
 
-
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter et le signer en ligne ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Email expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter et le signer en ligne ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Expéditeur : ${connection.emailAddress})\n\nCordialement,\n${companyName}`;
 
     let attachments = [];
     try {
@@ -290,11 +318,58 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
         console.warn("Could not generate quote PDF attachment:", pdfErr.message);
     }
 
-    return await sendEmail({ to, subject, html, text, attachments });
+    const info = await transporter.sendMail({
+        from: fromAddress,
+        to,
+        subject,
+        text,
+        html,
+        attachments,
+        replyTo: connection.emailAddress
+    });
+
+    console.log(`[QUOTE EMAIL SENT] From: ${fromAddress} To: ${to} (MessageId: ${info.messageId})`);
+
+    // Synchronisation automatique dans l'historique de messagerie omnicanale (SmsLog)
+    if (quote.clientId) {
+        try {
+            const log = await prisma.smsLog.create({
+                data: {
+                    companyId,
+                    clientId: quote.clientId,
+                    channel: "EMAIL",
+                    direction: "OUTGOING",
+                    status: "DELIVERED",
+                    subject,
+                    body: `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\nLien de signature en ligne : ${signatureUrl}`,
+                    emailMessageId: info.messageId || null,
+                    attachments: [
+                        {
+                            filename: `Devis_${docNumber}.pdf`,
+                            type: "quote",
+                            quoteId: quote.id,
+                            number: docNumber,
+                            total: quote.amountTTC || quote.totalTtc || 0
+                        }
+                    ],
+                    emailConnectionId: connection.id
+                }
+            });
+            emitToCompany(companyId, "message:new", {
+                clientId: quote.clientId,
+                message: log
+            });
+        } catch (logErr) {
+            console.warn("[SEND_QUOTE] Erreur journalisation smsLog:", logErr.message);
+        }
+    }
+
+    return { success: true, messageId: info.messageId };
 };
 
 /**
  * Send Invoice to Client with Online Payment Link + Bank Transfer Details + PDF Attachment
+ * Utilise l'adresse email connectée (Google / SMTP / Microsoft) de l'entreprise
  */
 export const sendInvoiceClientEmail = async ({
     to,
@@ -306,11 +381,37 @@ export const sendInvoiceClientEmail = async ({
     customization = {},
     paymentOptions = {}
 }) => {
-    const companyName = company?.name || "Votre entreprise";
+    const companyId = company?.id || invoice.companyId;
+    const companyName = company?.name || invoice.company?.name || "Votre entreprise";
     const clientName = invoice.client ? `${invoice.client.firstName || ''} ${invoice.client.lastName || invoice.client.companyName || ''}`.trim() : "Client";
     const totalTtc = Number(invoice.amountTTC || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const docNumber = invoice.number || "Facture";
     const accentColor = customization.primaryColor || company?.settings?.documentCustomization?.primaryColor || company?.settings?.primaryColor || primaryColor || "#556B2F";
+
+    // 1. Vérifier la connexion email active de l'entreprise
+    const connection = await prisma.emailConnection.findFirst({
+        where: {
+            companyId,
+            status: "CONNECTED"
+        },
+        orderBy: { isDefault: "desc" }
+    });
+
+    if (!connection) {
+        const error = new Error("EMAIL_NOT_CONFIGURED: Aucune adresse email professionnelle n'est connectée pour votre entreprise. Veuillez connecter votre compte Google/Email dans les Paramètres pour envoyer vos factures.");
+        error.code = "EMAIL_NOT_CONFIGURED";
+        throw error;
+    }
+
+    const { transporter } = await emailProvider.getCompanyTransporter(companyId);
+    if (!transporter) {
+        const error = new Error(`EMAIL_NOT_CONFIGURED: Impossible d'initialiser l'envoi depuis votre adresse email connectée (${connection.emailAddress}). Veuillez vérifier votre connexion dans les Paramètres.`);
+        error.code = "EMAIL_NOT_CONFIGURED";
+        throw error;
+    }
+
+    const fromAddress = `"${companyName}" <${connection.emailAddress}>`;
+    const subject = `Facture ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
     const isStripeActive = Boolean(paymentOptions.stripeEnabled);
     const isBankTransferActive = Boolean(paymentOptions.bankTransferEnabled);
@@ -321,14 +422,11 @@ export const sendInvoiceClientEmail = async ({
         reference: docNumber
     };
 
-    const subject = `Facture ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
-
     // Construction conditionnelle des sections de paiement
     let paymentSectionsHtml = "";
     let paymentTextGuide = "";
 
     if (isStripeActive && isBankTransferActive) {
-        // Option 1 : Les deux méthodes sont actives
         paymentSectionsHtml = `
             <div style="margin-top: 24px;">
                 <p style="color: #E2E8F0; font-size: 14px; margin-bottom: 16px; font-weight: 600;">
@@ -337,120 +435,106 @@ export const sendInvoiceClientEmail = async ({
 
                 <!-- Option A : Paiement par carte en ligne -->
                 <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 16px;">
-                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px; display: flex; align-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#635BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block;"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                        <span>Option 1 : Paiement sécurisé en ligne (Stripe)</span>
+                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px;">
+                        <span>Option 1 : Paiement sécurisé en ligne</span>
                     </div>
                     <p style="color: #94A3B8; font-size: 13px; margin: 0 0 14px 0; line-height: 1.4;">
                         Réglez instantanément par carte bancaire en quelques clics :
                     </p>
                     <div style="text-align: center;">
-                        <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
+                        <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
                             Payer en ligne par carte bancaire
                         </a>
                     </div>
                 </div>
 
-                <div style="text-align: center; margin: 12px 0; color: #64748B; font-weight: 700; font-size: 12px; letter-spacing: 0.05em;">
+                <div style="text-align: center; margin: 12px 0; color: #64748B; font-weight: 700; font-size: 11px; letter-spacing: 0.05em;">
                     — OU PAR VIREMENT BANCAIRE —
                 </div>
 
-                <!-- Option B : Virement bancaire direct -->
+                <!-- Option B : Virement Bancaire -->
                 <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
-                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px; display: flex; align-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block;"><line x1="2" x2="22" y1="22" y2="22"/><line x1="18" x2="18" y1="11" y2="15"/><line x1="6" x2="6" y1="11" y2="15"/><line x1="10" x2="10" y1="11" y2="15"/><line x1="14" x2="14" y1="11" y2="15"/><polyline points="2 7 12 2 22 7"/><line x1="12" x2="12" y1="7" y2="7"/></svg>
+                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px;">
                         <span>Option 2 : Virement bancaire</span>
                     </div>
                     <table style="width: 100%; font-size: 13px; color: #CBD5E1; border-collapse: collapse;">
                         <tr>
-                            <td style="padding: 4px 0; color: #94A3B8; width: 120px;">Titulaire :</td>
+                            <td style="padding: 4px 0; color: #94A3B8; width: 110px;">Titulaire :</td>
                             <td style="padding: 4px 0; font-weight: 600; color: #FFFFFF;">${bankDetails.accountOwner || companyName}</td>
                         </tr>
                         <tr>
                             <td style="padding: 4px 0; color: #94A3B8;">IBAN :</td>
-                            <td style="padding: 4px 0; font-family: monospace; font-size: 13px; font-weight: 700; color: #A3E635;">${bankDetails.iban || 'Communiqué sur facture'}</td>
+                            <td style="padding: 4px 0; font-family: monospace; font-weight: 700; color: #A3E635;">${bankDetails.iban || 'Non renseigné'}</td>
                         </tr>
                         <tr>
                             <td style="padding: 4px 0; color: #94A3B8;">BIC :</td>
-                            <td style="padding: 4px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || '—'}</td>
+                            <td style="padding: 4px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || 'Non renseigné'}</td>
                         </tr>
                         <tr>
                             <td style="padding: 4px 0; color: #94A3B8;">Référence :</td>
-                            <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 2px 8px; border-radius: 4px; border: 1px solid #475569;">${docNumber}</span> (obligatoire)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 0; color: #94A3B8;">Montant exact :</td>
-                            <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;">${totalTtc} €</td>
+                            <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569;">${bankDetails.reference || docNumber}</span> (obligatoire)</td>
                         </tr>
                     </table>
                 </div>
             </div>
         `;
-        paymentTextGuide = `Modes de règlement :\n1. Carte bancaire en ligne : ${paymentUrl}\n2. Virement bancaire :\n- IBAN : ${bankDetails.iban}\n- BIC : ${bankDetails.bic}\n- Référence obligatoire : ${docNumber}\n- Montant : ${totalTtc} €`;
+        paymentTextGuide = `Modes de règlement :\n1. Carte bancaire en ligne : ${paymentUrl}\n2. Virement bancaire :\n   - IBAN : ${bankDetails.iban || 'N/A'}\n   - BIC : ${bankDetails.bic || 'N/A'}\n   - Référence : ${bankDetails.reference || docNumber}`;
     } else if (isStripeActive) {
-        // Option 2 : Uniquement Stripe
         paymentSectionsHtml = `
-            <div style="margin-top: 24px;">
-                <p style="color: #E2E8F0; line-height: 1.5; font-size: 14px;">
-                    Vous pouvez consulter le détail de votre facture et <strong>effectuer votre paiement sécurisé en ligne par carte bancaire</strong> :
+            <div style="margin-top: 24px; text-align: center;">
+                <p style="color: #E2E8F0; font-size: 14px; margin-bottom: 16px;">
+                    Vous pouvez régler cette facture en ligne de manière sécurisée :
                 </p>
-                <div style="text-align: center; margin: 24px 0;">
-                    <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
-                        Payer ma facture en ligne (${totalTtc} €)
-                    </a>
-                </div>
-                <p style="font-size: 13px; color: #94A3B8; text-align: center; margin-top: 14px;">
-                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #556B2F !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${paymentUrl}</a>
+                <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
+                    Payer ma facture en ligne
+                </a>
+                <p style="font-size: 13px; color: #94A3B8; margin-top: 16px;">
+                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #A3E635 !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${paymentUrl}</a>
                 </p>
             </div>
         `;
-        paymentTextGuide = `Réglez votre facture en ligne par carte bancaire ici : ${paymentUrl}`;
-    } else if (isBankTransferActive && bankDetails.iban) {
-        // Option 3 : Uniquement Virement Bancaire
+        paymentTextGuide = `Réglez votre facture en ligne ici : ${paymentUrl}`;
+    } else if (isBankTransferActive) {
         paymentSectionsHtml = `
-            <div style="margin-top: 24px;">
-                <div style="background: #0F172A; padding: 22px; border-radius: 10px; border: 1px solid #334155;">
-                    <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 12px; display: flex; align-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block;"><line x1="2" x2="22" y1="22" y2="22"/><line x1="18" x2="18" y1="11" y2="15"/><line x1="6" x2="6" y1="11" y2="15"/><line x1="10" x2="10" y1="11" y2="15"/><line x1="14" x2="14" y1="11" y2="15"/><polyline points="2 7 12 2 22 7"/><line x1="12" x2="12" y1="7" y2="7"/></svg>
-                        <span>Coordonnées pour virement bancaire :</span>
-                    </div>
-                    <table style="width: 100%; font-size: 13.5px; color: #CBD5E1; border-collapse: collapse;">
-                        <tr>
-                            <td style="padding: 5px 0; color: #94A3B8; width: 120px;">Titulaire :</td>
-                            <td style="padding: 5px 0; font-weight: 600; color: #FFFFFF;">${bankDetails.accountOwner || companyName}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 5px 0; color: #94A3B8;">IBAN :</td>
-                            <td style="padding: 5px 0; font-family: monospace; font-size: 14px; font-weight: 700; color: #A3E635;">${bankDetails.iban}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 5px 0; color: #94A3B8;">BIC :</td>
-                            <td style="padding: 5px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || '—'}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 5px 0; color: #94A3B8;">Référence :</td>
-                            <td style="padding: 5px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 3px 8px; border-radius: 4px; border: 1px solid #475569;">${docNumber}</span> (à indiquer obligatoirement)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 5px 0; color: #94A3B8;">Montant :</td>
-                            <td style="padding: 5px 0; font-weight: 700; color: #FFFFFF;">${totalTtc} €</td>
-                        </tr>
-                    </table>
+            <div style="margin-top: 24px; background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
+                <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px;">
+                    <span>Coordonnées pour virement bancaire :</span>
                 </div>
-                <div style="text-align: center; margin-top: 20px;">
-                    <a href="${paymentUrl}" target="_blank" style="color: #94A3B8; font-size: 13px; text-decoration: underline;">
-                        Consulter et télécharger la facture en ligne
-                    </a>
-                </div>
+                <table style="width: 100%; font-size: 13px; color: #CBD5E1; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 4px 0; color: #94A3B8; width: 110px;">Titulaire :</td>
+                        <td style="padding: 4px 0; font-weight: 600; color: #FFFFFF;">${bankDetails.accountOwner || companyName}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #94A3B8;">IBAN :</td>
+                        <td style="padding: 4px 0; font-family: monospace; font-weight: 700; color: #A3E635;">${bankDetails.iban || 'Non renseigné'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #94A3B8;">BIC :</td>
+                        <td style="padding: 4px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || 'Non renseigné'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #94A3B8;">Référence :</td>
+                        <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569;">${bankDetails.reference || docNumber}</span> (obligatoire)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #94A3B8;">Montant :</td>
+                        <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;">${totalTtc} €</td>
+                    </tr>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 16px;">
+                <a href="${paymentUrl}" target="_blank" style="color: #A3E635; font-size: 13px; font-weight: 600; text-decoration: underline;">
+                    Consulter et télécharger la facture en ligne
+                </a>
             </div>
         `;
-        paymentTextGuide = `Règlement par virement bancaire :\n- Titulaire : ${bankDetails.accountOwner || companyName}\n- IBAN : ${bankDetails.iban}\n- BIC : ${bankDetails.bic}\n- Référence obligatoire : ${docNumber}\n- Montant : ${totalTtc} €`;
+        paymentTextGuide = `Coordonnées bancaires pour virement :\n- Titulaire : ${bankDetails.accountOwner || companyName}\n- IBAN : ${bankDetails.iban || 'N/A'}\n- BIC : ${bankDetails.bic || 'N/A'}\n- Référence : ${bankDetails.reference || docNumber}\n- Montant : ${totalTtc} €`;
     } else {
-        // Fallback générique
         paymentSectionsHtml = `
-            <div style="text-align: center; margin: 28px 0;">
-                <a href="${paymentUrl}" target="_blank" style="background-color: #556B2F !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
-                    Consulter ma facture en ligne
+            <div style="margin-top: 24px; text-align: center;">
+                <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
+                    Consulter la facture en ligne
                 </a>
             </div>
         `;
@@ -479,14 +563,15 @@ export const sendInvoiceClientEmail = async ({
             </div>
 
             <div style="text-align: center; margin-top: 24px; color: #64748B; font-size: 12px; line-height: 1.5;">
-                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>. Envoyé via <strong>GestArt (support.gestart@gmail.com)</strong>.</p>
-                <p>Pour toute question relative à cette facture, vous pouvez répondre directement à cet email (${senderEmail || company?.email || ''}).</p>
+                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>.</p>
+                <p>Envoyé par <strong>${companyName}</strong> (${connection.emailAddress}).</p>
+                <p>Pour toute question relative à cette facture, vous pouvez répondre directement à cet email (<a href="mailto:${connection.emailAddress}" style="color: #94A3B8; text-decoration: underline;">${connection.emailAddress}</a>).</p>
                 <p>© ${new Date().getFullYear()} ${companyName} • Tous droits réservés.</p>
             </div>
         </div>
     `;
 
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\n${paymentTextGuide}\n\nLien direct de consultation : ${paymentUrl}\n\n(Si besoin, vérifiez vos spams. Expéditeur : support.gestart@gmail.com)\n\nCordialement,\n${companyName}`;
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\n${paymentTextGuide}\n\nLien direct de consultation : ${paymentUrl}\n\n(Si besoin, vérifiez vos spams. Expéditeur : ${connection.emailAddress})\n\nCordialement,\n${companyName}`;
 
     let attachments = [];
     try {
@@ -505,6 +590,51 @@ export const sendInvoiceClientEmail = async ({
         console.warn("Could not generate invoice PDF attachment:", pdfErr.message);
     }
 
-    return await sendEmail({ to, subject, html, text, attachments });
-};
+    const info = await transporter.sendMail({
+        from: fromAddress,
+        to,
+        subject,
+        text,
+        html,
+        attachments,
+        replyTo: connection.emailAddress
+    });
 
+    console.log(`[INVOICE EMAIL SENT] From: ${fromAddress} To: ${to} (MessageId: ${info.messageId})`);
+
+    // Synchronisation automatique dans l'historique de messagerie omnicanale (SmsLog)
+    if (invoice.clientId) {
+        try {
+            const log = await prisma.smsLog.create({
+                data: {
+                    companyId,
+                    clientId: invoice.clientId,
+                    channel: "EMAIL",
+                    direction: "OUTGOING",
+                    status: "DELIVERED",
+                    subject,
+                    body: `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\nLien de paiement en ligne : ${paymentUrl}`,
+                    emailMessageId: info.messageId || null,
+                    attachments: [
+                        {
+                            filename: `Facture_${docNumber}.pdf`,
+                            type: "invoice",
+                            invoiceId: invoice.id,
+                            number: docNumber,
+                            total: invoice.amountTTC || 0
+                        }
+                    ],
+                    emailConnectionId: connection.id
+                }
+            });
+            emitToCompany(companyId, "message:new", {
+                clientId: invoice.clientId,
+                message: log
+            });
+        } catch (logErr) {
+            console.warn("[SEND_INVOICE] Erreur journalisation smsLog:", logErr.message);
+        }
+    }
+
+    return { success: true, messageId: info.messageId };
+};

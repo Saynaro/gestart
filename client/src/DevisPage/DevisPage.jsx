@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, CheckCircle2, AlertCircle, Info, RefreshCw, Loader2, FileText, Check, Trash2 } from "lucide-react";
+import { Plus, CheckCircle2, AlertCircle, Info, RefreshCw, Loader2, FileText, Check, Trash2, Mail, ExternalLink } from "lucide-react";
 import "./DevisPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -31,8 +31,10 @@ const FILTERS = [
 
 function DevisPage() {
     const location = useLocation();
+    const navigate = useNavigate();
     const [quotes, setQuotes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [emailWarningModalOpen, setEmailWarningModalOpen] = useState(false);
 
     const mapQuoteFromApi = (q) => ({
         ...q,
@@ -276,16 +278,15 @@ function DevisPage() {
             });
             showToast(`Devis ${q.number} envoyé avec signature & PDF à ${emailToSend} !`, "success");
             fetchQuotes();
+            setShowSendDrawer(false);
         } catch (err) {
             console.error("Auto send error:", err);
-            await apiFetch(`/v1/quotes/${q.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString(), clientEmail: targetEmail || q.clientEmail })
-            });
-            showToast(`Devis ${q.number} envoyé à ${emailToSend}`, "success");
-            fetchQuotes();
-        } finally {
             setShowSendDrawer(false);
+            if (err.data?.code === "EMAIL_NOT_CONFIGURED" || err.message?.includes("EMAIL_NOT_CONFIGURED") || err.message?.includes("connectée") || err.message?.includes("Paramètres")) {
+                setEmailWarningModalOpen(true);
+            } else {
+                showToast(err.message || `Erreur lors de l'envoi du devis ${q.number}`, "error");
+            }
         }
     };
 
@@ -781,6 +782,127 @@ function DevisPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Modal d'avertissement configuration email */}
+            {emailWarningModalOpen && (
+                <div 
+                    onClick={() => setEmailWarningModalOpen(false)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                        backdropFilter: 'blur(5px)',
+                        zIndex: 99999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '16px'
+                    }}
+                >
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            backgroundColor: 'var(--card, #FFFFFF)',
+                            border: '1px solid var(--border, #E2E8F0)',
+                            borderRadius: '16px',
+                            padding: '24px',
+                            maxWidth: '460px',
+                            width: '100%',
+                            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '16px'
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{
+                                width: '42px',
+                                height: '42px',
+                                borderRadius: '12px',
+                                backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0
+                            }}>
+                                <Mail size={22} style={{ color: '#556B2F' }} />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                    Adresse email non connectée
+                                </h3>
+                                <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                    Configuration requise pour l'envoi
+                                </p>
+                            </div>
+                        </div>
+
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', lineHeight: 1.5 }}>
+                            Pour envoyer vos devis automatiquement depuis <strong>votre propre adresse professionnelle</strong> (Gmail / Google Workspace), vous devez d'abord la connecter dans vos Paramètres.
+                        </p>
+
+                        <div style={{
+                            padding: '12px',
+                            borderRadius: '10px',
+                            backgroundColor: 'var(--muted, #F4F3EF)',
+                            fontSize: '0.82rem',
+                            color: 'var(--muted-foreground)',
+                            lineHeight: 1.4
+                        }}>
+                            💡 Une fois connecté via Google, vos factures, devis et messages seront tous envoyés directement depuis votre adresse sans passer par un email tiers.
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
+                            <button
+                                type="button"
+                                onClick={() => setEmailWarningModalOpen(false)}
+                                style={{
+                                    padding: '10px 16px',
+                                    borderRadius: '10px',
+                                    border: '1px solid var(--border)',
+                                    backgroundColor: 'transparent',
+                                    color: 'var(--foreground)',
+                                    fontWeight: 600,
+                                    fontSize: '0.88rem',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Plus tard
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEmailWarningModalOpen(false);
+                                    navigate('/settings?tab=communication');
+                                }}
+                                style={{
+                                    padding: '10px 18px',
+                                    borderRadius: '10px',
+                                    border: 'none',
+                                    backgroundColor: '#556B2F',
+                                    color: '#FFFFFF',
+                                    fontWeight: 700,
+                                    fontSize: '0.88rem',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    boxShadow: '0 4px 14px rgba(85, 107, 47, 0.35)'
+                                }}
+                            >
+                                <span>Connecter mon compte Google</span>
+                                <ExternalLink size={15} />
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
 
             {/* Toast */}
             {toast && (

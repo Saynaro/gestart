@@ -195,7 +195,7 @@ function MessagesPage() {
 
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
 
-  const activeChatIdParam = searchParams.get("chat");
+  const activeChatIdParam = searchParams.get("chat") || searchParams.get("id") || searchParams.get("clientId") || searchParams.get("client");
   const isInfoParam = searchParams.get("info") === "true";
 
   const messagesContainerRef = useRef(null);

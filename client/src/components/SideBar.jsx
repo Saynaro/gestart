@@ -43,10 +43,8 @@ function SideBar({ onFabClick, hideFab = false }) {
 
         const socket = getSocket();
         if (socket) {
-            const handleNewMessage = (msg) => {
-                if (msg?.direction === "INCOMING") {
-                    setUnreadMessagesCount(prev => prev + 1);
-                }
+            const handleNewMessage = () => {
+                fetchUnread();
             };
             const handleMessageRead = () => {
                 fetchUnread();
@@ -418,6 +416,8 @@ function SideBar({ onFabClick, hideFab = false }) {
             <nav className="mobile-bottom-nav">
                 {mobileTabBarItems.map((item, index) => {
                     const isTabActive = item.isPlus ? bottomSheetOpen : (item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home")));
+                    const isMessages = item.path === "/messages";
+
                     return (
                         <motion.a
                             key={index}
@@ -435,7 +435,30 @@ function SideBar({ onFabClick, hideFab = false }) {
                             className={`mobile-nav-item ${isTabActive ? "active" : ""}`}
                             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
                         >
-                            <span className="mobile-nav-icon">{Icons[item.iconKey]}</span>
+                            <div style={{ position: 'relative', display: 'inline-flex' }}>
+                                <span className="mobile-nav-icon">{Icons[item.iconKey]}</span>
+                                {isMessages && unreadMessagesCount > 0 && (
+                                    <span style={{
+                                        position: 'absolute',
+                                        top: '-4px',
+                                        right: '-8px',
+                                        backgroundColor: '#556B2F',
+                                        color: '#ffffff',
+                                        fontSize: '10px',
+                                        fontWeight: 800,
+                                        minWidth: '16px',
+                                        height: '16px',
+                                        borderRadius: '999px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '0 4px',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                    }}>
+                                        {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                                    </span>
+                                )}
+                            </div>
                             <span className="mobile-nav-title">{item.title}</span>
                         </motion.a>
                     );
@@ -448,6 +471,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                 onClose={() => setBottomSheetOpen(false)}
                 activePath={activePath}
                 navigateTo={navigateTo}
+                unreadMessagesCount={unreadMessagesCount}
             />
         </>
     );

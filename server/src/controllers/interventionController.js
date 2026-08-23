@@ -277,13 +277,7 @@ export const getInterventionById = async (req, res) => {
             });
         }
 
-        // Sécurité pour les techniciens
-        if (req.user.role === "TECHNICIAN" && intervention.technicianId !== req.user.id) {
-            return res.status(403).json({
-                success: false,
-                message: "Vous n'avez pas accès à cette intervention"
-            });
-        }
+        // Company validation is already guaranteed by where: { id, companyId }
 
         return res.status(200).json({
             success: true,

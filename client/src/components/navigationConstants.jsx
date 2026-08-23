@@ -119,59 +119,109 @@ export const Icons = {
         </svg>
     )
 };
-export const menuSections = [
-    {
-        category: "PRINCIPAL",
-        items: [
-            { title: "Tableau de bord", path: "/home", iconKey: "dashboard" },
-            { title: "Clients", path: "/client", iconKey: "clients" },
-            { title: "Planning", path: "/planning", iconKey: "planning" },
-        ]
-    },
-    {
-        category: "GESTION",
-        items: [
-            { title: "Techniciens", path: "/techniciens", iconKey: "techniciens", proOnly: true },
-            { title: "Messages", path: "/messages", iconKey: "messages" },
-            { title: "Factures", path: "/factures", iconKey: "factures" },
-            { title: "Paiements", path: "/payments", iconKey: "paiements" },
-            { title: "Devis", path: "/devis", iconKey: "devis" },
-            { title: "Rapports", path: "/rapports", iconKey: "rapports" },
-            { title: "Comptabilité", path: "/comptabilite", iconKey: "comptabilite" },
-        ]
-    },
-    {
-        category: "PARAMÈTRES",
-        items: [
-            { title: "Catalogue", path: "/catalogue", iconKey: "catalogue" },
-            { title: "Premium", path: "/premium", iconKey: "premium", proOnly: true, badge: "PRO" },
-            { title: "Paramètres", path: "/settings", iconKey: "settings" },
-        ]
+export const getMenuSections = (role) => {
+    if (role === "TECHNICIAN") {
+        return [
+            {
+                category: "PRINCIPAL",
+                items: [
+                    { title: "Mes Interventions", path: "/interventions/today", iconKey: "techniciens" },
+                    { title: "Planning", path: "/planning", iconKey: "planning" },
+                    { title: "Clients", path: "/client", iconKey: "clients" },
+                ]
+            },
+            {
+                category: "GESTION & OUTILS",
+                items: [
+                    { title: "Messages", path: "/messages", iconKey: "messages" },
+                    { title: "Catalogue", path: "/catalogue", iconKey: "catalogue" },
+                ]
+            },
+            {
+                category: "PARAMÈTRES",
+                items: [
+                    { title: "Paramètres", path: "/settings", iconKey: "settings" },
+                ]
+            }
+        ];
     }
-];
 
-export const mobileTabBarItems = [
-    { title: "Dashboard", path: "/home", iconKey: "dashboard" },
-    { title: "Clients", path: "/client", iconKey: "clients" },
-    { title: "Planning", path: "/planning", iconKey: "planning" },
-    { title: "Messages", path: "/messages", iconKey: "messages" },
-    { title: "Plus", path: "#plus", iconKey: "more", isPlus: true }
-];
+    return [
+        {
+            category: "PRINCIPAL",
+            items: [
+                { title: "Tableau de bord", path: "/home", iconKey: "dashboard" },
+                { title: "Clients", path: "/client", iconKey: "clients" },
+                { title: "Planning", path: "/planning", iconKey: "planning" },
+            ]
+        },
+        {
+            category: "GESTION",
+            items: [
+                { title: "Techniciens", path: "/techniciens", iconKey: "techniciens", proOnly: true },
+                { title: "Messages", path: "/messages", iconKey: "messages" },
+                { title: "Factures", path: "/factures", iconKey: "factures" },
+                { title: "Paiements", path: "/payments", iconKey: "paiements" },
+                { title: "Devis", path: "/devis", iconKey: "devis" },
+                { title: "Rapports", path: "/rapports", iconKey: "rapports" },
+                { title: "Comptabilité", path: "/comptabilite", iconKey: "comptabilite" },
+            ]
+        },
+        {
+            category: "PARAMÈTRES",
+            items: [
+                { title: "Catalogue", path: "/catalogue", iconKey: "catalogue" },
+                { title: "Premium", path: "/premium", iconKey: "premium", proOnly: true, badge: "PRO" },
+                { title: "Paramètres", path: "/settings", iconKey: "settings" },
+            ]
+        }
+    ];
+};
+
+export const getMobileTabBarItems = (role) => {
+    if (role === "TECHNICIAN") {
+        return [
+            { title: "Interventions", path: "/interventions/today", iconKey: "techniciens" },
+            { title: "Planning", path: "/planning", iconKey: "planning" },
+            { title: "Messages", path: "/messages", iconKey: "messages" },
+            { title: "Clients", path: "/client", iconKey: "clients" },
+            { title: "Plus", path: "#plus", iconKey: "more", isPlus: true }
+        ];
+    }
+    return [
+        { title: "Dashboard", path: "/home", iconKey: "dashboard" },
+        { title: "Clients", path: "/client", iconKey: "clients" },
+        { title: "Planning", path: "/planning", iconKey: "planning" },
+        { title: "Messages", path: "/messages", iconKey: "messages" },
+        { title: "Plus", path: "#plus", iconKey: "more", isPlus: true }
+    ];
+};
+
+export const getSection1Items = (role) => {
+    if (role === "TECHNICIAN") {
+        return [
+            { title: "Catalogue", path: "/catalogue", icon: Package },
+        ];
+    }
+    return [
+        { title: "Techniciens", path: "/techniciens", icon: Wrench, proOnly: true },
+        { title: "Factures", path: "/factures", icon: FileText },
+        { title: "Paiements", path: "/payments", icon: FileText },
+        { title: "Devis", path: "/devis", icon: FileSpreadsheet },
+        { title: "Rapports", path: "/rapports", icon: BarChart2 },
+        { title: "Catalogue", path: "/catalogue", icon: Package },
+        { title: "Comptabilité", path: "/comptabilite", icon: Calculator },
+        { title: "Premium", path: "/premium", icon: Star, proOnly: true, isPremium: true }
+    ];
+};
+
+export const menuSections = getMenuSections("OWNER");
+export const mobileTabBarItems = getMobileTabBarItems("OWNER");
+export const section1Items = getSection1Items("OWNER");
 
 export const profilePages = [
     { title: "Premium", path: "/premium", iconKey: "premium", badge: "PRO" },
     { title: "Paramètres", path: "/settings", iconKey: "settings" }
-];
-
-export const section1Items = [
-    { title: "Techniciens", path: "/techniciens", icon: Wrench, proOnly: true },
-    { title: "Factures", path: "/factures", icon: FileText },
-    { title: "Paiements", path: "/payments", icon: FileText },
-    { title: "Devis", path: "/devis", icon: FileSpreadsheet },
-    { title: "Rapports", path: "/rapports", icon: BarChart2 },
-    { title: "Catalogue", path: "/catalogue", icon: Package },
-    { title: "Comptabilité", path: "/comptabilite", icon: Calculator },
-    { title: "Premium", path: "/premium", icon: Star, proOnly: true, isPremium: true }
 ];
 
 export const DropdownIcons = {

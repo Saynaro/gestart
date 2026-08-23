@@ -39,13 +39,18 @@ function HomePage() {
     const [dashboardData, setDashboardData] = useState(null);
 
     useEffect(() => {
+        if (user?.role === "TECHNICIAN") {
+            navigate("/interventions/today", { replace: true });
+            return;
+        }
+
         const checkRoleAndOnboarding = async () => {
             if (location.state?.openOnboardingModal) {
                 setShowOnboarding(true);
             }
 
             try {
-                const meRes = await apiFetch("/v1/users/me");
+                const meRes = await apiFetch("/v1/auth/me");
                 const userData = meRes.data?.user || meRes.user;
                 if (userData?.role === "TECHNICIAN") {
                     navigate("/interventions/today", { replace: true });
@@ -54,7 +59,7 @@ function HomePage() {
         };
 
         checkRoleAndOnboarding();
-    }, [location, navigate]);
+    }, [user, location, navigate]);
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -159,9 +164,10 @@ function HomePage() {
                                     onCreateDevis={handleCreateDevis} 
                                 />
                                 <InterventionsCard 
-                                    plannedCount={dashboardData?.interventions?.todayCount || 0}
-                                    completedCount={dashboardData?.interventions?.completedThisMonth || 0}
-                                    todayInterventions={dashboardData?.todayInterventions || []}
+                                    plannedCount={dashboardData?.interventions?.plannedCount ?? dashboardData?.interventions?.todayCount ?? 0}
+                                    completedCount={dashboardData?.interventions?.completedCount ?? dashboardData?.interventions?.completedThisMonth ?? 0}
+                                    plannedInterventions={dashboardData?.interventions?.plannedInterventions || dashboardData?.plannedInterventions || dashboardData?.todayInterventions || []}
+                                    completedInterventions={dashboardData?.interventions?.completedInterventions || dashboardData?.completedInterventions || []}
                                     onPlanIntervention={handlePlanIntervention} 
                                 />
                             </div>

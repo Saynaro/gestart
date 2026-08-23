@@ -2,13 +2,16 @@ import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, LogOut } from "lucide-react";
-import { section1Items } from "./navigationConstants";
+import { getSection1Items } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
+import { useUser } from "../utils/useUser";
 
 const BottomSheet = ({ isOpen, onClose, activePath, navigateTo }) => {
     const navigate = useNavigate();
     const { isStarter } = useSubscription();
+    const { role } = useUser();
+    const section1Items = getSection1Items(role);
     const [showLogoutModal, setShowLogoutModal] = React.useState(false);
     const sheetRef = useRef(null);
 

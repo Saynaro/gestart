@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
 import PhoneInput from "../components/PhoneInput";
 import { apiFetch } from "../utils/api";
+import { useUser } from "../utils/useUser";
 import "./SettingsPage.css";
 
 // Import Lucide icons
@@ -240,58 +241,106 @@ function SettingsPage() {
         });
     };
 
-    // Configuration of Menu Categories (All 21 items)
-    const menuCategories = [
-        {
-            title: "Mon compte",
-            items: [
-                { id: "profil", label: "Profil", icon: User, subtitle: "Vos informations personnelles" },
-                { id: "ma-societe", label: "Entreprise", icon: Building, subtitle: "Coordonnées et statut juridique" },
-                { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
-                { id: "rgpd-legal", label: "Légal & RGPD", icon: Lock, subtitle: "Exportation de données et droits" },
-                { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" }
-            ]
-        },
-        {
-            title: "Comptabilité",
-            items: [
-                { id: "chiffre-affaires", label: "Chiffre d'affaires", icon: Calculator, subtitle: "Plafonds et CA annuel" },
-                { id: "cotisations", label: "Cotisations sociales", icon: Percent, subtitle: "Taux et calcul de cotisations" },
-                { id: "tva-config", label: "TVA", icon: Receipt, subtitle: "Taux de TVA et déclarations" },
-                { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos coordonnées bancaires" },
-                { id: "transactions", label: "Transactions", icon: RefreshCw, subtitle: "Flux de transactions financières" },
-                { id: "categories-perso", label: "Catégories personnalisées", icon: Settings, subtitle: "Gérez vos catégories de dépenses" }
-            ]
-        },
-        {
-            title: "Config",
-            items: [
-                { id: "communication", label: "Communication & Canaux", icon: MessageSquare, subtitle: "Twilio SMS, WhatsApp Business, Email" },
-                { id: "paiements", label: "Paiements", icon: CreditCard, subtitle: "Stripe Connect et virements" },
-                { id: "facturation", label: "Facturation", icon: Receipt, subtitle: "Réglages de facturation" },
-                { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
-                { id: "sms", label: "SMS & Modèles", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
-                { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" },
-                { id: "premium", label: "Premium", icon: Star, subtitle: "Fonctionnalités Pro avancées", badge: "PRO" }
-            ]
-        },
-        {
-            title: "Communauté",
-            items: [
-                { id: "support", label: "Support", icon: HelpCircle, subtitle: "Aide et contact" },
-                { id: "avis", label: "Avis", icon: Star, subtitle: "Partagez votre avis" },
-                { id: "parrainage", label: "Parrainage", icon: Gift, subtitle: "Gagnez des cadeaux" }
-            ]
-        },
-        {
-            title: "À propos",
-            items: [
-                { id: "mentions", label: "Mentions", icon: FileText, subtitle: "Mentions légales" },
-                { id: "cgu", label: "CGU", icon: BookOpen, subtitle: "Conditions Générales d'Utilisation" },
-                { id: "confidentialite", label: "Confidentialité", icon: Lock, subtitle: "Politique de confidentialité" }
-            ]
+    const { role } = useUser();
+    const isTechnician = role === "TECHNICIAN";
+
+    // Configuration of Menu Categories (Filtered dynamically for Technicians vs Owners/Managers)
+    const menuCategories = useMemo(() => {
+        if (isTechnician) {
+            return [
+                {
+                    title: "Mon compte",
+                    items: [
+                        { id: "profil", label: "Profil", icon: User, subtitle: "Vos informations personnelles" },
+                        { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" }
+                    ]
+                },
+                {
+                    title: "Config",
+                    items: [
+                        { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et alertes interventions" }
+                    ]
+                },
+                {
+                    title: "Communauté",
+                    items: [
+                        { id: "support", label: "Support", icon: HelpCircle, subtitle: "Aide et assistance" },
+                        { id: "avis", label: "Avis", icon: Star, subtitle: "Partagez votre avis sur GestArt" }
+                    ]
+                },
+                {
+                    title: "À propos",
+                    items: [
+                        { id: "mentions", label: "Mentions", icon: FileText, subtitle: "Mentions légales" },
+                        { id: "cgu", label: "CGU", icon: BookOpen, subtitle: "Conditions Générales d'Utilisation" },
+                        { id: "confidentialite", label: "Confidentialité", icon: Lock, subtitle: "Politique de confidentialité" }
+                    ]
+                }
+            ];
         }
-    ];
+
+        return [
+            {
+                title: "Mon compte",
+                items: [
+                    { id: "profil", label: "Profil", icon: User, subtitle: "Vos informations personnelles" },
+                    { id: "ma-societe", label: "Entreprise", icon: Building, subtitle: "Coordonnées et statut juridique" },
+                    { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
+                    { id: "rgpd-legal", label: "Légal & RGPD", icon: Lock, subtitle: "Exportation de données et droits" },
+                    { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" }
+                ]
+            },
+            {
+                title: "Comptabilité",
+                items: [
+                    { id: "chiffre-affaires", label: "Chiffre d'affaires", icon: Calculator, subtitle: "Plafonds et CA annuel" },
+                    { id: "cotisations", label: "Cotisations sociales", icon: Percent, subtitle: "Taux et calcul de cotisations" },
+                    { id: "tva-config", label: "TVA", icon: Receipt, subtitle: "Taux de TVA et déclarations" },
+                    { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos coordonnées bancaires" },
+                    { id: "transactions", label: "Transactions", icon: RefreshCw, subtitle: "Flux de transactions financières" },
+                    { id: "categories-perso", label: "Catégories personnalisées", icon: Settings, subtitle: "Gérez vos catégories de dépenses" }
+                ]
+            },
+            {
+                title: "Config",
+                items: [
+                    { id: "communication", label: "Communication & Canaux", icon: MessageSquare, subtitle: "Twilio SMS, WhatsApp Business, Email" },
+                    { id: "paiements", label: "Paiements", icon: CreditCard, subtitle: "Stripe Connect et virements" },
+                    { id: "facturation", label: "Facturation", icon: Receipt, subtitle: "Réglages de facturation" },
+                    { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
+                    { id: "sms", label: "SMS & Modèles", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
+                    { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" },
+                    { id: "premium", label: "Premium", icon: Star, subtitle: "Fonctionnalités Pro avancées", badge: "PRO" }
+                ]
+            },
+            {
+                title: "Communauté",
+                items: [
+                    { id: "support", label: "Support", icon: HelpCircle, subtitle: "Aide et contact" },
+                    { id: "avis", label: "Avis", icon: Star, subtitle: "Partagez votre avis" },
+                    { id: "parrainage", label: "Parrainage", icon: Gift, subtitle: "Gagnez des cadeaux" }
+                ]
+            },
+            {
+                title: "À propos",
+                items: [
+                    { id: "mentions", label: "Mentions", icon: FileText, subtitle: "Mentions légales" },
+                    { id: "cgu", label: "CGU", icon: BookOpen, subtitle: "Conditions Générales d'Utilisation" },
+                    { id: "confidentialite", label: "Confidentialité", icon: Lock, subtitle: "Politique de confidentialité" }
+                ]
+            }
+        ];
+    }, [isTechnician]);
+
+    // Ensure activeTab is accessible for current role
+    useEffect(() => {
+        if (isTechnician) {
+            const allowedIds = menuCategories.flatMap(c => c.items.map(i => i.id));
+            if (!allowedIds.includes(activeTab)) {
+                setActiveTab("profil");
+            }
+        }
+    }, [isTechnician, menuCategories, activeTab]);
 
     // Touch swipe left-to-right from screen edge to dismiss detail screen
     const touchStartX = useRef(0);
@@ -505,8 +554,8 @@ function SettingsPage() {
                         <p className="mobile-settings-profile-email">{email}</p>
                     </div>
 
-                    {/* Pro Upgrade Banner */}
-                    {showUpgradeBanner && (
+                    {/* Pro Upgrade Banner (Owner/Manager only) */}
+                    {!isTechnician && showUpgradeBanner && (
                         <div className="mobile-abby-banner">
                             <button className="mobile-abby-banner-close" onClick={() => setShowUpgradeBanner(false)}>
                                 <X size={18} />
@@ -523,21 +572,23 @@ function SettingsPage() {
 
                     {/* Categories and Rows */}
                     <div className="mobile-group-container">
-                        {/* Custom Conformity Section */}
-                        <div className="mobile-group-section">
-                            <h4 className="mobile-group-header">Conformité Légale</h4>
-                            <div className="mobile-items-card">
-                                <button className="mobile-settings-row-btn" type="button" onClick={() => handleTabSelect("rgpd-legal")}>
-                                    <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', color: '#2563eb' }}><FileText size={16} /></span>
-                                    <span className="mobile-row-text-col">
-                                        <span className="mobile-row-label">Facturation électronique RGPD</span>
-                                        <span className="mobile-row-subtitle">Art. 289 CGI & Art. 15-21 RGPD</span>
-                                    </span>
-                                    <span className="mobile-row-badge">Conforme</span>
-                                    <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                </button>
+                        {/* Custom Conformity Section (Owner/Manager only) */}
+                        {!isTechnician && (
+                            <div className="mobile-group-section">
+                                <h4 className="mobile-group-header">Conformité Légale</h4>
+                                <div className="mobile-items-card">
+                                    <button className="mobile-settings-row-btn" type="button" onClick={() => handleTabSelect("rgpd-legal")}>
+                                        <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', color: '#2563eb' }}><FileText size={16} /></span>
+                                        <span className="mobile-row-text-col">
+                                            <span className="mobile-row-label">Facturation électronique RGPD</span>
+                                            <span className="mobile-row-subtitle">Art. 289 CGI & Art. 15-21 RGPD</span>
+                                        </span>
+                                        <span className="mobile-row-badge">Conforme</span>
+                                        <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {menuCategories.map((category) => (
                             <div key={category.title} className="mobile-group-section">

@@ -39,14 +39,16 @@ const getGroupedClients = (list) => {
     }, {});
 };
 
-// ── Component ─────────────────────────────────────────────────────
 import { useLocation } from "react-router-dom";
 import { apiFetch } from "../utils/api";
+import { useUser } from "../utils/useUser";
 
 function PlanningPage() {
     const location = useLocation();
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth <= 768;
+    const { role } = useUser();
+    const isTechnician = role === "TECHNICIAN";
 
     const [events, setEvents] = useState([]);
     const [clientDetails, setClientDetails] = useState([]);
@@ -712,110 +714,162 @@ function PlanningPage() {
                                 transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
                             >
                                 <div className="modal-header">
-                                    <h3>Modifier l'Intervention</h3>
+                                    <h3>{isTechnician ? "Détails de l'Intervention" : "Modifier l'Intervention"}</h3>
                                     <button className="modal-close-btn" onClick={() => closeEditModal()}><X size={18} /></button>
                                 </div>
-                                <form onSubmit={handleEditEventSubmit} className="modal-form-stack">
-                                    <div className="modal-slot-info">
-                                        <span className="slot-info-label">Horaire planifié :</span>
-                                        <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
-                                    </div>
-                                    {isMobile && (
-                                        <div className="modal-field-row" style={{ display: 'flex', gap: '12px' }}>
-                                            <div className="modal-field" style={{ flex: 1 }}>
-                                                <label className="modal-label"><Clock size={15} /><span>Début</span></label>
-                                                <input 
-                                                    type="time" 
-                                                    value={startTime} 
-                                                    onChange={(e) => setStartTime(e.target.value)} 
-                                                    className="modal-input-time"
-                                                    required 
-                                                />
+                                {isTechnician ? (
+                                    <div className="modal-form-stack" style={{ padding: '4px 0 0 0' }}>
+                                        <div className="modal-slot-info" style={{ marginBottom: '14px' }}>
+                                            <span className="slot-info-label">Horaire planifié :</span>
+                                            <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
+                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                                                    Client / Nom du contact
+                                                </span>
+                                                <span style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                                    {editClientName || selectedEvent?.title || "Non renseigné"}
+                                                </span>
                                             </div>
-                                            <div className="modal-field" style={{ flex: 1 }}>
-                                                <label className="modal-label"><Clock size={15} /><span>Fin</span></label>
-                                                <input 
-                                                    type="time" 
-                                                    value={endTime} 
-                                                    onChange={(e) => setEndTime(e.target.value)} 
-                                                    className="modal-input-time"
-                                                    required 
-                                                />
+
+                                            <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
+                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                                                    Type de prestation
+                                                </span>
+                                                <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--foreground)' }}>
+                                                    {editServiceType || "Installation"}
+                                                </span>
+                                            </div>
+
+                                            <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
+                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                                                    Technicien assigné
+                                                </span>
+                                                <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--foreground)' }}>
+                                                    {(() => {
+                                                        const t = techniciansList.find(tech => tech.id === editTechnicianId);
+                                                        return t ? `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email : "Non assigné";
+                                                    })()}
+                                                </span>
                                             </div>
                                         </div>
-                                    )}
-                                    {isMobile && isTimeInvalid && (
-                                        <div style={{
-                                             color: '#f59e0b',
-                                             fontSize: '12.5px',
-                                             fontWeight: 600,
-                                             display: 'flex',
-                                             alignItems: 'center',
-                                             gap: '6px',
-                                             marginTop: '4px',
-                                             padding: '0 2px'
-                                        }}>
-                                            <AlertTriangle size={15} style={{ flexShrink: 0 }} />
-                                            <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
-                                        </div>
-                                    )}
-                                    <div className="modal-field">
-                                        <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
-                                        <div 
-                                            className="modal-select-trigger" 
-                                            onClick={() => {
-                                                setClientSearchTarget("edit");
-                                                setPendingClientName(editClientName);
-                                                setPendingClientId(editClientId);
-                                                setShowClientSearch(true);
-                                            }}
-                                        >
-                                            <span className="trigger-val">{editClientName || "Sélectionner un client..."}</span>
-                                            <ChevronDown size={16} className="trigger-arrow" />
-                                        </div>
-                                    </div>
-                                    <div className="modal-field">
-                                        <label className="modal-label"><Briefcase size={15} /><span>Type d'intervention</span></label>
-                                        <div className="modal-select-wrapper">
-                                            <select value={editServiceType} onChange={(e) => setEditServiceType(e.target.value)} className="modal-select" required>
-                                                <option value="Installation">Installation</option>
-                                                <option value="Maintenance">Maintenance</option>
-                                                <option value="Dépannage">Dépannage</option>
-                                                <option value="Contrôle">Contrôle</option>
-                                            </select>
-                                            <ChevronDown size={14} className="modal-select-arrow" />
-                                        </div>
-                                    </div>
-                                    <div className="modal-field">
-                                        <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
-                                        <div className="modal-select-wrapper">
-                                            <select 
-                                                value={editTechnicianId} 
-                                                onChange={(e) => setEditTechnicianId(e.target.value)} 
-                                                className="modal-select"
+
+                                        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                                            <button
+                                                type="button"
+                                                className="modal-submit-btn"
+                                                style={{ backgroundColor: '#556B2F', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}
+                                                onClick={() => closeEditModal()}
                                             >
-                                                <option value="">Non assigné</option>
-                                                {techniciansList.map(t => {
-                                                    const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
-                                                    const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
-                                                    return (
-                                                        <option key={t.id} value={t.id}>
-                                                            {fullName}{roleLabel}
-                                                        </option>
-                                                    );
-                                                })}
-                                            </select>
-                                            <ChevronDown size={14} className="modal-select-arrow" />
+                                                Fermer
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="modal-footer-row edit-footer-row">
-                                        <button type="button" className="modal-delete-btn" onClick={handleDeleteEvent}>Supprimer</button>
-                                        <div className="footer-right-buttons">
-                                            <button type="button" className="modal-cancel-btn" onClick={() => closeEditModal()}>Annuler</button>
-                                            <button type="submit" className="modal-submit-btn edit-save-btn">Enregistrer</button>
+                                ) : (
+                                    <form onSubmit={handleEditEventSubmit} className="modal-form-stack">
+                                        <div className="modal-slot-info">
+                                            <span className="slot-info-label">Horaire planifié :</span>
+                                            <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
                                         </div>
-                                    </div>
-                                </form>
+                                        {isMobile && (
+                                            <div className="modal-field-row" style={{ display: 'flex', gap: '12px' }}>
+                                                <div className="modal-field" style={{ flex: 1 }}>
+                                                    <label className="modal-label"><Clock size={15} /><span>Début</span></label>
+                                                    <input 
+                                                        type="time" 
+                                                        value={startTime} 
+                                                        onChange={(e) => setStartTime(e.target.value)} 
+                                                        className="modal-input-time"
+                                                        required 
+                                                    />
+                                                </div>
+                                                <div className="modal-field" style={{ flex: 1 }}>
+                                                    <label className="modal-label"><Clock size={15} /><span>Fin</span></label>
+                                                    <input 
+                                                        type="time" 
+                                                        value={endTime} 
+                                                        onChange={(e) => setEndTime(e.target.value)} 
+                                                        className="modal-input-time"
+                                                        required 
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                        {isMobile && isTimeInvalid && (
+                                            <div style={{
+                                                 color: '#f59e0b',
+                                                 fontSize: '12.5px',
+                                                 fontWeight: 600,
+                                                 display: 'flex',
+                                                 alignItems: 'center',
+                                                 gap: '6px',
+                                                 marginTop: '4px',
+                                                 padding: '0 2px'
+                                            }}>
+                                                <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+                                                <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
+                                            </div>
+                                        )}
+                                        <div className="modal-field">
+                                            <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
+                                            <div 
+                                                className="modal-select-trigger" 
+                                                onClick={() => {
+                                                    setClientSearchTarget("edit");
+                                                    setPendingClientName(editClientName);
+                                                    setPendingClientId(editClientId);
+                                                    setShowClientSearch(true);
+                                                }}
+                                            >
+                                                <span className="trigger-val">{editClientName || "Sélectionner un client..."}</span>
+                                                <ChevronDown size={16} className="trigger-arrow" />
+                                            </div>
+                                        </div>
+                                        <div className="modal-field">
+                                            <label className="modal-label"><Briefcase size={15} /><span>Type d'intervention</span></label>
+                                            <div className="modal-select-wrapper">
+                                                <select value={editServiceType} onChange={(e) => setEditServiceType(e.target.value)} className="modal-select" required>
+                                                    <option value="Installation">Installation</option>
+                                                    <option value="Maintenance">Maintenance</option>
+                                                    <option value="Dépannage">Dépannage</option>
+                                                    <option value="Contrôle">Contrôle</option>
+                                                </select>
+                                                <ChevronDown size={14} className="modal-select-arrow" />
+                                            </div>
+                                        </div>
+                                        <div className="modal-field">
+                                            <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
+                                            <div className="modal-select-wrapper">
+                                                <select 
+                                                    value={editTechnicianId} 
+                                                    onChange={(e) => setEditTechnicianId(e.target.value)} 
+                                                    className="modal-select"
+                                                >
+                                                    <option value="">Non assigné</option>
+                                                    {techniciansList.map(t => {
+                                                        const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                                        const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
+                                                        return (
+                                                            <option key={t.id} value={t.id}>
+                                                                {fullName}{roleLabel}
+                                                            </option>
+                                                        );
+                                                    })}
+                                                </select>
+                                                <ChevronDown size={14} className="modal-select-arrow" />
+                                            </div>
+                                        </div>
+                                        <div className="modal-footer-row edit-footer-row">
+                                            <button type="button" className="modal-delete-btn" onClick={handleDeleteEvent}>Supprimer</button>
+                                            <div className="footer-right-buttons">
+                                                <button type="button" className="modal-cancel-btn" onClick={() => closeEditModal()}>Annuler</button>
+                                                <button type="submit" className="modal-submit-btn edit-save-btn">Enregistrer</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                )}
                             </motion.div>
                         </>
                     )}
@@ -1109,17 +1163,17 @@ function PlanningPage() {
                     events={filteredEvents}
                     selectedDate={mobileSelectedDate}
                     setSelectedDate={setMobileSelectedDate}
-                    onSelectSlot={handleMobileOpenAdd}
+                    onSelectSlot={isTechnician ? () => {} : handleMobileOpenAdd}
                     onEventClick={handleMobileOpenEdit}
                 />
-                <SideBar onFabClick={handleMobileFabClick} />
+                <SideBar onFabClick={isTechnician ? null : handleMobileFabClick} hideFab={isTechnician} />
                 {sharedModals}
                 {clientSearchPortal}
             </div>
         );
     }
 
-    // ── Desktop layout (untouched) ────────────────────────────────
+    // ── Desktop layout ────────────────────────────────
     return (
         <div className="home-page">
             <SideBar />
@@ -1166,11 +1220,13 @@ function PlanningPage() {
                                 <ChevronDown size={14} className="dropdown-arrow-icon" />
                             </div>
 
-                            {/* New Intervention Button */}
-                            <button className="new-intervention-btn" onClick={handleHeaderAddIntervention}>
-                                <Plus size={16} />
-                                <span>Intervention</span>
-                            </button>
+                            {/* New Intervention Button (Owners/Managers only) */}
+                            {!isTechnician && (
+                                <button className="new-intervention-btn" onClick={handleHeaderAddIntervention}>
+                                    <Plus size={16} />
+                                    <span>Intervention</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -1225,6 +1281,7 @@ function PlanningPage() {
                             typeFilter={typeFilter}
                             currentView={currentView}
                             onDatesSet={handleDatesSet}
+                            isReadOnly={isTechnician}
                         />
                     </div>
                 </motion.div>

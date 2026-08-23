@@ -109,16 +109,24 @@ export default function TechniciensPage() {
         }
     };
 
-    // Revoke Invitation
-    const handleRevokeInvitation = async (id) => {
+    // Revoke Invitation State & Handler
+    const [inviteToRevoke, setInviteToRevoke] = useState(null);
+    const [isRevokingInvite, setIsRevokingInvite] = useState(false);
+
+    const handleConfirmRevokeInvite = async () => {
+        if (!inviteToRevoke) return;
+        setIsRevokingInvite(true);
         try {
-            setInvitations(prev => prev.filter(inv => inv.id !== id));
-            await apiFetch(`/v1/invitations/${id}`, { method: "DELETE" });
+            setInvitations(prev => prev.filter(inv => inv.id !== inviteToRevoke.id));
+            await apiFetch(`/v1/invitations/${inviteToRevoke.id}`, { method: "DELETE" });
             triggerToast("Invitation révoquée avec succès");
+            setInviteToRevoke(null);
             loadData();
         } catch (err) {
             triggerToast(err.message || "Erreur lors de la révocation", true);
             loadData();
+        } finally {
+            setIsRevokingInvite(false);
         }
     };
 
@@ -405,7 +413,7 @@ export default function TechniciensPage() {
                                                             </button>
                                                             <button
                                                                 type="button"
-                                                                onClick={() => handleRevokeInvitation(inv.id)}
+                                                                onClick={() => setInviteToRevoke(inv)}
                                                                 style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: 'none', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer' }}
                                                                 title="Révoquer"
                                                             >
@@ -629,6 +637,78 @@ export default function TechniciensPage() {
                                             <>
                                                 <Trash2 size={16} />
                                                 Confirmer
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+
+                    {/* Revoke Invitation Warning Modal */}
+                    {inviteToRevoke && (
+                        <div className="tech-modal-overlay" onClick={() => !isRevokingInvite && setInviteToRevoke(null)}>
+                            <motion.div
+                                className="tech-modal-card delete-tech-modal-card"
+                                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <button
+                                    className="delete-tech-close-btn"
+                                    onClick={() => !isRevokingInvite && setInviteToRevoke(null)}
+                                    disabled={isRevokingInvite}
+                                    aria-label="Fermer"
+                                >
+                                    <X size={18} />
+                                </button>
+
+                                <div className="delete-tech-icon-container">
+                                    <AlertTriangle size={32} />
+                                </div>
+
+                                <h2 className="delete-tech-modal-title">Révoquer cette invitation ?</h2>
+                                
+                                <p className="delete-tech-modal-desc">
+                                    Vous êtes sur le point de révoquer l'invitation pour <strong>{inviteToRevoke.email.includes('@gestart.link') ? "le lien public généré" : inviteToRevoke.email}</strong> (Code : <code>{inviteToRevoke.token}</code>).
+                                </p>
+
+                                <div className="delete-tech-warning-box">
+                                    <div className="warning-box-header">
+                                        <Shield size={16} />
+                                        <span>Conséquences de la révocation :</span>
+                                    </div>
+                                    <ul className="warning-box-items">
+                                        <li>Ce lien et son code d'accès deviendront immédiatement invalides.</li>
+                                        <li>Le destinataire ne pourra plus utiliser ce lien pour rejoindre votre entreprise.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="delete-tech-actions-row">
+                                    <button
+                                        type="button"
+                                        className="btn-cancel-delete"
+                                        disabled={isRevokingInvite}
+                                        onClick={() => setInviteToRevoke(null)}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn-confirm-delete"
+                                        disabled={isRevokingInvite}
+                                        onClick={handleConfirmRevokeInvite}
+                                    >
+                                        {isRevokingInvite ? (
+                                            <>
+                                                <RefreshCw size={16} className="animate-spin" />
+                                                Révocation...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Trash2 size={16} />
+                                                Révoquer l'invitation
                                             </>
                                         )}
                                     </button>

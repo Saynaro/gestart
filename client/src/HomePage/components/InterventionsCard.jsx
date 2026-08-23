@@ -4,15 +4,20 @@ import { useNavigate } from "react-router-dom";
 function InterventionsCard({
     plannedCount = 0,
     completedCount = 0,
-    todayInterventions = [],
+    plannedInterventions = [],
     completedInterventions = [],
+    todayInterventions = [],
     onPlanIntervention = () => window.location.href = "/planning"
 }) {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("planned");
 
-    const activeInterventions = activeTab === "planned" ? todayInterventions : completedInterventions;
-    const activeCount = activeTab === "planned" ? plannedCount : completedCount;
+    const listPlanned = plannedInterventions?.length > 0 ? plannedInterventions : (todayInterventions || []);
+    const listCompleted = completedInterventions || [];
+
+    const activeInterventions = activeTab === "planned" ? listPlanned : listCompleted;
+    const displayPlannedCount = plannedCount !== undefined ? plannedCount : listPlanned.length;
+    const displayCompletedCount = completedCount !== undefined ? completedCount : listCompleted.length;
 
     return (
         <div className="dashboard-grid-card">
@@ -39,33 +44,35 @@ function InterventionsCard({
                     onClick={() => setActiveTab("planned")}
                 >
                     <span className="sub-metric-label">PLANIFIÉES</span>
-                    <span className="sub-metric-amount-only">{plannedCount}</span>
+                    <span className="sub-metric-amount-only">{displayPlannedCount}</span>
                 </div>
                 <div 
                     className={`sub-metric-item completed ${activeTab === "completed" ? "active" : ""}`}
                     onClick={() => setActiveTab("completed")}
                 >
                     <span className="sub-metric-label">TERMINÉES</span>
-                    <span className="sub-metric-amount-only">{completedCount}</span>
+                    <span className="sub-metric-amount-only">{displayCompletedCount}</span>
                 </div>
             </div>
 
             {/* Card Body List */}
             <div className="card-list-body">
                 {activeInterventions.length > 0 ? (
-                    <div className="mini-interventions-list">
-                        {activeInterventions.map((item) => (
-                            <div key={item.id} className="mini-intervention-item" onClick={() => navigate(`/planning?id=${item.id}`)}>
-                                <span className="mini-time">{item.time}</span>
-                                <div className="mini-details">
-                                    <h4>{item.title}</h4>
-                                    <p>{item.client}</p>
+                    <div className="dashboard-card-content-wrapper">
+                        <div className="mini-interventions-list">
+                            {activeInterventions.map((item) => (
+                                <div key={item.id} className="mini-intervention-item" onClick={() => navigate(`/planning?id=${item.id}`)}>
+                                    <span className="mini-time">{item.time}</span>
+                                    <div className="mini-details">
+                                        <h4>{item.title}</h4>
+                                        <p>{item.client}</p>
+                                    </div>
+                                    <span className={`mini-status ${item.status === "En cours" ? "active" : ""} ${item.status === "Terminé" ? "completed" : ""}`}>
+                                        {item.status}
+                                    </span>
                                 </div>
-                                <span className={`mini-status ${item.status === "En cours" ? "active" : ""} ${item.status === "Terminé" ? "completed" : ""}`}>
-                                    {item.status}
-                                </span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                         <div className="card-list-action-row">
                             <button className="btn-card-action" onClick={onPlanIntervention}>
                                 + Planifier
@@ -74,7 +81,7 @@ function InterventionsCard({
                     </div>
                 ) : (
                     <div className="card-illustration-body">
-                        <p className="illustration-text">Aucune intervention {activeTab === "planned" ? "planifiée" : "terminée"} aujourd'hui</p>
+                        <p className="illustration-text">Aucune intervention {activeTab === "planned" ? "planifiée" : "terminée"}</p>
                         <button className="btn-card-action" onClick={onPlanIntervention}>
                             Planifier
                         </button>

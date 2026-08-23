@@ -40,7 +40,8 @@ export const getClients = async (req, res) => {
                         include: {
                             technician: {
                                 select: { id: true, firstName: true, lastName: true, email: true }
-                            }
+                            },
+                            photos: true
                         },
                         orderBy: { scheduledAt: "desc" }
                     },
@@ -180,7 +181,8 @@ export const getClientById = async (req, res) => {
                     include: {
                         technician: {
                             select: { id: true, firstName: true, lastName: true, email: true }
-                        }
+                        },
+                        photos: true
                     },
                     orderBy: { scheduledAt: "desc" }
                 },

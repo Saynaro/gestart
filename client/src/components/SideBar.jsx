@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./SideBar.css";
 import BottomSheet from "./BottomSheet";
-import { Icons, menuSections, mobileTabBarItems } from "./navigationConstants";
+import { Icons, getMenuSections, getMobileTabBarItems } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
@@ -16,8 +16,12 @@ function SideBar({ onFabClick, hideFab = false }) {
     const activePath = location.pathname || "/home";
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
     const { isStarter, displayName } = useSubscription();
-    const { fullName, initials, email, avatarUrl } = useUser();
+    const { fullName, initials, email, avatarUrl, role } = useUser();
     const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+
+    const isTechnician = role === "TECHNICIAN";
+    const menuSections = getMenuSections(role);
+    const mobileTabBarItems = getMobileTabBarItems(role);
 
     // Track dynamic unread messages count
     useEffect(() => {
@@ -236,7 +240,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                 </div>
                 <div className="sidebar-bottom">
                     <div className="user-profile" onClick={toggleUserMenu}>
-                        <div className="avatar" style={{ overflow: 'hidden' }} data-tooltip={isCollapsed ? `${fullName} (Offre ${displayName})` : undefined}>
+                        <div className="avatar" style={{ overflow: 'hidden' }} data-tooltip={isCollapsed ? `${fullName} (${isTechnician ? "Technicien" : `Offre ${displayName}`})` : undefined}>
                             {avatarUrl ? (
                                 <img src={avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
                             ) : (
@@ -245,7 +249,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                         </div>
                         <div className="user-details">
                             <span className="username">{fullName}</span>
-                            <span className="user-plan">Offre {displayName}</span>
+                            <span className="user-plan">{isTechnician ? "Technicien" : `Offre ${displayName}`}</span>
                         </div>
                         {!isCollapsed && (
                             <button 
@@ -272,51 +276,57 @@ function SideBar({ onFabClick, hideFab = false }) {
                                         )}
                                     </div>
                                     <div className="popover-user-info">
-                                        <span className="popover-username">{fullName}</span>
-                                        <span className="popover-email">{email}</span>
-                                        <span className="popover-plan">Offre {displayName}</span>
-                                    </div>
-                                </div>
-                                <button className="popover-upgrade-btn" onClick={(e) => navigateTo(e, "/premium")}>
-                                    Passer au niveau supérieur
-                                </button>
-                                <div className="popover-divider"></div>
-                                <ul className="popover-list">
-                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings")}>
-                                        <span className="popover-item-icon">{Icons.settings}</span>
-                                        <span className="popover-item-text">Paramètres</span>
-                                    </li>
-                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=profil")}>
-                                        <span className="popover-item-icon">
-                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="12" cy="7" r="4"></circle>
-                                            </svg>
-                                        </span>
-                                        <span className="popover-item-text">Profil</span>
-                                    </li>
-                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=entreprise")}>
-                                        <span className="popover-item-icon">
-                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-                                                <line x1="9" y1="22" x2="9" y2="16"></line>
-                                                <line x1="8" y1="6" x2="16" y2="6"></line>
-                                                <line x1="8" y1="10" x2="16" y2="10"></line>
-                                                <line x1="12" y1="14" x2="16" y2="14"></line>
-                                            </svg>
-                                        </span>
-                                        <span className="popover-item-text">Mon entreprise</span>
-                                    </li>
-                                    <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=abonnement")}>
-                                        <span className="popover-item-icon">
-                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                                                <line x1="1" y1="10" x2="23" y2="10"></line>
-                                            </svg>
-                                        </span>
-                                        <span className="popover-item-text">Paiements / abonnement</span>
-                                    </li>
-                                </ul>
+                                         <span className="popover-username">{fullName}</span>
+                                         <span className="popover-email">{email}</span>
+                                         <span className="popover-plan">{isTechnician ? "Technicien" : `Offre ${displayName}`}</span>
+                                     </div>
+                                 </div>
+                                 {!isTechnician && (
+                                     <button className="popover-upgrade-btn" onClick={(e) => navigateTo(e, "/premium")}>
+                                         Passer au niveau supérieur
+                                     </button>
+                                 )}
+                                 <div className="popover-divider"></div>
+                                 <ul className="popover-list">
+                                     <li className="popover-item" onClick={(e) => navigateTo(e, "/settings")}>
+                                         <span className="popover-item-icon">{Icons.settings}</span>
+                                         <span className="popover-item-text">Paramètres</span>
+                                     </li>
+                                     <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=profil")}>
+                                         <span className="popover-item-icon">
+                                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                 <circle cx="12" cy="7" r="4"></circle>
+                                             </svg>
+                                         </span>
+                                         <span className="popover-item-text">Profil</span>
+                                     </li>
+                                     {!isTechnician && (
+                                         <>
+                                             <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=entreprise")}>
+                                                 <span className="popover-item-icon">
+                                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                         <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                                                         <line x1="9" y1="22" x2="9" y2="16"></line>
+                                                         <line x1="8" y1="6" x2="16" y2="6"></line>
+                                                         <line x1="8" y1="10" x2="16" y2="10"></line>
+                                                         <line x1="12" y1="14" x2="16" y2="14"></line>
+                                                     </svg>
+                                                 </span>
+                                                 <span className="popover-item-text">Mon entreprise</span>
+                                             </li>
+                                             <li className="popover-item" onClick={(e) => navigateTo(e, "/settings?tab=abonnement")}>
+                                                 <span className="popover-item-icon">
+                                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                         <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                                         <line x1="1" y1="10" x2="23" y2="10"></line>
+                                                     </svg>
+                                                 </span>
+                                                 <span className="popover-item-text">Paiements / abonnement</span>
+                                             </li>
+                                         </>
+                                     )}
+                                 </ul>
                                 <div className="popover-divider"></div>
                                 <div className="popover-item danger" onClick={() => { setUserMenuOpen(false); setShowLogoutModal(true); }}>
                                     <span className="popover-item-icon">

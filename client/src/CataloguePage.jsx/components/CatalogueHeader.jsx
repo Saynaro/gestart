@@ -14,7 +14,8 @@ function CatalogueHeader({
     activeCategory,
     setActiveCategory,
     totalCount,
-    onOpenNewModal
+    onOpenNewModal,
+    isReadOnly = false
 }) {
     return (
         <div className="catalogue-header-wrapper">
@@ -26,18 +27,20 @@ function CatalogueHeader({
                     <div>
                         <h1 className="content-title">Catalogue des articles</h1>
                         <p className="content-subtitle">
-                            Gérez vos produits, prestations de services, tarifs HT et taux de TVA.
+                            {isReadOnly ? "Consultez les produits, prestations de services et tarifs de référence." : "Gérez vos produits, prestations de services, tarifs HT et taux de TVA."}
                         </p>
                     </div>
                 </div>
 
-                <button
-                    className="catalogue-primary-add-btn desktop-only-btn"
-                    onClick={() => onOpenNewModal()}
-                >
-                    <Plus size={18} />
-                    <span>Nouveau produit / service</span>
-                </button>
+                {!isReadOnly && (
+                    <button
+                        className="catalogue-primary-add-btn desktop-only-btn"
+                        onClick={() => onOpenNewModal()}
+                    >
+                        <Plus size={18} />
+                        <span>Nouveau produit / service</span>
+                    </button>
+                )}
             </div>
 
             {/* Search and Filters Bar */}

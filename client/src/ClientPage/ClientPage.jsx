@@ -42,10 +42,13 @@ const initialOrganisations = [];
 import { apiFetch } from "../utils/api";
 import { getAuthToken } from "../utils/auth";
 import { getApiUrl } from "../utils/config";
+import { useUser } from "../utils/useUser";
 
 function ClientPage() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { role } = useUser();
+    const isTechnician = role === "TECHNICIAN";
 
     const [contacts, setContacts] = useState([]);
     const [organisations, setOrganisations] = useState([]);
@@ -69,15 +72,41 @@ function ClientPage() {
                     serialNumber: rawEquip.serialNumber || 'N/A'
                 } : { model: "Non renseigné", installDate: "Non renseigné", serialNumber: "N/A" };
 
-                const mappedInterventions = (c.interventions || []).map(i => ({
-                    id: i.id,
-                    title: i.title || i.type || "Intervention",
-                    date: i.scheduledAt ? new Date(i.scheduledAt).toLocaleDateString('fr-FR') : new Date(i.createdAt).toLocaleDateString('fr-FR'),
-                    tech: i.technician ? `${i.technician.firstName || ''} ${i.technician.lastName || ''}`.trim() || i.technician.email : "Non assigné",
-                    desc: i.description || (i.technician ? `Technicien: ${i.technician.firstName || ''} ${i.technician.lastName || ''}`.trim() : "Planifiée"),
-                    status: i.status === "COMPLETED" ? "Terminé" : i.status === "CANCELLED" ? "Annulé" : "En attente",
-                    raw: i
-                }));
+                const mappedInterventions = (c.interventions || []).map(i => {
+                    const rawPhotos = i.photos || [];
+                    const beforePhotos = rawPhotos.filter(p => (p.photoType === 'BEFORE' || p.type === 'before' || p.category === 'before'));
+                    const afterPhotos = rawPhotos.filter(p => (p.photoType === 'AFTER' || p.type === 'after' || p.category === 'after'));
+                    const otherPhotos = rawPhotos.filter(p => !beforePhotos.includes(p) && !afterPhotos.includes(p));
+
+                    return {
+                        id: i.id,
+                        title: i.title || i.type || "Intervention",
+                        type: i.type || i.serviceType || "Installation",
+                        date: i.scheduledAt ? new Date(i.scheduledAt).toLocaleDateString('fr-FR') : new Date(i.createdAt).toLocaleDateString('fr-FR'),
+                        fullDate: i.scheduledAt ? new Date(i.scheduledAt).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : null,
+                        scheduledAt: i.scheduledAt,
+                        startedAt: i.startedAt ? new Date(i.startedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null,
+                        completedAt: i.completedAt ? new Date(i.completedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null,
+                        estimatedDuration: i.estimatedDuration || 90,
+                        tech: i.technician ? `${i.technician.firstName || ''} ${i.technician.lastName || ''}`.trim() || i.technician.email : "Non assigné",
+                        desc: i.description || (i.technician ? `Technicien: ${i.technician.firstName || ''} ${i.technician.lastName || ''}`.trim() : "Planifiée"),
+                        description: i.description || "",
+                        techNotes: i.techNotes || "",
+                        materialsUsed: i.materialsUsed || "",
+                        status: i.status === "COMPLETED" ? "Terminé" : i.status === "CANCELLED" ? "Annulé" : i.status === "IN_PROGRESS" ? "En cours" : "En attente",
+                        statusKey: i.status || "PENDING",
+                        address: i.address || c.address || "",
+                        city: i.city || c.city || "",
+                        accessCode: i.accessCode || c.notes || "",
+                        clientSignature: i.clientSignature || null,
+                        clientSignedAt: i.clientSignedAt ? new Date(i.clientSignedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null,
+                        photos: rawPhotos,
+                        beforePhotos,
+                        afterPhotos,
+                        otherPhotos,
+                        raw: i
+                    };
+                });
 
                 const mappedFactures = (c.invoices || []).map(inv => {
                     const st = (inv.status || 'draft').toLowerCase();
@@ -662,9 +691,10 @@ function ClientPage() {
                         getClientDetails={getClientDetails}
                         detailTab={detailTab}
                         setDetailTab={setDetailTab}
-                        onEdit={handleOpenEdit}
-                        onOpenInvoice={handleOpenInvoiceDrawer}
-                        onOpenQuote={handleOpenQuoteDrawer}
+                        onEdit={isTechnician ? null : handleOpenEdit}
+                        onOpenInvoice={isTechnician ? null : handleOpenInvoiceDrawer}
+                        onOpenQuote={isTechnician ? null : handleOpenQuoteDrawer}
+                        isReadOnly={isTechnician}
                     />
                 ) : (
                     <div className="mobile-contacts-view">
@@ -711,12 +741,12 @@ function ClientPage() {
                                 activeTabType={activeTabType}
                                 statusFilter={statusFilter}
                                 searchTerm={searchTerm}
-                                onOpenAddClient={handleOpenAddClient}
+                                onOpenAddClient={isTechnician ? null : handleOpenAddClient}
                             />
                         </div>
 
                         {/* Mobile Bottom Tab Bar */}
-                        <SideBar onFabClick={handleOpenAddClient} hideFab={!!selectedClient} />
+                        <SideBar onFabClick={isTechnician ? null : handleOpenAddClient} hideFab={isTechnician || !!selectedClient} />
                     </div>
                 )
             ) : (
@@ -738,20 +768,23 @@ function ClientPage() {
                                     getClientDetails={getClientDetails}
                                     detailTab={detailTab}
                                     setDetailTab={setDetailTab}
-                                    onEdit={handleOpenEdit}
-                                    onOpenInvoice={handleOpenInvoiceDrawer}
-                                    onOpenQuote={handleOpenQuoteDrawer}
+                                    onEdit={isTechnician ? null : handleOpenEdit}
+                                    onOpenInvoice={isTechnician ? null : handleOpenInvoiceDrawer}
+                                    onOpenQuote={isTechnician ? null : handleOpenQuoteDrawer}
+                                    isReadOnly={isTechnician}
                                 />
                             ) : (
                                 <>
                                     <div className="content-header-row">
                                         <div className="content-header">
                                             <h1 className="content-title">Clients</h1>
-                                            <p className="content-subtitle">Gérez vos relations clients et leurs informations.</p>
+                                            <p className="content-subtitle">{isTechnician ? "Consultez vos fiches clients et leurs informations." : "Gérez vos relations clients et leurs informations."}</p>
                                         </div>
-                                        <button className="new-client-btn" onClick={handleOpenAddClient}>
-                                            + Nouveau Client
-                                        </button>
+                                        {!isTechnician && (
+                                            <button className="new-client-btn" onClick={handleOpenAddClient}>
+                                                + Nouveau Client
+                                            </button>
+                                        )}
                                     </div>
 
                                     {/* Segmented Switcher Control */}
@@ -792,13 +825,14 @@ function ClientPage() {
                                         clients={activeTabType === "particulier" ? filteredContacts : filteredOrganisations}
                                         getClientDetails={getClientDetails}
                                         onSelect={(client) => navigate("/client?id=" + client.id)}
-                                        onEdit={handleOpenEdit}
-                                        onAddClient={handleOpenAddClient}
+                                        onEdit={isTechnician ? null : handleOpenEdit}
+                                        onAddClient={isTechnician ? null : handleOpenAddClient}
                                         activeTabType={activeTabType}
                                         statusFilter={statusFilter}
                                         searchTerm={searchTerm}
                                         onPlan={handlePlanClient}
-                                        onDelete={handleDeleteClient}
+                                        onDelete={isTechnician ? null : handleDeleteClient}
+                                        isReadOnly={isTechnician}
                                     />
                                 </>
                             )}
@@ -808,7 +842,7 @@ function ClientPage() {
             )}
 
             {/* Desktop Edit Client Modal Layer */}
-            {!isMobile && (
+            {!isMobile && !isTechnician && (
                 <DesktopEditModal
                     editingClient={editingClient}
                     setEditingClient={setEditingClient}
@@ -836,8 +870,8 @@ function ClientPage() {
                 />
             )}
 
-            {/* Mobile Edit Bottom Sheet Layer (rendered globally so it works on lists & details) */}
-            {isMobile && (
+            {/* Mobile Edit Bottom Sheet Layer (Owners/Managers only) */}
+            {isMobile && !isTechnician && (
                 <MobileEditBottomSheet
                     editingClient={editingClient}
                     setEditingClient={setEditingClient}

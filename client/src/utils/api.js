@@ -123,8 +123,15 @@ export async function apiFetch(endpoint, options = {}) {
         }
     }
 
+    let body = options.body;
+    const isFormData = body instanceof FormData;
+
+    if (body && typeof body === 'object' && !isFormData && !(body instanceof Blob) && !(body instanceof URLSearchParams)) {
+        body = JSON.stringify(body);
+    }
+
     const headers = {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(options.headers || {}),
     };
@@ -134,7 +141,7 @@ export async function apiFetch(endpoint, options = {}) {
         ? `${BACKEND_URL}${cleanEndpoint}`
         : `${API_URL}${cleanEndpoint}`;
 
-    let response = await fetch(url, { ...options, headers, credentials: 'include' });
+    let response = await fetch(url, { ...options, body, headers, credentials: 'include' });
 
     // If 401 — attempt silent refresh and retry once
     if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
@@ -142,7 +149,7 @@ export async function apiFetch(endpoint, options = {}) {
 
         if (newToken) {
             headers['Authorization'] = `Bearer ${newToken}`;
-            response = await fetch(url, { ...options, headers, credentials: 'include' });
+            response = await fetch(url, { ...options, body, headers, credentials: 'include' });
         }
 
         // If still 401 after refresh — redirect to login

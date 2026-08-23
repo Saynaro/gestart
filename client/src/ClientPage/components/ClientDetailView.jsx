@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText } from "lucide-react";
+import { Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2 } from "lucide-react";
+import InterventionDetailModal, { getInterventionStatusInfo } from "./InterventionDetailModal";
 
-function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote }) {
+function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote, isReadOnly = false }) {
     const navigate = useNavigate();
+    const [selectedInterventionForModal, setSelectedInterventionForModal] = useState(null);
     const details = getClientDetails(selectedClient);
     if (!details) return null;
 
@@ -18,6 +20,9 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
         const l = selectedClient.lastName ? selectedClient.lastName[0] : "";
         initials = `${f}${l}`.toUpperCase() || "CL";
     }
+
+    const availableTabs = isReadOnly ? ["interventions", "messages"] : ["interventions", "messages", "factures", "devis"];
+    const currentTab = availableTabs.includes(detailTab) ? detailTab : "interventions";
 
     return (
         <>
@@ -97,10 +102,12 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                     </div>
 
                     <div className="mobile-action-grid">
-                        <button className="mobile-action-btn modifier" onClick={() => onEdit(selectedClient, selectedClient.isOrg)}>
-                            <Edit3 size={16} />
-                            <span>Modifier</span>
-                        </button>
+                        {!isReadOnly && (
+                            <button className="mobile-action-btn modifier" onClick={() => onEdit(selectedClient, selectedClient.isOrg)}>
+                                <Edit3 size={16} />
+                                <span>Modifier</span>
+                            </button>
+                        )}
                         <button className="mobile-action-btn planifier" onClick={() => navigate('/planning', { state: { clientId: selectedClient.id, clientName: displayName } })}>
                             <Calendar size={16} />
                             <span>Planifier</span>
@@ -109,20 +116,22 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                             <MessageSquare size={16} />
                             <span>SMS</span>
                         </button>
-                        <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, clientEmail: selectedClient.email, clientAddress: selectedClient.address, openNewModal: true } })}>
-                            <FileText size={16} />
-                            <span>Facture</span>
-                        </button>
+                        {!isReadOnly && (
+                            <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, clientEmail: selectedClient.email, clientAddress: selectedClient.address, openNewModal: true } })}>
+                                <FileText size={16} />
+                                <span>Facture</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
                 {/* Right Card: Tabs View */}
                 <div className="client-detail-tabs-card">
                     <div className="mobile-tabs-header">
-                        {["interventions", "messages", "factures", "devis"].map((tab) => (
+                        {availableTabs.map((tab) => (
                             <button
                                 key={tab}
-                                className={`mobile-tab-btn ${detailTab === tab ? "active" : ""}`}
+                                className={`mobile-tab-btn ${currentTab === tab ? "active" : ""}`}
                                 onClick={() => setDetailTab(tab)}
                             >
                                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -138,15 +147,58 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                         Aucune intervention enregistrée pour ce client.
                                     </p>
                                 ) : (
-                                    details.interventions.map((item, idx) => (
-                                        <div key={idx} className="mobile-history-card">
-                                            <div className="history-card-header">
-                                                <h4>{item.title}</h4>
-                                                <span className="history-card-date">{item.date}</span>
+                                    details.interventions.map((item, idx) => {
+                                        const hasPhotos = (item.photos && item.photos.length > 0) || (item.raw?.photos && item.raw.photos.length > 0);
+                                        const hasSignature = !!item.clientSignature || !!item.raw?.clientSignature;
+                                        const statusBadge = getInterventionStatusInfo(item);
+
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className="mobile-history-card"
+                                                style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
+                                                onClick={() => setSelectedInterventionForModal(item)}
+                                                title="Cliquer pour voir les détails, photos et signature"
+                                            >
+                                                <div className="history-card-header">
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                        <h4>{item.title}</h4>
+                                                        <span style={{
+                                                            fontSize: '11px',
+                                                            fontWeight: 700,
+                                                            color: statusBadge.color,
+                                                            backgroundColor: statusBadge.bg,
+                                                            padding: '2px 8px',
+                                                            borderRadius: '12px'
+                                                        }}>
+                                                            {statusBadge.label}
+                                                        </span>
+                                                    </div>
+                                                    <span className="history-card-date">{item.date}</span>
+                                                </div>
+                                                <p className="history-card-desc" style={{ marginBottom: (hasPhotos || hasSignature) ? '8px' : '0' }}>
+                                                    {item.desc}
+                                                </p>
+
+                                                {(hasPhotos || hasSignature) && (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '6px', fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                                                        {hasPhotos && (
+                                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#556B2F', fontWeight: 600 }}>
+                                                                <Camera size={13} />
+                                                                <span>{(item.photos || item.raw?.photos || []).length} photo{(item.photos || item.raw?.photos || []).length > 1 ? 's' : ''}</span>
+                                                            </span>
+                                                        )}
+                                                        {hasSignature && (
+                                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#16a34a', fontWeight: 600 }}>
+                                                                <PenTool size={13} />
+                                                                <span>Signée</span>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
-                                            <p className="history-card-desc">{item.desc}</p>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
                         )}
@@ -261,6 +313,14 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                     </div>
                 </div>
             </div>
+
+            {/* Intervention Detail Modal Layer */}
+            <InterventionDetailModal
+                isOpen={!!selectedInterventionForModal}
+                onClose={() => setSelectedInterventionForModal(null)}
+                intervention={selectedInterventionForModal}
+                client={selectedClient}
+            />
         </>
     );
 }

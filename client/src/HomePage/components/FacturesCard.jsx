@@ -61,27 +61,29 @@ function FacturesCard({
             {/* Card Body Illustration & Button or List */}
             <div className="card-list-body">
                 {activeCount > 0 ? (
-                    <div className="dashboard-mini-list">
-                        {activeInvoices.map((inv) => {
-                            const refLabel = inv.ref || inv.number || "Facture";
-                            const clientLabel = inv.client || inv.clientName || "Client";
-                            const amountVal = Number(inv.amount || inv.totalTtc || 0);
-                            const dueDate = inv.dueAt || inv.due;
-                            const formattedDue = dueDate ? new Date(dueDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) : null;
+                    <div className="dashboard-card-content-wrapper">
+                        <div className="dashboard-mini-list">
+                            {activeInvoices.map((inv) => {
+                                const refLabel = inv.ref || inv.number || "Facture";
+                                const clientLabel = inv.client || inv.clientName || "Client";
+                                const amountVal = Number(inv.amount || inv.totalTtc || 0);
+                                const dueDate = inv.dueAt || inv.due;
+                                const formattedDue = dueDate ? new Date(dueDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) : null;
 
-                            return (
-                                <div key={inv.id} className="dashboard-mini-list-item" onClick={() => navigate(`/factures?id=${inv.id}`)}>
-                                    <div className="mini-item-left">
-                                        <div className="mini-item-primary">{refLabel}</div>
-                                        <div className="mini-item-secondary">{clientLabel}</div>
+                                return (
+                                    <div key={inv.id} className="dashboard-mini-list-item" onClick={() => navigate(`/factures?id=${inv.id}`)}>
+                                        <div className="mini-item-left">
+                                            <div className="mini-item-primary">{refLabel}</div>
+                                            <div className="mini-item-secondary">{clientLabel}</div>
+                                        </div>
+                                        <div className="mini-item-right">
+                                            <div className="mini-item-amount">{formatCurrency(amountVal)}</div>
+                                            <div className="mini-item-secondary">{formattedDue ? `Éch: ${formattedDue}` : "—"}</div>
+                                        </div>
                                     </div>
-                                    <div className="mini-item-right">
-                                        <div className="mini-item-amount">{formatCurrency(amountVal)}</div>
-                                        <div className="mini-item-secondary">{formattedDue ? `Éch: ${formattedDue}` : "—"}</div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                         <div className="card-list-action-row">
                             <button className="btn-card-action" onClick={onCreateFacture}>
                                 Créer une facture
@@ -109,9 +111,11 @@ function FacturesCard({
                             </svg>
                         </div>
                         <p className="illustration-text">Aucune facture {activeTab === "retard" ? "en retard" : "en attente"}</p>
-                        <button className="btn-card-action" onClick={onCreateFacture}>
-                            Créer une facture
-                        </button>
+                        {activeTab !== "retard" && (
+                            <button className="btn-card-action" onClick={onCreateFacture}>
+                                Créer une facture
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

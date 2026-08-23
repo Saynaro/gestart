@@ -67,8 +67,12 @@ const INITIAL_MOCK_ARTICLES = [
 ];
 
 import { apiFetch } from "../utils/api";
+import { useUser } from "../utils/useUser";
 
 function CataloguePage() {
+    const { role } = useUser();
+    const isTechnician = role === "TECHNICIAN";
+
     // Articles state
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -285,31 +289,35 @@ function CataloguePage() {
                         activeCategory={activeCategory}
                         setActiveCategory={setActiveCategory}
                         totalCount={filteredArticles.length}
-                        onOpenNewModal={() => handleOpenNewModal()}
+                        onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
+                        isReadOnly={isTechnician}
                     />
 
                     {/* Article List / Empty State */}
                     <ArticleList
                         articles={filteredArticles}
                         searchQuery={searchQuery}
-                        onEdit={(article) => handleOpenNewModal(article)}
-                        onDelete={(id) => handleOpenDeleteModal(id)}
-                        onOpenNewModal={() => handleOpenNewModal()}
+                        onEdit={isTechnician ? null : (article) => handleOpenNewModal(article)}
+                        onDelete={isTechnician ? null : (id) => handleOpenDeleteModal(id)}
+                        onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
+                        isReadOnly={isTechnician}
                     />
                 </motion.div>
             </div>
 
-            {/* Mobile Floating FAB Action Button (collapses into circle on scroll down) */}
-            <button
-                className={`catalogue-mobile-fab-btn ${isFabCollapsed ? "collapsed" : ""}`}
-                onClick={() => handleOpenNewModal()}
-                title="Créer un article"
-            >
-                <div className="fab-icon">
-                    <Plus size={20} />
-                </div>
-                <span className="fab-text">Créer un article</span>
-            </button>
+            {/* Mobile Floating FAB Action Button (Owner/Manager only) */}
+            {!isTechnician && (
+                <button
+                    className={`catalogue-mobile-fab-btn ${isFabCollapsed ? "collapsed" : ""}`}
+                    onClick={() => handleOpenNewModal()}
+                    title="Créer un article"
+                >
+                    <div className="fab-icon">
+                        <Plus size={20} />
+                    </div>
+                    <span className="fab-text">Créer un article</span>
+                </button>
+            )}
 
             {/* Create / Edit Article Modal (Desktop Modal & Mobile Bottom Sheet) */}
             <NewArticleModal

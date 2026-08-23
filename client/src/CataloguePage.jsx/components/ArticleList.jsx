@@ -2,7 +2,7 @@ import React from "react";
 import ArticleCard from "./ArticleCard";
 import { PackageX, Plus } from "lucide-react";
 
-function ArticleList({ articles, searchQuery, onEdit, onDelete, onOpenNewModal }) {
+function ArticleList({ articles, searchQuery, onEdit, onDelete, onOpenNewModal, isReadOnly = false }) {
     if (articles.length === 0) {
         return (
             <div className="catalogue-empty-state">
@@ -13,15 +13,17 @@ function ArticleList({ articles, searchQuery, onEdit, onDelete, onOpenNewModal }
                 <p>
                     {searchQuery
                         ? `Aucun article ne correspond à la recherche "${searchQuery}".`
-                        : "Votre catalogue est actuellement vide. Commencez par ajouter vos prestations et produits."}
+                        : "Votre catalogue est actuellement vide."}
                 </p>
-                <button
-                    className="catalogue-primary-add-btn"
-                    onClick={() => onOpenNewModal()}
-                >
-                    <Plus size={18} />
-                    <span>Créer un article</span>
-                </button>
+                {!isReadOnly && (
+                    <button
+                        className="catalogue-primary-add-btn"
+                        onClick={() => onOpenNewModal()}
+                    >
+                        <Plus size={18} />
+                        <span>Créer un article</span>
+                    </button>
+                )}
             </div>
         );
     }
@@ -32,8 +34,9 @@ function ArticleList({ articles, searchQuery, onEdit, onDelete, onOpenNewModal }
                 <ArticleCard
                     key={article.id}
                     article={article}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
+                    onEdit={isReadOnly ? null : onEdit}
+                    onDelete={isReadOnly ? null : onDelete}
+                    isReadOnly={isReadOnly}
                 />
             ))}
         </div>

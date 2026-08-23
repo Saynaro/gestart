@@ -120,8 +120,12 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
         }));
     };
 
-    const handleRevokeInvite = (id) => {
-        setInvitations(prev => prev.filter(inv => inv.id !== id));
+    const [inviteToRevoke, setInviteToRevoke] = useState(null);
+
+    const handleConfirmRevoke = () => {
+        if (!inviteToRevoke) return;
+        setInvitations(prev => prev.filter(inv => inv.id !== inviteToRevoke.id));
+        setInviteToRevoke(null);
         triggerToast("Invitation révoquée !");
     };
 
@@ -258,7 +262,7 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <button
                                         type="button"
-                                        onClick={() => handleRevokeInvite(inv.id)}
+                                        onClick={() => setInviteToRevoke(inv)}
                                         style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(239,68,68,0.2)', backgroundColor: 'rgba(239,68,68,0.05)', color: '#ef4444', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
                                     >
                                         Révoquer
@@ -312,6 +316,39 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Warning Confirmation Révocation */}
+            {inviteToRevoke && (
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+                    <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', padding: '24px', maxWidth: '420px', width: '100%', border: '1px solid var(--border)', textAlign: 'center' }}>
+                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+                            <AlertCircle size={28} />
+                        </div>
+
+                        <h3 style={{ margin: '0 0 8px 0', fontSize: '17px', fontWeight: 700 }}>Révoquer cette invitation ?</h3>
+                        <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.5 }}>
+                            L'invitation envoyée à <strong>{inviteToRevoke.email}</strong> deviendra immédiatement invalide. Le destinataire ne pourra plus l'utiliser pour rejoindre l'entreprise.
+                        </p>
+
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                            <button
+                                type="button"
+                                onClick={() => setInviteToRevoke(null)}
+                                style={{ flex: 1, padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'transparent', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmRevoke}
+                                style={{ flex: 1, padding: '10px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+                            >
+                                Révoquer
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

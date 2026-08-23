@@ -18,7 +18,8 @@ function EventCalendar({
     typeFilter, 
     currentView, 
     calendarRef, 
-    onDatesSet 
+    onDatesSet,
+    isReadOnly = false 
 }) {
     let touchStartX = 0;
     let touchStartY = 0;
@@ -55,6 +56,10 @@ function EventCalendar({
 
     // Handle event drop (dragging) and event resize
     const handleEventChange = (changeInfo) => {
+        if (isReadOnly) {
+            if (changeInfo.revert) changeInfo.revert();
+            return;
+        }
         const { event } = changeInfo;
         const updatedEvents = events.map(e => {
             if (e.id === event.id) {
@@ -71,6 +76,7 @@ function EventCalendar({
 
     // Handle time slot select
     const handleSelect = (selectInfo) => {
+        if (isReadOnly) return;
         // Only open modal if user actually selected a range (not just a click)
         // A real drag-select will have start != end
         onSelectSlot(selectInfo);
@@ -168,9 +174,9 @@ function EventCalendar({
                 firstDay={1}
                 dayHeaderFormat={{ weekday: 'short', day: 'numeric' }}
                 slotLabelContent={(info) => `${info.date.getHours()}h`}
-                editable={true}
-                selectable={true}
-                selectMirror={true}
+                editable={!isReadOnly}
+                selectable={!isReadOnly}
+                selectMirror={!isReadOnly}
                 eventInteractive={true}
                 eventColor="transparent"
                 eventBorderColor="transparent"

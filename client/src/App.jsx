@@ -4,7 +4,7 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { isAuthenticated, isSuperAdmin } from './utils/auth'
 import { startProactiveTokenRefresh, stopProactiveTokenRefresh } from './utils/api'
 import { SubscriptionProvider } from './utils/useSubscription'
-import { UserProvider } from './utils/useUser'
+import { UserProvider, useUser } from './utils/useUser'
 
 // Static imports for instant landing & core components
 import LandingPage from './LandingPage/LandingPage'
@@ -53,6 +53,21 @@ function ProtectedRoute({ children }) {
   }
   if (isSuperAdmin()) {
     return <Navigate to="/admin" replace />;
+  }
+  return children;
+}
+
+// Route Guard for Manager / Owner Pages (Blocks Technicians from financial/administrative pages)
+function ManagerOrOwnerRoute({ children }) {
+  const { role, loading } = useUser();
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  if (isSuperAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (!loading && role === "TECHNICIAN") {
+    return <Navigate to="/interventions/today" replace />;
   }
   return children;
 }
@@ -158,15 +173,15 @@ function App() {
             <Route path="/client" element={<ProtectedRoute><ClientPage /></ProtectedRoute>} />
             <Route path="/planning" element={<ProtectedRoute><PlanningPage /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
-            <Route path="/factures" element={<ProtectedRoute><FacturesPage /></ProtectedRoute>} />
-            <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
-            <Route path="/devis" element={<ProtectedRoute><DevisPage /></ProtectedRoute>} />
-            <Route path="/rapports" element={<ProtectedRoute><RapportsPage /></ProtectedRoute>} />
-            <Route path="/comptabilite" element={<ProtectedRoute><ComptabilityPage /></ProtectedRoute>} />
+            <Route path="/factures" element={<ManagerOrOwnerRoute><FacturesPage /></ManagerOrOwnerRoute>} />
+            <Route path="/payments" element={<ManagerOrOwnerRoute><PaymentsPage /></ManagerOrOwnerRoute>} />
+            <Route path="/devis" element={<ManagerOrOwnerRoute><DevisPage /></ManagerOrOwnerRoute>} />
+            <Route path="/rapports" element={<ManagerOrOwnerRoute><RapportsPage /></ManagerOrOwnerRoute>} />
+            <Route path="/comptabilite" element={<ManagerOrOwnerRoute><ComptabilityPage /></ManagerOrOwnerRoute>} />
             <Route path="/catalogue" element={<ProtectedRoute><CataloguePage /></ProtectedRoute>} />
-            <Route path="/techniciens" element={<ProtectedRoute><TechniciensPage /></ProtectedRoute>} />
+            <Route path="/techniciens" element={<ManagerOrOwnerRoute><TechniciensPage /></ManagerOrOwnerRoute>} />
             <Route path="/interventions/today" element={<ProtectedRoute><TechnicianInterventionsPage /></ProtectedRoute>} />
-            <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
+            <Route path="/premium" element={<ManagerOrOwnerRoute><PremiumPage /></ManagerOrOwnerRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminProtectedRoute><SuperAdminPanel /></AdminProtectedRoute>} />
 

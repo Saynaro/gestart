@@ -42,6 +42,8 @@ export const getDashboardData = async (req, res) => {
             interventionsCompletedCount,
             todayInterventions,
             upcomingInterventions,
+            plannedInterventionsList,
+            completedInterventionsList,
             recentMessages,
             // Toutes les factures payées cette année pour le graphique mensuel
             paidInvoicesThisYear,
@@ -213,7 +215,60 @@ export const getDashboardData = async (req, res) => {
                 }
             }),
 
-            // 12. 5 derniers messages
+            // 12. Interventions planifiées / en cours (toutes pour la carte Interventions)
+            prisma.intervention.findMany({
+                where: {
+                    companyId,
+                    status: { in: ["PENDING", "SCHEDULED", "IN_PROGRESS"] },
+                    ...(isTech && { technicianId: techId })
+                },
+                orderBy: { scheduledAt: "asc" },
+                include: {
+                    client: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            companyName: true,
+                            phone: true,
+                            address: true,
+                            city: true
+                        }
+                    },
+                    technician: {
+                        select: { firstName: true, lastName: true }
+                    }
+                }
+            }),
+
+            // 13. Interventions terminées (pour la carte Interventions)
+            prisma.intervention.findMany({
+                where: {
+                    companyId,
+                    status: "COMPLETED",
+                    ...(isTech && { technicianId: techId })
+                },
+                orderBy: { completedAt: "desc" },
+                take: 20,
+                include: {
+                    client: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            companyName: true,
+                            phone: true,
+                            address: true,
+                            city: true
+                        }
+                    },
+                    technician: {
+                        select: { firstName: true, lastName: true }
+                    }
+                }
+            }),
+
+            // 14. 5 derniers messages
             prisma.smsLog.findMany({
                 where: { companyId },
                 take: 5,
@@ -388,6 +443,27 @@ export const getDashboardData = async (req, res) => {
         const cotisationsMonth = Math.round(revThisMonthHT * cotisationsMultiplier * 100) / 100;
         const resultatMonth = Math.round((revThisMonthHT - cotisationsMonth) * 100) / 100;
 
+        const formatInterventionItem = (item) => {
+            const clientName = item.client ? (item.client.companyName || `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim()) : "Client";
+            const dateObj = item.scheduledAt ? new Date(item.scheduledAt) : (item.completedAt ? new Date(item.completedAt) : null);
+            const dateStr = dateObj ? dateObj.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) : "";
+            const timeStr = dateObj ? dateObj.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
+
+            return {
+                id: item.id,
+                title: item.title || item.type || "Intervention",
+                client: clientName,
+                time: timeStr && dateStr ? `${dateStr} à ${timeStr}` : (dateStr || timeStr || "—"),
+                date: dateStr,
+                status: item.status === "COMPLETED" ? "Terminé" : item.status === "IN_PROGRESS" ? "En cours" : "Planifié",
+                statusKey: item.status,
+                raw: item
+            };
+        };
+
+        const formattedPlanned = (plannedInterventionsList || []).map(formatInterventionItem);
+        const formattedCompleted = (completedInterventionsList || []).map(formatInterventionItem);
+
         // Données formatées pour le frontend
         return res.status(200).json({
             success: true,
@@ -448,9 +524,13 @@ export const getDashboardData = async (req, res) => {
                 },
                 // Interventions
                 interventions: {
+                    plannedCount: formattedPlanned.length,
+                    completedCount: formattedCompleted.length,
                     todayCount: todayInterventions.length,
                     completedThisMonth: interventionsCompletedCount,
                     totalCount: totalInterventionsCount,
+                    plannedInterventions: formattedPlanned,
+                    completedInterventions: formattedCompleted,
                     trackingColumns
                 },
                 // Plafonds
@@ -471,6 +551,8 @@ export const getDashboardData = async (req, res) => {
                 urgentClients: [],
                 todayInterventions,
                 upcomingInterventions,
+                plannedInterventions: formattedPlanned,
+                completedInterventions: formattedCompleted,
                 recentMessages
             }
         });

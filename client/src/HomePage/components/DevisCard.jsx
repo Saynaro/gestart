@@ -62,27 +62,29 @@ function DevisCard({
             {/* Card Body Illustration & Button or List */}
             <div className="card-list-body">
                 {activeCount > 0 ? (
-                    <div className="dashboard-mini-list">
-                        {activeDevis.map((dev) => {
-                            const refLabel = dev.ref || dev.number || "Devis";
-                            const clientLabel = dev.client || dev.clientName || "Client";
-                            const amountVal = Number(dev.amount || dev.totalTtc || 0);
-                            const devDate = dev.date || dev.createdAt || dev.issuedAt;
-                            const formattedDate = devDate ? new Date(devDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) : null;
+                    <div className="dashboard-card-content-wrapper">
+                        <div className="dashboard-mini-list">
+                            {activeDevis.map((dev) => {
+                                const refLabel = dev.ref || dev.number || "Devis";
+                                const clientLabel = dev.client || dev.clientName || "Client";
+                                const amountVal = Number(dev.amount || dev.totalTtc || 0);
+                                const devDate = dev.date || dev.createdAt || dev.issuedAt;
+                                const formattedDate = devDate ? new Date(devDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) : null;
 
-                            return (
-                                <div key={dev.id} className="dashboard-mini-list-item" onClick={() => navigate(`/devis?id=${dev.id}`)}>
-                                    <div className="mini-item-left">
-                                        <div className="mini-item-primary">{refLabel}</div>
-                                        <div className="mini-item-secondary">{clientLabel}</div>
+                                return (
+                                    <div key={dev.id} className="dashboard-mini-list-item" onClick={() => navigate(`/devis?id=${dev.id}`)}>
+                                        <div className="mini-item-left">
+                                            <div className="mini-item-primary">{refLabel}</div>
+                                            <div className="mini-item-secondary">{clientLabel}</div>
+                                        </div>
+                                        <div className="mini-item-right">
+                                            <div className="mini-item-amount">{formatCurrency(amountVal)}</div>
+                                            <div className="mini-item-secondary">{formattedDate || "—"}</div>
+                                        </div>
                                     </div>
-                                    <div className="mini-item-right">
-                                        <div className="mini-item-amount">{formatCurrency(amountVal)}</div>
-                                        <div className="mini-item-secondary">{formattedDate || "—"}</div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                         <div className="card-list-action-row">
                             <button className="btn-card-action" onClick={onCreateDevis}>
                                 Créer un devis

@@ -22,6 +22,19 @@ export function SubscriptionProvider({ children }) {
             setLoading(false);
             return;
         }
+
+        // Technicians are attached to company account and do not manage individual subscriptions
+        try {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                const parsed = JSON.parse(savedUser);
+                if (parsed.role === 'TECHNICIAN') {
+                    setLoading(false);
+                    return;
+                }
+            }
+        } catch (e) {}
+
         try {
             const res = await apiFetch('/v1/subscription');
             const sub = res.data?.subscription || res.subscription;
@@ -29,7 +42,7 @@ export function SubscriptionProvider({ children }) {
                 setSubscription(sub);
             }
         } catch (e) {
-            console.warn("Could not fetch subscription:", e.message);
+            // Ignored - user might not have billing permissions
         } finally {
             setLoading(false);
         }

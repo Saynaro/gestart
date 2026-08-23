@@ -1,14 +1,14 @@
 import React from "react";
 import { Edit3, Trash2, Tag, Percent } from "lucide-react";
 
-function ArticleCard({ article, onEdit, onDelete }) {
+function ArticleCard({ article, onEdit, onDelete, isReadOnly = false }) {
     const isService = article.category.toLowerCase().includes("prestation") || article.category.toLowerCase().includes("service");
 
     return (
         <div
             className="article-card"
-            onClick={() => onEdit(article)}
-            style={{ cursor: "pointer" }}
+            onClick={() => { if (!isReadOnly && onEdit) onEdit(article); }}
+            style={{ cursor: isReadOnly ? "default" : "pointer" }}
         >
             <div className="article-card-header">
                 <div className="article-main-info">
@@ -25,28 +25,30 @@ function ArticleCard({ article, onEdit, onDelete }) {
                     )}
                 </div>
 
-                <div className="article-actions">
-                    <button
-                        className="article-action-btn edit-btn"
-                        title="Modifier l'article"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(article);
-                        }}
-                    >
-                        <Edit3 size={16} />
-                    </button>
-                    <button
-                        className="article-action-btn delete-btn"
-                        title="Supprimer l'article"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(article.id);
-                        }}
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
+                {!isReadOnly && (
+                    <div className="article-actions">
+                        <button
+                            className="article-action-btn edit-btn"
+                            title="Modifier l'article"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onEdit) onEdit(article);
+                            }}
+                        >
+                            <Edit3 size={16} />
+                        </button>
+                        <button
+                            className="article-action-btn delete-btn"
+                            title="Supprimer l'article"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDelete) onDelete(article.id);
+                            }}
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="article-card-footer">

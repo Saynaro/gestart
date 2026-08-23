@@ -27,7 +27,8 @@ function ClientTable({
     activeTabType = "particulier", 
     statusFilter = "Tous", 
     searchTerm = "", 
-    onAddClient 
+    onAddClient,
+    isReadOnly = false 
 }) {
     const [activeDropdownId, setActiveDropdownId] = useState(null);
     const [dropdownPlacement, setDropdownPlacement] = useState("bottom");
@@ -77,9 +78,11 @@ function ClientTable({
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
                     {emptyDesc}
                 </p>
-                <button className="new-client-btn" onClick={() => onAddClient ? onAddClient() : (onEdit && onEdit({ isNew: true, isOrg }, isOrg))}>
-                    + {isOrg ? "Nouvelle Organisation" : "Nouveau Client"}
-                </button>
+                {!isReadOnly && (
+                    <button className="new-client-btn" onClick={() => onAddClient ? onAddClient() : (onEdit && onEdit({ isNew: true, isOrg }, isOrg))}>
+                        + {isOrg ? "Nouvelle Organisation" : "Nouveau Client"}
+                    </button>
+                )}
             </div>
         );
     }
@@ -199,16 +202,18 @@ function ClientTable({
                                                 <Eye size={15} />
                                                 <span>Voir la fiche</span>
                                             </button>
-                                            <button 
-                                                className="dropdown-item" 
-                                                onClick={() => {
-                                                    onEdit(client, client.isOrg);
-                                                    setActiveDropdownId(null);
-                                                }}
-                                            >
-                                                <Edit3 size={15} />
-                                                <span>Modifier</span>
-                                            </button>
+                                            {!isReadOnly && (
+                                                <button 
+                                                    className="dropdown-item" 
+                                                    onClick={() => {
+                                                        onEdit(client, client.isOrg);
+                                                        setActiveDropdownId(null);
+                                                    }}
+                                                >
+                                                    <Edit3 size={15} />
+                                                    <span>Modifier</span>
+                                                </button>
+                                            )}
                                             <button 
                                                 className="dropdown-item" 
                                                 onClick={() => {
@@ -219,17 +224,21 @@ function ClientTable({
                                                 <Calendar size={15} />
                                                 <span>Planifier</span>
                                             </button>
-                                            <div className="dropdown-divider"></div>
-                                            <button 
-                                                className="dropdown-item delete" 
-                                                onClick={() => {
-                                                    if (onDelete) onDelete(client);
-                                                    setActiveDropdownId(null);
-                                                }}
-                                            >
-                                                <Trash2 size={15} />
-                                                <span>Supprimer</span>
-                                            </button>
+                                            {!isReadOnly && (
+                                                <>
+                                                    <div className="dropdown-divider"></div>
+                                                    <button 
+                                                        className="dropdown-item delete" 
+                                                        onClick={() => {
+                                                            if (onDelete) onDelete(client);
+                                                            setActiveDropdownId(null);
+                                                        }}
+                                                    >
+                                                        <Trash2 size={15} />
+                                                        <span>Supprimer</span>
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     )}
                                 </td>

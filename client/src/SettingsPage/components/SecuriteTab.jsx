@@ -77,7 +77,7 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
             setIsChangingEmail(false);
             setEmailPasswordInput("");
             localStorage.setItem('userEmail', newEmailInput);
-            triggerToast("Adresse email modifiée avec succès dans la base de données !");
+            triggerToast("Adresse email modifiée avec succès !");
             fetchSecurityData();
         } catch (err) {
             triggerToast(err.message || "Erreur lors du changement d'email", true);
@@ -123,7 +123,7 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
             setOldPassword("");
             setNewPassword("");
             setConfirmPassword("");
-            triggerToast("Mot de passe modifié avec succès dans la base de données !");
+            triggerToast("Mot de passe modifié avec succès !");
             fetchSecurityData();
         } catch (err) {
             triggerToast(err.message || "Erreur lors du changement de mot de passe", true);

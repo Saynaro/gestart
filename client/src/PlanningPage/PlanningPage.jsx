@@ -7,7 +7,7 @@ import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import EventCalendar from "../components/EventCalendar";
 import MobilePlanningView from "./MobilePlanningView";
-import { ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2, Calendar, MapPin, FileText, Check } from "lucide-react";
 
 // ── Responsive hook ──────────────────────────────────────────────
 function useWindowWidth() {
@@ -19,6 +19,16 @@ function useWindowWidth() {
     }, []);
     return width;
 }
+
+const AVAILABLE_SERVICE_TYPES = [
+    "Installation",
+    "Entretien",
+    "Dépannage",
+    "Nettoyage",
+    "Contrôle",
+    "Ramonage",
+    "Mise en service"
+];
 
 // ── Initial data ─────────────────────────────────────────────────
 const initialEvents = [];
@@ -68,15 +78,19 @@ function PlanningPage() {
             const fmt = (d) =>
                 `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
             setSelectedSlot({ start, end, startStr: fmt(start), endStr: fmt(end) });
+            setNewDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
             setStartTime("09:00");
             setEndTime("10:30");
             setNewClientId(location.state.clientId || "");
             setNewClientName(location.state.clientName || "");
-            setNewServiceType("Installation");
+            setNewServiceTypes(location.state.serviceType ? [location.state.serviceType] : ["Entretien"]);
             setNewTechnicianId("");
+            const matched = clientDetails.find(c => c.id === location.state.clientId || c.name === location.state.clientName);
+            setNewAddress(matched?.rawAddress || matched?.address || "");
+            setNewNotes("");
             setShowAddModal(true);
         }
-    }, [location.state]);
+    }, [location.state, clientDetails]);
 
     const fetchInterventions = async () => {
         try {
@@ -101,7 +115,8 @@ function PlanningPage() {
                             technician: item.technician ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() || item.technician.email : (item.technicianName || "Non assigné"),
                             address: item.address || item.client?.address || "",
                             city: item.city || item.client?.city || "",
-                            clientId: item.clientId
+                            clientId: item.clientId,
+                            description: item.description || ""
                         }
                     };
                 });
@@ -163,18 +178,36 @@ function PlanningPage() {
     // Modal state — add
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const [newDate, setNewDate] = useState(() => {
+        const d = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    });
     const [newClientId, setNewClientId] = useState("");
     const [newClientName, setNewClientName] = useState("");
-    const [newServiceType, setNewServiceType] = useState("Installation");
+    const [newServiceTypes, setNewServiceTypes] = useState([]);
+    const [showAddCustomType, setShowAddCustomType] = useState(false);
+    const [addCustomTypeInput, setAddCustomTypeInput] = useState("");
     const [newTechnicianId, setNewTechnicianId] = useState("");
+    const [newAddress, setNewAddress] = useState("");
+    const [newNotes, setNewNotes] = useState("");
 
     // Modal state — edit
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [editDate, setEditDate] = useState(() => {
+        const d = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    });
     const [editClientId, setEditClientId] = useState("");
     const [editClientName, setEditClientName] = useState("");
-    const [editServiceType, setEditServiceType] = useState("Installation");
+    const [editServiceTypes, setEditServiceTypes] = useState([]);
+    const [showEditCustomType, setShowEditCustomType] = useState(false);
+    const [editCustomTypeInput, setEditCustomTypeInput] = useState("");
     const [editTechnicianId, setEditTechnicianId] = useState("");
+    const [editAddress, setEditAddress] = useState("");
+    const [editNotes, setEditNotes] = useState("");
 
     const [showClientSearch, setShowClientSearch] = useState(false);
     const [clientSearchTarget, setClientSearchTarget] = useState("add"); // "add" or "edit"
@@ -185,6 +218,42 @@ function PlanningPage() {
     // Confirmation dialog state
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Dynamic duration calculation
+    const durationText = useMemo(() => {
+        if (!startTime || !endTime) return "";
+        const [startH, startM] = startTime.split(":").map(Number);
+        const [endH, endM] = endTime.split(":").map(Number);
+        if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return "";
+        const diff = (endH * 60 + endM) - (startH * 60 + startM);
+        if (diff <= 0) return "";
+        const h = Math.floor(diff / 60);
+        const m = diff % 60;
+        if (h > 0 && m > 0) return `${h}h ${m}min`;
+        if (h > 0) return `${h}h`;
+        return `${m}min`;
+    }, [startTime, endTime]);
+
+    // Auto-sync address when client is chosen
+    useEffect(() => {
+        if (showAddModal && (newClientId || newClientName)) {
+            const matched = clientDetails.find(c => (newClientId && c.id === newClientId) || (newClientName && c.name === newClientName));
+            if (matched) {
+                const addr = matched.address || matched.rawAddress || "";
+                if (addr) setNewAddress(addr);
+            }
+        }
+    }, [newClientId, newClientName, clientDetails, showAddModal]);
+
+    useEffect(() => {
+        if (showEditModal && (editClientId || editClientName)) {
+            const matched = clientDetails.find(c => (editClientId && c.id === editClientId) || (editClientName && c.name === editClientName));
+            if (matched && !editAddress) {
+                const addr = matched.address || matched.rawAddress || "";
+                if (addr) setEditAddress(addr);
+            }
+        }
+    }, [editClientId, editClientName, clientDetails, showEditModal]);
 
     // Disable page scrolling when modal or client search is open
     useEffect(() => {
@@ -281,12 +350,18 @@ function PlanningPage() {
         const start = new Date(selectInfo.start);
         const end = new Date(selectInfo.end);
         const pad = (n) => String(n).padStart(2, "0");
+        setNewDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
         setNewClientName("");
-        setNewServiceType("Installation");
+        setNewClientId("");
+        setNewServiceTypes([]);
         setNewTechnicianId("");
+        setNewAddress("");
+        setNewNotes("");
+        setShowAddCustomType(false);
+        setAddCustomTypeInput("");
         setShowAddModal(true);
     };
 
@@ -297,6 +372,7 @@ function PlanningPage() {
         const start = new Date(event.start);
         const end = new Date(event.end);
         const pad = (n) => String(n).padStart(2, "0");
+        setEditDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
@@ -305,8 +381,16 @@ function PlanningPage() {
 
         setEditClientId(matched?.id || currentClientId || "");
         setEditClientName(matched?.name || event.title || "");
-        setEditServiceType(event.extendedProps?.type || "Installation");
+        
+        const rawType = event.extendedProps?.type || "Installation";
+        const parsed = rawType.split(/[,+]/).map(s => s.trim()).filter(Boolean);
+        setEditServiceTypes(parsed.length > 0 ? parsed : ["Installation"]);
+
         setEditTechnicianId(event.extendedProps?.technicianId || "");
+        setEditAddress(event.extendedProps?.address || matched?.rawAddress || matched?.address || "");
+        setEditNotes(event.extendedProps?.description || "");
+        setShowEditCustomType(false);
+        setEditCustomTypeInput("");
         setShowEditModal(true);
     };
 
@@ -322,12 +406,17 @@ function PlanningPage() {
         const fmt = (d) =>
             `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
         setSelectedSlot({ start, end, startStr: fmt(start), endStr: fmt(end) });
+        setNewDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
         setStartTime("09:00");
         setEndTime("10:30");
         setNewClientId("");
         setNewClientName("");
-        setNewServiceType("Installation");
+        setNewServiceTypes([]);
         setNewTechnicianId("");
+        setNewAddress("");
+        setNewNotes("");
+        setShowAddCustomType(false);
+        setAddCustomTypeInput("");
         setShowAddModal(true);
     };
 
@@ -342,20 +431,29 @@ function PlanningPage() {
     // Save new event
     const handleAddEventSubmit = async (e) => {
         e.preventDefault();
-        if ((!newClientName && !newClientId) || !selectedSlot) return;
+        if ((!newClientName && !newClientId)) return;
 
-        if (isMobile && isTimeInvalid) {
+        if (!newServiceTypes || newServiceTypes.length === 0) {
+            alert("Veuillez sélectionner au moins un type d'intervention !");
+            return;
+        }
+
+        if (isTimeInvalid) {
             alert("L'heure de fin doit être supérieure à l'heure de début !");
             return;
         }
 
-        let startStr = selectedSlot.startStr;
-        if (!startStr && selectedSlot.start) {
-            startStr = new Date(selectedSlot.start).toISOString();
-        }
+        const [startH, startM] = startTime.split(":").map(Number);
+        const [endH, endM] = endTime.split(":").map(Number);
+        const durationMinutes = Math.max(15, (endH * 60 + endM) - (startH * 60 + startM));
+
+        const baseDate = newDate ? new Date(newDate) : (selectedSlot?.start ? new Date(selectedSlot.start) : new Date());
+        baseDate.setHours(startH, startM, 0, 0);
+        const scheduledAtIso = baseDate.toISOString();
 
         const matchedClient = clientDetails.find(c => c.id === newClientId) || clientDetails.find(c => c.name === newClientName);
         const finalClientName = matchedClient?.name || newClientName;
+        const finalType = newServiceTypes.join(", ");
 
         try {
             await apiFetch('/v1/interventions', {
@@ -363,14 +461,14 @@ function PlanningPage() {
                 body: JSON.stringify({
                     clientId: matchedClient?.id || undefined,
                     technicianId: newTechnicianId || undefined,
-                    type: newServiceType,
-                    serviceType: newServiceType,
-                    title: `${newServiceType} - ${finalClientName}`,
-                    scheduledAt: startStr,
-                    estimatedDuration: 90,
-                    address: matchedClient?.rawAddress || matchedClient?.address || "Adresse à renseigner",
+                    type: finalType,
+                    serviceType: finalType,
+                    title: `${finalType} - ${finalClientName}`,
+                    scheduledAt: scheduledAtIso,
+                    estimatedDuration: durationMinutes,
+                    address: newAddress || matchedClient?.rawAddress || matchedClient?.address || "Adresse à renseigner",
                     city: matchedClient?.city || "France",
-                    description: `Intervention ${newServiceType}`
+                    description: newNotes || `Intervention ${finalType}`
                 })
             });
             await fetchInterventions();
@@ -388,24 +486,27 @@ function PlanningPage() {
         e.preventDefault();
         if ((!editClientName && !editClientId) || !selectedEvent) return;
 
-        if (isMobile && isTimeInvalid) {
+        if (!editServiceTypes || editServiceTypes.length === 0) {
+            alert("Veuillez sélectionner au moins un type d'intervention !");
+            return;
+        }
+
+        if (isTimeInvalid) {
             alert("L'heure de fin doit être supérieure à l'heure de début !");
             return;
         }
 
         const matchedClient = clientDetails.find(c => c.id === editClientId) || clientDetails.find(c => c.name === editClientName);
         const finalClientName = matchedClient?.name || editClientName;
+        const finalType = editServiceTypes.join(", ");
 
-        let scheduledAt = selectedEvent.start;
-        let estimatedDuration = undefined;
-        if (startTime && endTime) {
-            const [startH, startM] = startTime.split(":").map(Number);
-            const [endH, endM] = endTime.split(":").map(Number);
-            const baseDate = selectedEvent.start ? new Date(selectedEvent.start) : new Date();
-            baseDate.setHours(startH, startM, 0, 0);
-            scheduledAt = baseDate.toISOString();
-            estimatedDuration = (endH * 60 + endM) - (startH * 60 + startM);
-        }
+        const [startH, startM] = startTime.split(":").map(Number);
+        const [endH, endM] = endTime.split(":").map(Number);
+        const durationMinutes = Math.max(15, (endH * 60 + endM) - (startH * 60 + startM));
+
+        const baseDate = editDate ? new Date(editDate) : (selectedEvent.start ? new Date(selectedEvent.start) : new Date());
+        baseDate.setHours(startH, startM, 0, 0);
+        const scheduledAtIso = baseDate.toISOString();
 
         try {
             await apiFetch(`/v1/interventions/${selectedEvent.id}`, {
@@ -413,14 +514,14 @@ function PlanningPage() {
                 body: JSON.stringify({
                     clientId: matchedClient?.id || undefined,
                     technicianId: editTechnicianId || null,
-                    type: editServiceType,
-                    serviceType: editServiceType,
-                    title: `${editServiceType} - ${finalClientName}`,
-                    description: `Intervention ${editServiceType}`,
-                    address: matchedClient?.rawAddress || matchedClient?.address || undefined,
+                    type: finalType,
+                    serviceType: finalType,
+                    title: `${finalType} - ${finalClientName}`,
+                    description: editNotes || `Intervention ${finalType}`,
+                    address: editAddress || matchedClient?.rawAddress || matchedClient?.address || undefined,
                     city: matchedClient?.city || undefined,
-                    scheduledAt,
-                    estimatedDuration: estimatedDuration > 0 ? estimatedDuration : undefined
+                    scheduledAt: scheduledAtIso,
+                    estimatedDuration: durationMinutes
                 })
             });
             await fetchInterventions();
@@ -492,20 +593,22 @@ function PlanningPage() {
     // Filtered events
     const filteredEvents = typeFilter === "Tous"
         ? events
-        : events.filter(e => e.extendedProps.type === typeFilter);
+        : events.filter(e => {
+            const t = e.extendedProps?.type || "";
+            return t.includes(typeFilter);
+        });
 
     // Helpers to format slot date time inside the modal
     const formatSlotDateTime = (slotInfo, currentStart, currentEnd) => {
-        if (!slotInfo) return "";
-        const start = new Date(slotInfo.start);
-        const end = slotInfo.end ? new Date(slotInfo.end) : start;
+        if (!slotInfo && !newDate) return "";
+        const start = slotInfo?.start ? new Date(slotInfo.start) : (newDate ? new Date(newDate) : new Date());
+        const end = slotInfo?.end ? new Date(slotInfo.end) : start;
         
         let dateStr = "";
         try {
             const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             dateStr = start.toLocaleDateString('fr-FR', optionsDate);
         } catch (error) {
-            console.error("toLocaleDateString error:", error);
             const days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
             const months = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
             dateStr = `${days[start.getDay()]} ${start.getDate()} ${months[start.getMonth()]} ${start.getFullYear()}`;
@@ -523,12 +626,18 @@ function PlanningPage() {
         const start = new Date(slotInfo.start);
         const end = new Date(slotInfo.end);
         const pad = (n) => String(n).padStart(2, "0");
+        setNewDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
         setNewClientName("");
-        setNewServiceType("Installation");
+        setNewClientId("");
+        setNewServiceTypes([]);
         setNewTechnicianId("");
+        setNewAddress("");
+        setNewNotes("");
+        setShowAddCustomType(false);
+        setAddCustomTypeInput("");
         setShowAddModal(true);
     };
 
@@ -537,6 +646,7 @@ function PlanningPage() {
         const start = new Date(ev.start);
         const end = new Date(ev.end);
         const pad = (n) => String(n).padStart(2, "0");
+        setEditDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
@@ -545,9 +655,14 @@ function PlanningPage() {
 
         setEditClientId(matched?.id || currentClientId || "");
         setEditClientName(matched?.name || ev.title || "");
-        setEditServiceType(ev.extendedProps?.type || "Installation");
+        
+        const rawType = ev.extendedProps?.type || "Installation";
+        const parsed = rawType.split(/[,+]/).map(s => s.trim()).filter(Boolean);
+        setEditServiceTypes(parsed.length > 0 ? parsed : ["Installation"]);
+
         setEditTechnicianId(ev.extendedProps?.technicianId || "");
-        setShowEditModal(true);
+        setEditAddress(ev.extendedProps?.address || matched?.rawAddress || matched?.address || "");
+        setEditNotes(ev.extendedProps?.description || "");
     };
 
     const handleMobileFabClick = () => {
@@ -592,35 +707,44 @@ function PlanningPage() {
                                     <button className="modal-close-btn" onClick={() => closeAddModal()}><X size={18} /></button>
                                 </div>
                                 <form onSubmit={handleAddEventSubmit} className="modal-form-stack">
-                                    <div className="modal-slot-info">
-                                        <span className="slot-info-label">Créneau sélectionné :</span>
-                                        <span className="slot-info-val">{formatSlotDateTime(selectedSlot, startTime, endTime)}</span>
-                                    </div>
-                                    {isMobile && (
-                                        <div className="modal-field-row" style={{ display: 'flex', gap: '12px' }}>
-                                            <div className="modal-field" style={{ flex: 1 }}>
-                                                <label className="modal-label"><Clock size={15} /><span>Début</span></label>
-                                                <input 
-                                                    type="time" 
-                                                    value={startTime} 
-                                                    onChange={(e) => setStartTime(e.target.value)} 
-                                                    className="modal-input-time"
-                                                    required 
-                                                />
-                                            </div>
-                                            <div className="modal-field" style={{ flex: 1 }}>
-                                                <label className="modal-label"><Clock size={15} /><span>Fin</span></label>
-                                                <input 
-                                                    type="time" 
-                                                    value={endTime} 
-                                                    onChange={(e) => setEndTime(e.target.value)} 
-                                                    className="modal-input-time"
-                                                    required 
-                                                />
-                                            </div>
+                                    {/* Date & Time Selectors */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px' }}>
+                                        <div className="modal-field" style={{ margin: 0 }}>
+                                            <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
+                                            <input 
+                                                type="date" 
+                                                value={newDate} 
+                                                onChange={(e) => setNewDate(e.target.value)} 
+                                                className="modal-input-time"
+                                                required 
+                                            />
                                         </div>
-                                    )}
-                                    {isMobile && isTimeInvalid && (
+                                        <div className="modal-field" style={{ margin: 0 }}>
+                                            <label className="modal-label"><Clock size={14} /><span>Début</span></label>
+                                            <input 
+                                                type="time" 
+                                                value={startTime} 
+                                                onChange={(e) => setStartTime(e.target.value)} 
+                                                className="modal-input-time"
+                                                required 
+                                            />
+                                        </div>
+                                        <div className="modal-field" style={{ margin: 0 }}>
+                                            <label className="modal-label">
+                                                <Clock size={14} />
+                                                <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
+                                            </label>
+                                            <input 
+                                                type="time" 
+                                                value={endTime} 
+                                                onChange={(e) => setEndTime(e.target.value)} 
+                                                className="modal-input-time"
+                                                required 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {isTimeInvalid && (
                                         <div style={{
                                             color: '#f59e0b',
                                             fontSize: '12.5px',
@@ -628,13 +752,14 @@ function PlanningPage() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: '6px',
-                                            marginTop: '4px',
-                                            padding: '0 2px'
+                                            padding: '2px 0'
                                         }}>
                                             <AlertTriangle size={15} style={{ flexShrink: 0 }} />
                                             <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
                                         </div>
                                     )}
+
+                                    {/* Client Selector */}
                                     <div className="modal-field">
                                         <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
                                         <div 
@@ -650,18 +775,167 @@ function PlanningPage() {
                                             <ChevronDown size={16} className="trigger-arrow" />
                                         </div>
                                     </div>
+
+                                    {/* Multi-Select Types d'intervention */}
                                     <div className="modal-field">
-                                        <label className="modal-label"><Briefcase size={15} /><span>Type d'intervention</span></label>
-                                        <div className="modal-select-wrapper">
-                                            <select value={newServiceType} onChange={(e) => setNewServiceType(e.target.value)} className="modal-select" required>
-                                                <option value="Installation">Installation</option>
-                                                <option value="Maintenance">Maintenance</option>
-                                                <option value="Dépannage">Dépannage</option>
-                                                <option value="Contrôle">Contrôle</option>
-                                            </select>
-                                            <ChevronDown size={14} className="modal-select-arrow" />
+                                        <label className="modal-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Briefcase size={15} />
+                                                <span>Type(s) d'intervention</span>
+                                            </div>
+                                            <span style={{ fontSize: '0.74rem', color: newServiceTypes.length === 0 ? '#f59e0b' : 'var(--muted-foreground)', fontWeight: 600 }}>
+                                                {newServiceTypes.length} sélectionné{newServiceTypes.length > 1 ? "s" : ""}
+                                            </span>
+                                        </label>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', alignItems: 'center' }}>
+                                            {Array.from(new Set([...AVAILABLE_SERVICE_TYPES, ...newServiceTypes])).map((t) => {
+                                                const isSelected = newServiceTypes.includes(t);
+                                                const isCustom = !AVAILABLE_SERVICE_TYPES.includes(t);
+                                                return (
+                                                    <button
+                                                        key={t}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (isSelected) {
+                                                                setNewServiceTypes(newServiceTypes.filter(item => item !== t));
+                                                            } else {
+                                                                setNewServiceTypes([...newServiceTypes, t]);
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            padding: '6px 14px',
+                                                            borderRadius: '20px',
+                                                            fontSize: '0.82rem',
+                                                            fontWeight: 500,
+                                                            border: isSelected ? '1px solid #556B2F' : '1px solid var(--border)',
+                                                            backgroundColor: isSelected ? 'rgba(85, 107, 47, 0.12)' : 'var(--background)',
+                                                            color: isSelected ? '#556B2F' : 'var(--foreground)',
+                                                            cursor: 'pointer',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            boxSizing: 'border-box',
+                                                            transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease'
+                                                        }}
+                                                    >
+                                                        <span>{t}</span>
+                                                        {isCustom && isSelected && (
+                                                            <span 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setNewServiceTypes(newServiceTypes.filter(item => item !== t));
+                                                                }}
+                                                                style={{ display: 'inline-flex', alignItems: 'center', opacity: 0.7 }}
+                                                            >
+                                                                <X size={12} />
+                                                            </span>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                            {showAddCustomType ? (
+                                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Autre type..."
+                                                        value={addCustomTypeInput}
+                                                        onChange={(e) => setAddCustomTypeInput(e.target.value)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                const val = addCustomTypeInput.trim();
+                                                                if (val) {
+                                                                    if (!newServiceTypes.includes(val)) {
+                                                                        setNewServiceTypes([...newServiceTypes, val]);
+                                                                    }
+                                                                    setAddCustomTypeInput("");
+                                                                    setShowAddCustomType(false);
+                                                                }
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            width: '120px',
+                                                            height: '30px',
+                                                            padding: '0 10px',
+                                                            fontSize: '0.82rem',
+                                                            borderRadius: '16px',
+                                                            border: '1px solid #556B2F',
+                                                            backgroundColor: 'var(--background)',
+                                                            color: 'var(--foreground)',
+                                                            outline: 'none',
+                                                            boxSizing: 'border-box'
+                                                        }}
+                                                        autoFocus
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const val = addCustomTypeInput.trim();
+                                                            if (val) {
+                                                                if (!newServiceTypes.includes(val)) {
+                                                                    setNewServiceTypes([...newServiceTypes, val]);
+                                                                }
+                                                                setAddCustomTypeInput("");
+                                                                setShowAddCustomType(false);
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            padding: '4px 10px',
+                                                            borderRadius: '14px',
+                                                            fontSize: '0.78rem',
+                                                            fontWeight: 600,
+                                                            backgroundColor: '#556B2F',
+                                                            color: '#fff',
+                                                            border: 'none',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        OK
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => { setShowAddCustomType(false); setAddCustomTypeInput(""); }}
+                                                        style={{
+                                                            padding: '4px 6px',
+                                                            borderRadius: '14px',
+                                                            fontSize: '0.78rem',
+                                                            backgroundColor: 'transparent',
+                                                            color: 'var(--muted-foreground)',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center'
+                                                        }}
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowAddCustomType(true)}
+                                                    style={{
+                                                        padding: '6px 14px',
+                                                        borderRadius: '20px',
+                                                        fontSize: '0.82rem',
+                                                        fontWeight: 500,
+                                                        border: '1px dashed var(--border)',
+                                                        backgroundColor: 'transparent',
+                                                        color: 'var(--muted-foreground)',
+                                                        cursor: 'pointer',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px',
+                                                        boxSizing: 'border-box'
+                                                    }}
+                                                >
+                                                    <Plus size={13} /> Autre
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
+
+                                    {/* Technicien assigné */}
                                     <div className="modal-field">
                                         <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
                                         <div className="modal-select-wrapper">
@@ -684,6 +958,44 @@ function PlanningPage() {
                                             <ChevronDown size={14} className="modal-select-arrow" />
                                         </div>
                                     </div>
+
+                                    {/* Adresse */}
+                                    <div className="modal-field">
+                                        <label className="modal-label"><MapPin size={15} /><span>Adresse de l'intervention</span></label>
+                                        <input 
+                                            type="text" 
+                                            value={newAddress} 
+                                            onChange={(e) => setNewAddress(e.target.value)} 
+                                            placeholder="Adresse, étage, code d'accès..."
+                                            className="modal-input-time"
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+
+                                    {/* Instructions / Notes */}
+                                    <div className="modal-field">
+                                        <label className="modal-label"><FileText size={15} /><span>Instructions & Notes (optionnel)</span></label>
+                                        <textarea
+                                            value={newNotes}
+                                            onChange={(e) => setNewNotes(e.target.value)}
+                                            placeholder="Ex: Code porte 45B2, climatisation au 2ème étage..."
+                                            rows={2}
+                                            style={{
+                                                width: '100%',
+                                                backgroundColor: 'var(--background)',
+                                                border: '1.5px solid var(--border)',
+                                                borderRadius: '10px',
+                                                padding: '8px 12px',
+                                                fontSize: '13.5px',
+                                                fontFamily: 'inherit',
+                                                color: 'var(--foreground)',
+                                                outline: 'none',
+                                                resize: 'vertical',
+                                                boxSizing: 'border-box'
+                                            }}
+                                        />
+                                    </div>
+
                                     <div className="modal-footer-row">
                                         <button type="button" className="modal-cancel-btn" onClick={() => closeAddModal()}>Annuler</button>
                                         <button type="submit" className="modal-submit-btn">Créer l'intervention</button>
@@ -736,10 +1048,10 @@ function PlanningPage() {
 
                                             <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
                                                 <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
-                                                    Type de prestation
+                                                    Type(s) de prestation
                                                 </span>
                                                 <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--foreground)' }}>
-                                                    {editServiceType || "Installation"}
+                                                    {editServiceTypes?.join(", ") || "Installation"}
                                                 </span>
                                             </div>
 
@@ -754,6 +1066,17 @@ function PlanningPage() {
                                                     })()}
                                                 </span>
                                             </div>
+
+                                            {editAddress && (
+                                                <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
+                                                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                                                        Adresse de l'intervention
+                                                    </span>
+                                                    <span style={{ fontSize: '0.88rem', color: 'var(--foreground)' }}>
+                                                        {editAddress}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
@@ -769,49 +1092,59 @@ function PlanningPage() {
                                     </div>
                                 ) : (
                                     <form onSubmit={handleEditEventSubmit} className="modal-form-stack">
-                                        <div className="modal-slot-info">
-                                            <span className="slot-info-label">Horaire planifié :</span>
-                                            <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
-                                        </div>
-                                        {isMobile && (
-                                            <div className="modal-field-row" style={{ display: 'flex', gap: '12px' }}>
-                                                <div className="modal-field" style={{ flex: 1 }}>
-                                                    <label className="modal-label"><Clock size={15} /><span>Début</span></label>
-                                                    <input 
-                                                        type="time" 
-                                                        value={startTime} 
-                                                        onChange={(e) => setStartTime(e.target.value)} 
-                                                        className="modal-input-time"
-                                                        required 
-                                                    />
-                                                </div>
-                                                <div className="modal-field" style={{ flex: 1 }}>
-                                                    <label className="modal-label"><Clock size={15} /><span>Fin</span></label>
-                                                    <input 
-                                                        type="time" 
-                                                        value={endTime} 
-                                                        onChange={(e) => setEndTime(e.target.value)} 
-                                                        className="modal-input-time"
-                                                        required 
-                                                    />
-                                                </div>
+                                        {/* Date & Time Selectors */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px' }}>
+                                            <div className="modal-field" style={{ margin: 0 }}>
+                                                <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
+                                                <input 
+                                                    type="date" 
+                                                    value={editDate} 
+                                                    onChange={(e) => setEditDate(e.target.value)} 
+                                                    className="modal-input-time"
+                                                    required 
+                                                />
                                             </div>
-                                        )}
-                                        {isMobile && isTimeInvalid && (
+                                            <div className="modal-field" style={{ margin: 0 }}>
+                                                <label className="modal-label"><Clock size={14} /><span>Début</span></label>
+                                                <input 
+                                                    type="time" 
+                                                    value={startTime} 
+                                                    onChange={(e) => setStartTime(e.target.value)} 
+                                                    className="modal-input-time"
+                                                    required 
+                                                />
+                                            </div>
+                                            <div className="modal-field" style={{ margin: 0 }}>
+                                                <label className="modal-label">
+                                                    <Clock size={14} />
+                                                    <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
+                                                </label>
+                                                <input 
+                                                    type="time" 
+                                                    value={endTime} 
+                                                    onChange={(e) => setEndTime(e.target.value)} 
+                                                    className="modal-input-time"
+                                                    required 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {isTimeInvalid && (
                                             <div style={{
-                                                 color: '#f59e0b',
-                                                 fontSize: '12.5px',
-                                                 fontWeight: 600,
-                                                 display: 'flex',
-                                                 alignItems: 'center',
-                                                 gap: '6px',
-                                                 marginTop: '4px',
-                                                 padding: '0 2px'
+                                                color: '#f59e0b',
+                                                fontSize: '12.5px',
+                                                fontWeight: 600,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                padding: '2px 0'
                                             }}>
                                                 <AlertTriangle size={15} style={{ flexShrink: 0 }} />
                                                 <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
                                             </div>
                                         )}
+
+                                        {/* Client Selector */}
                                         <div className="modal-field">
                                             <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
                                             <div 
@@ -827,18 +1160,167 @@ function PlanningPage() {
                                                 <ChevronDown size={16} className="trigger-arrow" />
                                             </div>
                                         </div>
+
+                                        {/* Multi-Select Types d'intervention */}
                                         <div className="modal-field">
-                                            <label className="modal-label"><Briefcase size={15} /><span>Type d'intervention</span></label>
-                                            <div className="modal-select-wrapper">
-                                                <select value={editServiceType} onChange={(e) => setEditServiceType(e.target.value)} className="modal-select" required>
-                                                    <option value="Installation">Installation</option>
-                                                    <option value="Maintenance">Maintenance</option>
-                                                    <option value="Dépannage">Dépannage</option>
-                                                    <option value="Contrôle">Contrôle</option>
-                                                </select>
-                                                <ChevronDown size={14} className="modal-select-arrow" />
+                                            <label className="modal-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <Briefcase size={15} />
+                                                    <span>Type(s) d'intervention</span>
+                                                </div>
+                                                <span style={{ fontSize: '0.74rem', color: editServiceTypes.length === 0 ? '#f59e0b' : 'var(--muted-foreground)', fontWeight: 600 }}>
+                                                    {editServiceTypes.length} sélectionné{editServiceTypes.length > 1 ? "s" : ""}
+                                                </span>
+                                            </label>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', alignItems: 'center' }}>
+                                                {Array.from(new Set([...AVAILABLE_SERVICE_TYPES, ...editServiceTypes])).map((t) => {
+                                                    const isSelected = editServiceTypes.includes(t);
+                                                    const isCustom = !AVAILABLE_SERVICE_TYPES.includes(t);
+                                                    return (
+                                                        <button
+                                                            key={t}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (isSelected) {
+                                                                    setEditServiceTypes(editServiceTypes.filter(item => item !== t));
+                                                                } else {
+                                                                    setEditServiceTypes([...editServiceTypes, t]);
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                padding: '6px 14px',
+                                                                borderRadius: '20px',
+                                                                fontSize: '0.82rem',
+                                                                fontWeight: 500,
+                                                                border: isSelected ? '1px solid #556B2F' : '1px solid var(--border)',
+                                                                backgroundColor: isSelected ? 'rgba(85, 107, 47, 0.12)' : 'var(--background)',
+                                                                color: isSelected ? '#556B2F' : 'var(--foreground)',
+                                                                cursor: 'pointer',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px',
+                                                                boxSizing: 'border-box',
+                                                                transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease'
+                                                            }}
+                                                        >
+                                                            <span>{t}</span>
+                                                            {isCustom && isSelected && (
+                                                                <span 
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setEditServiceTypes(editServiceTypes.filter(item => item !== t));
+                                                                    }}
+                                                                    style={{ display: 'inline-flex', alignItems: 'center', opacity: 0.7 }}
+                                                                >
+                                                                    <X size={12} />
+                                                                </span>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                                {showEditCustomType ? (
+                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Autre type..."
+                                                            value={editCustomTypeInput}
+                                                            onChange={(e) => setEditCustomTypeInput(e.target.value)}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter') {
+                                                                    e.preventDefault();
+                                                                    const val = editCustomTypeInput.trim();
+                                                                    if (val) {
+                                                                        if (!editServiceTypes.includes(val)) {
+                                                                            setEditServiceTypes([...editServiceTypes, val]);
+                                                                        }
+                                                                        setEditCustomTypeInput("");
+                                                                        setShowEditCustomType(false);
+                                                                    }
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                width: '120px',
+                                                                height: '30px',
+                                                                padding: '0 10px',
+                                                                fontSize: '0.82rem',
+                                                                borderRadius: '16px',
+                                                                border: '1px solid #556B2F',
+                                                                backgroundColor: 'var(--background)',
+                                                                color: 'var(--foreground)',
+                                                                outline: 'none',
+                                                                boxSizing: 'border-box'
+                                                            }}
+                                                            autoFocus
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const val = editCustomTypeInput.trim();
+                                                                if (val) {
+                                                                    if (!editServiceTypes.includes(val)) {
+                                                                        setEditServiceTypes([...editServiceTypes, val]);
+                                                                    }
+                                                                    setEditCustomTypeInput("");
+                                                                    setShowEditCustomType(false);
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                padding: '4px 10px',
+                                                                borderRadius: '14px',
+                                                                fontSize: '0.78rem',
+                                                                fontWeight: 600,
+                                                                backgroundColor: '#556B2F',
+                                                                color: '#fff',
+                                                                border: 'none',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            OK
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => { setShowEditCustomType(false); setEditCustomTypeInput(""); }}
+                                                            style={{
+                                                                padding: '4px 6px',
+                                                                borderRadius: '14px',
+                                                                fontSize: '0.78rem',
+                                                                backgroundColor: 'transparent',
+                                                                color: 'var(--muted-foreground)',
+                                                                border: 'none',
+                                                                cursor: 'pointer',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center'
+                                                            }}
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowEditCustomType(true)}
+                                                        style={{
+                                                            padding: '6px 14px',
+                                                            borderRadius: '20px',
+                                                            fontSize: '0.82rem',
+                                                            fontWeight: 500,
+                                                            border: '1px dashed var(--border)',
+                                                            backgroundColor: 'transparent',
+                                                            color: 'var(--muted-foreground)',
+                                                            cursor: 'pointer',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px',
+                                                            boxSizing: 'border-box'
+                                                        }}
+                                                    >
+                                                        <Plus size={13} /> Autre
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
+
+                                        {/* Technicien assigné */}
                                         <div className="modal-field">
                                             <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
                                             <div className="modal-select-wrapper">
@@ -861,6 +1343,44 @@ function PlanningPage() {
                                                 <ChevronDown size={14} className="modal-select-arrow" />
                                             </div>
                                         </div>
+
+                                        {/* Adresse */}
+                                        <div className="modal-field">
+                                            <label className="modal-label"><MapPin size={15} /><span>Adresse de l'intervention</span></label>
+                                            <input 
+                                                type="text" 
+                                                value={editAddress} 
+                                                onChange={(e) => setEditAddress(e.target.value)} 
+                                                placeholder="Adresse de l'intervention..."
+                                                className="modal-input-time"
+                                                style={{ width: '100%' }}
+                                            />
+                                        </div>
+
+                                        {/* Instructions / Notes */}
+                                        <div className="modal-field">
+                                            <label className="modal-label"><FileText size={15} /><span>Instructions & Notes</span></label>
+                                            <textarea
+                                                value={editNotes}
+                                                onChange={(e) => setEditNotes(e.target.value)}
+                                                placeholder="Instructions pour le technicien..."
+                                                rows={2}
+                                                style={{
+                                                    width: '100%',
+                                                    backgroundColor: 'var(--background)',
+                                                    border: '1.5px solid var(--border)',
+                                                    borderRadius: '10px',
+                                                    padding: '8px 12px',
+                                                    fontSize: '13.5px',
+                                                    fontFamily: 'inherit',
+                                                    color: 'var(--foreground)',
+                                                    outline: 'none',
+                                                    resize: 'vertical',
+                                                    boxSizing: 'border-box'
+                                                }}
+                                            />
+                                        </div>
+
                                         <div className="modal-footer-row edit-footer-row">
                                             <button type="button" className="modal-delete-btn" onClick={handleDeleteEvent}>Supprimer</button>
                                             <div className="footer-right-buttons">
@@ -1044,12 +1564,15 @@ function PlanningPage() {
                                                 setPendingClientId(c.id);
                                             }}
                                             onDoubleClick={() => {
+                                                const addr = c.address || c.rawAddress || "";
                                                 if (clientSearchTarget === "add") {
                                                     setNewClientName(c.name);
                                                     setNewClientId(c.id);
+                                                    if (addr) setNewAddress(addr);
                                                 } else {
                                                     setEditClientName(c.name);
                                                     setEditClientId(c.id);
+                                                    if (addr) setEditAddress(addr);
                                                 }
                                                 setShowClientSearch(false);
                                                 setClientSearchQuery("");
@@ -1084,12 +1607,16 @@ function PlanningPage() {
                             type="button" 
                             className="client-search-confirm-btn"
                             onClick={() => {
+                                const matched = clientDetails.find(c => c.id === pendingClientId || c.name === pendingClientName);
+                                const addr = matched ? (matched.address || matched.rawAddress || "") : "";
                                 if (clientSearchTarget === "add") {
                                     setNewClientName(pendingClientName);
                                     setNewClientId(pendingClientId);
+                                    if (addr) setNewAddress(addr);
                                 } else {
                                     setEditClientName(pendingClientName);
                                     setEditClientId(pendingClientId);
+                                    if (addr) setEditAddress(addr);
                                 }
                                 setShowClientSearch(false);
                                 setClientSearchQuery("");

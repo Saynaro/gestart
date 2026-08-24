@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2 } from "lucide-react";
-import SideBar from "../../components/SideBar";
+import { ArrowLeft, Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2, Clock, Play, Sparkles, Wrench } from "lucide-react";
 import InterventionDetailModal, { getInterventionStatusInfo } from "./InterventionDetailModal";
 
 function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote, isReadOnly = false }) {
@@ -22,7 +21,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
         initials = `${f}${l}`.toUpperCase() || "CL";
     }
 
-    const availableTabs = isReadOnly ? ["interventions", "messages"] : ["interventions", "messages", "factures", "devis"];
+    const availableTabs = isReadOnly ? ["interventions", "auto-rappel", "messages"] : ["interventions", "auto-rappel", "messages", "factures", "devis"];
     const currentTab = availableTabs.includes(detailTab) ? detailTab : "interventions";
 
     return (
@@ -209,6 +208,52 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                 </div>
                             )}
                             
+                            {detailTab === "auto-rappel" && (
+                                <div className="mobile-tab-panel">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Sparkles size={15} color="#556B2F" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem' }}>Rappels Automatiques</h4>
+                                        </div>
+                                        <button
+                                            className="mobile-action-btn"
+                                            style={{ padding: '4px 8px', fontSize: '0.72rem', height: 'auto', backgroundColor: '#556B2F', color: '#ffffff', borderRadius: '6px' }}
+                                            onClick={() => navigate('/premium')}
+                                        >
+                                            Gérer
+                                        </button>
+                                    </div>
+
+                                    {(!details.reminderAutomations || details.reminderAutomations.length === 0) ? (
+                                        <div style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '24px', fontSize: '13px' }}>
+                                            <Clock size={24} style={{ opacity: 0.4, marginBottom: '6px' }} />
+                                            <p style={{ margin: '0 0 8px 0' }}>Aucun cycle de rappel actif.</p>
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {details.reminderAutomations.map((auto, idx) => {
+                                                const serviceName = auto.trackedServices?.[0]?.serviceType?.name || auto.name || "Prestation générale";
+                                                const nextDateStr = auto.nextReminderAt ? new Date(auto.nextReminderAt).toLocaleDateString('fr-FR') : "Non définie";
+
+                                                return (
+                                                    <div key={auto.id || idx} className="mobile-history-card" style={{ borderLeft: '4px solid #556B2F', padding: '12px' }}>
+                                                        <div className="history-card-header" style={{ marginBottom: '6px' }}>
+                                                            <h4 style={{ margin: 0, fontSize: '0.85rem' }}>{serviceName}</h4>
+                                                            <span style={{ fontSize: '0.7rem', color: auto.enabled ? '#16a34a' : 'var(--muted-foreground)' }}>
+                                                                {auto.enabled ? "Actif" : "En pause"}
+                                                            </span>
+                                                        </div>
+                                                        <p style={{ margin: 0, fontSize: '0.76rem', color: 'var(--muted-foreground)' }}>
+                                                            Prochain rappel: <strong style={{ color: '#556B2F' }}>{nextDateStr}</strong> ({auto.frequencyValue} mois)
+                                                        </p>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {detailTab === "messages" && (
                                 <div className="mobile-tab-panel">
                                     {details.messages.length === 0 ? (

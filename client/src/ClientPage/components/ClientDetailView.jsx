@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2 } from "lucide-react";
+import { Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2, Clock, Send, Play, Sparkles, Wrench } from "lucide-react";
 import InterventionDetailModal, { getInterventionStatusInfo } from "./InterventionDetailModal";
+import { apiFetch } from "../../utils/api";
 
 function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote, isReadOnly = false }) {
     const navigate = useNavigate();
@@ -21,8 +22,23 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
         initials = `${f}${l}`.toUpperCase() || "CL";
     }
 
-    const availableTabs = isReadOnly ? ["interventions", "messages"] : ["interventions", "messages", "factures", "devis"];
+    const availableTabs = isReadOnly ? ["interventions", "auto-rappel", "messages"] : ["interventions", "auto-rappel", "messages", "factures", "devis"];
     const currentTab = availableTabs.includes(detailTab) ? detailTab : "interventions";
+    const [actionLoading, setActionLoading] = useState(null);
+
+    const handleTriggerReminder = async (autoId) => {
+        try {
+            setActionLoading(autoId);
+            const res = await apiFetch(`/v1/reminders/automations/${autoId}/execute-now`, {
+                method: "POST"
+            });
+            alert(res.message || "Rappel exécuté !");
+        } catch (err) {
+            alert(err.message || "Erreur lors de l'exécution du rappel");
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     return (
         <>
@@ -96,7 +112,7 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                         </div>
                         <div className={`maintenance-next ${details.maintenance.hasNext ? '' : 'muted'}`}>
                             {details.maintenance.hasNext
-                                ? `Prochain entretien: ${details.maintenance.nextMaintenance}`
+                                ? details.maintenance.nextMaintenance
                                 : `Aucun entretien à venir`}
                         </div>
                     </div>
@@ -199,6 +215,97 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                             </div>
                                         );
                                     })
+                                )}
+                            </div>
+                        )}
+
+                        {detailTab === "auto-rappel" && (
+                            <div className="mobile-tab-panel">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Sparkles size={16} color="#556B2F" />
+                                        <h4 style={{ margin: 0, fontSize: '0.95rem' }}>Cycles de Rappels Automatiques</h4>
+                                    </div>
+                                    <button
+                                        className="mobile-action-btn"
+                                        style={{ padding: '4px 10px', fontSize: '0.75rem', height: 'auto', backgroundColor: '#556B2F', color: '#ffffff', borderRadius: '6px' }}
+                                        onClick={() => navigate('/premium')}
+                                    >
+                                        Gérer dans Auto Rappel
+                                    </button>
+                                </div>
+
+                                {(!details.reminderAutomations || details.reminderAutomations.length === 0) ? (
+                                    <div style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 20px', fontSize: '13.5px' }}>
+                                        <Clock size={28} style={{ opacity: 0.4, marginBottom: '8px' }} />
+                                        <p style={{ margin: '0 0 10px 0' }}>Aucun cycle de rappel actif pour ce client.</p>
+                                        <button
+                                            className="mobile-action-btn planifier"
+                                            style={{ margin: '0 auto', fontSize: '0.8rem', padding: '6px 14px' }}
+                                            onClick={() => navigate('/premium')}
+                                        >
+                                            + Configurer un rappel
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                        {details.reminderAutomations.map((auto, idx) => {
+                                            const serviceName = auto.trackedServices?.[0]?.serviceType?.name || auto.name || "Prestation générale";
+                                            const nextDateStr = auto.nextReminderAt ? new Date(auto.nextReminderAt).toLocaleDateString('fr-FR') : "Non définie";
+                                            const lastDateStr = auto.lastCompletedAt ? new Date(auto.lastCompletedAt).toLocaleDateString('fr-FR') : "Aucune";
+
+                                            return (
+                                                <div key={auto.id || idx} className="mobile-history-card" style={{ borderLeft: '4px solid #556B2F', padding: '14px' }}>
+                                                    <div className="history-card-header" style={{ marginBottom: '8px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <Wrench size={15} color="#556B2F" />
+                                                            <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>{serviceName}</h4>
+                                                        </div>
+                                                        <span style={{
+                                                            fontSize: '0.72rem',
+                                                            fontWeight: 700,
+                                                            padding: '2px 8px',
+                                                            borderRadius: '10px',
+                                                            backgroundColor: auto.enabled ? 'rgba(34, 197, 94, 0.12)' : 'rgba(107, 114, 128, 0.12)',
+                                                            color: auto.enabled ? '#16a34a' : 'var(--muted-foreground)'
+                                                        }}>
+                                                            {auto.enabled ? "Cycle Actif" : "En pause"}
+                                                        </span>
+                                                    </div>
+
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.78rem', color: 'var(--muted-foreground)', marginBottom: '10px' }}>
+                                                        <div>
+                                                            <span>Dernière intervention: </span>
+                                                            <strong style={{ color: 'var(--foreground)' }}>{lastDateStr}</strong>
+                                                        </div>
+                                                        <div>
+                                                            <span>Prochain rappel: </span>
+                                                            <strong style={{ color: '#556B2F' }}>{nextDateStr}</strong>
+                                                        </div>
+                                                        <div>
+                                                            <span>Fréquence: </span>
+                                                            <strong style={{ color: 'var(--foreground)' }}>{auto.frequencyValue} {auto.frequencyUnit === 'MONTHS' ? 'mois' : 'jours'}</strong>
+                                                        </div>
+                                                        <div>
+                                                            <span>Canal: </span>
+                                                            <strong style={{ color: 'var(--foreground)' }}>{auto.channel === 'WHATSAPP' ? '🟢 WhatsApp' : auto.channel === 'SMS' ? '📱 SMS' : auto.channel === 'EMAIL' ? '✉️ Email' : '⚡ Dernier canal'}</strong>
+                                                        </div>
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                                                        <button
+                                                            className="mobile-action-btn"
+                                                            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                                                            onClick={() => handleTriggerReminder(auto.id)}
+                                                            disabled={actionLoading === auto.id}
+                                                        >
+                                                            <Play size={12} /> Déclencher maintenant
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 )}
                             </div>
                         )}

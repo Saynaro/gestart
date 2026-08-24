@@ -99,7 +99,10 @@ function EventCalendar({
         const isCompact = durationMin <= 35;          // ≤35 min: single line
         const isMedium  = !isCompact && durationMin <= 75; // 36–75 min: hide type row
 
-        const typeClass = `type-${type.toLowerCase().replace(/é/g, 'e').replace(/ô/g, 'o')}`;
+        const firstType = type.split(/[,+]/)[0]?.trim().toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, '-') || "installation";
+        const typeClass = `type-${firstType}`;
 
         if (isCompact) {
             // Compact: single line — time + client + icon
@@ -173,14 +176,11 @@ function EventCalendar({
                 height="auto"
                 firstDay={1}
                 dayHeaderFormat={{ weekday: 'short', day: 'numeric' }}
-                slotLabelContent={(info) => `${info.date.getHours()}h`}
                 editable={!isReadOnly}
                 selectable={!isReadOnly}
                 selectMirror={!isReadOnly}
                 eventInteractive={true}
                 eventColor="transparent"
-                eventBorderColor="transparent"
-                eventBackgroundColor="transparent"
                 eventDrop={handleEventChange}
                 eventResize={handleEventChange}
                 select={handleSelect}

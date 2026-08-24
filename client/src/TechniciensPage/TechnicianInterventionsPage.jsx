@@ -180,7 +180,7 @@ export default function TechnicianInterventionsPage() {
             } else {
                 setAfterPhotos(prev => [...prev, ...newPhotos.filter(p => p.type === "after")]);
             }
-            triggerToast("Photo enregistrée dans Cloudinary & base de données ! 📷");
+            triggerToast("Photo enregistrée avec succès ! 📷");
         } catch (err) {
             triggerToast(err.message || "Erreur lors de l'enregistrement de la photo", true);
         } finally {
@@ -899,7 +899,7 @@ export default function TechnicianInterventionsPage() {
                                     {selectedIntervention.status === "IN_PROGRESS" && (
                                         <label className="btn-take-photo">
                                             <Camera size={18} />
-                                            {uploadingBefore ? "Enregistrement dans Cloudinary..." : "📷 Prendre une photo (Avant)"}
+                                            {uploadingBefore ? "Enregistrement de la photo..." : "📷 Prendre une photo (Avant)"}
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -960,7 +960,7 @@ export default function TechnicianInterventionsPage() {
                                     {selectedIntervention.status === "IN_PROGRESS" && (
                                         <label className="btn-take-photo">
                                             <Camera size={18} />
-                                            {uploadingAfter ? "Enregistrement dans Cloudinary..." : "📷 Prendre une photo (Après)"}
+                                            {uploadingAfter ? "Enregistrement de la photo..." : "📷 Prendre une photo (Après)"}
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -1057,7 +1057,7 @@ export default function TechnicianInterventionsPage() {
                             Clôturer l'intervention ?
                         </h3>
                         <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '24px', lineHeight: 1.5 }}>
-                            L'intervention sera marquée comme terminée. Le compte-rendu, la signature et les photos (le cas échéant) seront sauvegardés dans Cloudinary et la base de données.
+                            L'intervention sera marquée comme terminée. Le compte-rendu, la signature et les photos seront enregistrés et archivés.
                         </p>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button

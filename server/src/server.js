@@ -3,6 +3,8 @@ import app from "./app.js";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { initSocket } from "./config/socket.js";
 
+import { autoRappelScheduler } from "./services/reminders/AutoRappelScheduler.js";
+
 const PORT = process.env.PORT || 5001;
 
 const httpServer = createServer(app);
@@ -17,6 +19,9 @@ const startServer = async () => {
         const server = httpServer.listen(PORT, '0.0.0.0', () => {
             console.log(`Server is running on PORT: ${PORT} : http://localhost:${PORT}`);
         });
+
+        // Démarrage du Planificateur Auto Rappel (Vérification PostgreSQL à intervalles réguliers)
+        autoRappelScheduler.start();
 
         // Worker en arrière-plan : Synchronisation automatique des emails entrants (Gmail) toutes les 20 secondes
         const syncInterval = setInterval(async () => {
@@ -39,6 +44,7 @@ const startServer = async () => {
         // make sure that the server is closed before the database
         const gracefulShutdown = async () => {
             clearInterval(syncInterval);
+            autoRappelScheduler.stop();
             console.log('Signal received. Shutting down...');
 
             const forceExitTimeout = setTimeout(() => {

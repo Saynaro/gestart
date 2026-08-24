@@ -461,6 +461,19 @@ export class WhatsAppProvider extends MessageProvider {
             message: messageLog
         });
 
+        // 8. Arrêt automatique des relances Auto Rappel (Stop conditions)
+        try {
+            const { ReminderEngineService } = await import("../../../reminders/ReminderEngineService.js");
+            await ReminderEngineService.handleClientReply({
+                clientId: client.id,
+                companyId: company.id,
+                channel: "WHATSAPP",
+                body: messageBody
+            });
+        } catch (stopErr) {
+            console.error("[WHATSAPP AUTO RAPPEL STOP ON REPLY ERROR]:", stopErr.message);
+        }
+
         return { success: true, message: messageLog, client, company };
     }
 

@@ -27,6 +27,7 @@ import paymentsRoutes from "./routes/paymentsRoutes.js";
 import bankingRoutes from "./routes/bankingRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import channelRoutes from "./routes/channelRoutes.js";
+import reminderRoutes from "./routes/reminderRoutes.js";
 
 dotenv.config();
 
@@ -87,6 +88,7 @@ app.use("/api/v1/payments", paymentsRoutes);
 app.use("/api/v1/banking", bankingRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/communication", channelRoutes);
+app.use("/api/v1/reminders", reminderRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack || err);

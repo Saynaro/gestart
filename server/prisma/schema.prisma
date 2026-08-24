@@ -291,6 +291,55 @@ enum EInvoicingJobType {
   RECONCILIATION
 }
 
+// ── AUTO RAPPEL & SERVICES (PREMIUM) ──────────────────────────
+enum AutomationType {
+  PERIODIC
+  FOLLOW_UP
+}
+
+enum ReminderStatus {
+  SCHEDULED
+  PAUSED
+  COMPLETED
+  CANCELLED
+  STOPPED_BY_REPLY
+  STOPPED_BY_APPOINTMENT
+  WAITING_RESPONSE
+  FAILED
+}
+
+enum ReminderExecutionStatus {
+  SCHEDULED
+  PROCESSING
+  SENT
+  DELIVERED
+  FAILED
+  CANCELLED
+  SKIPPED
+  WAITING_FOR_RESPONSE
+  RESPONDED
+}
+
+enum TimeUnit {
+  DAYS
+  WEEKS
+  MONTHS
+  YEARS
+}
+
+enum RecommendationLevel {
+  RECOMMENDED
+  OPTIONAL
+  CUSTOMIZABLE
+}
+
+enum ReminderChannelChoice {
+  SMS
+  WHATSAPP
+  EMAIL
+  LAST_USED
+}
+
 // ============================================================
 // PLAN
 // ─────────────────────────────────────────────────────────────
@@ -408,6 +457,9 @@ model Company {
   bankConnection      BankConnection?
   bankAccounts        BankAccount[]
   bankTransactions    BankTransaction[]
+  serviceTypes        ServiceType[]
+  reminderAutomations ReminderAutomation[]
+  reminderExecutions  ReminderExecution[]
 
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
@@ -940,11 +992,13 @@ model Client {
   deliveryCity       String?
   deliveryPostalCode String?
 
-  equipment     Equipment[]
-  interventions Intervention[]
-  invoices      Invoice[]
-  quotes        Quote[]
-  smsLogs       SmsLog[]
+  equipment           Equipment[]
+  interventions       Intervention[]
+  invoices            Invoice[]
+  quotes              Quote[]
+  smsLogs             SmsLog[]
+  reminderAutomations ReminderAutomation[]
+  reminderExecutions  ReminderExecution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1071,9 +1125,12 @@ model Intervention {
   clientSignature String? // base64
   clientSignedAt  DateTime?
 
-  photos  InterventionPhoto[]
-  invoice Invoice?
-  quote   Quote?
+  photos             InterventionPhoto[]
+  invoice            Invoice?
+  quote              Quote?
+  services           InterventionService[]
+  resetAutomations   ReminderAutomation[]  @relation("LastCompletedIntervention")
+  reminderExecutions ReminderExecution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1473,6 +1530,8 @@ model SmsLog {
   errorCode    String?
   errorMessage String?
   metadata     Json?
+
+  reminderExecutions ReminderExecution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -2216,4 +2275,175 @@ model BankTransaction {
   @@index([externalTransactionId])
   @@index([matchedInvoiceId])
 }
+
+// ============================================================
+// AUTO RAPPEL & MULTI-SERVICES MODELS (PREMIUM)
+// ============================================================
+
+// ── SERVICE TYPE ────────────────────────────────────────────
+// Types de services/prestations réalisés chez le client.
+// Multi-tenant : chaque company a ses types par défaut + personnalisés.
+model ServiceType {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  tradeSlug           String?              // "climatisation-pac", "electricien", "plombier", "chauffagiste"
+  name                String               // "Entretien annuel", "Nettoyage", "Ramonage", "Dépannage"
+  category            String?              // "maintenance", "cleaning", "repair", "control", "followup"
+  description         String?
+  
+  // Valeurs par défaut suggérées
+  defaultFrequencyValue     Int?           @default(12)
+  defaultFrequencyUnit      TimeUnit?      @default(MONTHS)
+  defaultAdvanceNoticeValue Int?           @default(30)
+  defaultAdvanceNoticeUnit  TimeUnit?      @default(DAYS)
+  defaultChannel            ReminderChannelChoice? @default(LAST_USED)
+  defaultTemplate           String?
+  recommendationLevel       RecommendationLevel    @default(RECOMMENDED) // RECOMMENDED, OPTIONAL, CUSTOMIZABLE
+
+  isDefault Boolean @default(false)        // Types système par défaut
+  isActive  Boolean @default(true)         // Soft delete / archive
+  sortOrder Int     @default(0)
+
+  interventionServices InterventionService[]
+  automationMappings   ReminderAutomationService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@index([companyId, isActive])
+}
+
+// ── INTERVENTION SERVICE (MULTI-SERVICES PER VISIT) ─────────
+// Associe une intervention à un ou plusieurs services réalisés.
+model InterventionService {
+  id             String       @id @default(cuid())
+  interventionId String
+  intervention   Intervention @relation(fields: [interventionId], references: [id], onDelete: Cascade)
+  serviceTypeId  String
+  serviceType    ServiceType  @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([interventionId, serviceTypeId])
+  @@index([interventionId])
+  @@index([serviceTypeId])
+}
+
+// ── REMINDER AUTOMATION (RÈGLE DE RAPPEL AUTOMATIQUE) ───────
+// Règle active de rappel pour un client et un cycle de service donné.
+model ReminderAutomation {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  name           String                 // "Rappel Entretien Climatisation", "Relance Dépannage +7j"
+  automationType AutomationType         @default(PERIODIC) // PERIODIC ou FOLLOW_UP
+  enabled        Boolean                @default(true)
+  isCustomOverride Boolean              @default(false) // Si configuré manuellement pour un client spécifique (ne pas écraser lors des règles globales)
+
+  // Configuration Fréquence
+  frequencyValue     Int                @default(12)
+  frequencyUnit      TimeUnit           @default(MONTHS)
+  
+  // Configuration Préavis d'envoi
+  advanceNoticeValue Int                @default(30)
+  advanceNoticeUnit  TimeUnit           @default(DAYS)
+
+  // Canaux
+  channel         ReminderChannelChoice @default(LAST_USED)
+  fallbackChannel PreferredChannel?     @default(SMS)
+
+  // Modèle de message personnalisé (variables {{client_first_name}}, etc.)
+  customMessageTemplate String?
+
+  // Conditions d'arrêt intelligentes
+  stopOnReply        Boolean @default(true)
+  stopOnAppointment  Boolean @default(true)
+  maxFollowUps       Int     @default(2)
+  followUpIntervalDays Int   @default(7)
+
+  // Statut & Planification
+  status         ReminderStatus @default(SCHEDULED)
+  nextReminderAt DateTime?
+
+  // Traçabilité de l'événement déclencheur
+  lastCompletedInterventionId String?
+  lastCompletedIntervention   Intervention? @relation("LastCompletedIntervention", fields: [lastCompletedInterventionId], references: [id], onDelete: SetNull)
+  lastCompletedAt             DateTime?
+
+  // Services suivis par ce rappel
+  trackedServices ReminderAutomationService[]
+  executions      ReminderExecution[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([clientId])
+  @@index([status])
+  @@index([nextReminderAt])
+  @@index([companyId, enabled, status])
+}
+
+// ── REMINDER AUTOMATION SERVICE MAPPING ─────────────────────
+// Lie un ReminderAutomation aux ServiceTypes qui le réinitialisent.
+model ReminderAutomationService {
+  id                   String             @id @default(cuid())
+  reminderAutomationId String
+  reminderAutomation   ReminderAutomation @relation(fields: [reminderAutomationId], references: [id], onDelete: Cascade)
+  serviceTypeId        String
+  serviceType          ServiceType        @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([reminderAutomationId, serviceTypeId])
+  @@index([reminderAutomationId])
+  @@index([serviceTypeId])
+}
+
+// ── REMINDER EXECUTION (HISTORIQUE ET ÉTATS D'EXÉCUTION) ─────
+// Enregistre chaque tentative d'envoi, relance et réponse client.
+model ReminderExecution {
+  id                   String             @id @default(cuid())
+  companyId            String
+  company              Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  reminderAutomationId String
+  reminderAutomation   ReminderAutomation @relation(fields: [reminderAutomationId], references: [id], onDelete: Cascade)
+  clientId             String
+  client               Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  interventionId       String?
+  intervention         Intervention?      @relation(fields: [interventionId], references: [id], onDelete: SetNull)
+
+  sequenceStep Int      @default(1) // 1 = 1er message, 2 = 1ère relance, 3 = 2ème relance
+  scheduledAt  DateTime
+  executedAt   DateTime?
+
+  channel PreferredChannel? // SMS, WHATSAPP, EMAIL
+  status  ReminderExecutionStatus @default(SCHEDULED)
+
+  messageId String? // Référence vers SmsLog
+  message   SmsLog? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+  recipient       String? // Numéro de téléphone ou email
+  renderedContent String? // Message final avec variables remplacées
+  error           String? // Message d'erreur clair si échec
+  respondedAt     DateTime? // Horodatage si le client a répondu
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([reminderAutomationId])
+  @@index([clientId])
+  @@index([status, scheduledAt])
+  @@index([companyId, status])
+}
+
 

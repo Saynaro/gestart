@@ -144,7 +144,7 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                 })
             ]);
 
-            triggerToast("Profil fiscal et cotisations enregistrés dans la base de données !");
+            triggerToast("Profil fiscal et cotisations enregistrés avec succès !");
         } catch (err) {
             triggerToast(err.message || "Erreur lors de l'enregistrement", true);
         } finally {

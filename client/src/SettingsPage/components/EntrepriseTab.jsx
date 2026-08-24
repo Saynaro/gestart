@@ -200,7 +200,7 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                         body: JSON.stringify({ logoUrl: base64Data })
                     });
                     window.dispatchEvent(new CustomEvent('companyUpdated', { detail: { logoUrl: base64Data } }));
-                    triggerToast("Logo de l'entreprise enregistré dans la base de données !");
+                    triggerToast("Logo de l'entreprise enregistré avec succès !");
                 } catch (err) {
                     console.error("Logo upload error:", err);
                     triggerToast("Logo mis à jour");
@@ -336,7 +336,7 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                         <div>
                             <label className="change-avatar-btn">
                                 <Camera size={14} />
-                                <span>Téléverser le logo (Cloudinary)</span>
+                                <span>Téléverser le logo</span>
                                 <input type="file" accept="image/*" onChange={handleLogoUpload} />
                             </label>
                             <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px', display: 'block' }}>

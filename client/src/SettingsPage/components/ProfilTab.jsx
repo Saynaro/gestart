@@ -51,7 +51,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                         body: JSON.stringify({ avatarUrl: base64Data })
                     });
                     window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl: base64Data } }));
-                    triggerToast("Photo de profil enregistrée dans la base de données !");
+                    triggerToast("Photo de profil enregistrée avec succès !");
                 } catch (err) {
                     console.error("Avatar upload error:", err);
                     triggerToast("Photo mise à jour localement");
@@ -184,7 +184,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                     <div>
                         <label className="change-avatar-btn">
                             <Camera size={14} />
-                            <span>Charger une photo (Cloudinary)</span>
+                            <span>Charger une photo</span>
                             <input type="file" accept="image/*" onChange={handleAvatarUpload} />
                         </label>
                         <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px', display: 'block' }}>

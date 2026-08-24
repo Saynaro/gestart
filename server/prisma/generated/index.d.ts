@@ -238,6 +238,31 @@ export type BankAccount = $Result.DefaultSelection<Prisma.$BankAccountPayload>
  * 
  */
 export type BankTransaction = $Result.DefaultSelection<Prisma.$BankTransactionPayload>
+/**
+ * Model ServiceType
+ * 
+ */
+export type ServiceType = $Result.DefaultSelection<Prisma.$ServiceTypePayload>
+/**
+ * Model InterventionService
+ * 
+ */
+export type InterventionService = $Result.DefaultSelection<Prisma.$InterventionServicePayload>
+/**
+ * Model ReminderAutomation
+ * 
+ */
+export type ReminderAutomation = $Result.DefaultSelection<Prisma.$ReminderAutomationPayload>
+/**
+ * Model ReminderAutomationService
+ * 
+ */
+export type ReminderAutomationService = $Result.DefaultSelection<Prisma.$ReminderAutomationServicePayload>
+/**
+ * Model ReminderExecution
+ * 
+ */
+export type ReminderExecution = $Result.DefaultSelection<Prisma.$ReminderExecutionPayload>
 
 /**
  * Enums
@@ -560,6 +585,72 @@ export const EInvoicingJobType: {
 
 export type EInvoicingJobType = (typeof EInvoicingJobType)[keyof typeof EInvoicingJobType]
 
+
+export const AutomationType: {
+  PERIODIC: 'PERIODIC',
+  FOLLOW_UP: 'FOLLOW_UP'
+};
+
+export type AutomationType = (typeof AutomationType)[keyof typeof AutomationType]
+
+
+export const ReminderStatus: {
+  SCHEDULED: 'SCHEDULED',
+  PAUSED: 'PAUSED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  STOPPED_BY_REPLY: 'STOPPED_BY_REPLY',
+  STOPPED_BY_APPOINTMENT: 'STOPPED_BY_APPOINTMENT',
+  WAITING_RESPONSE: 'WAITING_RESPONSE',
+  FAILED: 'FAILED'
+};
+
+export type ReminderStatus = (typeof ReminderStatus)[keyof typeof ReminderStatus]
+
+
+export const ReminderExecutionStatus: {
+  SCHEDULED: 'SCHEDULED',
+  PROCESSING: 'PROCESSING',
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  SKIPPED: 'SKIPPED',
+  WAITING_FOR_RESPONSE: 'WAITING_FOR_RESPONSE',
+  RESPONDED: 'RESPONDED'
+};
+
+export type ReminderExecutionStatus = (typeof ReminderExecutionStatus)[keyof typeof ReminderExecutionStatus]
+
+
+export const TimeUnit: {
+  DAYS: 'DAYS',
+  WEEKS: 'WEEKS',
+  MONTHS: 'MONTHS',
+  YEARS: 'YEARS'
+};
+
+export type TimeUnit = (typeof TimeUnit)[keyof typeof TimeUnit]
+
+
+export const RecommendationLevel: {
+  RECOMMENDED: 'RECOMMENDED',
+  OPTIONAL: 'OPTIONAL',
+  CUSTOMIZABLE: 'CUSTOMIZABLE'
+};
+
+export type RecommendationLevel = (typeof RecommendationLevel)[keyof typeof RecommendationLevel]
+
+
+export const ReminderChannelChoice: {
+  SMS: 'SMS',
+  WHATSAPP: 'WHATSAPP',
+  EMAIL: 'EMAIL',
+  LAST_USED: 'LAST_USED'
+};
+
+export type ReminderChannelChoice = (typeof ReminderChannelChoice)[keyof typeof ReminderChannelChoice]
+
 }
 
 export type PlanName = $Enums.PlanName
@@ -681,6 +772,30 @@ export const EInvoicingJobStatus: typeof $Enums.EInvoicingJobStatus
 export type EInvoicingJobType = $Enums.EInvoicingJobType
 
 export const EInvoicingJobType: typeof $Enums.EInvoicingJobType
+
+export type AutomationType = $Enums.AutomationType
+
+export const AutomationType: typeof $Enums.AutomationType
+
+export type ReminderStatus = $Enums.ReminderStatus
+
+export const ReminderStatus: typeof $Enums.ReminderStatus
+
+export type ReminderExecutionStatus = $Enums.ReminderExecutionStatus
+
+export const ReminderExecutionStatus: typeof $Enums.ReminderExecutionStatus
+
+export type TimeUnit = $Enums.TimeUnit
+
+export const TimeUnit: typeof $Enums.TimeUnit
+
+export type RecommendationLevel = $Enums.RecommendationLevel
+
+export const RecommendationLevel: typeof $Enums.RecommendationLevel
+
+export type ReminderChannelChoice = $Enums.ReminderChannelChoice
+
+export const ReminderChannelChoice: typeof $Enums.ReminderChannelChoice
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1252,6 +1367,56 @@ export class PrismaClient<
     * ```
     */
   get bankTransaction(): Prisma.BankTransactionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.serviceType`: Exposes CRUD operations for the **ServiceType** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ServiceTypes
+    * const serviceTypes = await prisma.serviceType.findMany()
+    * ```
+    */
+  get serviceType(): Prisma.ServiceTypeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.interventionService`: Exposes CRUD operations for the **InterventionService** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InterventionServices
+    * const interventionServices = await prisma.interventionService.findMany()
+    * ```
+    */
+  get interventionService(): Prisma.InterventionServiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reminderAutomation`: Exposes CRUD operations for the **ReminderAutomation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReminderAutomations
+    * const reminderAutomations = await prisma.reminderAutomation.findMany()
+    * ```
+    */
+  get reminderAutomation(): Prisma.ReminderAutomationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reminderAutomationService`: Exposes CRUD operations for the **ReminderAutomationService** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReminderAutomationServices
+    * const reminderAutomationServices = await prisma.reminderAutomationService.findMany()
+    * ```
+    */
+  get reminderAutomationService(): Prisma.ReminderAutomationServiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reminderExecution`: Exposes CRUD operations for the **ReminderExecution** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReminderExecutions
+    * const reminderExecutions = await prisma.reminderExecution.findMany()
+    * ```
+    */
+  get reminderExecution(): Prisma.ReminderExecutionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1730,7 +1895,12 @@ export namespace Prisma {
     StripeFeeConfig: 'StripeFeeConfig',
     BankConnection: 'BankConnection',
     BankAccount: 'BankAccount',
-    BankTransaction: 'BankTransaction'
+    BankTransaction: 'BankTransaction',
+    ServiceType: 'ServiceType',
+    InterventionService: 'InterventionService',
+    ReminderAutomation: 'ReminderAutomation',
+    ReminderAutomationService: 'ReminderAutomationService',
+    ReminderExecution: 'ReminderExecution'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1746,7 +1916,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "whatsAppConnection" | "emailConnection" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob" | "invoiceTransaction" | "stripeFeeConfig" | "bankConnection" | "bankAccount" | "bankTransaction"
+      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "whatsAppConnection" | "emailConnection" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob" | "invoiceTransaction" | "stripeFeeConfig" | "bankConnection" | "bankAccount" | "bankTransaction" | "serviceType" | "interventionService" | "reminderAutomation" | "reminderAutomationService" | "reminderExecution"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5080,6 +5250,376 @@ export namespace Prisma {
           }
         }
       }
+      ServiceType: {
+        payload: Prisma.$ServiceTypePayload<ExtArgs>
+        fields: Prisma.ServiceTypeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ServiceTypeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ServiceTypeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>
+          }
+          findFirst: {
+            args: Prisma.ServiceTypeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ServiceTypeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>
+          }
+          findMany: {
+            args: Prisma.ServiceTypeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>[]
+          }
+          create: {
+            args: Prisma.ServiceTypeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>
+          }
+          createMany: {
+            args: Prisma.ServiceTypeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ServiceTypeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>[]
+          }
+          delete: {
+            args: Prisma.ServiceTypeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>
+          }
+          update: {
+            args: Prisma.ServiceTypeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>
+          }
+          deleteMany: {
+            args: Prisma.ServiceTypeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ServiceTypeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ServiceTypeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>[]
+          }
+          upsert: {
+            args: Prisma.ServiceTypeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceTypePayload>
+          }
+          aggregate: {
+            args: Prisma.ServiceTypeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateServiceType>
+          }
+          groupBy: {
+            args: Prisma.ServiceTypeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ServiceTypeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ServiceTypeCountArgs<ExtArgs>
+            result: $Utils.Optional<ServiceTypeCountAggregateOutputType> | number
+          }
+        }
+      }
+      InterventionService: {
+        payload: Prisma.$InterventionServicePayload<ExtArgs>
+        fields: Prisma.InterventionServiceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InterventionServiceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InterventionServiceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>
+          }
+          findFirst: {
+            args: Prisma.InterventionServiceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InterventionServiceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>
+          }
+          findMany: {
+            args: Prisma.InterventionServiceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>[]
+          }
+          create: {
+            args: Prisma.InterventionServiceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>
+          }
+          createMany: {
+            args: Prisma.InterventionServiceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InterventionServiceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>[]
+          }
+          delete: {
+            args: Prisma.InterventionServiceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>
+          }
+          update: {
+            args: Prisma.InterventionServiceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>
+          }
+          deleteMany: {
+            args: Prisma.InterventionServiceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InterventionServiceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.InterventionServiceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>[]
+          }
+          upsert: {
+            args: Prisma.InterventionServiceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterventionServicePayload>
+          }
+          aggregate: {
+            args: Prisma.InterventionServiceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInterventionService>
+          }
+          groupBy: {
+            args: Prisma.InterventionServiceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InterventionServiceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InterventionServiceCountArgs<ExtArgs>
+            result: $Utils.Optional<InterventionServiceCountAggregateOutputType> | number
+          }
+        }
+      }
+      ReminderAutomation: {
+        payload: Prisma.$ReminderAutomationPayload<ExtArgs>
+        fields: Prisma.ReminderAutomationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReminderAutomationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReminderAutomationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>
+          }
+          findFirst: {
+            args: Prisma.ReminderAutomationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReminderAutomationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>
+          }
+          findMany: {
+            args: Prisma.ReminderAutomationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>[]
+          }
+          create: {
+            args: Prisma.ReminderAutomationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>
+          }
+          createMany: {
+            args: Prisma.ReminderAutomationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReminderAutomationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>[]
+          }
+          delete: {
+            args: Prisma.ReminderAutomationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>
+          }
+          update: {
+            args: Prisma.ReminderAutomationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReminderAutomationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReminderAutomationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReminderAutomationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReminderAutomationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationPayload>
+          }
+          aggregate: {
+            args: Prisma.ReminderAutomationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReminderAutomation>
+          }
+          groupBy: {
+            args: Prisma.ReminderAutomationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReminderAutomationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReminderAutomationCountArgs<ExtArgs>
+            result: $Utils.Optional<ReminderAutomationCountAggregateOutputType> | number
+          }
+        }
+      }
+      ReminderAutomationService: {
+        payload: Prisma.$ReminderAutomationServicePayload<ExtArgs>
+        fields: Prisma.ReminderAutomationServiceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReminderAutomationServiceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReminderAutomationServiceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>
+          }
+          findFirst: {
+            args: Prisma.ReminderAutomationServiceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReminderAutomationServiceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>
+          }
+          findMany: {
+            args: Prisma.ReminderAutomationServiceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>[]
+          }
+          create: {
+            args: Prisma.ReminderAutomationServiceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>
+          }
+          createMany: {
+            args: Prisma.ReminderAutomationServiceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReminderAutomationServiceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>[]
+          }
+          delete: {
+            args: Prisma.ReminderAutomationServiceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>
+          }
+          update: {
+            args: Prisma.ReminderAutomationServiceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>
+          }
+          deleteMany: {
+            args: Prisma.ReminderAutomationServiceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReminderAutomationServiceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReminderAutomationServiceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>[]
+          }
+          upsert: {
+            args: Prisma.ReminderAutomationServiceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderAutomationServicePayload>
+          }
+          aggregate: {
+            args: Prisma.ReminderAutomationServiceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReminderAutomationService>
+          }
+          groupBy: {
+            args: Prisma.ReminderAutomationServiceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReminderAutomationServiceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReminderAutomationServiceCountArgs<ExtArgs>
+            result: $Utils.Optional<ReminderAutomationServiceCountAggregateOutputType> | number
+          }
+        }
+      }
+      ReminderExecution: {
+        payload: Prisma.$ReminderExecutionPayload<ExtArgs>
+        fields: Prisma.ReminderExecutionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReminderExecutionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReminderExecutionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>
+          }
+          findFirst: {
+            args: Prisma.ReminderExecutionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReminderExecutionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>
+          }
+          findMany: {
+            args: Prisma.ReminderExecutionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>[]
+          }
+          create: {
+            args: Prisma.ReminderExecutionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>
+          }
+          createMany: {
+            args: Prisma.ReminderExecutionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReminderExecutionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>[]
+          }
+          delete: {
+            args: Prisma.ReminderExecutionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>
+          }
+          update: {
+            args: Prisma.ReminderExecutionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReminderExecutionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReminderExecutionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReminderExecutionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReminderExecutionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReminderExecutionPayload>
+          }
+          aggregate: {
+            args: Prisma.ReminderExecutionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReminderExecution>
+          }
+          groupBy: {
+            args: Prisma.ReminderExecutionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReminderExecutionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReminderExecutionCountArgs<ExtArgs>
+            result: $Utils.Optional<ReminderExecutionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5233,6 +5773,11 @@ export namespace Prisma {
     bankConnection?: BankConnectionOmit
     bankAccount?: BankAccountOmit
     bankTransaction?: BankTransactionOmit
+    serviceType?: ServiceTypeOmit
+    interventionService?: InterventionServiceOmit
+    reminderAutomation?: ReminderAutomationOmit
+    reminderAutomationService?: ReminderAutomationServiceOmit
+    reminderExecution?: ReminderExecutionOmit
   }
 
   /* Types for Logging */
@@ -5363,6 +5908,9 @@ export namespace Prisma {
     invoiceTransactions: number
     bankAccounts: number
     bankTransactions: number
+    serviceTypes: number
+    reminderAutomations: number
+    reminderExecutions: number
     accountingExports: number
     tvaSummaries: number
     receivedInvoices: number
@@ -5390,6 +5938,9 @@ export namespace Prisma {
     invoiceTransactions?: boolean | CompanyCountOutputTypeCountInvoiceTransactionsArgs
     bankAccounts?: boolean | CompanyCountOutputTypeCountBankAccountsArgs
     bankTransactions?: boolean | CompanyCountOutputTypeCountBankTransactionsArgs
+    serviceTypes?: boolean | CompanyCountOutputTypeCountServiceTypesArgs
+    reminderAutomations?: boolean | CompanyCountOutputTypeCountReminderAutomationsArgs
+    reminderExecutions?: boolean | CompanyCountOutputTypeCountReminderExecutionsArgs
     accountingExports?: boolean | CompanyCountOutputTypeCountAccountingExportsArgs
     tvaSummaries?: boolean | CompanyCountOutputTypeCountTvaSummariesArgs
     receivedInvoices?: boolean | CompanyCountOutputTypeCountReceivedInvoicesArgs
@@ -5539,6 +6090,27 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountBankTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BankTransactionWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountServiceTypesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServiceTypeWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountReminderAutomationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderAutomationWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountReminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderExecutionWhereInput
   }
 
   /**
@@ -5832,6 +6404,8 @@ export namespace Prisma {
     invoices: number
     quotes: number
     smsLogs: number
+    reminderAutomations: number
+    reminderExecutions: number
   }
 
   export type ClientCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5840,6 +6414,8 @@ export namespace Prisma {
     invoices?: boolean | ClientCountOutputTypeCountInvoicesArgs
     quotes?: boolean | ClientCountOutputTypeCountQuotesArgs
     smsLogs?: boolean | ClientCountOutputTypeCountSmsLogsArgs
+    reminderAutomations?: boolean | ClientCountOutputTypeCountReminderAutomationsArgs
+    reminderExecutions?: boolean | ClientCountOutputTypeCountReminderExecutionsArgs
   }
 
   // Custom InputTypes
@@ -5888,6 +6464,20 @@ export namespace Prisma {
     where?: SmsLogWhereInput
   }
 
+  /**
+   * ClientCountOutputType without action
+   */
+  export type ClientCountOutputTypeCountReminderAutomationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderAutomationWhereInput
+  }
+
+  /**
+   * ClientCountOutputType without action
+   */
+  export type ClientCountOutputTypeCountReminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderExecutionWhereInput
+  }
+
 
   /**
    * Count Type EquipmentCountOutputType
@@ -5926,10 +6516,16 @@ export namespace Prisma {
 
   export type InterventionCountOutputType = {
     photos: number
+    services: number
+    resetAutomations: number
+    reminderExecutions: number
   }
 
   export type InterventionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     photos?: boolean | InterventionCountOutputTypeCountPhotosArgs
+    services?: boolean | InterventionCountOutputTypeCountServicesArgs
+    resetAutomations?: boolean | InterventionCountOutputTypeCountResetAutomationsArgs
+    reminderExecutions?: boolean | InterventionCountOutputTypeCountReminderExecutionsArgs
   }
 
   // Custom InputTypes
@@ -5948,6 +6544,27 @@ export namespace Prisma {
    */
   export type InterventionCountOutputTypeCountPhotosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InterventionPhotoWhereInput
+  }
+
+  /**
+   * InterventionCountOutputType without action
+   */
+  export type InterventionCountOutputTypeCountServicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterventionServiceWhereInput
+  }
+
+  /**
+   * InterventionCountOutputType without action
+   */
+  export type InterventionCountOutputTypeCountResetAutomationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderAutomationWhereInput
+  }
+
+  /**
+   * InterventionCountOutputType without action
+   */
+  export type InterventionCountOutputTypeCountReminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderExecutionWhereInput
   }
 
 
@@ -6046,6 +6663,37 @@ export namespace Prisma {
    */
   export type InvoiceCountOutputTypeCountEinvoicingEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EInvoicingEventWhereInput
+  }
+
+
+  /**
+   * Count Type SmsLogCountOutputType
+   */
+
+  export type SmsLogCountOutputType = {
+    reminderExecutions: number
+  }
+
+  export type SmsLogCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reminderExecutions?: boolean | SmsLogCountOutputTypeCountReminderExecutionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SmsLogCountOutputType without action
+   */
+  export type SmsLogCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLogCountOutputType
+     */
+    select?: SmsLogCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SmsLogCountOutputType without action
+   */
+  export type SmsLogCountOutputTypeCountReminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderExecutionWhereInput
   }
 
 
@@ -6241,6 +6889,86 @@ export namespace Prisma {
    */
   export type BankAccountCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BankTransactionWhereInput
+  }
+
+
+  /**
+   * Count Type ServiceTypeCountOutputType
+   */
+
+  export type ServiceTypeCountOutputType = {
+    interventionServices: number
+    automationMappings: number
+  }
+
+  export type ServiceTypeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    interventionServices?: boolean | ServiceTypeCountOutputTypeCountInterventionServicesArgs
+    automationMappings?: boolean | ServiceTypeCountOutputTypeCountAutomationMappingsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ServiceTypeCountOutputType without action
+   */
+  export type ServiceTypeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceTypeCountOutputType
+     */
+    select?: ServiceTypeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ServiceTypeCountOutputType without action
+   */
+  export type ServiceTypeCountOutputTypeCountInterventionServicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterventionServiceWhereInput
+  }
+
+  /**
+   * ServiceTypeCountOutputType without action
+   */
+  export type ServiceTypeCountOutputTypeCountAutomationMappingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderAutomationServiceWhereInput
+  }
+
+
+  /**
+   * Count Type ReminderAutomationCountOutputType
+   */
+
+  export type ReminderAutomationCountOutputType = {
+    trackedServices: number
+    executions: number
+  }
+
+  export type ReminderAutomationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    trackedServices?: boolean | ReminderAutomationCountOutputTypeCountTrackedServicesArgs
+    executions?: boolean | ReminderAutomationCountOutputTypeCountExecutionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ReminderAutomationCountOutputType without action
+   */
+  export type ReminderAutomationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationCountOutputType
+     */
+    select?: ReminderAutomationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ReminderAutomationCountOutputType without action
+   */
+  export type ReminderAutomationCountOutputTypeCountTrackedServicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderAutomationServiceWhereInput
+  }
+
+  /**
+   * ReminderAutomationCountOutputType without action
+   */
+  export type ReminderAutomationCountOutputTypeCountExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderExecutionWhereInput
   }
 
 
@@ -7979,6 +8707,9 @@ export namespace Prisma {
     bankConnection?: boolean | Company$bankConnectionArgs<ExtArgs>
     bankAccounts?: boolean | Company$bankAccountsArgs<ExtArgs>
     bankTransactions?: boolean | Company$bankTransactionsArgs<ExtArgs>
+    serviceTypes?: boolean | Company$serviceTypesArgs<ExtArgs>
+    reminderAutomations?: boolean | Company$reminderAutomationsArgs<ExtArgs>
+    reminderExecutions?: boolean | Company$reminderExecutionsArgs<ExtArgs>
     accountingExports?: boolean | Company$accountingExportsArgs<ExtArgs>
     tvaSummaries?: boolean | Company$tvaSummariesArgs<ExtArgs>
     accountingIntegration?: boolean | Company$accountingIntegrationArgs<ExtArgs>
@@ -8115,6 +8846,9 @@ export namespace Prisma {
     bankConnection?: boolean | Company$bankConnectionArgs<ExtArgs>
     bankAccounts?: boolean | Company$bankAccountsArgs<ExtArgs>
     bankTransactions?: boolean | Company$bankTransactionsArgs<ExtArgs>
+    serviceTypes?: boolean | Company$serviceTypesArgs<ExtArgs>
+    reminderAutomations?: boolean | Company$reminderAutomationsArgs<ExtArgs>
+    reminderExecutions?: boolean | Company$reminderExecutionsArgs<ExtArgs>
     accountingExports?: boolean | Company$accountingExportsArgs<ExtArgs>
     tvaSummaries?: boolean | Company$tvaSummariesArgs<ExtArgs>
     accountingIntegration?: boolean | Company$accountingIntegrationArgs<ExtArgs>
@@ -8152,6 +8886,9 @@ export namespace Prisma {
       bankConnection: Prisma.$BankConnectionPayload<ExtArgs> | null
       bankAccounts: Prisma.$BankAccountPayload<ExtArgs>[]
       bankTransactions: Prisma.$BankTransactionPayload<ExtArgs>[]
+      serviceTypes: Prisma.$ServiceTypePayload<ExtArgs>[]
+      reminderAutomations: Prisma.$ReminderAutomationPayload<ExtArgs>[]
+      reminderExecutions: Prisma.$ReminderExecutionPayload<ExtArgs>[]
       accountingExports: Prisma.$AccountingExportPayload<ExtArgs>[]
       tvaSummaries: Prisma.$TvaSummaryPayload<ExtArgs>[]
       accountingIntegration: Prisma.$AccountingIntegrationPayload<ExtArgs> | null
@@ -8608,6 +9345,9 @@ export namespace Prisma {
     bankConnection<T extends Company$bankConnectionArgs<ExtArgs> = {}>(args?: Subset<T, Company$bankConnectionArgs<ExtArgs>>): Prisma__BankConnectionClient<$Result.GetResult<Prisma.$BankConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     bankAccounts<T extends Company$bankAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Company$bankAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     bankTransactions<T extends Company$bankTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$bankTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BankTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    serviceTypes<T extends Company$serviceTypesArgs<ExtArgs> = {}>(args?: Subset<T, Company$serviceTypesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reminderAutomations<T extends Company$reminderAutomationsArgs<ExtArgs> = {}>(args?: Subset<T, Company$reminderAutomationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reminderExecutions<T extends Company$reminderExecutionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$reminderExecutionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accountingExports<T extends Company$accountingExportsArgs<ExtArgs> = {}>(args?: Subset<T, Company$accountingExportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountingExportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tvaSummaries<T extends Company$tvaSummariesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tvaSummariesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TvaSummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accountingIntegration<T extends Company$accountingIntegrationArgs<ExtArgs> = {}>(args?: Subset<T, Company$accountingIntegrationArgs<ExtArgs>>): Prisma__AccountingIntegrationClient<$Result.GetResult<Prisma.$AccountingIntegrationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -9578,6 +10318,78 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BankTransactionScalarFieldEnum | BankTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * Company.serviceTypes
+   */
+  export type Company$serviceTypesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    where?: ServiceTypeWhereInput
+    orderBy?: ServiceTypeOrderByWithRelationInput | ServiceTypeOrderByWithRelationInput[]
+    cursor?: ServiceTypeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ServiceTypeScalarFieldEnum | ServiceTypeScalarFieldEnum[]
+  }
+
+  /**
+   * Company.reminderAutomations
+   */
+  export type Company$reminderAutomationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    where?: ReminderAutomationWhereInput
+    orderBy?: ReminderAutomationOrderByWithRelationInput | ReminderAutomationOrderByWithRelationInput[]
+    cursor?: ReminderAutomationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderAutomationScalarFieldEnum | ReminderAutomationScalarFieldEnum[]
+  }
+
+  /**
+   * Company.reminderExecutions
+   */
+  export type Company$reminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    where?: ReminderExecutionWhereInput
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    cursor?: ReminderExecutionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
   }
 
   /**
@@ -24958,6 +25770,8 @@ export namespace Prisma {
     invoices?: boolean | Client$invoicesArgs<ExtArgs>
     quotes?: boolean | Client$quotesArgs<ExtArgs>
     smsLogs?: boolean | Client$smsLogsArgs<ExtArgs>
+    reminderAutomations?: boolean | Client$reminderAutomationsArgs<ExtArgs>
+    reminderExecutions?: boolean | Client$reminderExecutionsArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["client"]>
 
@@ -25073,6 +25887,8 @@ export namespace Prisma {
     invoices?: boolean | Client$invoicesArgs<ExtArgs>
     quotes?: boolean | Client$quotesArgs<ExtArgs>
     smsLogs?: boolean | Client$smsLogsArgs<ExtArgs>
+    reminderAutomations?: boolean | Client$reminderAutomationsArgs<ExtArgs>
+    reminderExecutions?: boolean | Client$reminderExecutionsArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ClientIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -25094,6 +25910,8 @@ export namespace Prisma {
       invoices: Prisma.$InvoicePayload<ExtArgs>[]
       quotes: Prisma.$QuotePayload<ExtArgs>[]
       smsLogs: Prisma.$SmsLogPayload<ExtArgs>[]
+      reminderAutomations: Prisma.$ReminderAutomationPayload<ExtArgs>[]
+      reminderExecutions: Prisma.$ReminderExecutionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -25527,6 +26345,8 @@ export namespace Prisma {
     invoices<T extends Client$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, Client$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotes<T extends Client$quotesArgs<ExtArgs> = {}>(args?: Subset<T, Client$quotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     smsLogs<T extends Client$smsLogsArgs<ExtArgs> = {}>(args?: Subset<T, Client$smsLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reminderAutomations<T extends Client$reminderAutomationsArgs<ExtArgs> = {}>(args?: Subset<T, Client$reminderAutomationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reminderExecutions<T extends Client$reminderExecutionsArgs<ExtArgs> = {}>(args?: Subset<T, Client$reminderExecutionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -26123,6 +26943,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * Client.reminderAutomations
+   */
+  export type Client$reminderAutomationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    where?: ReminderAutomationWhereInput
+    orderBy?: ReminderAutomationOrderByWithRelationInput | ReminderAutomationOrderByWithRelationInput[]
+    cursor?: ReminderAutomationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderAutomationScalarFieldEnum | ReminderAutomationScalarFieldEnum[]
+  }
+
+  /**
+   * Client.reminderExecutions
+   */
+  export type Client$reminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    where?: ReminderExecutionWhereInput
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    cursor?: ReminderExecutionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
   }
 
   /**
@@ -27778,6 +28646,9 @@ export namespace Prisma {
     photos?: boolean | Intervention$photosArgs<ExtArgs>
     invoice?: boolean | Intervention$invoiceArgs<ExtArgs>
     quote?: boolean | Intervention$quoteArgs<ExtArgs>
+    services?: boolean | Intervention$servicesArgs<ExtArgs>
+    resetAutomations?: boolean | Intervention$resetAutomationsArgs<ExtArgs>
+    reminderExecutions?: boolean | Intervention$reminderExecutionsArgs<ExtArgs>
     _count?: boolean | InterventionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["intervention"]>
 
@@ -27882,6 +28753,9 @@ export namespace Prisma {
     photos?: boolean | Intervention$photosArgs<ExtArgs>
     invoice?: boolean | Intervention$invoiceArgs<ExtArgs>
     quote?: boolean | Intervention$quoteArgs<ExtArgs>
+    services?: boolean | Intervention$servicesArgs<ExtArgs>
+    resetAutomations?: boolean | Intervention$resetAutomationsArgs<ExtArgs>
+    reminderExecutions?: boolean | Intervention$reminderExecutionsArgs<ExtArgs>
     _count?: boolean | InterventionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type InterventionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -27913,6 +28787,9 @@ export namespace Prisma {
       photos: Prisma.$InterventionPhotoPayload<ExtArgs>[]
       invoice: Prisma.$InvoicePayload<ExtArgs> | null
       quote: Prisma.$QuotePayload<ExtArgs> | null
+      services: Prisma.$InterventionServicePayload<ExtArgs>[]
+      resetAutomations: Prisma.$ReminderAutomationPayload<ExtArgs>[]
+      reminderExecutions: Prisma.$ReminderExecutionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -28341,6 +29218,9 @@ export namespace Prisma {
     photos<T extends Intervention$photosArgs<ExtArgs> = {}>(args?: Subset<T, Intervention$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invoice<T extends Intervention$invoiceArgs<ExtArgs> = {}>(args?: Subset<T, Intervention$invoiceArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     quote<T extends Intervention$quoteArgs<ExtArgs> = {}>(args?: Subset<T, Intervention$quoteArgs<ExtArgs>>): Prisma__QuoteClient<$Result.GetResult<Prisma.$QuotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    services<T extends Intervention$servicesArgs<ExtArgs> = {}>(args?: Subset<T, Intervention$servicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    resetAutomations<T extends Intervention$resetAutomationsArgs<ExtArgs> = {}>(args?: Subset<T, Intervention$resetAutomationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reminderExecutions<T extends Intervention$reminderExecutionsArgs<ExtArgs> = {}>(args?: Subset<T, Intervention$reminderExecutionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -28929,6 +29809,78 @@ export namespace Prisma {
      */
     include?: QuoteInclude<ExtArgs> | null
     where?: QuoteWhereInput
+  }
+
+  /**
+   * Intervention.services
+   */
+  export type Intervention$servicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    where?: InterventionServiceWhereInput
+    orderBy?: InterventionServiceOrderByWithRelationInput | InterventionServiceOrderByWithRelationInput[]
+    cursor?: InterventionServiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InterventionServiceScalarFieldEnum | InterventionServiceScalarFieldEnum[]
+  }
+
+  /**
+   * Intervention.resetAutomations
+   */
+  export type Intervention$resetAutomationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    where?: ReminderAutomationWhereInput
+    orderBy?: ReminderAutomationOrderByWithRelationInput | ReminderAutomationOrderByWithRelationInput[]
+    cursor?: ReminderAutomationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderAutomationScalarFieldEnum | ReminderAutomationScalarFieldEnum[]
+  }
+
+  /**
+   * Intervention.reminderExecutions
+   */
+  export type Intervention$reminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    where?: ReminderExecutionWhereInput
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    cursor?: ReminderExecutionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
   }
 
   /**
@@ -36491,6 +37443,8 @@ export namespace Prisma {
     client?: boolean | ClientDefaultArgs<ExtArgs>
     whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
     emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
+    reminderExecutions?: boolean | SmsLog$reminderExecutionsArgs<ExtArgs>
+    _count?: boolean | SmsLogCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["smsLog"]>
 
   export type SmsLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -36612,6 +37566,8 @@ export namespace Prisma {
     client?: boolean | ClientDefaultArgs<ExtArgs>
     whatsAppConnection?: boolean | SmsLog$whatsAppConnectionArgs<ExtArgs>
     emailConnection?: boolean | SmsLog$emailConnectionArgs<ExtArgs>
+    reminderExecutions?: boolean | SmsLog$reminderExecutionsArgs<ExtArgs>
+    _count?: boolean | SmsLogCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type SmsLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -36633,6 +37589,7 @@ export namespace Prisma {
       client: Prisma.$ClientPayload<ExtArgs>
       whatsAppConnection: Prisma.$WhatsAppConnectionPayload<ExtArgs> | null
       emailConnection: Prisma.$EmailConnectionPayload<ExtArgs> | null
+      reminderExecutions: Prisma.$ReminderExecutionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -37065,6 +38022,7 @@ export namespace Prisma {
     client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     whatsAppConnection<T extends SmsLog$whatsAppConnectionArgs<ExtArgs> = {}>(args?: Subset<T, SmsLog$whatsAppConnectionArgs<ExtArgs>>): Prisma__WhatsAppConnectionClient<$Result.GetResult<Prisma.$WhatsAppConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     emailConnection<T extends SmsLog$emailConnectionArgs<ExtArgs> = {}>(args?: Subset<T, SmsLog$emailConnectionArgs<ExtArgs>>): Prisma__EmailConnectionClient<$Result.GetResult<Prisma.$EmailConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reminderExecutions<T extends SmsLog$reminderExecutionsArgs<ExtArgs> = {}>(args?: Subset<T, SmsLog$reminderExecutionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -37562,6 +38520,30 @@ export namespace Prisma {
      */
     include?: EmailConnectionInclude<ExtArgs> | null
     where?: EmailConnectionWhereInput
+  }
+
+  /**
+   * SmsLog.reminderExecutions
+   */
+  export type SmsLog$reminderExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    where?: ReminderExecutionWhereInput
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    cursor?: ReminderExecutionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
   }
 
   /**
@@ -64128,6 +65110,6226 @@ export namespace Prisma {
 
 
   /**
+   * Model ServiceType
+   */
+
+  export type AggregateServiceType = {
+    _count: ServiceTypeCountAggregateOutputType | null
+    _avg: ServiceTypeAvgAggregateOutputType | null
+    _sum: ServiceTypeSumAggregateOutputType | null
+    _min: ServiceTypeMinAggregateOutputType | null
+    _max: ServiceTypeMaxAggregateOutputType | null
+  }
+
+  export type ServiceTypeAvgAggregateOutputType = {
+    defaultFrequencyValue: number | null
+    defaultAdvanceNoticeValue: number | null
+    sortOrder: number | null
+  }
+
+  export type ServiceTypeSumAggregateOutputType = {
+    defaultFrequencyValue: number | null
+    defaultAdvanceNoticeValue: number | null
+    sortOrder: number | null
+  }
+
+  export type ServiceTypeMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    tradeSlug: string | null
+    name: string | null
+    category: string | null
+    description: string | null
+    defaultFrequencyValue: number | null
+    defaultFrequencyUnit: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue: number | null
+    defaultAdvanceNoticeUnit: $Enums.TimeUnit | null
+    defaultChannel: $Enums.ReminderChannelChoice | null
+    defaultTemplate: string | null
+    recommendationLevel: $Enums.RecommendationLevel | null
+    isDefault: boolean | null
+    isActive: boolean | null
+    sortOrder: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServiceTypeMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    tradeSlug: string | null
+    name: string | null
+    category: string | null
+    description: string | null
+    defaultFrequencyValue: number | null
+    defaultFrequencyUnit: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue: number | null
+    defaultAdvanceNoticeUnit: $Enums.TimeUnit | null
+    defaultChannel: $Enums.ReminderChannelChoice | null
+    defaultTemplate: string | null
+    recommendationLevel: $Enums.RecommendationLevel | null
+    isDefault: boolean | null
+    isActive: boolean | null
+    sortOrder: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServiceTypeCountAggregateOutputType = {
+    id: number
+    companyId: number
+    tradeSlug: number
+    name: number
+    category: number
+    description: number
+    defaultFrequencyValue: number
+    defaultFrequencyUnit: number
+    defaultAdvanceNoticeValue: number
+    defaultAdvanceNoticeUnit: number
+    defaultChannel: number
+    defaultTemplate: number
+    recommendationLevel: number
+    isDefault: number
+    isActive: number
+    sortOrder: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ServiceTypeAvgAggregateInputType = {
+    defaultFrequencyValue?: true
+    defaultAdvanceNoticeValue?: true
+    sortOrder?: true
+  }
+
+  export type ServiceTypeSumAggregateInputType = {
+    defaultFrequencyValue?: true
+    defaultAdvanceNoticeValue?: true
+    sortOrder?: true
+  }
+
+  export type ServiceTypeMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    tradeSlug?: true
+    name?: true
+    category?: true
+    description?: true
+    defaultFrequencyValue?: true
+    defaultFrequencyUnit?: true
+    defaultAdvanceNoticeValue?: true
+    defaultAdvanceNoticeUnit?: true
+    defaultChannel?: true
+    defaultTemplate?: true
+    recommendationLevel?: true
+    isDefault?: true
+    isActive?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServiceTypeMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    tradeSlug?: true
+    name?: true
+    category?: true
+    description?: true
+    defaultFrequencyValue?: true
+    defaultFrequencyUnit?: true
+    defaultAdvanceNoticeValue?: true
+    defaultAdvanceNoticeUnit?: true
+    defaultChannel?: true
+    defaultTemplate?: true
+    recommendationLevel?: true
+    isDefault?: true
+    isActive?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServiceTypeCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    tradeSlug?: true
+    name?: true
+    category?: true
+    description?: true
+    defaultFrequencyValue?: true
+    defaultFrequencyUnit?: true
+    defaultAdvanceNoticeValue?: true
+    defaultAdvanceNoticeUnit?: true
+    defaultChannel?: true
+    defaultTemplate?: true
+    recommendationLevel?: true
+    isDefault?: true
+    isActive?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ServiceTypeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServiceType to aggregate.
+     */
+    where?: ServiceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceTypes to fetch.
+     */
+    orderBy?: ServiceTypeOrderByWithRelationInput | ServiceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ServiceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ServiceTypes
+    **/
+    _count?: true | ServiceTypeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ServiceTypeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ServiceTypeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ServiceTypeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ServiceTypeMaxAggregateInputType
+  }
+
+  export type GetServiceTypeAggregateType<T extends ServiceTypeAggregateArgs> = {
+        [P in keyof T & keyof AggregateServiceType]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateServiceType[P]>
+      : GetScalarType<T[P], AggregateServiceType[P]>
+  }
+
+
+
+
+  export type ServiceTypeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServiceTypeWhereInput
+    orderBy?: ServiceTypeOrderByWithAggregationInput | ServiceTypeOrderByWithAggregationInput[]
+    by: ServiceTypeScalarFieldEnum[] | ServiceTypeScalarFieldEnum
+    having?: ServiceTypeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ServiceTypeCountAggregateInputType | true
+    _avg?: ServiceTypeAvgAggregateInputType
+    _sum?: ServiceTypeSumAggregateInputType
+    _min?: ServiceTypeMinAggregateInputType
+    _max?: ServiceTypeMaxAggregateInputType
+  }
+
+  export type ServiceTypeGroupByOutputType = {
+    id: string
+    companyId: string
+    tradeSlug: string | null
+    name: string
+    category: string | null
+    description: string | null
+    defaultFrequencyValue: number | null
+    defaultFrequencyUnit: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue: number | null
+    defaultAdvanceNoticeUnit: $Enums.TimeUnit | null
+    defaultChannel: $Enums.ReminderChannelChoice | null
+    defaultTemplate: string | null
+    recommendationLevel: $Enums.RecommendationLevel
+    isDefault: boolean
+    isActive: boolean
+    sortOrder: number
+    createdAt: Date
+    updatedAt: Date
+    _count: ServiceTypeCountAggregateOutputType | null
+    _avg: ServiceTypeAvgAggregateOutputType | null
+    _sum: ServiceTypeSumAggregateOutputType | null
+    _min: ServiceTypeMinAggregateOutputType | null
+    _max: ServiceTypeMaxAggregateOutputType | null
+  }
+
+  type GetServiceTypeGroupByPayload<T extends ServiceTypeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ServiceTypeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ServiceTypeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ServiceTypeGroupByOutputType[P]>
+            : GetScalarType<T[P], ServiceTypeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ServiceTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    tradeSlug?: boolean
+    name?: boolean
+    category?: boolean
+    description?: boolean
+    defaultFrequencyValue?: boolean
+    defaultFrequencyUnit?: boolean
+    defaultAdvanceNoticeValue?: boolean
+    defaultAdvanceNoticeUnit?: boolean
+    defaultChannel?: boolean
+    defaultTemplate?: boolean
+    recommendationLevel?: boolean
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    interventionServices?: boolean | ServiceType$interventionServicesArgs<ExtArgs>
+    automationMappings?: boolean | ServiceType$automationMappingsArgs<ExtArgs>
+    _count?: boolean | ServiceTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["serviceType"]>
+
+  export type ServiceTypeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    tradeSlug?: boolean
+    name?: boolean
+    category?: boolean
+    description?: boolean
+    defaultFrequencyValue?: boolean
+    defaultFrequencyUnit?: boolean
+    defaultAdvanceNoticeValue?: boolean
+    defaultAdvanceNoticeUnit?: boolean
+    defaultChannel?: boolean
+    defaultTemplate?: boolean
+    recommendationLevel?: boolean
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["serviceType"]>
+
+  export type ServiceTypeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    tradeSlug?: boolean
+    name?: boolean
+    category?: boolean
+    description?: boolean
+    defaultFrequencyValue?: boolean
+    defaultFrequencyUnit?: boolean
+    defaultAdvanceNoticeValue?: boolean
+    defaultAdvanceNoticeUnit?: boolean
+    defaultChannel?: boolean
+    defaultTemplate?: boolean
+    recommendationLevel?: boolean
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["serviceType"]>
+
+  export type ServiceTypeSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    tradeSlug?: boolean
+    name?: boolean
+    category?: boolean
+    description?: boolean
+    defaultFrequencyValue?: boolean
+    defaultFrequencyUnit?: boolean
+    defaultAdvanceNoticeValue?: boolean
+    defaultAdvanceNoticeUnit?: boolean
+    defaultChannel?: boolean
+    defaultTemplate?: boolean
+    recommendationLevel?: boolean
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ServiceTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "tradeSlug" | "name" | "category" | "description" | "defaultFrequencyValue" | "defaultFrequencyUnit" | "defaultAdvanceNoticeValue" | "defaultAdvanceNoticeUnit" | "defaultChannel" | "defaultTemplate" | "recommendationLevel" | "isDefault" | "isActive" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["serviceType"]>
+  export type ServiceTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    interventionServices?: boolean | ServiceType$interventionServicesArgs<ExtArgs>
+    automationMappings?: boolean | ServiceType$automationMappingsArgs<ExtArgs>
+    _count?: boolean | ServiceTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ServiceTypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type ServiceTypeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $ServiceTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ServiceType"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      interventionServices: Prisma.$InterventionServicePayload<ExtArgs>[]
+      automationMappings: Prisma.$ReminderAutomationServicePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      tradeSlug: string | null
+      name: string
+      category: string | null
+      description: string | null
+      defaultFrequencyValue: number | null
+      defaultFrequencyUnit: $Enums.TimeUnit | null
+      defaultAdvanceNoticeValue: number | null
+      defaultAdvanceNoticeUnit: $Enums.TimeUnit | null
+      defaultChannel: $Enums.ReminderChannelChoice | null
+      defaultTemplate: string | null
+      recommendationLevel: $Enums.RecommendationLevel
+      isDefault: boolean
+      isActive: boolean
+      sortOrder: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["serviceType"]>
+    composites: {}
+  }
+
+  type ServiceTypeGetPayload<S extends boolean | null | undefined | ServiceTypeDefaultArgs> = $Result.GetResult<Prisma.$ServiceTypePayload, S>
+
+  type ServiceTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ServiceTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ServiceTypeCountAggregateInputType | true
+    }
+
+  export interface ServiceTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ServiceType'], meta: { name: 'ServiceType' } }
+    /**
+     * Find zero or one ServiceType that matches the filter.
+     * @param {ServiceTypeFindUniqueArgs} args - Arguments to find a ServiceType
+     * @example
+     * // Get one ServiceType
+     * const serviceType = await prisma.serviceType.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ServiceTypeFindUniqueArgs>(args: SelectSubset<T, ServiceTypeFindUniqueArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ServiceType that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ServiceTypeFindUniqueOrThrowArgs} args - Arguments to find a ServiceType
+     * @example
+     * // Get one ServiceType
+     * const serviceType = await prisma.serviceType.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ServiceTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, ServiceTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServiceType that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceTypeFindFirstArgs} args - Arguments to find a ServiceType
+     * @example
+     * // Get one ServiceType
+     * const serviceType = await prisma.serviceType.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ServiceTypeFindFirstArgs>(args?: SelectSubset<T, ServiceTypeFindFirstArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServiceType that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceTypeFindFirstOrThrowArgs} args - Arguments to find a ServiceType
+     * @example
+     * // Get one ServiceType
+     * const serviceType = await prisma.serviceType.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ServiceTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, ServiceTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ServiceTypes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceTypeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ServiceTypes
+     * const serviceTypes = await prisma.serviceType.findMany()
+     * 
+     * // Get first 10 ServiceTypes
+     * const serviceTypes = await prisma.serviceType.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const serviceTypeWithIdOnly = await prisma.serviceType.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ServiceTypeFindManyArgs>(args?: SelectSubset<T, ServiceTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ServiceType.
+     * @param {ServiceTypeCreateArgs} args - Arguments to create a ServiceType.
+     * @example
+     * // Create one ServiceType
+     * const ServiceType = await prisma.serviceType.create({
+     *   data: {
+     *     // ... data to create a ServiceType
+     *   }
+     * })
+     * 
+     */
+    create<T extends ServiceTypeCreateArgs>(args: SelectSubset<T, ServiceTypeCreateArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ServiceTypes.
+     * @param {ServiceTypeCreateManyArgs} args - Arguments to create many ServiceTypes.
+     * @example
+     * // Create many ServiceTypes
+     * const serviceType = await prisma.serviceType.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ServiceTypeCreateManyArgs>(args?: SelectSubset<T, ServiceTypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ServiceTypes and returns the data saved in the database.
+     * @param {ServiceTypeCreateManyAndReturnArgs} args - Arguments to create many ServiceTypes.
+     * @example
+     * // Create many ServiceTypes
+     * const serviceType = await prisma.serviceType.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ServiceTypes and only return the `id`
+     * const serviceTypeWithIdOnly = await prisma.serviceType.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ServiceTypeCreateManyAndReturnArgs>(args?: SelectSubset<T, ServiceTypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ServiceType.
+     * @param {ServiceTypeDeleteArgs} args - Arguments to delete one ServiceType.
+     * @example
+     * // Delete one ServiceType
+     * const ServiceType = await prisma.serviceType.delete({
+     *   where: {
+     *     // ... filter to delete one ServiceType
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ServiceTypeDeleteArgs>(args: SelectSubset<T, ServiceTypeDeleteArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ServiceType.
+     * @param {ServiceTypeUpdateArgs} args - Arguments to update one ServiceType.
+     * @example
+     * // Update one ServiceType
+     * const serviceType = await prisma.serviceType.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ServiceTypeUpdateArgs>(args: SelectSubset<T, ServiceTypeUpdateArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ServiceTypes.
+     * @param {ServiceTypeDeleteManyArgs} args - Arguments to filter ServiceTypes to delete.
+     * @example
+     * // Delete a few ServiceTypes
+     * const { count } = await prisma.serviceType.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ServiceTypeDeleteManyArgs>(args?: SelectSubset<T, ServiceTypeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServiceTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceTypeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ServiceTypes
+     * const serviceType = await prisma.serviceType.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ServiceTypeUpdateManyArgs>(args: SelectSubset<T, ServiceTypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServiceTypes and returns the data updated in the database.
+     * @param {ServiceTypeUpdateManyAndReturnArgs} args - Arguments to update many ServiceTypes.
+     * @example
+     * // Update many ServiceTypes
+     * const serviceType = await prisma.serviceType.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ServiceTypes and only return the `id`
+     * const serviceTypeWithIdOnly = await prisma.serviceType.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ServiceTypeUpdateManyAndReturnArgs>(args: SelectSubset<T, ServiceTypeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ServiceType.
+     * @param {ServiceTypeUpsertArgs} args - Arguments to update or create a ServiceType.
+     * @example
+     * // Update or create a ServiceType
+     * const serviceType = await prisma.serviceType.upsert({
+     *   create: {
+     *     // ... data to create a ServiceType
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ServiceType we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ServiceTypeUpsertArgs>(args: SelectSubset<T, ServiceTypeUpsertArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ServiceTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceTypeCountArgs} args - Arguments to filter ServiceTypes to count.
+     * @example
+     * // Count the number of ServiceTypes
+     * const count = await prisma.serviceType.count({
+     *   where: {
+     *     // ... the filter for the ServiceTypes we want to count
+     *   }
+     * })
+    **/
+    count<T extends ServiceTypeCountArgs>(
+      args?: Subset<T, ServiceTypeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ServiceTypeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ServiceType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceTypeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ServiceTypeAggregateArgs>(args: Subset<T, ServiceTypeAggregateArgs>): Prisma.PrismaPromise<GetServiceTypeAggregateType<T>>
+
+    /**
+     * Group by ServiceType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceTypeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ServiceTypeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ServiceTypeGroupByArgs['orderBy'] }
+        : { orderBy?: ServiceTypeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ServiceTypeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServiceTypeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ServiceType model
+   */
+  readonly fields: ServiceTypeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ServiceType.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ServiceTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    interventionServices<T extends ServiceType$interventionServicesArgs<ExtArgs> = {}>(args?: Subset<T, ServiceType$interventionServicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    automationMappings<T extends ServiceType$automationMappingsArgs<ExtArgs> = {}>(args?: Subset<T, ServiceType$automationMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ServiceType model
+   */
+  interface ServiceTypeFieldRefs {
+    readonly id: FieldRef<"ServiceType", 'String'>
+    readonly companyId: FieldRef<"ServiceType", 'String'>
+    readonly tradeSlug: FieldRef<"ServiceType", 'String'>
+    readonly name: FieldRef<"ServiceType", 'String'>
+    readonly category: FieldRef<"ServiceType", 'String'>
+    readonly description: FieldRef<"ServiceType", 'String'>
+    readonly defaultFrequencyValue: FieldRef<"ServiceType", 'Int'>
+    readonly defaultFrequencyUnit: FieldRef<"ServiceType", 'TimeUnit'>
+    readonly defaultAdvanceNoticeValue: FieldRef<"ServiceType", 'Int'>
+    readonly defaultAdvanceNoticeUnit: FieldRef<"ServiceType", 'TimeUnit'>
+    readonly defaultChannel: FieldRef<"ServiceType", 'ReminderChannelChoice'>
+    readonly defaultTemplate: FieldRef<"ServiceType", 'String'>
+    readonly recommendationLevel: FieldRef<"ServiceType", 'RecommendationLevel'>
+    readonly isDefault: FieldRef<"ServiceType", 'Boolean'>
+    readonly isActive: FieldRef<"ServiceType", 'Boolean'>
+    readonly sortOrder: FieldRef<"ServiceType", 'Int'>
+    readonly createdAt: FieldRef<"ServiceType", 'DateTime'>
+    readonly updatedAt: FieldRef<"ServiceType", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ServiceType findUnique
+   */
+  export type ServiceTypeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceType to fetch.
+     */
+    where: ServiceTypeWhereUniqueInput
+  }
+
+  /**
+   * ServiceType findUniqueOrThrow
+   */
+  export type ServiceTypeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceType to fetch.
+     */
+    where: ServiceTypeWhereUniqueInput
+  }
+
+  /**
+   * ServiceType findFirst
+   */
+  export type ServiceTypeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceType to fetch.
+     */
+    where?: ServiceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceTypes to fetch.
+     */
+    orderBy?: ServiceTypeOrderByWithRelationInput | ServiceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServiceTypes.
+     */
+    cursor?: ServiceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServiceTypes.
+     */
+    distinct?: ServiceTypeScalarFieldEnum | ServiceTypeScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceType findFirstOrThrow
+   */
+  export type ServiceTypeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceType to fetch.
+     */
+    where?: ServiceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceTypes to fetch.
+     */
+    orderBy?: ServiceTypeOrderByWithRelationInput | ServiceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServiceTypes.
+     */
+    cursor?: ServiceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServiceTypes.
+     */
+    distinct?: ServiceTypeScalarFieldEnum | ServiceTypeScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceType findMany
+   */
+  export type ServiceTypeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceTypes to fetch.
+     */
+    where?: ServiceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceTypes to fetch.
+     */
+    orderBy?: ServiceTypeOrderByWithRelationInput | ServiceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ServiceTypes.
+     */
+    cursor?: ServiceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServiceTypes.
+     */
+    distinct?: ServiceTypeScalarFieldEnum | ServiceTypeScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceType create
+   */
+  export type ServiceTypeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ServiceType.
+     */
+    data: XOR<ServiceTypeCreateInput, ServiceTypeUncheckedCreateInput>
+  }
+
+  /**
+   * ServiceType createMany
+   */
+  export type ServiceTypeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ServiceTypes.
+     */
+    data: ServiceTypeCreateManyInput | ServiceTypeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ServiceType createManyAndReturn
+   */
+  export type ServiceTypeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * The data used to create many ServiceTypes.
+     */
+    data: ServiceTypeCreateManyInput | ServiceTypeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ServiceType update
+   */
+  export type ServiceTypeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ServiceType.
+     */
+    data: XOR<ServiceTypeUpdateInput, ServiceTypeUncheckedUpdateInput>
+    /**
+     * Choose, which ServiceType to update.
+     */
+    where: ServiceTypeWhereUniqueInput
+  }
+
+  /**
+   * ServiceType updateMany
+   */
+  export type ServiceTypeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ServiceTypes.
+     */
+    data: XOR<ServiceTypeUpdateManyMutationInput, ServiceTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which ServiceTypes to update
+     */
+    where?: ServiceTypeWhereInput
+    /**
+     * Limit how many ServiceTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServiceType updateManyAndReturn
+   */
+  export type ServiceTypeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * The data used to update ServiceTypes.
+     */
+    data: XOR<ServiceTypeUpdateManyMutationInput, ServiceTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which ServiceTypes to update
+     */
+    where?: ServiceTypeWhereInput
+    /**
+     * Limit how many ServiceTypes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ServiceType upsert
+   */
+  export type ServiceTypeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ServiceType to update in case it exists.
+     */
+    where: ServiceTypeWhereUniqueInput
+    /**
+     * In case the ServiceType found by the `where` argument doesn't exist, create a new ServiceType with this data.
+     */
+    create: XOR<ServiceTypeCreateInput, ServiceTypeUncheckedCreateInput>
+    /**
+     * In case the ServiceType was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ServiceTypeUpdateInput, ServiceTypeUncheckedUpdateInput>
+  }
+
+  /**
+   * ServiceType delete
+   */
+  export type ServiceTypeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+    /**
+     * Filter which ServiceType to delete.
+     */
+    where: ServiceTypeWhereUniqueInput
+  }
+
+  /**
+   * ServiceType deleteMany
+   */
+  export type ServiceTypeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServiceTypes to delete
+     */
+    where?: ServiceTypeWhereInput
+    /**
+     * Limit how many ServiceTypes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServiceType.interventionServices
+   */
+  export type ServiceType$interventionServicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    where?: InterventionServiceWhereInput
+    orderBy?: InterventionServiceOrderByWithRelationInput | InterventionServiceOrderByWithRelationInput[]
+    cursor?: InterventionServiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InterventionServiceScalarFieldEnum | InterventionServiceScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceType.automationMappings
+   */
+  export type ServiceType$automationMappingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    where?: ReminderAutomationServiceWhereInput
+    orderBy?: ReminderAutomationServiceOrderByWithRelationInput | ReminderAutomationServiceOrderByWithRelationInput[]
+    cursor?: ReminderAutomationServiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderAutomationServiceScalarFieldEnum | ReminderAutomationServiceScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceType without action
+   */
+  export type ServiceTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceType
+     */
+    select?: ServiceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceType
+     */
+    omit?: ServiceTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceTypeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model InterventionService
+   */
+
+  export type AggregateInterventionService = {
+    _count: InterventionServiceCountAggregateOutputType | null
+    _min: InterventionServiceMinAggregateOutputType | null
+    _max: InterventionServiceMaxAggregateOutputType | null
+  }
+
+  export type InterventionServiceMinAggregateOutputType = {
+    id: string | null
+    interventionId: string | null
+    serviceTypeId: string | null
+    createdAt: Date | null
+  }
+
+  export type InterventionServiceMaxAggregateOutputType = {
+    id: string | null
+    interventionId: string | null
+    serviceTypeId: string | null
+    createdAt: Date | null
+  }
+
+  export type InterventionServiceCountAggregateOutputType = {
+    id: number
+    interventionId: number
+    serviceTypeId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type InterventionServiceMinAggregateInputType = {
+    id?: true
+    interventionId?: true
+    serviceTypeId?: true
+    createdAt?: true
+  }
+
+  export type InterventionServiceMaxAggregateInputType = {
+    id?: true
+    interventionId?: true
+    serviceTypeId?: true
+    createdAt?: true
+  }
+
+  export type InterventionServiceCountAggregateInputType = {
+    id?: true
+    interventionId?: true
+    serviceTypeId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type InterventionServiceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterventionService to aggregate.
+     */
+    where?: InterventionServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterventionServices to fetch.
+     */
+    orderBy?: InterventionServiceOrderByWithRelationInput | InterventionServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InterventionServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterventionServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterventionServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InterventionServices
+    **/
+    _count?: true | InterventionServiceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InterventionServiceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InterventionServiceMaxAggregateInputType
+  }
+
+  export type GetInterventionServiceAggregateType<T extends InterventionServiceAggregateArgs> = {
+        [P in keyof T & keyof AggregateInterventionService]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInterventionService[P]>
+      : GetScalarType<T[P], AggregateInterventionService[P]>
+  }
+
+
+
+
+  export type InterventionServiceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterventionServiceWhereInput
+    orderBy?: InterventionServiceOrderByWithAggregationInput | InterventionServiceOrderByWithAggregationInput[]
+    by: InterventionServiceScalarFieldEnum[] | InterventionServiceScalarFieldEnum
+    having?: InterventionServiceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InterventionServiceCountAggregateInputType | true
+    _min?: InterventionServiceMinAggregateInputType
+    _max?: InterventionServiceMaxAggregateInputType
+  }
+
+  export type InterventionServiceGroupByOutputType = {
+    id: string
+    interventionId: string
+    serviceTypeId: string
+    createdAt: Date
+    _count: InterventionServiceCountAggregateOutputType | null
+    _min: InterventionServiceMinAggregateOutputType | null
+    _max: InterventionServiceMaxAggregateOutputType | null
+  }
+
+  type GetInterventionServiceGroupByPayload<T extends InterventionServiceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InterventionServiceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InterventionServiceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InterventionServiceGroupByOutputType[P]>
+            : GetScalarType<T[P], InterventionServiceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InterventionServiceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    interventionId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+    intervention?: boolean | InterventionDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interventionService"]>
+
+  export type InterventionServiceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    interventionId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+    intervention?: boolean | InterventionDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interventionService"]>
+
+  export type InterventionServiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    interventionId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+    intervention?: boolean | InterventionDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interventionService"]>
+
+  export type InterventionServiceSelectScalar = {
+    id?: boolean
+    interventionId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+  }
+
+  export type InterventionServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "interventionId" | "serviceTypeId" | "createdAt", ExtArgs["result"]["interventionService"]>
+  export type InterventionServiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    intervention?: boolean | InterventionDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }
+  export type InterventionServiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    intervention?: boolean | InterventionDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }
+  export type InterventionServiceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    intervention?: boolean | InterventionDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $InterventionServicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InterventionService"
+    objects: {
+      intervention: Prisma.$InterventionPayload<ExtArgs>
+      serviceType: Prisma.$ServiceTypePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      interventionId: string
+      serviceTypeId: string
+      createdAt: Date
+    }, ExtArgs["result"]["interventionService"]>
+    composites: {}
+  }
+
+  type InterventionServiceGetPayload<S extends boolean | null | undefined | InterventionServiceDefaultArgs> = $Result.GetResult<Prisma.$InterventionServicePayload, S>
+
+  type InterventionServiceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InterventionServiceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: InterventionServiceCountAggregateInputType | true
+    }
+
+  export interface InterventionServiceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InterventionService'], meta: { name: 'InterventionService' } }
+    /**
+     * Find zero or one InterventionService that matches the filter.
+     * @param {InterventionServiceFindUniqueArgs} args - Arguments to find a InterventionService
+     * @example
+     * // Get one InterventionService
+     * const interventionService = await prisma.interventionService.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InterventionServiceFindUniqueArgs>(args: SelectSubset<T, InterventionServiceFindUniqueArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one InterventionService that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {InterventionServiceFindUniqueOrThrowArgs} args - Arguments to find a InterventionService
+     * @example
+     * // Get one InterventionService
+     * const interventionService = await prisma.interventionService.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InterventionServiceFindUniqueOrThrowArgs>(args: SelectSubset<T, InterventionServiceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first InterventionService that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterventionServiceFindFirstArgs} args - Arguments to find a InterventionService
+     * @example
+     * // Get one InterventionService
+     * const interventionService = await prisma.interventionService.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InterventionServiceFindFirstArgs>(args?: SelectSubset<T, InterventionServiceFindFirstArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first InterventionService that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterventionServiceFindFirstOrThrowArgs} args - Arguments to find a InterventionService
+     * @example
+     * // Get one InterventionService
+     * const interventionService = await prisma.interventionService.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InterventionServiceFindFirstOrThrowArgs>(args?: SelectSubset<T, InterventionServiceFindFirstOrThrowArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more InterventionServices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterventionServiceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InterventionServices
+     * const interventionServices = await prisma.interventionService.findMany()
+     * 
+     * // Get first 10 InterventionServices
+     * const interventionServices = await prisma.interventionService.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const interventionServiceWithIdOnly = await prisma.interventionService.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InterventionServiceFindManyArgs>(args?: SelectSubset<T, InterventionServiceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a InterventionService.
+     * @param {InterventionServiceCreateArgs} args - Arguments to create a InterventionService.
+     * @example
+     * // Create one InterventionService
+     * const InterventionService = await prisma.interventionService.create({
+     *   data: {
+     *     // ... data to create a InterventionService
+     *   }
+     * })
+     * 
+     */
+    create<T extends InterventionServiceCreateArgs>(args: SelectSubset<T, InterventionServiceCreateArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many InterventionServices.
+     * @param {InterventionServiceCreateManyArgs} args - Arguments to create many InterventionServices.
+     * @example
+     * // Create many InterventionServices
+     * const interventionService = await prisma.interventionService.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InterventionServiceCreateManyArgs>(args?: SelectSubset<T, InterventionServiceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InterventionServices and returns the data saved in the database.
+     * @param {InterventionServiceCreateManyAndReturnArgs} args - Arguments to create many InterventionServices.
+     * @example
+     * // Create many InterventionServices
+     * const interventionService = await prisma.interventionService.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InterventionServices and only return the `id`
+     * const interventionServiceWithIdOnly = await prisma.interventionService.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InterventionServiceCreateManyAndReturnArgs>(args?: SelectSubset<T, InterventionServiceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a InterventionService.
+     * @param {InterventionServiceDeleteArgs} args - Arguments to delete one InterventionService.
+     * @example
+     * // Delete one InterventionService
+     * const InterventionService = await prisma.interventionService.delete({
+     *   where: {
+     *     // ... filter to delete one InterventionService
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InterventionServiceDeleteArgs>(args: SelectSubset<T, InterventionServiceDeleteArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one InterventionService.
+     * @param {InterventionServiceUpdateArgs} args - Arguments to update one InterventionService.
+     * @example
+     * // Update one InterventionService
+     * const interventionService = await prisma.interventionService.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InterventionServiceUpdateArgs>(args: SelectSubset<T, InterventionServiceUpdateArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more InterventionServices.
+     * @param {InterventionServiceDeleteManyArgs} args - Arguments to filter InterventionServices to delete.
+     * @example
+     * // Delete a few InterventionServices
+     * const { count } = await prisma.interventionService.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InterventionServiceDeleteManyArgs>(args?: SelectSubset<T, InterventionServiceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InterventionServices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterventionServiceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InterventionServices
+     * const interventionService = await prisma.interventionService.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InterventionServiceUpdateManyArgs>(args: SelectSubset<T, InterventionServiceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InterventionServices and returns the data updated in the database.
+     * @param {InterventionServiceUpdateManyAndReturnArgs} args - Arguments to update many InterventionServices.
+     * @example
+     * // Update many InterventionServices
+     * const interventionService = await prisma.interventionService.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more InterventionServices and only return the `id`
+     * const interventionServiceWithIdOnly = await prisma.interventionService.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InterventionServiceUpdateManyAndReturnArgs>(args: SelectSubset<T, InterventionServiceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one InterventionService.
+     * @param {InterventionServiceUpsertArgs} args - Arguments to update or create a InterventionService.
+     * @example
+     * // Update or create a InterventionService
+     * const interventionService = await prisma.interventionService.upsert({
+     *   create: {
+     *     // ... data to create a InterventionService
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InterventionService we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InterventionServiceUpsertArgs>(args: SelectSubset<T, InterventionServiceUpsertArgs<ExtArgs>>): Prisma__InterventionServiceClient<$Result.GetResult<Prisma.$InterventionServicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of InterventionServices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterventionServiceCountArgs} args - Arguments to filter InterventionServices to count.
+     * @example
+     * // Count the number of InterventionServices
+     * const count = await prisma.interventionService.count({
+     *   where: {
+     *     // ... the filter for the InterventionServices we want to count
+     *   }
+     * })
+    **/
+    count<T extends InterventionServiceCountArgs>(
+      args?: Subset<T, InterventionServiceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InterventionServiceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InterventionService.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterventionServiceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InterventionServiceAggregateArgs>(args: Subset<T, InterventionServiceAggregateArgs>): Prisma.PrismaPromise<GetInterventionServiceAggregateType<T>>
+
+    /**
+     * Group by InterventionService.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterventionServiceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InterventionServiceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InterventionServiceGroupByArgs['orderBy'] }
+        : { orderBy?: InterventionServiceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InterventionServiceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInterventionServiceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InterventionService model
+   */
+  readonly fields: InterventionServiceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InterventionService.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InterventionServiceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    intervention<T extends InterventionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InterventionDefaultArgs<ExtArgs>>): Prisma__InterventionClient<$Result.GetResult<Prisma.$InterventionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    serviceType<T extends ServiceTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ServiceTypeDefaultArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InterventionService model
+   */
+  interface InterventionServiceFieldRefs {
+    readonly id: FieldRef<"InterventionService", 'String'>
+    readonly interventionId: FieldRef<"InterventionService", 'String'>
+    readonly serviceTypeId: FieldRef<"InterventionService", 'String'>
+    readonly createdAt: FieldRef<"InterventionService", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InterventionService findUnique
+   */
+  export type InterventionServiceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which InterventionService to fetch.
+     */
+    where: InterventionServiceWhereUniqueInput
+  }
+
+  /**
+   * InterventionService findUniqueOrThrow
+   */
+  export type InterventionServiceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which InterventionService to fetch.
+     */
+    where: InterventionServiceWhereUniqueInput
+  }
+
+  /**
+   * InterventionService findFirst
+   */
+  export type InterventionServiceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which InterventionService to fetch.
+     */
+    where?: InterventionServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterventionServices to fetch.
+     */
+    orderBy?: InterventionServiceOrderByWithRelationInput | InterventionServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterventionServices.
+     */
+    cursor?: InterventionServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterventionServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterventionServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterventionServices.
+     */
+    distinct?: InterventionServiceScalarFieldEnum | InterventionServiceScalarFieldEnum[]
+  }
+
+  /**
+   * InterventionService findFirstOrThrow
+   */
+  export type InterventionServiceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which InterventionService to fetch.
+     */
+    where?: InterventionServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterventionServices to fetch.
+     */
+    orderBy?: InterventionServiceOrderByWithRelationInput | InterventionServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterventionServices.
+     */
+    cursor?: InterventionServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterventionServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterventionServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterventionServices.
+     */
+    distinct?: InterventionServiceScalarFieldEnum | InterventionServiceScalarFieldEnum[]
+  }
+
+  /**
+   * InterventionService findMany
+   */
+  export type InterventionServiceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which InterventionServices to fetch.
+     */
+    where?: InterventionServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterventionServices to fetch.
+     */
+    orderBy?: InterventionServiceOrderByWithRelationInput | InterventionServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InterventionServices.
+     */
+    cursor?: InterventionServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterventionServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterventionServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterventionServices.
+     */
+    distinct?: InterventionServiceScalarFieldEnum | InterventionServiceScalarFieldEnum[]
+  }
+
+  /**
+   * InterventionService create
+   */
+  export type InterventionServiceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InterventionService.
+     */
+    data: XOR<InterventionServiceCreateInput, InterventionServiceUncheckedCreateInput>
+  }
+
+  /**
+   * InterventionService createMany
+   */
+  export type InterventionServiceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InterventionServices.
+     */
+    data: InterventionServiceCreateManyInput | InterventionServiceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InterventionService createManyAndReturn
+   */
+  export type InterventionServiceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * The data used to create many InterventionServices.
+     */
+    data: InterventionServiceCreateManyInput | InterventionServiceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InterventionService update
+   */
+  export type InterventionServiceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InterventionService.
+     */
+    data: XOR<InterventionServiceUpdateInput, InterventionServiceUncheckedUpdateInput>
+    /**
+     * Choose, which InterventionService to update.
+     */
+    where: InterventionServiceWhereUniqueInput
+  }
+
+  /**
+   * InterventionService updateMany
+   */
+  export type InterventionServiceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InterventionServices.
+     */
+    data: XOR<InterventionServiceUpdateManyMutationInput, InterventionServiceUncheckedUpdateManyInput>
+    /**
+     * Filter which InterventionServices to update
+     */
+    where?: InterventionServiceWhereInput
+    /**
+     * Limit how many InterventionServices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * InterventionService updateManyAndReturn
+   */
+  export type InterventionServiceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * The data used to update InterventionServices.
+     */
+    data: XOR<InterventionServiceUpdateManyMutationInput, InterventionServiceUncheckedUpdateManyInput>
+    /**
+     * Filter which InterventionServices to update
+     */
+    where?: InterventionServiceWhereInput
+    /**
+     * Limit how many InterventionServices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InterventionService upsert
+   */
+  export type InterventionServiceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InterventionService to update in case it exists.
+     */
+    where: InterventionServiceWhereUniqueInput
+    /**
+     * In case the InterventionService found by the `where` argument doesn't exist, create a new InterventionService with this data.
+     */
+    create: XOR<InterventionServiceCreateInput, InterventionServiceUncheckedCreateInput>
+    /**
+     * In case the InterventionService was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InterventionServiceUpdateInput, InterventionServiceUncheckedUpdateInput>
+  }
+
+  /**
+   * InterventionService delete
+   */
+  export type InterventionServiceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+    /**
+     * Filter which InterventionService to delete.
+     */
+    where: InterventionServiceWhereUniqueInput
+  }
+
+  /**
+   * InterventionService deleteMany
+   */
+  export type InterventionServiceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterventionServices to delete
+     */
+    where?: InterventionServiceWhereInput
+    /**
+     * Limit how many InterventionServices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * InterventionService without action
+   */
+  export type InterventionServiceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterventionService
+     */
+    select?: InterventionServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InterventionService
+     */
+    omit?: InterventionServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionServiceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReminderAutomation
+   */
+
+  export type AggregateReminderAutomation = {
+    _count: ReminderAutomationCountAggregateOutputType | null
+    _avg: ReminderAutomationAvgAggregateOutputType | null
+    _sum: ReminderAutomationSumAggregateOutputType | null
+    _min: ReminderAutomationMinAggregateOutputType | null
+    _max: ReminderAutomationMaxAggregateOutputType | null
+  }
+
+  export type ReminderAutomationAvgAggregateOutputType = {
+    frequencyValue: number | null
+    advanceNoticeValue: number | null
+    maxFollowUps: number | null
+    followUpIntervalDays: number | null
+  }
+
+  export type ReminderAutomationSumAggregateOutputType = {
+    frequencyValue: number | null
+    advanceNoticeValue: number | null
+    maxFollowUps: number | null
+    followUpIntervalDays: number | null
+  }
+
+  export type ReminderAutomationMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    clientId: string | null
+    name: string | null
+    automationType: $Enums.AutomationType | null
+    enabled: boolean | null
+    isCustomOverride: boolean | null
+    frequencyValue: number | null
+    frequencyUnit: $Enums.TimeUnit | null
+    advanceNoticeValue: number | null
+    advanceNoticeUnit: $Enums.TimeUnit | null
+    channel: $Enums.ReminderChannelChoice | null
+    fallbackChannel: $Enums.PreferredChannel | null
+    customMessageTemplate: string | null
+    stopOnReply: boolean | null
+    stopOnAppointment: boolean | null
+    maxFollowUps: number | null
+    followUpIntervalDays: number | null
+    status: $Enums.ReminderStatus | null
+    nextReminderAt: Date | null
+    lastCompletedInterventionId: string | null
+    lastCompletedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReminderAutomationMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    clientId: string | null
+    name: string | null
+    automationType: $Enums.AutomationType | null
+    enabled: boolean | null
+    isCustomOverride: boolean | null
+    frequencyValue: number | null
+    frequencyUnit: $Enums.TimeUnit | null
+    advanceNoticeValue: number | null
+    advanceNoticeUnit: $Enums.TimeUnit | null
+    channel: $Enums.ReminderChannelChoice | null
+    fallbackChannel: $Enums.PreferredChannel | null
+    customMessageTemplate: string | null
+    stopOnReply: boolean | null
+    stopOnAppointment: boolean | null
+    maxFollowUps: number | null
+    followUpIntervalDays: number | null
+    status: $Enums.ReminderStatus | null
+    nextReminderAt: Date | null
+    lastCompletedInterventionId: string | null
+    lastCompletedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReminderAutomationCountAggregateOutputType = {
+    id: number
+    companyId: number
+    clientId: number
+    name: number
+    automationType: number
+    enabled: number
+    isCustomOverride: number
+    frequencyValue: number
+    frequencyUnit: number
+    advanceNoticeValue: number
+    advanceNoticeUnit: number
+    channel: number
+    fallbackChannel: number
+    customMessageTemplate: number
+    stopOnReply: number
+    stopOnAppointment: number
+    maxFollowUps: number
+    followUpIntervalDays: number
+    status: number
+    nextReminderAt: number
+    lastCompletedInterventionId: number
+    lastCompletedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ReminderAutomationAvgAggregateInputType = {
+    frequencyValue?: true
+    advanceNoticeValue?: true
+    maxFollowUps?: true
+    followUpIntervalDays?: true
+  }
+
+  export type ReminderAutomationSumAggregateInputType = {
+    frequencyValue?: true
+    advanceNoticeValue?: true
+    maxFollowUps?: true
+    followUpIntervalDays?: true
+  }
+
+  export type ReminderAutomationMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    clientId?: true
+    name?: true
+    automationType?: true
+    enabled?: true
+    isCustomOverride?: true
+    frequencyValue?: true
+    frequencyUnit?: true
+    advanceNoticeValue?: true
+    advanceNoticeUnit?: true
+    channel?: true
+    fallbackChannel?: true
+    customMessageTemplate?: true
+    stopOnReply?: true
+    stopOnAppointment?: true
+    maxFollowUps?: true
+    followUpIntervalDays?: true
+    status?: true
+    nextReminderAt?: true
+    lastCompletedInterventionId?: true
+    lastCompletedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReminderAutomationMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    clientId?: true
+    name?: true
+    automationType?: true
+    enabled?: true
+    isCustomOverride?: true
+    frequencyValue?: true
+    frequencyUnit?: true
+    advanceNoticeValue?: true
+    advanceNoticeUnit?: true
+    channel?: true
+    fallbackChannel?: true
+    customMessageTemplate?: true
+    stopOnReply?: true
+    stopOnAppointment?: true
+    maxFollowUps?: true
+    followUpIntervalDays?: true
+    status?: true
+    nextReminderAt?: true
+    lastCompletedInterventionId?: true
+    lastCompletedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReminderAutomationCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    clientId?: true
+    name?: true
+    automationType?: true
+    enabled?: true
+    isCustomOverride?: true
+    frequencyValue?: true
+    frequencyUnit?: true
+    advanceNoticeValue?: true
+    advanceNoticeUnit?: true
+    channel?: true
+    fallbackChannel?: true
+    customMessageTemplate?: true
+    stopOnReply?: true
+    stopOnAppointment?: true
+    maxFollowUps?: true
+    followUpIntervalDays?: true
+    status?: true
+    nextReminderAt?: true
+    lastCompletedInterventionId?: true
+    lastCompletedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ReminderAutomationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReminderAutomation to aggregate.
+     */
+    where?: ReminderAutomationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomations to fetch.
+     */
+    orderBy?: ReminderAutomationOrderByWithRelationInput | ReminderAutomationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReminderAutomationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReminderAutomations
+    **/
+    _count?: true | ReminderAutomationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReminderAutomationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReminderAutomationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReminderAutomationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReminderAutomationMaxAggregateInputType
+  }
+
+  export type GetReminderAutomationAggregateType<T extends ReminderAutomationAggregateArgs> = {
+        [P in keyof T & keyof AggregateReminderAutomation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReminderAutomation[P]>
+      : GetScalarType<T[P], AggregateReminderAutomation[P]>
+  }
+
+
+
+
+  export type ReminderAutomationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderAutomationWhereInput
+    orderBy?: ReminderAutomationOrderByWithAggregationInput | ReminderAutomationOrderByWithAggregationInput[]
+    by: ReminderAutomationScalarFieldEnum[] | ReminderAutomationScalarFieldEnum
+    having?: ReminderAutomationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReminderAutomationCountAggregateInputType | true
+    _avg?: ReminderAutomationAvgAggregateInputType
+    _sum?: ReminderAutomationSumAggregateInputType
+    _min?: ReminderAutomationMinAggregateInputType
+    _max?: ReminderAutomationMaxAggregateInputType
+  }
+
+  export type ReminderAutomationGroupByOutputType = {
+    id: string
+    companyId: string
+    clientId: string
+    name: string
+    automationType: $Enums.AutomationType
+    enabled: boolean
+    isCustomOverride: boolean
+    frequencyValue: number
+    frequencyUnit: $Enums.TimeUnit
+    advanceNoticeValue: number
+    advanceNoticeUnit: $Enums.TimeUnit
+    channel: $Enums.ReminderChannelChoice
+    fallbackChannel: $Enums.PreferredChannel | null
+    customMessageTemplate: string | null
+    stopOnReply: boolean
+    stopOnAppointment: boolean
+    maxFollowUps: number
+    followUpIntervalDays: number
+    status: $Enums.ReminderStatus
+    nextReminderAt: Date | null
+    lastCompletedInterventionId: string | null
+    lastCompletedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ReminderAutomationCountAggregateOutputType | null
+    _avg: ReminderAutomationAvgAggregateOutputType | null
+    _sum: ReminderAutomationSumAggregateOutputType | null
+    _min: ReminderAutomationMinAggregateOutputType | null
+    _max: ReminderAutomationMaxAggregateOutputType | null
+  }
+
+  type GetReminderAutomationGroupByPayload<T extends ReminderAutomationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReminderAutomationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReminderAutomationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReminderAutomationGroupByOutputType[P]>
+            : GetScalarType<T[P], ReminderAutomationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReminderAutomationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    clientId?: boolean
+    name?: boolean
+    automationType?: boolean
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: boolean
+    frequencyUnit?: boolean
+    advanceNoticeValue?: boolean
+    advanceNoticeUnit?: boolean
+    channel?: boolean
+    fallbackChannel?: boolean
+    customMessageTemplate?: boolean
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: boolean
+    followUpIntervalDays?: boolean
+    status?: boolean
+    nextReminderAt?: boolean
+    lastCompletedInterventionId?: boolean
+    lastCompletedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    lastCompletedIntervention?: boolean | ReminderAutomation$lastCompletedInterventionArgs<ExtArgs>
+    trackedServices?: boolean | ReminderAutomation$trackedServicesArgs<ExtArgs>
+    executions?: boolean | ReminderAutomation$executionsArgs<ExtArgs>
+    _count?: boolean | ReminderAutomationCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderAutomation"]>
+
+  export type ReminderAutomationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    clientId?: boolean
+    name?: boolean
+    automationType?: boolean
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: boolean
+    frequencyUnit?: boolean
+    advanceNoticeValue?: boolean
+    advanceNoticeUnit?: boolean
+    channel?: boolean
+    fallbackChannel?: boolean
+    customMessageTemplate?: boolean
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: boolean
+    followUpIntervalDays?: boolean
+    status?: boolean
+    nextReminderAt?: boolean
+    lastCompletedInterventionId?: boolean
+    lastCompletedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    lastCompletedIntervention?: boolean | ReminderAutomation$lastCompletedInterventionArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderAutomation"]>
+
+  export type ReminderAutomationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    clientId?: boolean
+    name?: boolean
+    automationType?: boolean
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: boolean
+    frequencyUnit?: boolean
+    advanceNoticeValue?: boolean
+    advanceNoticeUnit?: boolean
+    channel?: boolean
+    fallbackChannel?: boolean
+    customMessageTemplate?: boolean
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: boolean
+    followUpIntervalDays?: boolean
+    status?: boolean
+    nextReminderAt?: boolean
+    lastCompletedInterventionId?: boolean
+    lastCompletedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    lastCompletedIntervention?: boolean | ReminderAutomation$lastCompletedInterventionArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderAutomation"]>
+
+  export type ReminderAutomationSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    clientId?: boolean
+    name?: boolean
+    automationType?: boolean
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: boolean
+    frequencyUnit?: boolean
+    advanceNoticeValue?: boolean
+    advanceNoticeUnit?: boolean
+    channel?: boolean
+    fallbackChannel?: boolean
+    customMessageTemplate?: boolean
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: boolean
+    followUpIntervalDays?: boolean
+    status?: boolean
+    nextReminderAt?: boolean
+    lastCompletedInterventionId?: boolean
+    lastCompletedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ReminderAutomationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "name" | "automationType" | "enabled" | "isCustomOverride" | "frequencyValue" | "frequencyUnit" | "advanceNoticeValue" | "advanceNoticeUnit" | "channel" | "fallbackChannel" | "customMessageTemplate" | "stopOnReply" | "stopOnAppointment" | "maxFollowUps" | "followUpIntervalDays" | "status" | "nextReminderAt" | "lastCompletedInterventionId" | "lastCompletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["reminderAutomation"]>
+  export type ReminderAutomationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    lastCompletedIntervention?: boolean | ReminderAutomation$lastCompletedInterventionArgs<ExtArgs>
+    trackedServices?: boolean | ReminderAutomation$trackedServicesArgs<ExtArgs>
+    executions?: boolean | ReminderAutomation$executionsArgs<ExtArgs>
+    _count?: boolean | ReminderAutomationCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ReminderAutomationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    lastCompletedIntervention?: boolean | ReminderAutomation$lastCompletedInterventionArgs<ExtArgs>
+  }
+  export type ReminderAutomationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    lastCompletedIntervention?: boolean | ReminderAutomation$lastCompletedInterventionArgs<ExtArgs>
+  }
+
+  export type $ReminderAutomationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReminderAutomation"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      client: Prisma.$ClientPayload<ExtArgs>
+      lastCompletedIntervention: Prisma.$InterventionPayload<ExtArgs> | null
+      trackedServices: Prisma.$ReminderAutomationServicePayload<ExtArgs>[]
+      executions: Prisma.$ReminderExecutionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      clientId: string
+      name: string
+      automationType: $Enums.AutomationType
+      enabled: boolean
+      isCustomOverride: boolean
+      frequencyValue: number
+      frequencyUnit: $Enums.TimeUnit
+      advanceNoticeValue: number
+      advanceNoticeUnit: $Enums.TimeUnit
+      channel: $Enums.ReminderChannelChoice
+      fallbackChannel: $Enums.PreferredChannel | null
+      customMessageTemplate: string | null
+      stopOnReply: boolean
+      stopOnAppointment: boolean
+      maxFollowUps: number
+      followUpIntervalDays: number
+      status: $Enums.ReminderStatus
+      nextReminderAt: Date | null
+      lastCompletedInterventionId: string | null
+      lastCompletedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["reminderAutomation"]>
+    composites: {}
+  }
+
+  type ReminderAutomationGetPayload<S extends boolean | null | undefined | ReminderAutomationDefaultArgs> = $Result.GetResult<Prisma.$ReminderAutomationPayload, S>
+
+  type ReminderAutomationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReminderAutomationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReminderAutomationCountAggregateInputType | true
+    }
+
+  export interface ReminderAutomationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReminderAutomation'], meta: { name: 'ReminderAutomation' } }
+    /**
+     * Find zero or one ReminderAutomation that matches the filter.
+     * @param {ReminderAutomationFindUniqueArgs} args - Arguments to find a ReminderAutomation
+     * @example
+     * // Get one ReminderAutomation
+     * const reminderAutomation = await prisma.reminderAutomation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReminderAutomationFindUniqueArgs>(args: SelectSubset<T, ReminderAutomationFindUniqueArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReminderAutomation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReminderAutomationFindUniqueOrThrowArgs} args - Arguments to find a ReminderAutomation
+     * @example
+     * // Get one ReminderAutomation
+     * const reminderAutomation = await prisma.reminderAutomation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReminderAutomationFindUniqueOrThrowArgs>(args: SelectSubset<T, ReminderAutomationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReminderAutomation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationFindFirstArgs} args - Arguments to find a ReminderAutomation
+     * @example
+     * // Get one ReminderAutomation
+     * const reminderAutomation = await prisma.reminderAutomation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReminderAutomationFindFirstArgs>(args?: SelectSubset<T, ReminderAutomationFindFirstArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReminderAutomation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationFindFirstOrThrowArgs} args - Arguments to find a ReminderAutomation
+     * @example
+     * // Get one ReminderAutomation
+     * const reminderAutomation = await prisma.reminderAutomation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReminderAutomationFindFirstOrThrowArgs>(args?: SelectSubset<T, ReminderAutomationFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReminderAutomations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReminderAutomations
+     * const reminderAutomations = await prisma.reminderAutomation.findMany()
+     * 
+     * // Get first 10 ReminderAutomations
+     * const reminderAutomations = await prisma.reminderAutomation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reminderAutomationWithIdOnly = await prisma.reminderAutomation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReminderAutomationFindManyArgs>(args?: SelectSubset<T, ReminderAutomationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReminderAutomation.
+     * @param {ReminderAutomationCreateArgs} args - Arguments to create a ReminderAutomation.
+     * @example
+     * // Create one ReminderAutomation
+     * const ReminderAutomation = await prisma.reminderAutomation.create({
+     *   data: {
+     *     // ... data to create a ReminderAutomation
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReminderAutomationCreateArgs>(args: SelectSubset<T, ReminderAutomationCreateArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReminderAutomations.
+     * @param {ReminderAutomationCreateManyArgs} args - Arguments to create many ReminderAutomations.
+     * @example
+     * // Create many ReminderAutomations
+     * const reminderAutomation = await prisma.reminderAutomation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReminderAutomationCreateManyArgs>(args?: SelectSubset<T, ReminderAutomationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReminderAutomations and returns the data saved in the database.
+     * @param {ReminderAutomationCreateManyAndReturnArgs} args - Arguments to create many ReminderAutomations.
+     * @example
+     * // Create many ReminderAutomations
+     * const reminderAutomation = await prisma.reminderAutomation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReminderAutomations and only return the `id`
+     * const reminderAutomationWithIdOnly = await prisma.reminderAutomation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReminderAutomationCreateManyAndReturnArgs>(args?: SelectSubset<T, ReminderAutomationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReminderAutomation.
+     * @param {ReminderAutomationDeleteArgs} args - Arguments to delete one ReminderAutomation.
+     * @example
+     * // Delete one ReminderAutomation
+     * const ReminderAutomation = await prisma.reminderAutomation.delete({
+     *   where: {
+     *     // ... filter to delete one ReminderAutomation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReminderAutomationDeleteArgs>(args: SelectSubset<T, ReminderAutomationDeleteArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReminderAutomation.
+     * @param {ReminderAutomationUpdateArgs} args - Arguments to update one ReminderAutomation.
+     * @example
+     * // Update one ReminderAutomation
+     * const reminderAutomation = await prisma.reminderAutomation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReminderAutomationUpdateArgs>(args: SelectSubset<T, ReminderAutomationUpdateArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReminderAutomations.
+     * @param {ReminderAutomationDeleteManyArgs} args - Arguments to filter ReminderAutomations to delete.
+     * @example
+     * // Delete a few ReminderAutomations
+     * const { count } = await prisma.reminderAutomation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReminderAutomationDeleteManyArgs>(args?: SelectSubset<T, ReminderAutomationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReminderAutomations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReminderAutomations
+     * const reminderAutomation = await prisma.reminderAutomation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReminderAutomationUpdateManyArgs>(args: SelectSubset<T, ReminderAutomationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReminderAutomations and returns the data updated in the database.
+     * @param {ReminderAutomationUpdateManyAndReturnArgs} args - Arguments to update many ReminderAutomations.
+     * @example
+     * // Update many ReminderAutomations
+     * const reminderAutomation = await prisma.reminderAutomation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReminderAutomations and only return the `id`
+     * const reminderAutomationWithIdOnly = await prisma.reminderAutomation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReminderAutomationUpdateManyAndReturnArgs>(args: SelectSubset<T, ReminderAutomationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReminderAutomation.
+     * @param {ReminderAutomationUpsertArgs} args - Arguments to update or create a ReminderAutomation.
+     * @example
+     * // Update or create a ReminderAutomation
+     * const reminderAutomation = await prisma.reminderAutomation.upsert({
+     *   create: {
+     *     // ... data to create a ReminderAutomation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReminderAutomation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReminderAutomationUpsertArgs>(args: SelectSubset<T, ReminderAutomationUpsertArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReminderAutomations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationCountArgs} args - Arguments to filter ReminderAutomations to count.
+     * @example
+     * // Count the number of ReminderAutomations
+     * const count = await prisma.reminderAutomation.count({
+     *   where: {
+     *     // ... the filter for the ReminderAutomations we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReminderAutomationCountArgs>(
+      args?: Subset<T, ReminderAutomationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReminderAutomationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReminderAutomation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReminderAutomationAggregateArgs>(args: Subset<T, ReminderAutomationAggregateArgs>): Prisma.PrismaPromise<GetReminderAutomationAggregateType<T>>
+
+    /**
+     * Group by ReminderAutomation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReminderAutomationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReminderAutomationGroupByArgs['orderBy'] }
+        : { orderBy?: ReminderAutomationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReminderAutomationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReminderAutomationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReminderAutomation model
+   */
+  readonly fields: ReminderAutomationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReminderAutomation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReminderAutomationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    lastCompletedIntervention<T extends ReminderAutomation$lastCompletedInterventionArgs<ExtArgs> = {}>(args?: Subset<T, ReminderAutomation$lastCompletedInterventionArgs<ExtArgs>>): Prisma__InterventionClient<$Result.GetResult<Prisma.$InterventionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    trackedServices<T extends ReminderAutomation$trackedServicesArgs<ExtArgs> = {}>(args?: Subset<T, ReminderAutomation$trackedServicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    executions<T extends ReminderAutomation$executionsArgs<ExtArgs> = {}>(args?: Subset<T, ReminderAutomation$executionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReminderAutomation model
+   */
+  interface ReminderAutomationFieldRefs {
+    readonly id: FieldRef<"ReminderAutomation", 'String'>
+    readonly companyId: FieldRef<"ReminderAutomation", 'String'>
+    readonly clientId: FieldRef<"ReminderAutomation", 'String'>
+    readonly name: FieldRef<"ReminderAutomation", 'String'>
+    readonly automationType: FieldRef<"ReminderAutomation", 'AutomationType'>
+    readonly enabled: FieldRef<"ReminderAutomation", 'Boolean'>
+    readonly isCustomOverride: FieldRef<"ReminderAutomation", 'Boolean'>
+    readonly frequencyValue: FieldRef<"ReminderAutomation", 'Int'>
+    readonly frequencyUnit: FieldRef<"ReminderAutomation", 'TimeUnit'>
+    readonly advanceNoticeValue: FieldRef<"ReminderAutomation", 'Int'>
+    readonly advanceNoticeUnit: FieldRef<"ReminderAutomation", 'TimeUnit'>
+    readonly channel: FieldRef<"ReminderAutomation", 'ReminderChannelChoice'>
+    readonly fallbackChannel: FieldRef<"ReminderAutomation", 'PreferredChannel'>
+    readonly customMessageTemplate: FieldRef<"ReminderAutomation", 'String'>
+    readonly stopOnReply: FieldRef<"ReminderAutomation", 'Boolean'>
+    readonly stopOnAppointment: FieldRef<"ReminderAutomation", 'Boolean'>
+    readonly maxFollowUps: FieldRef<"ReminderAutomation", 'Int'>
+    readonly followUpIntervalDays: FieldRef<"ReminderAutomation", 'Int'>
+    readonly status: FieldRef<"ReminderAutomation", 'ReminderStatus'>
+    readonly nextReminderAt: FieldRef<"ReminderAutomation", 'DateTime'>
+    readonly lastCompletedInterventionId: FieldRef<"ReminderAutomation", 'String'>
+    readonly lastCompletedAt: FieldRef<"ReminderAutomation", 'DateTime'>
+    readonly createdAt: FieldRef<"ReminderAutomation", 'DateTime'>
+    readonly updatedAt: FieldRef<"ReminderAutomation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReminderAutomation findUnique
+   */
+  export type ReminderAutomationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomation to fetch.
+     */
+    where: ReminderAutomationWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomation findUniqueOrThrow
+   */
+  export type ReminderAutomationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomation to fetch.
+     */
+    where: ReminderAutomationWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomation findFirst
+   */
+  export type ReminderAutomationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomation to fetch.
+     */
+    where?: ReminderAutomationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomations to fetch.
+     */
+    orderBy?: ReminderAutomationOrderByWithRelationInput | ReminderAutomationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReminderAutomations.
+     */
+    cursor?: ReminderAutomationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderAutomations.
+     */
+    distinct?: ReminderAutomationScalarFieldEnum | ReminderAutomationScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomation findFirstOrThrow
+   */
+  export type ReminderAutomationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomation to fetch.
+     */
+    where?: ReminderAutomationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomations to fetch.
+     */
+    orderBy?: ReminderAutomationOrderByWithRelationInput | ReminderAutomationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReminderAutomations.
+     */
+    cursor?: ReminderAutomationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderAutomations.
+     */
+    distinct?: ReminderAutomationScalarFieldEnum | ReminderAutomationScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomation findMany
+   */
+  export type ReminderAutomationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomations to fetch.
+     */
+    where?: ReminderAutomationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomations to fetch.
+     */
+    orderBy?: ReminderAutomationOrderByWithRelationInput | ReminderAutomationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReminderAutomations.
+     */
+    cursor?: ReminderAutomationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderAutomations.
+     */
+    distinct?: ReminderAutomationScalarFieldEnum | ReminderAutomationScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomation create
+   */
+  export type ReminderAutomationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReminderAutomation.
+     */
+    data: XOR<ReminderAutomationCreateInput, ReminderAutomationUncheckedCreateInput>
+  }
+
+  /**
+   * ReminderAutomation createMany
+   */
+  export type ReminderAutomationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReminderAutomations.
+     */
+    data: ReminderAutomationCreateManyInput | ReminderAutomationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReminderAutomation createManyAndReturn
+   */
+  export type ReminderAutomationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReminderAutomations.
+     */
+    data: ReminderAutomationCreateManyInput | ReminderAutomationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReminderAutomation update
+   */
+  export type ReminderAutomationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReminderAutomation.
+     */
+    data: XOR<ReminderAutomationUpdateInput, ReminderAutomationUncheckedUpdateInput>
+    /**
+     * Choose, which ReminderAutomation to update.
+     */
+    where: ReminderAutomationWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomation updateMany
+   */
+  export type ReminderAutomationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReminderAutomations.
+     */
+    data: XOR<ReminderAutomationUpdateManyMutationInput, ReminderAutomationUncheckedUpdateManyInput>
+    /**
+     * Filter which ReminderAutomations to update
+     */
+    where?: ReminderAutomationWhereInput
+    /**
+     * Limit how many ReminderAutomations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReminderAutomation updateManyAndReturn
+   */
+  export type ReminderAutomationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * The data used to update ReminderAutomations.
+     */
+    data: XOR<ReminderAutomationUpdateManyMutationInput, ReminderAutomationUncheckedUpdateManyInput>
+    /**
+     * Filter which ReminderAutomations to update
+     */
+    where?: ReminderAutomationWhereInput
+    /**
+     * Limit how many ReminderAutomations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReminderAutomation upsert
+   */
+  export type ReminderAutomationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReminderAutomation to update in case it exists.
+     */
+    where: ReminderAutomationWhereUniqueInput
+    /**
+     * In case the ReminderAutomation found by the `where` argument doesn't exist, create a new ReminderAutomation with this data.
+     */
+    create: XOR<ReminderAutomationCreateInput, ReminderAutomationUncheckedCreateInput>
+    /**
+     * In case the ReminderAutomation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReminderAutomationUpdateInput, ReminderAutomationUncheckedUpdateInput>
+  }
+
+  /**
+   * ReminderAutomation delete
+   */
+  export type ReminderAutomationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+    /**
+     * Filter which ReminderAutomation to delete.
+     */
+    where: ReminderAutomationWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomation deleteMany
+   */
+  export type ReminderAutomationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReminderAutomations to delete
+     */
+    where?: ReminderAutomationWhereInput
+    /**
+     * Limit how many ReminderAutomations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReminderAutomation.lastCompletedIntervention
+   */
+  export type ReminderAutomation$lastCompletedInterventionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Intervention
+     */
+    select?: InterventionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Intervention
+     */
+    omit?: InterventionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionInclude<ExtArgs> | null
+    where?: InterventionWhereInput
+  }
+
+  /**
+   * ReminderAutomation.trackedServices
+   */
+  export type ReminderAutomation$trackedServicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    where?: ReminderAutomationServiceWhereInput
+    orderBy?: ReminderAutomationServiceOrderByWithRelationInput | ReminderAutomationServiceOrderByWithRelationInput[]
+    cursor?: ReminderAutomationServiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderAutomationServiceScalarFieldEnum | ReminderAutomationServiceScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomation.executions
+   */
+  export type ReminderAutomation$executionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    where?: ReminderExecutionWhereInput
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    cursor?: ReminderExecutionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomation without action
+   */
+  export type ReminderAutomationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomation
+     */
+    select?: ReminderAutomationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomation
+     */
+    omit?: ReminderAutomationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReminderAutomationService
+   */
+
+  export type AggregateReminderAutomationService = {
+    _count: ReminderAutomationServiceCountAggregateOutputType | null
+    _min: ReminderAutomationServiceMinAggregateOutputType | null
+    _max: ReminderAutomationServiceMaxAggregateOutputType | null
+  }
+
+  export type ReminderAutomationServiceMinAggregateOutputType = {
+    id: string | null
+    reminderAutomationId: string | null
+    serviceTypeId: string | null
+    createdAt: Date | null
+  }
+
+  export type ReminderAutomationServiceMaxAggregateOutputType = {
+    id: string | null
+    reminderAutomationId: string | null
+    serviceTypeId: string | null
+    createdAt: Date | null
+  }
+
+  export type ReminderAutomationServiceCountAggregateOutputType = {
+    id: number
+    reminderAutomationId: number
+    serviceTypeId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ReminderAutomationServiceMinAggregateInputType = {
+    id?: true
+    reminderAutomationId?: true
+    serviceTypeId?: true
+    createdAt?: true
+  }
+
+  export type ReminderAutomationServiceMaxAggregateInputType = {
+    id?: true
+    reminderAutomationId?: true
+    serviceTypeId?: true
+    createdAt?: true
+  }
+
+  export type ReminderAutomationServiceCountAggregateInputType = {
+    id?: true
+    reminderAutomationId?: true
+    serviceTypeId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ReminderAutomationServiceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReminderAutomationService to aggregate.
+     */
+    where?: ReminderAutomationServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomationServices to fetch.
+     */
+    orderBy?: ReminderAutomationServiceOrderByWithRelationInput | ReminderAutomationServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReminderAutomationServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomationServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomationServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReminderAutomationServices
+    **/
+    _count?: true | ReminderAutomationServiceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReminderAutomationServiceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReminderAutomationServiceMaxAggregateInputType
+  }
+
+  export type GetReminderAutomationServiceAggregateType<T extends ReminderAutomationServiceAggregateArgs> = {
+        [P in keyof T & keyof AggregateReminderAutomationService]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReminderAutomationService[P]>
+      : GetScalarType<T[P], AggregateReminderAutomationService[P]>
+  }
+
+
+
+
+  export type ReminderAutomationServiceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderAutomationServiceWhereInput
+    orderBy?: ReminderAutomationServiceOrderByWithAggregationInput | ReminderAutomationServiceOrderByWithAggregationInput[]
+    by: ReminderAutomationServiceScalarFieldEnum[] | ReminderAutomationServiceScalarFieldEnum
+    having?: ReminderAutomationServiceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReminderAutomationServiceCountAggregateInputType | true
+    _min?: ReminderAutomationServiceMinAggregateInputType
+    _max?: ReminderAutomationServiceMaxAggregateInputType
+  }
+
+  export type ReminderAutomationServiceGroupByOutputType = {
+    id: string
+    reminderAutomationId: string
+    serviceTypeId: string
+    createdAt: Date
+    _count: ReminderAutomationServiceCountAggregateOutputType | null
+    _min: ReminderAutomationServiceMinAggregateOutputType | null
+    _max: ReminderAutomationServiceMaxAggregateOutputType | null
+  }
+
+  type GetReminderAutomationServiceGroupByPayload<T extends ReminderAutomationServiceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReminderAutomationServiceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReminderAutomationServiceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReminderAutomationServiceGroupByOutputType[P]>
+            : GetScalarType<T[P], ReminderAutomationServiceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReminderAutomationServiceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    reminderAutomationId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderAutomationService"]>
+
+  export type ReminderAutomationServiceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    reminderAutomationId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderAutomationService"]>
+
+  export type ReminderAutomationServiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    reminderAutomationId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderAutomationService"]>
+
+  export type ReminderAutomationServiceSelectScalar = {
+    id?: boolean
+    reminderAutomationId?: boolean
+    serviceTypeId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ReminderAutomationServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "reminderAutomationId" | "serviceTypeId" | "createdAt", ExtArgs["result"]["reminderAutomationService"]>
+  export type ReminderAutomationServiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }
+  export type ReminderAutomationServiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }
+  export type ReminderAutomationServiceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    serviceType?: boolean | ServiceTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $ReminderAutomationServicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReminderAutomationService"
+    objects: {
+      reminderAutomation: Prisma.$ReminderAutomationPayload<ExtArgs>
+      serviceType: Prisma.$ServiceTypePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      reminderAutomationId: string
+      serviceTypeId: string
+      createdAt: Date
+    }, ExtArgs["result"]["reminderAutomationService"]>
+    composites: {}
+  }
+
+  type ReminderAutomationServiceGetPayload<S extends boolean | null | undefined | ReminderAutomationServiceDefaultArgs> = $Result.GetResult<Prisma.$ReminderAutomationServicePayload, S>
+
+  type ReminderAutomationServiceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReminderAutomationServiceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReminderAutomationServiceCountAggregateInputType | true
+    }
+
+  export interface ReminderAutomationServiceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReminderAutomationService'], meta: { name: 'ReminderAutomationService' } }
+    /**
+     * Find zero or one ReminderAutomationService that matches the filter.
+     * @param {ReminderAutomationServiceFindUniqueArgs} args - Arguments to find a ReminderAutomationService
+     * @example
+     * // Get one ReminderAutomationService
+     * const reminderAutomationService = await prisma.reminderAutomationService.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReminderAutomationServiceFindUniqueArgs>(args: SelectSubset<T, ReminderAutomationServiceFindUniqueArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReminderAutomationService that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReminderAutomationServiceFindUniqueOrThrowArgs} args - Arguments to find a ReminderAutomationService
+     * @example
+     * // Get one ReminderAutomationService
+     * const reminderAutomationService = await prisma.reminderAutomationService.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReminderAutomationServiceFindUniqueOrThrowArgs>(args: SelectSubset<T, ReminderAutomationServiceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReminderAutomationService that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationServiceFindFirstArgs} args - Arguments to find a ReminderAutomationService
+     * @example
+     * // Get one ReminderAutomationService
+     * const reminderAutomationService = await prisma.reminderAutomationService.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReminderAutomationServiceFindFirstArgs>(args?: SelectSubset<T, ReminderAutomationServiceFindFirstArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReminderAutomationService that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationServiceFindFirstOrThrowArgs} args - Arguments to find a ReminderAutomationService
+     * @example
+     * // Get one ReminderAutomationService
+     * const reminderAutomationService = await prisma.reminderAutomationService.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReminderAutomationServiceFindFirstOrThrowArgs>(args?: SelectSubset<T, ReminderAutomationServiceFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReminderAutomationServices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationServiceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReminderAutomationServices
+     * const reminderAutomationServices = await prisma.reminderAutomationService.findMany()
+     * 
+     * // Get first 10 ReminderAutomationServices
+     * const reminderAutomationServices = await prisma.reminderAutomationService.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reminderAutomationServiceWithIdOnly = await prisma.reminderAutomationService.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReminderAutomationServiceFindManyArgs>(args?: SelectSubset<T, ReminderAutomationServiceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReminderAutomationService.
+     * @param {ReminderAutomationServiceCreateArgs} args - Arguments to create a ReminderAutomationService.
+     * @example
+     * // Create one ReminderAutomationService
+     * const ReminderAutomationService = await prisma.reminderAutomationService.create({
+     *   data: {
+     *     // ... data to create a ReminderAutomationService
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReminderAutomationServiceCreateArgs>(args: SelectSubset<T, ReminderAutomationServiceCreateArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReminderAutomationServices.
+     * @param {ReminderAutomationServiceCreateManyArgs} args - Arguments to create many ReminderAutomationServices.
+     * @example
+     * // Create many ReminderAutomationServices
+     * const reminderAutomationService = await prisma.reminderAutomationService.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReminderAutomationServiceCreateManyArgs>(args?: SelectSubset<T, ReminderAutomationServiceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReminderAutomationServices and returns the data saved in the database.
+     * @param {ReminderAutomationServiceCreateManyAndReturnArgs} args - Arguments to create many ReminderAutomationServices.
+     * @example
+     * // Create many ReminderAutomationServices
+     * const reminderAutomationService = await prisma.reminderAutomationService.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReminderAutomationServices and only return the `id`
+     * const reminderAutomationServiceWithIdOnly = await prisma.reminderAutomationService.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReminderAutomationServiceCreateManyAndReturnArgs>(args?: SelectSubset<T, ReminderAutomationServiceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReminderAutomationService.
+     * @param {ReminderAutomationServiceDeleteArgs} args - Arguments to delete one ReminderAutomationService.
+     * @example
+     * // Delete one ReminderAutomationService
+     * const ReminderAutomationService = await prisma.reminderAutomationService.delete({
+     *   where: {
+     *     // ... filter to delete one ReminderAutomationService
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReminderAutomationServiceDeleteArgs>(args: SelectSubset<T, ReminderAutomationServiceDeleteArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReminderAutomationService.
+     * @param {ReminderAutomationServiceUpdateArgs} args - Arguments to update one ReminderAutomationService.
+     * @example
+     * // Update one ReminderAutomationService
+     * const reminderAutomationService = await prisma.reminderAutomationService.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReminderAutomationServiceUpdateArgs>(args: SelectSubset<T, ReminderAutomationServiceUpdateArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReminderAutomationServices.
+     * @param {ReminderAutomationServiceDeleteManyArgs} args - Arguments to filter ReminderAutomationServices to delete.
+     * @example
+     * // Delete a few ReminderAutomationServices
+     * const { count } = await prisma.reminderAutomationService.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReminderAutomationServiceDeleteManyArgs>(args?: SelectSubset<T, ReminderAutomationServiceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReminderAutomationServices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationServiceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReminderAutomationServices
+     * const reminderAutomationService = await prisma.reminderAutomationService.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReminderAutomationServiceUpdateManyArgs>(args: SelectSubset<T, ReminderAutomationServiceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReminderAutomationServices and returns the data updated in the database.
+     * @param {ReminderAutomationServiceUpdateManyAndReturnArgs} args - Arguments to update many ReminderAutomationServices.
+     * @example
+     * // Update many ReminderAutomationServices
+     * const reminderAutomationService = await prisma.reminderAutomationService.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReminderAutomationServices and only return the `id`
+     * const reminderAutomationServiceWithIdOnly = await prisma.reminderAutomationService.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReminderAutomationServiceUpdateManyAndReturnArgs>(args: SelectSubset<T, ReminderAutomationServiceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReminderAutomationService.
+     * @param {ReminderAutomationServiceUpsertArgs} args - Arguments to update or create a ReminderAutomationService.
+     * @example
+     * // Update or create a ReminderAutomationService
+     * const reminderAutomationService = await prisma.reminderAutomationService.upsert({
+     *   create: {
+     *     // ... data to create a ReminderAutomationService
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReminderAutomationService we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReminderAutomationServiceUpsertArgs>(args: SelectSubset<T, ReminderAutomationServiceUpsertArgs<ExtArgs>>): Prisma__ReminderAutomationServiceClient<$Result.GetResult<Prisma.$ReminderAutomationServicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReminderAutomationServices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationServiceCountArgs} args - Arguments to filter ReminderAutomationServices to count.
+     * @example
+     * // Count the number of ReminderAutomationServices
+     * const count = await prisma.reminderAutomationService.count({
+     *   where: {
+     *     // ... the filter for the ReminderAutomationServices we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReminderAutomationServiceCountArgs>(
+      args?: Subset<T, ReminderAutomationServiceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReminderAutomationServiceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReminderAutomationService.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationServiceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReminderAutomationServiceAggregateArgs>(args: Subset<T, ReminderAutomationServiceAggregateArgs>): Prisma.PrismaPromise<GetReminderAutomationServiceAggregateType<T>>
+
+    /**
+     * Group by ReminderAutomationService.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderAutomationServiceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReminderAutomationServiceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReminderAutomationServiceGroupByArgs['orderBy'] }
+        : { orderBy?: ReminderAutomationServiceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReminderAutomationServiceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReminderAutomationServiceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReminderAutomationService model
+   */
+  readonly fields: ReminderAutomationServiceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReminderAutomationService.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReminderAutomationServiceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    reminderAutomation<T extends ReminderAutomationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ReminderAutomationDefaultArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    serviceType<T extends ServiceTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ServiceTypeDefaultArgs<ExtArgs>>): Prisma__ServiceTypeClient<$Result.GetResult<Prisma.$ServiceTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReminderAutomationService model
+   */
+  interface ReminderAutomationServiceFieldRefs {
+    readonly id: FieldRef<"ReminderAutomationService", 'String'>
+    readonly reminderAutomationId: FieldRef<"ReminderAutomationService", 'String'>
+    readonly serviceTypeId: FieldRef<"ReminderAutomationService", 'String'>
+    readonly createdAt: FieldRef<"ReminderAutomationService", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReminderAutomationService findUnique
+   */
+  export type ReminderAutomationServiceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomationService to fetch.
+     */
+    where: ReminderAutomationServiceWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomationService findUniqueOrThrow
+   */
+  export type ReminderAutomationServiceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomationService to fetch.
+     */
+    where: ReminderAutomationServiceWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomationService findFirst
+   */
+  export type ReminderAutomationServiceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomationService to fetch.
+     */
+    where?: ReminderAutomationServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomationServices to fetch.
+     */
+    orderBy?: ReminderAutomationServiceOrderByWithRelationInput | ReminderAutomationServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReminderAutomationServices.
+     */
+    cursor?: ReminderAutomationServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomationServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomationServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderAutomationServices.
+     */
+    distinct?: ReminderAutomationServiceScalarFieldEnum | ReminderAutomationServiceScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomationService findFirstOrThrow
+   */
+  export type ReminderAutomationServiceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomationService to fetch.
+     */
+    where?: ReminderAutomationServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomationServices to fetch.
+     */
+    orderBy?: ReminderAutomationServiceOrderByWithRelationInput | ReminderAutomationServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReminderAutomationServices.
+     */
+    cursor?: ReminderAutomationServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomationServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomationServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderAutomationServices.
+     */
+    distinct?: ReminderAutomationServiceScalarFieldEnum | ReminderAutomationServiceScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomationService findMany
+   */
+  export type ReminderAutomationServiceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderAutomationServices to fetch.
+     */
+    where?: ReminderAutomationServiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderAutomationServices to fetch.
+     */
+    orderBy?: ReminderAutomationServiceOrderByWithRelationInput | ReminderAutomationServiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReminderAutomationServices.
+     */
+    cursor?: ReminderAutomationServiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderAutomationServices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderAutomationServices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderAutomationServices.
+     */
+    distinct?: ReminderAutomationServiceScalarFieldEnum | ReminderAutomationServiceScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderAutomationService create
+   */
+  export type ReminderAutomationServiceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReminderAutomationService.
+     */
+    data: XOR<ReminderAutomationServiceCreateInput, ReminderAutomationServiceUncheckedCreateInput>
+  }
+
+  /**
+   * ReminderAutomationService createMany
+   */
+  export type ReminderAutomationServiceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReminderAutomationServices.
+     */
+    data: ReminderAutomationServiceCreateManyInput | ReminderAutomationServiceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReminderAutomationService createManyAndReturn
+   */
+  export type ReminderAutomationServiceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReminderAutomationServices.
+     */
+    data: ReminderAutomationServiceCreateManyInput | ReminderAutomationServiceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReminderAutomationService update
+   */
+  export type ReminderAutomationServiceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReminderAutomationService.
+     */
+    data: XOR<ReminderAutomationServiceUpdateInput, ReminderAutomationServiceUncheckedUpdateInput>
+    /**
+     * Choose, which ReminderAutomationService to update.
+     */
+    where: ReminderAutomationServiceWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomationService updateMany
+   */
+  export type ReminderAutomationServiceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReminderAutomationServices.
+     */
+    data: XOR<ReminderAutomationServiceUpdateManyMutationInput, ReminderAutomationServiceUncheckedUpdateManyInput>
+    /**
+     * Filter which ReminderAutomationServices to update
+     */
+    where?: ReminderAutomationServiceWhereInput
+    /**
+     * Limit how many ReminderAutomationServices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReminderAutomationService updateManyAndReturn
+   */
+  export type ReminderAutomationServiceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * The data used to update ReminderAutomationServices.
+     */
+    data: XOR<ReminderAutomationServiceUpdateManyMutationInput, ReminderAutomationServiceUncheckedUpdateManyInput>
+    /**
+     * Filter which ReminderAutomationServices to update
+     */
+    where?: ReminderAutomationServiceWhereInput
+    /**
+     * Limit how many ReminderAutomationServices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReminderAutomationService upsert
+   */
+  export type ReminderAutomationServiceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReminderAutomationService to update in case it exists.
+     */
+    where: ReminderAutomationServiceWhereUniqueInput
+    /**
+     * In case the ReminderAutomationService found by the `where` argument doesn't exist, create a new ReminderAutomationService with this data.
+     */
+    create: XOR<ReminderAutomationServiceCreateInput, ReminderAutomationServiceUncheckedCreateInput>
+    /**
+     * In case the ReminderAutomationService was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReminderAutomationServiceUpdateInput, ReminderAutomationServiceUncheckedUpdateInput>
+  }
+
+  /**
+   * ReminderAutomationService delete
+   */
+  export type ReminderAutomationServiceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+    /**
+     * Filter which ReminderAutomationService to delete.
+     */
+    where: ReminderAutomationServiceWhereUniqueInput
+  }
+
+  /**
+   * ReminderAutomationService deleteMany
+   */
+  export type ReminderAutomationServiceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReminderAutomationServices to delete
+     */
+    where?: ReminderAutomationServiceWhereInput
+    /**
+     * Limit how many ReminderAutomationServices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReminderAutomationService without action
+   */
+  export type ReminderAutomationServiceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderAutomationService
+     */
+    select?: ReminderAutomationServiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderAutomationService
+     */
+    omit?: ReminderAutomationServiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderAutomationServiceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReminderExecution
+   */
+
+  export type AggregateReminderExecution = {
+    _count: ReminderExecutionCountAggregateOutputType | null
+    _avg: ReminderExecutionAvgAggregateOutputType | null
+    _sum: ReminderExecutionSumAggregateOutputType | null
+    _min: ReminderExecutionMinAggregateOutputType | null
+    _max: ReminderExecutionMaxAggregateOutputType | null
+  }
+
+  export type ReminderExecutionAvgAggregateOutputType = {
+    sequenceStep: number | null
+  }
+
+  export type ReminderExecutionSumAggregateOutputType = {
+    sequenceStep: number | null
+  }
+
+  export type ReminderExecutionMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    reminderAutomationId: string | null
+    clientId: string | null
+    interventionId: string | null
+    sequenceStep: number | null
+    scheduledAt: Date | null
+    executedAt: Date | null
+    channel: $Enums.PreferredChannel | null
+    status: $Enums.ReminderExecutionStatus | null
+    messageId: string | null
+    recipient: string | null
+    renderedContent: string | null
+    error: string | null
+    respondedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReminderExecutionMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    reminderAutomationId: string | null
+    clientId: string | null
+    interventionId: string | null
+    sequenceStep: number | null
+    scheduledAt: Date | null
+    executedAt: Date | null
+    channel: $Enums.PreferredChannel | null
+    status: $Enums.ReminderExecutionStatus | null
+    messageId: string | null
+    recipient: string | null
+    renderedContent: string | null
+    error: string | null
+    respondedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReminderExecutionCountAggregateOutputType = {
+    id: number
+    companyId: number
+    reminderAutomationId: number
+    clientId: number
+    interventionId: number
+    sequenceStep: number
+    scheduledAt: number
+    executedAt: number
+    channel: number
+    status: number
+    messageId: number
+    recipient: number
+    renderedContent: number
+    error: number
+    respondedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ReminderExecutionAvgAggregateInputType = {
+    sequenceStep?: true
+  }
+
+  export type ReminderExecutionSumAggregateInputType = {
+    sequenceStep?: true
+  }
+
+  export type ReminderExecutionMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    reminderAutomationId?: true
+    clientId?: true
+    interventionId?: true
+    sequenceStep?: true
+    scheduledAt?: true
+    executedAt?: true
+    channel?: true
+    status?: true
+    messageId?: true
+    recipient?: true
+    renderedContent?: true
+    error?: true
+    respondedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReminderExecutionMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    reminderAutomationId?: true
+    clientId?: true
+    interventionId?: true
+    sequenceStep?: true
+    scheduledAt?: true
+    executedAt?: true
+    channel?: true
+    status?: true
+    messageId?: true
+    recipient?: true
+    renderedContent?: true
+    error?: true
+    respondedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReminderExecutionCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    reminderAutomationId?: true
+    clientId?: true
+    interventionId?: true
+    sequenceStep?: true
+    scheduledAt?: true
+    executedAt?: true
+    channel?: true
+    status?: true
+    messageId?: true
+    recipient?: true
+    renderedContent?: true
+    error?: true
+    respondedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ReminderExecutionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReminderExecution to aggregate.
+     */
+    where?: ReminderExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderExecutions to fetch.
+     */
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReminderExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderExecutions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderExecutions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReminderExecutions
+    **/
+    _count?: true | ReminderExecutionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReminderExecutionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReminderExecutionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReminderExecutionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReminderExecutionMaxAggregateInputType
+  }
+
+  export type GetReminderExecutionAggregateType<T extends ReminderExecutionAggregateArgs> = {
+        [P in keyof T & keyof AggregateReminderExecution]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReminderExecution[P]>
+      : GetScalarType<T[P], AggregateReminderExecution[P]>
+  }
+
+
+
+
+  export type ReminderExecutionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReminderExecutionWhereInput
+    orderBy?: ReminderExecutionOrderByWithAggregationInput | ReminderExecutionOrderByWithAggregationInput[]
+    by: ReminderExecutionScalarFieldEnum[] | ReminderExecutionScalarFieldEnum
+    having?: ReminderExecutionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReminderExecutionCountAggregateInputType | true
+    _avg?: ReminderExecutionAvgAggregateInputType
+    _sum?: ReminderExecutionSumAggregateInputType
+    _min?: ReminderExecutionMinAggregateInputType
+    _max?: ReminderExecutionMaxAggregateInputType
+  }
+
+  export type ReminderExecutionGroupByOutputType = {
+    id: string
+    companyId: string
+    reminderAutomationId: string
+    clientId: string
+    interventionId: string | null
+    sequenceStep: number
+    scheduledAt: Date
+    executedAt: Date | null
+    channel: $Enums.PreferredChannel | null
+    status: $Enums.ReminderExecutionStatus
+    messageId: string | null
+    recipient: string | null
+    renderedContent: string | null
+    error: string | null
+    respondedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ReminderExecutionCountAggregateOutputType | null
+    _avg: ReminderExecutionAvgAggregateOutputType | null
+    _sum: ReminderExecutionSumAggregateOutputType | null
+    _min: ReminderExecutionMinAggregateOutputType | null
+    _max: ReminderExecutionMaxAggregateOutputType | null
+  }
+
+  type GetReminderExecutionGroupByPayload<T extends ReminderExecutionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReminderExecutionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReminderExecutionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReminderExecutionGroupByOutputType[P]>
+            : GetScalarType<T[P], ReminderExecutionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReminderExecutionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    reminderAutomationId?: boolean
+    clientId?: boolean
+    interventionId?: boolean
+    sequenceStep?: boolean
+    scheduledAt?: boolean
+    executedAt?: boolean
+    channel?: boolean
+    status?: boolean
+    messageId?: boolean
+    recipient?: boolean
+    renderedContent?: boolean
+    error?: boolean
+    respondedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    intervention?: boolean | ReminderExecution$interventionArgs<ExtArgs>
+    message?: boolean | ReminderExecution$messageArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderExecution"]>
+
+  export type ReminderExecutionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    reminderAutomationId?: boolean
+    clientId?: boolean
+    interventionId?: boolean
+    sequenceStep?: boolean
+    scheduledAt?: boolean
+    executedAt?: boolean
+    channel?: boolean
+    status?: boolean
+    messageId?: boolean
+    recipient?: boolean
+    renderedContent?: boolean
+    error?: boolean
+    respondedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    intervention?: boolean | ReminderExecution$interventionArgs<ExtArgs>
+    message?: boolean | ReminderExecution$messageArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderExecution"]>
+
+  export type ReminderExecutionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    reminderAutomationId?: boolean
+    clientId?: boolean
+    interventionId?: boolean
+    sequenceStep?: boolean
+    scheduledAt?: boolean
+    executedAt?: boolean
+    channel?: boolean
+    status?: boolean
+    messageId?: boolean
+    recipient?: boolean
+    renderedContent?: boolean
+    error?: boolean
+    respondedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    intervention?: boolean | ReminderExecution$interventionArgs<ExtArgs>
+    message?: boolean | ReminderExecution$messageArgs<ExtArgs>
+  }, ExtArgs["result"]["reminderExecution"]>
+
+  export type ReminderExecutionSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    reminderAutomationId?: boolean
+    clientId?: boolean
+    interventionId?: boolean
+    sequenceStep?: boolean
+    scheduledAt?: boolean
+    executedAt?: boolean
+    channel?: boolean
+    status?: boolean
+    messageId?: boolean
+    recipient?: boolean
+    renderedContent?: boolean
+    error?: boolean
+    respondedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ReminderExecutionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "reminderAutomationId" | "clientId" | "interventionId" | "sequenceStep" | "scheduledAt" | "executedAt" | "channel" | "status" | "messageId" | "recipient" | "renderedContent" | "error" | "respondedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["reminderExecution"]>
+  export type ReminderExecutionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    intervention?: boolean | ReminderExecution$interventionArgs<ExtArgs>
+    message?: boolean | ReminderExecution$messageArgs<ExtArgs>
+  }
+  export type ReminderExecutionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    intervention?: boolean | ReminderExecution$interventionArgs<ExtArgs>
+    message?: boolean | ReminderExecution$messageArgs<ExtArgs>
+  }
+  export type ReminderExecutionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    reminderAutomation?: boolean | ReminderAutomationDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+    intervention?: boolean | ReminderExecution$interventionArgs<ExtArgs>
+    message?: boolean | ReminderExecution$messageArgs<ExtArgs>
+  }
+
+  export type $ReminderExecutionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReminderExecution"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      reminderAutomation: Prisma.$ReminderAutomationPayload<ExtArgs>
+      client: Prisma.$ClientPayload<ExtArgs>
+      intervention: Prisma.$InterventionPayload<ExtArgs> | null
+      message: Prisma.$SmsLogPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      reminderAutomationId: string
+      clientId: string
+      interventionId: string | null
+      sequenceStep: number
+      scheduledAt: Date
+      executedAt: Date | null
+      channel: $Enums.PreferredChannel | null
+      status: $Enums.ReminderExecutionStatus
+      messageId: string | null
+      recipient: string | null
+      renderedContent: string | null
+      error: string | null
+      respondedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["reminderExecution"]>
+    composites: {}
+  }
+
+  type ReminderExecutionGetPayload<S extends boolean | null | undefined | ReminderExecutionDefaultArgs> = $Result.GetResult<Prisma.$ReminderExecutionPayload, S>
+
+  type ReminderExecutionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReminderExecutionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReminderExecutionCountAggregateInputType | true
+    }
+
+  export interface ReminderExecutionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReminderExecution'], meta: { name: 'ReminderExecution' } }
+    /**
+     * Find zero or one ReminderExecution that matches the filter.
+     * @param {ReminderExecutionFindUniqueArgs} args - Arguments to find a ReminderExecution
+     * @example
+     * // Get one ReminderExecution
+     * const reminderExecution = await prisma.reminderExecution.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReminderExecutionFindUniqueArgs>(args: SelectSubset<T, ReminderExecutionFindUniqueArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReminderExecution that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReminderExecutionFindUniqueOrThrowArgs} args - Arguments to find a ReminderExecution
+     * @example
+     * // Get one ReminderExecution
+     * const reminderExecution = await prisma.reminderExecution.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReminderExecutionFindUniqueOrThrowArgs>(args: SelectSubset<T, ReminderExecutionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReminderExecution that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderExecutionFindFirstArgs} args - Arguments to find a ReminderExecution
+     * @example
+     * // Get one ReminderExecution
+     * const reminderExecution = await prisma.reminderExecution.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReminderExecutionFindFirstArgs>(args?: SelectSubset<T, ReminderExecutionFindFirstArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReminderExecution that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderExecutionFindFirstOrThrowArgs} args - Arguments to find a ReminderExecution
+     * @example
+     * // Get one ReminderExecution
+     * const reminderExecution = await prisma.reminderExecution.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReminderExecutionFindFirstOrThrowArgs>(args?: SelectSubset<T, ReminderExecutionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReminderExecutions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderExecutionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReminderExecutions
+     * const reminderExecutions = await prisma.reminderExecution.findMany()
+     * 
+     * // Get first 10 ReminderExecutions
+     * const reminderExecutions = await prisma.reminderExecution.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reminderExecutionWithIdOnly = await prisma.reminderExecution.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReminderExecutionFindManyArgs>(args?: SelectSubset<T, ReminderExecutionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReminderExecution.
+     * @param {ReminderExecutionCreateArgs} args - Arguments to create a ReminderExecution.
+     * @example
+     * // Create one ReminderExecution
+     * const ReminderExecution = await prisma.reminderExecution.create({
+     *   data: {
+     *     // ... data to create a ReminderExecution
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReminderExecutionCreateArgs>(args: SelectSubset<T, ReminderExecutionCreateArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReminderExecutions.
+     * @param {ReminderExecutionCreateManyArgs} args - Arguments to create many ReminderExecutions.
+     * @example
+     * // Create many ReminderExecutions
+     * const reminderExecution = await prisma.reminderExecution.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReminderExecutionCreateManyArgs>(args?: SelectSubset<T, ReminderExecutionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReminderExecutions and returns the data saved in the database.
+     * @param {ReminderExecutionCreateManyAndReturnArgs} args - Arguments to create many ReminderExecutions.
+     * @example
+     * // Create many ReminderExecutions
+     * const reminderExecution = await prisma.reminderExecution.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReminderExecutions and only return the `id`
+     * const reminderExecutionWithIdOnly = await prisma.reminderExecution.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReminderExecutionCreateManyAndReturnArgs>(args?: SelectSubset<T, ReminderExecutionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReminderExecution.
+     * @param {ReminderExecutionDeleteArgs} args - Arguments to delete one ReminderExecution.
+     * @example
+     * // Delete one ReminderExecution
+     * const ReminderExecution = await prisma.reminderExecution.delete({
+     *   where: {
+     *     // ... filter to delete one ReminderExecution
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReminderExecutionDeleteArgs>(args: SelectSubset<T, ReminderExecutionDeleteArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReminderExecution.
+     * @param {ReminderExecutionUpdateArgs} args - Arguments to update one ReminderExecution.
+     * @example
+     * // Update one ReminderExecution
+     * const reminderExecution = await prisma.reminderExecution.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReminderExecutionUpdateArgs>(args: SelectSubset<T, ReminderExecutionUpdateArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReminderExecutions.
+     * @param {ReminderExecutionDeleteManyArgs} args - Arguments to filter ReminderExecutions to delete.
+     * @example
+     * // Delete a few ReminderExecutions
+     * const { count } = await prisma.reminderExecution.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReminderExecutionDeleteManyArgs>(args?: SelectSubset<T, ReminderExecutionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReminderExecutions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderExecutionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReminderExecutions
+     * const reminderExecution = await prisma.reminderExecution.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReminderExecutionUpdateManyArgs>(args: SelectSubset<T, ReminderExecutionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReminderExecutions and returns the data updated in the database.
+     * @param {ReminderExecutionUpdateManyAndReturnArgs} args - Arguments to update many ReminderExecutions.
+     * @example
+     * // Update many ReminderExecutions
+     * const reminderExecution = await prisma.reminderExecution.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReminderExecutions and only return the `id`
+     * const reminderExecutionWithIdOnly = await prisma.reminderExecution.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReminderExecutionUpdateManyAndReturnArgs>(args: SelectSubset<T, ReminderExecutionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReminderExecution.
+     * @param {ReminderExecutionUpsertArgs} args - Arguments to update or create a ReminderExecution.
+     * @example
+     * // Update or create a ReminderExecution
+     * const reminderExecution = await prisma.reminderExecution.upsert({
+     *   create: {
+     *     // ... data to create a ReminderExecution
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReminderExecution we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReminderExecutionUpsertArgs>(args: SelectSubset<T, ReminderExecutionUpsertArgs<ExtArgs>>): Prisma__ReminderExecutionClient<$Result.GetResult<Prisma.$ReminderExecutionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReminderExecutions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderExecutionCountArgs} args - Arguments to filter ReminderExecutions to count.
+     * @example
+     * // Count the number of ReminderExecutions
+     * const count = await prisma.reminderExecution.count({
+     *   where: {
+     *     // ... the filter for the ReminderExecutions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReminderExecutionCountArgs>(
+      args?: Subset<T, ReminderExecutionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReminderExecutionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReminderExecution.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderExecutionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReminderExecutionAggregateArgs>(args: Subset<T, ReminderExecutionAggregateArgs>): Prisma.PrismaPromise<GetReminderExecutionAggregateType<T>>
+
+    /**
+     * Group by ReminderExecution.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReminderExecutionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReminderExecutionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReminderExecutionGroupByArgs['orderBy'] }
+        : { orderBy?: ReminderExecutionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReminderExecutionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReminderExecutionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReminderExecution model
+   */
+  readonly fields: ReminderExecutionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReminderExecution.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReminderExecutionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    reminderAutomation<T extends ReminderAutomationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ReminderAutomationDefaultArgs<ExtArgs>>): Prisma__ReminderAutomationClient<$Result.GetResult<Prisma.$ReminderAutomationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    intervention<T extends ReminderExecution$interventionArgs<ExtArgs> = {}>(args?: Subset<T, ReminderExecution$interventionArgs<ExtArgs>>): Prisma__InterventionClient<$Result.GetResult<Prisma.$InterventionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    message<T extends ReminderExecution$messageArgs<ExtArgs> = {}>(args?: Subset<T, ReminderExecution$messageArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReminderExecution model
+   */
+  interface ReminderExecutionFieldRefs {
+    readonly id: FieldRef<"ReminderExecution", 'String'>
+    readonly companyId: FieldRef<"ReminderExecution", 'String'>
+    readonly reminderAutomationId: FieldRef<"ReminderExecution", 'String'>
+    readonly clientId: FieldRef<"ReminderExecution", 'String'>
+    readonly interventionId: FieldRef<"ReminderExecution", 'String'>
+    readonly sequenceStep: FieldRef<"ReminderExecution", 'Int'>
+    readonly scheduledAt: FieldRef<"ReminderExecution", 'DateTime'>
+    readonly executedAt: FieldRef<"ReminderExecution", 'DateTime'>
+    readonly channel: FieldRef<"ReminderExecution", 'PreferredChannel'>
+    readonly status: FieldRef<"ReminderExecution", 'ReminderExecutionStatus'>
+    readonly messageId: FieldRef<"ReminderExecution", 'String'>
+    readonly recipient: FieldRef<"ReminderExecution", 'String'>
+    readonly renderedContent: FieldRef<"ReminderExecution", 'String'>
+    readonly error: FieldRef<"ReminderExecution", 'String'>
+    readonly respondedAt: FieldRef<"ReminderExecution", 'DateTime'>
+    readonly createdAt: FieldRef<"ReminderExecution", 'DateTime'>
+    readonly updatedAt: FieldRef<"ReminderExecution", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReminderExecution findUnique
+   */
+  export type ReminderExecutionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderExecution to fetch.
+     */
+    where: ReminderExecutionWhereUniqueInput
+  }
+
+  /**
+   * ReminderExecution findUniqueOrThrow
+   */
+  export type ReminderExecutionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderExecution to fetch.
+     */
+    where: ReminderExecutionWhereUniqueInput
+  }
+
+  /**
+   * ReminderExecution findFirst
+   */
+  export type ReminderExecutionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderExecution to fetch.
+     */
+    where?: ReminderExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderExecutions to fetch.
+     */
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReminderExecutions.
+     */
+    cursor?: ReminderExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderExecutions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderExecutions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderExecutions.
+     */
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderExecution findFirstOrThrow
+   */
+  export type ReminderExecutionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderExecution to fetch.
+     */
+    where?: ReminderExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderExecutions to fetch.
+     */
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReminderExecutions.
+     */
+    cursor?: ReminderExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderExecutions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderExecutions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderExecutions.
+     */
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderExecution findMany
+   */
+  export type ReminderExecutionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which ReminderExecutions to fetch.
+     */
+    where?: ReminderExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReminderExecutions to fetch.
+     */
+    orderBy?: ReminderExecutionOrderByWithRelationInput | ReminderExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReminderExecutions.
+     */
+    cursor?: ReminderExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReminderExecutions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReminderExecutions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReminderExecutions.
+     */
+    distinct?: ReminderExecutionScalarFieldEnum | ReminderExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * ReminderExecution create
+   */
+  export type ReminderExecutionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReminderExecution.
+     */
+    data: XOR<ReminderExecutionCreateInput, ReminderExecutionUncheckedCreateInput>
+  }
+
+  /**
+   * ReminderExecution createMany
+   */
+  export type ReminderExecutionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReminderExecutions.
+     */
+    data: ReminderExecutionCreateManyInput | ReminderExecutionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReminderExecution createManyAndReturn
+   */
+  export type ReminderExecutionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReminderExecutions.
+     */
+    data: ReminderExecutionCreateManyInput | ReminderExecutionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReminderExecution update
+   */
+  export type ReminderExecutionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReminderExecution.
+     */
+    data: XOR<ReminderExecutionUpdateInput, ReminderExecutionUncheckedUpdateInput>
+    /**
+     * Choose, which ReminderExecution to update.
+     */
+    where: ReminderExecutionWhereUniqueInput
+  }
+
+  /**
+   * ReminderExecution updateMany
+   */
+  export type ReminderExecutionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReminderExecutions.
+     */
+    data: XOR<ReminderExecutionUpdateManyMutationInput, ReminderExecutionUncheckedUpdateManyInput>
+    /**
+     * Filter which ReminderExecutions to update
+     */
+    where?: ReminderExecutionWhereInput
+    /**
+     * Limit how many ReminderExecutions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReminderExecution updateManyAndReturn
+   */
+  export type ReminderExecutionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * The data used to update ReminderExecutions.
+     */
+    data: XOR<ReminderExecutionUpdateManyMutationInput, ReminderExecutionUncheckedUpdateManyInput>
+    /**
+     * Filter which ReminderExecutions to update
+     */
+    where?: ReminderExecutionWhereInput
+    /**
+     * Limit how many ReminderExecutions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReminderExecution upsert
+   */
+  export type ReminderExecutionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReminderExecution to update in case it exists.
+     */
+    where: ReminderExecutionWhereUniqueInput
+    /**
+     * In case the ReminderExecution found by the `where` argument doesn't exist, create a new ReminderExecution with this data.
+     */
+    create: XOR<ReminderExecutionCreateInput, ReminderExecutionUncheckedCreateInput>
+    /**
+     * In case the ReminderExecution was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReminderExecutionUpdateInput, ReminderExecutionUncheckedUpdateInput>
+  }
+
+  /**
+   * ReminderExecution delete
+   */
+  export type ReminderExecutionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+    /**
+     * Filter which ReminderExecution to delete.
+     */
+    where: ReminderExecutionWhereUniqueInput
+  }
+
+  /**
+   * ReminderExecution deleteMany
+   */
+  export type ReminderExecutionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReminderExecutions to delete
+     */
+    where?: ReminderExecutionWhereInput
+    /**
+     * Limit how many ReminderExecutions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReminderExecution.intervention
+   */
+  export type ReminderExecution$interventionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Intervention
+     */
+    select?: InterventionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Intervention
+     */
+    omit?: InterventionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterventionInclude<ExtArgs> | null
+    where?: InterventionWhereInput
+  }
+
+  /**
+   * ReminderExecution.message
+   */
+  export type ReminderExecution$messageArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    where?: SmsLogWhereInput
+  }
+
+  /**
+   * ReminderExecution without action
+   */
+  export type ReminderExecutionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReminderExecution
+     */
+    select?: ReminderExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReminderExecution
+     */
+    omit?: ReminderExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReminderExecutionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -65156,6 +72358,103 @@ export namespace Prisma {
   export type BankTransactionScalarFieldEnum = (typeof BankTransactionScalarFieldEnum)[keyof typeof BankTransactionScalarFieldEnum]
 
 
+  export const ServiceTypeScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    tradeSlug: 'tradeSlug',
+    name: 'name',
+    category: 'category',
+    description: 'description',
+    defaultFrequencyValue: 'defaultFrequencyValue',
+    defaultFrequencyUnit: 'defaultFrequencyUnit',
+    defaultAdvanceNoticeValue: 'defaultAdvanceNoticeValue',
+    defaultAdvanceNoticeUnit: 'defaultAdvanceNoticeUnit',
+    defaultChannel: 'defaultChannel',
+    defaultTemplate: 'defaultTemplate',
+    recommendationLevel: 'recommendationLevel',
+    isDefault: 'isDefault',
+    isActive: 'isActive',
+    sortOrder: 'sortOrder',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ServiceTypeScalarFieldEnum = (typeof ServiceTypeScalarFieldEnum)[keyof typeof ServiceTypeScalarFieldEnum]
+
+
+  export const InterventionServiceScalarFieldEnum: {
+    id: 'id',
+    interventionId: 'interventionId',
+    serviceTypeId: 'serviceTypeId',
+    createdAt: 'createdAt'
+  };
+
+  export type InterventionServiceScalarFieldEnum = (typeof InterventionServiceScalarFieldEnum)[keyof typeof InterventionServiceScalarFieldEnum]
+
+
+  export const ReminderAutomationScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    clientId: 'clientId',
+    name: 'name',
+    automationType: 'automationType',
+    enabled: 'enabled',
+    isCustomOverride: 'isCustomOverride',
+    frequencyValue: 'frequencyValue',
+    frequencyUnit: 'frequencyUnit',
+    advanceNoticeValue: 'advanceNoticeValue',
+    advanceNoticeUnit: 'advanceNoticeUnit',
+    channel: 'channel',
+    fallbackChannel: 'fallbackChannel',
+    customMessageTemplate: 'customMessageTemplate',
+    stopOnReply: 'stopOnReply',
+    stopOnAppointment: 'stopOnAppointment',
+    maxFollowUps: 'maxFollowUps',
+    followUpIntervalDays: 'followUpIntervalDays',
+    status: 'status',
+    nextReminderAt: 'nextReminderAt',
+    lastCompletedInterventionId: 'lastCompletedInterventionId',
+    lastCompletedAt: 'lastCompletedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ReminderAutomationScalarFieldEnum = (typeof ReminderAutomationScalarFieldEnum)[keyof typeof ReminderAutomationScalarFieldEnum]
+
+
+  export const ReminderAutomationServiceScalarFieldEnum: {
+    id: 'id',
+    reminderAutomationId: 'reminderAutomationId',
+    serviceTypeId: 'serviceTypeId',
+    createdAt: 'createdAt'
+  };
+
+  export type ReminderAutomationServiceScalarFieldEnum = (typeof ReminderAutomationServiceScalarFieldEnum)[keyof typeof ReminderAutomationServiceScalarFieldEnum]
+
+
+  export const ReminderExecutionScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    reminderAutomationId: 'reminderAutomationId',
+    clientId: 'clientId',
+    interventionId: 'interventionId',
+    sequenceStep: 'sequenceStep',
+    scheduledAt: 'scheduledAt',
+    executedAt: 'executedAt',
+    channel: 'channel',
+    status: 'status',
+    messageId: 'messageId',
+    recipient: 'recipient',
+    renderedContent: 'renderedContent',
+    error: 'error',
+    respondedAt: 'respondedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ReminderExecutionScalarFieldEnum = (typeof ReminderExecutionScalarFieldEnum)[keyof typeof ReminderExecutionScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -65690,6 +72989,90 @@ export namespace Prisma {
    */
   export type ListEnumEInvoicingJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EInvoicingJobStatus[]'>
     
+
+
+  /**
+   * Reference to a field of type 'TimeUnit'
+   */
+  export type EnumTimeUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TimeUnit'>
+    
+
+
+  /**
+   * Reference to a field of type 'TimeUnit[]'
+   */
+  export type ListEnumTimeUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TimeUnit[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReminderChannelChoice'
+   */
+  export type EnumReminderChannelChoiceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderChannelChoice'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReminderChannelChoice[]'
+   */
+  export type ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderChannelChoice[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecommendationLevel'
+   */
+  export type EnumRecommendationLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecommendationLevel'>
+    
+
+
+  /**
+   * Reference to a field of type 'RecommendationLevel[]'
+   */
+  export type ListEnumRecommendationLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecommendationLevel[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AutomationType'
+   */
+  export type EnumAutomationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationType'>
+    
+
+
+  /**
+   * Reference to a field of type 'AutomationType[]'
+   */
+  export type ListEnumAutomationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReminderStatus'
+   */
+  export type EnumReminderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReminderStatus[]'
+   */
+  export type ListEnumReminderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReminderExecutionStatus'
+   */
+  export type EnumReminderExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderExecutionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReminderExecutionStatus[]'
+   */
+  export type ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderExecutionStatus[]'>
+    
   /**
    * Deep Input Types
    */
@@ -65889,6 +73272,9 @@ export namespace Prisma {
     bankConnection?: XOR<BankConnectionNullableScalarRelationFilter, BankConnectionWhereInput> | null
     bankAccounts?: BankAccountListRelationFilter
     bankTransactions?: BankTransactionListRelationFilter
+    serviceTypes?: ServiceTypeListRelationFilter
+    reminderAutomations?: ReminderAutomationListRelationFilter
+    reminderExecutions?: ReminderExecutionListRelationFilter
     accountingExports?: AccountingExportListRelationFilter
     tvaSummaries?: TvaSummaryListRelationFilter
     accountingIntegration?: XOR<AccountingIntegrationNullableScalarRelationFilter, AccountingIntegrationWhereInput> | null
@@ -65952,6 +73338,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionOrderByWithRelationInput
     bankAccounts?: BankAccountOrderByRelationAggregateInput
     bankTransactions?: BankTransactionOrderByRelationAggregateInput
+    serviceTypes?: ServiceTypeOrderByRelationAggregateInput
+    reminderAutomations?: ReminderAutomationOrderByRelationAggregateInput
+    reminderExecutions?: ReminderExecutionOrderByRelationAggregateInput
     accountingExports?: AccountingExportOrderByRelationAggregateInput
     tvaSummaries?: TvaSummaryOrderByRelationAggregateInput
     accountingIntegration?: AccountingIntegrationOrderByWithRelationInput
@@ -66018,6 +73407,9 @@ export namespace Prisma {
     bankConnection?: XOR<BankConnectionNullableScalarRelationFilter, BankConnectionWhereInput> | null
     bankAccounts?: BankAccountListRelationFilter
     bankTransactions?: BankTransactionListRelationFilter
+    serviceTypes?: ServiceTypeListRelationFilter
+    reminderAutomations?: ReminderAutomationListRelationFilter
+    reminderExecutions?: ReminderExecutionListRelationFilter
     accountingExports?: AccountingExportListRelationFilter
     tvaSummaries?: TvaSummaryListRelationFilter
     accountingIntegration?: XOR<AccountingIntegrationNullableScalarRelationFilter, AccountingIntegrationWhereInput> | null
@@ -67400,6 +74792,8 @@ export namespace Prisma {
     invoices?: InvoiceListRelationFilter
     quotes?: QuoteListRelationFilter
     smsLogs?: SmsLogListRelationFilter
+    reminderAutomations?: ReminderAutomationListRelationFilter
+    reminderExecutions?: ReminderExecutionListRelationFilter
   }
 
   export type ClientOrderByWithRelationInput = {
@@ -67440,6 +74834,8 @@ export namespace Prisma {
     invoices?: InvoiceOrderByRelationAggregateInput
     quotes?: QuoteOrderByRelationAggregateInput
     smsLogs?: SmsLogOrderByRelationAggregateInput
+    reminderAutomations?: ReminderAutomationOrderByRelationAggregateInput
+    reminderExecutions?: ReminderExecutionOrderByRelationAggregateInput
   }
 
   export type ClientWhereUniqueInput = Prisma.AtLeast<{
@@ -67483,6 +74879,8 @@ export namespace Prisma {
     invoices?: InvoiceListRelationFilter
     quotes?: QuoteListRelationFilter
     smsLogs?: SmsLogListRelationFilter
+    reminderAutomations?: ReminderAutomationListRelationFilter
+    reminderExecutions?: ReminderExecutionListRelationFilter
   }, "id">
 
   export type ClientOrderByWithAggregationInput = {
@@ -67713,6 +75111,9 @@ export namespace Prisma {
     photos?: InterventionPhotoListRelationFilter
     invoice?: XOR<InvoiceNullableScalarRelationFilter, InvoiceWhereInput> | null
     quote?: XOR<QuoteNullableScalarRelationFilter, QuoteWhereInput> | null
+    services?: InterventionServiceListRelationFilter
+    resetAutomations?: ReminderAutomationListRelationFilter
+    reminderExecutions?: ReminderExecutionListRelationFilter
   }
 
   export type InterventionOrderByWithRelationInput = {
@@ -67748,6 +75149,9 @@ export namespace Prisma {
     photos?: InterventionPhotoOrderByRelationAggregateInput
     invoice?: InvoiceOrderByWithRelationInput
     quote?: QuoteOrderByWithRelationInput
+    services?: InterventionServiceOrderByRelationAggregateInput
+    resetAutomations?: ReminderAutomationOrderByRelationAggregateInput
+    reminderExecutions?: ReminderExecutionOrderByRelationAggregateInput
   }
 
   export type InterventionWhereUniqueInput = Prisma.AtLeast<{
@@ -67786,6 +75190,9 @@ export namespace Prisma {
     photos?: InterventionPhotoListRelationFilter
     invoice?: XOR<InvoiceNullableScalarRelationFilter, InvoiceWhereInput> | null
     quote?: XOR<QuoteNullableScalarRelationFilter, QuoteWhereInput> | null
+    services?: InterventionServiceListRelationFilter
+    resetAutomations?: ReminderAutomationListRelationFilter
+    reminderExecutions?: ReminderExecutionListRelationFilter
   }, "id">
 
   export type InterventionOrderByWithAggregationInput = {
@@ -68713,6 +76120,7 @@ export namespace Prisma {
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
     whatsAppConnection?: XOR<WhatsAppConnectionNullableScalarRelationFilter, WhatsAppConnectionWhereInput> | null
     emailConnection?: XOR<EmailConnectionNullableScalarRelationFilter, EmailConnectionWhereInput> | null
+    reminderExecutions?: ReminderExecutionListRelationFilter
   }
 
   export type SmsLogOrderByWithRelationInput = {
@@ -68752,6 +76160,7 @@ export namespace Prisma {
     client?: ClientOrderByWithRelationInput
     whatsAppConnection?: WhatsAppConnectionOrderByWithRelationInput
     emailConnection?: EmailConnectionOrderByWithRelationInput
+    reminderExecutions?: ReminderExecutionOrderByRelationAggregateInput
   }
 
   export type SmsLogWhereUniqueInput = Prisma.AtLeast<{
@@ -68794,6 +76203,7 @@ export namespace Prisma {
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
     whatsAppConnection?: XOR<WhatsAppConnectionNullableScalarRelationFilter, WhatsAppConnectionWhereInput> | null
     emailConnection?: XOR<EmailConnectionNullableScalarRelationFilter, EmailConnectionWhereInput> | null
+    reminderExecutions?: ReminderExecutionListRelationFilter
   }, "id" | "twilioSid" | "whatsappMessageId" | "emailMessageId">
 
   export type SmsLogOrderByWithAggregationInput = {
@@ -71093,6 +78503,536 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"BankTransaction"> | Date | string
   }
 
+  export type ServiceTypeWhereInput = {
+    AND?: ServiceTypeWhereInput | ServiceTypeWhereInput[]
+    OR?: ServiceTypeWhereInput[]
+    NOT?: ServiceTypeWhereInput | ServiceTypeWhereInput[]
+    id?: StringFilter<"ServiceType"> | string
+    companyId?: StringFilter<"ServiceType"> | string
+    tradeSlug?: StringNullableFilter<"ServiceType"> | string | null
+    name?: StringFilter<"ServiceType"> | string
+    category?: StringNullableFilter<"ServiceType"> | string | null
+    description?: StringNullableFilter<"ServiceType"> | string | null
+    defaultFrequencyValue?: IntNullableFilter<"ServiceType"> | number | null
+    defaultFrequencyUnit?: EnumTimeUnitNullableFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: IntNullableFilter<"ServiceType"> | number | null
+    defaultAdvanceNoticeUnit?: EnumTimeUnitNullableFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultChannel?: EnumReminderChannelChoiceNullableFilter<"ServiceType"> | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: StringNullableFilter<"ServiceType"> | string | null
+    recommendationLevel?: EnumRecommendationLevelFilter<"ServiceType"> | $Enums.RecommendationLevel
+    isDefault?: BoolFilter<"ServiceType"> | boolean
+    isActive?: BoolFilter<"ServiceType"> | boolean
+    sortOrder?: IntFilter<"ServiceType"> | number
+    createdAt?: DateTimeFilter<"ServiceType"> | Date | string
+    updatedAt?: DateTimeFilter<"ServiceType"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    interventionServices?: InterventionServiceListRelationFilter
+    automationMappings?: ReminderAutomationServiceListRelationFilter
+  }
+
+  export type ServiceTypeOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    tradeSlug?: SortOrderInput | SortOrder
+    name?: SortOrder
+    category?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    defaultFrequencyValue?: SortOrderInput | SortOrder
+    defaultFrequencyUnit?: SortOrderInput | SortOrder
+    defaultAdvanceNoticeValue?: SortOrderInput | SortOrder
+    defaultAdvanceNoticeUnit?: SortOrderInput | SortOrder
+    defaultChannel?: SortOrderInput | SortOrder
+    defaultTemplate?: SortOrderInput | SortOrder
+    recommendationLevel?: SortOrder
+    isDefault?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    interventionServices?: InterventionServiceOrderByRelationAggregateInput
+    automationMappings?: ReminderAutomationServiceOrderByRelationAggregateInput
+  }
+
+  export type ServiceTypeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    companyId_name?: ServiceTypeCompanyIdNameCompoundUniqueInput
+    AND?: ServiceTypeWhereInput | ServiceTypeWhereInput[]
+    OR?: ServiceTypeWhereInput[]
+    NOT?: ServiceTypeWhereInput | ServiceTypeWhereInput[]
+    companyId?: StringFilter<"ServiceType"> | string
+    tradeSlug?: StringNullableFilter<"ServiceType"> | string | null
+    name?: StringFilter<"ServiceType"> | string
+    category?: StringNullableFilter<"ServiceType"> | string | null
+    description?: StringNullableFilter<"ServiceType"> | string | null
+    defaultFrequencyValue?: IntNullableFilter<"ServiceType"> | number | null
+    defaultFrequencyUnit?: EnumTimeUnitNullableFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: IntNullableFilter<"ServiceType"> | number | null
+    defaultAdvanceNoticeUnit?: EnumTimeUnitNullableFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultChannel?: EnumReminderChannelChoiceNullableFilter<"ServiceType"> | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: StringNullableFilter<"ServiceType"> | string | null
+    recommendationLevel?: EnumRecommendationLevelFilter<"ServiceType"> | $Enums.RecommendationLevel
+    isDefault?: BoolFilter<"ServiceType"> | boolean
+    isActive?: BoolFilter<"ServiceType"> | boolean
+    sortOrder?: IntFilter<"ServiceType"> | number
+    createdAt?: DateTimeFilter<"ServiceType"> | Date | string
+    updatedAt?: DateTimeFilter<"ServiceType"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    interventionServices?: InterventionServiceListRelationFilter
+    automationMappings?: ReminderAutomationServiceListRelationFilter
+  }, "id" | "companyId_name">
+
+  export type ServiceTypeOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    tradeSlug?: SortOrderInput | SortOrder
+    name?: SortOrder
+    category?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    defaultFrequencyValue?: SortOrderInput | SortOrder
+    defaultFrequencyUnit?: SortOrderInput | SortOrder
+    defaultAdvanceNoticeValue?: SortOrderInput | SortOrder
+    defaultAdvanceNoticeUnit?: SortOrderInput | SortOrder
+    defaultChannel?: SortOrderInput | SortOrder
+    defaultTemplate?: SortOrderInput | SortOrder
+    recommendationLevel?: SortOrder
+    isDefault?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ServiceTypeCountOrderByAggregateInput
+    _avg?: ServiceTypeAvgOrderByAggregateInput
+    _max?: ServiceTypeMaxOrderByAggregateInput
+    _min?: ServiceTypeMinOrderByAggregateInput
+    _sum?: ServiceTypeSumOrderByAggregateInput
+  }
+
+  export type ServiceTypeScalarWhereWithAggregatesInput = {
+    AND?: ServiceTypeScalarWhereWithAggregatesInput | ServiceTypeScalarWhereWithAggregatesInput[]
+    OR?: ServiceTypeScalarWhereWithAggregatesInput[]
+    NOT?: ServiceTypeScalarWhereWithAggregatesInput | ServiceTypeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ServiceType"> | string
+    companyId?: StringWithAggregatesFilter<"ServiceType"> | string
+    tradeSlug?: StringNullableWithAggregatesFilter<"ServiceType"> | string | null
+    name?: StringWithAggregatesFilter<"ServiceType"> | string
+    category?: StringNullableWithAggregatesFilter<"ServiceType"> | string | null
+    description?: StringNullableWithAggregatesFilter<"ServiceType"> | string | null
+    defaultFrequencyValue?: IntNullableWithAggregatesFilter<"ServiceType"> | number | null
+    defaultFrequencyUnit?: EnumTimeUnitNullableWithAggregatesFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: IntNullableWithAggregatesFilter<"ServiceType"> | number | null
+    defaultAdvanceNoticeUnit?: EnumTimeUnitNullableWithAggregatesFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultChannel?: EnumReminderChannelChoiceNullableWithAggregatesFilter<"ServiceType"> | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: StringNullableWithAggregatesFilter<"ServiceType"> | string | null
+    recommendationLevel?: EnumRecommendationLevelWithAggregatesFilter<"ServiceType"> | $Enums.RecommendationLevel
+    isDefault?: BoolWithAggregatesFilter<"ServiceType"> | boolean
+    isActive?: BoolWithAggregatesFilter<"ServiceType"> | boolean
+    sortOrder?: IntWithAggregatesFilter<"ServiceType"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"ServiceType"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ServiceType"> | Date | string
+  }
+
+  export type InterventionServiceWhereInput = {
+    AND?: InterventionServiceWhereInput | InterventionServiceWhereInput[]
+    OR?: InterventionServiceWhereInput[]
+    NOT?: InterventionServiceWhereInput | InterventionServiceWhereInput[]
+    id?: StringFilter<"InterventionService"> | string
+    interventionId?: StringFilter<"InterventionService"> | string
+    serviceTypeId?: StringFilter<"InterventionService"> | string
+    createdAt?: DateTimeFilter<"InterventionService"> | Date | string
+    intervention?: XOR<InterventionScalarRelationFilter, InterventionWhereInput>
+    serviceType?: XOR<ServiceTypeScalarRelationFilter, ServiceTypeWhereInput>
+  }
+
+  export type InterventionServiceOrderByWithRelationInput = {
+    id?: SortOrder
+    interventionId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+    intervention?: InterventionOrderByWithRelationInput
+    serviceType?: ServiceTypeOrderByWithRelationInput
+  }
+
+  export type InterventionServiceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    interventionId_serviceTypeId?: InterventionServiceInterventionIdServiceTypeIdCompoundUniqueInput
+    AND?: InterventionServiceWhereInput | InterventionServiceWhereInput[]
+    OR?: InterventionServiceWhereInput[]
+    NOT?: InterventionServiceWhereInput | InterventionServiceWhereInput[]
+    interventionId?: StringFilter<"InterventionService"> | string
+    serviceTypeId?: StringFilter<"InterventionService"> | string
+    createdAt?: DateTimeFilter<"InterventionService"> | Date | string
+    intervention?: XOR<InterventionScalarRelationFilter, InterventionWhereInput>
+    serviceType?: XOR<ServiceTypeScalarRelationFilter, ServiceTypeWhereInput>
+  }, "id" | "interventionId_serviceTypeId">
+
+  export type InterventionServiceOrderByWithAggregationInput = {
+    id?: SortOrder
+    interventionId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+    _count?: InterventionServiceCountOrderByAggregateInput
+    _max?: InterventionServiceMaxOrderByAggregateInput
+    _min?: InterventionServiceMinOrderByAggregateInput
+  }
+
+  export type InterventionServiceScalarWhereWithAggregatesInput = {
+    AND?: InterventionServiceScalarWhereWithAggregatesInput | InterventionServiceScalarWhereWithAggregatesInput[]
+    OR?: InterventionServiceScalarWhereWithAggregatesInput[]
+    NOT?: InterventionServiceScalarWhereWithAggregatesInput | InterventionServiceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InterventionService"> | string
+    interventionId?: StringWithAggregatesFilter<"InterventionService"> | string
+    serviceTypeId?: StringWithAggregatesFilter<"InterventionService"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"InterventionService"> | Date | string
+  }
+
+  export type ReminderAutomationWhereInput = {
+    AND?: ReminderAutomationWhereInput | ReminderAutomationWhereInput[]
+    OR?: ReminderAutomationWhereInput[]
+    NOT?: ReminderAutomationWhereInput | ReminderAutomationWhereInput[]
+    id?: StringFilter<"ReminderAutomation"> | string
+    companyId?: StringFilter<"ReminderAutomation"> | string
+    clientId?: StringFilter<"ReminderAutomation"> | string
+    name?: StringFilter<"ReminderAutomation"> | string
+    automationType?: EnumAutomationTypeFilter<"ReminderAutomation"> | $Enums.AutomationType
+    enabled?: BoolFilter<"ReminderAutomation"> | boolean
+    isCustomOverride?: BoolFilter<"ReminderAutomation"> | boolean
+    frequencyValue?: IntFilter<"ReminderAutomation"> | number
+    frequencyUnit?: EnumTimeUnitFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    advanceNoticeValue?: IntFilter<"ReminderAutomation"> | number
+    advanceNoticeUnit?: EnumTimeUnitFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFilter<"ReminderAutomation"> | $Enums.ReminderChannelChoice
+    fallbackChannel?: EnumPreferredChannelNullableFilter<"ReminderAutomation"> | $Enums.PreferredChannel | null
+    customMessageTemplate?: StringNullableFilter<"ReminderAutomation"> | string | null
+    stopOnReply?: BoolFilter<"ReminderAutomation"> | boolean
+    stopOnAppointment?: BoolFilter<"ReminderAutomation"> | boolean
+    maxFollowUps?: IntFilter<"ReminderAutomation"> | number
+    followUpIntervalDays?: IntFilter<"ReminderAutomation"> | number
+    status?: EnumReminderStatusFilter<"ReminderAutomation"> | $Enums.ReminderStatus
+    nextReminderAt?: DateTimeNullableFilter<"ReminderAutomation"> | Date | string | null
+    lastCompletedInterventionId?: StringNullableFilter<"ReminderAutomation"> | string | null
+    lastCompletedAt?: DateTimeNullableFilter<"ReminderAutomation"> | Date | string | null
+    createdAt?: DateTimeFilter<"ReminderAutomation"> | Date | string
+    updatedAt?: DateTimeFilter<"ReminderAutomation"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    lastCompletedIntervention?: XOR<InterventionNullableScalarRelationFilter, InterventionWhereInput> | null
+    trackedServices?: ReminderAutomationServiceListRelationFilter
+    executions?: ReminderExecutionListRelationFilter
+  }
+
+  export type ReminderAutomationOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    clientId?: SortOrder
+    name?: SortOrder
+    automationType?: SortOrder
+    enabled?: SortOrder
+    isCustomOverride?: SortOrder
+    frequencyValue?: SortOrder
+    frequencyUnit?: SortOrder
+    advanceNoticeValue?: SortOrder
+    advanceNoticeUnit?: SortOrder
+    channel?: SortOrder
+    fallbackChannel?: SortOrderInput | SortOrder
+    customMessageTemplate?: SortOrderInput | SortOrder
+    stopOnReply?: SortOrder
+    stopOnAppointment?: SortOrder
+    maxFollowUps?: SortOrder
+    followUpIntervalDays?: SortOrder
+    status?: SortOrder
+    nextReminderAt?: SortOrderInput | SortOrder
+    lastCompletedInterventionId?: SortOrderInput | SortOrder
+    lastCompletedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    client?: ClientOrderByWithRelationInput
+    lastCompletedIntervention?: InterventionOrderByWithRelationInput
+    trackedServices?: ReminderAutomationServiceOrderByRelationAggregateInput
+    executions?: ReminderExecutionOrderByRelationAggregateInput
+  }
+
+  export type ReminderAutomationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ReminderAutomationWhereInput | ReminderAutomationWhereInput[]
+    OR?: ReminderAutomationWhereInput[]
+    NOT?: ReminderAutomationWhereInput | ReminderAutomationWhereInput[]
+    companyId?: StringFilter<"ReminderAutomation"> | string
+    clientId?: StringFilter<"ReminderAutomation"> | string
+    name?: StringFilter<"ReminderAutomation"> | string
+    automationType?: EnumAutomationTypeFilter<"ReminderAutomation"> | $Enums.AutomationType
+    enabled?: BoolFilter<"ReminderAutomation"> | boolean
+    isCustomOverride?: BoolFilter<"ReminderAutomation"> | boolean
+    frequencyValue?: IntFilter<"ReminderAutomation"> | number
+    frequencyUnit?: EnumTimeUnitFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    advanceNoticeValue?: IntFilter<"ReminderAutomation"> | number
+    advanceNoticeUnit?: EnumTimeUnitFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFilter<"ReminderAutomation"> | $Enums.ReminderChannelChoice
+    fallbackChannel?: EnumPreferredChannelNullableFilter<"ReminderAutomation"> | $Enums.PreferredChannel | null
+    customMessageTemplate?: StringNullableFilter<"ReminderAutomation"> | string | null
+    stopOnReply?: BoolFilter<"ReminderAutomation"> | boolean
+    stopOnAppointment?: BoolFilter<"ReminderAutomation"> | boolean
+    maxFollowUps?: IntFilter<"ReminderAutomation"> | number
+    followUpIntervalDays?: IntFilter<"ReminderAutomation"> | number
+    status?: EnumReminderStatusFilter<"ReminderAutomation"> | $Enums.ReminderStatus
+    nextReminderAt?: DateTimeNullableFilter<"ReminderAutomation"> | Date | string | null
+    lastCompletedInterventionId?: StringNullableFilter<"ReminderAutomation"> | string | null
+    lastCompletedAt?: DateTimeNullableFilter<"ReminderAutomation"> | Date | string | null
+    createdAt?: DateTimeFilter<"ReminderAutomation"> | Date | string
+    updatedAt?: DateTimeFilter<"ReminderAutomation"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    lastCompletedIntervention?: XOR<InterventionNullableScalarRelationFilter, InterventionWhereInput> | null
+    trackedServices?: ReminderAutomationServiceListRelationFilter
+    executions?: ReminderExecutionListRelationFilter
+  }, "id">
+
+  export type ReminderAutomationOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    clientId?: SortOrder
+    name?: SortOrder
+    automationType?: SortOrder
+    enabled?: SortOrder
+    isCustomOverride?: SortOrder
+    frequencyValue?: SortOrder
+    frequencyUnit?: SortOrder
+    advanceNoticeValue?: SortOrder
+    advanceNoticeUnit?: SortOrder
+    channel?: SortOrder
+    fallbackChannel?: SortOrderInput | SortOrder
+    customMessageTemplate?: SortOrderInput | SortOrder
+    stopOnReply?: SortOrder
+    stopOnAppointment?: SortOrder
+    maxFollowUps?: SortOrder
+    followUpIntervalDays?: SortOrder
+    status?: SortOrder
+    nextReminderAt?: SortOrderInput | SortOrder
+    lastCompletedInterventionId?: SortOrderInput | SortOrder
+    lastCompletedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ReminderAutomationCountOrderByAggregateInput
+    _avg?: ReminderAutomationAvgOrderByAggregateInput
+    _max?: ReminderAutomationMaxOrderByAggregateInput
+    _min?: ReminderAutomationMinOrderByAggregateInput
+    _sum?: ReminderAutomationSumOrderByAggregateInput
+  }
+
+  export type ReminderAutomationScalarWhereWithAggregatesInput = {
+    AND?: ReminderAutomationScalarWhereWithAggregatesInput | ReminderAutomationScalarWhereWithAggregatesInput[]
+    OR?: ReminderAutomationScalarWhereWithAggregatesInput[]
+    NOT?: ReminderAutomationScalarWhereWithAggregatesInput | ReminderAutomationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReminderAutomation"> | string
+    companyId?: StringWithAggregatesFilter<"ReminderAutomation"> | string
+    clientId?: StringWithAggregatesFilter<"ReminderAutomation"> | string
+    name?: StringWithAggregatesFilter<"ReminderAutomation"> | string
+    automationType?: EnumAutomationTypeWithAggregatesFilter<"ReminderAutomation"> | $Enums.AutomationType
+    enabled?: BoolWithAggregatesFilter<"ReminderAutomation"> | boolean
+    isCustomOverride?: BoolWithAggregatesFilter<"ReminderAutomation"> | boolean
+    frequencyValue?: IntWithAggregatesFilter<"ReminderAutomation"> | number
+    frequencyUnit?: EnumTimeUnitWithAggregatesFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    advanceNoticeValue?: IntWithAggregatesFilter<"ReminderAutomation"> | number
+    advanceNoticeUnit?: EnumTimeUnitWithAggregatesFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceWithAggregatesFilter<"ReminderAutomation"> | $Enums.ReminderChannelChoice
+    fallbackChannel?: EnumPreferredChannelNullableWithAggregatesFilter<"ReminderAutomation"> | $Enums.PreferredChannel | null
+    customMessageTemplate?: StringNullableWithAggregatesFilter<"ReminderAutomation"> | string | null
+    stopOnReply?: BoolWithAggregatesFilter<"ReminderAutomation"> | boolean
+    stopOnAppointment?: BoolWithAggregatesFilter<"ReminderAutomation"> | boolean
+    maxFollowUps?: IntWithAggregatesFilter<"ReminderAutomation"> | number
+    followUpIntervalDays?: IntWithAggregatesFilter<"ReminderAutomation"> | number
+    status?: EnumReminderStatusWithAggregatesFilter<"ReminderAutomation"> | $Enums.ReminderStatus
+    nextReminderAt?: DateTimeNullableWithAggregatesFilter<"ReminderAutomation"> | Date | string | null
+    lastCompletedInterventionId?: StringNullableWithAggregatesFilter<"ReminderAutomation"> | string | null
+    lastCompletedAt?: DateTimeNullableWithAggregatesFilter<"ReminderAutomation"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ReminderAutomation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ReminderAutomation"> | Date | string
+  }
+
+  export type ReminderAutomationServiceWhereInput = {
+    AND?: ReminderAutomationServiceWhereInput | ReminderAutomationServiceWhereInput[]
+    OR?: ReminderAutomationServiceWhereInput[]
+    NOT?: ReminderAutomationServiceWhereInput | ReminderAutomationServiceWhereInput[]
+    id?: StringFilter<"ReminderAutomationService"> | string
+    reminderAutomationId?: StringFilter<"ReminderAutomationService"> | string
+    serviceTypeId?: StringFilter<"ReminderAutomationService"> | string
+    createdAt?: DateTimeFilter<"ReminderAutomationService"> | Date | string
+    reminderAutomation?: XOR<ReminderAutomationScalarRelationFilter, ReminderAutomationWhereInput>
+    serviceType?: XOR<ServiceTypeScalarRelationFilter, ServiceTypeWhereInput>
+  }
+
+  export type ReminderAutomationServiceOrderByWithRelationInput = {
+    id?: SortOrder
+    reminderAutomationId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+    reminderAutomation?: ReminderAutomationOrderByWithRelationInput
+    serviceType?: ServiceTypeOrderByWithRelationInput
+  }
+
+  export type ReminderAutomationServiceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    reminderAutomationId_serviceTypeId?: ReminderAutomationServiceReminderAutomationIdServiceTypeIdCompoundUniqueInput
+    AND?: ReminderAutomationServiceWhereInput | ReminderAutomationServiceWhereInput[]
+    OR?: ReminderAutomationServiceWhereInput[]
+    NOT?: ReminderAutomationServiceWhereInput | ReminderAutomationServiceWhereInput[]
+    reminderAutomationId?: StringFilter<"ReminderAutomationService"> | string
+    serviceTypeId?: StringFilter<"ReminderAutomationService"> | string
+    createdAt?: DateTimeFilter<"ReminderAutomationService"> | Date | string
+    reminderAutomation?: XOR<ReminderAutomationScalarRelationFilter, ReminderAutomationWhereInput>
+    serviceType?: XOR<ServiceTypeScalarRelationFilter, ServiceTypeWhereInput>
+  }, "id" | "reminderAutomationId_serviceTypeId">
+
+  export type ReminderAutomationServiceOrderByWithAggregationInput = {
+    id?: SortOrder
+    reminderAutomationId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+    _count?: ReminderAutomationServiceCountOrderByAggregateInput
+    _max?: ReminderAutomationServiceMaxOrderByAggregateInput
+    _min?: ReminderAutomationServiceMinOrderByAggregateInput
+  }
+
+  export type ReminderAutomationServiceScalarWhereWithAggregatesInput = {
+    AND?: ReminderAutomationServiceScalarWhereWithAggregatesInput | ReminderAutomationServiceScalarWhereWithAggregatesInput[]
+    OR?: ReminderAutomationServiceScalarWhereWithAggregatesInput[]
+    NOT?: ReminderAutomationServiceScalarWhereWithAggregatesInput | ReminderAutomationServiceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReminderAutomationService"> | string
+    reminderAutomationId?: StringWithAggregatesFilter<"ReminderAutomationService"> | string
+    serviceTypeId?: StringWithAggregatesFilter<"ReminderAutomationService"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ReminderAutomationService"> | Date | string
+  }
+
+  export type ReminderExecutionWhereInput = {
+    AND?: ReminderExecutionWhereInput | ReminderExecutionWhereInput[]
+    OR?: ReminderExecutionWhereInput[]
+    NOT?: ReminderExecutionWhereInput | ReminderExecutionWhereInput[]
+    id?: StringFilter<"ReminderExecution"> | string
+    companyId?: StringFilter<"ReminderExecution"> | string
+    reminderAutomationId?: StringFilter<"ReminderExecution"> | string
+    clientId?: StringFilter<"ReminderExecution"> | string
+    interventionId?: StringNullableFilter<"ReminderExecution"> | string | null
+    sequenceStep?: IntFilter<"ReminderExecution"> | number
+    scheduledAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    executedAt?: DateTimeNullableFilter<"ReminderExecution"> | Date | string | null
+    channel?: EnumPreferredChannelNullableFilter<"ReminderExecution"> | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFilter<"ReminderExecution"> | $Enums.ReminderExecutionStatus
+    messageId?: StringNullableFilter<"ReminderExecution"> | string | null
+    recipient?: StringNullableFilter<"ReminderExecution"> | string | null
+    renderedContent?: StringNullableFilter<"ReminderExecution"> | string | null
+    error?: StringNullableFilter<"ReminderExecution"> | string | null
+    respondedAt?: DateTimeNullableFilter<"ReminderExecution"> | Date | string | null
+    createdAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    updatedAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    reminderAutomation?: XOR<ReminderAutomationScalarRelationFilter, ReminderAutomationWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    intervention?: XOR<InterventionNullableScalarRelationFilter, InterventionWhereInput> | null
+    message?: XOR<SmsLogNullableScalarRelationFilter, SmsLogWhereInput> | null
+  }
+
+  export type ReminderExecutionOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    reminderAutomationId?: SortOrder
+    clientId?: SortOrder
+    interventionId?: SortOrderInput | SortOrder
+    sequenceStep?: SortOrder
+    scheduledAt?: SortOrder
+    executedAt?: SortOrderInput | SortOrder
+    channel?: SortOrderInput | SortOrder
+    status?: SortOrder
+    messageId?: SortOrderInput | SortOrder
+    recipient?: SortOrderInput | SortOrder
+    renderedContent?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    respondedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    reminderAutomation?: ReminderAutomationOrderByWithRelationInput
+    client?: ClientOrderByWithRelationInput
+    intervention?: InterventionOrderByWithRelationInput
+    message?: SmsLogOrderByWithRelationInput
+  }
+
+  export type ReminderExecutionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ReminderExecutionWhereInput | ReminderExecutionWhereInput[]
+    OR?: ReminderExecutionWhereInput[]
+    NOT?: ReminderExecutionWhereInput | ReminderExecutionWhereInput[]
+    companyId?: StringFilter<"ReminderExecution"> | string
+    reminderAutomationId?: StringFilter<"ReminderExecution"> | string
+    clientId?: StringFilter<"ReminderExecution"> | string
+    interventionId?: StringNullableFilter<"ReminderExecution"> | string | null
+    sequenceStep?: IntFilter<"ReminderExecution"> | number
+    scheduledAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    executedAt?: DateTimeNullableFilter<"ReminderExecution"> | Date | string | null
+    channel?: EnumPreferredChannelNullableFilter<"ReminderExecution"> | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFilter<"ReminderExecution"> | $Enums.ReminderExecutionStatus
+    messageId?: StringNullableFilter<"ReminderExecution"> | string | null
+    recipient?: StringNullableFilter<"ReminderExecution"> | string | null
+    renderedContent?: StringNullableFilter<"ReminderExecution"> | string | null
+    error?: StringNullableFilter<"ReminderExecution"> | string | null
+    respondedAt?: DateTimeNullableFilter<"ReminderExecution"> | Date | string | null
+    createdAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    updatedAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    reminderAutomation?: XOR<ReminderAutomationScalarRelationFilter, ReminderAutomationWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    intervention?: XOR<InterventionNullableScalarRelationFilter, InterventionWhereInput> | null
+    message?: XOR<SmsLogNullableScalarRelationFilter, SmsLogWhereInput> | null
+  }, "id">
+
+  export type ReminderExecutionOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    reminderAutomationId?: SortOrder
+    clientId?: SortOrder
+    interventionId?: SortOrderInput | SortOrder
+    sequenceStep?: SortOrder
+    scheduledAt?: SortOrder
+    executedAt?: SortOrderInput | SortOrder
+    channel?: SortOrderInput | SortOrder
+    status?: SortOrder
+    messageId?: SortOrderInput | SortOrder
+    recipient?: SortOrderInput | SortOrder
+    renderedContent?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    respondedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ReminderExecutionCountOrderByAggregateInput
+    _avg?: ReminderExecutionAvgOrderByAggregateInput
+    _max?: ReminderExecutionMaxOrderByAggregateInput
+    _min?: ReminderExecutionMinOrderByAggregateInput
+    _sum?: ReminderExecutionSumOrderByAggregateInput
+  }
+
+  export type ReminderExecutionScalarWhereWithAggregatesInput = {
+    AND?: ReminderExecutionScalarWhereWithAggregatesInput | ReminderExecutionScalarWhereWithAggregatesInput[]
+    OR?: ReminderExecutionScalarWhereWithAggregatesInput[]
+    NOT?: ReminderExecutionScalarWhereWithAggregatesInput | ReminderExecutionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReminderExecution"> | string
+    companyId?: StringWithAggregatesFilter<"ReminderExecution"> | string
+    reminderAutomationId?: StringWithAggregatesFilter<"ReminderExecution"> | string
+    clientId?: StringWithAggregatesFilter<"ReminderExecution"> | string
+    interventionId?: StringNullableWithAggregatesFilter<"ReminderExecution"> | string | null
+    sequenceStep?: IntWithAggregatesFilter<"ReminderExecution"> | number
+    scheduledAt?: DateTimeWithAggregatesFilter<"ReminderExecution"> | Date | string
+    executedAt?: DateTimeNullableWithAggregatesFilter<"ReminderExecution"> | Date | string | null
+    channel?: EnumPreferredChannelNullableWithAggregatesFilter<"ReminderExecution"> | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusWithAggregatesFilter<"ReminderExecution"> | $Enums.ReminderExecutionStatus
+    messageId?: StringNullableWithAggregatesFilter<"ReminderExecution"> | string | null
+    recipient?: StringNullableWithAggregatesFilter<"ReminderExecution"> | string | null
+    renderedContent?: StringNullableWithAggregatesFilter<"ReminderExecution"> | string | null
+    error?: StringNullableWithAggregatesFilter<"ReminderExecution"> | string | null
+    respondedAt?: DateTimeNullableWithAggregatesFilter<"ReminderExecution"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ReminderExecution"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ReminderExecution"> | Date | string
+  }
+
   export type PlanCreateInput = {
     id?: string
     name: $Enums.PlanName
@@ -71319,6 +79259,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -71382,6 +79325,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -71445,6 +79391,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -71508,6 +79457,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -73123,6 +81075,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutClientInput
     quotes?: QuoteCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateInput = {
@@ -73161,6 +81115,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientUpdateInput = {
@@ -73199,6 +81155,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutClientNestedInput
     quotes?: QuoteUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateInput = {
@@ -73237,6 +81195,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ClientCreateManyInput = {
@@ -73506,6 +81466,9 @@ export namespace Prisma {
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateInput = {
@@ -73535,6 +81498,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUpdateInput = {
@@ -73564,6 +81530,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateInput = {
@@ -73593,6 +81562,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionCreateManyInput = {
@@ -74691,6 +82663,7 @@ export namespace Prisma {
     client: ClientCreateNestedOneWithoutSmsLogsInput
     whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
     emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogUncheckedCreateInput = {
@@ -74726,6 +82699,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogUpdateInput = {
@@ -74761,6 +82735,7 @@ export namespace Prisma {
     client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
     whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
     emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateInput = {
@@ -74796,6 +82771,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogCreateManyInput = {
@@ -77454,6 +85430,583 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ServiceTypeCreateInput = {
+    id?: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutServiceTypesInput
+    interventionServices?: InterventionServiceCreateNestedManyWithoutServiceTypeInput
+    automationMappings?: ReminderAutomationServiceCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interventionServices?: InterventionServiceUncheckedCreateNestedManyWithoutServiceTypeInput
+    automationMappings?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutServiceTypesNestedInput
+    interventionServices?: InterventionServiceUpdateManyWithoutServiceTypeNestedInput
+    automationMappings?: ReminderAutomationServiceUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type ServiceTypeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interventionServices?: InterventionServiceUncheckedUpdateManyWithoutServiceTypeNestedInput
+    automationMappings?: ReminderAutomationServiceUncheckedUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type ServiceTypeCreateManyInput = {
+    id?: string
+    companyId: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServiceTypeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServiceTypeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterventionServiceCreateInput = {
+    id?: string
+    createdAt?: Date | string
+    intervention: InterventionCreateNestedOneWithoutServicesInput
+    serviceType: ServiceTypeCreateNestedOneWithoutInterventionServicesInput
+  }
+
+  export type InterventionServiceUncheckedCreateInput = {
+    id?: string
+    interventionId: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type InterventionServiceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intervention?: InterventionUpdateOneRequiredWithoutServicesNestedInput
+    serviceType?: ServiceTypeUpdateOneRequiredWithoutInterventionServicesNestedInput
+  }
+
+  export type InterventionServiceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    interventionId?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterventionServiceCreateManyInput = {
+    id?: string
+    interventionId: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type InterventionServiceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterventionServiceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    interventionId?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationCreateInput = {
+    id?: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderAutomationsInput
+    client: ClientCreateNestedOneWithoutReminderAutomationsInput
+    lastCompletedIntervention?: InterventionCreateNestedOneWithoutResetAutomationsInput
+    trackedServices?: ReminderAutomationServiceCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionUncheckedCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    lastCompletedIntervention?: InterventionUpdateOneWithoutResetAutomationsNestedInput
+    trackedServices?: ReminderAutomationServiceUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationCreateManyInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderAutomationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationServiceCreateInput = {
+    id?: string
+    createdAt?: Date | string
+    reminderAutomation: ReminderAutomationCreateNestedOneWithoutTrackedServicesInput
+    serviceType: ServiceTypeCreateNestedOneWithoutAutomationMappingsInput
+  }
+
+  export type ReminderAutomationServiceUncheckedCreateInput = {
+    id?: string
+    reminderAutomationId: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type ReminderAutomationServiceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderAutomation?: ReminderAutomationUpdateOneRequiredWithoutTrackedServicesNestedInput
+    serviceType?: ServiceTypeUpdateOneRequiredWithoutAutomationMappingsNestedInput
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationServiceCreateManyInput = {
+    id?: string
+    reminderAutomationId: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type ReminderAutomationServiceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionCreateInput = {
+    id?: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderExecutionsInput
+    reminderAutomation: ReminderAutomationCreateNestedOneWithoutExecutionsInput
+    client: ClientCreateNestedOneWithoutReminderExecutionsInput
+    intervention?: InterventionCreateNestedOneWithoutReminderExecutionsInput
+    message?: SmsLogCreateNestedOneWithoutReminderExecutionsInput
+  }
+
+  export type ReminderExecutionUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    reminderAutomation?: ReminderAutomationUpdateOneRequiredWithoutExecutionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    intervention?: InterventionUpdateOneWithoutReminderExecutionsNestedInput
+    message?: SmsLogUpdateOneWithoutReminderExecutionsNestedInput
+  }
+
+  export type ReminderExecutionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionCreateManyInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -77881,6 +86434,24 @@ export namespace Prisma {
     none?: BankTransactionWhereInput
   }
 
+  export type ServiceTypeListRelationFilter = {
+    every?: ServiceTypeWhereInput
+    some?: ServiceTypeWhereInput
+    none?: ServiceTypeWhereInput
+  }
+
+  export type ReminderAutomationListRelationFilter = {
+    every?: ReminderAutomationWhereInput
+    some?: ReminderAutomationWhereInput
+    none?: ReminderAutomationWhereInput
+  }
+
+  export type ReminderExecutionListRelationFilter = {
+    every?: ReminderExecutionWhereInput
+    some?: ReminderExecutionWhereInput
+    none?: ReminderExecutionWhereInput
+  }
+
   export type AccountingExportListRelationFilter = {
     every?: AccountingExportWhereInput
     some?: AccountingExportWhereInput
@@ -77994,6 +86565,18 @@ export namespace Prisma {
   }
 
   export type BankTransactionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ServiceTypeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReminderAutomationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReminderExecutionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -79399,7 +87982,17 @@ export namespace Prisma {
     isNot?: QuoteWhereInput | null
   }
 
+  export type InterventionServiceListRelationFilter = {
+    every?: InterventionServiceWhereInput
+    some?: InterventionServiceWhereInput
+    none?: InterventionServiceWhereInput
+  }
+
   export type InterventionPhotoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InterventionServiceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -81825,6 +90418,462 @@ export namespace Prisma {
     confidenceScore?: SortOrder
   }
 
+  export type EnumTimeUnitNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeUnitNullableFilter<$PrismaModel> | $Enums.TimeUnit | null
+  }
+
+  export type EnumReminderChannelChoiceNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumReminderChannelChoiceNullableFilter<$PrismaModel> | $Enums.ReminderChannelChoice | null
+  }
+
+  export type EnumRecommendationLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecommendationLevel | EnumRecommendationLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationLevelFilter<$PrismaModel> | $Enums.RecommendationLevel
+  }
+
+  export type ReminderAutomationServiceListRelationFilter = {
+    every?: ReminderAutomationServiceWhereInput
+    some?: ReminderAutomationServiceWhereInput
+    none?: ReminderAutomationServiceWhereInput
+  }
+
+  export type ReminderAutomationServiceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ServiceTypeCompanyIdNameCompoundUniqueInput = {
+    companyId: string
+    name: string
+  }
+
+  export type ServiceTypeCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    tradeSlug?: SortOrder
+    name?: SortOrder
+    category?: SortOrder
+    description?: SortOrder
+    defaultFrequencyValue?: SortOrder
+    defaultFrequencyUnit?: SortOrder
+    defaultAdvanceNoticeValue?: SortOrder
+    defaultAdvanceNoticeUnit?: SortOrder
+    defaultChannel?: SortOrder
+    defaultTemplate?: SortOrder
+    recommendationLevel?: SortOrder
+    isDefault?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServiceTypeAvgOrderByAggregateInput = {
+    defaultFrequencyValue?: SortOrder
+    defaultAdvanceNoticeValue?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type ServiceTypeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    tradeSlug?: SortOrder
+    name?: SortOrder
+    category?: SortOrder
+    description?: SortOrder
+    defaultFrequencyValue?: SortOrder
+    defaultFrequencyUnit?: SortOrder
+    defaultAdvanceNoticeValue?: SortOrder
+    defaultAdvanceNoticeUnit?: SortOrder
+    defaultChannel?: SortOrder
+    defaultTemplate?: SortOrder
+    recommendationLevel?: SortOrder
+    isDefault?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServiceTypeMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    tradeSlug?: SortOrder
+    name?: SortOrder
+    category?: SortOrder
+    description?: SortOrder
+    defaultFrequencyValue?: SortOrder
+    defaultFrequencyUnit?: SortOrder
+    defaultAdvanceNoticeValue?: SortOrder
+    defaultAdvanceNoticeUnit?: SortOrder
+    defaultChannel?: SortOrder
+    defaultTemplate?: SortOrder
+    recommendationLevel?: SortOrder
+    isDefault?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServiceTypeSumOrderByAggregateInput = {
+    defaultFrequencyValue?: SortOrder
+    defaultAdvanceNoticeValue?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type EnumTimeUnitNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeUnitNullableWithAggregatesFilter<$PrismaModel> | $Enums.TimeUnit | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTimeUnitNullableFilter<$PrismaModel>
+    _max?: NestedEnumTimeUnitNullableFilter<$PrismaModel>
+  }
+
+  export type EnumReminderChannelChoiceNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumReminderChannelChoiceNullableWithAggregatesFilter<$PrismaModel> | $Enums.ReminderChannelChoice | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumReminderChannelChoiceNullableFilter<$PrismaModel>
+    _max?: NestedEnumReminderChannelChoiceNullableFilter<$PrismaModel>
+  }
+
+  export type EnumRecommendationLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecommendationLevel | EnumRecommendationLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationLevelWithAggregatesFilter<$PrismaModel> | $Enums.RecommendationLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecommendationLevelFilter<$PrismaModel>
+    _max?: NestedEnumRecommendationLevelFilter<$PrismaModel>
+  }
+
+  export type ServiceTypeScalarRelationFilter = {
+    is?: ServiceTypeWhereInput
+    isNot?: ServiceTypeWhereInput
+  }
+
+  export type InterventionServiceInterventionIdServiceTypeIdCompoundUniqueInput = {
+    interventionId: string
+    serviceTypeId: string
+  }
+
+  export type InterventionServiceCountOrderByAggregateInput = {
+    id?: SortOrder
+    interventionId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type InterventionServiceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    interventionId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type InterventionServiceMinOrderByAggregateInput = {
+    id?: SortOrder
+    interventionId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumAutomationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationType | EnumAutomationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationTypeFilter<$PrismaModel> | $Enums.AutomationType
+  }
+
+  export type EnumTimeUnitFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel>
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    not?: NestedEnumTimeUnitFilter<$PrismaModel> | $Enums.TimeUnit
+  }
+
+  export type EnumReminderChannelChoiceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderChannelChoiceFilter<$PrismaModel> | $Enums.ReminderChannelChoice
+  }
+
+  export type EnumReminderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderStatus | EnumReminderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderStatusFilter<$PrismaModel> | $Enums.ReminderStatus
+  }
+
+  export type ReminderAutomationCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    clientId?: SortOrder
+    name?: SortOrder
+    automationType?: SortOrder
+    enabled?: SortOrder
+    isCustomOverride?: SortOrder
+    frequencyValue?: SortOrder
+    frequencyUnit?: SortOrder
+    advanceNoticeValue?: SortOrder
+    advanceNoticeUnit?: SortOrder
+    channel?: SortOrder
+    fallbackChannel?: SortOrder
+    customMessageTemplate?: SortOrder
+    stopOnReply?: SortOrder
+    stopOnAppointment?: SortOrder
+    maxFollowUps?: SortOrder
+    followUpIntervalDays?: SortOrder
+    status?: SortOrder
+    nextReminderAt?: SortOrder
+    lastCompletedInterventionId?: SortOrder
+    lastCompletedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReminderAutomationAvgOrderByAggregateInput = {
+    frequencyValue?: SortOrder
+    advanceNoticeValue?: SortOrder
+    maxFollowUps?: SortOrder
+    followUpIntervalDays?: SortOrder
+  }
+
+  export type ReminderAutomationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    clientId?: SortOrder
+    name?: SortOrder
+    automationType?: SortOrder
+    enabled?: SortOrder
+    isCustomOverride?: SortOrder
+    frequencyValue?: SortOrder
+    frequencyUnit?: SortOrder
+    advanceNoticeValue?: SortOrder
+    advanceNoticeUnit?: SortOrder
+    channel?: SortOrder
+    fallbackChannel?: SortOrder
+    customMessageTemplate?: SortOrder
+    stopOnReply?: SortOrder
+    stopOnAppointment?: SortOrder
+    maxFollowUps?: SortOrder
+    followUpIntervalDays?: SortOrder
+    status?: SortOrder
+    nextReminderAt?: SortOrder
+    lastCompletedInterventionId?: SortOrder
+    lastCompletedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReminderAutomationMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    clientId?: SortOrder
+    name?: SortOrder
+    automationType?: SortOrder
+    enabled?: SortOrder
+    isCustomOverride?: SortOrder
+    frequencyValue?: SortOrder
+    frequencyUnit?: SortOrder
+    advanceNoticeValue?: SortOrder
+    advanceNoticeUnit?: SortOrder
+    channel?: SortOrder
+    fallbackChannel?: SortOrder
+    customMessageTemplate?: SortOrder
+    stopOnReply?: SortOrder
+    stopOnAppointment?: SortOrder
+    maxFollowUps?: SortOrder
+    followUpIntervalDays?: SortOrder
+    status?: SortOrder
+    nextReminderAt?: SortOrder
+    lastCompletedInterventionId?: SortOrder
+    lastCompletedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReminderAutomationSumOrderByAggregateInput = {
+    frequencyValue?: SortOrder
+    advanceNoticeValue?: SortOrder
+    maxFollowUps?: SortOrder
+    followUpIntervalDays?: SortOrder
+  }
+
+  export type EnumAutomationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationType | EnumAutomationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationTypeWithAggregatesFilter<$PrismaModel> | $Enums.AutomationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAutomationTypeFilter<$PrismaModel>
+    _max?: NestedEnumAutomationTypeFilter<$PrismaModel>
+  }
+
+  export type EnumTimeUnitWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel>
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    not?: NestedEnumTimeUnitWithAggregatesFilter<$PrismaModel> | $Enums.TimeUnit
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTimeUnitFilter<$PrismaModel>
+    _max?: NestedEnumTimeUnitFilter<$PrismaModel>
+  }
+
+  export type EnumReminderChannelChoiceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderChannelChoiceWithAggregatesFilter<$PrismaModel> | $Enums.ReminderChannelChoice
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReminderChannelChoiceFilter<$PrismaModel>
+    _max?: NestedEnumReminderChannelChoiceFilter<$PrismaModel>
+  }
+
+  export type EnumReminderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderStatus | EnumReminderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReminderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReminderStatusFilter<$PrismaModel>
+    _max?: NestedEnumReminderStatusFilter<$PrismaModel>
+  }
+
+  export type ReminderAutomationScalarRelationFilter = {
+    is?: ReminderAutomationWhereInput
+    isNot?: ReminderAutomationWhereInput
+  }
+
+  export type ReminderAutomationServiceReminderAutomationIdServiceTypeIdCompoundUniqueInput = {
+    reminderAutomationId: string
+    serviceTypeId: string
+  }
+
+  export type ReminderAutomationServiceCountOrderByAggregateInput = {
+    id?: SortOrder
+    reminderAutomationId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReminderAutomationServiceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    reminderAutomationId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReminderAutomationServiceMinOrderByAggregateInput = {
+    id?: SortOrder
+    reminderAutomationId?: SortOrder
+    serviceTypeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumReminderExecutionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderExecutionStatus | EnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderExecutionStatusFilter<$PrismaModel> | $Enums.ReminderExecutionStatus
+  }
+
+  export type SmsLogNullableScalarRelationFilter = {
+    is?: SmsLogWhereInput | null
+    isNot?: SmsLogWhereInput | null
+  }
+
+  export type ReminderExecutionCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    reminderAutomationId?: SortOrder
+    clientId?: SortOrder
+    interventionId?: SortOrder
+    sequenceStep?: SortOrder
+    scheduledAt?: SortOrder
+    executedAt?: SortOrder
+    channel?: SortOrder
+    status?: SortOrder
+    messageId?: SortOrder
+    recipient?: SortOrder
+    renderedContent?: SortOrder
+    error?: SortOrder
+    respondedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReminderExecutionAvgOrderByAggregateInput = {
+    sequenceStep?: SortOrder
+  }
+
+  export type ReminderExecutionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    reminderAutomationId?: SortOrder
+    clientId?: SortOrder
+    interventionId?: SortOrder
+    sequenceStep?: SortOrder
+    scheduledAt?: SortOrder
+    executedAt?: SortOrder
+    channel?: SortOrder
+    status?: SortOrder
+    messageId?: SortOrder
+    recipient?: SortOrder
+    renderedContent?: SortOrder
+    error?: SortOrder
+    respondedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReminderExecutionMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    reminderAutomationId?: SortOrder
+    clientId?: SortOrder
+    interventionId?: SortOrder
+    sequenceStep?: SortOrder
+    scheduledAt?: SortOrder
+    executedAt?: SortOrder
+    channel?: SortOrder
+    status?: SortOrder
+    messageId?: SortOrder
+    recipient?: SortOrder
+    renderedContent?: SortOrder
+    error?: SortOrder
+    respondedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReminderExecutionSumOrderByAggregateInput = {
+    sequenceStep?: SortOrder
+  }
+
+  export type EnumReminderExecutionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderExecutionStatus | EnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderExecutionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReminderExecutionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReminderExecutionStatusFilter<$PrismaModel>
+    _max?: NestedEnumReminderExecutionStatusFilter<$PrismaModel>
+  }
+
   export type SubscriptionCreateNestedManyWithoutPlanInput = {
     create?: XOR<SubscriptionCreateWithoutPlanInput, SubscriptionUncheckedCreateWithoutPlanInput> | SubscriptionCreateWithoutPlanInput[] | SubscriptionUncheckedCreateWithoutPlanInput[]
     connectOrCreate?: SubscriptionCreateOrConnectWithoutPlanInput | SubscriptionCreateOrConnectWithoutPlanInput[]
@@ -82054,6 +91103,27 @@ export namespace Prisma {
     connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
   }
 
+  export type ServiceTypeCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ServiceTypeCreateWithoutCompanyInput, ServiceTypeUncheckedCreateWithoutCompanyInput> | ServiceTypeCreateWithoutCompanyInput[] | ServiceTypeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutCompanyInput | ServiceTypeCreateOrConnectWithoutCompanyInput[]
+    createMany?: ServiceTypeCreateManyCompanyInputEnvelope
+    connect?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ReminderAutomationCreateWithoutCompanyInput, ReminderAutomationUncheckedCreateWithoutCompanyInput> | ReminderAutomationCreateWithoutCompanyInput[] | ReminderAutomationUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutCompanyInput | ReminderAutomationCreateOrConnectWithoutCompanyInput[]
+    createMany?: ReminderAutomationCreateManyCompanyInputEnvelope
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ReminderExecutionCreateWithoutCompanyInput, ReminderExecutionUncheckedCreateWithoutCompanyInput> | ReminderExecutionCreateWithoutCompanyInput[] | ReminderExecutionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutCompanyInput | ReminderExecutionCreateOrConnectWithoutCompanyInput[]
+    createMany?: ReminderExecutionCreateManyCompanyInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+  }
+
   export type AccountingExportCreateNestedManyWithoutCompanyInput = {
     create?: XOR<AccountingExportCreateWithoutCompanyInput, AccountingExportUncheckedCreateWithoutCompanyInput> | AccountingExportCreateWithoutCompanyInput[] | AccountingExportUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: AccountingExportCreateOrConnectWithoutCompanyInput | AccountingExportCreateOrConnectWithoutCompanyInput[]
@@ -82250,6 +91320,27 @@ export namespace Prisma {
     connectOrCreate?: BankTransactionCreateOrConnectWithoutCompanyInput | BankTransactionCreateOrConnectWithoutCompanyInput[]
     createMany?: BankTransactionCreateManyCompanyInputEnvelope
     connect?: BankTransactionWhereUniqueInput | BankTransactionWhereUniqueInput[]
+  }
+
+  export type ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ServiceTypeCreateWithoutCompanyInput, ServiceTypeUncheckedCreateWithoutCompanyInput> | ServiceTypeCreateWithoutCompanyInput[] | ServiceTypeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutCompanyInput | ServiceTypeCreateOrConnectWithoutCompanyInput[]
+    createMany?: ServiceTypeCreateManyCompanyInputEnvelope
+    connect?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ReminderAutomationCreateWithoutCompanyInput, ReminderAutomationUncheckedCreateWithoutCompanyInput> | ReminderAutomationCreateWithoutCompanyInput[] | ReminderAutomationUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutCompanyInput | ReminderAutomationCreateOrConnectWithoutCompanyInput[]
+    createMany?: ReminderAutomationCreateManyCompanyInputEnvelope
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ReminderExecutionCreateWithoutCompanyInput, ReminderExecutionUncheckedCreateWithoutCompanyInput> | ReminderExecutionCreateWithoutCompanyInput[] | ReminderExecutionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutCompanyInput | ReminderExecutionCreateOrConnectWithoutCompanyInput[]
+    createMany?: ReminderExecutionCreateManyCompanyInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
   }
 
   export type AccountingExportUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -82601,6 +91692,48 @@ export namespace Prisma {
     update?: BankTransactionUpdateWithWhereUniqueWithoutCompanyInput | BankTransactionUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: BankTransactionUpdateManyWithWhereWithoutCompanyInput | BankTransactionUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+  }
+
+  export type ServiceTypeUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ServiceTypeCreateWithoutCompanyInput, ServiceTypeUncheckedCreateWithoutCompanyInput> | ServiceTypeCreateWithoutCompanyInput[] | ServiceTypeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutCompanyInput | ServiceTypeCreateOrConnectWithoutCompanyInput[]
+    upsert?: ServiceTypeUpsertWithWhereUniqueWithoutCompanyInput | ServiceTypeUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ServiceTypeCreateManyCompanyInputEnvelope
+    set?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    disconnect?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    delete?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    connect?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    update?: ServiceTypeUpdateWithWhereUniqueWithoutCompanyInput | ServiceTypeUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ServiceTypeUpdateManyWithWhereWithoutCompanyInput | ServiceTypeUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ServiceTypeScalarWhereInput | ServiceTypeScalarWhereInput[]
+  }
+
+  export type ReminderAutomationUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutCompanyInput, ReminderAutomationUncheckedCreateWithoutCompanyInput> | ReminderAutomationCreateWithoutCompanyInput[] | ReminderAutomationUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutCompanyInput | ReminderAutomationCreateOrConnectWithoutCompanyInput[]
+    upsert?: ReminderAutomationUpsertWithWhereUniqueWithoutCompanyInput | ReminderAutomationUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ReminderAutomationCreateManyCompanyInputEnvelope
+    set?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    disconnect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    delete?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    update?: ReminderAutomationUpdateWithWhereUniqueWithoutCompanyInput | ReminderAutomationUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ReminderAutomationUpdateManyWithWhereWithoutCompanyInput | ReminderAutomationUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutCompanyInput, ReminderExecutionUncheckedCreateWithoutCompanyInput> | ReminderExecutionCreateWithoutCompanyInput[] | ReminderExecutionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutCompanyInput | ReminderExecutionCreateOrConnectWithoutCompanyInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutCompanyInput | ReminderExecutionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ReminderExecutionCreateManyCompanyInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutCompanyInput | ReminderExecutionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutCompanyInput | ReminderExecutionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
   }
 
   export type AccountingExportUpdateManyWithoutCompanyNestedInput = {
@@ -82987,6 +92120,48 @@ export namespace Prisma {
     update?: BankTransactionUpdateWithWhereUniqueWithoutCompanyInput | BankTransactionUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: BankTransactionUpdateManyWithWhereWithoutCompanyInput | BankTransactionUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: BankTransactionScalarWhereInput | BankTransactionScalarWhereInput[]
+  }
+
+  export type ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ServiceTypeCreateWithoutCompanyInput, ServiceTypeUncheckedCreateWithoutCompanyInput> | ServiceTypeCreateWithoutCompanyInput[] | ServiceTypeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutCompanyInput | ServiceTypeCreateOrConnectWithoutCompanyInput[]
+    upsert?: ServiceTypeUpsertWithWhereUniqueWithoutCompanyInput | ServiceTypeUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ServiceTypeCreateManyCompanyInputEnvelope
+    set?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    disconnect?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    delete?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    connect?: ServiceTypeWhereUniqueInput | ServiceTypeWhereUniqueInput[]
+    update?: ServiceTypeUpdateWithWhereUniqueWithoutCompanyInput | ServiceTypeUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ServiceTypeUpdateManyWithWhereWithoutCompanyInput | ServiceTypeUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ServiceTypeScalarWhereInput | ServiceTypeScalarWhereInput[]
+  }
+
+  export type ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutCompanyInput, ReminderAutomationUncheckedCreateWithoutCompanyInput> | ReminderAutomationCreateWithoutCompanyInput[] | ReminderAutomationUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutCompanyInput | ReminderAutomationCreateOrConnectWithoutCompanyInput[]
+    upsert?: ReminderAutomationUpsertWithWhereUniqueWithoutCompanyInput | ReminderAutomationUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ReminderAutomationCreateManyCompanyInputEnvelope
+    set?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    disconnect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    delete?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    update?: ReminderAutomationUpdateWithWhereUniqueWithoutCompanyInput | ReminderAutomationUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ReminderAutomationUpdateManyWithWhereWithoutCompanyInput | ReminderAutomationUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutCompanyInput, ReminderExecutionUncheckedCreateWithoutCompanyInput> | ReminderExecutionCreateWithoutCompanyInput[] | ReminderExecutionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutCompanyInput | ReminderExecutionCreateOrConnectWithoutCompanyInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutCompanyInput | ReminderExecutionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ReminderExecutionCreateManyCompanyInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutCompanyInput | ReminderExecutionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutCompanyInput | ReminderExecutionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
   }
 
   export type AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -84003,6 +93178,20 @@ export namespace Prisma {
     connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
   }
 
+  export type ReminderAutomationCreateNestedManyWithoutClientInput = {
+    create?: XOR<ReminderAutomationCreateWithoutClientInput, ReminderAutomationUncheckedCreateWithoutClientInput> | ReminderAutomationCreateWithoutClientInput[] | ReminderAutomationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutClientInput | ReminderAutomationCreateOrConnectWithoutClientInput[]
+    createMany?: ReminderAutomationCreateManyClientInputEnvelope
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionCreateNestedManyWithoutClientInput = {
+    create?: XOR<ReminderExecutionCreateWithoutClientInput, ReminderExecutionUncheckedCreateWithoutClientInput> | ReminderExecutionCreateWithoutClientInput[] | ReminderExecutionUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutClientInput | ReminderExecutionCreateOrConnectWithoutClientInput[]
+    createMany?: ReminderExecutionCreateManyClientInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+  }
+
   export type EquipmentUncheckedCreateNestedManyWithoutClientInput = {
     create?: XOR<EquipmentCreateWithoutClientInput, EquipmentUncheckedCreateWithoutClientInput> | EquipmentCreateWithoutClientInput[] | EquipmentUncheckedCreateWithoutClientInput[]
     connectOrCreate?: EquipmentCreateOrConnectWithoutClientInput | EquipmentCreateOrConnectWithoutClientInput[]
@@ -84036,6 +93225,20 @@ export namespace Prisma {
     connectOrCreate?: SmsLogCreateOrConnectWithoutClientInput | SmsLogCreateOrConnectWithoutClientInput[]
     createMany?: SmsLogCreateManyClientInputEnvelope
     connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<ReminderAutomationCreateWithoutClientInput, ReminderAutomationUncheckedCreateWithoutClientInput> | ReminderAutomationCreateWithoutClientInput[] | ReminderAutomationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutClientInput | ReminderAutomationCreateOrConnectWithoutClientInput[]
+    createMany?: ReminderAutomationCreateManyClientInputEnvelope
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<ReminderExecutionCreateWithoutClientInput, ReminderExecutionUncheckedCreateWithoutClientInput> | ReminderExecutionCreateWithoutClientInput[] | ReminderExecutionUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutClientInput | ReminderExecutionCreateOrConnectWithoutClientInput[]
+    createMany?: ReminderExecutionCreateManyClientInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
   }
 
   export type EnumClientStatusFieldUpdateOperationsInput = {
@@ -84134,6 +93337,34 @@ export namespace Prisma {
     deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
   }
 
+  export type ReminderAutomationUpdateManyWithoutClientNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutClientInput, ReminderAutomationUncheckedCreateWithoutClientInput> | ReminderAutomationCreateWithoutClientInput[] | ReminderAutomationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutClientInput | ReminderAutomationCreateOrConnectWithoutClientInput[]
+    upsert?: ReminderAutomationUpsertWithWhereUniqueWithoutClientInput | ReminderAutomationUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: ReminderAutomationCreateManyClientInputEnvelope
+    set?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    disconnect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    delete?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    update?: ReminderAutomationUpdateWithWhereUniqueWithoutClientInput | ReminderAutomationUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: ReminderAutomationUpdateManyWithWhereWithoutClientInput | ReminderAutomationUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUpdateManyWithoutClientNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutClientInput, ReminderExecutionUncheckedCreateWithoutClientInput> | ReminderExecutionCreateWithoutClientInput[] | ReminderExecutionUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutClientInput | ReminderExecutionCreateOrConnectWithoutClientInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutClientInput | ReminderExecutionUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: ReminderExecutionCreateManyClientInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutClientInput | ReminderExecutionUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutClientInput | ReminderExecutionUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
+  }
+
   export type EquipmentUncheckedUpdateManyWithoutClientNestedInput = {
     create?: XOR<EquipmentCreateWithoutClientInput, EquipmentUncheckedCreateWithoutClientInput> | EquipmentCreateWithoutClientInput[] | EquipmentUncheckedCreateWithoutClientInput[]
     connectOrCreate?: EquipmentCreateOrConnectWithoutClientInput | EquipmentCreateOrConnectWithoutClientInput[]
@@ -84202,6 +93433,34 @@ export namespace Prisma {
     update?: SmsLogUpdateWithWhereUniqueWithoutClientInput | SmsLogUpdateWithWhereUniqueWithoutClientInput[]
     updateMany?: SmsLogUpdateManyWithWhereWithoutClientInput | SmsLogUpdateManyWithWhereWithoutClientInput[]
     deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutClientInput, ReminderAutomationUncheckedCreateWithoutClientInput> | ReminderAutomationCreateWithoutClientInput[] | ReminderAutomationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutClientInput | ReminderAutomationCreateOrConnectWithoutClientInput[]
+    upsert?: ReminderAutomationUpsertWithWhereUniqueWithoutClientInput | ReminderAutomationUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: ReminderAutomationCreateManyClientInputEnvelope
+    set?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    disconnect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    delete?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    update?: ReminderAutomationUpdateWithWhereUniqueWithoutClientInput | ReminderAutomationUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: ReminderAutomationUpdateManyWithWhereWithoutClientInput | ReminderAutomationUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutClientInput, ReminderExecutionUncheckedCreateWithoutClientInput> | ReminderExecutionCreateWithoutClientInput[] | ReminderExecutionUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutClientInput | ReminderExecutionCreateOrConnectWithoutClientInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutClientInput | ReminderExecutionUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: ReminderExecutionCreateManyClientInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutClientInput | ReminderExecutionUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutClientInput | ReminderExecutionUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
   }
 
   export type ClientCreateNestedOneWithoutEquipmentInput = {
@@ -84315,6 +93574,27 @@ export namespace Prisma {
     connect?: QuoteWhereUniqueInput
   }
 
+  export type InterventionServiceCreateNestedManyWithoutInterventionInput = {
+    create?: XOR<InterventionServiceCreateWithoutInterventionInput, InterventionServiceUncheckedCreateWithoutInterventionInput> | InterventionServiceCreateWithoutInterventionInput[] | InterventionServiceUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutInterventionInput | InterventionServiceCreateOrConnectWithoutInterventionInput[]
+    createMany?: InterventionServiceCreateManyInterventionInputEnvelope
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput = {
+    create?: XOR<ReminderAutomationCreateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput> | ReminderAutomationCreateWithoutLastCompletedInterventionInput[] | ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput | ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput[]
+    createMany?: ReminderAutomationCreateManyLastCompletedInterventionInputEnvelope
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionCreateNestedManyWithoutInterventionInput = {
+    create?: XOR<ReminderExecutionCreateWithoutInterventionInput, ReminderExecutionUncheckedCreateWithoutInterventionInput> | ReminderExecutionCreateWithoutInterventionInput[] | ReminderExecutionUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutInterventionInput | ReminderExecutionCreateOrConnectWithoutInterventionInput[]
+    createMany?: ReminderExecutionCreateManyInterventionInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+  }
+
   export type InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput = {
     create?: XOR<InterventionPhotoCreateWithoutInterventionInput, InterventionPhotoUncheckedCreateWithoutInterventionInput> | InterventionPhotoCreateWithoutInterventionInput[] | InterventionPhotoUncheckedCreateWithoutInterventionInput[]
     connectOrCreate?: InterventionPhotoCreateOrConnectWithoutInterventionInput | InterventionPhotoCreateOrConnectWithoutInterventionInput[]
@@ -84332,6 +93612,27 @@ export namespace Prisma {
     create?: XOR<QuoteCreateWithoutInterventionInput, QuoteUncheckedCreateWithoutInterventionInput>
     connectOrCreate?: QuoteCreateOrConnectWithoutInterventionInput
     connect?: QuoteWhereUniqueInput
+  }
+
+  export type InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput = {
+    create?: XOR<InterventionServiceCreateWithoutInterventionInput, InterventionServiceUncheckedCreateWithoutInterventionInput> | InterventionServiceCreateWithoutInterventionInput[] | InterventionServiceUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutInterventionInput | InterventionServiceCreateOrConnectWithoutInterventionInput[]
+    createMany?: InterventionServiceCreateManyInterventionInputEnvelope
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput = {
+    create?: XOR<ReminderAutomationCreateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput> | ReminderAutomationCreateWithoutLastCompletedInterventionInput[] | ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput | ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput[]
+    createMany?: ReminderAutomationCreateManyLastCompletedInterventionInputEnvelope
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput = {
+    create?: XOR<ReminderExecutionCreateWithoutInterventionInput, ReminderExecutionUncheckedCreateWithoutInterventionInput> | ReminderExecutionCreateWithoutInterventionInput[] | ReminderExecutionUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutInterventionInput | ReminderExecutionCreateOrConnectWithoutInterventionInput[]
+    createMany?: ReminderExecutionCreateManyInterventionInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
   }
 
   export type EnumInterventionStatusFieldUpdateOperationsInput = {
@@ -84436,6 +93737,48 @@ export namespace Prisma {
     update?: XOR<XOR<QuoteUpdateToOneWithWhereWithoutInterventionInput, QuoteUpdateWithoutInterventionInput>, QuoteUncheckedUpdateWithoutInterventionInput>
   }
 
+  export type InterventionServiceUpdateManyWithoutInterventionNestedInput = {
+    create?: XOR<InterventionServiceCreateWithoutInterventionInput, InterventionServiceUncheckedCreateWithoutInterventionInput> | InterventionServiceCreateWithoutInterventionInput[] | InterventionServiceUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutInterventionInput | InterventionServiceCreateOrConnectWithoutInterventionInput[]
+    upsert?: InterventionServiceUpsertWithWhereUniqueWithoutInterventionInput | InterventionServiceUpsertWithWhereUniqueWithoutInterventionInput[]
+    createMany?: InterventionServiceCreateManyInterventionInputEnvelope
+    set?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    disconnect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    delete?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    update?: InterventionServiceUpdateWithWhereUniqueWithoutInterventionInput | InterventionServiceUpdateWithWhereUniqueWithoutInterventionInput[]
+    updateMany?: InterventionServiceUpdateManyWithWhereWithoutInterventionInput | InterventionServiceUpdateManyWithWhereWithoutInterventionInput[]
+    deleteMany?: InterventionServiceScalarWhereInput | InterventionServiceScalarWhereInput[]
+  }
+
+  export type ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput> | ReminderAutomationCreateWithoutLastCompletedInterventionInput[] | ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput | ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput[]
+    upsert?: ReminderAutomationUpsertWithWhereUniqueWithoutLastCompletedInterventionInput | ReminderAutomationUpsertWithWhereUniqueWithoutLastCompletedInterventionInput[]
+    createMany?: ReminderAutomationCreateManyLastCompletedInterventionInputEnvelope
+    set?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    disconnect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    delete?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    update?: ReminderAutomationUpdateWithWhereUniqueWithoutLastCompletedInterventionInput | ReminderAutomationUpdateWithWhereUniqueWithoutLastCompletedInterventionInput[]
+    updateMany?: ReminderAutomationUpdateManyWithWhereWithoutLastCompletedInterventionInput | ReminderAutomationUpdateManyWithWhereWithoutLastCompletedInterventionInput[]
+    deleteMany?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUpdateManyWithoutInterventionNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutInterventionInput, ReminderExecutionUncheckedCreateWithoutInterventionInput> | ReminderExecutionCreateWithoutInterventionInput[] | ReminderExecutionUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutInterventionInput | ReminderExecutionCreateOrConnectWithoutInterventionInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutInterventionInput | ReminderExecutionUpsertWithWhereUniqueWithoutInterventionInput[]
+    createMany?: ReminderExecutionCreateManyInterventionInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutInterventionInput | ReminderExecutionUpdateWithWhereUniqueWithoutInterventionInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutInterventionInput | ReminderExecutionUpdateManyWithWhereWithoutInterventionInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
+  }
+
   export type InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput = {
     create?: XOR<InterventionPhotoCreateWithoutInterventionInput, InterventionPhotoUncheckedCreateWithoutInterventionInput> | InterventionPhotoCreateWithoutInterventionInput[] | InterventionPhotoUncheckedCreateWithoutInterventionInput[]
     connectOrCreate?: InterventionPhotoCreateOrConnectWithoutInterventionInput | InterventionPhotoCreateOrConnectWithoutInterventionInput[]
@@ -84468,6 +93811,48 @@ export namespace Prisma {
     delete?: QuoteWhereInput | boolean
     connect?: QuoteWhereUniqueInput
     update?: XOR<XOR<QuoteUpdateToOneWithWhereWithoutInterventionInput, QuoteUpdateWithoutInterventionInput>, QuoteUncheckedUpdateWithoutInterventionInput>
+  }
+
+  export type InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput = {
+    create?: XOR<InterventionServiceCreateWithoutInterventionInput, InterventionServiceUncheckedCreateWithoutInterventionInput> | InterventionServiceCreateWithoutInterventionInput[] | InterventionServiceUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutInterventionInput | InterventionServiceCreateOrConnectWithoutInterventionInput[]
+    upsert?: InterventionServiceUpsertWithWhereUniqueWithoutInterventionInput | InterventionServiceUpsertWithWhereUniqueWithoutInterventionInput[]
+    createMany?: InterventionServiceCreateManyInterventionInputEnvelope
+    set?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    disconnect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    delete?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    update?: InterventionServiceUpdateWithWhereUniqueWithoutInterventionInput | InterventionServiceUpdateWithWhereUniqueWithoutInterventionInput[]
+    updateMany?: InterventionServiceUpdateManyWithWhereWithoutInterventionInput | InterventionServiceUpdateManyWithWhereWithoutInterventionInput[]
+    deleteMany?: InterventionServiceScalarWhereInput | InterventionServiceScalarWhereInput[]
+  }
+
+  export type ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput> | ReminderAutomationCreateWithoutLastCompletedInterventionInput[] | ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput[]
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput | ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput[]
+    upsert?: ReminderAutomationUpsertWithWhereUniqueWithoutLastCompletedInterventionInput | ReminderAutomationUpsertWithWhereUniqueWithoutLastCompletedInterventionInput[]
+    createMany?: ReminderAutomationCreateManyLastCompletedInterventionInputEnvelope
+    set?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    disconnect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    delete?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    connect?: ReminderAutomationWhereUniqueInput | ReminderAutomationWhereUniqueInput[]
+    update?: ReminderAutomationUpdateWithWhereUniqueWithoutLastCompletedInterventionInput | ReminderAutomationUpdateWithWhereUniqueWithoutLastCompletedInterventionInput[]
+    updateMany?: ReminderAutomationUpdateManyWithWhereWithoutLastCompletedInterventionInput | ReminderAutomationUpdateManyWithWhereWithoutLastCompletedInterventionInput[]
+    deleteMany?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutInterventionInput, ReminderExecutionUncheckedCreateWithoutInterventionInput> | ReminderExecutionCreateWithoutInterventionInput[] | ReminderExecutionUncheckedCreateWithoutInterventionInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutInterventionInput | ReminderExecutionCreateOrConnectWithoutInterventionInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutInterventionInput | ReminderExecutionUpsertWithWhereUniqueWithoutInterventionInput[]
+    createMany?: ReminderExecutionCreateManyInterventionInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutInterventionInput | ReminderExecutionUpdateWithWhereUniqueWithoutInterventionInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutInterventionInput | ReminderExecutionUpdateManyWithWhereWithoutInterventionInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
   }
 
   export type InterventionCreateNestedOneWithoutPhotosInput = {
@@ -84972,6 +94357,20 @@ export namespace Prisma {
     connect?: EmailConnectionWhereUniqueInput
   }
 
+  export type ReminderExecutionCreateNestedManyWithoutMessageInput = {
+    create?: XOR<ReminderExecutionCreateWithoutMessageInput, ReminderExecutionUncheckedCreateWithoutMessageInput> | ReminderExecutionCreateWithoutMessageInput[] | ReminderExecutionUncheckedCreateWithoutMessageInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutMessageInput | ReminderExecutionCreateOrConnectWithoutMessageInput[]
+    createMany?: ReminderExecutionCreateManyMessageInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionUncheckedCreateNestedManyWithoutMessageInput = {
+    create?: XOR<ReminderExecutionCreateWithoutMessageInput, ReminderExecutionUncheckedCreateWithoutMessageInput> | ReminderExecutionCreateWithoutMessageInput[] | ReminderExecutionUncheckedCreateWithoutMessageInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutMessageInput | ReminderExecutionCreateOrConnectWithoutMessageInput[]
+    createMany?: ReminderExecutionCreateManyMessageInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+  }
+
   export type EnumMessageDirectionFieldUpdateOperationsInput = {
     set?: $Enums.MessageDirection
   }
@@ -85010,6 +94409,34 @@ export namespace Prisma {
     delete?: EmailConnectionWhereInput | boolean
     connect?: EmailConnectionWhereUniqueInput
     update?: XOR<XOR<EmailConnectionUpdateToOneWithWhereWithoutMessagesInput, EmailConnectionUpdateWithoutMessagesInput>, EmailConnectionUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type ReminderExecutionUpdateManyWithoutMessageNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutMessageInput, ReminderExecutionUncheckedCreateWithoutMessageInput> | ReminderExecutionCreateWithoutMessageInput[] | ReminderExecutionUncheckedCreateWithoutMessageInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutMessageInput | ReminderExecutionCreateOrConnectWithoutMessageInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutMessageInput | ReminderExecutionUpsertWithWhereUniqueWithoutMessageInput[]
+    createMany?: ReminderExecutionCreateManyMessageInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutMessageInput | ReminderExecutionUpdateWithWhereUniqueWithoutMessageInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutMessageInput | ReminderExecutionUpdateManyWithWhereWithoutMessageInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutMessageNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutMessageInput, ReminderExecutionUncheckedCreateWithoutMessageInput> | ReminderExecutionCreateWithoutMessageInput[] | ReminderExecutionUncheckedCreateWithoutMessageInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutMessageInput | ReminderExecutionCreateOrConnectWithoutMessageInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutMessageInput | ReminderExecutionUpsertWithWhereUniqueWithoutMessageInput[]
+    createMany?: ReminderExecutionCreateManyMessageInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutMessageInput | ReminderExecutionUpdateWithWhereUniqueWithoutMessageInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutMessageInput | ReminderExecutionUpdateManyWithWhereWithoutMessageInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
   }
 
   export type CompanyCreateNestedOneWithoutWhatsappConnectionsInput = {
@@ -85752,6 +95179,394 @@ export namespace Prisma {
     delete?: InvoiceWhereInput | boolean
     connect?: InvoiceWhereUniqueInput
     update?: XOR<XOR<InvoiceUpdateToOneWithWhereWithoutBankTransactionsInput, InvoiceUpdateWithoutBankTransactionsInput>, InvoiceUncheckedUpdateWithoutBankTransactionsInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutServiceTypesInput = {
+    create?: XOR<CompanyCreateWithoutServiceTypesInput, CompanyUncheckedCreateWithoutServiceTypesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutServiceTypesInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type InterventionServiceCreateNestedManyWithoutServiceTypeInput = {
+    create?: XOR<InterventionServiceCreateWithoutServiceTypeInput, InterventionServiceUncheckedCreateWithoutServiceTypeInput> | InterventionServiceCreateWithoutServiceTypeInput[] | InterventionServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutServiceTypeInput | InterventionServiceCreateOrConnectWithoutServiceTypeInput[]
+    createMany?: InterventionServiceCreateManyServiceTypeInputEnvelope
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationServiceCreateNestedManyWithoutServiceTypeInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput> | ReminderAutomationServiceCreateWithoutServiceTypeInput[] | ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput | ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput[]
+    createMany?: ReminderAutomationServiceCreateManyServiceTypeInputEnvelope
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+  }
+
+  export type InterventionServiceUncheckedCreateNestedManyWithoutServiceTypeInput = {
+    create?: XOR<InterventionServiceCreateWithoutServiceTypeInput, InterventionServiceUncheckedCreateWithoutServiceTypeInput> | InterventionServiceCreateWithoutServiceTypeInput[] | InterventionServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutServiceTypeInput | InterventionServiceCreateOrConnectWithoutServiceTypeInput[]
+    createMany?: InterventionServiceCreateManyServiceTypeInputEnvelope
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationServiceUncheckedCreateNestedManyWithoutServiceTypeInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput> | ReminderAutomationServiceCreateWithoutServiceTypeInput[] | ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput | ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput[]
+    createMany?: ReminderAutomationServiceCreateManyServiceTypeInputEnvelope
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+  }
+
+  export type NullableEnumTimeUnitFieldUpdateOperationsInput = {
+    set?: $Enums.TimeUnit | null
+  }
+
+  export type NullableEnumReminderChannelChoiceFieldUpdateOperationsInput = {
+    set?: $Enums.ReminderChannelChoice | null
+  }
+
+  export type EnumRecommendationLevelFieldUpdateOperationsInput = {
+    set?: $Enums.RecommendationLevel
+  }
+
+  export type CompanyUpdateOneRequiredWithoutServiceTypesNestedInput = {
+    create?: XOR<CompanyCreateWithoutServiceTypesInput, CompanyUncheckedCreateWithoutServiceTypesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutServiceTypesInput
+    upsert?: CompanyUpsertWithoutServiceTypesInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutServiceTypesInput, CompanyUpdateWithoutServiceTypesInput>, CompanyUncheckedUpdateWithoutServiceTypesInput>
+  }
+
+  export type InterventionServiceUpdateManyWithoutServiceTypeNestedInput = {
+    create?: XOR<InterventionServiceCreateWithoutServiceTypeInput, InterventionServiceUncheckedCreateWithoutServiceTypeInput> | InterventionServiceCreateWithoutServiceTypeInput[] | InterventionServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutServiceTypeInput | InterventionServiceCreateOrConnectWithoutServiceTypeInput[]
+    upsert?: InterventionServiceUpsertWithWhereUniqueWithoutServiceTypeInput | InterventionServiceUpsertWithWhereUniqueWithoutServiceTypeInput[]
+    createMany?: InterventionServiceCreateManyServiceTypeInputEnvelope
+    set?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    disconnect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    delete?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    update?: InterventionServiceUpdateWithWhereUniqueWithoutServiceTypeInput | InterventionServiceUpdateWithWhereUniqueWithoutServiceTypeInput[]
+    updateMany?: InterventionServiceUpdateManyWithWhereWithoutServiceTypeInput | InterventionServiceUpdateManyWithWhereWithoutServiceTypeInput[]
+    deleteMany?: InterventionServiceScalarWhereInput | InterventionServiceScalarWhereInput[]
+  }
+
+  export type ReminderAutomationServiceUpdateManyWithoutServiceTypeNestedInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput> | ReminderAutomationServiceCreateWithoutServiceTypeInput[] | ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput | ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput[]
+    upsert?: ReminderAutomationServiceUpsertWithWhereUniqueWithoutServiceTypeInput | ReminderAutomationServiceUpsertWithWhereUniqueWithoutServiceTypeInput[]
+    createMany?: ReminderAutomationServiceCreateManyServiceTypeInputEnvelope
+    set?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    disconnect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    delete?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    update?: ReminderAutomationServiceUpdateWithWhereUniqueWithoutServiceTypeInput | ReminderAutomationServiceUpdateWithWhereUniqueWithoutServiceTypeInput[]
+    updateMany?: ReminderAutomationServiceUpdateManyWithWhereWithoutServiceTypeInput | ReminderAutomationServiceUpdateManyWithWhereWithoutServiceTypeInput[]
+    deleteMany?: ReminderAutomationServiceScalarWhereInput | ReminderAutomationServiceScalarWhereInput[]
+  }
+
+  export type InterventionServiceUncheckedUpdateManyWithoutServiceTypeNestedInput = {
+    create?: XOR<InterventionServiceCreateWithoutServiceTypeInput, InterventionServiceUncheckedCreateWithoutServiceTypeInput> | InterventionServiceCreateWithoutServiceTypeInput[] | InterventionServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: InterventionServiceCreateOrConnectWithoutServiceTypeInput | InterventionServiceCreateOrConnectWithoutServiceTypeInput[]
+    upsert?: InterventionServiceUpsertWithWhereUniqueWithoutServiceTypeInput | InterventionServiceUpsertWithWhereUniqueWithoutServiceTypeInput[]
+    createMany?: InterventionServiceCreateManyServiceTypeInputEnvelope
+    set?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    disconnect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    delete?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    connect?: InterventionServiceWhereUniqueInput | InterventionServiceWhereUniqueInput[]
+    update?: InterventionServiceUpdateWithWhereUniqueWithoutServiceTypeInput | InterventionServiceUpdateWithWhereUniqueWithoutServiceTypeInput[]
+    updateMany?: InterventionServiceUpdateManyWithWhereWithoutServiceTypeInput | InterventionServiceUpdateManyWithWhereWithoutServiceTypeInput[]
+    deleteMany?: InterventionServiceScalarWhereInput | InterventionServiceScalarWhereInput[]
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateManyWithoutServiceTypeNestedInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput> | ReminderAutomationServiceCreateWithoutServiceTypeInput[] | ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput | ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput[]
+    upsert?: ReminderAutomationServiceUpsertWithWhereUniqueWithoutServiceTypeInput | ReminderAutomationServiceUpsertWithWhereUniqueWithoutServiceTypeInput[]
+    createMany?: ReminderAutomationServiceCreateManyServiceTypeInputEnvelope
+    set?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    disconnect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    delete?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    update?: ReminderAutomationServiceUpdateWithWhereUniqueWithoutServiceTypeInput | ReminderAutomationServiceUpdateWithWhereUniqueWithoutServiceTypeInput[]
+    updateMany?: ReminderAutomationServiceUpdateManyWithWhereWithoutServiceTypeInput | ReminderAutomationServiceUpdateManyWithWhereWithoutServiceTypeInput[]
+    deleteMany?: ReminderAutomationServiceScalarWhereInput | ReminderAutomationServiceScalarWhereInput[]
+  }
+
+  export type InterventionCreateNestedOneWithoutServicesInput = {
+    create?: XOR<InterventionCreateWithoutServicesInput, InterventionUncheckedCreateWithoutServicesInput>
+    connectOrCreate?: InterventionCreateOrConnectWithoutServicesInput
+    connect?: InterventionWhereUniqueInput
+  }
+
+  export type ServiceTypeCreateNestedOneWithoutInterventionServicesInput = {
+    create?: XOR<ServiceTypeCreateWithoutInterventionServicesInput, ServiceTypeUncheckedCreateWithoutInterventionServicesInput>
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutInterventionServicesInput
+    connect?: ServiceTypeWhereUniqueInput
+  }
+
+  export type InterventionUpdateOneRequiredWithoutServicesNestedInput = {
+    create?: XOR<InterventionCreateWithoutServicesInput, InterventionUncheckedCreateWithoutServicesInput>
+    connectOrCreate?: InterventionCreateOrConnectWithoutServicesInput
+    upsert?: InterventionUpsertWithoutServicesInput
+    connect?: InterventionWhereUniqueInput
+    update?: XOR<XOR<InterventionUpdateToOneWithWhereWithoutServicesInput, InterventionUpdateWithoutServicesInput>, InterventionUncheckedUpdateWithoutServicesInput>
+  }
+
+  export type ServiceTypeUpdateOneRequiredWithoutInterventionServicesNestedInput = {
+    create?: XOR<ServiceTypeCreateWithoutInterventionServicesInput, ServiceTypeUncheckedCreateWithoutInterventionServicesInput>
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutInterventionServicesInput
+    upsert?: ServiceTypeUpsertWithoutInterventionServicesInput
+    connect?: ServiceTypeWhereUniqueInput
+    update?: XOR<XOR<ServiceTypeUpdateToOneWithWhereWithoutInterventionServicesInput, ServiceTypeUpdateWithoutInterventionServicesInput>, ServiceTypeUncheckedUpdateWithoutInterventionServicesInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutReminderAutomationsInput = {
+    create?: XOR<CompanyCreateWithoutReminderAutomationsInput, CompanyUncheckedCreateWithoutReminderAutomationsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutReminderAutomationsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type ClientCreateNestedOneWithoutReminderAutomationsInput = {
+    create?: XOR<ClientCreateWithoutReminderAutomationsInput, ClientUncheckedCreateWithoutReminderAutomationsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutReminderAutomationsInput
+    connect?: ClientWhereUniqueInput
+  }
+
+  export type InterventionCreateNestedOneWithoutResetAutomationsInput = {
+    create?: XOR<InterventionCreateWithoutResetAutomationsInput, InterventionUncheckedCreateWithoutResetAutomationsInput>
+    connectOrCreate?: InterventionCreateOrConnectWithoutResetAutomationsInput
+    connect?: InterventionWhereUniqueInput
+  }
+
+  export type ReminderAutomationServiceCreateNestedManyWithoutReminderAutomationInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput> | ReminderAutomationServiceCreateWithoutReminderAutomationInput[] | ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput | ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput[]
+    createMany?: ReminderAutomationServiceCreateManyReminderAutomationInputEnvelope
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionCreateNestedManyWithoutReminderAutomationInput = {
+    create?: XOR<ReminderExecutionCreateWithoutReminderAutomationInput, ReminderExecutionUncheckedCreateWithoutReminderAutomationInput> | ReminderExecutionCreateWithoutReminderAutomationInput[] | ReminderExecutionUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutReminderAutomationInput | ReminderExecutionCreateOrConnectWithoutReminderAutomationInput[]
+    createMany?: ReminderExecutionCreateManyReminderAutomationInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+  }
+
+  export type ReminderAutomationServiceUncheckedCreateNestedManyWithoutReminderAutomationInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput> | ReminderAutomationServiceCreateWithoutReminderAutomationInput[] | ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput | ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput[]
+    createMany?: ReminderAutomationServiceCreateManyReminderAutomationInputEnvelope
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+  }
+
+  export type ReminderExecutionUncheckedCreateNestedManyWithoutReminderAutomationInput = {
+    create?: XOR<ReminderExecutionCreateWithoutReminderAutomationInput, ReminderExecutionUncheckedCreateWithoutReminderAutomationInput> | ReminderExecutionCreateWithoutReminderAutomationInput[] | ReminderExecutionUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutReminderAutomationInput | ReminderExecutionCreateOrConnectWithoutReminderAutomationInput[]
+    createMany?: ReminderExecutionCreateManyReminderAutomationInputEnvelope
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+  }
+
+  export type EnumAutomationTypeFieldUpdateOperationsInput = {
+    set?: $Enums.AutomationType
+  }
+
+  export type EnumTimeUnitFieldUpdateOperationsInput = {
+    set?: $Enums.TimeUnit
+  }
+
+  export type EnumReminderChannelChoiceFieldUpdateOperationsInput = {
+    set?: $Enums.ReminderChannelChoice
+  }
+
+  export type EnumReminderStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ReminderStatus
+  }
+
+  export type CompanyUpdateOneRequiredWithoutReminderAutomationsNestedInput = {
+    create?: XOR<CompanyCreateWithoutReminderAutomationsInput, CompanyUncheckedCreateWithoutReminderAutomationsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutReminderAutomationsInput
+    upsert?: CompanyUpsertWithoutReminderAutomationsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutReminderAutomationsInput, CompanyUpdateWithoutReminderAutomationsInput>, CompanyUncheckedUpdateWithoutReminderAutomationsInput>
+  }
+
+  export type ClientUpdateOneRequiredWithoutReminderAutomationsNestedInput = {
+    create?: XOR<ClientCreateWithoutReminderAutomationsInput, ClientUncheckedCreateWithoutReminderAutomationsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutReminderAutomationsInput
+    upsert?: ClientUpsertWithoutReminderAutomationsInput
+    connect?: ClientWhereUniqueInput
+    update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutReminderAutomationsInput, ClientUpdateWithoutReminderAutomationsInput>, ClientUncheckedUpdateWithoutReminderAutomationsInput>
+  }
+
+  export type InterventionUpdateOneWithoutResetAutomationsNestedInput = {
+    create?: XOR<InterventionCreateWithoutResetAutomationsInput, InterventionUncheckedCreateWithoutResetAutomationsInput>
+    connectOrCreate?: InterventionCreateOrConnectWithoutResetAutomationsInput
+    upsert?: InterventionUpsertWithoutResetAutomationsInput
+    disconnect?: InterventionWhereInput | boolean
+    delete?: InterventionWhereInput | boolean
+    connect?: InterventionWhereUniqueInput
+    update?: XOR<XOR<InterventionUpdateToOneWithWhereWithoutResetAutomationsInput, InterventionUpdateWithoutResetAutomationsInput>, InterventionUncheckedUpdateWithoutResetAutomationsInput>
+  }
+
+  export type ReminderAutomationServiceUpdateManyWithoutReminderAutomationNestedInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput> | ReminderAutomationServiceCreateWithoutReminderAutomationInput[] | ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput | ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput[]
+    upsert?: ReminderAutomationServiceUpsertWithWhereUniqueWithoutReminderAutomationInput | ReminderAutomationServiceUpsertWithWhereUniqueWithoutReminderAutomationInput[]
+    createMany?: ReminderAutomationServiceCreateManyReminderAutomationInputEnvelope
+    set?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    disconnect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    delete?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    update?: ReminderAutomationServiceUpdateWithWhereUniqueWithoutReminderAutomationInput | ReminderAutomationServiceUpdateWithWhereUniqueWithoutReminderAutomationInput[]
+    updateMany?: ReminderAutomationServiceUpdateManyWithWhereWithoutReminderAutomationInput | ReminderAutomationServiceUpdateManyWithWhereWithoutReminderAutomationInput[]
+    deleteMany?: ReminderAutomationServiceScalarWhereInput | ReminderAutomationServiceScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUpdateManyWithoutReminderAutomationNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutReminderAutomationInput, ReminderExecutionUncheckedCreateWithoutReminderAutomationInput> | ReminderExecutionCreateWithoutReminderAutomationInput[] | ReminderExecutionUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutReminderAutomationInput | ReminderExecutionCreateOrConnectWithoutReminderAutomationInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutReminderAutomationInput | ReminderExecutionUpsertWithWhereUniqueWithoutReminderAutomationInput[]
+    createMany?: ReminderExecutionCreateManyReminderAutomationInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutReminderAutomationInput | ReminderExecutionUpdateWithWhereUniqueWithoutReminderAutomationInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutReminderAutomationInput | ReminderExecutionUpdateManyWithWhereWithoutReminderAutomationInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationNestedInput = {
+    create?: XOR<ReminderAutomationServiceCreateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput> | ReminderAutomationServiceCreateWithoutReminderAutomationInput[] | ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput | ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput[]
+    upsert?: ReminderAutomationServiceUpsertWithWhereUniqueWithoutReminderAutomationInput | ReminderAutomationServiceUpsertWithWhereUniqueWithoutReminderAutomationInput[]
+    createMany?: ReminderAutomationServiceCreateManyReminderAutomationInputEnvelope
+    set?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    disconnect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    delete?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    connect?: ReminderAutomationServiceWhereUniqueInput | ReminderAutomationServiceWhereUniqueInput[]
+    update?: ReminderAutomationServiceUpdateWithWhereUniqueWithoutReminderAutomationInput | ReminderAutomationServiceUpdateWithWhereUniqueWithoutReminderAutomationInput[]
+    updateMany?: ReminderAutomationServiceUpdateManyWithWhereWithoutReminderAutomationInput | ReminderAutomationServiceUpdateManyWithWhereWithoutReminderAutomationInput[]
+    deleteMany?: ReminderAutomationServiceScalarWhereInput | ReminderAutomationServiceScalarWhereInput[]
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationNestedInput = {
+    create?: XOR<ReminderExecutionCreateWithoutReminderAutomationInput, ReminderExecutionUncheckedCreateWithoutReminderAutomationInput> | ReminderExecutionCreateWithoutReminderAutomationInput[] | ReminderExecutionUncheckedCreateWithoutReminderAutomationInput[]
+    connectOrCreate?: ReminderExecutionCreateOrConnectWithoutReminderAutomationInput | ReminderExecutionCreateOrConnectWithoutReminderAutomationInput[]
+    upsert?: ReminderExecutionUpsertWithWhereUniqueWithoutReminderAutomationInput | ReminderExecutionUpsertWithWhereUniqueWithoutReminderAutomationInput[]
+    createMany?: ReminderExecutionCreateManyReminderAutomationInputEnvelope
+    set?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    disconnect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    delete?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    connect?: ReminderExecutionWhereUniqueInput | ReminderExecutionWhereUniqueInput[]
+    update?: ReminderExecutionUpdateWithWhereUniqueWithoutReminderAutomationInput | ReminderExecutionUpdateWithWhereUniqueWithoutReminderAutomationInput[]
+    updateMany?: ReminderExecutionUpdateManyWithWhereWithoutReminderAutomationInput | ReminderExecutionUpdateManyWithWhereWithoutReminderAutomationInput[]
+    deleteMany?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
+  }
+
+  export type ReminderAutomationCreateNestedOneWithoutTrackedServicesInput = {
+    create?: XOR<ReminderAutomationCreateWithoutTrackedServicesInput, ReminderAutomationUncheckedCreateWithoutTrackedServicesInput>
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutTrackedServicesInput
+    connect?: ReminderAutomationWhereUniqueInput
+  }
+
+  export type ServiceTypeCreateNestedOneWithoutAutomationMappingsInput = {
+    create?: XOR<ServiceTypeCreateWithoutAutomationMappingsInput, ServiceTypeUncheckedCreateWithoutAutomationMappingsInput>
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutAutomationMappingsInput
+    connect?: ServiceTypeWhereUniqueInput
+  }
+
+  export type ReminderAutomationUpdateOneRequiredWithoutTrackedServicesNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutTrackedServicesInput, ReminderAutomationUncheckedCreateWithoutTrackedServicesInput>
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutTrackedServicesInput
+    upsert?: ReminderAutomationUpsertWithoutTrackedServicesInput
+    connect?: ReminderAutomationWhereUniqueInput
+    update?: XOR<XOR<ReminderAutomationUpdateToOneWithWhereWithoutTrackedServicesInput, ReminderAutomationUpdateWithoutTrackedServicesInput>, ReminderAutomationUncheckedUpdateWithoutTrackedServicesInput>
+  }
+
+  export type ServiceTypeUpdateOneRequiredWithoutAutomationMappingsNestedInput = {
+    create?: XOR<ServiceTypeCreateWithoutAutomationMappingsInput, ServiceTypeUncheckedCreateWithoutAutomationMappingsInput>
+    connectOrCreate?: ServiceTypeCreateOrConnectWithoutAutomationMappingsInput
+    upsert?: ServiceTypeUpsertWithoutAutomationMappingsInput
+    connect?: ServiceTypeWhereUniqueInput
+    update?: XOR<XOR<ServiceTypeUpdateToOneWithWhereWithoutAutomationMappingsInput, ServiceTypeUpdateWithoutAutomationMappingsInput>, ServiceTypeUncheckedUpdateWithoutAutomationMappingsInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutReminderExecutionsInput = {
+    create?: XOR<CompanyCreateWithoutReminderExecutionsInput, CompanyUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutReminderExecutionsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type ReminderAutomationCreateNestedOneWithoutExecutionsInput = {
+    create?: XOR<ReminderAutomationCreateWithoutExecutionsInput, ReminderAutomationUncheckedCreateWithoutExecutionsInput>
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutExecutionsInput
+    connect?: ReminderAutomationWhereUniqueInput
+  }
+
+  export type ClientCreateNestedOneWithoutReminderExecutionsInput = {
+    create?: XOR<ClientCreateWithoutReminderExecutionsInput, ClientUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutReminderExecutionsInput
+    connect?: ClientWhereUniqueInput
+  }
+
+  export type InterventionCreateNestedOneWithoutReminderExecutionsInput = {
+    create?: XOR<InterventionCreateWithoutReminderExecutionsInput, InterventionUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: InterventionCreateOrConnectWithoutReminderExecutionsInput
+    connect?: InterventionWhereUniqueInput
+  }
+
+  export type SmsLogCreateNestedOneWithoutReminderExecutionsInput = {
+    create?: XOR<SmsLogCreateWithoutReminderExecutionsInput, SmsLogUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: SmsLogCreateOrConnectWithoutReminderExecutionsInput
+    connect?: SmsLogWhereUniqueInput
+  }
+
+  export type EnumReminderExecutionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ReminderExecutionStatus
+  }
+
+  export type CompanyUpdateOneRequiredWithoutReminderExecutionsNestedInput = {
+    create?: XOR<CompanyCreateWithoutReminderExecutionsInput, CompanyUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutReminderExecutionsInput
+    upsert?: CompanyUpsertWithoutReminderExecutionsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutReminderExecutionsInput, CompanyUpdateWithoutReminderExecutionsInput>, CompanyUncheckedUpdateWithoutReminderExecutionsInput>
+  }
+
+  export type ReminderAutomationUpdateOneRequiredWithoutExecutionsNestedInput = {
+    create?: XOR<ReminderAutomationCreateWithoutExecutionsInput, ReminderAutomationUncheckedCreateWithoutExecutionsInput>
+    connectOrCreate?: ReminderAutomationCreateOrConnectWithoutExecutionsInput
+    upsert?: ReminderAutomationUpsertWithoutExecutionsInput
+    connect?: ReminderAutomationWhereUniqueInput
+    update?: XOR<XOR<ReminderAutomationUpdateToOneWithWhereWithoutExecutionsInput, ReminderAutomationUpdateWithoutExecutionsInput>, ReminderAutomationUncheckedUpdateWithoutExecutionsInput>
+  }
+
+  export type ClientUpdateOneRequiredWithoutReminderExecutionsNestedInput = {
+    create?: XOR<ClientCreateWithoutReminderExecutionsInput, ClientUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutReminderExecutionsInput
+    upsert?: ClientUpsertWithoutReminderExecutionsInput
+    connect?: ClientWhereUniqueInput
+    update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutReminderExecutionsInput, ClientUpdateWithoutReminderExecutionsInput>, ClientUncheckedUpdateWithoutReminderExecutionsInput>
+  }
+
+  export type InterventionUpdateOneWithoutReminderExecutionsNestedInput = {
+    create?: XOR<InterventionCreateWithoutReminderExecutionsInput, InterventionUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: InterventionCreateOrConnectWithoutReminderExecutionsInput
+    upsert?: InterventionUpsertWithoutReminderExecutionsInput
+    disconnect?: InterventionWhereInput | boolean
+    delete?: InterventionWhereInput | boolean
+    connect?: InterventionWhereUniqueInput
+    update?: XOR<XOR<InterventionUpdateToOneWithWhereWithoutReminderExecutionsInput, InterventionUpdateWithoutReminderExecutionsInput>, InterventionUncheckedUpdateWithoutReminderExecutionsInput>
+  }
+
+  export type SmsLogUpdateOneWithoutReminderExecutionsNestedInput = {
+    create?: XOR<SmsLogCreateWithoutReminderExecutionsInput, SmsLogUncheckedCreateWithoutReminderExecutionsInput>
+    connectOrCreate?: SmsLogCreateOrConnectWithoutReminderExecutionsInput
+    upsert?: SmsLogUpsertWithoutReminderExecutionsInput
+    disconnect?: SmsLogWhereInput | boolean
+    delete?: SmsLogWhereInput | boolean
+    connect?: SmsLogWhereUniqueInput
+    update?: XOR<XOR<SmsLogUpdateToOneWithWhereWithoutReminderExecutionsInput, SmsLogUpdateWithoutReminderExecutionsInput>, SmsLogUncheckedUpdateWithoutReminderExecutionsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -86594,6 +96409,142 @@ export namespace Prisma {
     _max?: NestedEnumInvoicePaymentMethodTypeFilter<$PrismaModel>
   }
 
+  export type NestedEnumTimeUnitNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeUnitNullableFilter<$PrismaModel> | $Enums.TimeUnit | null
+  }
+
+  export type NestedEnumReminderChannelChoiceNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumReminderChannelChoiceNullableFilter<$PrismaModel> | $Enums.ReminderChannelChoice | null
+  }
+
+  export type NestedEnumRecommendationLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecommendationLevel | EnumRecommendationLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationLevelFilter<$PrismaModel> | $Enums.RecommendationLevel
+  }
+
+  export type NestedEnumTimeUnitNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeUnitNullableWithAggregatesFilter<$PrismaModel> | $Enums.TimeUnit | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTimeUnitNullableFilter<$PrismaModel>
+    _max?: NestedEnumTimeUnitNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumReminderChannelChoiceNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumReminderChannelChoiceNullableWithAggregatesFilter<$PrismaModel> | $Enums.ReminderChannelChoice | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumReminderChannelChoiceNullableFilter<$PrismaModel>
+    _max?: NestedEnumReminderChannelChoiceNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumRecommendationLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecommendationLevel | EnumRecommendationLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecommendationLevel[] | ListEnumRecommendationLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationLevelWithAggregatesFilter<$PrismaModel> | $Enums.RecommendationLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecommendationLevelFilter<$PrismaModel>
+    _max?: NestedEnumRecommendationLevelFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAutomationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationType | EnumAutomationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationTypeFilter<$PrismaModel> | $Enums.AutomationType
+  }
+
+  export type NestedEnumTimeUnitFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel>
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    not?: NestedEnumTimeUnitFilter<$PrismaModel> | $Enums.TimeUnit
+  }
+
+  export type NestedEnumReminderChannelChoiceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderChannelChoiceFilter<$PrismaModel> | $Enums.ReminderChannelChoice
+  }
+
+  export type NestedEnumReminderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderStatus | EnumReminderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderStatusFilter<$PrismaModel> | $Enums.ReminderStatus
+  }
+
+  export type NestedEnumAutomationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationType | EnumAutomationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationType[] | ListEnumAutomationTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationTypeWithAggregatesFilter<$PrismaModel> | $Enums.AutomationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAutomationTypeFilter<$PrismaModel>
+    _max?: NestedEnumAutomationTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTimeUnitWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeUnit | EnumTimeUnitFieldRefInput<$PrismaModel>
+    in?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TimeUnit[] | ListEnumTimeUnitFieldRefInput<$PrismaModel>
+    not?: NestedEnumTimeUnitWithAggregatesFilter<$PrismaModel> | $Enums.TimeUnit
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTimeUnitFilter<$PrismaModel>
+    _max?: NestedEnumTimeUnitFilter<$PrismaModel>
+  }
+
+  export type NestedEnumReminderChannelChoiceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderChannelChoice | EnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderChannelChoice[] | ListEnumReminderChannelChoiceFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderChannelChoiceWithAggregatesFilter<$PrismaModel> | $Enums.ReminderChannelChoice
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReminderChannelChoiceFilter<$PrismaModel>
+    _max?: NestedEnumReminderChannelChoiceFilter<$PrismaModel>
+  }
+
+  export type NestedEnumReminderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderStatus | EnumReminderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderStatus[] | ListEnumReminderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReminderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReminderStatusFilter<$PrismaModel>
+    _max?: NestedEnumReminderStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumReminderExecutionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderExecutionStatus | EnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderExecutionStatusFilter<$PrismaModel> | $Enums.ReminderExecutionStatus
+  }
+
+  export type NestedEnumReminderExecutionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReminderExecutionStatus | EnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReminderExecutionStatus[] | ListEnumReminderExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReminderExecutionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReminderExecutionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReminderExecutionStatusFilter<$PrismaModel>
+    _max?: NestedEnumReminderExecutionStatusFilter<$PrismaModel>
+  }
+
   export type SubscriptionCreateWithoutPlanInput = {
     id?: string
     status?: $Enums.PlanStatus
@@ -86786,6 +96737,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutClientInput
     quotes?: QuoteCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutCompanyInput = {
@@ -86823,6 +96776,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutCompanyInput = {
@@ -86861,6 +96816,9 @@ export namespace Prisma {
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutCompanyInput = {
@@ -86889,6 +96847,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutCompanyInput = {
@@ -87159,6 +97120,7 @@ export namespace Prisma {
     client: ClientCreateNestedOneWithoutSmsLogsInput
     whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
     emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogUncheckedCreateWithoutCompanyInput = {
@@ -87193,6 +97155,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogCreateOrConnectWithoutCompanyInput = {
@@ -87903,6 +97866,174 @@ export namespace Prisma {
 
   export type BankTransactionCreateManyCompanyInputEnvelope = {
     data: BankTransactionCreateManyCompanyInput | BankTransactionCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ServiceTypeCreateWithoutCompanyInput = {
+    id?: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interventionServices?: InterventionServiceCreateNestedManyWithoutServiceTypeInput
+    automationMappings?: ReminderAutomationServiceCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interventionServices?: InterventionServiceUncheckedCreateNestedManyWithoutServiceTypeInput
+    automationMappings?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeCreateOrConnectWithoutCompanyInput = {
+    where: ServiceTypeWhereUniqueInput
+    create: XOR<ServiceTypeCreateWithoutCompanyInput, ServiceTypeUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ServiceTypeCreateManyCompanyInputEnvelope = {
+    data: ServiceTypeCreateManyCompanyInput | ServiceTypeCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderAutomationCreateWithoutCompanyInput = {
+    id?: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    client: ClientCreateNestedOneWithoutReminderAutomationsInput
+    lastCompletedIntervention?: InterventionCreateNestedOneWithoutResetAutomationsInput
+    trackedServices?: ReminderAutomationServiceCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionUncheckedCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationCreateOrConnectWithoutCompanyInput = {
+    where: ReminderAutomationWhereUniqueInput
+    create: XOR<ReminderAutomationCreateWithoutCompanyInput, ReminderAutomationUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ReminderAutomationCreateManyCompanyInputEnvelope = {
+    data: ReminderAutomationCreateManyCompanyInput | ReminderAutomationCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderExecutionCreateWithoutCompanyInput = {
+    id?: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reminderAutomation: ReminderAutomationCreateNestedOneWithoutExecutionsInput
+    client: ClientCreateNestedOneWithoutReminderExecutionsInput
+    intervention?: InterventionCreateNestedOneWithoutReminderExecutionsInput
+    message?: SmsLogCreateNestedOneWithoutReminderExecutionsInput
+  }
+
+  export type ReminderExecutionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    reminderAutomationId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateOrConnectWithoutCompanyInput = {
+    where: ReminderExecutionWhereUniqueInput
+    create: XOR<ReminderExecutionCreateWithoutCompanyInput, ReminderExecutionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ReminderExecutionCreateManyCompanyInputEnvelope = {
+    data: ReminderExecutionCreateManyCompanyInput | ReminderExecutionCreateManyCompanyInput[]
     skipDuplicates?: boolean
   }
 
@@ -89222,6 +99353,131 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BankTransaction"> | Date | string
   }
 
+  export type ServiceTypeUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: ServiceTypeWhereUniqueInput
+    update: XOR<ServiceTypeUpdateWithoutCompanyInput, ServiceTypeUncheckedUpdateWithoutCompanyInput>
+    create: XOR<ServiceTypeCreateWithoutCompanyInput, ServiceTypeUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ServiceTypeUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: ServiceTypeWhereUniqueInput
+    data: XOR<ServiceTypeUpdateWithoutCompanyInput, ServiceTypeUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ServiceTypeUpdateManyWithWhereWithoutCompanyInput = {
+    where: ServiceTypeScalarWhereInput
+    data: XOR<ServiceTypeUpdateManyMutationInput, ServiceTypeUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type ServiceTypeScalarWhereInput = {
+    AND?: ServiceTypeScalarWhereInput | ServiceTypeScalarWhereInput[]
+    OR?: ServiceTypeScalarWhereInput[]
+    NOT?: ServiceTypeScalarWhereInput | ServiceTypeScalarWhereInput[]
+    id?: StringFilter<"ServiceType"> | string
+    companyId?: StringFilter<"ServiceType"> | string
+    tradeSlug?: StringNullableFilter<"ServiceType"> | string | null
+    name?: StringFilter<"ServiceType"> | string
+    category?: StringNullableFilter<"ServiceType"> | string | null
+    description?: StringNullableFilter<"ServiceType"> | string | null
+    defaultFrequencyValue?: IntNullableFilter<"ServiceType"> | number | null
+    defaultFrequencyUnit?: EnumTimeUnitNullableFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: IntNullableFilter<"ServiceType"> | number | null
+    defaultAdvanceNoticeUnit?: EnumTimeUnitNullableFilter<"ServiceType"> | $Enums.TimeUnit | null
+    defaultChannel?: EnumReminderChannelChoiceNullableFilter<"ServiceType"> | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: StringNullableFilter<"ServiceType"> | string | null
+    recommendationLevel?: EnumRecommendationLevelFilter<"ServiceType"> | $Enums.RecommendationLevel
+    isDefault?: BoolFilter<"ServiceType"> | boolean
+    isActive?: BoolFilter<"ServiceType"> | boolean
+    sortOrder?: IntFilter<"ServiceType"> | number
+    createdAt?: DateTimeFilter<"ServiceType"> | Date | string
+    updatedAt?: DateTimeFilter<"ServiceType"> | Date | string
+  }
+
+  export type ReminderAutomationUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: ReminderAutomationWhereUniqueInput
+    update: XOR<ReminderAutomationUpdateWithoutCompanyInput, ReminderAutomationUncheckedUpdateWithoutCompanyInput>
+    create: XOR<ReminderAutomationCreateWithoutCompanyInput, ReminderAutomationUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ReminderAutomationUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: ReminderAutomationWhereUniqueInput
+    data: XOR<ReminderAutomationUpdateWithoutCompanyInput, ReminderAutomationUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ReminderAutomationUpdateManyWithWhereWithoutCompanyInput = {
+    where: ReminderAutomationScalarWhereInput
+    data: XOR<ReminderAutomationUpdateManyMutationInput, ReminderAutomationUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type ReminderAutomationScalarWhereInput = {
+    AND?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+    OR?: ReminderAutomationScalarWhereInput[]
+    NOT?: ReminderAutomationScalarWhereInput | ReminderAutomationScalarWhereInput[]
+    id?: StringFilter<"ReminderAutomation"> | string
+    companyId?: StringFilter<"ReminderAutomation"> | string
+    clientId?: StringFilter<"ReminderAutomation"> | string
+    name?: StringFilter<"ReminderAutomation"> | string
+    automationType?: EnumAutomationTypeFilter<"ReminderAutomation"> | $Enums.AutomationType
+    enabled?: BoolFilter<"ReminderAutomation"> | boolean
+    isCustomOverride?: BoolFilter<"ReminderAutomation"> | boolean
+    frequencyValue?: IntFilter<"ReminderAutomation"> | number
+    frequencyUnit?: EnumTimeUnitFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    advanceNoticeValue?: IntFilter<"ReminderAutomation"> | number
+    advanceNoticeUnit?: EnumTimeUnitFilter<"ReminderAutomation"> | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFilter<"ReminderAutomation"> | $Enums.ReminderChannelChoice
+    fallbackChannel?: EnumPreferredChannelNullableFilter<"ReminderAutomation"> | $Enums.PreferredChannel | null
+    customMessageTemplate?: StringNullableFilter<"ReminderAutomation"> | string | null
+    stopOnReply?: BoolFilter<"ReminderAutomation"> | boolean
+    stopOnAppointment?: BoolFilter<"ReminderAutomation"> | boolean
+    maxFollowUps?: IntFilter<"ReminderAutomation"> | number
+    followUpIntervalDays?: IntFilter<"ReminderAutomation"> | number
+    status?: EnumReminderStatusFilter<"ReminderAutomation"> | $Enums.ReminderStatus
+    nextReminderAt?: DateTimeNullableFilter<"ReminderAutomation"> | Date | string | null
+    lastCompletedInterventionId?: StringNullableFilter<"ReminderAutomation"> | string | null
+    lastCompletedAt?: DateTimeNullableFilter<"ReminderAutomation"> | Date | string | null
+    createdAt?: DateTimeFilter<"ReminderAutomation"> | Date | string
+    updatedAt?: DateTimeFilter<"ReminderAutomation"> | Date | string
+  }
+
+  export type ReminderExecutionUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: ReminderExecutionWhereUniqueInput
+    update: XOR<ReminderExecutionUpdateWithoutCompanyInput, ReminderExecutionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<ReminderExecutionCreateWithoutCompanyInput, ReminderExecutionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ReminderExecutionUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: ReminderExecutionWhereUniqueInput
+    data: XOR<ReminderExecutionUpdateWithoutCompanyInput, ReminderExecutionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ReminderExecutionUpdateManyWithWhereWithoutCompanyInput = {
+    where: ReminderExecutionScalarWhereInput
+    data: XOR<ReminderExecutionUpdateManyMutationInput, ReminderExecutionUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type ReminderExecutionScalarWhereInput = {
+    AND?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
+    OR?: ReminderExecutionScalarWhereInput[]
+    NOT?: ReminderExecutionScalarWhereInput | ReminderExecutionScalarWhereInput[]
+    id?: StringFilter<"ReminderExecution"> | string
+    companyId?: StringFilter<"ReminderExecution"> | string
+    reminderAutomationId?: StringFilter<"ReminderExecution"> | string
+    clientId?: StringFilter<"ReminderExecution"> | string
+    interventionId?: StringNullableFilter<"ReminderExecution"> | string | null
+    sequenceStep?: IntFilter<"ReminderExecution"> | number
+    scheduledAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    executedAt?: DateTimeNullableFilter<"ReminderExecution"> | Date | string | null
+    channel?: EnumPreferredChannelNullableFilter<"ReminderExecution"> | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFilter<"ReminderExecution"> | $Enums.ReminderExecutionStatus
+    messageId?: StringNullableFilter<"ReminderExecution"> | string | null
+    recipient?: StringNullableFilter<"ReminderExecution"> | string | null
+    renderedContent?: StringNullableFilter<"ReminderExecution"> | string | null
+    error?: StringNullableFilter<"ReminderExecution"> | string | null
+    respondedAt?: DateTimeNullableFilter<"ReminderExecution"> | Date | string | null
+    createdAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+    updatedAt?: DateTimeFilter<"ReminderExecution"> | Date | string
+  }
+
   export type AccountingExportUpsertWithWhereUniqueWithoutCompanyInput = {
     where: AccountingExportWhereUniqueInput
     update: XOR<AccountingExportUpdateWithoutCompanyInput, AccountingExportUncheckedUpdateWithoutCompanyInput>
@@ -89570,6 +99826,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -89632,6 +99891,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -89737,6 +99999,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -89799,6 +100064,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -89932,6 +100200,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -89994,6 +100265,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -90159,6 +100433,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -90221,6 +100498,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -90462,6 +100742,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -90524,6 +100807,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -90602,6 +100888,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -90664,6 +100953,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -90726,6 +101018,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -90788,6 +101083,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -90856,6 +101154,9 @@ export namespace Prisma {
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutTechnicianInput = {
@@ -90884,6 +101185,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutTechnicianInput = {
@@ -90979,6 +101283,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutClientInput
     quotes?: QuoteCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutCreatedByInput = {
@@ -91016,6 +101322,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutCreatedByInput = {
@@ -91054,6 +101362,9 @@ export namespace Prisma {
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutCreatedByInput = {
@@ -91082,6 +101393,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutCreatedByInput = {
@@ -91254,6 +101568,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -91316,6 +101633,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -91980,6 +102300,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -92042,6 +102365,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -92120,6 +102446,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -92182,6 +102511,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -92244,6 +102576,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -92306,6 +102641,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -92464,6 +102802,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -92526,6 +102867,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -92658,6 +103002,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -92720,6 +103067,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -92760,6 +103110,9 @@ export namespace Prisma {
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutInterventionTypeInput = {
@@ -92788,6 +103141,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutInterventionTypeInput = {
@@ -93090,6 +103446,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -93152,6 +103511,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -93262,6 +103624,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -93324,6 +103689,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -93483,6 +103851,9 @@ export namespace Prisma {
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutClientInput = {
@@ -93511,6 +103882,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutClientInput = {
@@ -93781,6 +104155,7 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutSmsLogsInput
     whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
     emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogUncheckedCreateWithoutClientInput = {
@@ -93815,6 +104190,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogCreateOrConnectWithoutClientInput = {
@@ -93824,6 +104200,120 @@ export namespace Prisma {
 
   export type SmsLogCreateManyClientInputEnvelope = {
     data: SmsLogCreateManyClientInput | SmsLogCreateManyClientInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderAutomationCreateWithoutClientInput = {
+    id?: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderAutomationsInput
+    lastCompletedIntervention?: InterventionCreateNestedOneWithoutResetAutomationsInput
+    trackedServices?: ReminderAutomationServiceCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationUncheckedCreateWithoutClientInput = {
+    id?: string
+    companyId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionUncheckedCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationCreateOrConnectWithoutClientInput = {
+    where: ReminderAutomationWhereUniqueInput
+    create: XOR<ReminderAutomationCreateWithoutClientInput, ReminderAutomationUncheckedCreateWithoutClientInput>
+  }
+
+  export type ReminderAutomationCreateManyClientInputEnvelope = {
+    data: ReminderAutomationCreateManyClientInput | ReminderAutomationCreateManyClientInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderExecutionCreateWithoutClientInput = {
+    id?: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderExecutionsInput
+    reminderAutomation: ReminderAutomationCreateNestedOneWithoutExecutionsInput
+    intervention?: InterventionCreateNestedOneWithoutReminderExecutionsInput
+    message?: SmsLogCreateNestedOneWithoutReminderExecutionsInput
+  }
+
+  export type ReminderExecutionUncheckedCreateWithoutClientInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateOrConnectWithoutClientInput = {
+    where: ReminderExecutionWhereUniqueInput
+    create: XOR<ReminderExecutionCreateWithoutClientInput, ReminderExecutionUncheckedCreateWithoutClientInput>
+  }
+
+  export type ReminderExecutionCreateManyClientInputEnvelope = {
+    data: ReminderExecutionCreateManyClientInput | ReminderExecutionCreateManyClientInput[]
     skipDuplicates?: boolean
   }
 
@@ -93891,6 +104381,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -93953,6 +104446,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -94140,6 +104636,38 @@ export namespace Prisma {
     data: XOR<SmsLogUpdateManyMutationInput, SmsLogUncheckedUpdateManyWithoutClientInput>
   }
 
+  export type ReminderAutomationUpsertWithWhereUniqueWithoutClientInput = {
+    where: ReminderAutomationWhereUniqueInput
+    update: XOR<ReminderAutomationUpdateWithoutClientInput, ReminderAutomationUncheckedUpdateWithoutClientInput>
+    create: XOR<ReminderAutomationCreateWithoutClientInput, ReminderAutomationUncheckedCreateWithoutClientInput>
+  }
+
+  export type ReminderAutomationUpdateWithWhereUniqueWithoutClientInput = {
+    where: ReminderAutomationWhereUniqueInput
+    data: XOR<ReminderAutomationUpdateWithoutClientInput, ReminderAutomationUncheckedUpdateWithoutClientInput>
+  }
+
+  export type ReminderAutomationUpdateManyWithWhereWithoutClientInput = {
+    where: ReminderAutomationScalarWhereInput
+    data: XOR<ReminderAutomationUpdateManyMutationInput, ReminderAutomationUncheckedUpdateManyWithoutClientInput>
+  }
+
+  export type ReminderExecutionUpsertWithWhereUniqueWithoutClientInput = {
+    where: ReminderExecutionWhereUniqueInput
+    update: XOR<ReminderExecutionUpdateWithoutClientInput, ReminderExecutionUncheckedUpdateWithoutClientInput>
+    create: XOR<ReminderExecutionCreateWithoutClientInput, ReminderExecutionUncheckedCreateWithoutClientInput>
+  }
+
+  export type ReminderExecutionUpdateWithWhereUniqueWithoutClientInput = {
+    where: ReminderExecutionWhereUniqueInput
+    data: XOR<ReminderExecutionUpdateWithoutClientInput, ReminderExecutionUncheckedUpdateWithoutClientInput>
+  }
+
+  export type ReminderExecutionUpdateManyWithWhereWithoutClientInput = {
+    where: ReminderExecutionScalarWhereInput
+    data: XOR<ReminderExecutionUpdateManyMutationInput, ReminderExecutionUncheckedUpdateManyWithoutClientInput>
+  }
+
   export type ClientCreateWithoutEquipmentInput = {
     id?: string
     firstName: string
@@ -94175,6 +104703,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutClientInput
     quotes?: QuoteCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutEquipmentInput = {
@@ -94212,6 +104742,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutEquipmentInput = {
@@ -94245,6 +104777,9 @@ export namespace Prisma {
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutEquipmentInput = {
@@ -94273,6 +104808,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutEquipmentInput = {
@@ -94331,6 +104869,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutClientNestedInput
     quotes?: QuoteUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutEquipmentInput = {
@@ -94368,6 +104908,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type InterventionUpsertWithWhereUniqueWithoutEquipmentInput = {
@@ -94439,6 +104981,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -94501,6 +105046,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -94550,6 +105098,8 @@ export namespace Prisma {
     invoices?: InvoiceCreateNestedManyWithoutClientInput
     quotes?: QuoteCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutInterventionsInput = {
@@ -94587,6 +105137,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutInterventionsInput = {
@@ -95052,6 +105604,142 @@ export namespace Prisma {
     create: XOR<QuoteCreateWithoutInterventionInput, QuoteUncheckedCreateWithoutInterventionInput>
   }
 
+  export type InterventionServiceCreateWithoutInterventionInput = {
+    id?: string
+    createdAt?: Date | string
+    serviceType: ServiceTypeCreateNestedOneWithoutInterventionServicesInput
+  }
+
+  export type InterventionServiceUncheckedCreateWithoutInterventionInput = {
+    id?: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type InterventionServiceCreateOrConnectWithoutInterventionInput = {
+    where: InterventionServiceWhereUniqueInput
+    create: XOR<InterventionServiceCreateWithoutInterventionInput, InterventionServiceUncheckedCreateWithoutInterventionInput>
+  }
+
+  export type InterventionServiceCreateManyInterventionInputEnvelope = {
+    data: InterventionServiceCreateManyInterventionInput | InterventionServiceCreateManyInterventionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderAutomationCreateWithoutLastCompletedInterventionInput = {
+    id?: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderAutomationsInput
+    client: ClientCreateNestedOneWithoutReminderAutomationsInput
+    trackedServices?: ReminderAutomationServiceCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutReminderAutomationInput
+    executions?: ReminderExecutionUncheckedCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationCreateOrConnectWithoutLastCompletedInterventionInput = {
+    where: ReminderAutomationWhereUniqueInput
+    create: XOR<ReminderAutomationCreateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput>
+  }
+
+  export type ReminderAutomationCreateManyLastCompletedInterventionInputEnvelope = {
+    data: ReminderAutomationCreateManyLastCompletedInterventionInput | ReminderAutomationCreateManyLastCompletedInterventionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderExecutionCreateWithoutInterventionInput = {
+    id?: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderExecutionsInput
+    reminderAutomation: ReminderAutomationCreateNestedOneWithoutExecutionsInput
+    client: ClientCreateNestedOneWithoutReminderExecutionsInput
+    message?: SmsLogCreateNestedOneWithoutReminderExecutionsInput
+  }
+
+  export type ReminderExecutionUncheckedCreateWithoutInterventionInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    clientId: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateOrConnectWithoutInterventionInput = {
+    where: ReminderExecutionWhereUniqueInput
+    create: XOR<ReminderExecutionCreateWithoutInterventionInput, ReminderExecutionUncheckedCreateWithoutInterventionInput>
+  }
+
+  export type ReminderExecutionCreateManyInterventionInputEnvelope = {
+    data: ReminderExecutionCreateManyInterventionInput | ReminderExecutionCreateManyInterventionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutInterventionsInput = {
     update: XOR<CompanyUpdateWithoutInterventionsInput, CompanyUncheckedUpdateWithoutInterventionsInput>
     create: XOR<CompanyCreateWithoutInterventionsInput, CompanyUncheckedCreateWithoutInterventionsInput>
@@ -95116,6 +105804,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -95178,6 +105869,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -95233,6 +105927,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutClientNestedInput
     quotes?: QuoteUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutInterventionsInput = {
@@ -95270,6 +105966,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type EquipmentUpsertWithoutInterventionsInput = {
@@ -95768,6 +106466,64 @@ export namespace Prisma {
     lines?: QuoteLineUncheckedUpdateManyWithoutQuoteNestedInput
   }
 
+  export type InterventionServiceUpsertWithWhereUniqueWithoutInterventionInput = {
+    where: InterventionServiceWhereUniqueInput
+    update: XOR<InterventionServiceUpdateWithoutInterventionInput, InterventionServiceUncheckedUpdateWithoutInterventionInput>
+    create: XOR<InterventionServiceCreateWithoutInterventionInput, InterventionServiceUncheckedCreateWithoutInterventionInput>
+  }
+
+  export type InterventionServiceUpdateWithWhereUniqueWithoutInterventionInput = {
+    where: InterventionServiceWhereUniqueInput
+    data: XOR<InterventionServiceUpdateWithoutInterventionInput, InterventionServiceUncheckedUpdateWithoutInterventionInput>
+  }
+
+  export type InterventionServiceUpdateManyWithWhereWithoutInterventionInput = {
+    where: InterventionServiceScalarWhereInput
+    data: XOR<InterventionServiceUpdateManyMutationInput, InterventionServiceUncheckedUpdateManyWithoutInterventionInput>
+  }
+
+  export type InterventionServiceScalarWhereInput = {
+    AND?: InterventionServiceScalarWhereInput | InterventionServiceScalarWhereInput[]
+    OR?: InterventionServiceScalarWhereInput[]
+    NOT?: InterventionServiceScalarWhereInput | InterventionServiceScalarWhereInput[]
+    id?: StringFilter<"InterventionService"> | string
+    interventionId?: StringFilter<"InterventionService"> | string
+    serviceTypeId?: StringFilter<"InterventionService"> | string
+    createdAt?: DateTimeFilter<"InterventionService"> | Date | string
+  }
+
+  export type ReminderAutomationUpsertWithWhereUniqueWithoutLastCompletedInterventionInput = {
+    where: ReminderAutomationWhereUniqueInput
+    update: XOR<ReminderAutomationUpdateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedUpdateWithoutLastCompletedInterventionInput>
+    create: XOR<ReminderAutomationCreateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedCreateWithoutLastCompletedInterventionInput>
+  }
+
+  export type ReminderAutomationUpdateWithWhereUniqueWithoutLastCompletedInterventionInput = {
+    where: ReminderAutomationWhereUniqueInput
+    data: XOR<ReminderAutomationUpdateWithoutLastCompletedInterventionInput, ReminderAutomationUncheckedUpdateWithoutLastCompletedInterventionInput>
+  }
+
+  export type ReminderAutomationUpdateManyWithWhereWithoutLastCompletedInterventionInput = {
+    where: ReminderAutomationScalarWhereInput
+    data: XOR<ReminderAutomationUpdateManyMutationInput, ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionInput>
+  }
+
+  export type ReminderExecutionUpsertWithWhereUniqueWithoutInterventionInput = {
+    where: ReminderExecutionWhereUniqueInput
+    update: XOR<ReminderExecutionUpdateWithoutInterventionInput, ReminderExecutionUncheckedUpdateWithoutInterventionInput>
+    create: XOR<ReminderExecutionCreateWithoutInterventionInput, ReminderExecutionUncheckedCreateWithoutInterventionInput>
+  }
+
+  export type ReminderExecutionUpdateWithWhereUniqueWithoutInterventionInput = {
+    where: ReminderExecutionWhereUniqueInput
+    data: XOR<ReminderExecutionUpdateWithoutInterventionInput, ReminderExecutionUncheckedUpdateWithoutInterventionInput>
+  }
+
+  export type ReminderExecutionUpdateManyWithWhereWithoutInterventionInput = {
+    where: ReminderExecutionScalarWhereInput
+    data: XOR<ReminderExecutionUpdateManyMutationInput, ReminderExecutionUncheckedUpdateManyWithoutInterventionInput>
+  }
+
   export type InterventionCreateWithoutPhotosInput = {
     id?: string
     status?: $Enums.InterventionStatus
@@ -95794,6 +106550,9 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInterventionsInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutPhotosInput = {
@@ -95822,6 +106581,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutPhotosInput = {
@@ -95866,6 +106628,9 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInterventionsNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutPhotosInput = {
@@ -95894,6 +106659,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type CompanyCreateWithoutQuotesInput = {
@@ -95949,6 +106717,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -96011,6 +106782,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -96060,6 +106834,8 @@ export namespace Prisma {
     interventions?: InterventionCreateNestedManyWithoutClientInput
     invoices?: InvoiceCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutQuotesInput = {
@@ -96097,6 +106873,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedCreateNestedManyWithoutClientInput
     invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutQuotesInput = {
@@ -96130,6 +106908,9 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInterventionsInput
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutQuoteInput = {
@@ -96158,6 +106939,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutQuoteInput = {
@@ -96302,6 +107086,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -96364,6 +107151,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -96419,6 +107209,8 @@ export namespace Prisma {
     interventions?: InterventionUpdateManyWithoutClientNestedInput
     invoices?: InvoiceUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutQuotesInput = {
@@ -96456,6 +107248,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedUpdateManyWithoutClientNestedInput
     invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type InterventionUpsertWithoutQuoteInput = {
@@ -96495,6 +107289,9 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInterventionsNestedInput
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutQuoteInput = {
@@ -96523,6 +107320,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionTypeItemUpsertWithoutQuotesInput = {
@@ -96889,6 +107689,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -96951,6 +107754,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -97000,6 +107806,8 @@ export namespace Prisma {
     interventions?: InterventionCreateNestedManyWithoutClientInput
     quotes?: QuoteCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutInvoicesInput = {
@@ -97037,6 +107845,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedCreateNestedManyWithoutClientInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutInvoicesInput = {
@@ -97070,6 +107880,9 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemCreateNestedOneWithoutInterventionsInput
     photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
     quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionUncheckedCreateWithoutInvoiceInput = {
@@ -97098,6 +107911,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
     quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
   }
 
   export type InterventionCreateOrConnectWithoutInvoiceInput = {
@@ -97406,6 +108222,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -97468,6 +108287,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -97523,6 +108345,8 @@ export namespace Prisma {
     interventions?: InterventionUpdateManyWithoutClientNestedInput
     quotes?: QuoteUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutInvoicesInput = {
@@ -97560,6 +108384,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedUpdateManyWithoutClientNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type InterventionUpsertWithoutInvoiceInput = {
@@ -97599,6 +108425,9 @@ export namespace Prisma {
     interventionType?: InterventionTypeItemUpdateOneWithoutInterventionsNestedInput
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutInvoiceInput = {
@@ -97627,6 +108456,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionTypeItemUpsertWithoutInvoicesInput = {
@@ -98180,6 +109012,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -98242,6 +109077,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -98291,6 +109129,8 @@ export namespace Prisma {
     interventions?: InterventionCreateNestedManyWithoutClientInput
     invoices?: InvoiceCreateNestedManyWithoutClientInput
     quotes?: QuoteCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutSmsLogsInput = {
@@ -98328,6 +109168,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedCreateNestedManyWithoutClientInput
     invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
     quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutSmsLogsInput = {
@@ -98421,6 +109263,54 @@ export namespace Prisma {
     create: XOR<EmailConnectionCreateWithoutMessagesInput, EmailConnectionUncheckedCreateWithoutMessagesInput>
   }
 
+  export type ReminderExecutionCreateWithoutMessageInput = {
+    id?: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderExecutionsInput
+    reminderAutomation: ReminderAutomationCreateNestedOneWithoutExecutionsInput
+    client: ClientCreateNestedOneWithoutReminderExecutionsInput
+    intervention?: InterventionCreateNestedOneWithoutReminderExecutionsInput
+  }
+
+  export type ReminderExecutionUncheckedCreateWithoutMessageInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateOrConnectWithoutMessageInput = {
+    where: ReminderExecutionWhereUniqueInput
+    create: XOR<ReminderExecutionCreateWithoutMessageInput, ReminderExecutionUncheckedCreateWithoutMessageInput>
+  }
+
+  export type ReminderExecutionCreateManyMessageInputEnvelope = {
+    data: ReminderExecutionCreateManyMessageInput | ReminderExecutionCreateManyMessageInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutSmsLogsInput = {
     update: XOR<CompanyUpdateWithoutSmsLogsInput, CompanyUncheckedUpdateWithoutSmsLogsInput>
     create: XOR<CompanyCreateWithoutSmsLogsInput, CompanyUncheckedCreateWithoutSmsLogsInput>
@@ -98485,6 +109375,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -98547,6 +109440,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -98602,6 +109498,8 @@ export namespace Prisma {
     interventions?: InterventionUpdateManyWithoutClientNestedInput
     invoices?: InvoiceUpdateManyWithoutClientNestedInput
     quotes?: QuoteUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutSmsLogsInput = {
@@ -98639,6 +109537,8 @@ export namespace Prisma {
     interventions?: InterventionUncheckedUpdateManyWithoutClientNestedInput
     invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type WhatsAppConnectionUpsertWithoutMessagesInput = {
@@ -98739,6 +109639,22 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ReminderExecutionUpsertWithWhereUniqueWithoutMessageInput = {
+    where: ReminderExecutionWhereUniqueInput
+    update: XOR<ReminderExecutionUpdateWithoutMessageInput, ReminderExecutionUncheckedUpdateWithoutMessageInput>
+    create: XOR<ReminderExecutionCreateWithoutMessageInput, ReminderExecutionUncheckedCreateWithoutMessageInput>
+  }
+
+  export type ReminderExecutionUpdateWithWhereUniqueWithoutMessageInput = {
+    where: ReminderExecutionWhereUniqueInput
+    data: XOR<ReminderExecutionUpdateWithoutMessageInput, ReminderExecutionUncheckedUpdateWithoutMessageInput>
+  }
+
+  export type ReminderExecutionUpdateManyWithWhereWithoutMessageInput = {
+    where: ReminderExecutionScalarWhereInput
+    data: XOR<ReminderExecutionUpdateManyMutationInput, ReminderExecutionUncheckedUpdateManyWithoutMessageInput>
+  }
+
   export type CompanyCreateWithoutWhatsappConnectionsInput = {
     id?: string
     name: string
@@ -98792,6 +109708,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -98854,6 +109773,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -98900,6 +109822,7 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutSmsLogsInput
     client: ClientCreateNestedOneWithoutSmsLogsInput
     emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogUncheckedCreateWithoutWhatsAppConnectionInput = {
@@ -98934,6 +109857,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogCreateOrConnectWithoutWhatsAppConnectionInput = {
@@ -99010,6 +109934,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -99072,6 +109999,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -99150,6 +110080,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -99212,6 +110145,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -99258,6 +110194,7 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutSmsLogsInput
     client: ClientCreateNestedOneWithoutSmsLogsInput
     whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogUncheckedCreateWithoutEmailConnectionInput = {
@@ -99292,6 +110229,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutMessageInput
   }
 
   export type SmsLogCreateOrConnectWithoutEmailConnectionInput = {
@@ -99368,6 +110306,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -99430,6 +110371,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -99508,6 +110452,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -99570,6 +110517,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -99648,6 +110598,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -99710,6 +110663,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -99772,6 +110728,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -99834,6 +110793,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -99981,6 +110943,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -100043,6 +111008,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -100180,6 +111148,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -100242,6 +111213,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -100320,6 +111294,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -100382,6 +111359,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -100445,6 +111425,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
@@ -100507,6 +111490,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
@@ -100585,6 +111571,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
@@ -100647,6 +111636,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -100709,6 +111701,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
@@ -100771,6 +111766,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
@@ -100849,6 +111847,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
@@ -100911,6 +111912,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -100973,6 +111977,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
@@ -101035,6 +112042,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
@@ -101113,6 +112123,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
@@ -101175,6 +112188,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
@@ -101512,6 +112528,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -101574,6 +112593,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -101721,6 +112743,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -101783,6 +112808,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -102193,6 +113221,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -102255,6 +113286,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -102333,6 +113367,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -102395,6 +113432,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -102457,6 +113497,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -102519,6 +113562,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -102639,6 +113685,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -102701,6 +113750,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -102779,6 +113831,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -102841,6 +113896,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -103119,6 +114177,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -103181,6 +114242,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -103455,6 +114519,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -103517,6 +114584,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -103595,6 +114665,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -103657,6 +114730,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -103853,6 +114929,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -103915,6 +114994,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -104134,6 +115216,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -104196,6 +115281,9 @@ export namespace Prisma {
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -104258,6 +115346,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -104320,6 +115411,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -104436,6 +115530,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -104498,6 +115595,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -104611,6 +115711,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -104673,6 +115776,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -104842,6 +115948,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -104904,6 +116013,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -105015,6 +116127,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
     bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
@@ -105077,6 +116192,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
     bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
     bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
     accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
     tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
     accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
@@ -105329,6 +116447,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
     bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
@@ -105391,6 +116512,9 @@ export namespace Prisma {
     invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
     bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
     accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
     tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
     accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
@@ -105539,6 +116663,2406 @@ export namespace Prisma {
     paymentEvents?: InvoicePaymentEventUncheckedUpdateManyWithoutInvoiceNestedInput
     transactions?: InvoiceTransactionUncheckedUpdateManyWithoutInvoiceNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutInvoiceNestedInput
+  }
+
+  export type CompanyCreateWithoutServiceTypesInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutServiceTypesInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutServiceTypesInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutServiceTypesInput, CompanyUncheckedCreateWithoutServiceTypesInput>
+  }
+
+  export type InterventionServiceCreateWithoutServiceTypeInput = {
+    id?: string
+    createdAt?: Date | string
+    intervention: InterventionCreateNestedOneWithoutServicesInput
+  }
+
+  export type InterventionServiceUncheckedCreateWithoutServiceTypeInput = {
+    id?: string
+    interventionId: string
+    createdAt?: Date | string
+  }
+
+  export type InterventionServiceCreateOrConnectWithoutServiceTypeInput = {
+    where: InterventionServiceWhereUniqueInput
+    create: XOR<InterventionServiceCreateWithoutServiceTypeInput, InterventionServiceUncheckedCreateWithoutServiceTypeInput>
+  }
+
+  export type InterventionServiceCreateManyServiceTypeInputEnvelope = {
+    data: InterventionServiceCreateManyServiceTypeInput | InterventionServiceCreateManyServiceTypeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderAutomationServiceCreateWithoutServiceTypeInput = {
+    id?: string
+    createdAt?: Date | string
+    reminderAutomation: ReminderAutomationCreateNestedOneWithoutTrackedServicesInput
+  }
+
+  export type ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput = {
+    id?: string
+    reminderAutomationId: string
+    createdAt?: Date | string
+  }
+
+  export type ReminderAutomationServiceCreateOrConnectWithoutServiceTypeInput = {
+    where: ReminderAutomationServiceWhereUniqueInput
+    create: XOR<ReminderAutomationServiceCreateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput>
+  }
+
+  export type ReminderAutomationServiceCreateManyServiceTypeInputEnvelope = {
+    data: ReminderAutomationServiceCreateManyServiceTypeInput | ReminderAutomationServiceCreateManyServiceTypeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutServiceTypesInput = {
+    update: XOR<CompanyUpdateWithoutServiceTypesInput, CompanyUncheckedUpdateWithoutServiceTypesInput>
+    create: XOR<CompanyCreateWithoutServiceTypesInput, CompanyUncheckedCreateWithoutServiceTypesInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutServiceTypesInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutServiceTypesInput, CompanyUncheckedUpdateWithoutServiceTypesInput>
+  }
+
+  export type CompanyUpdateWithoutServiceTypesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutServiceTypesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type InterventionServiceUpsertWithWhereUniqueWithoutServiceTypeInput = {
+    where: InterventionServiceWhereUniqueInput
+    update: XOR<InterventionServiceUpdateWithoutServiceTypeInput, InterventionServiceUncheckedUpdateWithoutServiceTypeInput>
+    create: XOR<InterventionServiceCreateWithoutServiceTypeInput, InterventionServiceUncheckedCreateWithoutServiceTypeInput>
+  }
+
+  export type InterventionServiceUpdateWithWhereUniqueWithoutServiceTypeInput = {
+    where: InterventionServiceWhereUniqueInput
+    data: XOR<InterventionServiceUpdateWithoutServiceTypeInput, InterventionServiceUncheckedUpdateWithoutServiceTypeInput>
+  }
+
+  export type InterventionServiceUpdateManyWithWhereWithoutServiceTypeInput = {
+    where: InterventionServiceScalarWhereInput
+    data: XOR<InterventionServiceUpdateManyMutationInput, InterventionServiceUncheckedUpdateManyWithoutServiceTypeInput>
+  }
+
+  export type ReminderAutomationServiceUpsertWithWhereUniqueWithoutServiceTypeInput = {
+    where: ReminderAutomationServiceWhereUniqueInput
+    update: XOR<ReminderAutomationServiceUpdateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedUpdateWithoutServiceTypeInput>
+    create: XOR<ReminderAutomationServiceCreateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedCreateWithoutServiceTypeInput>
+  }
+
+  export type ReminderAutomationServiceUpdateWithWhereUniqueWithoutServiceTypeInput = {
+    where: ReminderAutomationServiceWhereUniqueInput
+    data: XOR<ReminderAutomationServiceUpdateWithoutServiceTypeInput, ReminderAutomationServiceUncheckedUpdateWithoutServiceTypeInput>
+  }
+
+  export type ReminderAutomationServiceUpdateManyWithWhereWithoutServiceTypeInput = {
+    where: ReminderAutomationServiceScalarWhereInput
+    data: XOR<ReminderAutomationServiceUpdateManyMutationInput, ReminderAutomationServiceUncheckedUpdateManyWithoutServiceTypeInput>
+  }
+
+  export type ReminderAutomationServiceScalarWhereInput = {
+    AND?: ReminderAutomationServiceScalarWhereInput | ReminderAutomationServiceScalarWhereInput[]
+    OR?: ReminderAutomationServiceScalarWhereInput[]
+    NOT?: ReminderAutomationServiceScalarWhereInput | ReminderAutomationServiceScalarWhereInput[]
+    id?: StringFilter<"ReminderAutomationService"> | string
+    reminderAutomationId?: StringFilter<"ReminderAutomationService"> | string
+    serviceTypeId?: StringFilter<"ReminderAutomationService"> | string
+    createdAt?: DateTimeFilter<"ReminderAutomationService"> | Date | string
+  }
+
+  export type InterventionCreateWithoutServicesInput = {
+    id?: string
+    status?: $Enums.InterventionStatus
+    scheduledAt?: Date | string | null
+    estimatedDuration?: number | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    title: string
+    description?: string | null
+    address: string
+    city?: string | null
+    accessCode?: string | null
+    techNotes?: string | null
+    materialsUsed?: string | null
+    clientSignature?: string | null
+    clientSignedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInterventionsInput
+    client: ClientCreateNestedOneWithoutInterventionsInput
+    equipment?: EquipmentCreateNestedOneWithoutInterventionsInput
+    technician?: UserCreateNestedOneWithoutInterventionsInput
+    createdBy?: UserCreateNestedOneWithoutCreatedInterventionsInput
+    interventionType?: InterventionTypeItemCreateNestedOneWithoutInterventionsInput
+    photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
+    invoice?: InvoiceCreateNestedOneWithoutInterventionInput
+    quote?: QuoteCreateNestedOneWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
+  }
+
+  export type InterventionUncheckedCreateWithoutServicesInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    equipmentId?: string | null
+    technicianId?: string | null
+    createdById?: string | null
+    interventionTypeId?: string | null
+    status?: $Enums.InterventionStatus
+    scheduledAt?: Date | string | null
+    estimatedDuration?: number | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    title: string
+    description?: string | null
+    address: string
+    city?: string | null
+    accessCode?: string | null
+    techNotes?: string | null
+    materialsUsed?: string | null
+    clientSignature?: string | null
+    clientSignedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
+    invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
+    quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
+  }
+
+  export type InterventionCreateOrConnectWithoutServicesInput = {
+    where: InterventionWhereUniqueInput
+    create: XOR<InterventionCreateWithoutServicesInput, InterventionUncheckedCreateWithoutServicesInput>
+  }
+
+  export type ServiceTypeCreateWithoutInterventionServicesInput = {
+    id?: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutServiceTypesInput
+    automationMappings?: ReminderAutomationServiceCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeUncheckedCreateWithoutInterventionServicesInput = {
+    id?: string
+    companyId: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    automationMappings?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeCreateOrConnectWithoutInterventionServicesInput = {
+    where: ServiceTypeWhereUniqueInput
+    create: XOR<ServiceTypeCreateWithoutInterventionServicesInput, ServiceTypeUncheckedCreateWithoutInterventionServicesInput>
+  }
+
+  export type InterventionUpsertWithoutServicesInput = {
+    update: XOR<InterventionUpdateWithoutServicesInput, InterventionUncheckedUpdateWithoutServicesInput>
+    create: XOR<InterventionCreateWithoutServicesInput, InterventionUncheckedCreateWithoutServicesInput>
+    where?: InterventionWhereInput
+  }
+
+  export type InterventionUpdateToOneWithWhereWithoutServicesInput = {
+    where?: InterventionWhereInput
+    data: XOR<InterventionUpdateWithoutServicesInput, InterventionUncheckedUpdateWithoutServicesInput>
+  }
+
+  export type InterventionUpdateWithoutServicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
+    scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    techNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    materialsUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInterventionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutInterventionsNestedInput
+    equipment?: EquipmentUpdateOneWithoutInterventionsNestedInput
+    technician?: UserUpdateOneWithoutInterventionsNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedInterventionsNestedInput
+    interventionType?: InterventionTypeItemUpdateOneWithoutInterventionsNestedInput
+    photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
+    invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
+    quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
+  }
+
+  export type InterventionUncheckedUpdateWithoutServicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    equipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    interventionTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
+    scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    techNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    materialsUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
+    invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
+    quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
+  }
+
+  export type ServiceTypeUpsertWithoutInterventionServicesInput = {
+    update: XOR<ServiceTypeUpdateWithoutInterventionServicesInput, ServiceTypeUncheckedUpdateWithoutInterventionServicesInput>
+    create: XOR<ServiceTypeCreateWithoutInterventionServicesInput, ServiceTypeUncheckedCreateWithoutInterventionServicesInput>
+    where?: ServiceTypeWhereInput
+  }
+
+  export type ServiceTypeUpdateToOneWithWhereWithoutInterventionServicesInput = {
+    where?: ServiceTypeWhereInput
+    data: XOR<ServiceTypeUpdateWithoutInterventionServicesInput, ServiceTypeUncheckedUpdateWithoutInterventionServicesInput>
+  }
+
+  export type ServiceTypeUpdateWithoutInterventionServicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutServiceTypesNestedInput
+    automationMappings?: ReminderAutomationServiceUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type ServiceTypeUncheckedUpdateWithoutInterventionServicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    automationMappings?: ReminderAutomationServiceUncheckedUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type CompanyCreateWithoutReminderAutomationsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutReminderAutomationsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutReminderAutomationsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutReminderAutomationsInput, CompanyUncheckedCreateWithoutReminderAutomationsInput>
+  }
+
+  export type ClientCreateWithoutReminderAutomationsInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    companyName?: string | null
+    phone: string
+    email?: string | null
+    address: string
+    city?: string | null
+    postalCode?: string | null
+    notes?: string | null
+    isActive?: boolean
+    status?: $Enums.ClientStatus
+    source?: string | null
+    preferredChannel?: $Enums.PreferredChannel
+    channelForReminder?: $Enums.PreferredChannel | null
+    channelForQuote?: $Enums.PreferredChannel | null
+    channelForInvoice?: $Enums.PreferredChannel | null
+    channelForConfirm?: $Enums.PreferredChannel | null
+    sirenNumber?: string | null
+    clientTvaNumber?: string | null
+    clientLegalForm?: string | null
+    clientNafCode?: string | null
+    hasDeliveryAddress?: boolean
+    deliveryAddress?: string | null
+    deliveryCity?: string | null
+    deliveryPostalCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutClientsInput
+    createdBy?: UserCreateNestedOneWithoutCreatedClientsInput
+    equipment?: EquipmentCreateNestedManyWithoutClientInput
+    interventions?: InterventionCreateNestedManyWithoutClientInput
+    invoices?: InvoiceCreateNestedManyWithoutClientInput
+    quotes?: QuoteCreateNestedManyWithoutClientInput
+    smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientUncheckedCreateWithoutReminderAutomationsInput = {
+    id?: string
+    companyId: string
+    createdById?: string | null
+    firstName: string
+    lastName: string
+    companyName?: string | null
+    phone: string
+    email?: string | null
+    address: string
+    city?: string | null
+    postalCode?: string | null
+    notes?: string | null
+    isActive?: boolean
+    status?: $Enums.ClientStatus
+    source?: string | null
+    preferredChannel?: $Enums.PreferredChannel
+    channelForReminder?: $Enums.PreferredChannel | null
+    channelForQuote?: $Enums.PreferredChannel | null
+    channelForInvoice?: $Enums.PreferredChannel | null
+    channelForConfirm?: $Enums.PreferredChannel | null
+    sirenNumber?: string | null
+    clientTvaNumber?: string | null
+    clientLegalForm?: string | null
+    clientNafCode?: string | null
+    hasDeliveryAddress?: boolean
+    deliveryAddress?: string | null
+    deliveryCity?: string | null
+    deliveryPostalCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    equipment?: EquipmentUncheckedCreateNestedManyWithoutClientInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutClientInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientCreateOrConnectWithoutReminderAutomationsInput = {
+    where: ClientWhereUniqueInput
+    create: XOR<ClientCreateWithoutReminderAutomationsInput, ClientUncheckedCreateWithoutReminderAutomationsInput>
+  }
+
+  export type InterventionCreateWithoutResetAutomationsInput = {
+    id?: string
+    status?: $Enums.InterventionStatus
+    scheduledAt?: Date | string | null
+    estimatedDuration?: number | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    title: string
+    description?: string | null
+    address: string
+    city?: string | null
+    accessCode?: string | null
+    techNotes?: string | null
+    materialsUsed?: string | null
+    clientSignature?: string | null
+    clientSignedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInterventionsInput
+    client: ClientCreateNestedOneWithoutInterventionsInput
+    equipment?: EquipmentCreateNestedOneWithoutInterventionsInput
+    technician?: UserCreateNestedOneWithoutInterventionsInput
+    createdBy?: UserCreateNestedOneWithoutCreatedInterventionsInput
+    interventionType?: InterventionTypeItemCreateNestedOneWithoutInterventionsInput
+    photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
+    invoice?: InvoiceCreateNestedOneWithoutInterventionInput
+    quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutInterventionInput
+  }
+
+  export type InterventionUncheckedCreateWithoutResetAutomationsInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    equipmentId?: string | null
+    technicianId?: string | null
+    createdById?: string | null
+    interventionTypeId?: string | null
+    status?: $Enums.InterventionStatus
+    scheduledAt?: Date | string | null
+    estimatedDuration?: number | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    title: string
+    description?: string | null
+    address: string
+    city?: string | null
+    accessCode?: string | null
+    techNotes?: string | null
+    materialsUsed?: string | null
+    clientSignature?: string | null
+    clientSignedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
+    invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
+    quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutInterventionInput
+  }
+
+  export type InterventionCreateOrConnectWithoutResetAutomationsInput = {
+    where: InterventionWhereUniqueInput
+    create: XOR<InterventionCreateWithoutResetAutomationsInput, InterventionUncheckedCreateWithoutResetAutomationsInput>
+  }
+
+  export type ReminderAutomationServiceCreateWithoutReminderAutomationInput = {
+    id?: string
+    createdAt?: Date | string
+    serviceType: ServiceTypeCreateNestedOneWithoutAutomationMappingsInput
+  }
+
+  export type ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput = {
+    id?: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type ReminderAutomationServiceCreateOrConnectWithoutReminderAutomationInput = {
+    where: ReminderAutomationServiceWhereUniqueInput
+    create: XOR<ReminderAutomationServiceCreateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput>
+  }
+
+  export type ReminderAutomationServiceCreateManyReminderAutomationInputEnvelope = {
+    data: ReminderAutomationServiceCreateManyReminderAutomationInput | ReminderAutomationServiceCreateManyReminderAutomationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReminderExecutionCreateWithoutReminderAutomationInput = {
+    id?: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderExecutionsInput
+    client: ClientCreateNestedOneWithoutReminderExecutionsInput
+    intervention?: InterventionCreateNestedOneWithoutReminderExecutionsInput
+    message?: SmsLogCreateNestedOneWithoutReminderExecutionsInput
+  }
+
+  export type ReminderExecutionUncheckedCreateWithoutReminderAutomationInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateOrConnectWithoutReminderAutomationInput = {
+    where: ReminderExecutionWhereUniqueInput
+    create: XOR<ReminderExecutionCreateWithoutReminderAutomationInput, ReminderExecutionUncheckedCreateWithoutReminderAutomationInput>
+  }
+
+  export type ReminderExecutionCreateManyReminderAutomationInputEnvelope = {
+    data: ReminderExecutionCreateManyReminderAutomationInput | ReminderExecutionCreateManyReminderAutomationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutReminderAutomationsInput = {
+    update: XOR<CompanyUpdateWithoutReminderAutomationsInput, CompanyUncheckedUpdateWithoutReminderAutomationsInput>
+    create: XOR<CompanyCreateWithoutReminderAutomationsInput, CompanyUncheckedCreateWithoutReminderAutomationsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutReminderAutomationsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutReminderAutomationsInput, CompanyUncheckedUpdateWithoutReminderAutomationsInput>
+  }
+
+  export type CompanyUpdateWithoutReminderAutomationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutReminderAutomationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type ClientUpsertWithoutReminderAutomationsInput = {
+    update: XOR<ClientUpdateWithoutReminderAutomationsInput, ClientUncheckedUpdateWithoutReminderAutomationsInput>
+    create: XOR<ClientCreateWithoutReminderAutomationsInput, ClientUncheckedCreateWithoutReminderAutomationsInput>
+    where?: ClientWhereInput
+  }
+
+  export type ClientUpdateToOneWithWhereWithoutReminderAutomationsInput = {
+    where?: ClientWhereInput
+    data: XOR<ClientUpdateWithoutReminderAutomationsInput, ClientUncheckedUpdateWithoutReminderAutomationsInput>
+  }
+
+  export type ClientUpdateWithoutReminderAutomationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    companyName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    preferredChannel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    channelForReminder?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForQuote?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForInvoice?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForConfirm?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    sirenNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientTvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientLegalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    clientNafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    hasDeliveryAddress?: BoolFieldUpdateOperationsInput | boolean
+    deliveryAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryCity?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutClientsNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedClientsNestedInput
+    equipment?: EquipmentUpdateManyWithoutClientNestedInput
+    interventions?: InterventionUpdateManyWithoutClientNestedInput
+    invoices?: InvoiceUpdateManyWithoutClientNestedInput
+    quotes?: QuoteUpdateManyWithoutClientNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
+  }
+
+  export type ClientUncheckedUpdateWithoutReminderAutomationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    companyName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    preferredChannel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    channelForReminder?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForQuote?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForInvoice?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForConfirm?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    sirenNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientTvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientLegalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    clientNafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    hasDeliveryAddress?: BoolFieldUpdateOperationsInput | boolean
+    deliveryAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryCity?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: EquipmentUncheckedUpdateManyWithoutClientNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutClientNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type InterventionUpsertWithoutResetAutomationsInput = {
+    update: XOR<InterventionUpdateWithoutResetAutomationsInput, InterventionUncheckedUpdateWithoutResetAutomationsInput>
+    create: XOR<InterventionCreateWithoutResetAutomationsInput, InterventionUncheckedCreateWithoutResetAutomationsInput>
+    where?: InterventionWhereInput
+  }
+
+  export type InterventionUpdateToOneWithWhereWithoutResetAutomationsInput = {
+    where?: InterventionWhereInput
+    data: XOR<InterventionUpdateWithoutResetAutomationsInput, InterventionUncheckedUpdateWithoutResetAutomationsInput>
+  }
+
+  export type InterventionUpdateWithoutResetAutomationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
+    scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    techNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    materialsUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInterventionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutInterventionsNestedInput
+    equipment?: EquipmentUpdateOneWithoutInterventionsNestedInput
+    technician?: UserUpdateOneWithoutInterventionsNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedInterventionsNestedInput
+    interventionType?: InterventionTypeItemUpdateOneWithoutInterventionsNestedInput
+    photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
+    invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
+    quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
+  }
+
+  export type InterventionUncheckedUpdateWithoutResetAutomationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    equipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    interventionTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
+    scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    techNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    materialsUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
+    invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
+    quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
+  }
+
+  export type ReminderAutomationServiceUpsertWithWhereUniqueWithoutReminderAutomationInput = {
+    where: ReminderAutomationServiceWhereUniqueInput
+    update: XOR<ReminderAutomationServiceUpdateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedUpdateWithoutReminderAutomationInput>
+    create: XOR<ReminderAutomationServiceCreateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedCreateWithoutReminderAutomationInput>
+  }
+
+  export type ReminderAutomationServiceUpdateWithWhereUniqueWithoutReminderAutomationInput = {
+    where: ReminderAutomationServiceWhereUniqueInput
+    data: XOR<ReminderAutomationServiceUpdateWithoutReminderAutomationInput, ReminderAutomationServiceUncheckedUpdateWithoutReminderAutomationInput>
+  }
+
+  export type ReminderAutomationServiceUpdateManyWithWhereWithoutReminderAutomationInput = {
+    where: ReminderAutomationServiceScalarWhereInput
+    data: XOR<ReminderAutomationServiceUpdateManyMutationInput, ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationInput>
+  }
+
+  export type ReminderExecutionUpsertWithWhereUniqueWithoutReminderAutomationInput = {
+    where: ReminderExecutionWhereUniqueInput
+    update: XOR<ReminderExecutionUpdateWithoutReminderAutomationInput, ReminderExecutionUncheckedUpdateWithoutReminderAutomationInput>
+    create: XOR<ReminderExecutionCreateWithoutReminderAutomationInput, ReminderExecutionUncheckedCreateWithoutReminderAutomationInput>
+  }
+
+  export type ReminderExecutionUpdateWithWhereUniqueWithoutReminderAutomationInput = {
+    where: ReminderExecutionWhereUniqueInput
+    data: XOR<ReminderExecutionUpdateWithoutReminderAutomationInput, ReminderExecutionUncheckedUpdateWithoutReminderAutomationInput>
+  }
+
+  export type ReminderExecutionUpdateManyWithWhereWithoutReminderAutomationInput = {
+    where: ReminderExecutionScalarWhereInput
+    data: XOR<ReminderExecutionUpdateManyMutationInput, ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationInput>
+  }
+
+  export type ReminderAutomationCreateWithoutTrackedServicesInput = {
+    id?: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderAutomationsInput
+    client: ClientCreateNestedOneWithoutReminderAutomationsInput
+    lastCompletedIntervention?: InterventionCreateNestedOneWithoutResetAutomationsInput
+    executions?: ReminderExecutionCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationUncheckedCreateWithoutTrackedServicesInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    executions?: ReminderExecutionUncheckedCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationCreateOrConnectWithoutTrackedServicesInput = {
+    where: ReminderAutomationWhereUniqueInput
+    create: XOR<ReminderAutomationCreateWithoutTrackedServicesInput, ReminderAutomationUncheckedCreateWithoutTrackedServicesInput>
+  }
+
+  export type ServiceTypeCreateWithoutAutomationMappingsInput = {
+    id?: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutServiceTypesInput
+    interventionServices?: InterventionServiceCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeUncheckedCreateWithoutAutomationMappingsInput = {
+    id?: string
+    companyId: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interventionServices?: InterventionServiceUncheckedCreateNestedManyWithoutServiceTypeInput
+  }
+
+  export type ServiceTypeCreateOrConnectWithoutAutomationMappingsInput = {
+    where: ServiceTypeWhereUniqueInput
+    create: XOR<ServiceTypeCreateWithoutAutomationMappingsInput, ServiceTypeUncheckedCreateWithoutAutomationMappingsInput>
+  }
+
+  export type ReminderAutomationUpsertWithoutTrackedServicesInput = {
+    update: XOR<ReminderAutomationUpdateWithoutTrackedServicesInput, ReminderAutomationUncheckedUpdateWithoutTrackedServicesInput>
+    create: XOR<ReminderAutomationCreateWithoutTrackedServicesInput, ReminderAutomationUncheckedCreateWithoutTrackedServicesInput>
+    where?: ReminderAutomationWhereInput
+  }
+
+  export type ReminderAutomationUpdateToOneWithWhereWithoutTrackedServicesInput = {
+    where?: ReminderAutomationWhereInput
+    data: XOR<ReminderAutomationUpdateWithoutTrackedServicesInput, ReminderAutomationUncheckedUpdateWithoutTrackedServicesInput>
+  }
+
+  export type ReminderAutomationUpdateWithoutTrackedServicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    lastCompletedIntervention?: InterventionUpdateOneWithoutResetAutomationsNestedInput
+    executions?: ReminderExecutionUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateWithoutTrackedServicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executions?: ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ServiceTypeUpsertWithoutAutomationMappingsInput = {
+    update: XOR<ServiceTypeUpdateWithoutAutomationMappingsInput, ServiceTypeUncheckedUpdateWithoutAutomationMappingsInput>
+    create: XOR<ServiceTypeCreateWithoutAutomationMappingsInput, ServiceTypeUncheckedCreateWithoutAutomationMappingsInput>
+    where?: ServiceTypeWhereInput
+  }
+
+  export type ServiceTypeUpdateToOneWithWhereWithoutAutomationMappingsInput = {
+    where?: ServiceTypeWhereInput
+    data: XOR<ServiceTypeUpdateWithoutAutomationMappingsInput, ServiceTypeUncheckedUpdateWithoutAutomationMappingsInput>
+  }
+
+  export type ServiceTypeUpdateWithoutAutomationMappingsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutServiceTypesNestedInput
+    interventionServices?: InterventionServiceUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type ServiceTypeUncheckedUpdateWithoutAutomationMappingsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interventionServices?: InterventionServiceUncheckedUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type CompanyCreateWithoutReminderExecutionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutReminderExecutionsInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutReminderExecutionsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutReminderExecutionsInput, CompanyUncheckedCreateWithoutReminderExecutionsInput>
+  }
+
+  export type ReminderAutomationCreateWithoutExecutionsInput = {
+    id?: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutReminderAutomationsInput
+    client: ClientCreateNestedOneWithoutReminderAutomationsInput
+    lastCompletedIntervention?: InterventionCreateNestedOneWithoutResetAutomationsInput
+    trackedServices?: ReminderAutomationServiceCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationUncheckedCreateWithoutExecutionsInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedCreateNestedManyWithoutReminderAutomationInput
+  }
+
+  export type ReminderAutomationCreateOrConnectWithoutExecutionsInput = {
+    where: ReminderAutomationWhereUniqueInput
+    create: XOR<ReminderAutomationCreateWithoutExecutionsInput, ReminderAutomationUncheckedCreateWithoutExecutionsInput>
+  }
+
+  export type ClientCreateWithoutReminderExecutionsInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    companyName?: string | null
+    phone: string
+    email?: string | null
+    address: string
+    city?: string | null
+    postalCode?: string | null
+    notes?: string | null
+    isActive?: boolean
+    status?: $Enums.ClientStatus
+    source?: string | null
+    preferredChannel?: $Enums.PreferredChannel
+    channelForReminder?: $Enums.PreferredChannel | null
+    channelForQuote?: $Enums.PreferredChannel | null
+    channelForInvoice?: $Enums.PreferredChannel | null
+    channelForConfirm?: $Enums.PreferredChannel | null
+    sirenNumber?: string | null
+    clientTvaNumber?: string | null
+    clientLegalForm?: string | null
+    clientNafCode?: string | null
+    hasDeliveryAddress?: boolean
+    deliveryAddress?: string | null
+    deliveryCity?: string | null
+    deliveryPostalCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutClientsInput
+    createdBy?: UserCreateNestedOneWithoutCreatedClientsInput
+    equipment?: EquipmentCreateNestedManyWithoutClientInput
+    interventions?: InterventionCreateNestedManyWithoutClientInput
+    invoices?: InvoiceCreateNestedManyWithoutClientInput
+    quotes?: QuoteCreateNestedManyWithoutClientInput
+    smsLogs?: SmsLogCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientUncheckedCreateWithoutReminderExecutionsInput = {
+    id?: string
+    companyId: string
+    createdById?: string | null
+    firstName: string
+    lastName: string
+    companyName?: string | null
+    phone: string
+    email?: string | null
+    address: string
+    city?: string | null
+    postalCode?: string | null
+    notes?: string | null
+    isActive?: boolean
+    status?: $Enums.ClientStatus
+    source?: string | null
+    preferredChannel?: $Enums.PreferredChannel
+    channelForReminder?: $Enums.PreferredChannel | null
+    channelForQuote?: $Enums.PreferredChannel | null
+    channelForInvoice?: $Enums.PreferredChannel | null
+    channelForConfirm?: $Enums.PreferredChannel | null
+    sirenNumber?: string | null
+    clientTvaNumber?: string | null
+    clientLegalForm?: string | null
+    clientNafCode?: string | null
+    hasDeliveryAddress?: boolean
+    deliveryAddress?: string | null
+    deliveryCity?: string | null
+    deliveryPostalCode?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    equipment?: EquipmentUncheckedCreateNestedManyWithoutClientInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutClientInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutClientInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutClientInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutClientInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientCreateOrConnectWithoutReminderExecutionsInput = {
+    where: ClientWhereUniqueInput
+    create: XOR<ClientCreateWithoutReminderExecutionsInput, ClientUncheckedCreateWithoutReminderExecutionsInput>
+  }
+
+  export type InterventionCreateWithoutReminderExecutionsInput = {
+    id?: string
+    status?: $Enums.InterventionStatus
+    scheduledAt?: Date | string | null
+    estimatedDuration?: number | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    title: string
+    description?: string | null
+    address: string
+    city?: string | null
+    accessCode?: string | null
+    techNotes?: string | null
+    materialsUsed?: string | null
+    clientSignature?: string | null
+    clientSignedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInterventionsInput
+    client: ClientCreateNestedOneWithoutInterventionsInput
+    equipment?: EquipmentCreateNestedOneWithoutInterventionsInput
+    technician?: UserCreateNestedOneWithoutInterventionsInput
+    createdBy?: UserCreateNestedOneWithoutCreatedInterventionsInput
+    interventionType?: InterventionTypeItemCreateNestedOneWithoutInterventionsInput
+    photos?: InterventionPhotoCreateNestedManyWithoutInterventionInput
+    invoice?: InvoiceCreateNestedOneWithoutInterventionInput
+    quote?: QuoteCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationCreateNestedManyWithoutLastCompletedInterventionInput
+  }
+
+  export type InterventionUncheckedCreateWithoutReminderExecutionsInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    equipmentId?: string | null
+    technicianId?: string | null
+    createdById?: string | null
+    interventionTypeId?: string | null
+    status?: $Enums.InterventionStatus
+    scheduledAt?: Date | string | null
+    estimatedDuration?: number | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    title: string
+    description?: string | null
+    address: string
+    city?: string | null
+    accessCode?: string | null
+    techNotes?: string | null
+    materialsUsed?: string | null
+    clientSignature?: string | null
+    clientSignedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    photos?: InterventionPhotoUncheckedCreateNestedManyWithoutInterventionInput
+    invoice?: InvoiceUncheckedCreateNestedOneWithoutInterventionInput
+    quote?: QuoteUncheckedCreateNestedOneWithoutInterventionInput
+    services?: InterventionServiceUncheckedCreateNestedManyWithoutInterventionInput
+    resetAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutLastCompletedInterventionInput
+  }
+
+  export type InterventionCreateOrConnectWithoutReminderExecutionsInput = {
+    where: InterventionWhereUniqueInput
+    create: XOR<InterventionCreateWithoutReminderExecutionsInput, InterventionUncheckedCreateWithoutReminderExecutionsInput>
+  }
+
+  export type SmsLogCreateWithoutReminderExecutionsInput = {
+    id?: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutSmsLogsInput
+    client: ClientCreateNestedOneWithoutSmsLogsInput
+    whatsAppConnection?: WhatsAppConnectionCreateNestedOneWithoutMessagesInput
+    emailConnection?: EmailConnectionCreateNestedOneWithoutMessagesInput
+  }
+
+  export type SmsLogUncheckedCreateWithoutReminderExecutionsInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    direction: $Enums.MessageDirection
+    channel?: $Enums.PreferredChannel
+    body: string
+    subject?: string | null
+    fromNumber?: string | null
+    toNumber?: string | null
+    fromEmail?: string | null
+    toEmail?: string | null
+    isRead?: boolean
+    readAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    twilioSid?: string | null
+    whatsappMessageId?: string | null
+    emailMessageId?: string | null
+    externalMessageId?: string | null
+    status?: string | null
+    whatsAppConnectionId?: string | null
+    emailConnectionId?: string | null
+    threadId?: string | null
+    inReplyTo?: string | null
+    references?: string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: string | null
+    templateName?: string | null
+    errorCode?: string | null
+    errorMessage?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SmsLogCreateOrConnectWithoutReminderExecutionsInput = {
+    where: SmsLogWhereUniqueInput
+    create: XOR<SmsLogCreateWithoutReminderExecutionsInput, SmsLogUncheckedCreateWithoutReminderExecutionsInput>
+  }
+
+  export type CompanyUpsertWithoutReminderExecutionsInput = {
+    update: XOR<CompanyUpdateWithoutReminderExecutionsInput, CompanyUncheckedUpdateWithoutReminderExecutionsInput>
+    create: XOR<CompanyCreateWithoutReminderExecutionsInput, CompanyUncheckedCreateWithoutReminderExecutionsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutReminderExecutionsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutReminderExecutionsInput, CompanyUncheckedUpdateWithoutReminderExecutionsInput>
+  }
+
+  export type CompanyUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type ReminderAutomationUpsertWithoutExecutionsInput = {
+    update: XOR<ReminderAutomationUpdateWithoutExecutionsInput, ReminderAutomationUncheckedUpdateWithoutExecutionsInput>
+    create: XOR<ReminderAutomationCreateWithoutExecutionsInput, ReminderAutomationUncheckedCreateWithoutExecutionsInput>
+    where?: ReminderAutomationWhereInput
+  }
+
+  export type ReminderAutomationUpdateToOneWithWhereWithoutExecutionsInput = {
+    where?: ReminderAutomationWhereInput
+    data: XOR<ReminderAutomationUpdateWithoutExecutionsInput, ReminderAutomationUncheckedUpdateWithoutExecutionsInput>
+  }
+
+  export type ReminderAutomationUpdateWithoutExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    lastCompletedIntervention?: InterventionUpdateOneWithoutResetAutomationsNestedInput
+    trackedServices?: ReminderAutomationServiceUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateWithoutExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ClientUpsertWithoutReminderExecutionsInput = {
+    update: XOR<ClientUpdateWithoutReminderExecutionsInput, ClientUncheckedUpdateWithoutReminderExecutionsInput>
+    create: XOR<ClientCreateWithoutReminderExecutionsInput, ClientUncheckedCreateWithoutReminderExecutionsInput>
+    where?: ClientWhereInput
+  }
+
+  export type ClientUpdateToOneWithWhereWithoutReminderExecutionsInput = {
+    where?: ClientWhereInput
+    data: XOR<ClientUpdateWithoutReminderExecutionsInput, ClientUncheckedUpdateWithoutReminderExecutionsInput>
+  }
+
+  export type ClientUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    companyName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    preferredChannel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    channelForReminder?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForQuote?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForInvoice?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForConfirm?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    sirenNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientTvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientLegalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    clientNafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    hasDeliveryAddress?: BoolFieldUpdateOperationsInput | boolean
+    deliveryAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryCity?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutClientsNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedClientsNestedInput
+    equipment?: EquipmentUpdateManyWithoutClientNestedInput
+    interventions?: InterventionUpdateManyWithoutClientNestedInput
+    invoices?: InvoiceUpdateManyWithoutClientNestedInput
+    quotes?: QuoteUpdateManyWithoutClientNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+  }
+
+  export type ClientUncheckedUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    companyName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    preferredChannel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    channelForReminder?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForQuote?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForInvoice?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    channelForConfirm?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    sirenNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientTvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    clientLegalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    clientNafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    hasDeliveryAddress?: BoolFieldUpdateOperationsInput | boolean
+    deliveryAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryCity?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: EquipmentUncheckedUpdateManyWithoutClientNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutClientNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type InterventionUpsertWithoutReminderExecutionsInput = {
+    update: XOR<InterventionUpdateWithoutReminderExecutionsInput, InterventionUncheckedUpdateWithoutReminderExecutionsInput>
+    create: XOR<InterventionCreateWithoutReminderExecutionsInput, InterventionUncheckedCreateWithoutReminderExecutionsInput>
+    where?: InterventionWhereInput
+  }
+
+  export type InterventionUpdateToOneWithWhereWithoutReminderExecutionsInput = {
+    where?: InterventionWhereInput
+    data: XOR<InterventionUpdateWithoutReminderExecutionsInput, InterventionUncheckedUpdateWithoutReminderExecutionsInput>
+  }
+
+  export type InterventionUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
+    scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    techNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    materialsUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInterventionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutInterventionsNestedInput
+    equipment?: EquipmentUpdateOneWithoutInterventionsNestedInput
+    technician?: UserUpdateOneWithoutInterventionsNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedInterventionsNestedInput
+    interventionType?: InterventionTypeItemUpdateOneWithoutInterventionsNestedInput
+    photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
+    invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
+    quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+  }
+
+  export type InterventionUncheckedUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    equipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    interventionTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
+    scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    techNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    materialsUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    clientSignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
+    invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
+    quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+  }
+
+  export type SmsLogUpsertWithoutReminderExecutionsInput = {
+    update: XOR<SmsLogUpdateWithoutReminderExecutionsInput, SmsLogUncheckedUpdateWithoutReminderExecutionsInput>
+    create: XOR<SmsLogCreateWithoutReminderExecutionsInput, SmsLogUncheckedCreateWithoutReminderExecutionsInput>
+    where?: SmsLogWhereInput
+  }
+
+  export type SmsLogUpdateToOneWithWhereWithoutReminderExecutionsInput = {
+    where?: SmsLogWhereInput
+    data: XOR<SmsLogUpdateWithoutReminderExecutionsInput, SmsLogUncheckedUpdateWithoutReminderExecutionsInput>
+  }
+
+  export type SmsLogUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
+    client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
+    whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
+    emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
+  }
+
+  export type SmsLogUncheckedUpdateWithoutReminderExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    direction?: EnumMessageDirectionFieldUpdateOperationsInput | $Enums.MessageDirection
+    channel?: EnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel
+    body?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    fromNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    toNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    fromEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    toEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twilioSid?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    externalMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsAppConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    emailConnectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    threadId?: NullableStringFieldUpdateOperationsInput | string | null
+    inReplyTo?: NullableStringFieldUpdateOperationsInput | string | null
+    references?: NullableStringFieldUpdateOperationsInput | string | null
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    autoType?: NullableStringFieldUpdateOperationsInput | string | null
+    templateName?: NullableStringFieldUpdateOperationsInput | string | null
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubscriptionCreateManyPlanInput = {
@@ -106008,6 +119532,71 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ServiceTypeCreateManyCompanyInput = {
+    id?: string
+    tradeSlug?: string | null
+    name: string
+    category?: string | null
+    description?: string | null
+    defaultFrequencyValue?: number | null
+    defaultFrequencyUnit?: $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: number | null
+    defaultAdvanceNoticeUnit?: $Enums.TimeUnit | null
+    defaultChannel?: $Enums.ReminderChannelChoice | null
+    defaultTemplate?: string | null
+    recommendationLevel?: $Enums.RecommendationLevel
+    isDefault?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderAutomationCreateManyCompanyInput = {
+    id?: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateManyCompanyInput = {
+    id?: string
+    reminderAutomationId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type AccountingExportCreateManyCompanyInput = {
     id?: string
     periodStart: Date | string
@@ -106232,6 +119821,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutClientNestedInput
     quotes?: QuoteUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutCompanyInput = {
@@ -106269,6 +119860,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateManyWithoutCompanyInput = {
@@ -106329,6 +119922,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutCompanyInput = {
@@ -106357,6 +119953,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateManyWithoutCompanyInput = {
@@ -106719,6 +120318,7 @@ export namespace Prisma {
     client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
     whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
     emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateWithoutCompanyInput = {
@@ -106753,6 +120353,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateManyWithoutCompanyInput = {
@@ -107360,6 +120961,209 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ServiceTypeUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interventionServices?: InterventionServiceUpdateManyWithoutServiceTypeNestedInput
+    automationMappings?: ReminderAutomationServiceUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type ServiceTypeUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interventionServices?: InterventionServiceUncheckedUpdateManyWithoutServiceTypeNestedInput
+    automationMappings?: ReminderAutomationServiceUncheckedUpdateManyWithoutServiceTypeNestedInput
+  }
+
+  export type ServiceTypeUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeSlug?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultFrequencyValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultFrequencyUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultAdvanceNoticeValue?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultAdvanceNoticeUnit?: NullableEnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit | null
+    defaultChannel?: NullableEnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice | null
+    defaultTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendationLevel?: EnumRecommendationLevelFieldUpdateOperationsInput | $Enums.RecommendationLevel
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    client?: ClientUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    lastCompletedIntervention?: InterventionUpdateOneWithoutResetAutomationsNestedInput
+    trackedServices?: ReminderAutomationServiceUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderAutomation?: ReminderAutomationUpdateOneRequiredWithoutExecutionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    intervention?: InterventionUpdateOneWithoutReminderExecutionsNestedInput
+    message?: SmsLogUpdateOneWithoutReminderExecutionsNestedInput
+  }
+
+  export type ReminderExecutionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AccountingExportUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -107933,6 +121737,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutTechnicianInput = {
@@ -107961,6 +121768,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateManyWithoutTechnicianInput = {
@@ -108080,6 +121890,8 @@ export namespace Prisma {
     invoices?: InvoiceUpdateManyWithoutClientNestedInput
     quotes?: QuoteUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutCreatedByInput = {
@@ -108117,6 +121929,8 @@ export namespace Prisma {
     invoices?: InvoiceUncheckedUpdateManyWithoutClientNestedInput
     quotes?: QuoteUncheckedUpdateManyWithoutClientNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutClientNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutClientNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateManyWithoutCreatedByInput = {
@@ -108177,6 +121991,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutCreatedByInput = {
@@ -108205,6 +122022,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateManyWithoutCreatedByInput = {
@@ -108599,6 +122419,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutInterventionTypeInput = {
@@ -108627,6 +122450,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateManyWithoutInterventionTypeInput = {
@@ -109132,6 +122958,51 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ReminderAutomationCreateManyClientInput = {
+    id?: string
+    companyId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedInterventionId?: string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateManyClientInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type EquipmentUpdateWithoutClientInput = {
     id?: StringFieldUpdateOperationsInput | string
     brand?: StringFieldUpdateOperationsInput | string
@@ -109217,6 +123088,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutClientInput = {
@@ -109245,6 +123119,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateManyWithoutClientInput = {
@@ -109607,6 +123484,7 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
     whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
     emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateWithoutClientInput = {
@@ -109641,6 +123519,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateManyWithoutClientInput = {
@@ -109673,6 +123552,145 @@ export namespace Prisma {
     errorCode?: NullableStringFieldUpdateOperationsInput | string | null
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    lastCompletedIntervention?: InterventionUpdateOneWithoutResetAutomationsNestedInput
+    trackedServices?: ReminderAutomationServiceUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateManyWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedInterventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    reminderAutomation?: ReminderAutomationUpdateOneRequiredWithoutExecutionsNestedInput
+    intervention?: InterventionUpdateOneWithoutReminderExecutionsNestedInput
+    message?: SmsLogUpdateOneWithoutReminderExecutionsNestedInput
+  }
+
+  export type ReminderExecutionUncheckedUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -109728,6 +123746,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateWithoutEquipmentInput = {
@@ -109756,6 +123777,9 @@ export namespace Prisma {
     photos?: InterventionPhotoUncheckedUpdateManyWithoutInterventionNestedInput
     invoice?: InvoiceUncheckedUpdateOneWithoutInterventionNestedInput
     quote?: QuoteUncheckedUpdateOneWithoutInterventionNestedInput
+    services?: InterventionServiceUncheckedUpdateManyWithoutInterventionNestedInput
+    resetAutomations?: ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutInterventionNestedInput
   }
 
   export type InterventionUncheckedUpdateManyWithoutEquipmentInput = {
@@ -109791,6 +123815,57 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type InterventionServiceCreateManyInterventionInput = {
+    id?: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type ReminderAutomationCreateManyLastCompletedInterventionInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    name: string
+    automationType?: $Enums.AutomationType
+    enabled?: boolean
+    isCustomOverride?: boolean
+    frequencyValue?: number
+    frequencyUnit?: $Enums.TimeUnit
+    advanceNoticeValue?: number
+    advanceNoticeUnit?: $Enums.TimeUnit
+    channel?: $Enums.ReminderChannelChoice
+    fallbackChannel?: $Enums.PreferredChannel | null
+    customMessageTemplate?: string | null
+    stopOnReply?: boolean
+    stopOnAppointment?: boolean
+    maxFollowUps?: number
+    followUpIntervalDays?: number
+    status?: $Enums.ReminderStatus
+    nextReminderAt?: Date | string | null
+    lastCompletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateManyInterventionInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    clientId: string
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type InterventionPhotoUpdateWithoutInterventionInput = {
     id?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
@@ -109813,6 +123888,163 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     caption?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterventionServiceUpdateWithoutInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    serviceType?: ServiceTypeUpdateOneRequiredWithoutInterventionServicesNestedInput
+  }
+
+  export type InterventionServiceUncheckedUpdateWithoutInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterventionServiceUncheckedUpdateManyWithoutInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationUpdateWithoutLastCompletedInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderAutomationsNestedInput
+    trackedServices?: ReminderAutomationServiceUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateWithoutLastCompletedInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trackedServices?: ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationNestedInput
+    executions?: ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationNestedInput
+  }
+
+  export type ReminderAutomationUncheckedUpdateManyWithoutLastCompletedInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    automationType?: EnumAutomationTypeFieldUpdateOperationsInput | $Enums.AutomationType
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    isCustomOverride?: BoolFieldUpdateOperationsInput | boolean
+    frequencyValue?: IntFieldUpdateOperationsInput | number
+    frequencyUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    advanceNoticeValue?: IntFieldUpdateOperationsInput | number
+    advanceNoticeUnit?: EnumTimeUnitFieldUpdateOperationsInput | $Enums.TimeUnit
+    channel?: EnumReminderChannelChoiceFieldUpdateOperationsInput | $Enums.ReminderChannelChoice
+    fallbackChannel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    customMessageTemplate?: NullableStringFieldUpdateOperationsInput | string | null
+    stopOnReply?: BoolFieldUpdateOperationsInput | boolean
+    stopOnAppointment?: BoolFieldUpdateOperationsInput | boolean
+    maxFollowUps?: IntFieldUpdateOperationsInput | number
+    followUpIntervalDays?: IntFieldUpdateOperationsInput | number
+    status?: EnumReminderStatusFieldUpdateOperationsInput | $Enums.ReminderStatus
+    nextReminderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUpdateWithoutInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    reminderAutomation?: ReminderAutomationUpdateOneRequiredWithoutExecutionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    message?: SmsLogUpdateOneWithoutReminderExecutionsNestedInput
+  }
+
+  export type ReminderExecutionUncheckedUpdateWithoutInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutInterventionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type QuoteLineCreateManyQuoteInput = {
@@ -110183,6 +124415,82 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ReminderExecutionCreateManyMessageInput = {
+    id?: string
+    companyId: string
+    reminderAutomationId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderExecutionUpdateWithoutMessageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    reminderAutomation?: ReminderAutomationUpdateOneRequiredWithoutExecutionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    intervention?: InterventionUpdateOneWithoutReminderExecutionsNestedInput
+  }
+
+  export type ReminderExecutionUncheckedUpdateWithoutMessageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutMessageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SmsLogCreateManyWhatsAppConnectionInput = {
     id?: string
     companyId: string
@@ -110249,6 +124557,7 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
     client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
     emailConnection?: EmailConnectionUpdateOneWithoutMessagesNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateWithoutWhatsAppConnectionInput = {
@@ -110283,6 +124592,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateManyWithoutWhatsAppConnectionInput = {
@@ -110385,6 +124695,7 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutSmsLogsNestedInput
     client?: ClientUpdateOneRequiredWithoutSmsLogsNestedInput
     whatsAppConnection?: WhatsAppConnectionUpdateOneWithoutMessagesNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateWithoutEmailConnectionInput = {
@@ -110419,6 +124730,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutMessageNestedInput
   }
 
   export type SmsLogUncheckedUpdateManyWithoutEmailConnectionInput = {
@@ -110731,6 +125043,154 @@ export namespace Prisma {
     reconciledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reconciledBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterventionServiceCreateManyServiceTypeInput = {
+    id?: string
+    interventionId: string
+    createdAt?: Date | string
+  }
+
+  export type ReminderAutomationServiceCreateManyServiceTypeInput = {
+    id?: string
+    reminderAutomationId: string
+    createdAt?: Date | string
+  }
+
+  export type InterventionServiceUpdateWithoutServiceTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intervention?: InterventionUpdateOneRequiredWithoutServicesNestedInput
+  }
+
+  export type InterventionServiceUncheckedUpdateWithoutServiceTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    interventionId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterventionServiceUncheckedUpdateManyWithoutServiceTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    interventionId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationServiceUpdateWithoutServiceTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reminderAutomation?: ReminderAutomationUpdateOneRequiredWithoutTrackedServicesNestedInput
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateWithoutServiceTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateManyWithoutServiceTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reminderAutomationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationServiceCreateManyReminderAutomationInput = {
+    id?: string
+    serviceTypeId: string
+    createdAt?: Date | string
+  }
+
+  export type ReminderExecutionCreateManyReminderAutomationInput = {
+    id?: string
+    companyId: string
+    clientId: string
+    interventionId?: string | null
+    sequenceStep?: number
+    scheduledAt: Date | string
+    executedAt?: Date | string | null
+    channel?: $Enums.PreferredChannel | null
+    status?: $Enums.ReminderExecutionStatus
+    messageId?: string | null
+    recipient?: string | null
+    renderedContent?: string | null
+    error?: string | null
+    respondedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReminderAutomationServiceUpdateWithoutReminderAutomationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    serviceType?: ServiceTypeUpdateOneRequiredWithoutAutomationMappingsNestedInput
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateWithoutReminderAutomationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderAutomationServiceUncheckedUpdateManyWithoutReminderAutomationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceTypeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUpdateWithoutReminderAutomationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    client?: ClientUpdateOneRequiredWithoutReminderExecutionsNestedInput
+    intervention?: InterventionUpdateOneWithoutReminderExecutionsNestedInput
+    message?: SmsLogUpdateOneWithoutReminderExecutionsNestedInput
+  }
+
+  export type ReminderExecutionUncheckedUpdateWithoutReminderAutomationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReminderExecutionUncheckedUpdateManyWithoutReminderAutomationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    interventionId?: NullableStringFieldUpdateOperationsInput | string | null
+    sequenceStep?: IntFieldUpdateOperationsInput | number
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channel?: NullableEnumPreferredChannelFieldUpdateOperationsInput | $Enums.PreferredChannel | null
+    status?: EnumReminderExecutionStatusFieldUpdateOperationsInput | $Enums.ReminderExecutionStatus
+    messageId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    renderedContent?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

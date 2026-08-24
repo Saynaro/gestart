@@ -560,6 +560,19 @@ ${body.trim()}
             message: emailLog
         });
 
+        // 8. Arrêt automatique des relances Auto Rappel (Stop conditions)
+        try {
+            const { ReminderEngineService } = await import("../../../reminders/ReminderEngineService.js");
+            await ReminderEngineService.handleClientReply({
+                clientId: client.id,
+                companyId: company.id,
+                channel: "EMAIL",
+                body: text
+            });
+        } catch (stopErr) {
+            console.error("[EMAIL AUTO RAPPEL STOP ON REPLY ERROR]:", stopErr.message);
+        }
+
         return { success: true, message: emailLog, client, company };
     }
 

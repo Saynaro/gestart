@@ -232,7 +232,7 @@
 /* Event Styles */
 .custom-event-card {
     display: flex;
-    padding: 2px 5px;
+    padding: 3px 6px;
     border-radius: 8px;
     height: 100%;
     width: 100%;
@@ -241,6 +241,9 @@
     box-sizing: border-box;
     overflow: hidden;
     color: #ffffff !important;
+    background-color: #556B2F !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     align-items: flex-start;
     /* Let clicks pass through to FullCalendar's harness so eventClick fires */
     pointer-events: none;
@@ -386,25 +389,45 @@
     flex-shrink: 0;
 }
 
-/* Event Types Color Themes (Light Theme Default) */
+/* Event Types Color Themes */
 .custom-event-card.type-installation {
     background-color: #5d5fef !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-event-card.type-entretien {
+    background-color: #10b981 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .custom-event-card.type-maintenance {
-    background-color: #23b160 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #22c55e !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .custom-event-card.type-depannage {
     background-color: #e26a2c !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-event-card.type-nettoyage {
+    background-color: #06b6d4 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .custom-event-card.type-controle {
-    background-color: #5c6b73 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #64748b !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-event-card.type-ramonage {
+    background-color: #8b5cf6 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-event-card.type-mise-en-service {
+    background-color: #ec4899 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 /* FullCalendar Variables & Overrides */

@@ -1000,6 +1000,88 @@ exports.Prisma.BankTransactionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ServiceTypeScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  tradeSlug: 'tradeSlug',
+  name: 'name',
+  category: 'category',
+  description: 'description',
+  defaultFrequencyValue: 'defaultFrequencyValue',
+  defaultFrequencyUnit: 'defaultFrequencyUnit',
+  defaultAdvanceNoticeValue: 'defaultAdvanceNoticeValue',
+  defaultAdvanceNoticeUnit: 'defaultAdvanceNoticeUnit',
+  defaultChannel: 'defaultChannel',
+  defaultTemplate: 'defaultTemplate',
+  recommendationLevel: 'recommendationLevel',
+  isDefault: 'isDefault',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InterventionServiceScalarFieldEnum = {
+  id: 'id',
+  interventionId: 'interventionId',
+  serviceTypeId: 'serviceTypeId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ReminderAutomationScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  clientId: 'clientId',
+  name: 'name',
+  automationType: 'automationType',
+  enabled: 'enabled',
+  isCustomOverride: 'isCustomOverride',
+  frequencyValue: 'frequencyValue',
+  frequencyUnit: 'frequencyUnit',
+  advanceNoticeValue: 'advanceNoticeValue',
+  advanceNoticeUnit: 'advanceNoticeUnit',
+  channel: 'channel',
+  fallbackChannel: 'fallbackChannel',
+  customMessageTemplate: 'customMessageTemplate',
+  stopOnReply: 'stopOnReply',
+  stopOnAppointment: 'stopOnAppointment',
+  maxFollowUps: 'maxFollowUps',
+  followUpIntervalDays: 'followUpIntervalDays',
+  status: 'status',
+  nextReminderAt: 'nextReminderAt',
+  lastCompletedInterventionId: 'lastCompletedInterventionId',
+  lastCompletedAt: 'lastCompletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReminderAutomationServiceScalarFieldEnum = {
+  id: 'id',
+  reminderAutomationId: 'reminderAutomationId',
+  serviceTypeId: 'serviceTypeId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ReminderExecutionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  reminderAutomationId: 'reminderAutomationId',
+  clientId: 'clientId',
+  interventionId: 'interventionId',
+  sequenceStep: 'sequenceStep',
+  scheduledAt: 'scheduledAt',
+  executedAt: 'executedAt',
+  channel: 'channel',
+  status: 'status',
+  messageId: 'messageId',
+  recipient: 'recipient',
+  renderedContent: 'renderedContent',
+  error: 'error',
+  respondedAt: 'respondedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1250,6 +1332,54 @@ exports.EInvoicingJobStatus = exports.$Enums.EInvoicingJobStatus = {
   FAILED: 'FAILED'
 };
 
+exports.TimeUnit = exports.$Enums.TimeUnit = {
+  DAYS: 'DAYS',
+  WEEKS: 'WEEKS',
+  MONTHS: 'MONTHS',
+  YEARS: 'YEARS'
+};
+
+exports.ReminderChannelChoice = exports.$Enums.ReminderChannelChoice = {
+  SMS: 'SMS',
+  WHATSAPP: 'WHATSAPP',
+  EMAIL: 'EMAIL',
+  LAST_USED: 'LAST_USED'
+};
+
+exports.RecommendationLevel = exports.$Enums.RecommendationLevel = {
+  RECOMMENDED: 'RECOMMENDED',
+  OPTIONAL: 'OPTIONAL',
+  CUSTOMIZABLE: 'CUSTOMIZABLE'
+};
+
+exports.AutomationType = exports.$Enums.AutomationType = {
+  PERIODIC: 'PERIODIC',
+  FOLLOW_UP: 'FOLLOW_UP'
+};
+
+exports.ReminderStatus = exports.$Enums.ReminderStatus = {
+  SCHEDULED: 'SCHEDULED',
+  PAUSED: 'PAUSED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  STOPPED_BY_REPLY: 'STOPPED_BY_REPLY',
+  STOPPED_BY_APPOINTMENT: 'STOPPED_BY_APPOINTMENT',
+  WAITING_RESPONSE: 'WAITING_RESPONSE',
+  FAILED: 'FAILED'
+};
+
+exports.ReminderExecutionStatus = exports.$Enums.ReminderExecutionStatus = {
+  SCHEDULED: 'SCHEDULED',
+  PROCESSING: 'PROCESSING',
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  SKIPPED: 'SKIPPED',
+  WAITING_FOR_RESPONSE: 'WAITING_FOR_RESPONSE',
+  RESPONDED: 'RESPONDED'
+};
+
 exports.Prisma.ModelName = {
   Plan: 'Plan',
   Company: 'Company',
@@ -1295,7 +1425,12 @@ exports.Prisma.ModelName = {
   StripeFeeConfig: 'StripeFeeConfig',
   BankConnection: 'BankConnection',
   BankAccount: 'BankAccount',
-  BankTransaction: 'BankTransaction'
+  BankTransaction: 'BankTransaction',
+  ServiceType: 'ServiceType',
+  InterventionService: 'InterventionService',
+  ReminderAutomation: 'ReminderAutomation',
+  ReminderAutomationService: 'ReminderAutomationService',
+  ReminderExecution: 'ReminderExecution'
 };
 
 /**

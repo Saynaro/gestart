@@ -30,6 +30,7 @@ const getClientDetails = (client) => {
         equipment: client.equipment || { model: "Non renseigné", installDate: "Non renseigné", serialNumber: "N/A" },
         maintenance: client.maintenance || { status: "OK", nextMaintenance: "Non défini" },
         interventions: client.interventions || [],
+        reminderAutomations: client.reminderAutomations || client.raw?.reminderAutomations || [],
         messages: client.messages || [],
         factures: client.factures || [],
         devis: client.devis || []
@@ -165,11 +166,23 @@ function ClientPage() {
                 const nextIntervention = upcomingInterventions.length > 0 ? upcomingInterventions[0] : null;
                 const lastIntervention = pastInterventions.length > 0 ? pastInterventions[0] : null;
                 
+                const activeReminder = (c.reminderAutomations || []).find(a => a.enabled && a.nextReminderAt);
                 let nextMaintenanceDate = null;
+                let maintenanceStatus = "Aucun";
+                let maintenanceStatusClass = "gray";
+
                 if (nextIntervention) {
-                    nextMaintenanceDate = new Date(nextIntervention.scheduledAt).toLocaleDateString('fr-FR');
+                    nextMaintenanceDate = `RDV le ${new Date(nextIntervention.scheduledAt).toLocaleDateString('fr-FR')}`;
+                    maintenanceStatus = "Prévu";
+                    maintenanceStatusClass = "green";
+                } else if (activeReminder?.nextReminderAt) {
+                    nextMaintenanceDate = `Rappel le ${new Date(activeReminder.nextReminderAt).toLocaleDateString('fr-FR')}`;
+                    maintenanceStatus = "Auto Rappel";
+                    maintenanceStatusClass = "green";
                 } else if (rawEquip?.nextServiceDate && new Date(rawEquip.nextServiceDate) >= today) {
-                    nextMaintenanceDate = new Date(rawEquip.nextServiceDate).toLocaleDateString('fr-FR');
+                    nextMaintenanceDate = `Entretien le ${new Date(rawEquip.nextServiceDate).toLocaleDateString('fr-FR')}`;
+                    maintenanceStatus = "À planifier";
+                    maintenanceStatusClass = "green";
                 }
 
                 const hasNext = !!nextMaintenanceDate;
@@ -213,17 +226,19 @@ function ClientPage() {
                     type: isOrg ? 'organisation' : 'particulier',
                     equipment: equipObj,
                     maintenance: {
-                        status: hasNext ? "OK" : (rawEquip?.installDate && rawEquip.installDate !== "Non renseigné" ? "À planifier" : "Aucun"),
-                        statusClass: hasNext ? "green" : (rawEquip?.installDate && rawEquip.installDate !== "Non renseigné" ? "warning" : "gray"),
-                        nextMaintenance: nextMaintenanceDate || "Aucun entretien prévu",
+                        status: maintenanceStatus,
+                        statusClass: maintenanceStatusClass,
+                        nextMaintenance: nextMaintenanceDate || "Aucun entretien à venir",
                         hasNext: hasNext,
-                        nextInterventionTitle: nextIntervention?.title || nextIntervention?.type || null
+                        nextInterventionTitle: nextIntervention?.title || nextIntervention?.type || activeReminder?.name || null
                     },
                     interventionSummary,
                     interventions: mappedInterventions,
+                    reminderAutomations: c.reminderAutomations || [],
                     factures: mappedFactures,
                     devis: mappedDevis,
-                    messages: mappedMessages
+                    messages: mappedMessages,
+                    raw: c
                 };
 
                 if (isOrg) {

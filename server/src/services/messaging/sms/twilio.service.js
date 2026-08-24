@@ -341,9 +341,11 @@ export const TwilioSmsService = {
         });
 
         if (recentOutbound && (!company || company.id === recentOutbound.companyId)) {
-            company = recentOutbound.company;
+            company = recentOutbound.company || (recentOutbound.companyId ? await prisma.company.findUnique({ where: { id: recentOutbound.companyId } }) : null);
             client = recentOutbound.client;
-            console.log(`[SMS_ROUTED_BY_THREAD] Routé vers ${company.name} via le fil de discussion récent.`);
+            if (company) {
+                console.log(`[SMS_ROUTED_BY_THREAD] Routé vers ${company.name} via le fil de discussion récent.`);
+            }
         }
 
         // 4. ÉTAPE 3: Si pas de fil récent, recherche du client dans la base de données
@@ -476,6 +478,19 @@ export const TwilioSmsService = {
             conversationId: client.id,
             message: smsLog
         });
+
+        // 7. Arrêt automatique des relances Auto Rappel (Stop conditions)
+        try {
+            const { ReminderEngineService } = await import("../../reminders/ReminderEngineService.js");
+            await ReminderEngineService.handleClientReply({
+                clientId: client.id,
+                companyId: company.id,
+                channel: "SMS",
+                body
+            });
+        } catch (stopErr) {
+            console.error("[SMS AUTO RAPPEL STOP ON REPLY ERROR]:", stopErr.message);
+        }
 
         return { success: true, smsLog, client, company };
     },

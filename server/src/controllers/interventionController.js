@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { ReminderEngineService } from "../services/reminders/ReminderEngineService.js";
 
 // Helper pour créer une notification facilement
 const createNotification = async ({ companyId, userId, type, title, body, entityId, data }) => {
@@ -91,6 +92,11 @@ export const getInterventions = async (req, res) => {
                             id: true,
                             brand: true,
                             model: true,
+                        }
+                    },
+                    services: {
+                        include: {
+                            serviceType: true
                         }
                     },
                     _count: {
@@ -258,15 +264,35 @@ export const getInterventionById = async (req, res) => {
                         id: true,
                         firstName: true,
                         lastName: true,
-                        email: true,
+                        avatarUrl: true,
                         phone: true,
-                        avatarUrl: true
+                        email: true,
                     }
                 },
+                interventionType: true,
                 equipment: true,
                 photos: true,
-                invoice: true,
-                quote: true
+                services: {
+                    include: {
+                        serviceType: true
+                    }
+                },
+                invoice: {
+                    select: {
+                        id: true,
+                        number: true,
+                        status: true,
+                        amountTTC: true,
+                    }
+                },
+                quote: {
+                    select: {
+                        id: true,
+                        number: true,
+                        status: true,
+                        amountTTC: true,
+                    }
+                }
             }
         });
 
@@ -309,7 +335,9 @@ export const createIntervention = async (req, res) => {
         estimatedDuration,
         accessCode,
         type,
-        serviceType
+        serviceType,
+        serviceIds,
+        autoReminder
     } = req.body;
 
     if (!clientId || !title || !address) {
@@ -347,13 +375,42 @@ export const createIntervention = async (req, res) => {
                 estimatedDuration: estimatedDuration ? parseInt(estimatedDuration) : 60,
                 accessCode: accessCode || null,
                 status: scheduledAt ? "SCHEDULED" : "PENDING",
+                ...(Array.isArray(serviceIds) && serviceIds.length > 0 && {
+                    services: {
+                        create: serviceIds.map(sId => ({ serviceTypeId: sId }))
+                    }
+                })
             },
             include: {
                 client: { select: { firstName: true, lastName: true, companyName: true } },
                 technician: { select: { id: true, firstName: true, lastName: true } },
-                interventionType: { select: { id: true, name: true } }
+                interventionType: { select: { id: true, name: true } },
+                services: { include: { serviceType: true } }
             }
         });
+
+        // Si une configuration de rappel automatique est fournie à la création
+        if (autoReminder && typeof autoReminder === "object") {
+            try {
+                await ReminderEngineService.setupReminderAutomation({
+                    companyId,
+                    clientId,
+                    serviceTypeId: autoReminder.serviceTypeId || (serviceIds && serviceIds[0]) || null,
+                    name: autoReminder.name || `Rappel ${title}`,
+                    automationType: autoReminder.automationType || "PERIODIC",
+                    frequencyValue: autoReminder.frequencyValue || 12,
+                    frequencyUnit: autoReminder.frequencyUnit || "MONTHS",
+                    advanceNoticeValue: autoReminder.advanceNoticeValue || 30,
+                    advanceNoticeUnit: autoReminder.advanceNoticeUnit || "DAYS",
+                    channel: autoReminder.channel || "LAST_USED",
+                    fallbackChannel: autoReminder.fallbackChannel || "SMS",
+                    customMessageTemplate: autoReminder.customMessageTemplate || null,
+                    initialBaseDate: scheduledAt ? new Date(scheduledAt) : new Date()
+                });
+            } catch (autoErr) {
+                console.warn("[CREATE_INTERVENTION_AUTO_REMINDER_WARN]:", autoErr.message);
+            }
+        }
 
         // Déclenchement de la notification si un technicien a été assigné
         if (technicianId) {
@@ -555,11 +612,19 @@ export const startIntervention = async (req, res) => {
 export const completeIntervention = async (req, res) => {
     const { id } = req.params;
     const companyId = req.user.companyId;
-    const { techNotes, clientSignature, materialsUsed } = req.body;
+    const {
+        techNotes,
+        clientSignature,
+        materialsUsed,
+        serviceIds,
+        manualReminderUpdates,
+        newReminderConfig
+    } = req.body;
 
     try {
         const intervention = await prisma.intervention.findFirst({
-            where: { id, companyId }
+            where: { id, companyId },
+            include: { client: true, services: true }
         });
 
         if (!intervention) {
@@ -571,8 +636,8 @@ export const completeIntervention = async (req, res) => {
 
         const now = new Date();
 
-        // Transaction pour terminer l'intervention et mettre à jour le ТО de l'équipement
-        const updatedIntervention = await prisma.$transaction(async (tx) => {
+        // Transaction globale : clôture intervention + services + maintenance équipement + moteur Auto Rappel
+        const result = await prisma.$transaction(async (tx) => {
             const completed = await tx.intervention.update({
                 where: { id },
                 data: {
@@ -584,6 +649,25 @@ export const completeIntervention = async (req, res) => {
                     materialsUsed: materialsUsed || undefined,
                 }
             });
+
+            // Si des services sont sélectionnés, les lier à l'intervention
+            if (Array.isArray(serviceIds) && serviceIds.length > 0) {
+                for (const sId of serviceIds) {
+                    await tx.interventionService.upsert({
+                        where: {
+                            interventionId_serviceTypeId: {
+                                interventionId: id,
+                                serviceTypeId: sId
+                            }
+                        },
+                        update: {},
+                        create: {
+                            interventionId: id,
+                            serviceTypeId: sId
+                        }
+                    });
+                }
+            }
 
             // Si un équipement est associé, on met à jour lastServiceDate et recalcul de nextServiceDate
             if (intervention.equipmentId) {
@@ -606,7 +690,70 @@ export const completeIntervention = async (req, res) => {
                 }
             }
 
-            return completed;
+            // Mise à jour des cycles de rappel indépendants via le ReminderEngineService
+            const reminderResult = await ReminderEngineService.handleInterventionCompleted({
+                interventionId: id,
+                companyId,
+                serviceIds: serviceIds || [],
+                manualReminderUpdates,
+                tx
+            });
+
+            // Si l'utilisateur a configuré un nouveau rappel automatique lors de la clôture
+            if (newReminderConfig && typeof newReminderConfig === "object" && newReminderConfig.enabled) {
+                const targetServiceId = newReminderConfig.serviceTypeId || (serviceIds && serviceIds[0]) || null;
+                const nextDate = ReminderEngineService.calculateNextDate(
+                    now,
+                    newReminderConfig.frequencyValue || 12,
+                    newReminderConfig.frequencyUnit || "MONTHS",
+                    newReminderConfig.advanceNoticeValue || 30,
+                    newReminderConfig.advanceNoticeUnit || "DAYS"
+                );
+
+                const newAuto = await tx.reminderAutomation.create({
+                    data: {
+                        companyId,
+                        clientId: intervention.clientId,
+                        name: newReminderConfig.name || "Rappel Entretien",
+                        automationType: newReminderConfig.automationType || "PERIODIC",
+                        enabled: true,
+                        frequencyValue: parseInt(newReminderConfig.frequencyValue, 10) || 12,
+                        frequencyUnit: newReminderConfig.frequencyUnit || "MONTHS",
+                        advanceNoticeValue: parseInt(newReminderConfig.advanceNoticeValue, 10) || 30,
+                        advanceNoticeUnit: newReminderConfig.advanceNoticeUnit || "DAYS",
+                        channel: newReminderConfig.channel || "LAST_USED",
+                        fallbackChannel: newReminderConfig.fallbackChannel || "SMS",
+                        customMessageTemplate: newReminderConfig.customMessageTemplate || null,
+                        stopOnReply: newReminderConfig.stopOnReply !== false,
+                        stopOnAppointment: newReminderConfig.stopOnAppointment !== false,
+                        maxFollowUps: parseInt(newReminderConfig.maxFollowUps, 10) || 2,
+                        followUpIntervalDays: parseInt(newReminderConfig.followUpIntervalDays, 10) || 7,
+                        status: "SCHEDULED",
+                        nextReminderAt: nextDate,
+                        lastCompletedInterventionId: id,
+                        lastCompletedAt: now,
+                        ...(targetServiceId && {
+                            trackedServices: {
+                                create: [{ serviceTypeId: targetServiceId }]
+                            }
+                        })
+                    }
+                });
+
+                await tx.reminderExecution.create({
+                    data: {
+                        companyId,
+                        reminderAutomationId: newAuto.id,
+                        clientId: intervention.clientId,
+                        interventionId: id,
+                        sequenceStep: 1,
+                        scheduledAt: nextDate,
+                        status: "SCHEDULED"
+                    }
+                });
+            }
+
+            return { completed, reminderResult };
         });
 
         // Notification au propriétaire/managers
@@ -625,16 +772,28 @@ export const completeIntervention = async (req, res) => {
             });
         }
 
+        const fullUpdated = await prisma.intervention.findUnique({
+            where: { id },
+            include: {
+                client: true,
+                services: { include: { serviceType: true } },
+                equipment: true
+            }
+        });
+
         return res.status(200).json({
             success: true,
-            message: "Intervention terminée avec succès. Maintenance équipement mise à jour.",
-            data: { intervention: updatedIntervention }
+            message: "Intervention terminée avec succès. Cycles de rappel mis à jour indépendamment.",
+            data: {
+                intervention: fullUpdated,
+                reminders: result.reminderResult
+            }
         });
     } catch (error) {
         console.error("COMPLETE INTERVENTION ERROR:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la clôture de l'intervention"
+            message: error.message || "Erreur serveur lors de la clôture de l'intervention"
         });
     }
 };

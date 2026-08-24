@@ -41,9 +41,22 @@ export const getClients = async (req, res) => {
                             technician: {
                                 select: { id: true, firstName: true, lastName: true, email: true }
                             },
-                            photos: true
+                            photos: true,
+                            services: {
+                                include: { serviceType: true }
+                            }
                         },
                         orderBy: { scheduledAt: "desc" }
+                    },
+                    reminderAutomations: {
+                        include: {
+                            trackedServices: { include: { serviceType: true } },
+                            executions: {
+                                orderBy: { scheduledAt: "desc" },
+                                take: 3
+                            }
+                        },
+                        orderBy: { nextReminderAt: "asc" }
                     },
                     invoices: {
                         include: {
@@ -182,9 +195,22 @@ export const getClientById = async (req, res) => {
                         technician: {
                             select: { id: true, firstName: true, lastName: true, email: true }
                         },
-                        photos: true
+                        photos: true,
+                        services: {
+                            include: { serviceType: true }
+                        }
                     },
                     orderBy: { scheduledAt: "desc" }
+                },
+                reminderAutomations: {
+                    include: {
+                        trackedServices: { include: { serviceType: true } },
+                        executions: {
+                            orderBy: { scheduledAt: "desc" },
+                            take: 5
+                        }
+                    },
+                    orderBy: { nextReminderAt: "asc" }
                 },
                 invoices: {
                     include: {
@@ -347,6 +373,26 @@ export const createClient = async (req, res) => {
                     installDate: parsedDate
                 }
             });
+
+            // Auto-créer le cycle de rappel basé sur la date d'installation réelle (ex: anciens clients)
+            if (parsedDate) {
+                try {
+                    const { ReminderEngineService } = await import("../services/reminders/ReminderEngineService.js");
+                    await ReminderEngineService.setupReminderAutomation({
+                        companyId,
+                        clientId: newClient.id,
+                        initialBaseDate: parsedDate,
+                        name: "Rappel Entretien Annuel",
+                        frequencyValue: 24,
+                        frequencyUnit: "MONTHS",
+                        advanceNoticeValue: 30,
+                        advanceNoticeUnit: "DAYS",
+                        channel: "LAST_USED"
+                    });
+                } catch (autoErr) {
+                    console.error("[AUTO_RAPPEL_INIT_ERROR]:", autoErr.message);
+                }
+            }
         }
 
         const freshClient = await prisma.client.findUnique({
@@ -495,6 +541,26 @@ export const updateClient = async (req, res) => {
                         installDate: parsedDate
                     }
                 });
+            }
+
+            // Recalculer le cycle de rappel basé sur la nouvelle date d'installation
+            if (parsedDate) {
+                try {
+                    const { ReminderEngineService } = await import("../services/reminders/ReminderEngineService.js");
+                    await ReminderEngineService.setupReminderAutomation({
+                        companyId,
+                        clientId: id,
+                        initialBaseDate: parsedDate,
+                        name: "Rappel Entretien Annuel",
+                        frequencyValue: 24,
+                        frequencyUnit: "MONTHS",
+                        advanceNoticeValue: 30,
+                        advanceNoticeUnit: "DAYS",
+                        channel: "LAST_USED"
+                    });
+                } catch (autoErr) {
+                    console.error("[AUTO_RAPPEL_UPDATE_ERROR]:", autoErr.message);
+                }
             }
         }
 

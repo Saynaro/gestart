@@ -1470,9 +1470,9 @@ function MessagesPage() {
 
           {/* Recommendation tooltip notice */}
           {recommendationReason && (
-            <span style={{ fontSize: "11px", color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: "4px" }}>
+            <span className="email-recommendation-notice" style={{ fontSize: "11px", color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: "4px" }}>
               <Sparkles size={12} style={{ color: "#A3E635" }} />
-              {recommendationReason}
+              <span>{recommendationReason}</span>
             </span>
           )}
         </div>
@@ -1489,7 +1489,7 @@ function MessagesPage() {
                 <span className="email-meta-label">Objet :</span>
                 <input
                   type="text"
-                  placeholder="Objet obligatoire de l'email..."
+                  placeholder="Objet de l'email..."
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
                   className="email-subject-input"
@@ -1503,7 +1503,7 @@ function MessagesPage() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="email-body-textarea"
-              rows={4}
+              rows={2}
               disabled={isSending}
             />
 
@@ -1533,8 +1533,9 @@ function MessagesPage() {
                 onClick={() => setIsAttachModalOpen(true)}
                 title="Joindre un devis, facture ou document"
               >
-                <Paperclip size={15} />
-                <span>Joindre document / devis PDF</span>
+                <Paperclip size={14} />
+                <span className="email-attach-text-full">Joindre document / devis PDF</span>
+                <span className="email-attach-text-short">Joindre doc</span>
               </button>
 
               <button
@@ -1542,8 +1543,9 @@ function MessagesPage() {
                 className="chat-send-btn email-send-btn"
                 disabled={(!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending}
               >
-                <Send size={15} />
-                <span>Envoyer l'email</span>
+                <Send size={14} />
+                <span className="email-send-text-full">Envoyer l'email</span>
+                <span className="email-send-text-short">Envoyer</span>
               </button>
             </div>
           </form>

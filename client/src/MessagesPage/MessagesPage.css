@@ -1629,6 +1629,103 @@
     transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
+.email-attach-text-short {
+    display: none;
+}
+
+.email-send-text-short {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .omnichannel-composer-container {
+        padding: 6px 10px !important;
+        gap: 4px !important;
+    }
+
+    .omnichannel-composer-container.email-mode {
+        padding: 6px 10px !important;
+    }
+
+    .email-recommendation-notice {
+        display: none !important;
+    }
+
+    .email-composer-form {
+        gap: 5px !important;
+    }
+
+    .email-composer-meta {
+        padding: 5px 8px !important;
+        gap: 3px !important;
+        border-radius: 6px !important;
+    }
+
+    .email-meta-row {
+        gap: 6px !important;
+        font-size: 0.76rem !important;
+    }
+
+    .email-meta-label {
+        width: 38px !important;
+        font-size: 0.75rem !important;
+    }
+
+    .email-meta-recipient {
+        font-size: 0.76rem !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .email-subject-input {
+        font-size: 0.8rem !important;
+        height: 20px !important;
+    }
+
+    .email-body-textarea {
+        padding: 6px 8px !important;
+        font-size: 0.84rem !important;
+        min-height: 44px !important;
+        height: 48px !important;
+        line-height: 1.35 !important;
+        border-radius: 6px !important;
+    }
+
+    .email-composer-bottom {
+        gap: 8px !important;
+    }
+
+    .email-attach-btn {
+        padding: 5px 8px !important;
+        font-size: 0.74rem !important;
+        border-radius: 6px !important;
+    }
+
+    .email-attach-text-full {
+        display: none !important;
+    }
+
+    .email-attach-text-short {
+        display: inline !important;
+    }
+
+    .email-send-btn {
+        padding: 6px 12px !important;
+        font-size: 0.78rem !important;
+        border-radius: 6px !important;
+        height: 32px !important;
+    }
+
+    .email-send-text-full {
+        display: none !important;
+    }
+
+    .email-send-text-short {
+        display: inline !important;
+    }
+}
+
 .email-send-btn:hover:not(:disabled) {
     filter: brightness(1.08);
 }
@@ -1650,12 +1747,58 @@
 }
 
 .email-bubble-card {
-    background: #ffffff !important;
-    border: 1px solid rgba(85, 107, 47, 0.22) !important;
-    box-shadow: 0 4px 16px rgba(85, 107, 47, 0.06) !important;
     min-width: 280px;
     max-width: 620px !important;
     color: #0f172a !important;
+    border-radius: 12px;
+}
+
+/* ── Received Email (Incoming / Them) ── */
+.message-bubble-wrapper.them .email-bubble-card,
+.email-bubble-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(148, 163, 184, 0.32) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+}
+
+.message-bubble-wrapper.them .email-bubble-subject {
+    color: #475569 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.dark .message-bubble-wrapper.them .email-bubble-card,
+.dark .email-bubble-card {
+    background: #1e293b !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    color: #f8fafc !important;
+}
+
+.dark .message-bubble-wrapper.them .email-bubble-subject {
+    color: #cbd5e1 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+/* ── Sent Email (Outgoing / Me) ── */
+.message-bubble-wrapper.me .email-bubble-card {
+    background: #f4f8ed !important; /* Soft delicate sage tint */
+    border: 1px solid rgba(85, 107, 47, 0.28) !important;
+    box-shadow: 0 3px 12px rgba(85, 107, 47, 0.06) !important;
+}
+
+.message-bubble-wrapper.me .email-bubble-subject {
+    color: #556B2F !important;
+    border-bottom: 1px solid rgba(85, 107, 47, 0.18);
+}
+
+.dark .message-bubble-wrapper.me .email-bubble-card {
+    background: #19251e !important; /* Subtle dark olive slate */
+    border: 1px solid rgba(163, 230, 53, 0.25) !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .message-bubble-wrapper.me .email-bubble-subject {
+    color: #a3e635 !important;
+    border-bottom: 1px solid rgba(163, 230, 53, 0.25);
 }
 
 .email-bubble-card .message-text,
@@ -1678,12 +1821,6 @@
     font-size: 11px;
 }
 
-.dark .email-bubble-card {
-    background: #1e293b !important;
-    border: 1px solid rgba(85, 107, 47, 0.35) !important;
-    color: #f8fafc !important;
-}
-
 .dark .email-bubble-card .message-text,
 .dark .email-text-body {
     color: #f8fafc !important;
@@ -1702,10 +1839,8 @@
     align-items: center;
     gap: 6px;
     font-size: 0.86rem;
-    color: #556B2F !important;
     margin-bottom: 8px;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(85, 107, 47, 0.15);
 }
 
 .dark .email-bubble-subject {

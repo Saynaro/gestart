@@ -280,16 +280,17 @@ export const getDashboardData = async (req, res) => {
                 }
             }),
 
-            // 13. Factures payées pour le graphique mensuel (6 derniers mois)
+            // 13. Factures payées pour le graphique financier (historique)
             prisma.invoice.findMany({
                 where: {
                     companyId,
                     status: "PAID",
                     paidAt: {
-                        gte: new Date(now.getFullYear(), now.getMonth() - 5, 1)
+                        gte: new Date(now.getFullYear() - 1, 0, 1)
                     }
                 },
                 select: {
+                    id: true,
                     amountHT: true,
                     amountTTC: true,
                     paidAt: true,
@@ -546,6 +547,13 @@ export const getDashboardData = async (req, res) => {
                 },
                 // Graphique et Statistiques
                 financialChart: monthlyChartData,
+                financialTransactions: (paidInvoicesThisYear || []).map(inv => ({
+                    id: inv.id,
+                    date: inv.paidAt,
+                    amountTTC: Number(inv.amountTTC || 0),
+                    amountHT: Number(inv.amountHT || 0)
+                })),
+                cotisationsRate: cotisationsMultiplier,
                 topArticles,
                 topClients,
                 urgentClients: [],

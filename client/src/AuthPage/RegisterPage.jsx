@@ -28,7 +28,8 @@ import {
     Droplet,
     Wind,
     Sun,
-    TreePine
+    TreePine,
+    Info
 } from 'lucide-react';
 import './RegisterPage.css';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
@@ -695,18 +696,11 @@ export default function RegisterPage() {
                                 <p>Saisissez le code à 6 chiffres envoyé à <strong>{formData.email}</strong></p>
                             </div>
 
-                            <div style={{
-                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
-                                border: '1px solid rgba(85, 107, 47, 0.25)',
-                                borderRadius: '10px',
-                                padding: '10px 14px',
-                                fontSize: '12px',
-                                color: 'var(--muted-foreground)',
-                                lineHeight: '1.45',
-                                marginBottom: '16px',
-                                textAlign: 'left'
-                            }}>
-                                💡 <strong>Important :</strong> Pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong> si vous ne recevez pas le code (expéditeur : <code>support.gestart@gmail.com</code>).
+                            <div className="auth-hint-box">
+                                <Info size={16} className="auth-hint-icon" />
+                                <div className="auth-hint-text">
+                                    <strong>Conseil :</strong> Pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong> si vous ne recevez pas le code (expéditeur : <code>support.gestart@gmail.com</code>).
+                                </div>
                             </div>
 
                             <div className="digits-input-container">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, CreditCard, Building2, Eye, EyeOff, AlertTriangle } from "lucide-react";
+import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, CreditCard, Building2, Eye, EyeOff, AlertTriangle, Info } from "lucide-react";
 import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
 
@@ -373,15 +373,21 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
 
                         {/* Spam reminder notice */}
                         <div style={{
-                            backgroundColor: 'rgba(85, 107, 47, 0.08)',
-                            border: '1px solid rgba(85, 107, 47, 0.2)',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '8px',
+                            backgroundColor: 'var(--accent, #f8fafc)',
+                            border: '1px solid var(--border, #e2e8f0)',
                             borderRadius: '8px',
                             padding: '10px 12px',
                             fontSize: '11.5px',
                             color: 'var(--muted-foreground)',
                             lineHeight: '1.4'
                         }}>
-                            💡 <strong>Information d'expédition :</strong> L'e-mail est expédié via <strong>GestArt (support.gestart@gmail.com)</strong>. Si votre client ne le trouve pas dans sa boîte de réception, conseillez-lui de vérifier son dossier <strong>Spam / Courriers indésirables</strong>.
+                            <Info size={14} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--foreground)' }} />
+                            <div>
+                                <strong>Information d'expédition :</strong> L'e-mail est expédié via <strong>GestArt (support.gestart@gmail.com)</strong>. Si votre client ne le trouve pas dans sa boîte de réception, conseillez-lui de vérifier son dossier <strong>Spam / Courriers indésirables</strong>.
+                            </div>
                         </div>
 
                         {/* Bouton Aperçu de l'e-mail (Lucide Icon) */}

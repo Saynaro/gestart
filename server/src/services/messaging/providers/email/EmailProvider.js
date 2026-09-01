@@ -1,9 +1,19 @@
 import nodemailer from "nodemailer";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { MessageProvider } from "../../interfaces/MessageProvider.js";
 import { prisma } from "../../../../config/db.js";
 import { emitToCompany } from "../../../../config/socket.js";
-import { decryptCredential } from "../../../../modules/e-invoicing/services/EncryptionService.js";
+import { decryptCredential, encryptCredential } from "../../../../modules/e-invoicing/services/EncryptionService.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadDir = path.join(__dirname, "../../../../../uploads/attachments");
+if (!fs.existsSync(uploadDir)) {
+    try { fs.mkdirSync(uploadDir, { recursive: true }); } catch (e) {}
+}
 
 /**
  * Email Provider (Multi-tenant)
@@ -174,10 +184,13 @@ export class EmailProvider extends MessageProvider {
         console.log(`[EMAIL_SEND_STARTED] Company: ${companyId}, Client: ${clientId}`);
 
         if (!subject || !subject.trim()) {
-            throw new Error("L'objet de l'email est obligatoire.");
+            subject = `Échange avec ${company?.name || "Client"}`;
         }
 
-        if (!body || !body.trim()) {
+        const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+        const bodyContent = (body || "").trim();
+
+        if (!bodyContent && !hasAttachments) {
             throw new Error("Le contenu de l'email ne peut pas être vide.");
         }
 
@@ -218,9 +231,13 @@ export class EmailProvider extends MessageProvider {
                     <h2 style="color: #FFFFFF; margin: 0 0 4px 0; font-size: 20px; font-weight: 700;">${companyDisplayName}</h2>
                     <p style="color: #94A3B8; font-size: 13px; margin: 0;">${subject.trim()}</p>
                 </div>
+                ${bodyContent ? `
                 <div style="background: #1E293B; padding: 20px; border-radius: 8px; border: 1px solid #334155; font-size: 14.5px; line-height: 1.6; color: #E2E8F0; white-space: pre-wrap;">
-${body.trim()}
-                </div>
+${bodyContent}
+                </div>` : `
+                <div style="background: #1E293B; padding: 16px; border-radius: 8px; border: 1px solid #334155; font-size: 13.5px; color: #94A3B8; text-align: center;">
+                    📎 Veuillez trouver la ou les pièce(s) jointe(s) à ce message.
+                </div>`}
                 <div style="text-align: center; margin-top: 20px; color: #64748B; font-size: 11.5px;">
                     <p style="margin: 0;">Envoyé par ${companyDisplayName} via ClimPro CRM</p>
                     <p style="margin: 4px 0 0 0;">Pour toute question, vous pouvez répondre directement à cet email.</p>
@@ -301,6 +318,32 @@ ${body.trim()}
                         }
                     }
 
+                    // Fichier personnalisé uploadé depuis l'ordinateur (base64 ou path)
+                    if (att.data || att.base64) {
+                        const rawBase64 = (att.data || att.base64).replace(/^data:.*?;base64,/, '');
+                        const buf = Buffer.from(rawBase64, 'base64');
+                        const safeName = (att.filename || att.name || "fichier").replace(/[^a-zA-Z0-9._-]/g, "_");
+                        const uniqueName = `${Date.now()}_${Math.random().toString(36).slice(2, 7)}_${safeName}`;
+                        const filePath = path.join(uploadDir, uniqueName);
+                        await fs.promises.mkdir(uploadDir, { recursive: true });
+                        await fs.promises.writeFile(filePath, buf);
+
+                        const isImg = (att.mimeType || att.type || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(safeName);
+                        att.url = `/uploads/attachments/${uniqueName}`;
+                        att.path = `/uploads/attachments/${uniqueName}`;
+                        att.size = buf.length;
+                        att.isImage = isImg;
+                        delete att.data;
+                        delete att.base64;
+
+                        preparedAttachments.push({
+                            filename: att.filename || att.name || safeName,
+                            content: buf,
+                            contentType: att.mimeType || att.contentType || (isImg ? "image/jpeg" : "application/octet-stream")
+                        });
+                        continue;
+                    }
+
                     // Fallback pièce jointe standard
                     if (att.content || att.path || att.url) {
                         preparedAttachments.push({
@@ -319,29 +362,40 @@ ${body.trim()}
         // 5. Envoi effectif
         if (transporter) {
             try {
-                const info = await transporter.sendMail({
+                const mailOptions = {
                     from: fromAddress,
                     to: `"${client.firstName} ${client.lastName}" <${client.email}>`,
                     subject: subject.trim(),
                     text: body.trim(),
                     html: htmlBody,
-                    messageId: generatedMessageId,
-                    inReplyTo: inReplyTo || undefined,
-                    references: references || undefined,
                     attachments: preparedAttachments
-                });
+                };
 
-                messageIdHeader = info.messageId || generatedMessageId;
+                if (inReplyTo) mailOptions.inReplyTo = inReplyTo;
+                if (references) mailOptions.references = references;
+                if (messageIdHeader) mailOptions.messageId = messageIdHeader;
+
+                const sendResult = await transporter.sendMail(mailOptions);
+                messageIdHeader = sendResult?.messageId || messageIdHeader;
+                emailStatus = "sent";
                 console.log(`[EMAIL_SENT_SUCCESS] MessageId: ${messageIdHeader} to ${client.email} with ${preparedAttachments.length} attachments`);
-            } catch (err) {
-                console.error("[EMAIL_SEND_FAILED]", err.message);
-                throw new Error(`Erreur lors de l'envoi de l'email : ${err.message}`);
+            } catch (sendErr) {
+                console.error("[EMAIL_SEND_TRANSPORT_ERROR]", sendErr.message);
+                emailStatus = "failed";
+                throw new Error(`Échec de l'envoi de l'email : ${sendErr.message}`);
             }
         } else {
             console.log(`[EMAIL_SEND_FALLBACK_DEV] Email simulé vers ${client.email} (MessageId: ${messageIdHeader})`);
         }
 
         // 6. Enregistrement dans la base de données
+        const cleanAttachments = attachments && attachments.length > 0
+            ? attachments.map(a => {
+                const { data, base64, content, ...rest } = a;
+                return rest;
+            })
+            : undefined;
+
         const emailLog = await prisma.smsLog.create({
             data: {
                 companyId,
@@ -361,7 +415,7 @@ ${body.trim()}
                 status: emailStatus,
                 isRead: true,
                 autoType,
-                attachments: attachments.length > 0 ? attachments : undefined,
+                attachments: cleanAttachments,
                 metadata
             },
             include: {
@@ -604,8 +658,8 @@ ${body.trim()}
                 const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, '');
                 const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, '');
 
-                // Refresh token if needed
-                if (connection.encryptedRefreshToken) {
+                // Refresh token if available
+                if (connection.encryptedRefreshToken && googleClientId && googleClientSecret) {
                     try {
                         const refreshToken = decryptCredential(connection.encryptedRefreshToken);
                         const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -621,6 +675,19 @@ ${body.trim()}
                         const refreshData = await refreshRes.json();
                         if (refreshData.access_token) {
                             accessToken = refreshData.access_token;
+                            // Persist newly refreshed access token
+                            await prisma.emailConnection.update({
+                                where: { id: connection.id },
+                                data: { encryptedAccessToken: encryptCredential(refreshData.access_token) }
+                            }).catch(() => {});
+                        } else if (refreshData.error === "invalid_grant") {
+                            // Token revoked or expired: mark as disconnected
+                            await prisma.emailConnection.update({
+                                where: { id: connection.id },
+                                data: { status: "ERROR" }
+                            }).catch(() => {});
+                            console.warn("[GMAIL_SYNC] Session Google expirée, reconnexion requise pour l'entreprise:", companyId);
+                            continue;
                         }
                     } catch (refErr) {
                         console.warn("[GMAIL_SYNC] Avertissement refresh token:", refErr.message);
@@ -635,7 +702,15 @@ ${body.trim()}
                 });
 
                 if (!listRes.ok) {
-                    console.warn("[GMAIL_SYNC] Erreur list messages Gmail:", await listRes.text());
+                    if (listRes.status === 401 || listRes.status === 403) {
+                        await prisma.emailConnection.update({
+                            where: { id: connection.id },
+                            data: { status: "ERROR" }
+                        }).catch(() => {});
+                        console.warn(`[GMAIL_SYNC] Permissions Gmail insuffisantes ou token expiré (${listRes.status}). Reconnexion requise dans Paramètres.`);
+                    } else {
+                        console.warn("[GMAIL_SYNC] Erreur list messages Gmail (statut %s)", listRes.status);
+                    }
                     continue;
                 }
 
@@ -700,19 +775,70 @@ ${body.trim()}
                         continue;
                     }
 
-                    // Extraire le corps du message
+                    // Extraire le corps du message et les pièces jointes (fichiers, images, PDF)
                     let bodyText = detail.snippet || "";
-                    const extractBody = (part) => {
+                    const attachmentsList = [];
+
+                    const extractBodyAndAttachments = async (part) => {
                         if (!part) return;
-                        if (part.mimeType === "text/plain" && part.body?.data) {
+                        if (part.mimeType === "text/plain" && part.body?.data && !bodyText) {
                             try {
                                 bodyText = Buffer.from(part.body.data, 'base64url').toString('utf-8');
                             } catch (e) {}
-                        } else if (part.parts && Array.isArray(part.parts)) {
-                            part.parts.forEach(extractBody);
+                        }
+
+                        // Détection d'une pièce jointe
+                        if (part.filename && part.filename.trim().length > 0) {
+                            let fileBuffer = null;
+                            if (part.body?.data) {
+                                fileBuffer = Buffer.from(part.body.data, 'base64url');
+                            } else if (part.body?.attachmentId) {
+                                try {
+                                    const attRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${item.id}/attachments/${part.body.attachmentId}`, {
+                                        headers: { Authorization: `Bearer ${accessToken}` }
+                                    });
+                                    if (attRes.ok) {
+                                        const attJson = await attRes.json();
+                                        if (attJson.data) {
+                                            fileBuffer = Buffer.from(attJson.data, 'base64url');
+                                        }
+                                    }
+                                } catch (attErr) {
+                                    console.warn("[GMAIL_SYNC] Erreur téléchargement pièce jointe:", attErr.message);
+                                }
+                            }
+
+                            if (fileBuffer) {
+                                try {
+                                    const safeName = part.filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+                                    const uniqueName = `${Date.now()}_${Math.random().toString(36).slice(2, 7)}_${safeName}`;
+                                    const filePath = path.join(uploadDir, uniqueName);
+                                    await fs.promises.writeFile(filePath, fileBuffer);
+
+                                    const isImg = (part.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(part.filename);
+                                    attachmentsList.push({
+                                        name: part.filename,
+                                        filename: part.filename,
+                                        url: `/uploads/attachments/${uniqueName}`,
+                                        path: `/uploads/attachments/${uniqueName}`,
+                                        size: part.body?.size || fileBuffer.length,
+                                        mimeType: part.mimeType || (isImg ? "image/jpeg" : "application/octet-stream"),
+                                        isImage: isImg
+                                    });
+                                } catch (saveErr) {
+                                    console.warn("[GMAIL_SYNC] Erreur écriture fichier pièce jointe:", saveErr.message);
+                                }
+                            }
+                        }
+
+                        if (part.parts && Array.isArray(part.parts)) {
+                            for (const subPart of part.parts) {
+                                await extractBodyAndAttachments(subPart);
+                            }
                         }
                     };
-                    extractBody(detail.payload);
+
+                    await extractBodyAndAttachments(detail.payload);
 
                     // 3. Trouver le client correspondant dans l'entreprise (par email ou par fil de discussion)
                     let client = await prisma.client.findFirst({
@@ -754,7 +880,7 @@ ${body.trim()}
                         }
                     }
 
-                    // STRICT : Si ce n'est PAS un client enregistré dans le CRM, on IGNORE ce message
+                    // OPTION A (Base propre) : Si ce n'est PAS un client enregistré dans le CRM ni une réponse à un devis/facture/message, on ignore pour garder la base propre
                     if (!client) {
                         continue;
                     }
@@ -770,6 +896,7 @@ ${body.trim()}
                             body: bodyText.trim(),
                             fromEmail: cleanFrom,
                             toEmail: cleanTo,
+                            attachments: attachmentsList.length > 0 ? attachmentsList : undefined,
                             emailMessageId: item.id,
                             externalMessageId: item.id,
                             threadId: inReplyTo || messageIdHeader,

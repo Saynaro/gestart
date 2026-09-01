@@ -1,24 +1,175 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 
-function FinancialChart({ data = [] }) {
+const MONTH_NAMES_SHORT = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+
+function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.212 }) {
     const [viewType, setViewType] = useState("mixed"); // 'mixed' (bar + line), 'table', 'line'
-    const [dateRange, setDateRange] = useState("6 derniers mois");
-    const [resolution, setResolution] = useState("Mois");
-    const [sources, setSources] = useState("Sources 2");
+    const [rangeKey, setRangeKey] = useState("6M"); // "3M", "6M", "YTD", "12M"
+    const [resolution, setResolution] = useState("Mois"); // "Mois", "Semaine", "Trimestre"
+    const [sources, setSources] = useState("Toutes"); // "Toutes", "Factures"
     
     // Dropdowns open state
     const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
     const [resDropdownOpen, setResDropdownOpen] = useState(false);
     const [srcDropdownOpen, setSrcDropdownOpen] = useState(false);
 
-    // Données réelles issues de l'API (ou fallback propre si 0 facture)
-    const chartData = (data && data.length > 0) ? data : [
-        { month: "avr. 26", entrees: 0, sorties: 0, resultat: 0 },
-        { month: "mai 26", entrees: 0, sorties: 0, resultat: 0 },
-        { month: "juin 26", entrees: 0, sorties: 0, resultat: 0 },
-        { month: "juil. 26", entrees: 0, sorties: 0, resultat: 0 },
-        { month: "août 26", entrees: 0, sorties: 0, resultat: 0 }
-    ];
+    // Compute Date Boundaries and Range Label dynamically
+    const { startDate, endDate, dateRangeLabel } = useMemo(() => {
+        const now = new Date();
+        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        let start = new Date(now.getFullYear(), now.getMonth() - 5, 1, 0, 0, 0, 0);
+
+        if (rangeKey === "3M") {
+            start = new Date(now.getFullYear(), now.getMonth() - 2, 1, 0, 0, 0, 0);
+        } else if (rangeKey === "6M") {
+            start = new Date(now.getFullYear(), now.getMonth() - 5, 1, 0, 0, 0, 0);
+        } else if (rangeKey === "YTD") {
+            start = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+        } else if (rangeKey === "12M") {
+            start = new Date(now.getFullYear(), now.getMonth() - 11, 1, 0, 0, 0, 0);
+        }
+
+        const formatD = (d) => d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+        return {
+            startDate: start,
+            endDate: end,
+            dateRangeLabel: `${formatD(start)} • ${formatD(end)}`
+        };
+    }, [rangeKey]);
+
+    // Build Dynamic Chart Data based on range & resolution
+    const chartData = useMemo(() => {
+        const txs = Array.isArray(rawTransactions) ? rawTransactions : [];
+        const now = new Date();
+        const rate = typeof cotisationsRate === "number" ? cotisationsRate : 0.212;
+
+        if (resolution === "Mois") {
+            // Determine number of months
+            let monthsCount = 6;
+            if (rangeKey === "3M") monthsCount = 3;
+            else if (rangeKey === "6M") monthsCount = 6;
+            else if (rangeKey === "YTD") monthsCount = now.getMonth() + 1;
+            else if (rangeKey === "12M") monthsCount = 12;
+
+            const buckets = [];
+            for (let i = monthsCount - 1; i >= 0; i--) {
+                const bucketDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const mIdx = bucketDate.getMonth();
+                const yrShort = String(bucketDate.getFullYear()).slice(-2);
+                const label = `${MONTH_NAMES_SHORT[mIdx]} ${yrShort}`;
+
+                // Filter transactions in this month
+                const monthTxs = txs.filter(tx => {
+                    if (!tx.date) return false;
+                    const d = new Date(tx.date);
+                    return d.getFullYear() === bucketDate.getFullYear() && d.getMonth() === mIdx;
+                });
+
+                let entrees = monthTxs.reduce((sum, t) => sum + (Number(t.amountTTC) || 0), 0);
+
+                // Fallback to data prop if rawTransactions is empty and it matches 6M default
+                if (txs.length === 0 && data && data.length > 0) {
+                    const found = data.find(d => d.month === label);
+                    if (found) {
+                        entrees = found.entrees || 0;
+                    }
+                }
+
+                const sorties = Math.round(entrees * rate * 100) / 100;
+                const resultat = Math.round((entrees - sorties) * 100) / 100;
+
+                buckets.push({
+                    month: label,
+                    entrees: Math.round(entrees * 100) / 100,
+                    sorties,
+                    resultat
+                });
+            }
+            return buckets;
+        }
+
+        if (resolution === "Semaine") {
+            // Build weekly buckets (e.g. 6 to 12 weeks depending on range)
+            const weeksCount = rangeKey === "3M" ? 8 : (rangeKey === "6M" ? 12 : 16);
+            const buckets = [];
+
+            for (let i = weeksCount - 1; i >= 0; i--) {
+                const targetDay = new Date(now);
+                targetDay.setDate(now.getDate() - (i * 7));
+
+                // Find Monday of this week
+                const dayOfWeek = targetDay.getDay() || 7;
+                const weekStart = new Date(targetDay);
+                weekStart.setDate(targetDay.getDate() - dayOfWeek + 1);
+                weekStart.setHours(0, 0, 0, 0);
+
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                weekEnd.setHours(23, 59, 59, 999);
+
+                // Calculate week number
+                const firstJan = new Date(weekStart.getFullYear(), 0, 1);
+                const weekNum = Math.ceil((((weekStart - firstJan) / 86400000) + firstJan.getDay() + 1) / 7);
+                const label = `S${weekNum}`;
+
+                const weekTxs = txs.filter(tx => {
+                    if (!tx.date) return false;
+                    const d = new Date(tx.date);
+                    return d >= weekStart && d <= weekEnd;
+                });
+
+                const entrees = weekTxs.reduce((sum, t) => sum + (Number(t.amountTTC) || 0), 0);
+                const sorties = Math.round(entrees * rate * 100) / 100;
+                const resultat = Math.round((entrees - sorties) * 100) / 100;
+
+                buckets.push({
+                    month: label,
+                    entrees: Math.round(entrees * 100) / 100,
+                    sorties,
+                    resultat
+                });
+            }
+            return buckets;
+        }
+
+        if (resolution === "Trimestre") {
+            // Build Quarterly buckets
+            const quartersCount = rangeKey === "3M" || rangeKey === "6M" ? 4 : 6;
+            const buckets = [];
+
+            const currentQuarter = Math.floor(now.getMonth() / 3); // 0, 1, 2, 3
+            for (let i = quartersCount - 1; i >= 0; i--) {
+                const qOffset = currentQuarter - i;
+                const targetYear = now.getFullYear() + Math.floor(qOffset / 4);
+                const qIndex = ((qOffset % 4) + 4) % 4; // 0, 1, 2, 3
+
+                const qStartMonth = qIndex * 3;
+                const qStart = new Date(targetYear, qStartMonth, 1, 0, 0, 0, 0);
+                const qEnd = new Date(targetYear, qStartMonth + 3, 0, 23, 59, 59, 999);
+                const label = `T${qIndex + 1} ${String(targetYear).slice(-2)}`;
+
+                const qTxs = txs.filter(tx => {
+                    if (!tx.date) return false;
+                    const d = new Date(tx.date);
+                    return d >= qStart && d <= qEnd;
+                });
+
+                const entrees = qTxs.reduce((sum, t) => sum + (Number(t.amountTTC) || 0), 0);
+                const sorties = Math.round(entrees * rate * 100) / 100;
+                const resultat = Math.round((entrees - sorties) * 100) / 100;
+
+                buckets.push({
+                    month: label,
+                    entrees: Math.round(entrees * 100) / 100,
+                    sorties,
+                    resultat
+                });
+            }
+            return buckets;
+        }
+
+        return data;
+    }, [rawTransactions, rangeKey, resolution, cotisationsRate, data]);
 
     const highestVal = Math.max(...chartData.map(d => Math.max(d.entrees || 0, d.sorties || 0, d.resultat || 0)), 100);
     const maxVal = Math.ceil(highestVal * 1.25 / 50) * 50 || 100;
@@ -115,15 +266,17 @@ function FinancialChart({ data = [] }) {
             <div className="chart-filters">
                 <div className="filter-dropdown-container">
                     <button className="filter-dropdown-trigger" onClick={() => setDateDropdownOpen(!dateDropdownOpen)}>
-                        <span>{dateRange}</span>
+                        <span>{dateRangeLabel}</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
                     {dateDropdownOpen && (
                         <div className="filter-dropdown-menu">
-                            <div className="dropdown-item" onClick={() => { setDateRange("19/04/2026 • 19/07/2026"); setDateDropdownOpen(false); }}>3 derniers mois</div>
-                            <div className="dropdown-item" onClick={() => { setDateRange("01/01/2026 • 31/12/2026"); setDateDropdownOpen(false); }}>Année 2026</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("3M"); setDateDropdownOpen(false); }}>3 derniers mois</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("6M"); setDateDropdownOpen(false); }}>6 derniers mois</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("YTD"); setDateDropdownOpen(false); }}>Année en cours ({new Date().getFullYear()})</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("12M"); setDateDropdownOpen(false); }}>12 derniers mois</div>
                         </div>
                     )}
                 </div>
@@ -146,15 +299,15 @@ function FinancialChart({ data = [] }) {
 
                 <div className="filter-dropdown-container">
                     <button className="filter-dropdown-trigger" onClick={() => setSrcDropdownOpen(!srcDropdownOpen)}>
-                        <span>{sources}</span>
+                        <span>{sources === "Toutes" ? "Toutes les sources" : "Factures encaissées"}</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
                     {srcDropdownOpen && (
                         <div className="filter-dropdown-menu">
-                            <div className="dropdown-item" onClick={() => { setSources("Sources 2"); setSrcDropdownOpen(false); }}>Sources (2 active)</div>
                             <div className="dropdown-item" onClick={() => { setSources("Toutes"); setSrcDropdownOpen(false); }}>Toutes les sources</div>
+                            <div className="dropdown-item" onClick={() => { setSources("Factures"); setSrcDropdownOpen(false); }}>Factures encaissées</div>
                         </div>
                     )}
                 </div>
@@ -232,7 +385,7 @@ function FinancialChart({ data = [] }) {
                             {/* Bar charts (for entrees / revenues) */}
                             {viewType === "mixed" && chartData.map((d, idx) => {
                                 if (d.entrees <= 0) return null;
-                                const barWidth = 24;
+                                const barWidth = Math.max(12, Math.min(28, 200 / chartData.length));
                                 const x = getX(idx) - barWidth / 2;
                                 const y = getY(d.entrees);
                                 const barH = getY(0) - y;

@@ -81,7 +81,10 @@ export class WhatsAppProvider extends MessageProvider {
     async sendMessage({ companyId, clientId, body, attachments = [], autoType = "manual", metadata = {} }) {
         console.log(`[WHATSAPP_SEND_STARTED] Company: ${companyId}, Client: ${clientId}`);
 
-        if (!body || !body.trim()) {
+        const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+        const bodyContent = (body || "").trim();
+
+        if (!bodyContent && !hasAttachments) {
             throw new Error("Le contenu du message WhatsApp ne peut pas être vide.");
         }
 

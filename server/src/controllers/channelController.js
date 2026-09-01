@@ -183,9 +183,10 @@ export const startGoogleEmailAuth = async (req, res) => {
             client_id: googleClientId,
             redirect_uri: redirectUri,
             response_type: "code",
-            scope: "https://mail.google.com/ https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+            scope: "https://mail.google.com/ https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
             access_type: "offline",
             prompt: "consent",
+            include_granted_scopes: "true",
             state: Buffer.from(JSON.stringify({ type: "email_channel", companyId })).toString("base64")
         });
 

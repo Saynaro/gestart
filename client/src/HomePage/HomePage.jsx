@@ -103,6 +103,10 @@ function HomePage() {
         navigate("/rapports");
     };
 
+    const now = new Date();
+    const currentMonthFormatted = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(now);
+    const capitalizedPeriod = currentMonthFormatted.charAt(0).toUpperCase() + currentMonthFormatted.slice(1);
+
     const revenueVal = dashboardData?.stats?.revenueThisMonth || 0;
     const cotisationsVal = dashboardData?.stats?.cotisationsThisMonth !== undefined 
         ? dashboardData.stats.cotisationsThisMonth 
@@ -131,11 +135,15 @@ function HomePage() {
                             chiffreAffaires={revenueVal} 
                             cotisations={cotisationsVal} 
                             resultat={resultatVal} 
-                            period="Mois en cours"
+                            period={`${capitalizedPeriod} (Mois en cours)`}
                             onConnectUrssaf={handleConnectUrssaf}
                             onConfigureTaux={handleConfigureTaux}
                         />
-                        <FinancialChart data={dashboardData?.financialChart || []} />
+                        <FinancialChart 
+                            data={dashboardData?.financialChart || []} 
+                            rawTransactions={dashboardData?.financialTransactions || []}
+                            cotisationsRate={dashboardData?.cotisationsRate || dashboardData?.stats?.totalCotisationsRate || 0.212}
+                        />
                     </div>
 
                     {/* Dashboard Segmented Tabs */}

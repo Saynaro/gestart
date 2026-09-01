@@ -27,9 +27,14 @@ import paymentsRoutes from "./routes/paymentsRoutes.js";
 import bankingRoutes from "./routes/bankingRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import channelRoutes from "./routes/channelRoutes.js";
+import path from "path";
+import { fileURLToPath } from "url";
 import reminderRoutes from "./routes/reminderRoutes.js";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -44,6 +49,14 @@ app.use(cors({
         "http://localhost:5174"
     ].filter(Boolean),
     credentials: true,
+}));
+
+// Serve uploaded attachments and documents with CORS headers
+app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
+    setHeaders: (res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    }
 }));
 
 app.use(express.json({ limit: "10mb" }));

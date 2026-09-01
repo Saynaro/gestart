@@ -24,6 +24,8 @@ import {
   Clock,
   Smartphone,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   FileDown,
   Sparkles,
   Info,
@@ -31,7 +33,9 @@ import {
   Zap,
   Filter,
   RefreshCw,
-  Eye
+  Eye,
+  Download,
+  Image as ImageIcon
 } from "lucide-react";
 import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
@@ -41,7 +45,7 @@ import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 import QuotePdfView from "../DevisPage/components/QuotePdfView";
 import { apiFetch } from "../utils/api";
 import { getAuthToken } from "../utils/auth";
-import { getApiUrl } from "../utils/config";
+import { getApiUrl, BACKEND_URL } from "../utils/config";
 import { getSocket } from "../utils/socket";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../components/ChannelIcons";
 
@@ -172,9 +176,11 @@ function MessagesPage() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState(null);
+  const [lightboxGallery, setLightboxGallery] = useState(null); // { images: [{ url, name }], index: 0 }
 
-  // Channel dropdown in composer
+  // Channel dropdown & Email meta in composer
   const [isChannelDropdownOpen, setIsChannelDropdownOpen] = useState(false);
+  const [isEmailMetaExpanded, setIsEmailMetaExpanded] = useState(false);
 
   // Attachment Picker Modal
   const [isAttachModalOpen, setIsAttachModalOpen] = useState(false);
@@ -200,6 +206,30 @@ function MessagesPage() {
 
   const messagesContainerRef = useRef(null);
   const chatPaneRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+
+  // Keyboard navigation for Lightbox Gallery
+  useEffect(() => {
+    if (!lightboxGallery) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setLightboxGallery(null);
+      } else if (e.key === "ArrowLeft") {
+        setLightboxGallery(prev => prev ? {
+          ...prev,
+          index: (prev.index - 1 + prev.images.length) % prev.images.length
+        } : null);
+      } else if (e.key === "ArrowRight") {
+        setLightboxGallery(prev => prev ? {
+          ...prev,
+          index: (prev.index + 1) % prev.images.length
+        } : null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxGallery]);
 
   // Resize listener
   useEffect(() => {
@@ -355,7 +385,11 @@ function MessagesPage() {
           // Marquer comme lus
           try {
             await apiFetch(`/v1/messages/read/${activeChatIdParam}`, { method: "PATCH" });
-            setChats(prev => prev.map(c => (c.clientId === activeChatIdParam || c.id === activeChatIdParam) ? { ...c, unreadCount: 0 } : c));
+            setChats(prev => prev.map(c => 
+              (c.clientId === activeChatIdParam || c.id === activeChatIdParam) 
+                ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage } 
+                : c
+            ));
             window.dispatchEvent(new Event("messages-read"));
           } catch (e) {
             console.warn("Erreur marquage lecture:", e.message);
@@ -416,10 +450,10 @@ function MessagesPage() {
           const isCurrentlyActive = activeChatIdParam === clientId;
           updated[existingIndex] = {
             ...updated[existingIndex],
-            lastMessage: message,
+            lastMessage: { ...message, isRead: isCurrentlyActive ? true : Boolean(message.isRead) },
             channel: message.channel || updated[existingIndex].channel,
             time: message.createdAt,
-            unreadCount: isCurrentlyActive ? 0 : ((updated[existingIndex].unreadCount || 0) + (message.direction === "INCOMING" ? 1 : 0))
+            unreadCount: isCurrentlyActive ? 0 : ((Number(updated[existingIndex].unreadCount) || 0) + (message.direction === "INCOMING" ? 1 : 0))
           };
           const item = updated.splice(existingIndex, 1)[0];
           return [item, ...updated];
@@ -444,7 +478,11 @@ function MessagesPage() {
 
     const handleReadUpdate = (payload) => {
       const { clientId } = payload;
-      setChats(prev => prev.map(c => (c.clientId === clientId || c.id === clientId) ? { ...c, unreadCount: 0 } : c));
+      setChats(prev => prev.map(c => 
+        (c.clientId === clientId || c.id === clientId) 
+          ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage } 
+          : c
+      ));
       window.dispatchEvent(new Event("messages-read"));
     };
 
@@ -544,6 +582,11 @@ function MessagesPage() {
   };
 
   const handleSelectChat = (clientId) => {
+    setChats(prev => prev.map(c => 
+      (c.clientId === clientId || c.id === clientId) 
+        ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage } 
+        : c
+    ));
     navigate(`/messages?chat=${clientId}`);
   };
 
@@ -567,6 +610,160 @@ function MessagesPage() {
     navigate(`/messages?chat=${client.id}`);
     setIsClientModalOpen(false);
     setModalSearchTerm("");
+  };
+
+  const handleDownloadAttachment = async (e, url, filename) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!url) return;
+
+    if (url.startsWith("data:")) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = (filename || "fichier").replace(/[^a-zA-Z0-9._-]/g, "_");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    try {
+      const targetUrl = url.startsWith("http") ? url : `${BACKEND_URL}${url}`;
+      const res = await fetch(targetUrl);
+      if (!res.ok) throw new Error("Erreur réseau");
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = (filename || "fichier").replace(/[^a-zA-Z0-9._-]/g, "_");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.warn("Téléchargement direct impossible, ouverture du lien:", err.message);
+      const link = document.createElement("a");
+      link.href = url.startsWith("http") ? url : `${BACKEND_URL}${url}`;
+      link.download = filename || "fichier";
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (!bytes || isNaN(bytes)) return "";
+    if (bytes < 1024) return `${bytes} o`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+  };
+
+  const handleFiles = (files) => {
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Data = e.target.result;
+        setEmailAttachments(prev => [
+          ...prev,
+          {
+            filename: file.name,
+            name: file.name,
+            size: file.size,
+            mimeType: file.type,
+            data: base64Data,
+            type: "custom_file",
+            isImage: file.type.startsWith("image/")
+          }
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = (e) => {
+    handleFiles(e.target.files);
+    e.target.value = null;
+  };
+
+  const handlePaste = (e) => {
+    if (e.clipboardData && e.clipboardData.items) {
+      const items = e.clipboardData.items;
+      const fileList = [];
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          const blob = items[i].getAsFile();
+          if (blob) {
+            const file = new File([blob], `Capture_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`, { type: blob.type });
+            fileList.push(file);
+          }
+        }
+      }
+      if (fileList.length > 0) {
+        handleFiles(fileList);
+      }
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+    if (e.dataTransfer && e.dataTransfer.files) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handlePreviewAttachedItem = (att) => {
+    if (!att) return;
+    const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
+    if (isImg && (att.data || att.url || att.path)) {
+      const imgSrc = att.data || (att.url ? (att.url.startsWith("http") ? att.url : `${BACKEND_URL}${att.url}`) : `${BACKEND_URL}${att.path}`);
+      setLightboxGallery({ images: [{ url: imgSrc, name: att.filename || att.name || "Photo" }], index: 0 });
+      return;
+    }
+    if (att.type === "quote" || att.type === "invoice" || att.quoteId || att.invoiceId) {
+      handleOpenDocPreview(att);
+      return;
+    }
+    if (att.data) {
+      try {
+        const base64Part = att.data.includes(',') ? att.data.split(',')[1] : att.data;
+        const byteCharacters = atob(base64Part);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: att.mimeType || 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        return;
+      } catch (err) {
+        console.warn("Erreur ouverture aperçu fichier:", err.message);
+      }
+    }
+    if (att.url) {
+      const fullUrl = att.url.startsWith("http") ? att.url : `${BACKEND_URL}${att.url}`;
+      window.open(fullUrl, "_blank");
+      return;
+    }
+    handleOpenDocPreview(att);
   };
 
   const handleOpenDocPreview = async (item, explicitType) => {
@@ -1076,7 +1273,11 @@ function MessagesPage() {
         ) : (
           filteredChats.map((chat, idx) => {
             const isSelected = activeChatIdParam === (chat.clientId || chat.id);
-            const isUnread = (chat.unreadCount || 0) > 0;
+            const rawUnread = chat.unreadCount !== undefined && chat.unreadCount !== null 
+              ? Number(chat.unreadCount) 
+              : (chat.lastMessage && chat.lastMessage.direction === "INCOMING" && chat.lastMessage.isRead === false ? 1 : 0);
+            const unreadCount = isSelected ? 0 : rawUnread;
+            const isUnread = !isSelected && unreadCount > 0;
             const previewText = chat.lastMessage?.subject
               ? `[${chat.lastMessage.subject}] ${chat.lastMessage?.body || ''}`
               : (chat.lastMessage?.body || "Discussion démarrée");
@@ -1091,18 +1292,23 @@ function MessagesPage() {
               >
                 <div className="chat-avatar-wrapper">
                   <div className="chat-avatar">{getInitials(chat.name)}</div>
+                  {isUnread && <div className="chat-avatar-unread-dot" />}
                 </div>
                 <div className="chat-meta">
                   <div className="chat-meta-row">
                     <span className="chat-name">{chat.name}</span>
                     <span className="chat-time">{msgTime}</span>
                   </div>
-                  <div className="chat-preview-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "2px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div className="chat-preview-row">
+                    <div className="chat-preview-content">
                       {renderChannelBadge(lastChannel, "sm")}
-                      <p className="chat-preview" style={{ margin: 0 }}>{previewText}</p>
+                      <p className="chat-preview">{previewText}</p>
                     </div>
-                    {isUnread && <span className="chat-unread-badge">{chat.unreadCount}</span>}
+                    {isUnread && (
+                      <span className="chat-unread-badge">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1287,36 +1493,213 @@ function MessagesPage() {
                       <strong>Objet : {msg.subject}</strong>
                     </div>
                   )}
-
-                  {/* Message Body */}
-                  {isEmail ? (
-                    <FormattedEmailContent body={msg.body || msg.text} />
-                  ) : (
-                    <p className="message-text" style={{ whiteSpace: "pre-wrap" }}>
-                      {msg.body || msg.text}
-                    </p>
+                  {/* Message Body (only if non-empty text) */}
+                  {(msg.body || msg.text)?.trim() && (
+                    isEmail ? (
+                      <FormattedEmailContent body={msg.body || msg.text} />
+                    ) : (
+                      <p className="message-text" style={{ whiteSpace: "pre-wrap" }}>
+                        {msg.body || msg.text}
+                      </p>
+                    )
                   )}
 
-                  {/* Attachments if any */}
-                  {msg.attachments && Array.isArray(msg.attachments) && msg.attachments.length > 0 && (
-                    <div className="message-attachments-list">
-                      {msg.attachments.map((att, i) => (
-                        <div
-                          key={i}
-                          className="attachment-chip clickable"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenDocPreview(att);
-                          }}
-                          title="Cliquer pour prévisualiser le document"
-                        >
-                          <FileDown size={13} />
-                          <span>{att.filename || att.name || "Document.pdf"}</span>
-                          <Eye size={12} style={{ opacity: 0.75, marginLeft: 3 }} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {/* Attachments Section (Images as big preview cards, PDFs & Files as compact single-line chips) */}
+                  {(() => {
+                    const parseAtts = (raw) => {
+                      if (!raw) return [];
+                      if (Array.isArray(raw)) return raw;
+                      if (typeof raw === "string") {
+                        try {
+                          const parsed = JSON.parse(raw);
+                          return Array.isArray(parsed) ? parsed : [];
+                        } catch {
+                          return [];
+                        }
+                      }
+                      return [];
+                    };
+
+                    const attList = parseAtts(msg.attachments);
+                    if (attList.length === 0) return null;
+
+                    const getAttachmentSrc = (att) => {
+                      if (att.data) return att.data;
+                      if (att.url) return att.url.startsWith("http") ? att.url : `${BACKEND_URL}${att.url}`;
+                      if (att.path) return att.path.startsWith("http") ? att.path : `${BACKEND_URL}${att.path}`;
+                      return null;
+                    };
+
+                    const images = attList.filter(att => {
+                      const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
+                      const src = getAttachmentSrc(att);
+                      return isImg && src;
+                    });
+
+                    const docs = attList.filter(att => {
+                      const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
+                      const src = getAttachmentSrc(att);
+                      return !(isImg && src);
+                    });
+
+                    const imagesList = images.map(att => ({
+                      url: getAttachmentSrc(att),
+                      name: att.filename || att.name || "Photo"
+                    }));
+
+                    const hasMixedAttachments = images.length > 0 && docs.length > 0;
+
+                    return (
+                      <div className={`message-attachments-container ${hasMixedAttachments ? "mixed-row" : ""}`}>
+                        {/* If only images and no docs: Use Smart Media Grid */}
+                        {!hasMixedAttachments && images.length > 0 && (() => {
+                          const maxVisible = 4;
+                          const isOverflow = images.length > maxVisible;
+                          const visibleImages = isOverflow ? images.slice(0, maxVisible) : images;
+                          const remainingCount = images.length - maxVisible + 1;
+
+                          const gridClass = images.length === 1 ? "grid-1"
+                            : images.length === 2 ? "grid-2"
+                            : images.length === 3 ? "grid-3"
+                            : "grid-4";
+
+                          return (
+                            <div className={`smart-media-grid ${gridClass}`}>
+                              {visibleImages.map((att, i) => {
+                                const imgSrc = getAttachmentSrc(att);
+                                const isLastAndOverflow = isOverflow && i === maxVisible - 1;
+
+                                return (
+                                  <div
+                                    key={`img_${i}`}
+                                    className={`smart-media-item ${isLastAndOverflow ? "has-more-overlay" : ""}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setLightboxGallery({ images: imagesList, index: i });
+                                    }}
+                                  >
+                                    <img 
+                                      src={imgSrc} 
+                                      alt={att.filename || att.name || "Photo"} 
+                                      className="smart-media-img"
+                                      loading="lazy"
+                                    />
+                                    {isLastAndOverflow ? (
+                                      <div className="smart-media-more-badge">
+                                        <span>+{remainingCount}</span>
+                                      </div>
+                                    ) : (
+                                      <div className="smart-media-hover-overlay">
+                                        <span className="smart-media-name">{att.filename || att.name || "Photo"}</span>
+                                        <div className="smart-media-actions">
+                                          <button 
+                                            type="button" 
+                                            className="att-btn" 
+                                            title="Agrandir"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setLightboxGallery({ images: imagesList, index: i });
+                                            }}
+                                          >
+                                            <Eye size={12} />
+                                          </button>
+                                          <button 
+                                            type="button" 
+                                            className="att-btn" 
+                                            title="Télécharger"
+                                            onClick={(e) => handleDownloadAttachment(e, imgSrc, att.filename || att.name || "photo.jpg")}
+                                          >
+                                            <Download size={12} />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+
+                        {/* If mixed (images + docs): Render compact square thumbnails inline alongside PDF chips */}
+                        {hasMixedAttachments && images.map((att, i) => {
+                          const imgSrc = getAttachmentSrc(att);
+                          return (
+                            <div 
+                              key={`inline_img_${i}`}
+                              className="attachment-inline-thumb-card"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxGallery({ images: imagesList, index: i });
+                              }}
+                              title="Cliquer pour agrandir la photo"
+                            >
+                              <img 
+                                src={imgSrc} 
+                                alt={att.filename || att.name || "Photo"} 
+                                className="inline-thumb-img" 
+                              />
+                              <div className="inline-thumb-hover">
+                                <Eye size={12} />
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Documents / Files List (Inline Chips) */}
+                        {docs.length > 0 && docs.map((att, i) => {
+                          const docSrc = getAttachmentSrc(att);
+                          const isPdf = (att.filename || att.name || "").toLowerCase().endsWith(".pdf") || att.type === "quote" || att.type === "invoice" || att.mimeType === "application/pdf";
+                          return (
+                            <div
+                              key={`doc_${i}`}
+                              className="attachment-chip clickable"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePreviewAttachedItem(att);
+                              }}
+                              title="Cliquer pour prévisualiser"
+                            >
+                              {isPdf ? (
+                                <span className="pdf-tag-badge">PDF</span>
+                              ) : (
+                                <FileText size={13} className="attachment-chip-icon" />
+                              )}
+                              <span className="attachment-chip-name">{att.filename || att.name || "Document.pdf"}</span>
+                              <div className="attachment-chip-actions">
+                                <button
+                                  type="button"
+                                  className="att-chip-action-btn"
+                                  title="Voir"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePreviewAttachedItem(att);
+                                  }}
+                                >
+                                  <Eye size={11} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="att-chip-action-btn"
+                                  title="Télécharger"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (docSrc) {
+                                      handleDownloadAttachment(e, docSrc, att.filename || att.name || "document");
+                                    } else {
+                                      handlePreviewAttachedItem(att);
+                                    }
+                                  }}
+                                >
+                                  <Download size={11} />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
 
                   {/* Message Meta Footer */}
                   <div className="bubble-meta-footer">
@@ -1373,8 +1756,8 @@ function MessagesPage() {
 
         {/* Composer Controls Bar */}
         <div className="composer-top-bar">
-          {/* Smart Channel Selector Dropdown */}
-          <div style={{ position: "relative" }}>
+          {/* Smart Channel Selector Dropdown & Meta Toggle */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", position: "relative" }}>
             <button
               type="button"
               className="channel-dropdown-btn"
@@ -1386,6 +1769,21 @@ function MessagesPage() {
               {renderChannelBadge(selectedChannel, "sm")}
               <ChevronDown size={14} />
             </button>
+
+            {/* Email Meta Details Toggle Button (À, Objet) */}
+            {selectedChannel === "EMAIL" && (
+              <button
+                type="button"
+                className={`email-meta-toggle-btn ${isEmailMetaExpanded ? "active" : ""}`}
+                onClick={() => setIsEmailMetaExpanded(!isEmailMetaExpanded)}
+                title={isEmailMetaExpanded ? "Masquer les détails (À, Objet)" : "Afficher / Modifier À et Objet"}
+              >
+                <span className="email-meta-toggle-label">
+                  {emailSubject ? `Objet : ${emailSubject}` : "À, Objet"}
+                </span>
+                <ChevronDown size={13} className={`email-meta-toggle-chevron ${isEmailMetaExpanded ? "open" : ""}`} />
+              </button>
+            )}
 
             {isChannelDropdownOpen && (
               <div className="channel-dropdown-menu" onClick={(e) => e.stopPropagation()}>
@@ -1480,29 +1878,35 @@ function MessagesPage() {
         {/* 1. EMAIL COMPOSER (Rich mode) */}
         {selectedChannel === "EMAIL" ? (
           <form className="email-composer-form" onSubmit={handleSendMessage}>
-            <div className="email-composer-meta">
-              <div className="email-meta-row">
-                <span className="email-meta-label">À :</span>
-                <span className="email-meta-recipient font-mono">{activeClientName} &lt;{clientObj.email || "aucun email"}&gt;</span>
+            {isEmailMetaExpanded && (
+              <div className="email-composer-meta">
+                <div className="email-meta-row">
+                  <span className="email-meta-label">À :</span>
+                  <span className="email-meta-recipient font-mono">{activeClientName} &lt;{clientObj.email || "aucun email"}&gt;</span>
+                </div>
+                <div className="email-meta-row">
+                  <span className="email-meta-label">Objet :</span>
+                  <input
+                    type="text"
+                    placeholder="Objet de l'email..."
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    className="email-subject-input"
+                    required
+                  />
+                </div>
               </div>
-              <div className="email-meta-row">
-                <span className="email-meta-label">Objet :</span>
-                <input
-                  type="text"
-                  placeholder="Objet de l'email..."
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
-                  className="email-subject-input"
-                  required
-                />
-              </div>
-            </div>
+            )}
 
             <textarea
-              placeholder={`Rédigez votre email à ${activeClientName}...`}
+              placeholder={`Rédigez votre email à ${activeClientName}... (Glissez-déposez des fichiers ou faites Ctrl+V pour coller des photos)`}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="email-body-textarea"
+              onPaste={handlePaste}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`email-body-textarea ${isDraggingFile ? "drag-active" : ""}`}
               rows={2}
               disabled={isSending}
             />
@@ -1510,33 +1914,86 @@ function MessagesPage() {
             {/* Email Attachments List */}
             {emailAttachments.length > 0 && (
               <div className="email-attached-pills">
-                {emailAttachments.map((att, idx) => (
-                  <div key={idx} className="email-attached-pill">
-                    <FileText size={13} />
-                    <span>{att.filename || att.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => setEmailAttachments(emailAttachments.filter((_, i) => i !== idx))}
-                      style={{ background: "none", border: "none", color: "var(--muted-foreground)", cursor: "pointer" }}
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
+                {emailAttachments.map((att, idx) => {
+                  const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
+                  const isPdf = (att.filename || att.name || "").toLowerCase().endsWith(".pdf") || att.type === "quote" || att.type === "invoice" || att.mimeType === "application/pdf";
+                  const imgSrc = isImg ? (att.data || att.url) : null;
+
+                  return (
+                    <div key={idx} className="email-attached-pill">
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt="thumb"
+                          className="email-attached-thumb"
+                          onClick={() => handlePreviewAttachedItem(att)}
+                        />
+                      ) : isPdf ? (
+                        <span className="pdf-tag-badge">PDF</span>
+                      ) : (
+                        <FileText size={13} className="email-attached-icon" />
+                      )}
+                      <span 
+                        className="email-attached-name"
+                        onClick={() => handlePreviewAttachedItem(att)}
+                        title="Cliquer pour prévisualiser"
+                      >
+                        {att.filename || att.name}
+                        {att.size ? ` (${formatFileSize(att.size)})` : (att.total ? ` • ${Number(att.total).toFixed(2)} €` : "")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handlePreviewAttachedItem(att)}
+                        className="email-attached-preview-btn"
+                        title="Prévisualiser ce document"
+                      >
+                        <Eye size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEmailAttachments(emailAttachments.filter((_, i) => i !== idx))}
+                        className="email-attached-remove-btn"
+                        title="Retirer ce fichier"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
             <div className="email-composer-bottom">
-              <button
-                type="button"
-                className="email-attach-btn"
-                onClick={() => setIsAttachModalOpen(true)}
-                title="Joindre un devis, facture ou document"
-              >
-                <Paperclip size={14} />
-                <span className="email-attach-text-full">Joindre document / devis PDF</span>
-                <span className="email-attach-text-short">Joindre doc</span>
-              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                multiple
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+                accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+              />
+
+              <div className="email-attach-buttons-group">
+                <button
+                  type="button"
+                  className="email-attach-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Sélectionner des fichiers ou photos depuis votre ordinateur"
+                >
+                  <Paperclip size={14} />
+                  <span>Fichier / Photo</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="email-attach-btn secondary"
+                  onClick={() => setIsAttachModalOpen(true)}
+                  title="Joindre un devis ou une facture du client"
+                >
+                  <FileText size={14} />
+                  <span>Devis / Facture</span>
+                </button>
+              </div>
 
               <button
                 type="submit"
@@ -1984,6 +2441,86 @@ function MessagesPage() {
             window.print();
           }}
         />
+      )}
+
+      {/* Lightbox Modal Gallery for attached photos */}
+      {lightboxGallery && createPortal(
+        <div className="lightbox-backdrop" onClick={() => setLightboxGallery(null)}>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <div className="lightbox-header">
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span className="lightbox-title">{lightboxGallery.images[lightboxGallery.index]?.name || "Photo"}</span>
+                {lightboxGallery.images.length > 1 && (
+                  <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94a3b8)", fontWeight: 600 }}>
+                    {lightboxGallery.index + 1} / {lightboxGallery.images.length}
+                  </span>
+                )}
+              </div>
+              <div className="lightbox-actions">
+                <button 
+                  type="button" 
+                  className="lightbox-btn" 
+                  title="Télécharger l'image"
+                  onClick={(e) => handleDownloadAttachment(
+                    e, 
+                    lightboxGallery.images[lightboxGallery.index]?.url, 
+                    lightboxGallery.images[lightboxGallery.index]?.name || "photo.jpg"
+                  )}
+                >
+                  <Download size={16} />
+                </button>
+                <button 
+                  type="button" 
+                  className="lightbox-btn" 
+                  onClick={() => setLightboxGallery(null)}
+                  title="Fermer (Échap)"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+            <div className="lightbox-body" style={{ position: "relative" }}>
+              {lightboxGallery.images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="lightbox-nav-btn prev"
+                    title="Précédente (←)"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLightboxGallery(prev => ({
+                        ...prev,
+                        index: (prev.index - 1 + prev.images.length) % prev.images.length
+                      }));
+                    }}
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button
+                    type="button"
+                    className="lightbox-nav-btn next"
+                    title="Suivante (→)"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLightboxGallery(prev => ({
+                        ...prev,
+                        index: (prev.index + 1) % prev.images.length
+                      }));
+                    }}
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                </>
+              )}
+              <img 
+                src={lightboxGallery.images[lightboxGallery.index]?.url} 
+                alt={lightboxGallery.images[lightboxGallery.index]?.name} 
+                className="lightbox-full-img" 
+              />
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

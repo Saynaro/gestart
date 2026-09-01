@@ -9,7 +9,8 @@ import {
     AlertCircle,
     CheckCircle2,
     Shield,
-    KeyRound
+    KeyRound,
+    Info
 } from 'lucide-react';
 import './ForgotPasswordPage.css';
 import { API_URL } from '../utils/config';
@@ -173,18 +174,11 @@ export default function ForgotPasswordPage() {
                                 Un email contenant un lien de réinitialisation vous a été envoyé à <strong>{email}</strong>. Veuillez consulter votre boîte de réception et cliquer sur le lien pour modifier votre mot de passe.
                             </p>
 
-                            <div style={{
-                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
-                                border: '1px solid rgba(85, 107, 47, 0.25)',
-                                borderRadius: '10px',
-                                padding: '10px 14px',
-                                fontSize: '12px',
-                                color: 'var(--muted-foreground)',
-                                lineHeight: '1.45',
-                                margin: '14px 0',
-                                textAlign: 'left'
-                            }}>
-                                💡 <strong>Conseil :</strong> Vérifiez également votre dossier <strong>Spam / Courriers indésirables</strong> si vous ne voyez pas l'email envoyé par GestArt (expéditeur : <code>support.gestart@gmail.com</code>).
+                            <div className="auth-hint-box">
+                                <Info size={16} className="auth-hint-icon" />
+                                <div className="auth-hint-text">
+                                    <strong>Conseil :</strong> Vérifiez également votre dossier <strong>Spam / Courriers indésirables</strong> si vous ne voyez pas l'email envoyé par GestArt (expéditeur : <code>support.gestart@gmail.com</code>).
+                                </div>
                             </div>
 
                             <div className="action-buttons-group">

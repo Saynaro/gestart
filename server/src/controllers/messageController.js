@@ -195,3 +195,40 @@ export const getUnreadCount = async (req, res) => {
         });
     }
 };
+
+/**
+ * Supprime un ou plusieurs messages de la timeline
+ * DELETE /api/v1/messages/batch ou DELETE /api/v1/messages/:id
+ */
+export const deleteMessages = async (req, res) => {
+    const companyId = req.user.companyId;
+    const { messageIds } = req.body || {};
+    const singleId = req.params?.id;
+
+    const idsToDelete = Array.isArray(messageIds) && messageIds.length > 0
+        ? messageIds
+        : (singleId ? [singleId] : []);
+
+    try {
+        if (idsToDelete.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Veuillez spécifier au moins un identifiant de message."
+            });
+        }
+
+        const result = await OmnichannelService.deleteMessages({ companyId, messageIds: idsToDelete });
+
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: `${result.count || idsToDelete.length} message(s) supprimé(s) avec succès.`
+        });
+    } catch (error) {
+        console.error("DELETE MESSAGES ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Erreur lors de la suppression des messages"
+        });
+    }
+};

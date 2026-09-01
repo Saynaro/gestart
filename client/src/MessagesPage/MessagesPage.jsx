@@ -35,6 +35,9 @@ import {
   RefreshCw,
   Eye,
   Download,
+  Trash2,
+  CheckSquare,
+  Square,
   Image as ImageIcon
 } from "lucide-react";
 import "../HomePage/Homepage.css";
@@ -198,6 +201,12 @@ function MessagesPage() {
 
   // Actions Dropdown
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+
+  // Message Selection & Deletion
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedMessageIds, setSelectedMessageIds] = useState(new Set());
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
 
@@ -610,6 +619,83 @@ function MessagesPage() {
     navigate(`/messages?chat=${client.id}`);
     setIsClientModalOpen(false);
     setModalSearchTerm("");
+  };
+
+  // Message Selection Handlers
+  const handleToggleSelectMessage = (msgId) => {
+    if (!msgId) return;
+    setSelectedMessageIds(prev => {
+      const next = new Set(prev);
+      if (next.has(msgId)) {
+        next.delete(msgId);
+      } else {
+        next.add(msgId);
+      }
+      if (next.size === 0) {
+        setIsSelectMode(false);
+      }
+      return next;
+    });
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedMessageIds.size === messages.length) {
+      setSelectedMessageIds(new Set());
+      setIsSelectMode(false);
+    } else {
+      setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
+    }
+  };
+
+  const handleCancelSelectMode = () => {
+    setIsSelectMode(false);
+    setSelectedMessageIds(new Set());
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteSelectedMessages = async () => {
+    if (selectedMessageIds.size === 0 || isDeleting) return;
+    setIsDeleting(true);
+
+    const idsArray = Array.from(selectedMessageIds);
+    try {
+      await apiFetch("/v1/messages/batch", {
+        method: "DELETE",
+        body: JSON.stringify({ messageIds: idsArray })
+      });
+
+      // Mettre à jour la liste locale des messages
+      setMessages(prev => prev.filter(m => !selectedMessageIds.has(m.id) && !selectedMessageIds.has(m._id)));
+
+      // Mettre à jour la conversation dans la liste de gauche
+      setChats(prev => prev.map(c => {
+        if (c.clientId === activeChatIdParam || c.id === activeChatIdParam) {
+          if (c.lastMessage && selectedMessageIds.has(c.lastMessage.id)) {
+            const remaining = messages.filter(m => !selectedMessageIds.has(m.id) && !selectedMessageIds.has(m._id));
+            const newLast = remaining.length > 0 ? remaining[remaining.length - 1] : null;
+            return {
+              ...c,
+              lastMessage: newLast,
+              time: newLast?.createdAt || c.time
+            };
+          }
+        }
+        return c;
+      }));
+
+      setSelectedMessageIds(new Set());
+      setIsSelectMode(false);
+      setIsDeleteModalOpen(false);
+    } catch (err) {
+      console.warn("[DELETE MESSAGES WARN]", err.message);
+      // Fallback local state update
+      setMessages(prev => prev.filter(m => !selectedMessageIds.has(m.id) && !selectedMessageIds.has(m._id)));
+      setSelectedMessageIds(new Set());
+      setIsSelectMode(false);
+      setIsDeleteModalOpen(false);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleDownloadAttachment = async (e, url, filename) => {
@@ -1367,6 +1453,10 @@ function MessagesPage() {
                     <FileText size={14} className="dropdown-action-icon" />
                     <span>Créer facture</span>
                   </button>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); setIsSelectMode(true); }}>
+                    <CheckSquare size={14} className="dropdown-action-icon" />
+                    <span>Sélectionner des messages</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -1436,6 +1526,10 @@ function MessagesPage() {
                     <FileText size={14} className="dropdown-action-icon" />
                     <span>Créer facture</span>
                   </button>
+                  <button type="button" className="chat-action-item" onClick={() => { setIsActionsMenuOpen(false); setIsSelectMode(true); }}>
+                    <CheckSquare size={14} className="dropdown-action-icon" />
+                    <span>Sélectionner des messages</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -1459,6 +1553,8 @@ function MessagesPage() {
           </div>
         ) : (
           messages.map((msg, idx) => {
+            const msgId = msg.id || msg._id || `temp_${idx}`;
+            const isSelected = selectedMessageIds.has(msgId);
             const isMe = msg.direction === "OUTGOING" || msg.sender === "agent" || msg.sender === "me";
             const timeStr = formatMsgTime(msg.createdAt || msg.time);
             const channel = (msg.channel || "SMS").toUpperCase();
@@ -1468,10 +1564,61 @@ function MessagesPage() {
             return (
               <div
                 key={msg.id ? `msg_${msg.id}_${idx}` : `msg_${idx}`}
-                className={`message-bubble-wrapper ${isMe ? "me" : "them"} channel-${channel.toLowerCase()}`}
-                onClick={() => setActiveDetailMessage(activeDetailMessage?.id === msg.id ? null : msg)}
+                className={`message-bubble-wrapper ${isMe ? "me" : "them"} channel-${channel.toLowerCase()} ${isSelectMode ? "select-mode-active" : ""} ${isSelected ? "selected-msg" : ""}`}
+                onClick={(e) => {
+                  if (isSelectMode) {
+                    e.stopPropagation();
+                    handleToggleSelectMessage(msgId);
+                  } else {
+                    setActiveDetailMessage(activeDetailMessage?.id === msg.id ? null : msg);
+                  }
+                }}
               >
-                <div className={`message-bubble ${isEmail ? "email-bubble-card" : ""} ${isWhatsApp ? "whatsapp-bubble-card" : ""}`}>
+                {/* Checkbox when in select mode */}
+                {isSelectMode && (
+                  <div
+                    className={`message-select-checkbox ${isSelected ? "checked" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleSelectMessage(msgId);
+                    }}
+                  >
+                    {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
+                  </div>
+                )}
+
+                <div className="message-bubble-row">
+                  {/* Quick hover actions on left for outgoing ('me') messages */}
+                  {isMe && !isSelectMode && (
+                    <div className="message-hover-actions">
+                      <button
+                        type="button"
+                        className="msg-hover-btn delete"
+                        title="Supprimer ce message"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMessageIds(new Set([msgId]));
+                          setIsDeleteModalOpen(true);
+                        }}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        className="msg-hover-btn select"
+                        title="Sélectionner"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsSelectMode(true);
+                          setSelectedMessageIds(new Set([msgId]));
+                        }}
+                      >
+                        <CheckSquare size={13} />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className={`message-bubble ${isEmail ? "email-bubble-card" : ""} ${isWhatsApp ? "whatsapp-bubble-card" : ""}`}>
 
                   {/* Channel Header Indicator */}
                   <div className="bubble-channel-header">
@@ -1489,8 +1636,9 @@ function MessagesPage() {
                   {/* Email Specific Subject Header */}
                   {isEmail && msg.subject && (
                     <div className="email-bubble-subject">
-                      <Mail size={13} style={{ color: "#556B2F", flexShrink: 0 }} />
-                      <strong>Objet : {msg.subject}</strong>
+                      <Mail size={13} className="email-subject-icon" />
+                      <span className="email-subject-label">Objet :</span>
+                      <span className="email-subject-text">{msg.subject}</span>
                     </div>
                   )}
                   {/* Message Body (only if non-empty text) */}
@@ -1718,9 +1866,40 @@ function MessagesPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Quick hover actions on right for incoming ('them') messages */}
+                {!isMe && !isSelectMode && (
+                  <div className="message-hover-actions">
+                    <button
+                      type="button"
+                      className="msg-hover-btn delete"
+                      title="Supprimer ce message"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedMessageIds(new Set([msgId]));
+                        setIsDeleteModalOpen(true);
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                    <button
+                      type="button"
+                      className="msg-hover-btn select"
+                      title="Sélectionner"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSelectMode(true);
+                        setSelectedMessageIds(new Set([msgId]));
+                      }}
+                    >
+                      <CheckSquare size={13} />
+                    </button>
+                  </div>
+                )}
               </div>
-            );
-          })
+            </div>
+          );
+        })
         )}
       </div>
 
@@ -1750,6 +1929,53 @@ function MessagesPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Selection & Delete Action Bar */}
+      <AnimatePresence>
+        {isSelectMode && selectedMessageIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.15 }}
+            className="messages-floating-action-bar"
+          >
+            <div className="floating-bar-left">
+              <span className="floating-bar-selected-text">
+                <strong>{selectedMessageIds.size}</strong> {selectedMessageIds.size > 1 ? "messages sélectionnés" : "message sélectionné"}
+              </span>
+              <button
+                type="button"
+                className="floating-bar-btn secondary"
+                onClick={handleToggleSelectAll}
+              >
+                <CheckCheck size={14} />
+                <span>{selectedMessageIds.size === messages.length ? "Tout désélectionner" : "Tout sélectionner"}</span>
+              </button>
+            </div>
+
+            <div className="floating-bar-right">
+              <button
+                type="button"
+                className="floating-bar-btn delete"
+                disabled={selectedMessageIds.size === 0}
+                onClick={() => setIsDeleteModalOpen(true)}
+              >
+                <Trash2 size={14} />
+                <span>Supprimer {selectedMessageIds.size > 0 ? `(${selectedMessageIds.size})` : ""}</span>
+              </button>
+              <button
+                type="button"
+                className="floating-bar-btn cancel"
+                onClick={handleCancelSelectMode}
+              >
+                <X size={14} />
+                <span>Annuler</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Adaptive Omnichannel Composer */}
       <div className={`omnichannel-composer-container ${selectedChannel === "EMAIL" ? "email-mode" : ""}`}>
@@ -2517,6 +2743,46 @@ function MessagesPage() {
                 alt={lightboxGallery.images[lightboxGallery.index]?.name} 
                 className="lightbox-full-img" 
               />
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && createPortal(
+        <div className="delete-modal-backdrop" onClick={() => !isDeleting && setIsDeleteModalOpen(false)}>
+          <div className="delete-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="delete-modal-header">
+              <div className="delete-modal-icon-wrapper">
+                <Trash2 size={22} className="delete-modal-icon" />
+              </div>
+              <div className="delete-modal-titles">
+                <h3>Supprimer ?</h3>
+                <p>
+                  {selectedMessageIds.size > 1
+                    ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
+                    : "Voulez-vous supprimer ce message de votre historique CRM ?"}
+                </p>
+              </div>
+            </div>
+            <div className="delete-modal-actions">
+              <button
+                type="button"
+                className="delete-modal-btn cancel"
+                disabled={isDeleting}
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                className="delete-modal-btn confirm"
+                disabled={isDeleting}
+                onClick={handleDeleteSelectedMessages}
+              >
+                {isDeleting ? "Suppression..." : "Supprimer"}
+              </button>
             </div>
           </div>
         </div>,

@@ -418,6 +418,23 @@ export const OmnichannelService = {
             whatsapp: byWhatsApp,
             email: byEmail
         };
+    },
+
+    /**
+     * Supprime des messages de la timeline (localement dans le CRM)
+     */
+    async deleteMessages({ companyId, messageIds = [] }) {
+        if (!companyId) throw new Error("CompanyId requis");
+        if (!Array.isArray(messageIds) || messageIds.length === 0) return { count: 0 };
+
+        const result = await prisma.smsLog.deleteMany({
+            where: {
+                id: { in: messageIds },
+                companyId
+            }
+        });
+
+        return result;
     }
 };
 

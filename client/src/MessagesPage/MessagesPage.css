@@ -1388,9 +1388,9 @@
 }
 
 .channel-badge-email {
-    background-color: rgba(85, 107, 47, 0.12);
-    color: #556B2F;
-    border: 1px solid rgba(85, 107, 47, 0.25);
+    background-color: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    border: 1px solid rgba(37, 99, 235, 0.22);
 }
 
 .badge-dot {
@@ -1975,66 +1975,47 @@
     border-radius: 12px;
 }
 
-/* ── Received Email (Incoming / Them) ── */
+/* ── Received Email (Incoming / Them / Client) ── */
 .message-bubble-wrapper.them .email-bubble-card,
 .email-bubble-card {
     background: #ffffff !important;
-    border: 1px solid rgba(148, 163, 184, 0.32) !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
-}
-
-.message-bubble-wrapper.them .email-bubble-subject {
-    color: #475569 !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 .dark .message-bubble-wrapper.them .email-bubble-card,
 .dark .email-bubble-card {
     background: #1e293b !important;
-    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    border: 1px solid #334155 !important;
     color: #f8fafc !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
 }
 
-.dark .message-bubble-wrapper.them .email-bubble-subject {
-    color: #cbd5e1 !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-/* ── Sent Email (Outgoing / Me) ── */
+/* ── Sent Email (Outgoing / Me / You) ── */
 .message-bubble-wrapper.me .email-bubble-card {
-    background: #f4f8ed !important; /* Soft delicate sage tint */
-    border: 1px solid rgba(85, 107, 47, 0.28) !important;
-    box-shadow: 0 3px 12px rgba(85, 107, 47, 0.06) !important;
-}
-
-.message-bubble-wrapper.me .email-bubble-subject {
-    color: #556B2F !important;
-    border-bottom: 1px solid rgba(85, 107, 47, 0.18);
+    background: #f1f5f9 !important; /* Solid sleek light platinum slate */
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
 }
 
 .dark .message-bubble-wrapper.me .email-bubble-card {
-    background: #19251e !important; /* Subtle dark olive slate */
-    border: 1px solid rgba(163, 230, 53, 0.25) !important;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2) !important;
-}
-
-.dark .message-bubble-wrapper.me .email-bubble-subject {
-    color: #a3e635 !important;
-    border-bottom: 1px solid rgba(163, 230, 53, 0.25);
+    background: #0f172a !important; /* Deep dark slate */
+    border: 1px solid #334155 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
 }
 
 .email-bubble-card .message-text,
 .email-text-body {
     color: #0f172a !important;
-    font-size: 14.5px !important;
+    font-size: 14px !important;
     line-height: 1.55 !important;
-    font-weight: 500 !important;
+    font-weight: 450 !important;
     margin: 0 0 6px 0 !important;
     white-space: pre-wrap !important;
 }
 
 .email-bubble-card .bubble-author-name {
-    color: #334155 !important;
+    color: #475569 !important;
     font-weight: 700;
 }
 
@@ -2060,26 +2041,56 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.86rem;
     margin-bottom: 8px;
     padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.email-subject-icon {
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.email-subject-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.email-subject-text {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #0f172a;
 }
 
 .dark .email-bubble-subject {
-    color: #8fa85b !important;
-    border-bottom: 1px solid rgba(85, 107, 47, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .email-subject-icon {
+    color: #94a3b8;
+}
+
+.dark .email-subject-label {
+    color: #94a3b8;
+}
+
+.dark .email-subject-text {
+    color: #f8fafc;
 }
 
 .email-quoted-section {
     margin-top: 8px;
-    border-top: 1px dashed rgba(85, 107, 47, 0.25);
+    border-top: 1px dashed #e2e8f0;
     padding-top: 6px;
 }
 
 .email-quote-toggle-btn {
     background: none;
     border: none;
-    color: #556B2F;
+    color: #2563eb;
     font-size: 11.5px;
     font-weight: 600;
     cursor: pointer;
@@ -2090,7 +2101,7 @@
 }
 
 .email-quote-toggle-btn:hover {
-    background-color: rgba(85, 107, 47, 0.08);
+    background-color: rgba(37, 99, 235, 0.08);
 }
 
 .dark .email-quote-toggle-btn {
@@ -2735,4 +2746,342 @@
 .lightbox-nav-btn:hover {
     background: rgba(15, 23, 42, 0.95);
     transform: translateY(-50%) scale(1.1);
+}
+
+/* ── Selection Mode & Floating Delete Action Bar (Clean & Professional) ── */
+.messages-floating-action-bar {
+    position: sticky;
+    bottom: 8px;
+    margin: 0 16px 8px 16px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    color: var(--foreground, #0f172a);
+    gap: 12px;
+}
+
+.dark .messages-floating-action-bar {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    color: #f8fafc;
+}
+
+.floating-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.floating-bar-selected-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--foreground, #1e293b);
+}
+
+.dark .floating-bar-selected-text {
+    color: #f8fafc;
+}
+
+.floating-bar-selected-text strong {
+    font-weight: 700;
+    color: #2563eb;
+}
+
+.floating-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.floating-bar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+}
+
+.floating-bar-btn.secondary {
+    background: var(--accent, #f1f5f9);
+    border: 1px solid var(--border, #e2e8f0);
+    color: var(--foreground, #334155);
+}
+
+.floating-bar-btn.secondary:hover {
+    background: #e2e8f0;
+}
+
+.dark .floating-bar-btn.secondary {
+    background: #334155;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+.dark .floating-bar-btn.secondary:hover {
+    background: #475569;
+}
+
+.floating-bar-btn.delete {
+    background: #ef4444;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.floating-bar-btn.delete:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+.floating-bar-btn.delete:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.floating-bar-btn.cancel {
+    background: transparent;
+    color: var(--muted-foreground, #64748b);
+}
+
+.floating-bar-btn.cancel:hover {
+    color: var(--foreground, #0f172a);
+    background: var(--accent, #f1f5f9);
+}
+
+.dark .floating-bar-btn.cancel:hover {
+    color: #ffffff;
+    background: #334155;
+}
+
+/* Checkbox in message row */
+.message-select-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #94a3b8;
+    margin-right: 8px;
+    margin-top: auto;
+    margin-bottom: auto;
+    transition: color 0.15s ease, transform 0.15s ease;
+    user-select: none;
+}
+
+.message-select-checkbox.checked {
+    color: #3b82f6;
+    transform: scale(1.1);
+}
+
+.message-bubble-wrapper.select-mode-active {
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.message-bubble-wrapper.selected-msg .message-bubble {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Message Bubble Row & Hover Actions */
+.message-bubble-row {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+}
+
+.message-bubble-wrapper.me .message-bubble-row {
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.message-bubble-wrapper.them .message-bubble-row {
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.message-hover-actions {
+    opacity: 0;
+    visibility: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 6px;
+    padding: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.dark .message-hover-actions {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.message-bubble-row:hover .message-hover-actions,
+.message-bubble-wrapper:hover .message-hover-actions {
+    opacity: 1;
+    visibility: visible;
+}
+
+.msg-hover-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.msg-hover-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--foreground, #0f172a);
+}
+
+.dark .msg-hover-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.msg-hover-btn.delete:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Delete Confirmation Modal */
+.delete-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    padding: 20px;
+    animation: fadeIn 0.15s ease;
+}
+
+.delete-modal-content {
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: scaleUp 0.15s ease;
+}
+
+.dark .delete-modal-content {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.delete-modal-header {
+    padding: 24px 24px 16px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.delete-modal-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dark .delete-modal-icon-wrapper {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.delete-modal-titles h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--foreground, #0f172a);
+}
+
+.dark .delete-modal-titles h3 {
+    color: #f8fafc;
+}
+
+.delete-modal-titles p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--muted-foreground, #64748b);
+    line-height: 1.45;
+}
+
+.delete-modal-actions {
+    padding: 16px 24px 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--border, #f1f5f9);
+}
+
+.dark .delete-modal-actions {
+    border-top-color: #334155;
+}
+
+.delete-modal-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+}
+
+.delete-modal-btn.cancel {
+    background: var(--accent, #f1f5f9);
+    color: var(--foreground, #334155);
+}
+
+.delete-modal-btn.cancel:hover {
+    background: #e2e8f0;
+}
+
+.dark .delete-modal-btn.cancel {
+    background: #334155;
+    color: #f1f5f9;
+}
+
+.delete-modal-btn.confirm {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.delete-modal-btn.confirm:hover {
+    background: #dc2626;
 }

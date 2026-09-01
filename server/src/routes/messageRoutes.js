@@ -5,7 +5,8 @@ import {
     sendMessage,
     markMessagesAsRead,
     getClientChannels,
-    getUnreadCount
+    getUnreadCount,
+    deleteMessages
 } from "../controllers/messageController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireManager } from "../middlewares/checkRole.js";
@@ -31,5 +32,9 @@ router.post("/send", requireManager, checkLimits("sms"), sendMessage);
 
 // Lecture
 router.patch("/read/:clientId", markMessagesAsRead);
+
+// Suppression de messages (unitaire ou par lot)
+router.delete("/batch", requireManager, deleteMessages);
+router.delete("/:id", requireManager, deleteMessages);
 
 export default router;

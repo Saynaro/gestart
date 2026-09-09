@@ -12,6 +12,100 @@
     gap: 16px;
 }
 
+.payments-header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.payments-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--foreground);
+    letter-spacing: -0.02em;
+    margin: 0 0 4px 0;
+}
+
+.payments-subtitle {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted-foreground);
+}
+
+.payments-mobile-desc {
+    display: none;
+}
+
+.payments-back-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.payments-back-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.payments-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.payments-settings-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 9px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--foreground);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.payments-settings-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.payments-refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 9px;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    color: var(--foreground);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.payments-refresh-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.payments-refresh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .payments-kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -28,12 +122,6 @@
     align-items: center;
     gap: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.payments-kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .payments-kpi-icon {
@@ -144,6 +232,29 @@
     color: var(--foreground);
     font-size: 13.5px;
     width: 100%;
+}
+
+.payments-search-icon {
+    color: var(--muted-foreground);
+    flex-shrink: 0;
+}
+
+.payments-search-clear-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    transition: color 0.15s ease;
+}
+
+.payments-search-clear-btn:hover {
+    color: var(--foreground);
 }
 
 /* Reconciliation Banner / Section */
@@ -275,6 +386,192 @@
 }
 
 @media (max-width: 768px) {
+    /* Header layout for mobile */
+    .payments-header-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .payments-header-title-group,
+    .payments-back-btn {
+        display: none !important;
+    }
+
+    .payments-mobile-desc {
+        display: block;
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted-foreground);
+        line-height: 1.4;
+    }
+
+    .payments-header-actions {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .payments-settings-btn {
+        flex: 1;
+        height: 42px;
+        border-radius: 10px;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 0 12px;
+    }
+
+    .payments-refresh-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        flex-shrink: 0;
+    }
+
+    /* KPI Carousel for mobile: compact horizontal swipe strip */
+    .payments-kpi-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 10px;
+        padding-bottom: 4px;
+        margin-bottom: 16px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .payments-kpi-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .payments-kpi-card {
+        flex: 0 0 76%;
+        min-width: 215px;
+        max-width: 270px;
+        scroll-snap-align: start;
+        padding: 12px 14px;
+        border-radius: 12px;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .payments-kpi-card:hover,
+    .payments-kpi-card:active {
+        transform: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .payments-kpi-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+
+    .payments-kpi-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .payments-kpi-label {
+        font-size: 11.5px;
+        margin-bottom: 2px;
+    }
+
+    .payments-kpi-value {
+        font-size: 18px;
+    }
+
+    /* Toolbar & Search mobile */
+    .payments-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .payments-filter-tabs {
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .payments-filter-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .payments-filter-tab {
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
+        padding: 8px 6px;
+        font-size: 12px;
+        border-radius: 8px;
+        text-align: center;
+        white-space: nowrap;
+        gap: 5px;
+    }
+
+    .payments-filter-tab svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+    }
+
+    .payments-search-box {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 10px 14px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .payments-search-input {
+        flex: 1;
+        min-width: 0;
+        width: 100%;
+        font-size: 13.5px;
+    }
+
+    /* Reconciliation card mobile responsiveness */
+    .payments-reconciliation-card {
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+
+    .payments-reconciliation-item {
+        padding: 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .payments-reconciliation-item > div:last-child {
+        display: flex;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .payments-reconciliation-item > div:last-child button {
+        flex: 1;
+        justify-content: center;
+        height: 38px;
+    }
+
+    /* Mobile transaction cards */
     .payments-table-card {
         background: transparent;
         border: none;
@@ -288,13 +585,227 @@
     .payments-mobile-cards {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
+        padding-bottom: 12px;
+    }
+
+    .payments-mobile-cards:last-child {
+        padding-bottom: calc(90px + env(safe-area-inset-bottom, 20px));
+    }
+
+    .payments-load-more-container {
+        padding: 6px 0 calc(90px + env(safe-area-inset-bottom, 20px)) 0;
+    }
+
+    .payments-load-more-btn {
+        width: 100%;
+        height: 44px;
+        border-radius: 12px;
+        font-size: 14px;
     }
 
     .payments-mobile-card {
         background-color: var(--card);
         border: 1px solid var(--border);
         border-radius: 12px;
-        padding: 16px;
+        padding: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 }
+
+/* Load More Button (Desktop base) */
+.payments-load-more-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.payments-load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-radius: 10px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.payments-load-more-btn:hover {
+    background-color: var(--muted, rgba(255, 255, 255, 0.05));
+    border-color: var(--primary);
+}
+
+.payments-load-more-count {
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Empty state */
+.payments-empty-state {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.payments-empty-state svg {
+    color: var(--muted-foreground);
+    margin-bottom: 14px;
+    opacity: 0.5;
+    display: block;
+}
+
+.payments-empty-state h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.payments-empty-state p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted-foreground);
+    max-width: 460px;
+}
+
+/* PDF Viewer Modal Overlay */
+.pdf-viewer-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    z-index: 9999999 !important;
+    background-color: rgba(14, 14, 16, 0.95) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.pdf-viewer-top-bar {
+    width: 100%;
+    background-color: #121214;
+    color: white;
+    padding: 10px 1.2rem;
+    padding-top: max(10px, env(safe-area-inset-top, 10px));
+    box-sizing: border-box;
+    z-index: 10000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.pdf-viewer-top-bar-inner {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pdf-top-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pdf-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pdf-zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: rgba(255, 255, 255, 0.12);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.pdf-viewer-top-bar .pdf-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pdf-viewer-top-bar .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pdf-viewer-top-bar .top-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.pdf-viewer-top-bar .top-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.pdf-page-scroll-container {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    justify-content: center;
+    padding: 20px 10px;
+}
+
+@media (max-width: 768px) {
+    .pdf-viewer-top-bar {
+        padding: 8px 12px !important;
+        padding-top: max(8px, env(safe-area-inset-top, 8px)) !important;
+    }
+    .pdf-viewer-top-bar-inner {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .pdf-top-row {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+    .pdf-controls-row {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+    .pdf-viewer-top-bar .btn-label {
+        display: none !important;
+    }
+}
+
+

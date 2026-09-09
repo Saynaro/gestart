@@ -20,7 +20,7 @@ import {
 import { apiFetch } from "../../utils/api";
 
 export const getInterventionStatusInfo = (item) => {
-    if (!item) return { label: "Prévue", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
+    if (!item) return { label: "En attente", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
     const raw = item.raw || item;
     const rawStatus = raw.status || item.statusKey || "PENDING";
 
@@ -30,8 +30,11 @@ export const getInterventionStatusInfo = (item) => {
     if (rawStatus === "CANCELLED") {
         return { label: "Annulée", color: "#dc2626", bg: "rgba(220, 38, 38, 0.12)", icon: <AlertCircle size={13} /> };
     }
+    if (rawStatus === "ARRIVED") {
+        return { label: "Arrivé sur place", color: "#7c3aed", bg: "rgba(124, 58, 237, 0.12)", icon: <MapPin size={13} /> };
+    }
     if (rawStatus === "IN_PROGRESS") {
-        return { label: "En cours", color: "#2563eb", bg: "rgba(37, 99, 235, 0.12)", icon: <Clock size={13} /> };
+        return { label: "En travail", color: "#2563eb", bg: "rgba(37, 99, 235, 0.12)", icon: <Clock size={13} /> };
     }
 
     const scheduledAt = raw.scheduledAt || item.scheduledAt;
@@ -45,7 +48,7 @@ export const getInterventionStatusInfo = (item) => {
         }
     }
 
-    return { label: "Prévue", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
+    return { label: "En attente", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
 };
 
 function InterventionDetailModal({ isOpen, onClose, intervention, client }) {

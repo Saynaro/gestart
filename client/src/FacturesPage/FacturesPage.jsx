@@ -79,7 +79,13 @@ function FacturesPage() {
             setLoading(true);
             const data = await apiFetch('/v1/invoices');
             const rawInvoices = data.data?.invoices || data.data || data || [];
-            setInvoices(rawInvoices.map(mapInvoiceFromApi));
+            const mapped = rawInvoices.map(mapInvoiceFromApi);
+            setInvoices(mapped);
+            setActiveInvoice(prev => {
+                if (!prev) return null;
+                const fresh = mapped.find(i => i.id === prev.id);
+                return fresh ? { ...prev, ...fresh } : prev;
+            });
         } catch (err) {
             console.warn("API invoices error:", err.message);
             setInvoices([]);
@@ -108,6 +114,7 @@ function FacturesPage() {
     }, []);
 
     const [activeFilter, setActiveFilter] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
     const [activeInvoice, setActiveInvoice] = useState(null);
     const [showDetailDrawer, setShowDetailDrawer] = useState(false);
     const [showSendDrawer, setShowSendDrawer] = useState(false);
@@ -138,17 +145,15 @@ function FacturesPage() {
         setInvoiceToDelete(inv);
     };
 
-    const executeDeleteInvoice = async (inv) => {
-        if (!inv) return;
-        setActionLoading(true);
+    const confirmDeleteInvoice = async () => {
+        if (!invoiceToDelete) return;
         try {
-            await apiFetch(`/v1/invoices/${inv.id}`, {
-                method: 'DELETE'
-            });
-            showToast(`Facture ${inv.number} supprimée avec succès.`, "success");
-            setInvoices(prev => prev.filter(item => item.id !== inv.id));
-            if (activeInvoice?.id === inv.id) {
+            setActionLoading(true);
+            await apiFetch(`/v1/invoices/${invoiceToDelete.id}`, { method: 'DELETE' });
+            showToast(`Facture ${invoiceToDelete.number} supprimée.`, "info");
+            if (activeInvoice?.id === invoiceToDelete.id) {
                 closeAll();
+                setActiveInvoice(null);
             }
             fetchInvoices();
         } catch (err) {
@@ -160,13 +165,23 @@ function FacturesPage() {
         }
     };
 
-    // Filtered list
-    const filteredInvoices = activeFilter === "all"
-        ? invoices
-        : invoices.filter(inv => {
+    const filteredInvoices = invoices
+        .filter(inv => {
             const s = (inv.status || "").toLowerCase();
+            if (activeFilter === "all") return true;
+            if (activeFilter === "draft") return s === "draft";
             if (activeFilter === "pending") return s === "sent" || s === "pending";
-            return s === activeFilter.toLowerCase();
+            if (activeFilter === "paid") return s === "paid";
+            if (activeFilter === "overdue") return s === "overdue";
+            return true;
+        })
+        .filter(inv => {
+            if (!searchTerm.trim()) return true;
+            const q = searchTerm.toLowerCase();
+            const clientName = (inv.clientName || "").toLowerCase();
+            const num = (inv.number || "").toLowerCase();
+            const desc = (inv.workDetails || "").toLowerCase();
+            return clientName.includes(q) || num.includes(q) || desc.includes(q);
         });
 
     const filterCount = (key) => key === "all"
@@ -225,10 +240,32 @@ function FacturesPage() {
 
     const handleConfirmPayment = async (inv, paymentMethod) => {
         try {
-            await apiFetch(`/v1/invoices/${inv.id}/mark-paid`, {
+            const res = await apiFetch(`/v1/invoices/${inv.id}/mark-paid`, {
                 method: 'POST',
                 body: JSON.stringify({ paymentMethod })
             });
+            const updated = res?.data?.invoice;
+            const freshStatus = updated?.status ? updated.status.toLowerCase() : "paid";
+            const freshPaymentMethod = paymentMethod || updated?.paymentMethod || "Virement bancaire";
+            const paidAt = updated?.paidAt || new Date().toISOString();
+
+            // Mise à jour immédiate et réactive de l'état local
+            setInvoices(prev => prev.map(i => i.id === inv.id ? {
+                ...i,
+                status: freshStatus,
+                paymentStatus: "paid",
+                paymentMethod: freshPaymentMethod,
+                paidAt
+            } : i));
+
+            setActiveInvoice(prev => (prev?.id === inv.id ? {
+                ...prev,
+                status: freshStatus,
+                paymentStatus: "paid",
+                paymentMethod: freshPaymentMethod,
+                paidAt
+            } : prev));
+
             showToast(`Facture ${inv.number} encaissée par ${paymentMethod} !`);
             fetchInvoices();
         } catch (err) {
@@ -245,6 +282,8 @@ function FacturesPage() {
                 method: 'PATCH',
                 body: JSON.stringify({ status: "SENT" })
             });
+            setInvoices(prev => prev.map(i => i.id === inv.id ? { ...i, status: "sent", paymentStatus: "unpaid" } : i));
+            setActiveInvoice(prev => (prev?.id === inv.id ? { ...prev, status: "sent", paymentStatus: "unpaid" } : prev));
             showToast(`Facture ${inv.number} marquée comme non payée.`, "info");
             fetchInvoices();
         } catch (err) {

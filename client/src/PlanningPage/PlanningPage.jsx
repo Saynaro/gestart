@@ -7,7 +7,14 @@ import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import EventCalendar from "../components/EventCalendar";
 import MobilePlanningView from "./MobilePlanningView";
-import { ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2, Calendar, MapPin, FileText, Check } from "lucide-react";
+import { 
+    ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, 
+    Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2, Calendar, 
+    MapPin, FileText, Check, History, CheckCircle2, Camera, PenTool, 
+    ExternalLink, Filter, ArrowUpDown, Sparkles
+} from "lucide-react";
+import InterventionDetailModal, { getInterventionStatusInfo } from "../ClientPage/components/InterventionDetailModal";
+import { getSocket } from "../utils/socket";
 
 // ── Responsive hook ──────────────────────────────────────────────
 function useWindowWidth() {
@@ -29,6 +36,46 @@ const AVAILABLE_SERVICE_TYPES = [
     "Ramonage",
     "Mise en service"
 ];
+
+const STATUS_OPTIONS = [
+    { value: "all", label: "Tous les statuts", icon: Filter, color: "var(--muted-foreground)" },
+    { value: "COMPLETED", label: "Terminé", icon: CheckCircle2, color: "#16A34A" },
+    { value: "LATE", label: "En retard", icon: AlertTriangle, color: "#EA580C" },
+    { value: "IN_PROGRESS", label: "En travail", icon: Clock, color: "#2563EB" },
+    { value: "ARRIVED", label: "Arrivé sur place", icon: MapPin, color: "#7C3AED" },
+    { value: "SCHEDULED", label: "En attente", icon: Calendar, color: "#556B2F" },
+];
+
+const getItemEffectiveStatus = (item, startOfToday) => {
+    if (!item) return "SCHEDULED";
+    const status = item.status || "SCHEDULED";
+    if (status === "COMPLETED") return "COMPLETED";
+    if (status === "CANCELLED") return "CANCELLED";
+    if (status === "IN_PROGRESS") return "IN_PROGRESS";
+    if (status === "ARRIVED") return "ARRIVED";
+
+    // Item is SCHEDULED or PENDING
+    const schedTime = item.scheduledAt ? new Date(item.scheduledAt).getTime() : 0;
+    if (schedTime > 0 && schedTime < startOfToday) {
+        return "LATE"; // En retard
+    }
+    return "SCHEDULED"; // En attente
+};
+
+const isStatusDisabledForPeriod = (statusValue, period, count) => {
+    if (statusValue === "all") return false;
+    if (period === "upcoming") {
+        if (statusValue === "COMPLETED" || statusValue === "LATE" || statusValue === "ARRIVED" || statusValue === "IN_PROGRESS") {
+            return true;
+        }
+    }
+    if (period === "past") {
+        if (statusValue === "SCHEDULED" && count === 0) {
+            return true;
+        }
+    }
+    return count === 0;
+};
 
 // ── Initial data ─────────────────────────────────────────────────
 const initialEvents = [];
@@ -61,9 +108,35 @@ function PlanningPage() {
     const isTechnician = role === "TECHNICIAN";
 
     const [events, setEvents] = useState([]);
+    const [rawInterventions, setRawInterventions] = useState([]);
     const [clientDetails, setClientDetails] = useState([]);
     const [techniciansList, setTechniciansList] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [activePlanningTab, setActivePlanningTab] = useState("calendar"); // "calendar" | "past"
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [selectedDetailIntervention, setSelectedDetailIntervention] = useState(null);
+
+    // Past / History Filters
+    const [historyPeriod, setHistoryPeriod] = useState("past"); // "past" | "all" | "upcoming" | "today"
+    const [historyClientFilter, setHistoryClientFilter] = useState("all");
+    const [historyStatusFilter, setHistoryStatusFilter] = useState("all");
+    const [historySort, setHistorySort] = useState("desc"); // "desc" | "asc"
+    const [historySearch, setHistorySearch] = useState("");
+    const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+    const statusDropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target)) {
+                setStatusDropdownOpen(false);
+            }
+        };
+        if (statusDropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [statusDropdownOpen]);
 
     // Auto open intervention modal if navigated from Client details with preselected client
     useEffect(() => {
@@ -95,9 +168,10 @@ function PlanningPage() {
     const fetchInterventions = async () => {
         try {
             setLoading(true);
-            const data = await apiFetch('/v1/interventions?limit=100');
-            const rawInterventions = data.data?.interventions || data.interventions || (Array.isArray(data) ? data : []);
-            const mappedEvents = rawInterventions
+            const data = await apiFetch('/v1/interventions?limit=200');
+            const rawList = data.data?.interventions || data.interventions || (Array.isArray(data) ? data : []);
+            setRawInterventions(rawList);
+            const mappedEvents = rawList
                 .filter(item => item.status !== 'CANCELLED')
                 .map(item => {
                     const clientDisplayName = item.client
@@ -116,7 +190,9 @@ function PlanningPage() {
                             address: item.address || item.client?.address || "",
                             city: item.city || item.client?.city || "",
                             clientId: item.clientId,
-                            description: item.description || ""
+                            description: item.description || "",
+                            status: item.status,
+                            raw: item
                         }
                     };
                 });
@@ -166,6 +242,177 @@ function PlanningPage() {
         fetchClients();
         fetchTechnicians();
     }, []);
+
+    // Socket.io real-time updates for interventions
+    useEffect(() => {
+        const socket = getSocket();
+        if (!socket) return;
+
+        const handleSocketRefresh = () => {
+            fetchInterventions();
+        };
+
+        socket.on("intervention:updated", handleSocketRefresh);
+        socket.on("intervention:new", handleSocketRefresh);
+        socket.on("intervention:deleted", handleSocketRefresh);
+
+        return () => {
+            socket.off("intervention:updated", handleSocketRefresh);
+            socket.off("intervention:new", handleSocketRefresh);
+            socket.off("intervention:deleted", handleSocketRefresh);
+        };
+    }, []);
+
+    const filteredHistoryInterventions = useMemo(() => {
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const endOfToday = startOfToday + 86400000;
+
+        return (rawInterventions || []).filter(item => {
+            if (historyStatusFilter !== "CANCELLED" && item.status === "CANCELLED") return false;
+
+            const schedTime = item.scheduledAt ? new Date(item.scheduledAt).getTime() : 0;
+            if (historyPeriod === "past") {
+                const isPast = item.status === "COMPLETED" || (schedTime > 0 && schedTime < startOfToday);
+                if (!isPast) return false;
+            } else if (historyPeriod === "upcoming") {
+                const isUpcoming = schedTime >= startOfToday && item.status !== "COMPLETED";
+                if (!isUpcoming) return false;
+            } else if (historyPeriod === "today") {
+                const isToday = schedTime >= startOfToday && schedTime < endOfToday;
+                if (!isToday) return false;
+            }
+
+            if (historyClientFilter !== "all" && item.clientId !== historyClientFilter) {
+                return false;
+            }
+
+            if (historyStatusFilter !== "all") {
+                const effStatus = getItemEffectiveStatus(item, startOfToday);
+                if (effStatus !== historyStatusFilter) {
+                    return false;
+                }
+            }
+
+            if (historySearch.trim()) {
+                const q = historySearch.toLowerCase();
+                const clientName = item.client 
+                    ? `${item.client.firstName || ''} ${item.client.lastName || ''} ${item.client.companyName || ''}`.toLowerCase() 
+                    : "";
+                const title = (item.title || "").toLowerCase();
+                const address = (item.address || "").toLowerCase();
+                const tech = item.technician 
+                    ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.toLowerCase() 
+                    : "";
+                if (!clientName.includes(q) && !title.includes(q) && !address.includes(q) && !tech.includes(q)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }).sort((a, b) => {
+            const timeA = a.scheduledAt ? new Date(a.scheduledAt).getTime() : 0;
+            const timeB = b.scheduledAt ? new Date(b.scheduledAt).getTime() : 0;
+            return historySort === "asc" ? timeA - timeB : timeB - timeA;
+        });
+    }, [rawInterventions, historyPeriod, historyClientFilter, historyStatusFilter, historySort, historySearch]);
+
+    const periodCounts = useMemo(() => {
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const endOfToday = startOfToday + 86400000;
+
+        let past = 0;
+        let upcoming = 0;
+        let today = 0;
+        let total = 0;
+
+        (rawInterventions || []).forEach(item => {
+            if (item.status === "CANCELLED") return;
+            total++;
+            const schedTime = item.scheduledAt ? new Date(item.scheduledAt).getTime() : 0;
+            if (item.status === "COMPLETED" || (schedTime > 0 && schedTime < startOfToday)) {
+                past++;
+            }
+            if (schedTime >= startOfToday && item.status !== "COMPLETED") {
+                upcoming++;
+            }
+            if (schedTime >= startOfToday && schedTime < endOfToday) {
+                today++;
+            }
+        });
+
+        return { past, all: total, upcoming, today };
+    }, [rawInterventions]);
+
+    // Calculate real-time counts for each status within the current period
+    const statusCounts = useMemo(() => {
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const endOfToday = startOfToday + 86400000;
+
+        const pool = (rawInterventions || []).filter(item => {
+            if (item.status === "CANCELLED") return false;
+
+            const schedTime = item.scheduledAt ? new Date(item.scheduledAt).getTime() : 0;
+            if (historyPeriod === "past") {
+                const isPast = item.status === "COMPLETED" || (schedTime > 0 && schedTime < startOfToday);
+                if (!isPast) return false;
+            } else if (historyPeriod === "upcoming") {
+                const isUpcoming = schedTime >= startOfToday && item.status !== "COMPLETED";
+                if (!isUpcoming) return false;
+            } else if (historyPeriod === "today") {
+                const isToday = schedTime >= startOfToday && schedTime < endOfToday;
+                if (!isToday) return false;
+            }
+
+            if (historyClientFilter !== "all" && item.clientId !== historyClientFilter) {
+                return false;
+            }
+
+            return true;
+        });
+
+        const counts = {
+            all: pool.length,
+            COMPLETED: 0,
+            LATE: 0,
+            IN_PROGRESS: 0,
+            ARRIVED: 0,
+            SCHEDULED: 0,
+        };
+
+        pool.forEach(item => {
+            const eff = getItemEffectiveStatus(item, startOfToday);
+            if (counts[eff] !== undefined) {
+                counts[eff]++;
+            }
+        });
+
+        return counts;
+    }, [rawInterventions, historyPeriod, historyClientFilter]);
+
+    // Handle period change with smart status auto-reset
+    const handlePeriodChange = (newPeriod) => {
+        setHistoryPeriod(newPeriod);
+
+        // If current status is not applicable for new period, reset to 'all'
+        if (newPeriod === "upcoming" && (historyStatusFilter === "COMPLETED" || historyStatusFilter === "LATE" || historyStatusFilter === "IN_PROGRESS" || historyStatusFilter === "ARRIVED")) {
+            setHistoryStatusFilter("all");
+        } else if (newPeriod === "past" && historyStatusFilter === "SCHEDULED") {
+            setHistoryStatusFilter("all");
+        }
+    };
+
+    // Auto-safeguard: if current status filter is disabled for this period, reset to 'all'
+    useEffect(() => {
+        if (historyStatusFilter !== "all") {
+            const count = statusCounts[historyStatusFilter] ?? 0;
+            if (isStatusDisabledForPeriod(historyStatusFilter, historyPeriod, count)) {
+                setHistoryStatusFilter("all");
+            }
+        }
+    }, [historyPeriod, statusCounts, historyStatusFilter]);
 
     const [mobileSelectedDate, setMobileSelectedDate] = useState(() => new Date());
     const [startTime, setStartTime] = useState("09:00");
@@ -365,9 +612,18 @@ function PlanningPage() {
         setShowAddModal(true);
     };
 
-    // Event click → open Edit modal
+    // Event click → open Detail modal if completed, otherwise open Edit modal
     const handleEventClick = (clickInfo) => {
         const { event } = clickInfo;
+        const status = event.extendedProps?.status;
+        const raw = event.extendedProps?.raw;
+
+        if (status === "COMPLETED" || raw?.clientSignature) {
+            setSelectedDetailIntervention(raw || event);
+            setShowDetailModal(true);
+            return;
+        }
+
         setSelectedEvent(event);
         const start = new Date(event.start);
         const end = new Date(event.end);
@@ -1026,7 +1282,35 @@ function PlanningPage() {
                                 transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
                             >
                                 <div className="modal-header">
-                                    <h3>{isTechnician ? "Détails de l'Intervention" : "Modifier l'Intervention"}</h3>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <h3 style={{ margin: 0 }}>{isTechnician ? "Détails de l'Intervention" : "Modifier l'Intervention"}</h3>
+                                        {selectedEvent?.extendedProps?.raw && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedDetailIntervention(selectedEvent.extendedProps.raw);
+                                                    setShowDetailModal(true);
+                                                }}
+                                                style={{
+                                                    padding: '4px 10px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #556B2F',
+                                                    background: 'rgba(85, 107, 47, 0.1)',
+                                                    color: '#556B2F',
+                                                    fontSize: '0.78rem',
+                                                    fontWeight: 700,
+                                                    cursor: 'pointer',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px'
+                                                }}
+                                                title="Consulter la fiche détaillée, photos et signature"
+                                            >
+                                                <FileText size={13} />
+                                                <span>Fiche & Photos ↗</span>
+                                            </button>
+                                        )}
+                                    </div>
                                     <button className="modal-close-btn" onClick={() => closeEditModal()}><X size={18} /></button>
                                 </div>
                                 {isTechnician ? (
@@ -1712,109 +1996,402 @@ function PlanningPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    {/* Custom Header Row */}
-                    <div className="calendar-header-row">
-                        <div className="header-left-group">
-                            <h1 className="content-title">Planning</h1>
-                            <div className="calendar-navigation">
-                                <button className="nav-arrow-btn" onClick={handlePrev} title="Précédent">
-                                    <ChevronLeft size={18} />
-                                </button>
-                                <button className="nav-today-btn" onClick={handleToday} title="Aller à aujourd'hui">
-                                    Aujourd'hui
-                                </button>
-                                <button className="nav-arrow-btn" onClick={handleNext} title="Suivant">
-                                    <ChevronRight size={18} />
-                                </button>
-                                <span className="calendar-current-range">{currentTitle}</span>
-                            </div>
+                    {/* Planning Navigation Tabs Bar */}
+                    <div className="planning-top-nav-bar">
+                        <div className="planning-main-tabs">
+                            <button
+                                className={`planning-tab-btn ${activePlanningTab === "calendar" ? "active" : ""}`}
+                                onClick={() => setActivePlanningTab("calendar")}
+                            >
+                                <Calendar size={16} />
+                                <span>Calendrier</span>
+                            </button>
+                            <button
+                                className={`planning-tab-btn ${activePlanningTab === "past" ? "active" : ""}`}
+                                onClick={() => setActivePlanningTab("past")}
+                            >
+                                <History size={16} />
+                                <span>Interventions passées & Historique</span>
+                                {periodCounts.past > 0 && <span className="tab-counter-badge">{periodCounts.past}</span>}
+                            </button>
                         </div>
 
-                        <div className="header-right-group">
-                            {/* Filter Dropdown */}
-                            <div className="filter-dropdown-wrapper">
-                                <select
-                                    value={typeFilter}
-                                    onChange={(e) => setTypeFilter(e.target.value)}
-                                    className="filter-select"
-                                >
-                                    <option value="Tous">Tous</option>
-                                    <option value="Installation">Installation</option>
-                                    <option value="Maintenance">Maintenance</option>
-                                    <option value="Dépannage">Dépannage</option>
-                                    <option value="Contrôle">Contrôle</option>
-                                </select>
-                                <ChevronDown size={14} className="dropdown-arrow-icon" />
+                        {!isTechnician && (
+                            <button className="new-intervention-btn" onClick={handleHeaderAddIntervention}>
+                                <Plus size={16} />
+                                <span>Nouvelle intervention</span>
+                            </button>
+                        )}
+                    </div>
+
+                    {activePlanningTab === "calendar" ? (
+                        <>
+                            {/* Custom Header Row */}
+                            <div className="calendar-header-row">
+                                <div className="header-left-group">
+                                    <div className="calendar-navigation">
+                                        <button className="nav-arrow-btn" onClick={handlePrev} title="Précédent">
+                                            <ChevronLeft size={18} />
+                                        </button>
+                                        <button className="nav-today-btn" onClick={handleToday} title="Aller à aujourd'hui">
+                                            Aujourd'hui
+                                        </button>
+                                        <button className="nav-arrow-btn" onClick={handleNext} title="Suivant">
+                                            <ChevronRight size={18} />
+                                        </button>
+                                        <span className="calendar-current-range">{currentTitle}</span>
+                                    </div>
+                                </div>
+
+                                <div className="header-right-group">
+                                    {/* Filter Dropdown */}
+                                    <div className="filter-dropdown-wrapper">
+                                        <select
+                                            value={typeFilter}
+                                            onChange={(e) => setTypeFilter(e.target.value)}
+                                            className="filter-select"
+                                        >
+                                            <option value="Tous">Tous les types</option>
+                                            <option value="Installation">Installation</option>
+                                            <option value="Maintenance">Maintenance</option>
+                                            <option value="Dépannage">Dépannage</option>
+                                            <option value="Contrôle">Contrôle</option>
+                                        </select>
+                                        <ChevronDown size={14} className="dropdown-arrow-icon" />
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* New Intervention Button (Owners/Managers only) */}
-                            {!isTechnician && (
-                                <button className="new-intervention-btn" onClick={handleHeaderAddIntervention}>
-                                    <Plus size={16} />
-                                    <span>Intervention</span>
-                                </button>
+                            {/* View Selector & Legends Row */}
+                            <div className="view-legends-row">
+                                <div className="view-selector-pill">
+                                    <button
+                                        className={`view-btn ${currentView === "timeGridDay" ? "active" : ""}`}
+                                        onClick={() => handleViewChange("timeGridDay")}
+                                    >
+                                        Jour
+                                    </button>
+                                    <button
+                                        className={`view-btn ${currentView === "timeGridWeek" ? "active" : ""}`}
+                                        onClick={() => handleViewChange("timeGridWeek")}
+                                    >
+                                        Semaine
+                                    </button>
+                                    <button
+                                        className={`view-btn ${currentView === "dayGridMonth" ? "active" : ""}`}
+                                        onClick={() => handleViewChange("dayGridMonth")}
+                                    >
+                                        Mois
+                                    </button>
+                                </div>
+
+                                {/* Calendar Legends */}
+                                <div className="calendar-legends">
+                                    <div className="legend-item type-installation">
+                                        <span className="legend-dot" /><span>Installation</span>
+                                    </div>
+                                    <div className="legend-item type-maintenance">
+                                        <span className="legend-dot" /><span>Maintenance</span>
+                                    </div>
+                                    <div className="legend-item type-depannage">
+                                        <span className="legend-dot" /><span>Dépannage</span>
+                                    </div>
+                                    <div className="legend-item type-controle">
+                                        <span className="legend-dot" /><span>Contrôle</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* FullCalendar Card Wrapper */}
+                            <div className="calendar-card">
+                                <EventCalendar
+                                    calendarRef={calendarRef}
+                                    events={filteredEvents}
+                                    onEventChange={handleCalendarEventChange}
+                                    onSelectSlot={handleSelectSlot}
+                                    onEventClick={handleEventClick}
+                                    typeFilter={typeFilter}
+                                    currentView={currentView}
+                                    onDatesSet={handleDatesSet}
+                                    isReadOnly={isTechnician}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        /* VUE INTERVENTIONS PASSÉES & HISTORIQUE */
+                        <div className="history-view-container">
+                            {/* Toolbar & Filters */}
+                            <div className="history-toolbar-card">
+                                <div className="history-toolbar-top">
+                                    <div className="history-search-wrapper">
+                                        <Search size={16} className="history-search-icon" />
+                                        <input
+                                            type="text"
+                                            className="history-search-input"
+                                            placeholder="Rechercher par client, adresse, technicien, objet..."
+                                            value={historySearch}
+                                            onChange={(e) => setHistorySearch(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="history-period-pills">
+                                        <button
+                                            className={`history-period-pill ${historyPeriod === "past" ? "active" : ""}`}
+                                            onClick={() => handlePeriodChange("past")}
+                                        >
+                                            Passées ({periodCounts.past})
+                                        </button>
+                                        <button
+                                            className={`history-period-pill ${historyPeriod === "all" ? "active" : ""}`}
+                                            onClick={() => handlePeriodChange("all")}
+                                        >
+                                            Toutes ({periodCounts.all})
+                                        </button>
+                                        <button
+                                            className={`history-period-pill ${historyPeriod === "upcoming" ? "active" : ""}`}
+                                            onClick={() => handlePeriodChange("upcoming")}
+                                        >
+                                            À venir ({periodCounts.upcoming})
+                                        </button>
+                                        <button
+                                            className={`history-period-pill ${historyPeriod === "today" ? "active" : ""}`}
+                                            onClick={() => handlePeriodChange("today")}
+                                        >
+                                            Aujourd'hui ({periodCounts.today})
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="history-filters-bottom">
+                                    {/* Client Filter */}
+                                    <div className="history-filter-select-wrap">
+                                        <span className="history-filter-label">Client :</span>
+                                        <select
+                                            className="history-filter-select"
+                                            value={historyClientFilter}
+                                            onChange={(e) => setHistoryClientFilter(e.target.value)}
+                                        >
+                                            <option value="all">Tous les clients</option>
+                                            {clientDetails.map(c => (
+                                                <option key={c.id} value={c.id}>{c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Status Filter Custom Dropdown with Lucide Icons */}
+                                    <div className="custom-dropdown-container" ref={statusDropdownRef}>
+                                        <span className="history-filter-label">Statut :</span>
+                                        <button
+                                            type="button"
+                                            className="custom-dropdown-trigger"
+                                            onClick={() => setStatusDropdownOpen(prev => !prev)}
+                                        >
+                                            {(() => {
+                                                const currentOpt = STATUS_OPTIONS.find(o => o.value === historyStatusFilter) || STATUS_OPTIONS[0];
+                                                const CurrentIcon = currentOpt.icon;
+                                                return (
+                                                    <>
+                                                        <CurrentIcon size={14} style={{ color: currentOpt.color }} />
+                                                        <span>{currentOpt.label}</span>
+                                                    </>
+                                                );
+                                            })()}
+                                            <ChevronDown size={14} className={`dropdown-caret ${statusDropdownOpen ? 'open' : ''}`} />
+                                        </button>
+
+                                        {statusDropdownOpen && (
+                                            <div className="custom-dropdown-menu">
+                                                {STATUS_OPTIONS.map(opt => {
+                                                    const isSelected = historyStatusFilter === opt.value;
+                                                    const count = statusCounts[opt.value] ?? 0;
+                                                    const isDisabled = isStatusDisabledForPeriod(opt.value, historyPeriod, count);
+                                                    const OptIcon = opt.icon;
+                                                    return (
+                                                        <button
+                                                            key={opt.value}
+                                                            type="button"
+                                                            className={`custom-dropdown-item ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+                                                            disabled={isDisabled}
+                                                            onClick={() => {
+                                                                if (isDisabled) return;
+                                                                setHistoryStatusFilter(opt.value);
+                                                                setStatusDropdownOpen(false);
+                                                            }}
+                                                            title={isDisabled ? "Non disponible pour la période sélectionnée" : ""}
+                                                        >
+                                                            <OptIcon size={14} style={{ color: isDisabled ? 'var(--muted-foreground)' : opt.color }} />
+                                                            <span style={{ flex: 1, textAlign: 'left' }}>{opt.label}</span>
+                                                            <span className="dropdown-item-count">
+                                                                {count}
+                                                            </span>
+                                                            {isSelected && <Check size={13} style={{ color: '#556B2F', marginLeft: 4 }} />}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Sort Filter */}
+                                    <div className="history-filter-select-wrap">
+                                        <span className="history-filter-label">Tri :</span>
+                                        <select
+                                            className="history-filter-select"
+                                            value={historySort}
+                                            onChange={(e) => setHistorySort(e.target.value)}
+                                        >
+                                            <option value="desc">Plus récentes d'abord</option>
+                                            <option value="asc">Plus anciennes d'abord</option>
+                                        </select>
+                                    </div>
+
+                                    <div style={{ marginLeft: 'auto', fontSize: '0.84rem', color: 'var(--muted-foreground)', fontWeight: 600 }}>
+                                        {filteredHistoryInterventions.length} intervention{filteredHistoryInterventions.length > 1 ? 's' : ''}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* List of Interventions */}
+                            {filteredHistoryInterventions.length === 0 ? (
+                                <div className="history-empty-state">
+                                    <div className="history-empty-icon">
+                                        <History size={28} />
+                                    </div>
+                                    <h3 style={{ margin: '0 0 6px 0', fontSize: '1.1rem', fontWeight: 700, color: 'var(--foreground)' }}>
+                                        Aucune intervention trouvée
+                                    </h3>
+                                    <p style={{ margin: 0, fontSize: '0.86rem' }}>
+                                        Modifiez les filtres de recherche ou sélectionnez une autre période.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="history-items-grid">
+                                    {filteredHistoryInterventions.map(item => {
+                                        const dateObj = item.scheduledAt ? new Date(item.scheduledAt) : (item.createdAt ? new Date(item.createdAt) : new Date());
+                                        const dayNum = dateObj.getDate().toString().padStart(2, '0');
+                                        const monthStr = dateObj.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+                                        const timeStr = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                                        
+                                        const clientName = item.client 
+                                            ? (item.client.companyName || `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim())
+                                            : "Client non spécifié";
+                                        const typeName = item.interventionType?.name || item.type || "Intervention";
+                                        const techName = item.technician 
+                                            ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() || item.technician.email
+                                            : "Non assigné";
+                                        const photos = item.photos || [];
+                                        const hasSignature = !!item.clientSignature;
+                                        const statusInfo = getInterventionStatusInfo(item);
+
+                                        return (
+                                            <div 
+                                                key={item.id} 
+                                                className="history-item-row"
+                                                onClick={() => {
+                                                    setSelectedDetailIntervention(item);
+                                                    setShowDetailModal(true);
+                                                }}
+                                            >
+                                                <div className="history-row-left">
+                                                    <div className="history-date-badge">
+                                                        <span className="history-date-day">{dayNum}</span>
+                                                        <span className="history-date-month">{monthStr}</span>
+                                                        <span style={{ fontSize: '0.7rem', fontWeight: 600, opacity: 0.85, marginTop: 2 }}>
+                                                            {timeStr}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="history-main-info">
+                                                        <div className="history-client-title-row">
+                                                            <span className="history-client-name">{clientName}</span>
+                                                            <span className="history-type-badge">{typeName}</span>
+                                                            {item.title && item.title !== clientName && (
+                                                                <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                                                    — {item.title}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="history-details-subrow">
+                                                            {item.address && (
+                                                                <span className="history-detail-item">
+                                                                    <MapPin size={13} style={{ color: '#556B2F' }} />
+                                                                    {item.address}{item.city ? `, ${item.city}` : ''}
+                                                                </span>
+                                                            )}
+                                                            <span className="history-detail-item">
+                                                                <User size={13} style={{ color: '#556B2F' }} />
+                                                                Tech : {techName}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="history-row-right" onClick={(e) => e.stopPropagation()}>
+                                                    {/* Proofs: Signature & Photos */}
+                                                    <div className="history-proof-pills">
+                                                        {hasSignature ? (
+                                                            <span className="proof-pill signed" title="Signature client validée">
+                                                                <PenTool size={12} />
+                                                                <span>Signée</span>
+                                                            </span>
+                                                        ) : (
+                                                            <span className="proof-pill" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
+                                                                Non signée
+                                                            </span>
+                                                        )}
+
+                                                        {photos.length > 0 && (
+                                                            <span className="proof-pill photos" title={`${photos.length} photo(s) avant/après enregistrées`}>
+                                                                <Camera size={12} />
+                                                                <span>{photos.length} photo{photos.length > 1 ? 's' : ''}</span>
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Status Badge */}
+                                                    <span 
+                                                        className="history-status-badge"
+                                                        style={{ background: statusInfo.bg, color: statusInfo.color }}
+                                                    >
+                                                        {statusInfo.icon}
+                                                        {statusInfo.label}
+                                                    </span>
+
+                                                    {/* Open Button */}
+                                                    <button 
+                                                        className="history-action-btn"
+                                                        onClick={() => {
+                                                            setSelectedDetailIntervention(item);
+                                                            setShowDetailModal(true);
+                                                        }}
+                                                    >
+                                                        <span>Consulter</span>
+                                                        <ChevronRight size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             )}
                         </div>
-                    </div>
-
-                    {/* View Selector & Legends Row */}
-                    <div className="view-legends-row">
-                        <div className="view-selector-pill">
-                            <button
-                                className={`view-btn ${currentView === "timeGridDay" ? "active" : ""}`}
-                                onClick={() => handleViewChange("timeGridDay")}
-                            >
-                                Jour
-                            </button>
-                            <button
-                                className={`view-btn ${currentView === "timeGridWeek" ? "active" : ""}`}
-                                onClick={() => handleViewChange("timeGridWeek")}
-                            >
-                                Semaine
-                            </button>
-                            <button
-                                className={`view-btn ${currentView === "dayGridMonth" ? "active" : ""}`}
-                                onClick={() => handleViewChange("dayGridMonth")}
-                            >
-                                Mois
-                            </button>
-                        </div>
-
-                        {/* Calendar Legends */}
-                        <div className="calendar-legends">
-                            <div className="legend-item type-installation">
-                                <span className="legend-dot" /><span>Installation</span>
-                            </div>
-                            <div className="legend-item type-maintenance">
-                                <span className="legend-dot" /><span>Maintenance</span>
-                            </div>
-                            <div className="legend-item type-depannage">
-                                <span className="legend-dot" /><span>Dépannage</span>
-                            </div>
-                            <div className="legend-item type-controle">
-                                <span className="legend-dot" /><span>Contrôle</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* FullCalendar Card Wrapper */}
-                    <div className="calendar-card">
-                        <EventCalendar
-                            calendarRef={calendarRef}
-                            events={filteredEvents}
-                            onEventChange={handleCalendarEventChange}
-                            onSelectSlot={handleSelectSlot}
-                            onEventClick={handleEventClick}
-                            typeFilter={typeFilter}
-                            currentView={currentView}
-                            onDatesSet={handleDatesSet}
-                            isReadOnly={isTechnician}
-                        />
-                    </div>
+                    )}
                 </motion.div>
             </div>
             {sharedModals}
             {clientSearchPortal}
+
+            {/* Modal de consultation détaillée pour toutes interventions */}
+            <InterventionDetailModal
+                isOpen={showDetailModal}
+                onClose={() => {
+                    setShowDetailModal(false);
+                    setSelectedDetailIntervention(null);
+                }}
+                intervention={selectedDetailIntervention}
+                client={selectedDetailIntervention?.client}
+            />
         </div>
     );
 }

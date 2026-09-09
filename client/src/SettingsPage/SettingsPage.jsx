@@ -126,6 +126,9 @@ function SettingsPage() {
     // Layout and Navigation State
     const [activeTab, setActiveTab] = useState(() => {
         const params = new URLSearchParams(window.location.search);
+        if (params.get("id_connection") || params.get("banking")) {
+            return "paiements";
+        }
         return params.get("tab") || "profil";
     });
     const [showToast, setShowToast] = useState(false);
@@ -137,7 +140,12 @@ function SettingsPage() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const tabParam = params.get("tab");
-        if (tabParam) {
+        if (params.get("id_connection") || params.get("banking")) {
+            setActiveTab("paiements");
+            if (typeof window !== "undefined" && window.innerWidth <= 768) {
+                setMobileScreenState("detail");
+            }
+        } else if (tabParam) {
             setActiveTab(tabParam);
             if (typeof window !== "undefined" && window.innerWidth <= 768) {
                 setMobileScreenState("detail");

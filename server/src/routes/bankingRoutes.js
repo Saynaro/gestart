@@ -1,6 +1,8 @@
 import express from "express";
 import {
     connectBanking,
+    handleBankingCallback,
+    disconnectBanking,
     getBankingAccounts,
     getBankingTransactions,
     refreshBankingTransactions,
@@ -18,9 +20,12 @@ router.use(authMiddleware);
 router.get("/accounts", requireManager, getBankingAccounts);
 router.get("/transactions", requireManager, getBankingTransactions);
 
-// Actions de rapprochement et synchronisation
+// Actions de connexion, callback et synchronisation
 router.post("/connect", requireOwner, connectBanking);
+router.post("/callback", requireOwner, handleBankingCallback);
+router.post("/disconnect", requireOwner, disconnectBanking);
 router.post("/transactions/refresh", requireManager, refreshBankingTransactions);
+router.post("/refresh", requireManager, refreshBankingTransactions);
 router.post("/reconcile/:transactionId", requireManager, confirmReconciliationEndpoint);
 router.delete("/reconcile/:transactionId", requireManager, ignoreReconciliationEndpoint);
 

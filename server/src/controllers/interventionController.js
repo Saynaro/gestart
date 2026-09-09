@@ -1,5 +1,6 @@
 import { prisma } from "../config/db.js";
 import { ReminderEngineService } from "../services/reminders/ReminderEngineService.js";
+import { emitToCompany } from "../config/socket.js";
 
 // Helper pour créer une notification facilement
 const createNotification = async ({ companyId, userId, type, title, body, entityId, data }) => {
@@ -32,26 +33,61 @@ export const getInterventions = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    const { status, type, technicianId, clientId, from, to } = req.query;
+    const { status, type, technicianId, clientId, from, to, period, sort, search } = req.query;
 
     // Règle de rôle: le technicien ne voit que SES propres interventions assignées
     const effectiveTechnicianId = req.user.role === "TECHNICIAN"
         ? req.user.id
         : (technicianId || undefined);
 
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+    let statusCondition = undefined;
+    if (status && status !== "ALL") {
+        statusCondition = status;
+    } else if (!status && !period) {
+        statusCondition = { not: "CANCELLED" };
+    }
+
     const where = {
         companyId,
-        status: status ? status : { not: "CANCELLED" },
-        ...(technicianId && { technicianId: effectiveTechnicianId }),
-        ...(req.user.role === "TECHNICIAN" && { technicianId: req.user.id }),
+        ...(statusCondition && { status: statusCondition }),
+        ...(effectiveTechnicianId && { technicianId: effectiveTechnicianId }),
         ...(clientId && { clientId }),
-        ...((from || to) && {
+        ...(search && {
+            OR: [
+                { title: { contains: search, mode: "insensitive" } },
+                { description: { contains: search, mode: "insensitive" } },
+                { address: { contains: search, mode: "insensitive" } },
+                { client: { firstName: { contains: search, mode: "insensitive" } } },
+                { client: { lastName: { contains: search, mode: "insensitive" } } },
+                { client: { companyName: { contains: search, mode: "insensitive" } } },
+            ]
+        }),
+        ...(period === "past" && {
+            OR: [
+                { status: "COMPLETED" },
+                { scheduledAt: { lt: startOfToday } }
+            ]
+        }),
+        ...(period === "upcoming" && {
+            scheduledAt: { gte: startOfToday },
+            status: { notIn: ["COMPLETED", "CANCELLED"] }
+        }),
+        ...(period === "today" && {
+            scheduledAt: { gte: startOfToday, lte: endOfToday }
+        }),
+        ...((from || to) && !period && {
             scheduledAt: {
                 ...(from && { gte: new Date(from) }),
                 ...(to && { lte: new Date(to) }),
             }
         })
     };
+
+    const orderDirection = sort === "asc" ? "asc" : "desc";
 
     try {
         const [total, interventions] = await Promise.all([
@@ -60,7 +96,7 @@ export const getInterventions = async (req, res) => {
                 where,
                 skip,
                 take: limit,
-                orderBy: { scheduledAt: "desc" },
+                orderBy: { scheduledAt: orderDirection },
                 include: {
                     client: {
                         select: {
@@ -99,6 +135,7 @@ export const getInterventions = async (req, res) => {
                             serviceType: true
                         }
                     },
+                    photos: true,
                     _count: {
                         select: { photos: true }
                     }
@@ -162,6 +199,7 @@ export const getTodayInterventions = async (req, res) => {
                     }
                 },
                 equipment: true,
+                photos: true,
                 technician: {
                     select: {
                         id: true,
@@ -553,6 +591,86 @@ export const updateIntervention = async (req, res) => {
     }
 };
 
+////// ARRIVE INTERVENTION (ARRIVED) //////
+export const arriveIntervention = async (req, res) => {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+
+    try {
+        const intervention = await prisma.intervention.findFirst({
+            where: { id, companyId },
+            include: { client: true, technician: true }
+        });
+
+        if (!intervention) {
+            return res.status(404).json({
+                success: false,
+                message: "Intervention introuvable"
+            });
+        }
+
+        const now = new Date();
+        const updated = await prisma.intervention.update({
+            where: { id },
+            data: {
+                status: "ARRIVED",
+                arrivedAt: now
+            },
+            include: {
+                client: true,
+                technician: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        avatarUrl: true,
+                    }
+                },
+                photos: true,
+                services: { include: { serviceType: true } }
+            }
+        });
+
+        // Émission temps réel à l'entreprise
+        emitToCompany(companyId, "intervention:updated", updated);
+
+        // Notification au propriétaire/managers
+        const owner = await prisma.user.findFirst({
+            where: { companyId, role: "OWNER" }
+        });
+
+        if (owner) {
+            const techName = intervention.technician
+                ? `${intervention.technician.firstName || ''} ${intervention.technician.lastName || ''}`.trim()
+                : "Le technicien";
+            const clientName = intervention.client
+                ? `${intervention.client.firstName || ''} ${intervention.client.lastName || ''}`.trim() || intervention.client.companyName
+                : "";
+
+            await createNotification({
+                companyId,
+                userId: owner.id,
+                type: "TECHNICIAN_ARRIVED",
+                title: "Technicien arrivé sur place 📍",
+                body: `${techName} est arrivé chez ${clientName || 'le client'} (${intervention.title}).`,
+                entityId: id,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Statut mis à jour : Arrivé sur place",
+            data: { intervention: updated }
+        });
+    } catch (error) {
+        console.error("ARRIVE INTERVENTION ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors du marquage d'arrivée"
+        });
+    }
+};
+
 ////// START INTERVENTION (IN_PROGRESS) //////
 export const startIntervention = async (req, res) => {
     const { id } = req.params;
@@ -560,7 +678,8 @@ export const startIntervention = async (req, res) => {
 
     try {
         const intervention = await prisma.intervention.findFirst({
-            where: { id, companyId }
+            where: { id, companyId },
+            include: { client: true, technician: true }
         });
 
         if (!intervention) {
@@ -575,8 +694,24 @@ export const startIntervention = async (req, res) => {
             data: {
                 status: "IN_PROGRESS",
                 startedAt: new Date()
+            },
+            include: {
+                client: true,
+                technician: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        avatarUrl: true,
+                    }
+                },
+                photos: true,
+                services: { include: { serviceType: true } }
             }
         });
+
+        // Émission temps réel à l'entreprise
+        emitToCompany(companyId, "intervention:updated", updated);
 
         // Notification au propriétaire/managers de l'entreprise
         const owner = await prisma.user.findFirst({
@@ -584,12 +719,16 @@ export const startIntervention = async (req, res) => {
         });
 
         if (owner) {
+            const techName = intervention.technician
+                ? `${intervention.technician.firstName || ''} ${intervention.technician.lastName || ''}`.trim()
+                : "Le technicien";
+
             await createNotification({
                 companyId,
                 userId: owner.id,
                 type: "TECHNICIAN_STARTED",
-                title: "Intervention démarrée",
-                body: `Le technicien a démarré l'intervention "${intervention.title}".`,
+                title: "Intervention en cours ⚡",
+                body: `${techName} a commencé l'intervention "${intervention.title}".`,
                 entityId: id,
             });
         }
@@ -776,10 +915,22 @@ export const completeIntervention = async (req, res) => {
             where: { id },
             include: {
                 client: true,
+                technician: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        avatarUrl: true,
+                    }
+                },
+                photos: true,
                 services: { include: { serviceType: true } },
                 equipment: true
             }
         });
+
+        // Émission temps réel à l'entreprise
+        emitToCompany(companyId, "intervention:updated", fullUpdated);
 
         return res.status(200).json({
             success: true,

@@ -445,6 +445,7 @@ exports.Prisma.InterventionScalarFieldEnum = {
   status: 'status',
   scheduledAt: 'scheduledAt',
   estimatedDuration: 'estimatedDuration',
+  arrivedAt: 'arrivedAt',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
   title: 'title',
@@ -1203,6 +1204,7 @@ exports.ClientStatus = exports.$Enums.ClientStatus = {
 exports.InterventionStatus = exports.$Enums.InterventionStatus = {
   PENDING: 'PENDING',
   SCHEDULED: 'SCHEDULED',
+  ARRIVED: 'ARRIVED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED'

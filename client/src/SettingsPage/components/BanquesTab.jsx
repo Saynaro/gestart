@@ -156,7 +156,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                     <div>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(91,77,219,0.1)', color: 'var(--sidebar-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(85,107,47,0.12)', color: '#556B2F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Building size={18} />
                             </span>
                             Coordonnées Bancaires Officielles (RIB Devis & Factures)
@@ -262,7 +262,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                                 padding: '8px 12px',
                                                 borderRadius: '8px',
                                                 cursor: 'pointer',
-                                                backgroundColor: selectedBankId === b.id ? 'rgba(91,77,219,0.1)' : 'transparent',
+                                                backgroundColor: selectedBankId === b.id ? 'rgba(85,107,47,0.12)' : 'transparent',
                                                 transition: 'background-color 0.12s'
                                             }}
                                             onMouseEnter={(e) => { if (selectedBankId !== b.id) e.currentTarget.style.backgroundColor = 'var(--background)'; }}
@@ -441,7 +441,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                         disabled={saving}
                         style={{
                             padding: '11px 24px',
-                            background: 'linear-gradient(135deg, var(--sidebar-primary, #5B4DDB) 0%, #7C3AED 100%)',
+                            background: '#556B2F',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '10px',
@@ -451,7 +451,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
-                            boxShadow: '0 4px 14px rgba(91,77,219,0.3)',
+                            boxShadow: '0 4px 14px rgba(85,107,47,0.3)',
                             transition: 'all 0.15s'
                         }}
                     >

@@ -1033,9 +1033,11 @@ function InvoiceDetailDrawer({
                                     </button>
                                     {showDotsMenu && (
                                         <div className="fp-dots-menu" onClick={() => setShowDotsMenu(false)}>
-                                            <button className="fp-dots-menu-item" onClick={onSend}>
-                                                <Send size={15} /> Envoyer la facture
-                                            </button>
+                                            {!isDraft && (
+                                                <button className="fp-dots-menu-item" onClick={onSend}>
+                                                    <Send size={15} /> Envoyer la facture
+                                                </button>
+                                            )}
                                             {isDraft && (
                                                 <button className="fp-dots-menu-item" onClick={onEdit}>
                                                     <Edit2 size={15} /> Modifier la facture
@@ -1378,24 +1380,26 @@ function InvoiceDetailDrawer({
                                 </button>
                             )}
 
-                            {/* Envoyer */}
-                            <button
-                                className="fp-drawer-action-primary"
-                                onClick={onSend}
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "2px",
-                                    padding: "10px 14px"
-                                }}
-                            >
-                                <span style={{ fontSize: "0.92rem", fontWeight: 700 }}>Envoyer la facture</span>
-                                {!isPaid && (
-                                    <span style={{ fontSize: "11.5px", fontWeight: 400, opacity: 0.9 }}>Avec lien de paiement sécurisé</span>
-                                )}
-                            </button>
+                            {/* Envoyer (uniquement si la facture est finalisée) */}
+                            {!isDraft && (
+                                <button
+                                    className="fp-drawer-action-primary"
+                                    onClick={onSend}
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: "2px",
+                                        padding: "10px 14px"
+                                    }}
+                                >
+                                    <span style={{ fontSize: "0.92rem", fontWeight: 700 }}>Envoyer la facture</span>
+                                    {!isPaid && (
+                                        <span style={{ fontSize: "11.5px", fontWeight: 400, opacity: 0.9 }}>Avec lien de paiement sécurisé</span>
+                                    )}
+                                </button>
+                            )}
 
                             {/* Modifier */}
                             {isDraft ? (

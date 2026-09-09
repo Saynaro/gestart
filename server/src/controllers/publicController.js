@@ -827,11 +827,38 @@ export const verifyPublicPayment = async (req, res) => {
                     where: { id: invoice.id },
                     data: {
                         status: "PAID",
+                        paymentStatus: "PAID",
+                        paymentMethod: "CARD",
+                        invoicePaymentMethod: "CARD",
                         amountPaid: totalTtc,
                         paidAt: invoice.paidAt || new Date()
                     },
                     include: { company: true, client: true, lines: true }
                 });
+
+                // Create invoice transaction record for Payments page
+                try {
+                    const existingInvTx = await prisma.invoiceTransaction.findFirst({
+                        where: { invoiceId: invoice.id }
+                    });
+                    if (!existingInvTx) {
+                        await prisma.invoiceTransaction.create({
+                            data: {
+                                invoiceId: invoice.id,
+                                companyId: invoice.companyId,
+                                type: "CARD",
+                                status: "succeeded",
+                                amount: totalTtc,
+                                currency: "EUR",
+                                stripePaymentIntentId: session?.payment_intent || null,
+                                stripeCheckoutSessionId: session?.id || null,
+                                paidAt: invoice.paidAt || new Date()
+                            }
+                        });
+                    }
+                } catch (invTxErr) {
+                    console.warn("InvoiceTransaction creation error:", invTxErr.message);
+                }
 
                 // Create accounting transaction only if not existing
                 try {

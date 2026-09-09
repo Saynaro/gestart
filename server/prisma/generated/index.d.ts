@@ -318,6 +318,7 @@ export type ClientStatus = (typeof ClientStatus)[keyof typeof ClientStatus]
 export const InterventionStatus: {
   PENDING: 'PENDING',
   SCHEDULED: 'SCHEDULED',
+  ARRIVED: 'ARRIVED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED'
@@ -28326,6 +28327,7 @@ export namespace Prisma {
     status: $Enums.InterventionStatus | null
     scheduledAt: Date | null
     estimatedDuration: number | null
+    arrivedAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
     title: string | null
@@ -28352,6 +28354,7 @@ export namespace Prisma {
     status: $Enums.InterventionStatus | null
     scheduledAt: Date | null
     estimatedDuration: number | null
+    arrivedAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
     title: string | null
@@ -28378,6 +28381,7 @@ export namespace Prisma {
     status: number
     scheduledAt: number
     estimatedDuration: number
+    arrivedAt: number
     startedAt: number
     completedAt: number
     title: number
@@ -28414,6 +28418,7 @@ export namespace Prisma {
     status?: true
     scheduledAt?: true
     estimatedDuration?: true
+    arrivedAt?: true
     startedAt?: true
     completedAt?: true
     title?: true
@@ -28440,6 +28445,7 @@ export namespace Prisma {
     status?: true
     scheduledAt?: true
     estimatedDuration?: true
+    arrivedAt?: true
     startedAt?: true
     completedAt?: true
     title?: true
@@ -28466,6 +28472,7 @@ export namespace Prisma {
     status?: true
     scheduledAt?: true
     estimatedDuration?: true
+    arrivedAt?: true
     startedAt?: true
     completedAt?: true
     title?: true
@@ -28579,6 +28586,7 @@ export namespace Prisma {
     status: $Enums.InterventionStatus
     scheduledAt: Date | null
     estimatedDuration: number | null
+    arrivedAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
     title: string
@@ -28624,6 +28632,7 @@ export namespace Prisma {
     status?: boolean
     scheduledAt?: boolean
     estimatedDuration?: boolean
+    arrivedAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
     title?: boolean
@@ -28663,6 +28672,7 @@ export namespace Prisma {
     status?: boolean
     scheduledAt?: boolean
     estimatedDuration?: boolean
+    arrivedAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
     title?: boolean
@@ -28695,6 +28705,7 @@ export namespace Prisma {
     status?: boolean
     scheduledAt?: boolean
     estimatedDuration?: boolean
+    arrivedAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
     title?: boolean
@@ -28727,6 +28738,7 @@ export namespace Prisma {
     status?: boolean
     scheduledAt?: boolean
     estimatedDuration?: boolean
+    arrivedAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
     title?: boolean
@@ -28742,7 +28754,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InterventionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "equipmentId" | "technicianId" | "createdById" | "interventionTypeId" | "status" | "scheduledAt" | "estimatedDuration" | "startedAt" | "completedAt" | "title" | "description" | "address" | "city" | "accessCode" | "techNotes" | "materialsUsed" | "clientSignature" | "clientSignedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["intervention"]>
+  export type InterventionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "equipmentId" | "technicianId" | "createdById" | "interventionTypeId" | "status" | "scheduledAt" | "estimatedDuration" | "arrivedAt" | "startedAt" | "completedAt" | "title" | "description" | "address" | "city" | "accessCode" | "techNotes" | "materialsUsed" | "clientSignature" | "clientSignedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["intervention"]>
   export type InterventionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
@@ -28802,6 +28814,7 @@ export namespace Prisma {
       status: $Enums.InterventionStatus
       scheduledAt: Date | null
       estimatedDuration: number | null
+      arrivedAt: Date | null
       startedAt: Date | null
       completedAt: Date | null
       title: string
@@ -29260,6 +29273,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Intervention", 'InterventionStatus'>
     readonly scheduledAt: FieldRef<"Intervention", 'DateTime'>
     readonly estimatedDuration: FieldRef<"Intervention", 'Int'>
+    readonly arrivedAt: FieldRef<"Intervention", 'DateTime'>
     readonly startedAt: FieldRef<"Intervention", 'DateTime'>
     readonly completedAt: FieldRef<"Intervention", 'DateTime'>
     readonly title: FieldRef<"Intervention", 'String'>
@@ -71716,6 +71730,7 @@ export namespace Prisma {
     status: 'status',
     scheduledAt: 'scheduledAt',
     estimatedDuration: 'estimatedDuration',
+    arrivedAt: 'arrivedAt',
     startedAt: 'startedAt',
     completedAt: 'completedAt',
     title: 'title',
@@ -75089,6 +75104,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFilter<"Intervention"> | $Enums.InterventionStatus
     scheduledAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     estimatedDuration?: IntNullableFilter<"Intervention"> | number | null
+    arrivedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     startedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     completedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     title?: StringFilter<"Intervention"> | string
@@ -75127,6 +75143,7 @@ export namespace Prisma {
     status?: SortOrder
     scheduledAt?: SortOrderInput | SortOrder
     estimatedDuration?: SortOrderInput | SortOrder
+    arrivedAt?: SortOrderInput | SortOrder
     startedAt?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
     title?: SortOrder
@@ -75168,6 +75185,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFilter<"Intervention"> | $Enums.InterventionStatus
     scheduledAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     estimatedDuration?: IntNullableFilter<"Intervention"> | number | null
+    arrivedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     startedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     completedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     title?: StringFilter<"Intervention"> | string
@@ -75206,6 +75224,7 @@ export namespace Prisma {
     status?: SortOrder
     scheduledAt?: SortOrderInput | SortOrder
     estimatedDuration?: SortOrderInput | SortOrder
+    arrivedAt?: SortOrderInput | SortOrder
     startedAt?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
     title?: SortOrder
@@ -75240,6 +75259,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusWithAggregatesFilter<"Intervention"> | $Enums.InterventionStatus
     scheduledAt?: DateTimeNullableWithAggregatesFilter<"Intervention"> | Date | string | null
     estimatedDuration?: IntNullableWithAggregatesFilter<"Intervention"> | number | null
+    arrivedAt?: DateTimeNullableWithAggregatesFilter<"Intervention"> | Date | string | null
     startedAt?: DateTimeNullableWithAggregatesFilter<"Intervention"> | Date | string | null
     completedAt?: DateTimeNullableWithAggregatesFilter<"Intervention"> | Date | string | null
     title?: StringWithAggregatesFilter<"Intervention"> | string
@@ -81444,6 +81464,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -81482,6 +81503,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -81508,6 +81530,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -81546,6 +81569,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -81578,6 +81602,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -81598,6 +81623,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -81624,6 +81650,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -88007,6 +88034,7 @@ export namespace Prisma {
     status?: SortOrder
     scheduledAt?: SortOrder
     estimatedDuration?: SortOrder
+    arrivedAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
     title?: SortOrder
@@ -88037,6 +88065,7 @@ export namespace Prisma {
     status?: SortOrder
     scheduledAt?: SortOrder
     estimatedDuration?: SortOrder
+    arrivedAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
     title?: SortOrder
@@ -88063,6 +88092,7 @@ export namespace Prisma {
     status?: SortOrder
     scheduledAt?: SortOrder
     estimatedDuration?: SortOrder
+    arrivedAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
     title?: SortOrder
@@ -96795,6 +96825,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -96831,6 +96862,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -98499,6 +98531,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFilter<"Intervention"> | $Enums.InterventionStatus
     scheduledAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     estimatedDuration?: IntNullableFilter<"Intervention"> | number | null
+    arrivedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     startedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     completedAt?: DateTimeNullableFilter<"Intervention"> | Date | string | null
     title?: StringFilter<"Intervention"> | string
@@ -101133,6 +101166,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -101169,6 +101203,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -101341,6 +101376,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -101377,6 +101413,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -103089,6 +103126,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -103125,6 +103163,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -103830,6 +103869,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -103866,6 +103906,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -104756,6 +104797,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -104792,6 +104834,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -106529,6 +106572,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -106566,6 +106610,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -106607,6 +106652,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -106644,6 +106690,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -106887,6 +106934,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -106924,6 +106972,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -107268,6 +107317,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -107305,6 +107355,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -107859,6 +107910,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -107896,6 +107948,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -108404,6 +108457,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -108441,6 +108495,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -117032,6 +117087,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -117069,6 +117125,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -117159,6 +117216,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -117196,6 +117254,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -117494,6 +117553,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -117531,6 +117591,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -117872,6 +117933,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -117909,6 +117971,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -118477,6 +118540,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -118514,6 +118578,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -118927,6 +118992,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -118964,6 +119030,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -119201,6 +119268,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -119901,6 +119969,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -119937,6 +120006,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -119968,6 +120038,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -121560,6 +121631,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -121636,6 +121708,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -121716,6 +121789,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -121752,6 +121826,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -121783,6 +121858,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -121970,6 +122046,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -122006,6 +122083,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -122037,6 +122115,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -122281,6 +122360,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -122398,6 +122478,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -122434,6 +122515,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -122465,6 +122547,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -122812,6 +122895,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -123067,6 +123151,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -123103,6 +123188,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -123134,6 +123220,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -123705,6 +123792,7 @@ export namespace Prisma {
     status?: $Enums.InterventionStatus
     scheduledAt?: Date | string | null
     estimatedDuration?: number | null
+    arrivedAt?: Date | string | null
     startedAt?: Date | string | null
     completedAt?: Date | string | null
     title: string
@@ -123725,6 +123813,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -123761,6 +123850,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -123792,6 +123882,7 @@ export namespace Prisma {
     status?: EnumInterventionStatusFieldUpdateOperationsInput | $Enums.InterventionStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimatedDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     title?: StringFieldUpdateOperationsInput | string

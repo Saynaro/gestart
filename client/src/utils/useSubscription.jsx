@@ -10,6 +10,7 @@ const SubscriptionContext = createContext({
     isUnlimited: false,
     loading: false,
     subscription: null,
+    setSubscription: () => {},
     refreshSubscription: () => {},
 });
 
@@ -19,8 +20,9 @@ export function SubscriptionProvider({ children }) {
 
     const refreshSubscription = useCallback(async () => {
         if (!isAuthenticated()) {
+            setSubscription(null);
             setLoading(false);
-            return;
+            return null;
         }
 
         // Technicians are attached to company account and do not manage individual subscriptions
@@ -29,8 +31,9 @@ export function SubscriptionProvider({ children }) {
             if (savedUser) {
                 const parsed = JSON.parse(savedUser);
                 if (parsed.role === 'TECHNICIAN') {
+                    setSubscription(null);
                     setLoading(false);
-                    return;
+                    return null;
                 }
             }
         } catch (e) {}
@@ -40,16 +43,37 @@ export function SubscriptionProvider({ children }) {
             const sub = res.data?.subscription || res.subscription;
             if (sub) {
                 setSubscription(sub);
+                return sub;
             }
         } catch (e) {
             // Ignored - user might not have billing permissions
         } finally {
             setLoading(false);
         }
+        return null;
     }, []);
 
     useEffect(() => {
         refreshSubscription();
+
+        const handleLoggedIn = (e) => {
+            if (e?.detail?.subscription) {
+                setSubscription(e.detail.subscription);
+            }
+            refreshSubscription();
+        };
+
+        const handleLoggedOut = () => {
+            setSubscription(null);
+            setLoading(false);
+        };
+
+        window.addEventListener('userLoggedIn', handleLoggedIn);
+        window.addEventListener('userLoggedOut', handleLoggedOut);
+        return () => {
+            window.removeEventListener('userLoggedIn', handleLoggedIn);
+            window.removeEventListener('userLoggedOut', handleLoggedOut);
+        };
     }, [refreshSubscription]);
 
     const rawName = subscription?.plan?.name || 'PRO';
@@ -67,6 +91,7 @@ export function SubscriptionProvider({ children }) {
     return (
         <SubscriptionContext.Provider value={{
             subscription,
+            setSubscription,
             planName,
             displayName,
             status,

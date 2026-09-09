@@ -199,6 +199,8 @@ export const register = async (req, res) => {
                     email: user.email,
                     role: user.role,
                     emailVerified: user.emailVerified,
+                    companyId: company.id,
+                    company: company,
                 },
                 company: {
                     id: company.id,
@@ -239,6 +241,18 @@ export const login = async (req, res) => {
 
         const user = await prisma.user.findUnique({
             where: { email: email.toLowerCase().trim() },
+            include: {
+                company: {
+                    include: {
+                        subscription: {
+                            include: {
+                                plan: true,
+                            }
+                        },
+                        settings: true,
+                    }
+                }
+            }
         });
 
         if (!user) {
@@ -363,12 +377,17 @@ export const login = async (req, res) => {
                 user: {
                     id: user.id,
                     email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    phone: user.phone,
+                    avatarUrl: user.avatarUrl,
                     role: user.role,
                     emailVerified: user.emailVerified,
+                    companyId: user.companyId,
+                    company: user.company,
                 },
-                company: {
-                    id: user.companyId,
-                },
+                company: user.company,
+                subscription: user.company?.subscription || null,
             },
         });
     } catch (error) {
@@ -394,7 +413,19 @@ export const verify2FALogin = async (req, res) => {
         }
 
         const user = await prisma.user.findUnique({
-            where: { email: email.toLowerCase().trim() }
+            where: { email: email.toLowerCase().trim() },
+            include: {
+                company: {
+                    include: {
+                        subscription: {
+                            include: {
+                                plan: true,
+                            }
+                        },
+                        settings: true,
+                    }
+                }
+            }
         });
 
         if (!user) {
@@ -483,12 +514,17 @@ export const verify2FALogin = async (req, res) => {
                 user: {
                     id: user.id,
                     email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    phone: user.phone,
+                    avatarUrl: user.avatarUrl,
                     role: user.role,
                     emailVerified: user.emailVerified,
+                    companyId: user.companyId,
+                    company: user.company,
                 },
-                company: {
-                    id: user.companyId,
-                },
+                company: user.company,
+                subscription: user.company?.subscription || null,
             },
         });
     } catch (error) {

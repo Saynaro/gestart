@@ -1,3 +1,5 @@
+import { prisma } from "../config/db.js";
+
 /**
  * Abstraction du fournisseur Open Banking (Powens, GoCardless, etc.)
  * Permet de brancher n'importe quelle API bancaire sans toucher à la logique métier
@@ -74,40 +76,130 @@ export class PowensBankingProvider extends BankingProvider {
             };
         }
 
-        // Flux Powens : création d'un temporary code / webview URL
-        // https://docs.powens.com/
-        const state = Buffer.from(JSON.stringify({ companyId, timestamp: Date.now() })).toString("base64");
-        const connectUrl = `${this.baseUrl}/auth/webview/fr/connect?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${state}`;
+        try {
+            // 1. Initialisation / récupération du jeton utilisateur Powens
+            const initRes = await fetch(`${this.baseUrl}/2.0/auth/init`, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    client_id: this.clientId,
+                    client_secret: this.clientSecret
+                }).toString()
+            });
+            const initData = await initRes.json();
 
-        return {
-            isConfigured: true,
-            connectUrl,
-            connectionId: `powens_temp_${Date.now()}`
-        };
+            if (!initData.auth_token) {
+                console.error("Powens auth/init error:", initData);
+                throw new Error(initData.description || "Échec d'initialisation de session Powens");
+            }
+
+            // 2. Enregistrer ou mettre à jour la connexion en attente avec ce jeton utilisateur
+            await prisma.bankConnection.upsert({
+                where: { companyId },
+                create: {
+                    companyId,
+                    provider: "POWENS",
+                    connectionId: "pending",
+                    userId: String(initData.id_user || ""),
+                    accessTokenEncrypted: initData.auth_token,
+                    status: "PENDING"
+                },
+                update: {
+                    provider: "POWENS",
+                    userId: String(initData.id_user || ""),
+                    accessTokenEncrypted: initData.auth_token,
+                    status: "PENDING"
+                }
+            });
+
+            // 3. Génération du code temporaire pour la Webview Connect
+            const codeRes = await fetch(`${this.baseUrl}/2.0/auth/token/code`, {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${initData.auth_token}` }
+            });
+            const codeData = await codeRes.json();
+
+            if (!codeData.code) {
+                console.error("Powens auth/token/code error:", codeData);
+                throw new Error(codeData.description || "Échec de génération du code Powens Webview");
+            }
+
+            // 3. Extraction du nom de domaine (ex: gestart-sandbox.biapi.pro)
+            let domain = this.baseUrl.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+
+            const state = Buffer.from(JSON.stringify({ companyId, timestamp: Date.now() })).toString("base64");
+            const connectUrl = `https://webview.powens.com/fr/connect?domain=${domain}&client_id=${this.clientId}&code=${encodeURIComponent(codeData.code)}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${encodeURIComponent(state)}`;
+
+            return {
+                isConfigured: true,
+                connectUrl,
+                connectionId: `powens_temp_${Date.now()}`
+            };
+        } catch (err) {
+            console.error("CONNECT BANKING POWENS ERROR:", err.message);
+            throw err;
+        }
     }
 
-    async getAccounts(connectionId) {
-        if (!this.isConfigured) return [];
-        // TODO: Appel API Powens GET /users/me/accounts
-        return [];
+    async getAccounts(userToken) {
+        if (!this.isConfigured || !userToken) return [];
+        try {
+            const res = await fetch(`${this.baseUrl}/2.0/users/me/accounts`, {
+                headers: { "Authorization": `Bearer ${userToken}` }
+            });
+            const data = await res.json();
+            return data.accounts || [];
+        } catch (err) {
+            console.error("POWENS GET ACCOUNTS ERROR:", err.message);
+            return [];
+        }
     }
 
-    async getTransactions(accountId, from, to) {
-        if (!this.isConfigured) return [];
-        // TODO: Appel API Powens GET /users/me/accounts/{id}/transactions
-        return [];
+    async getTransactions(userToken, accountId) {
+        if (!this.isConfigured || !userToken) return [];
+        try {
+            const endpoint = accountId
+                ? `${this.baseUrl}/2.0/users/me/accounts/${accountId}/transactions?limit=100`
+                : `${this.baseUrl}/2.0/users/me/transactions?limit=100`;
+
+            const res = await fetch(endpoint, {
+                headers: { "Authorization": `Bearer ${userToken}` }
+            });
+            const data = await res.json();
+            return data.transactions || [];
+        } catch (err) {
+            console.error("POWENS GET TRANSACTIONS ERROR:", err.message);
+            return [];
+        }
     }
 
-    async refreshTransactions(connectionId) {
-        if (!this.isConfigured) return { success: false, syncedCount: 0 };
-        // TODO: Appel API Powens POST /users/me/connections/{id}/sync
-        return { success: true, syncedCount: 0 };
+    async refreshTransactions(connectionId, userToken) {
+        if (!this.isConfigured || !userToken || !connectionId) return { success: false, syncedCount: 0 };
+        try {
+            const res = await fetch(`${this.baseUrl}/2.0/users/me/connections/${connectionId}/sync`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${userToken}` }
+            });
+            const data = await res.json();
+            return { success: true, data };
+        } catch (err) {
+            console.error("POWENS REFRESH ERROR:", err.message);
+            return { success: false, syncedCount: 0 };
+        }
     }
 
-    async disconnectBankAccount(connectionId) {
-        if (!this.isConfigured) return { success: true };
-        // TODO: Appel API Powens DELETE /users/me/connections/{id}
-        return { success: true };
+    async disconnectBankAccount(connectionId, userToken) {
+        if (!this.isConfigured || !userToken || !connectionId) return { success: true };
+        try {
+            await fetch(`${this.baseUrl}/2.0/users/me/connections/${connectionId}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${userToken}` }
+            });
+            return { success: true };
+        } catch (err) {
+            console.error("POWENS DISCONNECT ERROR:", err.message);
+            return { success: false };
+        }
     }
 }
 

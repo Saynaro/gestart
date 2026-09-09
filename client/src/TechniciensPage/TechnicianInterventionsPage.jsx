@@ -34,9 +34,13 @@ import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { apiFetch } from "../utils/api";
 import { API_URL } from "../utils/config";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../utils/useUser";
 import "./TechnicianInterventionsPage.css";
 
 export default function TechnicianInterventionsPage() {
+    const navigate = useNavigate();
+    const { role, loading: userLoading } = useUser();
     const [user, setUser] = useState(null);
     const [interventions, setInterventions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -78,6 +82,11 @@ export default function TechnicianInterventionsPage() {
             const userData = meRes.data?.user || meRes.user;
             setUser(userData);
 
+            if (userData?.role && userData.role !== "TECHNICIAN") {
+                navigate("/home", { replace: true });
+                return;
+            }
+
             // Fetch today's interventions and all assigned interventions
             const [todayRes, allRes] = await Promise.allSettled([
                 apiFetch("/v1/interventions/today"),
@@ -112,6 +121,12 @@ export default function TechnicianInterventionsPage() {
     };
 
     useEffect(() => {
+        if (!userLoading && role && role !== "TECHNICIAN") {
+            navigate("/home", { replace: true });
+        }
+    }, [role, userLoading, navigate]);
+
+    useEffect(() => {
         loadData();
     }, []);
 
@@ -131,6 +146,21 @@ export default function TechnicianInterventionsPage() {
         }
     };
 
+    // Arrive Intervention (PATCH /v1/interventions/:id/arrive)
+    const handleArriveIntervention = async () => {
+        if (!selectedIntervention) return;
+        try {
+            await apiFetch(`/v1/interventions/${selectedIntervention.id}/arrive`, {
+                method: "PATCH"
+            });
+            setSelectedIntervention(prev => ({ ...prev, status: "ARRIVED", arrivedAt: new Date() }));
+            triggerToast("Statut mis à jour : Vous êtes bien arrivé sur place");
+            loadData();
+        } catch (err) {
+            triggerToast(err.message || "Erreur lors de l'enregistrement de l'arrivée", true);
+        }
+    };
+
     // Start Intervention (PATCH /v1/interventions/:id/start)
     const handleStartIntervention = async () => {
         if (!selectedIntervention) return;
@@ -139,7 +169,7 @@ export default function TechnicianInterventionsPage() {
                 method: "PATCH"
             });
             setSelectedIntervention(prev => ({ ...prev, status: "IN_PROGRESS", startedAt: new Date() }));
-            triggerToast("Intervention démarrée avec succès ! 🚀");
+            triggerToast("Intervention démarrée avec succès !");
             loadData();
         } catch (err) {
             triggerToast(err.message || "Erreur lors du démarrage", true);
@@ -180,7 +210,7 @@ export default function TechnicianInterventionsPage() {
             } else {
                 setAfterPhotos(prev => [...prev, ...newPhotos.filter(p => p.type === "after")]);
             }
-            triggerToast("Photo enregistrée avec succès ! 📷");
+            triggerToast("Photo enregistrée avec succès !");
         } catch (err) {
             triggerToast(err.message || "Erreur lors de l'enregistrement de la photo", true);
         } finally {
@@ -280,7 +310,7 @@ export default function TechnicianInterventionsPage() {
                 })
             });
 
-            triggerToast("Intervention terminée avec succès ! 🎉");
+            triggerToast("Intervention terminée avec succès !");
             setShowConfirmModal(false);
             setSelectedIntervention(null);
             loadData();
@@ -653,12 +683,14 @@ export default function TechnicianInterventionsPage() {
                                                             <span className="tech-item-client">{clientName}</span>
                                                             <span className={`tech-status-badge ${item.status || 'SCHEDULED'} ${isPastLate ? 'LATE' : ''}`}>
                                                                 {isCompleted 
-                                                                    ? 'Terminée ✓' 
+                                                                    ? 'Terminée' 
+                                                                    : item.status === 'ARRIVED'
+                                                                    ? 'Arrivé'
                                                                     : item.status === 'IN_PROGRESS' 
-                                                                    ? 'En cours ⚡' 
+                                                                    ? 'En travail' 
                                                                     : isPastLate 
-                                                                    ? 'En retard ⚠️' 
-                                                                    : 'Prévue'}
+                                                                    ? 'En retard' 
+                                                                    : 'En attente'}
                                                             </span>
                                                         </div>
 
@@ -748,7 +780,7 @@ export default function TechnicianInterventionsPage() {
                                 </span>
                             )}
                             <span className={`tech-status-badge ${selectedIntervention.status || 'SCHEDULED'}`}>
-                                {selectedIntervention.status === 'IN_PROGRESS' ? 'En cours ⚡' : selectedIntervention.status === 'COMPLETED' ? 'Terminée ✓' : 'Prévue'}
+                                {selectedIntervention.status === 'ARRIVED' ? 'Arrivé sur place' : selectedIntervention.status === 'IN_PROGRESS' ? 'En travail' : selectedIntervention.status === 'COMPLETED' ? 'Terminée' : 'En attente'}
                             </span>
                         </div>
                     </div>
@@ -857,19 +889,30 @@ export default function TechnicianInterventionsPage() {
                             </div>
                         )}
 
-                        {/* BOUTON DÉMARRER (Si statut SCHEDULED ou PENDING) */}
-                        {selectedIntervention.status !== "IN_PROGRESS" && selectedIntervention.status !== "COMPLETED" && (
+                        {/* BOUTON 1 : MARQUER L'ARRIVÉE SUR PLACE */}
+                        {(selectedIntervention.status === "PENDING" || selectedIntervention.status === "SCHEDULED" || (!selectedIntervention.status && selectedIntervention.status !== "ARRIVED" && selectedIntervention.status !== "IN_PROGRESS" && selectedIntervention.status !== "COMPLETED")) && (
+                            <button
+                                className="btn-start-intervention btn-arrive"
+                                onClick={handleArriveIntervention}
+                            >
+                                <MapPin size={22} />
+                                Je suis arrivé chez le client
+                            </button>
+                        )}
+
+                        {/* BOUTON 2 : DÉMARRER LES TRAVAUX */}
+                        {selectedIntervention.status === "ARRIVED" && (
                             <button
                                 className="btn-start-intervention"
                                 onClick={handleStartIntervention}
                             >
                                 <Play size={22} />
-                                Démarrer l'intervention sur place
+                                Commencer l'intervention (En travail)
                             </button>
                         )}
 
-                        {/* SECTION EXECUTION (Pendant IN_PROGRESS ou COMPLETED) */}
-                        {(selectedIntervention.status === "IN_PROGRESS" || selectedIntervention.status === "COMPLETED") && (
+                        {/* SECTION EXECUTION (Photos Avant dès ARRIVED) */}
+                        {(selectedIntervention.status === "ARRIVED" || selectedIntervention.status === "IN_PROGRESS" || selectedIntervention.status === "COMPLETED") && (
                             <>
                                 {/* PHOTOS AVANT (Optionnel) */}
                                 <div className="tech-card-box">
@@ -882,7 +925,7 @@ export default function TechnicianInterventionsPage() {
                                             {beforePhotos.map((p, idx) => (
                                                 <div key={idx} className="photo-thumb-wrapper">
                                                     <img src={p.url} alt="Avant" className="photo-thumb-img" />
-                                                    {selectedIntervention.status === "IN_PROGRESS" && (
+                                                    {(selectedIntervention.status === "ARRIVED" || selectedIntervention.status === "IN_PROGRESS") && (
                                                         <button 
                                                             type="button" 
                                                             className="btn-delete-photo-thumb"
@@ -896,10 +939,10 @@ export default function TechnicianInterventionsPage() {
                                             ))}
                                         </div>
                                     )}
-                                    {selectedIntervention.status === "IN_PROGRESS" && (
+                                    {(selectedIntervention.status === "ARRIVED" || selectedIntervention.status === "IN_PROGRESS") && (
                                         <label className="btn-take-photo">
                                             <Camera size={18} />
-                                            {uploadingBefore ? "Enregistrement de la photo..." : "📷 Prendre une photo (Avant)"}
+                                            {uploadingBefore ? "Enregistrement de la photo..." : "Prendre une photo (Avant)"}
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -910,6 +953,12 @@ export default function TechnicianInterventionsPage() {
                                         </label>
                                     )}
                                 </div>
+                            </>
+                        )}
+
+                        {/* SECTION EXECUTION AVANCÉE (Pendant IN_PROGRESS ou COMPLETED) */}
+                        {(selectedIntervention.status === "IN_PROGRESS" || selectedIntervention.status === "COMPLETED") && (
+                            <>
 
                                 {/* NOTES & COMPTE-RENDU */}
                                 <div className="tech-card-box">
@@ -960,7 +1009,7 @@ export default function TechnicianInterventionsPage() {
                                     {selectedIntervention.status === "IN_PROGRESS" && (
                                         <label className="btn-take-photo">
                                             <Camera size={18} />
-                                            {uploadingAfter ? "Enregistrement de la photo..." : "📷 Prendre une photo (Après)"}
+                                            {uploadingAfter ? "Enregistrement de la photo..." : "Prendre une photo (Après)"}
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -981,8 +1030,8 @@ export default function TechnicianInterventionsPage() {
                                     {selectedIntervention.clientSignature ? (
                                         <div style={{ textAlign: 'center', padding: '16px', border: '1px solid var(--border)', borderRadius: '14px', background: '#FFF' }}>
                                             <img src={selectedIntervention.clientSignature} alt="Signature Client" style={{ maxHeight: '130px', objectFit: 'contain' }} />
-                                            <div style={{ fontSize: '0.82rem', color: '#556B2F', marginTop: '8px', fontWeight: 700 }}>
-                                                ✓ Signature client enregistrée
+                                            <div style={{ fontSize: '0.82rem', color: '#556B2F', marginTop: '8px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                                <Check size={14} /> Signature client enregistrée
                                             </div>
                                         </div>
                                     ) : (

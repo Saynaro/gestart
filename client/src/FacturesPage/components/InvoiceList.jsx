@@ -98,9 +98,9 @@ function InvoiceList({
                     <div className="fp-card-top-right">
                         <div className="fp-card-amount-group">
                             <span className="fp-card-amount">
-                                {inv.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                                {(inv.totalTtc ?? inv.amountTTC ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                             </span>
-                            <span className="fp-card-amount-label"> HT</span>
+                            <span className="fp-card-amount-label"> TTC</span>
                         </div>
 
                         {/* 3 Dots Menu Button on Invoice Card */}
@@ -117,17 +117,19 @@ function InvoiceList({
 
                             {activeMenuId === inv.id && (
                                 <div className="fp-dots-menu fp-card-menu-dropdown" onClick={e => e.stopPropagation()}>
-                                    <button
-                                        type="button"
-                                        className="fp-dots-menu-item"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveMenuId(null);
-                                            if (onSend) onSend(inv);
-                                        }}
-                                    >
-                                        <Send size={14} /> Envoyer la facture
-                                    </button>
+                                    {String(inv.status).toLowerCase() !== "draft" && (
+                                        <button
+                                            type="button"
+                                            className="fp-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                if (onSend) onSend(inv);
+                                            }}
+                                        >
+                                            <Send size={14} /> Envoyer la facture
+                                        </button>
+                                    )}
 
                                     <button
                                         type="button"

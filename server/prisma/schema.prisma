@@ -94,6 +94,7 @@ enum ClientStatus {
 enum InterventionStatus {
   PENDING
   SCHEDULED
+  ARRIVED
   IN_PROGRESS
   COMPLETED
   CANCELLED
@@ -1107,6 +1108,7 @@ model Intervention {
   // Planification
   scheduledAt       DateTime?
   estimatedDuration Int? // minutes
+  arrivedAt         DateTime?
   startedAt         DateTime?
   completedAt       DateTime?
 

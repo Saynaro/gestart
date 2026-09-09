@@ -51,10 +51,26 @@ export function handleLogout(navigate) {
     clearAuthToken();
     localStorage.removeItem('userEmail');
     localStorage.removeItem('currentUser');
+
+    // Notify all context providers and listeners immediately
+    window.dispatchEvent(new CustomEvent('userLoggedOut'));
+    window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: null }));
+
+    // Disconnect active socket session
+    import('./socket.js').then(({ disconnectSocket }) => {
+        disconnectSocket();
+    }).catch(() => {});
+
+    // Invalidate server refresh token session cookie
+    import('./config.js').then(({ API_URL }) => {
+        fetch(`${API_URL}/v1/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => {});
+    }).catch(() => {});
+
     // Stop background token refresh interval
     import('./api.js').then(({ stopProactiveTokenRefresh }) => {
         stopProactiveTokenRefresh();
     }).catch(() => {});
+
     if (navigate) {
         navigate('/login', { replace: true });
     } else {

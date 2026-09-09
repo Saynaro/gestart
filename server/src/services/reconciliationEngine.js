@@ -152,8 +152,12 @@ export const matchTransactionWithInvoices = async (transactionId) => {
         return { status: "PENDING", score: highestScore };
     }
 
-    // Correspondance exacte (Score >= 0.95) -> Rapprochement automatique
-    if (highestScore >= 0.95) {
+    const hasExactNumber = bestMatch.details.some(d => d.includes("Numéro de facture exact"));
+    const hasExactAmount = bestMatch.details.some(d => d.includes("Montant exact"));
+    const isAutoMatch = (hasExactNumber && hasExactAmount) || highestScore >= 0.85;
+
+    // Correspondance automatique si numéro exact + montant exact OU score >= 0.85
+    if (isAutoMatch) {
         const invId = bestMatch.invoice.id;
 
         // Mise à jour de la facture en PAYÉE par virement

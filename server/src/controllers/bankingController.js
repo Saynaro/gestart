@@ -17,7 +17,7 @@ export const connectBanking = async (req, res) => {
 
     try {
         const provider = getBankingProvider();
-        const callbackUrl = redirectUrl || `${frontendUrl}/settings?tab=paiements&banking=success`;
+        const callbackUrl = redirectUrl || `${frontendUrl}/settings`;
         const result = await provider.connectBankAccount(companyId, callbackUrl);
 
         return res.status(200).json({
@@ -29,6 +29,174 @@ export const connectBanking = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: error.message || "Erreur lors de l'initialisation Open Banking"
+        });
+    }
+};
+
+/**
+ * Callback de finalisation de connexion bancaire (Powens Webview)
+ * POST /api/v1/banking/callback
+ */
+export const handleBankingCallback = async (req, res) => {
+    const companyId = req.user.companyId;
+    const { connectionId, error, errorDescription } = req.body || {};
+
+    if (error) {
+        console.warn("Banking connection error from Powens:", error, errorDescription);
+        return res.status(400).json({
+            success: false,
+            message: errorDescription || `Erreur Powens: ${error}`
+        });
+    }
+
+    try {
+        const connection = await prisma.bankConnection.findUnique({
+            where: { companyId }
+        });
+
+        if (!connection || !connection.accessTokenEncrypted) {
+            return res.status(404).json({
+                success: false,
+                message: "Session bancaire introuvable pour cette entreprise."
+            });
+        }
+
+        const provider = getBankingProvider();
+        const effectiveConnectionId = connectionId || connection.connectionId;
+
+        // 1. Mettre à jour la connexion en ACTIVE
+        const updatedConnection = await prisma.bankConnection.update({
+            where: { companyId },
+            data: {
+                connectionId: String(effectiveConnectionId),
+                status: "ACTIVE",
+                lastSyncAt: new Date()
+            }
+        });
+
+        // 2. Récupérer et sauvegarder les comptes bancaires
+        const rawAccounts = await provider.getAccounts(connection.accessTokenEncrypted);
+        const savedAccounts = [];
+
+        for (const acc of rawAccounts) {
+            const extId = String(acc.id);
+            const existing = await prisma.bankAccount.findFirst({
+                where: { companyId, externalId: extId }
+            });
+
+            const savedAcc = existing
+                ? await prisma.bankAccount.update({
+                    where: { id: existing.id },
+                    data: {
+                        iban: acc.iban || existing.iban,
+                        bic: acc.bic || existing.bic,
+                        accountName: acc.name || existing.accountName,
+                        balance: typeof acc.balance === "number" ? acc.balance : existing.balance
+                    }
+                })
+                : await prisma.bankAccount.create({
+                    data: {
+                        companyId,
+                        bankConnectionId: updatedConnection.id,
+                        externalId: extId,
+                        iban: acc.iban || null,
+                        bic: acc.bic || null,
+                        accountName: acc.name || "Compte principal",
+                        balance: typeof acc.balance === "number" ? acc.balance : 0,
+                        currency: (acc.currency && acc.currency.id) || "EUR"
+                    }
+                });
+            savedAccounts.push(savedAcc);
+        }
+
+        // 3. Récupérer les transactions initiales
+        const rawTxs = await provider.getTransactions(connection.accessTokenEncrypted);
+        let syncedCount = 0;
+
+        for (const tx of rawTxs) {
+            const extTxId = String(tx.id);
+            const matchedDbAcc = savedAccounts.find(a => a.externalId === String(tx.id_account)) || savedAccounts[0];
+            if (!matchedDbAcc) continue;
+
+            const existingTx = await prisma.bankTransaction.findUnique({
+                where: { externalTransactionId: extTxId }
+            });
+
+            if (!existingTx) {
+                await prisma.bankTransaction.create({
+                    data: {
+                        companyId,
+                        bankAccountId: matchedDbAcc.id,
+                        externalTransactionId: extTxId,
+                        amount: typeof tx.value === "number" ? tx.value : 0,
+                        currency: "EUR",
+                        label: tx.original_wording || tx.simplified_wording || "Virement",
+                        reference: tx.id ? `POWENS_${tx.id}` : null,
+                        transactionDate: tx.date ? new Date(tx.date) : new Date(),
+                        reconciliationStatus: "PENDING"
+                    }
+                });
+                syncedCount++;
+            }
+        }
+
+        // 4. Lancer la réconciliation automatique sur les virements créditeurs
+        const pendingTxs = await prisma.bankTransaction.findMany({
+            where: {
+                companyId,
+                reconciliationStatus: { in: ["PENDING", "PROBABLE"] },
+                amount: { gt: 0 }
+            }
+        });
+        for (const pTx of pendingTxs) {
+            await matchTransactionWithInvoices(pTx.id);
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Compte bancaire synchronisé avec succès.",
+            data: {
+                isConnected: true,
+                connection: updatedConnection,
+                accounts: savedAccounts,
+                syncedTransactionsCount: syncedCount
+            }
+        });
+    } catch (err) {
+        console.error("HANDLE BANKING CALLBACK ERROR:", err);
+        return res.status(500).json({
+            success: false,
+            message: err.message || "Erreur lors de la finalisation de la connexion bancaire."
+        });
+    }
+};
+
+/**
+ * Déconnecte la banque liée
+ * POST /api/v1/banking/disconnect
+ */
+export const disconnectBanking = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        const connection = await prisma.bankConnection.findUnique({ where: { companyId } });
+        if (connection) {
+            const provider = getBankingProvider();
+            if (connection.connectionId && connection.accessTokenEncrypted) {
+                await provider.disconnectBankAccount(connection.connectionId, connection.accessTokenEncrypted);
+            }
+            await prisma.bankConnection.delete({ where: { companyId } });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Compte bancaire déconnecté avec succès."
+        });
+    } catch (error) {
+        console.error("DISCONNECT BANKING ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la déconnexion bancaire"
         });
     }
 };
@@ -124,15 +292,69 @@ export const refreshBankingTransactions = async (req, res) => {
         const provider = getBankingProvider();
         const connection = await prisma.bankConnection.findUnique({ where: { companyId } });
 
-        if (connection) {
-            await provider.refreshTransactions(connection.connectionId);
+        if (connection && connection.accessTokenEncrypted) {
+            await provider.refreshTransactions(connection.connectionId, connection.accessTokenEncrypted);
+
+            // Synchroniser les soldes des comptes
+            const rawAccounts = await provider.getAccounts(connection.accessTokenEncrypted);
+            for (const acc of rawAccounts) {
+                const extId = String(acc.id);
+                const existing = await prisma.bankAccount.findFirst({
+                    where: { companyId, externalId: extId }
+                });
+                if (existing) {
+                    await prisma.bankAccount.update({
+                        where: { id: existing.id },
+                        data: {
+                            balance: typeof acc.balance === "number" ? acc.balance : existing.balance,
+                            iban: acc.iban || existing.iban,
+                            bic: acc.bic || existing.bic
+                        }
+                    });
+                }
+            }
+
+            // Récupérer les nouvelles transactions
+            const rawTxs = await provider.getTransactions(connection.accessTokenEncrypted);
+            const dbAccounts = await prisma.bankAccount.findMany({ where: { companyId } });
+
+            for (const tx of rawTxs) {
+                const extTxId = String(tx.id);
+                const matchedDbAcc = dbAccounts.find(a => a.externalId === String(tx.id_account)) || dbAccounts[0];
+                if (!matchedDbAcc) continue;
+
+                const existingTx = await prisma.bankTransaction.findUnique({
+                    where: { externalTransactionId: extTxId }
+                });
+
+                if (!existingTx) {
+                    await prisma.bankTransaction.create({
+                        data: {
+                            companyId,
+                            bankAccountId: matchedDbAcc.id,
+                            externalTransactionId: extTxId,
+                            amount: typeof tx.value === "number" ? tx.value : 0,
+                            currency: "EUR",
+                            label: tx.original_wording || tx.simplified_wording || "Virement",
+                            reference: tx.id ? `POWENS_${tx.id}` : null,
+                            transactionDate: tx.date ? new Date(tx.date) : new Date(),
+                            reconciliationStatus: "PENDING"
+                        }
+                    });
+                }
+            }
         }
 
         // Exécute le moteur de rapprochement sur toutes les transactions bancaires non traitées
         const pendingTxs = await prisma.bankTransaction.findMany({
             where: {
                 companyId,
-                reconciliationStatus: { in: ["PENDING", null] }
+                amount: { gt: 0 },
+                OR: [
+                    { reconciliationStatus: "PENDING" },
+                    { reconciliationStatus: "PROBABLE" },
+                    { reconciliationStatus: null }
+                ]
             }
         });
 

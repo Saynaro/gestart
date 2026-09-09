@@ -106,17 +106,19 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                     style={{ backgroundColor: "var(--card, #1E293B)", color: "var(--foreground, #F8FAFC)", borderRadius: "22px", maxWidth: mode === "card_only" ? "460px" : "860px", width: "100%", border: "1px solid var(--border, rgba(255,255,255,0.1))", boxShadow: "0 32px 64px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)", overflow: "hidden", position: "relative", maxHeight: "92vh", display: "flex", flexDirection: "column" }}
                 >
                     {/* Header */}
-                    <div style={{ padding: "24px 28px 18px 28px", borderBottom: "1px solid var(--border, rgba(255,255,255,0.07))", display: "flex", alignItems: "flex-start", justifyContent: "space-between", background: "linear-gradient(180deg, rgba(91,77,219,0.06) 0%, transparent 100%)" }}>
-                        <div>
-                            <h2 style={{ fontSize: "20px", fontWeight: 800, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: "10px" }}>
-                                <span style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #5B4DDB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <Star size={18} color="#FFF" />
-                                </span>
-                                {mode === "card_only" ? "Gérer ma carte bancaire" : `Passer à l'offre ${currentPlanObj.displayName}`}
-                            </h2>
-                            <p style={{ margin: 0, fontSize: "13px", color: "var(--muted-foreground, #94A3B8)" }}>
-                                {mode === "card_only" ? "Vos données sont sécurisées par Stripe" : "Paiement 100% sécurisé · Annulable à tout moment · Facture automatique"}
-                            </p>
+                    <div style={{ padding: "24px 28px 18px 28px", borderBottom: "1px solid var(--border, rgba(255,255,255,0.07))", display: "flex", alignItems: "flex-start", justifyContent: "space-between", background: "linear-gradient(180deg, rgba(85,107,47,0.08) 0%, transparent 100%)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <span style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #556B2F, #6B8E23)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <CreditCard size={18} color="#FFF" />
+                            </span>
+                            <div>
+                                <h2 style={{ fontSize: "20px", fontWeight: 800, margin: "0 0 4px 0" }}>
+                                    {mode === "card_only" ? "Gérer ma carte bancaire" : `Passer à l'offre ${currentPlanObj.displayName}`}
+                                </h2>
+                                <p style={{ margin: 0, fontSize: "13px", color: "var(--muted-foreground, #94A3B8)" }}>
+                                    {mode === "card_only" ? "Vos données sont sécurisées par Stripe" : "Paiement 100% sécurisé · Annulable à tout moment · Facture automatique"}
+                                </p>
+                            </div>
                         </div>
                         <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "var(--muted-foreground, #94A3B8)", cursor: "pointer", padding: "8px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
                             <X size={18} />
@@ -143,27 +145,21 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
 
                             {/* Stripe redirect info box */}
                             {mode !== "card_only" && (
-                                <div style={{ background: "linear-gradient(135deg, rgba(91,77,219,0.08), rgba(124,58,237,0.06))", border: "1px solid rgba(91,77,219,0.2)", borderRadius: "14px", padding: "18px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <div style={{ background: "linear-gradient(135deg, rgba(85,107,47,0.08), rgba(107,142,35,0.06))", border: "1px solid rgba(85,107,47,0.25)", borderRadius: "14px", padding: "18px", display: "flex", flexDirection: "column", gap: "12px" }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                        <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #5B4DDB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                            <CreditCard size={18} color="#FFF" />
+                                        <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #556B2F, #6B8E23)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                            <Shield size={18} color="#FFF" />
                                         </div>
                                         <div>
-                                            <div style={{ fontWeight: 700, fontSize: "14px" }}>Paiement via Stripe Checkout</div>
+                                            <div style={{ fontWeight: 800, fontSize: "14px" }}>Paiement sécurisé par Stripe</div>
                                             <div style={{ fontSize: "12px", color: "var(--muted-foreground, #94A3B8)" }}>Vous serez redirigé vers la page sécurisée de Stripe</div>
                                         </div>
                                     </div>
-
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                        {[
-                                            { icon: "🔒", text: "Connexion chiffrée TLS / SSL 256 bits" },
-                                            { icon: "🛡️", text: "3D Secure automatique selon votre banque" },
-                                            { icon: "💳", text: "Visa, Mastercard, American Express, Apple Pay" },
-                                            { icon: "🔁", text: "Annulable à tout moment depuis les réglages" }
-                                        ].map((item, i) => (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", paddingTop: "6px", borderTop: "1px solid var(--border, rgba(255,255,255,0.08))" }}>
+                                        {["Paiement par Carte bancaire, Apple Pay ou Google Pay", "Données bancaires 100% hébergées chez Stripe (PCI-DSS niveau 1)", "Aucun numéro de carte ne transite par nos serveurs"].map((t, i) => (
                                             <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--muted-foreground, #94A3B8)" }}>
-                                                <span style={{ fontSize: "14px" }}>{item.icon}</span>
-                                                <span>{item.text}</span>
+                                                <CheckCircle2 size={13} color="#22C55E" style={{ flexShrink: 0 }} />
+                                                <span>{t}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -171,9 +167,9 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                             )}
 
                             {mode === "card_only" && (
-                                <div style={{ background: "linear-gradient(135deg, rgba(91,77,219,0.08), rgba(124,58,237,0.06))", border: "1px solid rgba(91,77,219,0.2)", borderRadius: "14px", padding: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                                <div style={{ background: "linear-gradient(135deg, rgba(85,107,47,0.08), rgba(107,142,35,0.06))", border: "1px solid rgba(85,107,47,0.25)", borderRadius: "14px", padding: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                        <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg, #5B4DDB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                        <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg, #556B2F, #6B8E23)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                             <CreditCard size={20} color="#FFF" />
                                         </div>
                                         <div>
@@ -198,7 +194,7 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
 
                             {mode === "card_only" && (
                                 <button onClick={handleCardOnly} disabled={loading}
-                                    style={{ width: "100%", padding: "14px", background: loading ? "#374151" : "linear-gradient(135deg, #5B4DDB, #7C3AED)", color: "#FFF", border: "none", borderRadius: "12px", fontSize: "15px", fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", boxShadow: loading ? "none" : "0 10px 25px rgba(91,77,219,0.35)", transition: "all 0.2s ease" }}>
+                                    style={{ width: "100%", padding: "14px", background: loading ? "#374151" : "#556B2F", color: "#FFF", border: "none", borderRadius: "12px", fontSize: "15px", fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", boxShadow: loading ? "none" : "0 10px 25px rgba(85,107,47,0.35)", transition: "all 0.2s ease" }}>
                                     {loading ? <><Loader2 size={17} className="spin-loader" /> Ouverture...</> : <><CreditCard size={16} /> Gérer ma carte sur Stripe <ArrowRight size={16} /></>}
                                 </button>
                             )}
@@ -220,9 +216,9 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                                             { value: "ANNUAL", label: "Paiement annuel", sub: "Économisez 20%", price: currentPlanObj.priceAnnual, badge: "-20%" }
                                         ].map(opt => (
                                             <div key={opt.value} onClick={() => setBillingCycle(opt.value)}
-                                                style={{ padding: "14px 16px", borderRadius: "12px", border: billingCycle === opt.value ? "2px solid var(--sidebar-primary, #5B4DDB)" : "1px solid var(--border, rgba(255,255,255,0.1))", backgroundColor: billingCycle === opt.value ? "rgba(91,77,219,0.1)" : "transparent", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", transition: "all 0.15s" }}>
+                                                style={{ padding: "14px 16px", borderRadius: "12px", border: billingCycle === opt.value ? "2px solid #556B2F" : "1px solid var(--border, rgba(255,255,255,0.1))", backgroundColor: billingCycle === opt.value ? "rgba(85,107,47,0.1)" : "transparent", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", transition: "all 0.15s" }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                                                    <div style={{ width: "18px", height: "18px", borderRadius: "50%", border: billingCycle === opt.value ? "5px solid var(--sidebar-primary, #5B4DDB)" : "2px solid var(--muted-foreground, #64748B)", backgroundColor: "#FFF", flexShrink: 0, transition: "border 0.15s" }} />
+                                                    <div style={{ width: "18px", height: "18px", borderRadius: "50%", border: billingCycle === opt.value ? "5px solid #556B2F" : "2px solid var(--muted-foreground, #64748B)", backgroundColor: "#FFF", flexShrink: 0, transition: "border 0.15s" }} />
                                                     <div style={{ minWidth: 0 }}>
                                                         <span style={{ fontWeight: 700, fontSize: "14px", display: "block" }}>{opt.label}</span>
                                                         <div style={{ fontSize: "12px", color: opt.value === "ANNUAL" ? "#22C55E" : "var(--muted-foreground, #94A3B8)", fontWeight: opt.value === "ANNUAL" ? 600 : 400 }}>{opt.sub}</div>
@@ -240,7 +236,7 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                                 {/* Summary + features */}
                                 <div style={{ backgroundColor: "var(--background, #0F172A)", border: "1px solid var(--border, rgba(255,255,255,0.1))", borderRadius: "16px", padding: "20px" }}>
                                     <div style={{ fontSize: "11px", color: "var(--muted-foreground, #94A3B8)", fontWeight: 700, marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.8px" }}>RÉCAPITULATIF</div>
-                                    <div style={{ fontSize: "28px", fontWeight: 900, marginBottom: "2px", color: "var(--sidebar-primary, #5B4DDB)" }}>
+                                    <div style={{ fontSize: "28px", fontWeight: 900, marginBottom: "2px", color: "#556B2F" }}>
                                         {currentPriceMonthly} € <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #F8FAFC)" }}>HT / mois</span>
                                     </div>
                                     <div style={{ fontSize: "12px", color: "var(--muted-foreground, #94A3B8)", marginBottom: "14px" }}>
@@ -257,7 +253,7 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                                     </div>
 
                                     <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", fontSize: "12px", color: "var(--muted-foreground, #94A3B8)", cursor: "pointer", lineHeight: "1.45", marginBottom: "16px" }}>
-                                        <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} style={{ marginTop: "2px", accentColor: "var(--sidebar-primary, #5B4DDB)", flexShrink: 0 }} />
+                                        <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} style={{ marginTop: "2px", accentColor: "#556B2F", flexShrink: 0 }} />
                                         <span>Votre abonnement sera renouvelé automatiquement. Annulable à tout moment depuis les réglages.</span>
                                     </label>
 
@@ -266,12 +262,12 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                                         disabled={loading || !agreeTerms}
                                         style={{
                                             width: "100%", padding: "15px",
-                                            background: (loading || !agreeTerms) ? "#374151" : "linear-gradient(135deg, #5B4DDB, #7C3AED)",
+                                            background: (loading || !agreeTerms) ? "#374151" : "#556B2F",
                                             color: "#FFF", border: "none", borderRadius: "12px",
                                             fontSize: "15px", fontWeight: 800,
                                             cursor: (loading || !agreeTerms) ? "not-allowed" : "pointer",
                                             display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-                                            boxShadow: (loading || !agreeTerms) ? "none" : "0 10px 25px rgba(91,77,219,0.4)",
+                                            boxShadow: (loading || !agreeTerms) ? "none" : "0 10px 25px rgba(85,107,47,0.35)",
                                             opacity: !agreeTerms ? 0.55 : 1,
                                             transition: "all 0.2s ease"
                                         }}

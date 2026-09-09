@@ -4,6 +4,7 @@ import { isAuthenticated } from './auth';
 
 const UserContext = createContext({
     user: null,
+    setUser: () => {},
     fullName: "Utilisateur",
     firstName: "Utilisateur",
     lastName: "",
@@ -29,7 +30,7 @@ export function UserProvider({ children }) {
         if (!isAuthenticated()) {
             setUser(null);
             setLoading(false);
-            return;
+            return null;
         }
         try {
             const res = await apiFetch('/v1/auth/me');
@@ -38,34 +39,56 @@ export function UserProvider({ children }) {
                 setUser(userData);
                 localStorage.setItem('currentUser', JSON.stringify(userData));
                 if (userData.email) localStorage.setItem('userEmail', userData.email);
+                return userData;
             }
         } catch (e) {
             console.warn("Could not fetch user profile:", e.message);
         } finally {
             setLoading(false);
         }
+        return null;
     }, []);
 
     useEffect(() => {
         refreshUser();
 
         const handleUserChanged = (e) => {
+            if (e?.detail === null) {
+                setUser(null);
+                setLoading(false);
+                return;
+            }
             if (e?.detail) {
-                setUser(prev => {
-                    const updated = { ...(prev || {}), ...e.detail };
-                    localStorage.setItem('currentUser', JSON.stringify(updated));
-                    return updated;
-                });
+                setUser(e.detail);
+                localStorage.setItem('currentUser', JSON.stringify(e.detail));
             } else {
                 refreshUser();
             }
         };
 
+        const handleUserLoggedIn = (e) => {
+            if (e?.detail) {
+                const loggedUser = e.detail.user || e.detail;
+                setUser(loggedUser);
+                localStorage.setItem('currentUser', JSON.stringify(loggedUser));
+            }
+            refreshUser();
+        };
+
+        const handleUserLoggedOut = () => {
+            setUser(null);
+            setLoading(false);
+        };
+
         window.addEventListener('userProfileChanged', handleUserChanged);
+        window.addEventListener('userLoggedIn', handleUserLoggedIn);
+        window.addEventListener('userLoggedOut', handleUserLoggedOut);
         window.addEventListener('companyUpdated', () => refreshUser());
         window.addEventListener('storage', handleUserChanged);
         return () => {
             window.removeEventListener('userProfileChanged', handleUserChanged);
+            window.removeEventListener('userLoggedIn', handleUserLoggedIn);
+            window.removeEventListener('userLoggedOut', handleUserLoggedOut);
             window.removeEventListener('companyUpdated', () => refreshUser());
             window.removeEventListener('storage', handleUserChanged);
         };
@@ -98,6 +121,7 @@ export function UserProvider({ children }) {
     return (
         <UserContext.Provider value={{
             user,
+            setUser,
             avatarUrl,
             company,
             fullName,

@@ -51,8 +51,38 @@ export const getPayments = async (req, res) => {
         const totalPending = pendingInvoices._sum.amountTTC || 0;
         const thisMonthReceived = thisMonthPaid._sum.amountPaid || thisMonthPaid._sum.amountTTC || 0;
 
-        // 2. Construction de la requête pour la liste des paiements / transactions
-        // On récupère les InvoiceTransaction enregistrées ainsi que les Invoices payées ou en attente
+        // 2. Synchronisation automatique des factures déjà payées n'ayant pas de transaction enregistrée
+        try {
+            const missingInvoices = await prisma.invoice.findMany({
+                where: {
+                    companyId,
+                    status: "PAID",
+                    transactions: { none: {} }
+                }
+            });
+            for (const inv of missingInvoices) {
+                const isBank = inv.paymentMethod === "TRANSFER" || inv.invoicePaymentMethod === "BANK_TRANSFER";
+                await prisma.invoiceTransaction.create({
+                    data: {
+                        invoiceId: inv.id,
+                        companyId: inv.companyId,
+                        type: isBank ? "BANK_TRANSFER" : "CARD",
+                        status: "succeeded",
+                        amount: inv.amountPaid || inv.amountTTC,
+                        currency: "EUR",
+                        bankReference: inv.paymentRef || (isBank ? "Virement bancaire" : "Carte bancaire"),
+                        stripePaymentIntentId: inv.stripePaymentIntentId || null,
+                        stripeCheckoutSessionId: inv.stripeCheckoutSessionId || null,
+                        paidAt: inv.paidAt || inv.updatedAt || new Date(),
+                        createdAt: inv.paidAt || inv.updatedAt || new Date()
+                    }
+                });
+            }
+        } catch (syncErr) {
+            console.warn("Auto-sync invoice transactions note:", syncErr.message);
+        }
+
+        // 3. Construction de la requête pour la liste des paiements / transactions
         const whereClause = {
             companyId,
             ...(from || to ? {
@@ -177,10 +207,11 @@ export const getPayments = async (req, res) => {
             }));
         }
 
-        // Récupération des transactions bancaires "À vérifier" (Rapprochement bancaire)
+        // Récupération des transactions bancaires "À vérifier" (Rapprochement bancaire - uniquement les crédits entrants)
         const pendingBankTransactions = await prisma.bankTransaction.findMany({
             where: {
                 companyId,
+                amount: { gt: 0 },
                 reconciliationStatus: { in: ["PROBABLE", "PENDING"] }
             },
             take: 10,

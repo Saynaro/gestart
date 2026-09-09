@@ -12,7 +12,7 @@ import { useSubscription } from "../utils/useSubscription";
 import { getSocket } from "../utils/socket";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "./ChannelIcons";
 
-function Header() {
+function Header({ title }) {
     const navigate = useNavigate();
     const { firstName, fullName, initials, avatarUrl } = useUser();
     const { displayName } = useSubscription();
@@ -294,11 +294,13 @@ function Header() {
     }, [menuOpen]);
 
     const getPageTitle = (pathname) => {
+        if (title) return title;
         if (pathname.startsWith("/home") || pathname === "/dashboard") return "Home";
         if (pathname.startsWith("/client")) return "Clients";
         if (pathname.startsWith("/planning")) return "Planning";
         if (pathname.startsWith("/messages")) return "Messages";
         if (pathname.startsWith("/factures")) return "Factures";
+        if (pathname.startsWith("/payments") || pathname.startsWith("/paiements")) return "Paiements";
         if (pathname.startsWith("/devis")) return "Devis";
         if (pathname.startsWith("/rapports")) return "Rapports";
         if (pathname.startsWith("/comptabilite")) return "Comptabilité";

@@ -214,6 +214,7 @@ function MessagesPage() {
   const isInfoParam = searchParams.get("info") === "true";
 
   const messagesContainerRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const chatPaneRef = useRef(null);
   const fileInputRef = useRef(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
@@ -506,12 +507,52 @@ function MessagesPage() {
     };
   }, [activeChatIdParam, fetchConversations]);
 
+  // Scroll to bottom helper
+  const scrollToBottom = useCallback((behavior = "smooth", delay = 0) => {
+    const doScroll = () => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior, block: "end" });
+      }
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior
+        });
+      }
+    };
+    if (delay > 0) {
+      setTimeout(doScroll, delay);
+    } else {
+      requestAnimationFrame(doScroll);
+    }
+  }, []);
+
+  // When input is focused/clicked (especially on mobile when keyboard opens)
+  const handleInputFocus = useCallback(() => {
+    scrollToBottom("smooth", 30);
+    scrollToBottom("smooth", 250);
+    scrollToBottom("smooth", 450);
+  }, [scrollToBottom]);
+
+  // Handle virtual keyboard viewport resizing on mobile
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    const handleViewportResize = () => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) {
+        scrollToBottom("smooth", 60);
+      }
+    };
+    window.visualViewport.addEventListener("resize", handleViewportResize);
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleViewportResize);
+    };
+  }, [scrollToBottom]);
+
   // Scroll to bottom on message update
   useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-    }
-  }, [messages.length, isLoadingMessages]);
+    scrollToBottom("auto", 0);
+  }, [messages.length, isLoadingMessages, scrollToBottom]);
 
   // Send Omnichannel Message Handler
   const handleSendMessage = async (e) => {
@@ -547,6 +588,8 @@ function MessagesPage() {
     setInputText("");
     const sentAttachments = [...emailAttachments];
     setEmailAttachments([]);
+    scrollToBottom("smooth", 30);
+    scrollToBottom("smooth", 150);
 
     try {
       const res = await apiFetch("/v1/messages/send", {
@@ -563,6 +606,7 @@ function MessagesPage() {
       if (res.success && res.data?.messageLog) {
         const savedLog = res.data.messageLog;
         setMessages(prev => prev.map(m => m.id === tempId ? savedLog : m));
+        scrollToBottom("smooth", 50);
 
         // Mettre à jour la conversation dans la liste
         setChats(prev => {
@@ -1081,7 +1125,8 @@ function MessagesPage() {
   // Delivery status icon renderer
   const renderStatusIcon = (status, channel) => {
     const isWhatsApp = channel === "WHATSAPP";
-    switch (status) {
+    const s = String(status || "").toLowerCase().trim();
+    switch (s) {
       case "read":
         return <CheckCheck size={14} className="text-emerald-500 inline ml-1 status-icon-read" title="Lu par le destinataire" />;
       case "delivered":
@@ -1090,12 +1135,17 @@ function MessagesPage() {
         return <Check size={14} className="text-blue-400 inline ml-1" title="Envoyé via le provider" />;
       case "failed":
       case "undelivered":
+      case "error":
         return <AlertCircle size={14} className="text-red-500 inline ml-1" title="Échec de distribution" />;
       case "pending":
-      default:
+      case "sending":
         return <Clock size={12} className="opacity-60 inline ml-1" title="En cours d'envoi" />;
+      default:
+        // Si le message est déjà enregistré dans l'historique sans statut explicite ou statut inconnu
+        return <Check size={14} className="text-blue-400 inline ml-1" title="Envoyé" />;
     }
   };
+
 
   // Render Client Info Sidebar / Drawer
   const renderClientInfoContent = (client) => {
@@ -1901,6 +1951,7 @@ function MessagesPage() {
           );
         })
         )}
+        <div ref={messagesEndRef} style={{ height: 1, width: "100%", pointerEvents: "none" }} />
       </div>
 
       {/* Send Error Notice */}
@@ -2117,6 +2168,8 @@ function MessagesPage() {
                     placeholder="Objet de l'email..."
                     value={emailSubject}
                     onChange={(e) => setEmailSubject(e.target.value)}
+                    onFocus={handleInputFocus}
+                    onClick={handleInputFocus}
                     className="email-subject-input"
                     required
                   />
@@ -2125,9 +2178,11 @@ function MessagesPage() {
             )}
 
             <textarea
-              placeholder={`Rédigez votre email à ${activeClientName}... (Glissez-déposez des fichiers ou faites Ctrl+V pour coller des photos)`}
+              placeholder={`Rédigez votre message à ${activeClientName}...`}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              onFocus={handleInputFocus}
+              onClick={handleInputFocus}
               onPaste={handlePaste}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -2256,6 +2311,8 @@ function MessagesPage() {
                 }
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
+                onFocus={handleInputFocus}
+                onClick={handleInputFocus}
                 className="chat-input"
                 disabled={isSending}
               />
@@ -2283,9 +2340,9 @@ function MessagesPage() {
 
       {/* Document / PDF Attachment Modal */}
       {isAttachModalOpen && (
-        <div className="client-modal-overlay" onClick={() => setIsAttachModalOpen(false)}>
-          <div className="client-modal-card" style={{ maxHeight: "85vh", display: "flex", flexDirection: "column", width: "100%", maxWidth: "520px" }} onClick={(e) => e.stopPropagation()}>
-            <div className="client-modal-header" style={{ flexShrink: 0 }}>
+        <div className="client-modal-overlay attachment-modal-overlay" onClick={() => setIsAttachModalOpen(false)}>
+          <div className="client-modal-card attachment-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="client-modal-header attachment-modal-header" style={{ flexShrink: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <FileText size={18} style={{ color: "var(--sidebar-primary)" }} />
                 <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Joindre un document</h3>
@@ -2295,17 +2352,17 @@ function MessagesPage() {
               </button>
             </div>
 
-            <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
+            <div className="attachment-modal-client-bar" style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
               <p style={{ fontSize: "13px", color: "var(--foreground)", margin: 0, fontWeight: 500 }}>
                 Documents de <strong>{activeClientName}</strong> :
               </p>
             </div>
 
-            <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
+            <div className="attachment-modal-body" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
               {/* Devis du client */}
               {clientObj.quotes && clientObj.quotes.length > 0 && (
                 <div>
-                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                  <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
                     Devis ({clientObj.quotes.length})
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -2315,12 +2372,12 @@ function MessagesPage() {
                         className="attachment-pick-item"
                       >
                         <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(85, 107, 47, 0.12)", color: "#556B2F" }}>
-                          <FileText size={19} />
+                          <FileText size={18} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--foreground)" }}>Devis {q.number}</div>
-                          <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
-                            Montant : <strong style={{ color: "var(--foreground)" }}>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
+                          <div className="attachment-item-title">Devis {q.number}</div>
+                          <div className="attachment-item-amount">
+                            Montant : <strong>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
@@ -2333,7 +2390,7 @@ function MessagesPage() {
                               handleOpenDocPreview(q, "quote");
                             }}
                           >
-                            <Eye size={16} />
+                            <Eye size={15} />
                           </button>
                           <button
                             type="button"
@@ -2344,7 +2401,7 @@ function MessagesPage() {
                               setIsAttachModalOpen(false);
                             }}
                           >
-                            <Plus size={14} /> Joindre
+                            <Plus size={13} /> Joindre
                           </button>
                         </div>
                       </div>
@@ -2356,7 +2413,7 @@ function MessagesPage() {
               {/* Factures du client */}
               {clientObj.invoices && clientObj.invoices.length > 0 && (
                 <div>
-                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                  <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
                     Factures ({clientObj.invoices.length})
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -2366,12 +2423,12 @@ function MessagesPage() {
                         className="attachment-pick-item"
                       >
                         <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#16a34a" }}>
-                          <FileText size={19} />
+                          <FileText size={18} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--foreground)" }}>Facture {inv.number}</div>
-                          <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
-                            Montant : <strong style={{ color: "var(--foreground)" }}>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
+                          <div className="attachment-item-title">Facture {inv.number}</div>
+                          <div className="attachment-item-amount">
+                            Montant : <strong>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
@@ -2384,7 +2441,7 @@ function MessagesPage() {
                               handleOpenDocPreview(inv, "invoice");
                             }}
                           >
-                            <Eye size={16} />
+                            <Eye size={15} />
                           </button>
                           <button
                             type="button"
@@ -2395,7 +2452,7 @@ function MessagesPage() {
                               setIsAttachModalOpen(false);
                             }}
                           >
-                            <Plus size={14} /> Joindre
+                            <Plus size={13} /> Joindre
                           </button>
                         </div>
                       </div>
@@ -2418,8 +2475,8 @@ function MessagesPage() {
 
   return (
     <div className={`home-page ${isMobile ? `mobile-view-${mobileView}` : ""}`}>
-      {/* Sidebar */}
-      {(!isMobile || (isMobile && mobileView === "list")) && <SideBar />}
+      {/* Sidebar - Always keep bottom navigation visible */}
+      <SideBar hideFab={isMobile && mobileView !== "list"} />
 
       <div className="main-content">
         {(!isMobile || (isMobile && mobileView === "list")) && <Header />}

@@ -100,8 +100,23 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                                 <Download size={15} />
                                 <span className="btn-label">PDF</span>
                             </button>
-                            <button className="top-btn close-x-desktop" onClick={onClose} aria-label="Fermer">
-                                <X size={18} />
+                            <button
+                                type="button"
+                                className="top-btn close-btn-always"
+                                onClick={onClose}
+                                aria-label="Fermer"
+                                title="Fermer l'aperçu"
+                                style={{
+                                    backgroundColor: "#ef4444",
+                                    color: "#ffffff",
+                                    fontWeight: 700,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "4px"
+                                }}
+                            >
+                                <X size={16} />
+                                <span>Fermer</span>
                             </button>
                         </div>
                     </div>

@@ -19,9 +19,13 @@ import './LoginPage.css';
 import { API_URL } from '../utils/config';
 import { setAuthToken } from '../utils/auth';
 import { startProactiveTokenRefresh } from '../utils/api';
+import { useUser } from '../utils/useUser';
+import { useSubscription } from '../utils/useSubscription';
 
 export default function LoginPage() {
     const navigate = useNavigate();
+    const { setUser, refreshUser } = useUser();
+    const { setSubscription, refreshSubscription } = useSubscription();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -93,19 +97,34 @@ export default function LoginPage() {
                 startProactiveTokenRefresh(); // Begin background token refresh
             }
 
-            const userEmail = (formData.email || data.data?.user?.email || '').toLowerCase().trim();
+            const rawUser = data.data?.user || {};
+            const userEmail = (formData.email || rawUser.email || '').toLowerCase().trim();
             localStorage.setItem('userEmail', userEmail);
             if (data.data?.user) {
                 localStorage.setItem('currentUser', JSON.stringify(data.data.user));
+                setUser(data.data.user);
+            }
+            if (data.data?.subscription) {
+                setSubscription(data.data.subscription);
             }
 
-            const userRole = data.data?.user?.role;
-            if (userEmail === 'khalid.cizdoev777@gmail.com' || userRole === 'SUPERADMIN') {
-                navigate('/admin');
-            } else if (userRole === 'TECHNICIAN') {
-                navigate('/planning');
+            window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: data.data }));
+
+            // Immediately hydrate full user profile & subscription before navigating
+            const [freshUser] = await Promise.all([
+                refreshUser().catch(() => null),
+                refreshSubscription().catch(() => null)
+            ]);
+
+            const finalRole = freshUser?.role || rawUser.role;
+            const finalEmail = freshUser?.email || userEmail;
+
+            if (finalEmail === 'khalid.cizdoev777@gmail.com' || finalRole === 'SUPERADMIN') {
+                navigate('/admin', { replace: true });
+            } else if (finalRole === 'TECHNICIAN') {
+                navigate('/interventions/today', { replace: true });
             } else {
-                navigate('/home');
+                navigate('/home', { replace: true });
             }
         } catch (err) {
             setError(err.message || 'Impossible de se connecter au serveur.');
@@ -152,19 +171,34 @@ export default function LoginPage() {
                 startProactiveTokenRefresh();
             }
 
-            const userEmail = (twoFactorEmail || data.data?.user?.email || '').toLowerCase().trim();
+            const rawUser = data.data?.user || {};
+            const userEmail = (twoFactorEmail || rawUser.email || '').toLowerCase().trim();
             localStorage.setItem('userEmail', userEmail);
             if (data.data?.user) {
                 localStorage.setItem('currentUser', JSON.stringify(data.data.user));
+                setUser(data.data.user);
+            }
+            if (data.data?.subscription) {
+                setSubscription(data.data.subscription);
             }
 
-            const userRole = data.data?.user?.role;
-            if (userEmail === 'khalid.cizdoev777@gmail.com' || userRole === 'SUPERADMIN') {
-                navigate('/admin');
-            } else if (userRole === 'TECHNICIAN') {
-                navigate('/planning');
+            window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: data.data }));
+
+            // Immediately hydrate full user profile & subscription before navigating
+            const [freshUser] = await Promise.all([
+                refreshUser().catch(() => null),
+                refreshSubscription().catch(() => null)
+            ]);
+
+            const finalRole = freshUser?.role || rawUser.role;
+            const finalEmail = freshUser?.email || userEmail;
+
+            if (finalEmail === 'khalid.cizdoev777@gmail.com' || finalRole === 'SUPERADMIN') {
+                navigate('/admin', { replace: true });
+            } else if (finalRole === 'TECHNICIAN') {
+                navigate('/interventions/today', { replace: true });
             } else {
-                navigate('/home');
+                navigate('/home', { replace: true });
             }
         } catch (err) {
             setError(err.message || 'Code de vérification invalide.');

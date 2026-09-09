@@ -324,8 +324,8 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             <div style={{
                 background: isCancelled
                     ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%)'
-                    : 'linear-gradient(135deg, rgba(91, 77, 219, 0.08) 0%, rgba(91, 77, 219, 0.02) 100%)',
-                border: isCancelled ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(91, 77, 219, 0.2)',
+                    : 'linear-gradient(135deg, rgba(85, 107, 47, 0.08) 0%, rgba(85, 107, 47, 0.02) 100%)',
+                border: isCancelled ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(85, 107, 47, 0.25)',
                 borderRadius: '16px',
                 padding: '24px'
             }}>
@@ -333,7 +333,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{
-                                backgroundColor: isCancelled ? '#EF4444' : 'var(--sidebar-primary)',
+                                backgroundColor: isCancelled ? '#EF4444' : '#556B2F',
                                 color: '#fff',
                                 fontSize: '11px',
                                 fontWeight: 800,
@@ -373,7 +373,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             }}
                             style={{
                                 padding: '10px 18px',
-                                backgroundColor: 'var(--sidebar-primary)',
+                                backgroundColor: '#556B2F',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '10px',
@@ -383,7 +383,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
-                                boxShadow: '0 4px 12px rgba(91,77,219,0.25)'
+                                boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
                             }}
                         >
                             <Star size={15} fill="currentColor" />
@@ -462,14 +462,14 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 </div>
 
                 {/* Real Dynamic Usage Gauges */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '22px', paddingTop: '18px', borderTop: '1px solid rgba(91, 77, 219, 0.15)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '22px', paddingTop: '18px', borderTop: '1px solid rgba(85, 107, 47, 0.15)' }}>
                     <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, marginBottom: '6px' }}>
                             <span>Clients</span>
                             <span>{usage.clients?.current ?? 0} / {usage.clients?.max === -1 ? 'Illimité' : (usage.clients?.max ?? 50)}</span>
                         </div>
                         <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
-                            <div style={{ width: `${clientsPercent}%`, height: '100%', backgroundColor: 'var(--sidebar-primary)', borderRadius: '4px', transition: 'width 0.3s' }} />
+                            <div style={{ width: `${clientsPercent}%`, height: '100%', backgroundColor: '#556B2F', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
 
@@ -510,7 +510,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                         <button
                             type="button"
                             onClick={() => setBillingCycle("annuel")}
-                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'annuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'annuel' ? 'var(--sidebar-primary)' : 'var(--muted-foreground)', boxShadow: billingCycle === 'annuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
+                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'annuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'annuel' ? '#556B2F' : 'var(--muted-foreground)', boxShadow: billingCycle === 'annuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
                         >
                             Facturation annuelle <span style={{ color: '#22c55e', fontWeight: 800 }}>-20%</span>
                         </button>
@@ -526,11 +526,11 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             <div
                                 key={plan.name}
                                 style={{
-                                    border: plan.recommended ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
+                                    border: plan.recommended ? '2px solid #556B2F' : '1px solid var(--border)',
                                     borderRadius: '14px',
                                     padding: '22px',
                                     position: 'relative',
-                                    backgroundColor: plan.recommended ? 'rgba(91, 77, 219, 0.03)' : 'var(--background)',
+                                    backgroundColor: plan.recommended ? 'rgba(85, 107, 47, 0.04)' : 'var(--background)',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     height: '100%',
@@ -538,7 +538,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                 }}
                             >
                                 {plan.recommended && (
-                                    <span style={{ position: 'absolute', top: '-11px', right: '18px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', letterSpacing: '0.5px' }}>
+                                    <span style={{ position: 'absolute', top: '-11px', right: '18px', backgroundColor: '#556B2F', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', letterSpacing: '0.5px' }}>
                                         RECOMMANDÉ
                                     </span>
                                 )}
@@ -589,12 +589,12 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                                 padding: '11px',
                                                 borderRadius: '10px',
                                                 border: 'none',
-                                                backgroundColor: plan.recommended ? 'var(--sidebar-primary)' : 'var(--foreground)',
+                                                backgroundColor: plan.recommended ? '#556B2F' : 'var(--foreground)',
                                                 color: 'var(--background)',
                                                 fontWeight: 700,
                                                 fontSize: '13px',
                                                 cursor: 'pointer',
-                                                boxShadow: plan.recommended ? '0 4px 14px rgba(91,77,219,0.3)' : 'none',
+                                                boxShadow: plan.recommended ? '0 4px 14px rgba(85, 107, 47, 0.3)' : 'none',
                                                 boxSizing: 'border-box',
                                                 transition: 'transform 0.15s'
                                             }}
@@ -612,7 +612,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             {/* Real Stripe Payment History */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CreditCard size={18} style={{ color: 'var(--sidebar-primary)' }} />
+                    <CreditCard size={18} style={{ color: '#556B2F' }} />
                     Historique des règlements Stripe
                 </h3>
 

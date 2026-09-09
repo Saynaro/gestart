@@ -464,6 +464,26 @@
     color: #D97706;
 }
 
+.tech-status-badge.ARRIVED {
+    background: rgba(139, 92, 246, 0.15);
+    color: #7C3AED;
+}
+
+.tech-item-card.status-ARRIVED {
+    border-left: 5px solid #7C3AED;
+}
+
+.btn-start-intervention.btn-arrive {
+    background: linear-gradient(135deg, #7C3AED, #6D28D9) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+}
+
+.btn-start-intervention.btn-arrive:hover {
+    background: linear-gradient(135deg, #6D28D9, #5B21B6) !important;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+}
+
 .tech-status-badge.IN_PROGRESS {
     background: rgba(85, 107, 47, 0.16);
     color: #556B2F;

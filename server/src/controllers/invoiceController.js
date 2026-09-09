@@ -387,13 +387,15 @@ export const createInvoice = async (req, res) => {
                 data: { invoiceNextNumber: nextNumber + 1 }
             });
 
-            const calculatedTVA = tvaRate !== undefined && tvaRate !== null ? parseFloat(tvaRate) : 20;
+            const calculatedTVA = (tvaRate !== undefined && tvaRate !== null)
+                ? parseFloat(tvaRate)
+                : (lines.length > 0 && lines[0]?.tvaRate !== undefined && lines[0]?.tvaRate !== null ? parseFloat(lines[0].tvaRate) : 20);
             let computedHT = 0;
             let computedTVAAmount = 0;
 
             if (lines.length > 0) {
                 lines.forEach(l => {
-                    const qty = parseFloat(l.quantity) || 1;
+                    const qty = parseFloat(l.quantity ?? l.qty) || 1;
                     const price = parseFloat(l.unitPrice) || 0;
                     const disc = parseFloat(l.discount) || 0;
                     const lineHT = qty * price * (1 - disc / 100);
@@ -432,14 +434,17 @@ export const createInvoice = async (req, res) => {
                     lines: {
                         create: lines.map((l, index) => {
                             const lineTva = l.tvaRate !== undefined && l.tvaRate !== null ? parseFloat(l.tvaRate) : calculatedTVA;
+                            const qVal = parseFloat(l.quantity ?? l.qty) || 1;
+                            const pVal = parseFloat(l.unitPrice) || 0;
+                            const dVal = parseFloat(l.discount) || 0;
                             return {
                                 description: l.description,
                                 reference: l.reference || null,
-                                quantity: parseFloat(l.quantity) || 1,
-                                unitPrice: parseFloat(l.unitPrice) || 0,
+                                quantity: qVal,
+                                unitPrice: pVal,
                                 tvaRate: lineTva,
-                                discount: parseFloat(l.discount) || 0,
-                                total: (parseFloat(l.quantity) || 1) * (parseFloat(l.unitPrice) || 0) * (1 - (parseFloat(l.discount) || 0) / 100),
+                                discount: dVal,
+                                total: qVal * pVal * (1 - dVal / 100),
                                 position: index,
                                 catalogItemId: l.catalogItemId || null,
                             };
@@ -891,7 +896,20 @@ export const markInvoicePaid = async (req, res) => {
         const safePaymentMethod = normalizePaymentMethod(paymentMethod) || "TRANSFER";
         const txType = safePaymentMethod === "CARD" ? "CARD" : (safePaymentMethod === "TRANSFER" ? "BANK_TRANSFER" : "OTHER");
 
-        const [updatedInvoice] = await prisma.$transaction([
+        // Vérifier si une transaction existe déjà pour cette facture afin d'éviter les doublons de clics
+        const existingTx = await prisma.invoiceTransaction.findFirst({
+            where: { invoiceId: id }
+        });
+
+        if (invoice.status === "PAID" && existingTx) {
+            return res.status(200).json({
+                success: true,
+                message: "Facture déjà marquée comme payée",
+                data: { invoice }
+            });
+        }
+
+        const txQueries = [
             prisma.invoice.update({
                 where: { id },
                 data: {
@@ -903,20 +921,27 @@ export const markInvoicePaid = async (req, res) => {
                     invoicePaymentMethod: txType === "BANK_TRANSFER" ? "BANK_TRANSFER" : (txType === "CARD" ? "CARD" : "OTHER"),
                     paymentRef: paymentRef || (typeof paymentMethod === "string" ? paymentMethod : undefined),
                 }
-            }),
-            prisma.invoiceTransaction.create({
-                data: {
-                    invoiceId: id,
-                    companyId,
-                    type: txType === "BANK_TRANSFER" ? "BANK_TRANSFER" : (txType === "CARD" ? "CARD" : "OTHER"),
-                    status: "succeeded",
-                    amount: invoice.amountTTC,
-                    currency: "EUR",
-                    bankReference: paymentRef || (typeof paymentMethod === "string" ? paymentMethod : "Règlement manuel"),
-                    paidAt: paymentDate
-                }
             })
-        ]);
+        ];
+
+        if (!existingTx) {
+            txQueries.push(
+                prisma.invoiceTransaction.create({
+                    data: {
+                        invoiceId: id,
+                        companyId,
+                        type: txType === "BANK_TRANSFER" ? "BANK_TRANSFER" : (txType === "CARD" ? "CARD" : "OTHER"),
+                        status: "succeeded",
+                        amount: invoice.amountTTC,
+                        currency: "EUR",
+                        bankReference: paymentRef || (typeof paymentMethod === "string" ? paymentMethod : "Règlement manuel"),
+                        paidAt: paymentDate
+                    }
+                })
+            );
+        }
+
+        const [updatedInvoice] = await prisma.$transaction(txQueries);
 
         // Notification au propriétaire
         const owner = await prisma.user.findFirst({

@@ -876,6 +876,10 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     };
 
     const handleSave = () => {
+        const effectiveTva = inv.lines?.length > 0 && inv.lines[0]?.tvaRate !== undefined && inv.lines[0]?.tvaRate !== null
+            ? Number(inv.lines[0].tvaRate)
+            : (inv.tvaRate !== undefined && inv.tvaRate !== null ? Number(inv.tvaRate) : 20);
+
         onSave({
             ...inv,
             clientId: inv.clientId || inv.client?.id,
@@ -886,6 +890,11 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
             clientAddress: inv.clientAddress || inv.client?.address,
             dueDate: calculatedDueDate,
             paymentConditions: echeanceLabel,
+            tvaRate: effectiveTva,
+            lines: (inv.lines || []).map(l => ({
+                ...l,
+                tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : effectiveTva
+            })),
             subtotalHt,
             tvaAmount: tvaAmt,
             totalTtc
@@ -893,6 +902,10 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     };
 
     const handleFinalise = () => {
+        const effectiveTva = inv.lines?.length > 0 && inv.lines[0]?.tvaRate !== undefined && inv.lines[0]?.tvaRate !== null
+            ? Number(inv.lines[0].tvaRate)
+            : (inv.tvaRate !== undefined && inv.tvaRate !== null ? Number(inv.tvaRate) : 20);
+
         onFinalise({
             ...inv,
             clientId: inv.clientId || inv.client?.id,
@@ -903,6 +916,11 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
             clientAddress: inv.clientAddress || inv.client?.address,
             dueDate: calculatedDueDate,
             paymentConditions: echeanceLabel,
+            tvaRate: effectiveTva,
+            lines: (inv.lines || []).map(l => ({
+                ...l,
+                tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : effectiveTva
+            })),
             subtotalHt,
             tvaAmount: tvaAmt,
             totalTtc

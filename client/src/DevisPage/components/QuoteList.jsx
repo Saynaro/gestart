@@ -99,9 +99,9 @@ function QuoteList({
                     <div className="dv-card-top-right">
                         <div className="dv-card-amount-group">
                             <span className="dv-card-amount">
-                                {q.subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                                {(q.totalTtc ?? q.amountTTC ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                             </span>
-                            <span className="dv-card-amount-label"> HT</span>
+                            <span className="dv-card-amount-label"> TTC</span>
                         </div>
 
                         {/* 3 Dots Menu Button on Quote Card */}

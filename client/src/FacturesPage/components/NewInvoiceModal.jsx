@@ -155,7 +155,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                 name: item.name || "Article",
                 reference: item.reference || "",
                 unitPrice: Number(item.defaultPrice || item.unitPrice || 0),
-                tvaRate: Number(item.tvaRate || 20),
+                tvaRate: item.tvaRate !== undefined && item.tvaRate !== null ? Number(item.tvaRate) : 20,
                 urssafCategory: item.type === "PRODUCT" ? "Vente de marchandises (BIC)" : "Prestations de services (BIC / BNC)",
                 unit: item.unit || "À l'unité"
             })).sort((a, b) => (a.description || "").localeCompare(b.description || ""));
@@ -185,7 +185,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
 
     // Supplies rows
     const [lines, setLines] = useState([
-        { id: Date.now(), description: "", qty: 1, unitPrice: 0, reference: "", urssafCategory: "Vente de marchandises (BIC)", unit: "À l'unité" }
+        { id: Date.now(), description: "", qty: 1, unitPrice: 0, reference: "", urssafCategory: "Vente de marchandises (BIC)", unit: "À l'unité", tvaRate: 20 }
     ]);
 
     // Client Selector Modal portal states
@@ -332,7 +332,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
         const validLines = lines.filter(l => (l.description || "").trim() !== "");
         const sub = validLines.reduce((sum, line) => sum + (parseFloat(line.unitPrice) || 0) * (parseInt(line.qty) || 1), 0);
         const tva = validLines.reduce((sum, line) => {
-            const rate = line.tvaRate !== undefined ? Number(line.tvaRate) : (Number(tvaRate) || 20);
+            const rate = line.tvaRate !== undefined && line.tvaRate !== null ? Number(line.tvaRate) : (tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20);
             return sum + ((parseFloat(line.unitPrice) || 0) * (parseInt(line.qty) || 1) * (rate / 100));
         }, 0);
         setSubtotalHt(sub);
@@ -341,7 +341,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
     }, [lines, tvaRate]);
 
     const handleAddLine = () => {
-        setLines([...lines, { id: Date.now(), description: "", qty: 1, unitPrice: 0, tvaRate: tvaRate || 20 }]);
+        const defaultRate = tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20;
+        setLines([...lines, { id: Date.now(), description: "", qty: 1, unitPrice: 0, tvaRate: defaultRate }]);
     };
 
     const handleRemoveLine = (id) => {
@@ -363,7 +364,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
         setTempReference(line.reference || "");
         setTempPrice(line.unitPrice !== undefined ? line.unitPrice.toString() : "0");
         setTempQty(line.qty || 1);
-        setTempTvaRate(line.tvaRate !== undefined ? Number(line.tvaRate) : (Number(tvaRate) || 20));
+        setTempTvaRate(line.tvaRate !== undefined && line.tvaRate !== null ? Number(line.tvaRate) : (tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20));
         setTempUrssafCategory(line.urssafCategory || "Vente de marchandises (BIC)");
         setTempUnit(line.unit || "À l'unité");
         setShowUrssafSelector(false);
@@ -377,7 +378,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
         setTempReference("");
         setTempPrice("");
         setTempQty(1);
-        setTempTvaRate(Number(tvaRate) || 20);
+        setTempTvaRate(tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20);
         setTempUrssafCategory("Vente de marchandises (BIC)");
         setTempUnit("À l'unité");
         setShowUrssafSelector(false);
@@ -396,16 +397,18 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             showModalAlert("Veuillez saisir une désignation.");
             return;
         }
+        const lineTva = tempTvaRate !== undefined && tempTvaRate !== null ? Number(tempTvaRate) : 0;
         setLines(lines.map(line => line.id === editingLineId ? {
             ...line,
             description: tempName,
             reference: tempReference,
             qty: tempQty,
             unitPrice: parseFloat(tempPrice) || 0,
-            tvaRate: tempTvaRate,
+            tvaRate: lineTva,
             urssafCategory: tempUrssafCategory,
             unit: tempUnit
         } : line));
+        setTvaRate(lineTva);
         setIsEditingItem(false);
         setEditingLineId(null);
     };
@@ -416,17 +419,19 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             return;
         }
         const price = parseFloat(tempPrice) || 0;
+        const lineTva = tempTvaRate !== undefined && tempTvaRate !== null ? Number(tempTvaRate) : 0;
         const newLine = {
             id: Date.now(),
             description: tempName,
             reference: tempReference,
             qty: tempQty,
             unitPrice: price,
-            tvaRate: tempTvaRate,
+            tvaRate: lineTva,
             urssafCategory: tempUrssafCategory,
             unit: tempUnit
         };
         setLines([...lines.filter(l => (l.description || "").trim() !== ""), newLine]);
+        setTvaRate(lineTva);
         setIsCreatingItem(false);
         setShowCatalogSearch(false);
 
@@ -500,13 +505,16 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             echeanceCustomDate: echeanceCustomDate,
             deliveryDate: hasDeliveryDate && deliveryDate ? deliveryDate : null,
             paymentConditions: echeanceLabel,
-            tvaRate: tvaRate || 20,
+            tvaRate: validLines.length > 0 && validLines[0]?.tvaRate !== undefined && validLines[0]?.tvaRate !== null
+                ? Number(validLines[0].tvaRate)
+                : (tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20),
             internalNotes: internalNotes || "",
             lines: validLines.map(l => ({
                 description: l.description,
+                reference: l.reference || "",
                 qty: parseInt(l.qty) || 1,
                 unitPrice: parseFloat(l.unitPrice) || 0,
-                reference: l.reference || "",
+                tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : (tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20),
                 unit: l.unit || "À l'unité",
                 urssafCategory: l.urssafCategory || "Vente de marchandises (BIC)"
             })),
@@ -523,6 +531,10 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
 
     const handleSaveDraft = () => {
         const validLines = lines.filter(l => (l.description || "").trim() !== "");
+        const effectiveTva = validLines.length > 0 && validLines[0]?.tvaRate !== undefined && validLines[0]?.tvaRate !== null
+            ? Number(validLines[0].tvaRate)
+            : (tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20);
+
         const draftInvoice = {
             id: Date.now(),
             clientId: selectedClient?.id || selectedClient?.clientId || undefined,
@@ -537,13 +549,14 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             echeanceCustomDate: echeanceCustomDate,
             deliveryDate: hasDeliveryDate && deliveryDate ? deliveryDate : null,
             paymentConditions: echeanceLabel,
-            tvaRate: tvaRate || 20,
+            tvaRate: effectiveTva,
             internalNotes: internalNotes || "",
             lines: validLines.map(l => ({
                 description: l.description,
+                reference: l.reference || "",
                 qty: parseInt(l.qty) || 1,
                 unitPrice: parseFloat(l.unitPrice) || 0,
-                reference: l.reference || "",
+                tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : effectiveTva,
                 unit: l.unit || "À l'unité",
                 urssafCategory: l.urssafCategory || "Vente de marchandises (BIC)"
             })),
@@ -1635,7 +1648,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                         <span>{subtotalHt.toLocaleString("fr-FR")} €</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-                                        <span>TVA ({tvaRate || 20}%) :</span>
+                                        <span>TVA ({tvaRate !== undefined && tvaRate !== null ? tvaRate : 20}%) :</span>
                                         <span>{tvaAmount.toLocaleString("fr-FR")} €</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 800, marginTop: '8px', color: 'var(--foreground)', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
@@ -2205,7 +2218,11 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                                                 className={`client-search-item ${isSelected ? 'selected' : ''}`}
                                                                 onClick={() => {
                                                                     // Directly add item to lines and close
-                                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: item.reference || "", urssafCategory: item.urssafCategory || "Vente de marchandises (BIC)", unit: item.unit || "À l'unité" }]);
+                                                                    const itemTva = item.tvaRate !== undefined && item.tvaRate !== null ? Number(item.tvaRate) : (tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20);
+                                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: item.reference || "", urssafCategory: item.urssafCategory || "Vente de marchandises (BIC)", unit: item.unit || "À l'unité", tvaRate: itemTva }]);
+                                                                    if (item.tvaRate !== undefined && item.tvaRate !== null) {
+                                                                        setTvaRate(Number(item.tvaRate));
+                                                                    }
                                                                     setShowCatalogSearch(false);
                                                                     setCatalogSearchQuery("");
                                                                     setPendingCatalogItem(null);
@@ -2863,7 +2880,11 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                             type="button"
                                             className="client-search-confirm-btn"
                                             onClick={() => {
-                                                setLines(lines.map(line => line.id === activeLineId ? { ...line, description: pendingCatalogItem.description, unitPrice: pendingCatalogItem.unitPrice } : line));
+                                                const catTva = pendingCatalogItem.tvaRate !== undefined && pendingCatalogItem.tvaRate !== null ? Number(pendingCatalogItem.tvaRate) : (tvaRate !== undefined && tvaRate !== null ? Number(tvaRate) : 20);
+                                                setLines(lines.map(line => line.id === activeLineId ? { ...line, description: pendingCatalogItem.description, unitPrice: pendingCatalogItem.unitPrice, tvaRate: catTva } : line));
+                                                if (pendingCatalogItem.tvaRate !== undefined && pendingCatalogItem.tvaRate !== null) {
+                                                    setTvaRate(Number(pendingCatalogItem.tvaRate));
+                                                }
                                                 setShowCatalogSearch(false);
                                                 setCatalogSearchQuery("");
                                                 setPendingCatalogItem(null);

@@ -33,13 +33,13 @@ import { useUser } from "../utils/useUser";
 function HomePage() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, company } = useUser();
+    const { user, company, loading: userLoading } = useUser();
     const [activeTab, setActiveTab] = useState("comptabilite");
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
 
     useEffect(() => {
-        if (user?.role === "TECHNICIAN") {
+        if (!userLoading && user?.role === "TECHNICIAN") {
             navigate("/interventions/today", { replace: true });
             return;
         }
@@ -59,7 +59,7 @@ function HomePage() {
         };
 
         checkRoleAndOnboarding();
-    }, [user, location, navigate]);
+    }, [user, userLoading, location, navigate]);
 
     useEffect(() => {
         const fetchDashboard = async () => {

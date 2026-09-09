@@ -6,6 +6,7 @@ import {
     getInterventionById,
     createIntervention,
     updateIntervention,
+    arriveIntervention,
     startIntervention,
     completeIntervention,
     deleteIntervention,
@@ -33,6 +34,7 @@ router.get("/:id", getInterventionById);
 router.post("/", requireActive, createIntervention);
 router.patch("/:id", updateIntervention);
 router.put("/:id", updateIntervention);
+router.patch("/:id/arrive", arriveIntervention);
 router.patch("/:id/start", startIntervention);
 router.patch("/:id/complete", completeIntervention);
 router.delete("/:id", requireManager, deleteIntervention);

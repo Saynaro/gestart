@@ -72,6 +72,21 @@ function ManagerOrOwnerRoute({ children }) {
   return children;
 }
 
+// Route Guard for Technician Pages (Redirects Owners/Admins back to /home)
+function TechnicianRoute({ children }) {
+  const { role, loading } = useUser();
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  if (isSuperAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (!loading && role !== "TECHNICIAN") {
+    return <Navigate to="/home" replace />;
+  }
+  return children;
+}
+
 // Route Guard for Super Admin Panel (Strictly khalid.cizdoev777@gmail.com or SUPERADMIN)
 function AdminProtectedRoute({ children }) {
   if (!isAuthenticated()) {
@@ -180,7 +195,7 @@ function App() {
             <Route path="/comptabilite" element={<ManagerOrOwnerRoute><ComptabilityPage /></ManagerOrOwnerRoute>} />
             <Route path="/catalogue" element={<ProtectedRoute><CataloguePage /></ProtectedRoute>} />
             <Route path="/techniciens" element={<ManagerOrOwnerRoute><TechniciensPage /></ManagerOrOwnerRoute>} />
-            <Route path="/interventions/today" element={<ProtectedRoute><TechnicianInterventionsPage /></ProtectedRoute>} />
+            <Route path="/interventions/today" element={<TechnicianRoute><TechnicianInterventionsPage /></TechnicianRoute>} />
             <Route path="/premium" element={<ManagerOrOwnerRoute><PremiumPage /></ManagerOrOwnerRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminProtectedRoute><SuperAdminPanel /></AdminProtectedRoute>} />

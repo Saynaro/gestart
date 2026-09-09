@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "./PaymentsPage.css";
@@ -28,6 +28,7 @@ import {
     Loader2
 } from "lucide-react";
 import { apiFetch } from "../utils/api";
+import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 
 export default function PaymentsPage() {
     const navigate = useNavigate();
@@ -48,6 +49,29 @@ export default function PaymentsPage() {
     const [refreshing, setRefreshing] = useState(false);
     const [actionLoading, setActionLoading] = useState(null); // transactionId when confirming
     const [isMobile, setIsMobile] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(10);
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [loadingInvoiceId, setLoadingInvoiceId] = useState(null);
+    const searchInputRef = useRef(null);
+
+    // Open invoice preview modal
+    const handleOpenInvoice = async (invoiceId) => {
+        if (!invoiceId) return;
+        try {
+            setLoadingInvoiceId(invoiceId);
+            const res = await apiFetch(`/v1/invoices/${invoiceId}`);
+            const inv = res.data?.invoice || res.data || res;
+            if (inv) {
+                setSelectedInvoice(inv);
+                setShowInvoiceModal(true);
+            }
+        } catch (err) {
+            console.error("Erreur chargement facture:", err);
+        } finally {
+            setLoadingInvoiceId(null);
+        }
+    };
 
     // Responsive screen detection
     useEffect(() => {
@@ -91,9 +115,14 @@ export default function PaymentsPage() {
         loadPaymentsData(activeFilter);
     };
 
-    const handleRefresh = () => {
+    const handleRefresh = async () => {
         setRefreshing(true);
-        loadPaymentsData(activeFilter);
+        try {
+            await apiFetch("/v1/banking/transactions/refresh", { method: "POST" });
+        } catch (err) {
+            console.warn("Banking refresh:", err.message);
+        }
+        await loadPaymentsData(activeFilter);
     };
 
     // Confirmer le rapprochement bancaire
@@ -152,21 +181,42 @@ export default function PaymentsPage() {
         }
     };
 
+    useEffect(() => {
+        setVisibleCount(10);
+    }, [activeFilter, searchQuery]);
+
     // Filter payments list
-    const displayedPayments = useMemo(() => {
+    const filteredPayments = useMemo(() => {
         if (activeFilter === "review") return [];
-        return payments.filter(p => {
+        let list = payments.filter(p => {
             if (activeFilter === "virements") return p.type === "BANK_TRANSFER";
             if (activeFilter === "carte") return p.type === "CARD";
             return true;
         });
-    }, [payments, activeFilter]);
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            list = list.filter(p => {
+                const clientName = `${p.invoice?.client?.firstName || ''} ${p.invoice?.client?.lastName || ''} ${p.invoice?.client?.companyName || ''}`.toLowerCase();
+                const invNum = (p.invoice?.number || '').toLowerCase();
+                const ref = (p.bankReference || p.stripePaymentIntentId || '').toLowerCase();
+                return clientName.includes(q) || invNum.includes(q) || ref.includes(q);
+            });
+        }
+        return list;
+    }, [payments, activeFilter, searchQuery]);
+
+    const displayedPayments = useMemo(() => {
+        return filteredPayments.slice(0, visibleCount);
+    }, [filteredPayments, visibleCount]);
+
+    const hasMore = visibleCount < filteredPayments.length;
+    const handleLoadMore = () => setVisibleCount(prev => prev + 10);
 
     return (
         <div className="home-page payments-page-wrapper">
             <SideBar />
             <div className="main-content">
-                <Header />
+                <Header title="Paiements" />
                 <motion.div
                     className="page-content"
                     initial={{ opacity: 0, y: 15 }}
@@ -175,70 +225,39 @@ export default function PaymentsPage() {
                 >
                     {/* Header line */}
                     <div className="payments-header-row">
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            {isMobile && (
-                                <button
-                                    onClick={() => navigate("/home")}
-                                    style={{
-                                        background: "none",
-                                        border: "1px solid var(--border)",
-                                        borderRadius: "8px",
-                                        padding: "8px",
-                                        color: "var(--foreground)",
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    <ArrowLeft size={18} />
-                                </button>
-                            )}
-                            <div>
-                                <h1 style={{ margin: 0, fontSize: isMobile ? "20px" : "24px", fontWeight: 800, color: "var(--foreground)", letterSpacing: "-0.02em" }}>
-                                    Paiements & Encaissements
-                                </h1>
-                                <p style={{ margin: "4px 0 0 0", color: "var(--muted-foreground)", fontSize: "13.5px" }}>
-                                    Suivi des règlements par carte bancaire Stripe et virements lettrés.
-                                </p>
+                        {!isMobile ? (
+                            <div className="payments-header-title-group">
+                                <div>
+                                    <h1 className="payments-title">
+                                        Paiements & Encaissements
+                                    </h1>
+                                    <p className="payments-subtitle">
+                                        Suivi des règlements par carte bancaire Stripe et virements lettrés.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <p className="payments-mobile-desc">
+                                Suivi des règlements Stripe et virements lettrés.
+                            </p>
+                        )}
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="payments-header-actions">
                             <button
                                 type="button"
                                 onClick={() => navigate("/settings?tab=paiements")}
-                                style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "6px",
-                                    padding: "9px 16px",
-                                    borderRadius: "8px",
-                                    border: "1px solid var(--border)",
-                                    backgroundColor: "var(--card)",
-                                    color: "var(--foreground)",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    cursor: "pointer"
-                                }}
+                                className="payments-settings-btn"
                             >
                                 <CreditCard size={15} style={{ color: "var(--primary)" }} />
-                                Réglages des paiements
+                                <span>Réglages des paiements</span>
                             </button>
 
                             <button
                                 type="button"
                                 onClick={handleRefresh}
                                 disabled={refreshing}
-                                style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    width: "38px",
-                                    height: "38px",
-                                    borderRadius: "8px",
-                                    border: "1px solid var(--border)",
-                                    backgroundColor: "var(--card)",
-                                    color: "var(--foreground)",
-                                    cursor: "pointer"
-                                }}
+                                className="payments-refresh-btn"
+                                aria-label="Actualiser"
                             >
                                 <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
                             </button>
@@ -392,21 +411,23 @@ export default function PaymentsPage() {
                                 className={`payments-filter-tab ${activeFilter === "all" ? "active" : ""}`}
                                 onClick={() => setActiveFilter("all")}
                             >
-                                Tous
+                                <span>Tous</span>
                             </button>
                             <button
                                 type="button"
                                 className={`payments-filter-tab ${activeFilter === "virements" ? "active" : ""}`}
                                 onClick={() => setActiveFilter("virements")}
                             >
-                                <Landmark size={14} /> Virements
+                                <Landmark size={14} />
+                                <span>Virements</span>
                             </button>
                             <button
                                 type="button"
                                 className={`payments-filter-tab ${activeFilter === "carte" ? "active" : ""}`}
                                 onClick={() => setActiveFilter("carte")}
                             >
-                                <CreditCard size={14} /> Carte bancaire
+                                <CreditCard size={14} />
+                                <span>{isMobile ? "Carte" : "Carte bancaire"}</span>
                             </button>
                             {pendingReconciliations.length > 0 && (
                                 <button
@@ -414,21 +435,50 @@ export default function PaymentsPage() {
                                     className={`payments-filter-tab ${activeFilter === "review" ? "active" : ""}`}
                                     onClick={() => setActiveFilter("review")}
                                 >
-                                    À vérifier
+                                    <span>À vérifier</span>
                                     <span className="payments-filter-badge">{pendingReconciliations.length}</span>
                                 </button>
                             )}
                         </div>
 
-                        <form onSubmit={handleSearchSubmit} className="payments-search-box">
-                            <Search size={16} style={{ color: "var(--muted-foreground)" }} />
+                        <form
+                            onSubmit={handleSearchSubmit}
+                            className="payments-search-box"
+                            onClick={() => searchInputRef.current?.focus()}
+                        >
+                            <Search
+                                size={16}
+                                className="payments-search-icon"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => searchInputRef.current?.focus()}
+                            />
                             <input
+                                ref={searchInputRef}
                                 type="text"
-                                placeholder="Rechercher client, facture, référence..."
+                                placeholder={isMobile ? "Rechercher client, facture..." : "Rechercher client, facture, référence..."}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                onFocus={(e) => {
+                                    setTimeout(() => {
+                                        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+                                    }, 120);
+                                }}
                                 className="payments-search-input"
                             />
+                            {searchQuery && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSearchQuery("");
+                                        searchInputRef.current?.focus();
+                                    }}
+                                    className="payments-search-clear-btn"
+                                    aria-label="Effacer"
+                                >
+                                    <X size={14} />
+                                </button>
+                            )}
                         </form>
                     </div>
 
@@ -440,17 +490,19 @@ export default function PaymentsPage() {
                             <Loader2 size={32} className="animate-spin" style={{ color: "var(--primary)" }} />
                         </div>
                     ) : displayedPayments.length === 0 ? (
-                        <div style={{
-                            backgroundColor: "var(--card)",
-                            border: "1px solid var(--border)",
-                            borderRadius: "14px",
-                            padding: "60px 20px",
-                            textAlign: "center"
-                        }}>
-                            <CreditCard size={40} style={{ color: "var(--muted-foreground)", marginBottom: "12px", opacity: 0.5 }} />
-                            <h3 style={{ margin: "0 0 6px 0", fontSize: "16px", color: "var(--foreground)" }}>Aucun paiement trouvé</h3>
-                            <p style={{ margin: 0, fontSize: "13px", color: "var(--muted-foreground)" }}>
-                                Les règlements de factures par carte Stripe ou virements s'afficheront ici automatiquement.
+                        <div className="payments-empty-state">
+                            {activeFilter === "virements" ? (
+                                <Landmark size={44} />
+                            ) : (
+                                <CreditCard size={44} />
+                            )}
+                            <h3>Aucun paiement trouvé</h3>
+                            <p>
+                                {activeFilter === "virements"
+                                    ? "Les règlements de factures par virement bancaire s'afficheront ici automatiquement."
+                                    : activeFilter === "carte"
+                                    ? "Les règlements de factures par carte bancaire Stripe s'afficheront ici automatiquement."
+                                    : "Les règlements de factures par carte Stripe ou virements s'afficheront ici automatiquement."}
                             </p>
                         </div>
                     ) : (
@@ -491,15 +543,20 @@ export default function PaymentsPage() {
                                                 <td>
                                                     {p.invoice?.number ? (
                                                         <span
-                                                            onClick={() => navigate(`/factures?search=${p.invoice.number}`)}
+                                                            onClick={() => handleOpenInvoice(p.invoice.id)}
                                                             style={{
                                                                 fontWeight: 700,
                                                                 color: "var(--primary)",
                                                                 cursor: "pointer",
-                                                                textDecoration: "underline"
+                                                                textDecoration: "underline",
+                                                                display: "inline-flex",
+                                                                alignItems: "center",
+                                                                gap: "4px"
                                                             }}
+                                                            title="Cliquer pour ouvrir la facture"
                                                         >
                                                             {p.invoice.number}
+                                                            {loadingInvoiceId === p.invoice.id && <Loader2 size={12} className="animate-spin" />}
                                                         </span>
                                                     ) : "—"}
                                                 </td>
@@ -522,8 +579,20 @@ export default function PaymentsPage() {
                                                         <CheckCircle2 size={12} /> PAYÉE
                                                     </span>
                                                 </td>
-                                                <td style={{ fontSize: "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
-                                                    {p.bankReference || p.stripePaymentIntentId || "—"}
+                                                <td
+                                                    style={{
+                                                        fontSize: "12px",
+                                                        color: p.invoice?.id ? "var(--primary)" : "var(--muted-foreground)",
+                                                        fontFamily: "monospace",
+                                                        cursor: p.invoice?.id ? "pointer" : "default"
+                                                    }}
+                                                    onClick={() => p.invoice?.id && handleOpenInvoice(p.invoice.id)}
+                                                    title={p.invoice?.id ? "Cliquer pour ouvrir la facture" : undefined}
+                                                >
+                                                    <span style={{ textDecoration: p.invoice?.id ? "underline" : "none", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                                                        {p.bankReference || p.stripePaymentIntentId || "—"}
+                                                        {p.invoice?.id && loadingInvoiceId === p.invoice.id && <Loader2 size={11} className="animate-spin" />}
+                                                    </span>
                                                 </td>
                                             </tr>
                                         );
@@ -543,7 +612,16 @@ export default function PaymentsPage() {
                                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
                                                 <div>
                                                     <div style={{ fontWeight: 700, fontSize: "15px", color: "var(--foreground)" }}>{clientName}</div>
-                                                    <div style={{ fontSize: "12.5px", color: "var(--primary)", fontWeight: 600 }}>
+                                                    <div
+                                                        style={{
+                                                            fontSize: "12.5px",
+                                                            color: "var(--primary)",
+                                                            fontWeight: 600,
+                                                            cursor: p.invoice?.id ? "pointer" : "default",
+                                                            textDecoration: p.invoice?.id ? "underline" : "none"
+                                                        }}
+                                                        onClick={() => p.invoice?.id && handleOpenInvoice(p.invoice.id)}
+                                                    >
                                                         Facture {p.invoice?.number || "—"}
                                                     </div>
                                                 </div>
@@ -575,10 +653,37 @@ export default function PaymentsPage() {
                                     );
                                 })}
                             </div>
+
+                            {hasMore && (
+                                <div className="payments-load-more-container">
+                                    <button
+                                        type="button"
+                                        onClick={handleLoadMore}
+                                        className="payments-load-more-btn"
+                                    >
+                                        <span>Afficher plus</span>
+                                        <span className="payments-load-more-count">
+                                            (+{Math.min(10, filteredPayments.length - visibleCount)})
+                                        </span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </motion.div>
             </div>
+
+            {/* Modal de prévisualisation de la facture */}
+            {showInvoiceModal && selectedInvoice && (
+                <InvoicePdfView
+                    invoice={selectedInvoice}
+                    onClose={() => {
+                        setShowInvoiceModal(false);
+                        setSelectedInvoice(null);
+                    }}
+                    onDownload={() => window.print()}
+                />
+            )}
         </div>
     );
 }

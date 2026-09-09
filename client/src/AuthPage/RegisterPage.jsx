@@ -37,6 +37,8 @@ import PhoneInput from '../components/PhoneInput';
 import { apiFetch } from '../utils/api';
 import { setAuthToken } from '../utils/auth';
 import LegalModal from '../components/LegalHelpModal';
+import { useUser } from '../utils/useUser';
+import { useSubscription } from '../utils/useSubscription';
 
 const TRADE_CATEGORIES_LIST = [
     { id: 'clim', name: 'Climatisation / PAC air-air', icon: Snowflake },
@@ -77,6 +79,8 @@ const PLANS_LIST = [
 
 export default function RegisterPage() {
     const navigate = useNavigate();
+    const { setUser, refreshUser } = useUser();
+    const { setSubscription, refreshSubscription } = useSubscription();
     const [searchParams] = useSearchParams();
     const invitationToken = searchParams.get('invitation');
     const requestedPlan = searchParams.get('plan');
@@ -382,8 +386,33 @@ export default function RegisterPage() {
                 startProactiveTokenRefresh();
             }
 
-            showToastNotification('Bienvenue sur ClimPro CRM ! Espace créé avec succès. 🎉', 'success');
-            navigate('/home', { state: { openOnboardingModal: true } });
+            const rawUser = data.data?.user || {};
+            const userEmail = (formData.email || rawUser.email || '').toLowerCase().trim();
+            localStorage.setItem('userEmail', userEmail);
+            if (data.data?.user) {
+                localStorage.setItem('currentUser', JSON.stringify(data.data.user));
+                setUser(data.data.user);
+            }
+            if (data.data?.subscription) {
+                setSubscription(data.data.subscription);
+            }
+
+            window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: data.data }));
+
+            // Immediately hydrate user and subscription profiles
+            const [freshUser] = await Promise.all([
+                refreshUser().catch(() => null),
+                refreshSubscription().catch(() => null)
+            ]);
+
+            showToastNotification('Bienvenue sur GestArt ! Espace créé avec succès. 🎉', 'success');
+
+            const targetRole = freshUser?.role || rawUser.role || mode;
+            if (targetRole === 'TECHNICIAN') {
+                navigate('/interventions/today', { replace: true });
+            } else {
+                navigate('/home', { state: { openOnboardingModal: true }, replace: true });
+            }
         } catch (err) {
             setError(err.message || 'Impossible de finaliser l’inscription');
             showToastNotification(err.message || 'Erreur lors de l’inscription', 'error');

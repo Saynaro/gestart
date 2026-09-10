@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { matchTransactionWithInvoices } from "../services/reconciliationEngine.js";
 
 /**
  * Récupère les statistiques et l'historique de tous les paiements (Stripe + Virements bancaires)
@@ -208,13 +209,34 @@ export const getPayments = async (req, res) => {
         }
 
         // Récupération des transactions bancaires "À vérifier" (Rapprochement bancaire - uniquement les crédits entrants)
+        const rawPending = await prisma.bankTransaction.findMany({
+            where: {
+                companyId,
+                amount: { gt: 0 },
+                reconciliationStatus: { in: ["PROBABLE", "PENDING"] }
+            },
+            take: 25,
+            orderBy: { transactionDate: "desc" }
+        });
+
+        // Tenter de matcher automatiquement les transactions qui n'ont pas encore de facture associée
+        for (const pt of rawPending) {
+            if (!pt.matchedInvoiceId) {
+                try {
+                    await matchTransactionWithInvoices(pt.id);
+                } catch (e) {
+                    // Ignorer silencieusement
+                }
+            }
+        }
+
         const pendingBankTransactions = await prisma.bankTransaction.findMany({
             where: {
                 companyId,
                 amount: { gt: 0 },
                 reconciliationStatus: { in: ["PROBABLE", "PENDING"] }
             },
-            take: 10,
+            take: 25,
             orderBy: { transactionDate: "desc" },
             include: {
                 matchedInvoice: {
@@ -222,6 +244,8 @@ export const getPayments = async (req, res) => {
                         id: true,
                         number: true,
                         amountTTC: true,
+                        status: true,
+                        paymentStatus: true,
                         client: {
                             select: {
                                 firstName: true,

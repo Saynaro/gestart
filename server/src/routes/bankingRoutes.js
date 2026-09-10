@@ -7,7 +7,8 @@ import {
     getBankingTransactions,
     refreshBankingTransactions,
     confirmReconciliationEndpoint,
-    ignoreReconciliationEndpoint
+    ignoreReconciliationEndpoint,
+    getOpenInvoicesForReconciliation
 } from "../controllers/bankingController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
@@ -19,6 +20,7 @@ router.use(authMiddleware);
 // Lecture des données bancaires et transactions (Manager+)
 router.get("/accounts", requireManager, getBankingAccounts);
 router.get("/transactions", requireManager, getBankingTransactions);
+router.get("/open-invoices", requireManager, getOpenInvoicesForReconciliation);
 
 // Actions de connexion, callback et synchronisation
 router.post("/connect", requireOwner, connectBanking);

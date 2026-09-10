@@ -14,6 +14,7 @@ import {
     CheckCircle2,
     Clock,
     AlertCircle,
+    Info,
     ArrowUpRight,
     Search,
     RefreshCw,
@@ -28,10 +29,45 @@ import {
     Loader2
 } from "lucide-react";
 import { apiFetch } from "../utils/api";
+import { getAuthToken } from "../utils/auth";
+import { getApiUrl } from "../utils/config";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 
 export default function PaymentsPage() {
     const navigate = useNavigate();
+
+    // Toast state with timer ref and hover pause
+    const [toast, setToast] = useState(null);
+    const toastTimeoutRef = useRef(null);
+
+    const showToast = (msg, type = "success") => {
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+            toastTimeoutRef.current = null;
+        }
+        setToast({ msg, type });
+        toastTimeoutRef.current = setTimeout(() => {
+            setToast(null);
+            toastTimeoutRef.current = null;
+        }, 3500);
+    };
+
+    const handleToastMouseEnter = () => {
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+            toastTimeoutRef.current = null;
+        }
+    };
+
+    const handleToastMouseLeave = () => {
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+        }
+        toastTimeoutRef.current = setTimeout(() => {
+            setToast(null);
+            toastTimeoutRef.current = null;
+        }, 2000);
+    };
 
     // Data States
     const [payments, setPayments] = useState([]);
@@ -55,6 +91,34 @@ export default function PaymentsPage() {
     const [loadingInvoiceId, setLoadingInvoiceId] = useState(null);
     const searchInputRef = useRef(null);
 
+    // Modal association state
+    const [associatingTx, setAssociatingTx] = useState(null);
+    const [openInvoicesList, setOpenInvoicesList] = useState([]);
+    const [loadingOpenInvoices, setLoadingOpenInvoices] = useState(false);
+    const [invoiceSearchQuery, setInvoiceSearchQuery] = useState("");
+
+    // Open association modal
+    const handleOpenAssociateModal = async (tx) => {
+        setAssociatingTx(tx);
+        setInvoiceSearchQuery("");
+        setLoadingOpenInvoices(true);
+        try {
+            const res = await apiFetch("/v1/banking/open-invoices");
+            setOpenInvoicesList(res.data?.invoices || []);
+        } catch (err) {
+            console.error("Erreur chargement factures ouvertes:", err);
+        } finally {
+            setLoadingOpenInvoices(false);
+        }
+    };
+
+    const handleConfirmAssociate = async (invoiceId) => {
+        if (!associatingTx || !invoiceId) return;
+        const txId = associatingTx.id;
+        setAssociatingTx(null);
+        await handleConfirmReconciliation(txId, invoiceId, "Facture associée avec succès au virement !");
+    };
+
     // Open invoice preview modal
     const handleOpenInvoice = async (invoiceId) => {
         if (!invoiceId) return;
@@ -70,6 +134,44 @@ export default function PaymentsPage() {
             console.error("Erreur chargement facture:", err);
         } finally {
             setLoadingInvoiceId(null);
+        }
+    };
+
+    // Téléchargement du PDF de la facture
+    const handleDownloadPdf = async (inv, customOverride = null) => {
+        try {
+            const token = getAuthToken();
+            const targetInv = inv || selectedInvoice;
+            if (!targetInv?.id) {
+                window.print();
+                return;
+            }
+            let endpointUrl = `/v1/invoices/${targetInv.id}/pdf`;
+            if (customOverride) {
+                const cleanCustom = { ...customOverride };
+                if (cleanCustom.logoUrl && cleanCustom.logoUrl.startsWith('data:')) delete cleanCustom.logoUrl;
+                if (cleanCustom.signatureUrl && cleanCustom.signatureUrl.startsWith('data:')) delete cleanCustom.signatureUrl;
+                const customParam = encodeURIComponent(JSON.stringify(cleanCustom));
+                endpointUrl += `?customization=${customParam}`;
+            }
+            const res = await fetch(getApiUrl(endpointUrl), {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error("Erreur téléchargement PDF");
+            const blob = await res.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+            showToast("Facture PDF téléchargée avec succès !");
+        } catch (err) {
+            console.error("Erreur téléchargement PDF facture:", err);
+            showToast("Erreur lors du téléchargement du PDF", "error");
         }
     };
 
@@ -126,17 +228,18 @@ export default function PaymentsPage() {
     };
 
     // Confirmer le rapprochement bancaire
-    const handleConfirmReconciliation = async (transactionId, invoiceId) => {
+    const handleConfirmReconciliation = async (transactionId, invoiceId, customMsg = null) => {
         setActionLoading(transactionId);
         try {
-            await apiFetch(`/v1/banking/reconcile/${transactionId}`, {
+            const res = await apiFetch(`/v1/banking/reconcile/${transactionId}`, {
                 method: "POST",
                 body: JSON.stringify({ invoiceId })
             });
             // Recharger les données
-            loadPaymentsData(activeFilter);
+            await loadPaymentsData(activeFilter);
+            showToast(customMsg || res?.message || "Rapprochement bancaire validé avec succès !");
         } catch (err) {
-            alert(err.message || "Erreur lors de la confirmation du rapprochement");
+            showToast(err.message || "Erreur lors du rapprochement", "error");
         } finally {
             setActionLoading(null);
         }
@@ -151,8 +254,9 @@ export default function PaymentsPage() {
             });
             // Retirer de la liste locale
             setPendingReconciliations(prev => prev.filter(t => t.id !== transactionId));
+            showToast("Transaction bancaire ignorée.", "info");
         } catch (err) {
-            alert(err.message || "Erreur lors du traitement");
+            showToast(err.message || "Erreur lors du traitement", "error");
         } finally {
             setActionLoading(null);
         }
@@ -181,9 +285,11 @@ export default function PaymentsPage() {
         }
     };
 
+    const pageSize = isMobile ? 5 : 10;
+
     useEffect(() => {
-        setVisibleCount(10);
-    }, [activeFilter, searchQuery]);
+        setVisibleCount(isMobile ? 5 : 10);
+    }, [activeFilter, searchQuery, isMobile]);
 
     // Filter payments list
     const filteredPayments = useMemo(() => {
@@ -205,12 +311,38 @@ export default function PaymentsPage() {
         return list;
     }, [payments, activeFilter, searchQuery]);
 
+    // Filter pending reconciliations for "À vérifier" tab
+    const filteredPendingReconciliations = useMemo(() => {
+        if (!searchQuery.trim()) return pendingReconciliations;
+        const q = searchQuery.toLowerCase().trim();
+        return pendingReconciliations.filter(tx => {
+            const label = (tx.label || '').toLowerCase();
+            const counterparty = (tx.counterparty || '').toLowerCase();
+            const ref = (tx.reference || '').toLowerCase();
+            const invNum = (tx.matchedInvoice?.number || '').toLowerCase();
+            const clientName = `${tx.matchedInvoice?.client?.firstName || ''} ${tx.matchedInvoice?.client?.lastName || ''} ${tx.matchedInvoice?.client?.companyName || ''}`.toLowerCase();
+            return label.includes(q) || counterparty.includes(q) || ref.includes(q) || invNum.includes(q) || clientName.includes(q);
+        });
+    }, [pendingReconciliations, searchQuery]);
+
+    // Filter modal open invoices
+    const modalInvoicesFiltered = useMemo(() => {
+        if (!invoiceSearchQuery.trim()) return openInvoicesList;
+        const q = invoiceSearchQuery.toLowerCase().trim();
+        return openInvoicesList.filter(inv => {
+            const num = (inv.number || '').toLowerCase();
+            const client = `${inv.client?.firstName || ''} ${inv.client?.lastName || ''} ${inv.client?.companyName || ''}`.toLowerCase();
+            const amount = String(inv.amountTTC || '');
+            return num.includes(q) || client.includes(q) || amount.includes(q);
+        });
+    }, [openInvoicesList, invoiceSearchQuery]);
+
     const displayedPayments = useMemo(() => {
         return filteredPayments.slice(0, visibleCount);
     }, [filteredPayments, visibleCount]);
 
     const hasMore = visibleCount < filteredPayments.length;
-    const handleLoadMore = () => setVisibleCount(prev => prev + 10);
+    const handleLoadMore = () => setVisibleCount(prev => prev + pageSize);
 
     return (
         <div className="home-page payments-page-wrapper">
@@ -287,7 +419,7 @@ export default function PaymentsPage() {
                             </div>
                             <div className="payments-kpi-info">
                                 <div className="payments-kpi-label">En attente de paiement</div>
-                                <div className="payments-kpi-value" style={{ color: "#F59E0B" }}>{formatCurrency(kpis.totalPending)}</div>
+                                <div className="payments-kpi-value">{formatCurrency(kpis.totalPending)}</div>
                             </div>
                         </div>
 
@@ -302,104 +434,6 @@ export default function PaymentsPage() {
                             </div>
                         </div>
                     </div>
-
-                    {/* ─────────────────────────────────────────────────────────────
-                        PANEL RAPPROCHEMENT BANCAIRE (À VÉRIFIER)
-                    ───────────────────────────────────────────────────────────── */}
-                    {pendingReconciliations.length > 0 && (
-                        <div className="payments-reconciliation-card">
-                            <div className="payments-reconciliation-header">
-                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <ShieldCheck size={20} style={{ color: "var(--primary)" }} />
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--foreground)" }}>
-                                            Rapprochement bancaire automatique
-                                        </h3>
-                                        <p style={{ margin: 0, fontSize: "12.5px", color: "var(--muted-foreground)" }}>
-                                            {pendingReconciliations.length} transaction(s) bancaire(s) avec correspondance probable détectée.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                {pendingReconciliations.map((tx) => (
-                                    <div key={tx.id} className="payments-reconciliation-item">
-                                        <div>
-                                            <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--foreground)" }}>
-                                                {tx.counterparty || tx.label || "Virement reçu"}
-                                            </div>
-                                            <div style={{ fontSize: "12.5px", color: "var(--muted-foreground)", marginTop: "2px" }}>
-                                                Reçu le {formatDate(tx.transactionDate)} • Montant : <strong style={{ color: "#10B981" }}>+{formatCurrency(tx.amount)}</strong>
-                                            </div>
-                                        </div>
-
-                                        {tx.matchedInvoice && (
-                                            <div style={{
-                                                backgroundColor: "var(--background)",
-                                                padding: "8px 14px",
-                                                borderRadius: "8px",
-                                                border: "1px solid var(--border)",
-                                                fontSize: "13px"
-                                            }}>
-                                                <span style={{ color: "var(--muted-foreground)" }}>Facture associée : </span>
-                                                <strong style={{ color: "var(--primary)" }}>{tx.matchedInvoice.number}</strong>
-                                                <span style={{ margin: "0 6px" }}>•</span>
-                                                <span>{tx.matchedInvoice.client?.firstName} {tx.matchedInvoice.client?.lastName || tx.matchedInvoice.client?.companyName}</span>
-                                                <span style={{ margin: "0 6px" }}>•</span>
-                                                <span>{formatCurrency(tx.matchedInvoice.amountTTC)}</span>
-                                            </div>
-                                        )}
-
-                                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                            {tx.matchedInvoice && (
-                                                <button
-                                                    type="button"
-                                                    disabled={actionLoading === tx.id}
-                                                    onClick={() => handleConfirmReconciliation(tx.id, tx.matchedInvoice.id)}
-                                                    style={{
-                                                        display: "inline-flex",
-                                                        alignItems: "center",
-                                                        gap: "4px",
-                                                        padding: "7px 14px",
-                                                        borderRadius: "6px",
-                                                        border: "none",
-                                                        backgroundColor: "var(--primary)",
-                                                        color: "#FFFFFF",
-                                                        fontSize: "12.5px",
-                                                        fontWeight: 600,
-                                                        cursor: "pointer"
-                                                    }}
-                                                >
-                                                    <Check size={14} /> Confirmer
-                                                </button>
-                                            )}
-
-                                            <button
-                                                type="button"
-                                                disabled={actionLoading === tx.id}
-                                                onClick={() => handleIgnoreReconciliation(tx.id)}
-                                                style={{
-                                                    display: "inline-flex",
-                                                    alignItems: "center",
-                                                    gap: "4px",
-                                                    padding: "7px 12px",
-                                                    borderRadius: "6px",
-                                                    border: "1px solid var(--border)",
-                                                    backgroundColor: "transparent",
-                                                    color: "var(--muted-foreground)",
-                                                    fontSize: "12.5px",
-                                                    cursor: "pointer"
-                                                }}
-                                            >
-                                                <X size={14} /> Ignorer
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
                     {/* ─────────────────────────────────────────────────────────────
                         TOOLBAR & FILTRES
@@ -429,16 +463,16 @@ export default function PaymentsPage() {
                                 <CreditCard size={14} />
                                 <span>{isMobile ? "Carte" : "Carte bancaire"}</span>
                             </button>
-                            {pendingReconciliations.length > 0 && (
-                                <button
-                                    type="button"
-                                    className={`payments-filter-tab ${activeFilter === "review" ? "active" : ""}`}
-                                    onClick={() => setActiveFilter("review")}
-                                >
-                                    <span>À vérifier</span>
+                            <button
+                                type="button"
+                                className={`payments-filter-tab ${activeFilter === "review" ? "active" : ""}`}
+                                onClick={() => setActiveFilter("review")}
+                            >
+                                <span>À vérifier</span>
+                                {pendingReconciliations.length > 0 && (
                                     <span className="payments-filter-badge">{pendingReconciliations.length}</span>
-                                </button>
-                            )}
+                                )}
+                            </button>
                         </div>
 
                         <form
@@ -483,11 +517,235 @@ export default function PaymentsPage() {
                     </div>
 
                     {/* ─────────────────────────────────────────────────────────────
-                        TABLE DES PAIEMENTS
+                        TABLE DES PAIEMENTS OU SECTION À VÉRIFIER
                     ───────────────────────────────────────────────────────────── */}
                     {loading ? (
                         <div style={{ display: "flex", justifyContent: "center", padding: "60px 0" }}>
                             <Loader2 size={32} className="animate-spin" style={{ color: "var(--primary)" }} />
+                        </div>
+                    ) : activeFilter === "review" ? (
+                        <div className="payments-table-card">
+                            {filteredPendingReconciliations.length === 0 ? (
+                                <div className="payments-empty-state">
+                                    <ShieldCheck size={44} style={{ color: "#10B981" }} />
+                                    <h3>Toutes les opérations sont à jour</h3>
+                                    <p>Aucune transaction bancaire en attente de vérification pour le moment.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Desktop Table View for Review */}
+                                    <table className="payments-table">
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: "110px" }}>Date</th>
+                                                <th>Émetteur / Libellé bancaire</th>
+                                                <th style={{ width: "120px" }}>Montant</th>
+                                                <th style={{ minWidth: "280px" }}>Facture associée / Détection</th>
+                                                <th style={{ width: "210px", textAlign: "right" }}>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredPendingReconciliations.map((tx) => {
+                                                const isPaid = tx.matchedInvoice && (tx.matchedInvoice.status === "PAID" || tx.matchedInvoice.paymentStatus === "PAID");
+                                                const isMatchedOpen = tx.matchedInvoice && !isPaid;
+
+                                                return (
+                                                    <tr key={tx.id}>
+                                                        <td style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
+                                                            {formatDate(tx.transactionDate)}
+                                                        </td>
+                                                        <td>
+                                                            <div style={{ fontWeight: 600 }}>{tx.counterparty || tx.label || "Virement reçu"}</div>
+                                                            {tx.reference && (
+                                                                <div style={{ fontSize: "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
+                                                                    {tx.reference}
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td style={{ fontWeight: 800, fontSize: "14.5px", color: "#10B981", whiteSpace: "nowrap" }}>
+                                                            +{formatCurrency(tx.amount)}
+                                                        </td>
+                                                        <td style={{ minWidth: "280px" }}>
+                                                            {isPaid ? (
+                                                                <div className="payments-reconciled-badge-paid">
+                                                                    <span className="badge-dot-green"></span>
+                                                                    <span>Déjà réglée :</span>
+                                                                    <strong
+                                                                        onClick={() => handleOpenInvoice(tx.matchedInvoice.id)}
+                                                                        style={{ color: "var(--foreground)", cursor: "pointer", textDecoration: "underline" }}
+                                                                    >
+                                                                        {tx.matchedInvoice.number}
+                                                                    </strong>
+                                                                    <span style={{ opacity: 0.5 }}>•</span>
+                                                                    <span style={{ fontWeight: 600, color: "var(--foreground)" }}>{formatCurrency(tx.matchedInvoice.amountTTC)}</span>
+                                                                </div>
+                                                            ) : isMatchedOpen ? (
+                                                                <div className="payments-reconciled-badge-suggested">
+                                                                    <span className="badge-dot-primary"></span>
+                                                                    <span>Suggérée :</span>
+                                                                    <strong
+                                                                        onClick={() => handleOpenInvoice(tx.matchedInvoice.id)}
+                                                                        style={{ color: "var(--foreground)", cursor: "pointer", textDecoration: "underline" }}
+                                                                    >
+                                                                        {tx.matchedInvoice.number}
+                                                                    </strong>
+                                                                    <span style={{ opacity: 0.5 }}>•</span>
+                                                                    <span style={{ color: "var(--foreground)" }}>{tx.matchedInvoice.client?.firstName} {tx.matchedInvoice.client?.lastName || tx.matchedInvoice.client?.companyName}</span>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="payments-reconciled-badge-unmatched">
+                                                                    <span className="badge-dot-neutral"></span>
+                                                                    <span>Aucune facture associée</span>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td style={{ width: "210px", textAlign: "right" }}>
+                                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px" }}>
+                                                                {isMatchedOpen && (
+                                                                    <button
+                                                                        type="button"
+                                                                        disabled={actionLoading === tx.id}
+                                                                        onClick={() => handleConfirmReconciliation(tx.id, tx.matchedInvoice.id, "Paiement validé et facture rapprochée avec succès !")}
+                                                                        className="payments-btn-accept-action"
+                                                                    >
+                                                                        {actionLoading === tx.id ? <Loader2 size={13} className="animate-spin" /> : <Check size={14} />}
+                                                                        <span>Accepter</span>
+                                                                    </button>
+                                                                )}
+
+                                                                {isPaid && (
+                                                                    <button
+                                                                        type="button"
+                                                                        disabled={actionLoading === tx.id}
+                                                                        onClick={() => handleConfirmReconciliation(tx.id, tx.matchedInvoice.id, "Virement lié avec succès à la facture !")}
+                                                                        className="payments-btn-link-action"
+                                                                        title="Attacher la référence de virement à cette facture"
+                                                                    >
+                                                                        {actionLoading === tx.id ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                                                                        <span>Lier</span>
+                                                                    </button>
+                                                                )}
+
+                                                                {!tx.matchedInvoice && (
+                                                                    <button
+                                                                        type="button"
+                                                                        disabled={actionLoading === tx.id}
+                                                                        onClick={() => handleOpenAssociateModal(tx)}
+                                                                        className="payments-btn-associate-action"
+                                                                    >
+                                                                        <ArrowUpRight size={13} />
+                                                                        <span>Associer</span>
+                                                                    </button>
+                                                                )}
+
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={actionLoading === tx.id}
+                                                                    onClick={() => handleIgnoreReconciliation(tx.id)}
+                                                                    className="payments-btn-ignore-action"
+                                                                >
+                                                                    <X size={14} />
+                                                                    <span>Ignorer</span>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+
+                                    {/* Mobile Cards for Review */}
+                                    <div className="payments-mobile-cards">
+                                        {filteredPendingReconciliations.map((tx) => {
+                                            const isPaid = tx.matchedInvoice && (tx.matchedInvoice.status === "PAID" || tx.matchedInvoice.paymentStatus === "PAID");
+                                            const isMatchedOpen = tx.matchedInvoice && !isPaid;
+
+                                            return (
+                                                <div key={tx.id} className="payments-mobile-card">
+                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                                                        <div>
+                                                            <div style={{ fontWeight: 700, fontSize: "15px", color: "var(--foreground)" }}>
+                                                                {tx.counterparty || tx.label || "Virement reçu"}
+                                                            </div>
+                                                            <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                                                                {formatDate(tx.transactionDate)}
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ fontWeight: 800, fontSize: "16px", color: "#10B981" }}>
+                                                            +{formatCurrency(tx.amount)}
+                                                        </div>
+                                                    </div>
+
+                                                    <div style={{ margin: "10px 0" }}>
+                                                        {isPaid ? (
+                                                            <div className="payments-reconciled-badge-paid" style={{ width: "100%", boxSizing: "border-box" }}>
+                                                                <span className="badge-dot-green"></span>
+                                                                <span>Déjà réglée : <strong>{tx.matchedInvoice.number}</strong></span>
+                                                            </div>
+                                                        ) : isMatchedOpen ? (
+                                                            <div className="payments-reconciled-badge-suggested" style={{ width: "100%", boxSizing: "border-box" }}>
+                                                                <span className="badge-dot-primary"></span>
+                                                                <span>Suggérée : <strong>{tx.matchedInvoice.number}</strong></span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="payments-reconciled-badge-unmatched" style={{ width: "100%", boxSizing: "border-box" }}>
+                                                                <span className="badge-dot-neutral"></span>
+                                                                <span>Aucune facture associée</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div style={{ display: "flex", gap: "8px", marginTop: "12px", paddingTop: "10px", borderTop: "1px solid var(--border)", flexWrap: "wrap" }}>
+                                                        {isMatchedOpen && (
+                                                            <button
+                                                                type="button"
+                                                                disabled={actionLoading === tx.id}
+                                                                onClick={() => handleConfirmReconciliation(tx.id, tx.matchedInvoice.id, "Paiement validé et facture rapprochée avec succès !")}
+                                                                className="payments-btn-accept-action"
+                                                                style={{ flex: 1, justifyContent: "center" }}
+                                                            >
+                                                                <Check size={14} /> Accepter
+                                                            </button>
+                                                        )}
+                                                        {isPaid && (
+                                                            <button
+                                                                type="button"
+                                                                disabled={actionLoading === tx.id}
+                                                                onClick={() => handleConfirmReconciliation(tx.id, tx.matchedInvoice.id, "Virement lié avec succès à la facture !")}
+                                                                className="payments-btn-link-action"
+                                                                style={{ flex: 1, justifyContent: "center" }}
+                                                            >
+                                                                <Check size={13} /> Lier
+                                                            </button>
+                                                        )}
+                                                        {!tx.matchedInvoice && (
+                                                            <button
+                                                                type="button"
+                                                                disabled={actionLoading === tx.id}
+                                                                onClick={() => handleOpenAssociateModal(tx)}
+                                                                className="payments-btn-associate-action"
+                                                                style={{ flex: 1, justifyContent: "center" }}
+                                                            >
+                                                                <ArrowUpRight size={13} /> Associer
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            disabled={actionLoading === tx.id}
+                                                            onClick={() => handleIgnoreReconciliation(tx.id)}
+                                                            className="payments-btn-ignore-action"
+                                                            style={{ flex: 1, justifyContent: "center" }}
+                                                        >
+                                                            <X size={14} /> Ignorer
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ) : displayedPayments.length === 0 ? (
                         <div className="payments-empty-state">
@@ -663,15 +921,165 @@ export default function PaymentsPage() {
                                     >
                                         <span>Afficher plus</span>
                                         <span className="payments-load-more-count">
-                                            (+{Math.min(10, filteredPayments.length - visibleCount)})
+                                            (+{Math.min(pageSize, filteredPayments.length - visibleCount)})
                                         </span>
                                     </button>
+                                    <div className="payments-load-more-summary">
+                                        Affichage de {Math.min(visibleCount, filteredPayments.length)} sur {filteredPayments.length} paiements
+                                    </div>
                                 </div>
                             )}
                         </div>
                     )}
                 </motion.div>
             </div>
+
+            {/* Modal d'association manuelle d'un virement à une facture */}
+            <AnimatePresence>
+                {associatingTx && (
+                    <motion.div
+                        className="payments-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={() => setAssociatingTx(null)}
+                    >
+                        <motion.div
+                            className="payments-associate-modal"
+                            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="payments-modal-header">
+                                <h3>Associer le virement à une facture</h3>
+                                <button
+                                    type="button"
+                                    className="payments-modal-close-btn"
+                                    onClick={() => setAssociatingTx(null)}
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            <div className="payments-modal-tx-recap">
+                                <div>
+                                    <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--foreground)" }}>
+                                        {associatingTx.counterparty || associatingTx.label || "Virement reçu"}
+                                    </div>
+                                    <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>
+                                        {formatDate(associatingTx.transactionDate)} • Réf : {associatingTx.reference || "POWENS"}
+                                    </div>
+                                </div>
+                                <div style={{ fontWeight: 800, fontSize: "17px", color: "#10B981" }}>
+                                    +{formatCurrency(associatingTx.amount)}
+                                </div>
+                            </div>
+
+                            <div className="payments-modal-search-wrap">
+                                <div className="payments-modal-search-box">
+                                    <Search size={15} style={{ color: "var(--muted-foreground)" }} />
+                                    <input
+                                        type="text"
+                                        placeholder="Rechercher une facture par numéro, client..."
+                                        value={invoiceSearchQuery}
+                                        onChange={(e) => setInvoiceSearchQuery(e.target.value)}
+                                        autoFocus
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="payments-modal-invoices-list">
+                                {loadingOpenInvoices ? (
+                                    <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
+                                        <Loader2 size={24} className="animate-spin" style={{ color: "var(--primary)" }} />
+                                    </div>
+                                ) : modalInvoicesFiltered.length === 0 ? (
+                                    <div style={{ textAlign: "center", padding: "30px 0", color: "var(--muted-foreground)", fontSize: "13px" }}>
+                                        Aucune facture correspondante trouvée.
+                                    </div>
+                                ) : (
+                                    modalInvoicesFiltered.map((inv) => {
+                                        const isExactAmount = Math.abs(Number(inv.amountTTC) - Number(associatingTx.amount)) < 0.01;
+                                        const clientName = `${inv.client?.firstName || ''} ${inv.client?.lastName || inv.client?.companyName || ''}`.trim() || "Client";
+                                        const isAlreadyPaid = inv.status === "PAID" || inv.paymentStatus === "PAID";
+
+                                        return (
+                                            <div
+                                                key={inv.id}
+                                                className={`payments-modal-invoice-item ${isExactAmount ? "match-amount" : ""}`}
+                                                onClick={() => handleConfirmAssociate(inv.id)}
+                                            >
+                                                <div>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                        <strong style={{ color: "var(--primary)", fontSize: "14px" }}>
+                                                            {inv.number}
+                                                        </strong>
+                                                        {isExactAmount && (
+                                                            <span style={{ fontSize: "10.5px", padding: "2px 6px", borderRadius: "4px", backgroundColor: "rgba(16, 185, 129, 0.15)", color: "#10B981", fontWeight: 700 }}>
+                                                                Montant exact
+                                                            </span>
+                                                        )}
+                                                        {isAlreadyPaid && (
+                                                            <span style={{ fontSize: "10.5px", padding: "2px 6px", borderRadius: "4px", backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#F59E0B", fontWeight: 700 }}>
+                                                                Déjà réglée
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ fontSize: "12.5px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                                                        {clientName} • Émise le {formatDate(inv.issuedAt || inv.createdAt)}
+                                                    </div>
+                                                </div>
+                                                <div style={{ textAlign: "right" }}>
+                                                    <div style={{ fontWeight: 700, fontSize: "14.5px", color: "var(--foreground)" }}>
+                                                        {formatCurrency(inv.amountTTC)}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        style={{
+                                                            marginTop: "4px",
+                                                            padding: "4px 10px",
+                                                            borderRadius: "6px",
+                                                            border: "none",
+                                                            backgroundColor: "var(--primary)",
+                                                            color: "#FFFFFF",
+                                                            fontSize: "11.5px",
+                                                            fontWeight: 600,
+                                                            cursor: "pointer"
+                                                        }}
+                                                    >
+                                                        Sélectionner
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+
+                            <div className="payments-modal-footer">
+                                <button
+                                    type="button"
+                                    onClick={() => setAssociatingTx(null)}
+                                    style={{
+                                        padding: "8px 16px",
+                                        borderRadius: "8px",
+                                        border: "1px solid var(--border)",
+                                        backgroundColor: "transparent",
+                                        color: "var(--foreground)",
+                                        fontSize: "13px",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    Annuler
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Modal de prévisualisation de la facture */}
             {showInvoiceModal && selectedInvoice && (
@@ -681,9 +1089,40 @@ export default function PaymentsPage() {
                         setShowInvoiceModal(false);
                         setSelectedInvoice(null);
                     }}
-                    onDownload={() => window.print()}
+                    onDownload={handleDownloadPdf}
                 />
             )}
+
+            {/* Toast Notification - Smooth top slide-in & slide-out, pause on hover */}
+            <AnimatePresence mode="wait">
+                {toast && (
+                    <motion.div
+                        key={toast.msg}
+                        initial={{ opacity: 0, y: -36, x: "-50%" }}
+                        animate={{ opacity: 1, y: 0, x: "-50%" }}
+                        exit={{ opacity: 0, y: -24, x: "-50%" }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        onMouseEnter={handleToastMouseEnter}
+                        onMouseLeave={handleToastMouseLeave}
+                        onClick={() => {
+                            if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+                            setToast(null);
+                        }}
+                        className={`payments-toast payments-toast--${toast.type}`}
+                        style={{
+                            pointerEvents: "auto",
+                            cursor: "pointer",
+                            userSelect: "none"
+                        }}
+                        title="Cliquer pour masquer"
+                    >
+                        {toast.type === "success" && <CheckCircle2 size={18} className="payments-toast-icon" />}
+                        {toast.type === "error" && <AlertCircle size={18} className="payments-toast-icon" />}
+                        {toast.type === "info" && <Info size={18} className="payments-toast-icon" />}
+                        <span className="payments-toast-msg">{toast.msg}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

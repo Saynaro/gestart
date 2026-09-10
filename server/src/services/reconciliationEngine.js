@@ -141,6 +141,40 @@ export const matchTransactionWithInvoices = async (transactionId) => {
     }
 
     if (!bestMatch || highestScore < 0.60) {
+        // Vérifier si le libellé mentionne expressément une facture déjà payée
+        const allCompanyInvoices = await prisma.invoice.findMany({
+            where: {
+                companyId: transaction.companyId,
+                status: "PAID"
+            },
+            include: {
+                client: true
+            }
+        });
+
+        const labelNorm = normalizeText(transaction.label + " " + (transaction.reference || ""));
+        const matchedPaidInvoice = allCompanyInvoices.find(inv => {
+            const invNorm = normalizeText(inv.number);
+            return invNorm && labelNorm.includes(invNorm);
+        });
+
+        if (matchedPaidInvoice) {
+            await prisma.bankTransaction.update({
+                where: { id: transactionId },
+                data: {
+                    reconciliationStatus: "PROBABLE",
+                    confidenceScore: 0.95,
+                    matchedInvoiceId: matchedPaidInvoice.id
+                }
+            });
+            return {
+                status: "PROBABLE",
+                score: 0.95,
+                invoice: matchedPaidInvoice,
+                alreadyPaid: true
+            };
+        }
+
         await prisma.bankTransaction.update({
             where: { id: transactionId },
             data: {
@@ -206,7 +240,7 @@ export const matchTransactionWithInvoices = async (transactionId) => {
         };
     }
 
-    // Correspondance probable (0.60 <= Score < 0.95) -> En attente de confirmation manuelle
+    // Correspondance probable (0.60 <= Score < 0.85) -> En attente de confirmation manuelle
     await prisma.bankTransaction.update({
         where: { id: transactionId },
         data: {
@@ -242,6 +276,35 @@ export const confirmReconciliation = async (transactionId, invoiceId, userId) =>
 
     if (transaction.companyId !== invoice.companyId) {
         throw new Error("Action non autorisée sur une autre entreprise");
+    }
+
+    // Si la facture est déjà marquée comme payée, on lie simplement la transaction bancaire sans altérer la facture
+    if (invoice.status === "PAID") {
+        await prisma.bankTransaction.update({
+            where: { id: transactionId },
+            data: {
+                reconciliationStatus: "MATCHED",
+                confidenceScore: 1.0,
+                matchedInvoiceId: invoiceId,
+                reconciledAt: new Date(),
+                reconciledBy: userId || "USER"
+            }
+        });
+
+        // Met à jour la référence sur l'enregistrement de transaction s'il existait déjà
+        const existingTx = await prisma.invoiceTransaction.findFirst({
+            where: { invoiceId, companyId: transaction.companyId }
+        });
+        if (existingTx && (!existingTx.bankReference || existingTx.bankReference === "Virement bancaire")) {
+            await prisma.invoiceTransaction.update({
+                where: { id: existingTx.id },
+                data: {
+                    bankReference: transaction.reference || transaction.externalTransactionId
+                }
+            });
+        }
+
+        return { success: true, alreadyPaid: true };
     }
 
     await prisma.$transaction([

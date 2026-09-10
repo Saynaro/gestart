@@ -1,7 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { User, Camera, Globe, Clock, Check, ChevronRight } from "lucide-react";
+import { User, Camera, ChevronRight, Check, Lock, ShieldCheck, Briefcase, Mail } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import PhoneInput from "../../components/PhoneInput";
+
+const CIVILITY_OPTIONS = [
+    { value: "Monsieur", label: "M. (Monsieur)" },
+    { value: "Madame", label: "Mme (Madame)" },
+    { value: "Non précisé", label: "Non précisé" }
+];
+
+const TRADE_CATEGORY_NAMES = {
+    clim: "Climatisation / PAC air-air",
+    pac: "Pompe à chaleur air-eau",
+    plombier: "Plomberie & Chauffage",
+    cet: "Chauffe-Eau Thermodynamique",
+    vmc: "Ventilation mécanique (VMC)",
+    solaires: "Panneaux solaires photovoltaïques",
+    chaudiere: "Chaudière gaz / fioul",
+    poele: "Poêle ou insert bois",
+    elec: "Tableau électrique / Bornes",
+};
 
 export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, setActiveSubSheet }) {
     const [firstName, setFirstName] = useState("Khalid");
@@ -9,10 +27,22 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
     const [email, setEmail] = useState("khalid.cizdoev777@gmail.com");
     const [phone, setPhone] = useState("06 51 60 43 16");
     const [avatarUrl, setAvatarUrl] = useState(null);
-    const [language, setLanguage] = useState("FR");
-    const [timezone, setTimezone] = useState("Europe/Paris");
-    const [civility, setCivility] = useState("Monsieur");
-    const [dob, setDob] = useState("15/05/1992");
+    const [civility, setCivility] = useState(() => localStorage.getItem("userCivility") || "Monsieur");
+    const [role, setRole] = useState("OWNER");
+    const [jobTitle, setJobTitle] = useState(() => localStorage.getItem("userJobTitle") || "Gérant & Artisan");
+
+    const getRoleLabel = (r) => {
+        switch (r) {
+            case "OWNER":
+                return "Propriétaire / Gérant";
+            case "MANAGER":
+                return "Manager / Administrateur";
+            case "TECHNICIAN":
+                return "Technicien terrain";
+            default:
+                return "Membre";
+        }
+    };
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -25,6 +55,31 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                     if (user.email) setEmail(user.email);
                     if (user.phone) setPhone(user.phone);
                     if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
+                    if (user.role) setRole(user.role);
+
+                    // Métier / Activités choisies à l'inscription
+                    const rawTrades = user.company?.tradeCategories || [];
+                    const tradeNames = rawTrades
+                        .map((tc) => {
+                            const cat = tc.tradeCategory || tc;
+                            const id = cat.id || cat.slug;
+                            return TRADE_CATEGORY_NAMES[id] || cat.name || id;
+                        })
+                        .filter(Boolean);
+
+                    const registeredTrades = tradeNames.join(" • ");
+
+                    const savedJobTitle = localStorage.getItem("userJobTitle");
+                    if (!savedJobTitle || savedJobTitle === "Gérant & Artisan" || savedJobTitle === "Gérant artisan" || savedJobTitle === "gerant artisan") {
+                        if (registeredTrades) {
+                            setJobTitle(registeredTrades);
+                            localStorage.setItem("userJobTitle", registeredTrades);
+                        } else {
+                            setJobTitle("Gérant & Artisan");
+                        }
+                    } else {
+                        setJobTitle(savedJobTitle);
+                    }
                 }
             } catch (err) {
                 console.warn("API profile non disponible, conservation des valeurs par défaut:", err.message);
@@ -50,7 +105,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                         method: 'PATCH',
                         body: JSON.stringify({ avatarUrl: base64Data })
                     });
-                    window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl: base64Data } }));
+                    window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl: base64Data, civility, jobTitle } }));
                     triggerToast("Photo de profil enregistrée avec succès !");
                 } catch (err) {
                     console.error("Avatar upload error:", err);
@@ -63,16 +118,18 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
+        localStorage.setItem("userCivility", civility);
+        localStorage.setItem("userJobTitle", jobTitle);
         try {
             const res = await apiFetch('/v1/users/me', {
                 method: 'PATCH',
                 body: JSON.stringify({ firstName, lastName, phone, avatarUrl })
             });
             const updated = res.data?.user || res.user || { firstName, lastName, phone, email, avatarUrl };
-            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: updated }));
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { ...updated, civility, jobTitle } }));
             triggerToast("Profil enregistré avec succès !");
         } catch (err) {
-            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl } }));
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl, civility, jobTitle } }));
             triggerToast("Profil enregistré localement.");
         }
     };
@@ -91,6 +148,38 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                             <Camera size={14} />
                             <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
                         </label>
+                    </div>
+                </div>
+
+                {/* Civilité Mobile */}
+                <div className="mobile-input-card">
+                    <span className="mobile-input-card-label">Civilité</span>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
+                        {CIVILITY_OPTIONS.map((opt) => {
+                            const isActive = civility === opt.value;
+                            return (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => setCivility(opt.value)}
+                                    style={{
+                                        flex: 1,
+                                        padding: "8px 4px",
+                                        borderRadius: "8px",
+                                        fontSize: "12px",
+                                        fontWeight: 600,
+                                        boxSizing: "border-box",
+                                        border: isActive ? "1px solid #556B2F" : "1px solid var(--border)",
+                                        backgroundColor: isActive ? "#556B2F" : "transparent",
+                                        color: isActive ? "#FFFFFF" : "var(--foreground)",
+                                        cursor: "pointer",
+                                        transition: "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease"
+                                    }}
+                                >
+                                    {opt.value === "Monsieur" ? "M." : opt.value === "Madame" ? "Mme" : "Autre"}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -116,6 +205,20 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                     />
                 </div>
 
+                {/* Email de connexion Mobile */}
+                <div className="mobile-input-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span className="mobile-input-card-label">Email de connexion</span>
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#10B981", display: "inline-flex", alignItems: "center", gap: "3px" }}>
+                            <Check size={12} /> Vérifié
+                        </span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+                        <Mail size={15} style={{ color: "var(--muted-foreground)" }} />
+                        <span style={{ fontSize: "14px", color: "var(--foreground)", fontWeight: 500 }}>{email}</span>
+                    </div>
+                </div>
+
                 <div className="mobile-input-card select" onClick={() => setActiveSubSheet && setActiveSubSheet("phone")}>
                     <span className="mobile-input-card-label">Téléphone personnel</span>
                     <div className="mobile-input-card-row">
@@ -125,41 +228,29 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                     </div>
                 </div>
 
+                {/* Rôle & Poste Mobile */}
                 <div className="mobile-input-card">
-                    <span className="mobile-input-card-label">Langue de l'interface</span>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                        <button
-                            type="button"
-                            className={`pill-btn ${language === 'FR' ? 'active' : ''}`}
-                            onClick={() => setLanguage('FR')}
-                            style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', fontWeight: 600, backgroundColor: language === 'FR' ? 'var(--sidebar-primary)' : 'var(--card)', color: language === 'FR' ? '#fff' : 'var(--foreground)' }}
-                        >
-                            🇫🇷 Français (FR)
-                        </button>
-                        <button
-                            type="button"
-                            className={`pill-btn ${language === 'EN' ? 'active' : ''}`}
-                            onClick={() => setLanguage('EN')}
-                            style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', fontWeight: 600, backgroundColor: language === 'EN' ? 'var(--sidebar-primary)' : 'var(--card)', color: language === 'EN' ? '#fff' : 'var(--foreground)' }}
-                        >
-                            🇬🇧 English (EN)
-                        </button>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span className="mobile-input-card-label">Rôle d'accès</span>
+                        <span style={{
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            backgroundColor: "rgba(95, 75, 219, 0.12)",
+                            color: "var(--primary, #5F4BDB)"
+                        }}>
+                            {getRoleLabel(role)}
+                        </span>
                     </div>
-                </div>
-
-                <div className="mobile-input-card">
-                    <span className="mobile-input-card-label">Fuseau horaire</span>
-                    <select
-                        className="form-input"
-                        value={timezone}
-                        onChange={(e) => setTimezone(e.target.value)}
-                        style={{ width: '100%', marginTop: '6px' }}
-                    >
-                        <option value="Europe/Paris">Europe/Paris (UTC+01:00 / UTC+02:00)</option>
-                        <option value="Europe/London">Europe/London (UTC+00:00 / UTC+01:00)</option>
-                        <option value="America/New_York">America/New_York (UTC-05:00)</option>
-                        <option value="UTC">UTC (Temps universel)</option>
-                    </select>
+                    <input
+                        type="text"
+                        className="mobile-input-card-field"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder="Intitulé du poste / Métier"
+                        style={{ marginTop: "4px" }}
+                    />
                 </div>
 
                 <div style={{ height: '12px' }} />
@@ -175,6 +266,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
 
     return (
         <form onSubmit={handleSubmit} className="profile-form-grid" style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)' }}>
+            {/* Photo de profil */}
             <div className="form-field form-group-full">
                 <label className="form-label">Photo de profil (Avatar)</label>
                 <div className="avatar-edit-field">
@@ -194,6 +286,38 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                 </div>
             </div>
 
+            {/* Civilité */}
+            <div className="form-field form-group-full">
+                <label className="form-label">Civilité</label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                    {CIVILITY_OPTIONS.map((opt) => {
+                        const isActive = civility === opt.value;
+                        return (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => setCivility(opt.value)}
+                                style={{
+                                    padding: "8px 16px",
+                                    borderRadius: "8px",
+                                    fontSize: "13px",
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    boxSizing: "border-box",
+                                    border: isActive ? "1px solid #556B2F" : "1px solid var(--border)",
+                                    backgroundColor: isActive ? "#556B2F" : "transparent",
+                                    color: isActive ? "#FFFFFF" : "var(--foreground)",
+                                    transition: "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease"
+                                }}
+                            >
+                                {opt.label}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Prénom & Nom */}
             <div className="form-field">
                 <label className="form-label">Prénom</label>
                 <input
@@ -216,68 +340,100 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                 />
             </div>
 
+            {/* Email de connexion */}
+            <div className="form-field">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <label className="form-label">Email de connexion</label>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#10B981", display: "inline-flex", alignItems: "center", gap: "3px" }}>
+                        <Check size={12} /> Vérifié
+                    </span>
+                </div>
+                <div style={{ position: "relative" }}>
+                    <input
+                        type="email"
+                        className="form-input"
+                        value={email}
+                        readOnly
+                        style={{
+                            backgroundColor: "rgba(0, 0, 0, 0.02)",
+                            cursor: "not-allowed",
+                            opacity: 0.9,
+                            paddingRight: "36px"
+                        }}
+                    />
+                    <Lock size={14} style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)" }} />
+                </div>
+                <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                    Identifiant utilisé pour vous connecter à votre compte
+                </span>
+            </div>
+
+            {/* Téléphone personnel */}
             <div className="form-field">
                 <label className="form-label">Téléphone personnel</label>
                 <PhoneInput
                     value={phone}
                     onChange={(formatted) => setPhone(formatted)}
                 />
+                <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                    Utilisé pour les communications de service et l'équipe
+                </span>
+            </div>
+
+            {/* Rôle d'accès & Intitulé de poste */}
+            <div className="form-field">
+                <label className="form-label">Rôle d'accès système</label>
+                <div style={{
+                    height: "42px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "0 14px",
+                    borderRadius: "10px",
+                    border: "1px solid var(--border)",
+                    backgroundColor: "rgba(0, 0, 0, 0.02)",
+                    color: "var(--foreground)",
+                    fontSize: "13.5px",
+                    fontWeight: 600
+                }}>
+                    <ShieldCheck size={16} style={{ color: "var(--primary, #5F4BDB)" }} />
+                    <span>{getRoleLabel(role)}</span>
+                    <span style={{
+                        marginLeft: "auto",
+                        fontSize: "10.5px",
+                        fontWeight: 700,
+                        padding: "2px 8px",
+                        borderRadius: "50px",
+                        backgroundColor: "rgba(95, 75, 219, 0.12)",
+                        color: "var(--primary, #5F4BDB)"
+                    }}>
+                        Actif
+                    </span>
+                </div>
+                <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                    Définit vos privilèges d'accès sur l'application
+                </span>
             </div>
 
             <div className="form-field">
-                <label className="form-label">Langue de l'interface</label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                        type="button"
-                        onClick={() => setLanguage("FR")}
-                        style={{
-                            flex: 1,
-                            padding: '9px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border)',
-                            backgroundColor: language === 'FR' ? 'var(--sidebar-primary)' : 'var(--background)',
-                            color: language === 'FR' ? '#fff' : 'var(--foreground)',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            fontSize: '13px'
-                        }}
-                    >
-                        🇫🇷 Français (FR)
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setLanguage("EN")}
-                        style={{
-                            flex: 1,
-                            padding: '9px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border)',
-                            backgroundColor: language === 'EN' ? 'var(--sidebar-primary)' : 'var(--background)',
-                            color: language === 'EN' ? '#fff' : 'var(--foreground)',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            fontSize: '13px'
-                        }}
-                    >
-                        🇬🇧 English (EN)
-                    </button>
+                <label className="form-label">Intitulé du poste / Métier</label>
+                <div style={{ position: "relative" }}>
+                    <input
+                        type="text"
+                        className="form-input"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder="ex: Gérant & Artisan Chauffagiste..."
+                        style={{ paddingLeft: "36px" }}
+                    />
+                    <Briefcase size={15} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)" }} />
                 </div>
+                <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                    Titre professionnel utilisé dans vos échanges
+                </span>
             </div>
 
-            <div className="form-field form-group-full">
-                <label className="form-label">Fuseau horaire</label>
-                <select
-                    className="form-input"
-                    value={timezone}
-                    onChange={(e) => setTimezone(e.target.value)}
-                >
-                    <option value="Europe/Paris">Europe/Paris (UTC+01:00 / UTC+02:00 - Heure de Paris)</option>
-                    <option value="Europe/London">Europe/London (UTC+00:00 - Heure de Londres)</option>
-                    <option value="America/New_York">America/New_York (UTC-05:00 - Heure de New York)</option>
-                    <option value="UTC">UTC (Temps universel coordonné)</option>
-                </select>
-            </div>
-
+            {/* Submit Button */}
             <div className="form-group-full" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', paddingTop: '16px', borderTop: '1px dashed var(--border)' }}>
                 <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
                     Enregistrer les modifications

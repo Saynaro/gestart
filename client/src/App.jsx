@@ -5,6 +5,7 @@ import { isAuthenticated, isSuperAdmin } from './utils/auth'
 import { startProactiveTokenRefresh, stopProactiveTokenRefresh } from './utils/api'
 import { SubscriptionProvider } from './utils/useSubscription'
 import { UserProvider, useUser } from './utils/useUser'
+import { initTheme, getEffectiveTheme } from './utils/theme'
 
 // Static imports for instant landing & core components
 import LandingPage from './LandingPage/LandingPage'
@@ -163,12 +164,22 @@ function App() {
     return () => stopProactiveTokenRefresh();
   }, []);
 
+  // Initialize theme and system OS theme listener globally
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark" && location.pathname !== "/") {
-      document.documentElement.classList.add("dark");
-    } else {
+    initTheme();
+  }, []);
+
+  // Ensure theme applies correctly across page navigation (ignoring public landing page '/')
+  useEffect(() => {
+    if (location.pathname === "/") {
       document.documentElement.classList.remove("dark");
+    } else {
+      const mode = localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : "light");
+      if (getEffectiveTheme(mode) === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
     }
   }, [location.pathname]);
 

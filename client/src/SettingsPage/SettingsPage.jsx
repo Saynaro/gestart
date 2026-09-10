@@ -40,11 +40,13 @@ import {
     Calculator,
     Percent,
     Link,
-    RefreshCw
+    RefreshCw,
+    Palette
 } from "lucide-react";
 
 // Import Tab Components
 import ProfilTab from "./components/ProfilTab";
+import AffichageTab from "./components/AffichageTab";
 import EntrepriseTab from "./components/EntrepriseTab";
 import SecuriteTab from "./components/SecuriteTab";
 import LegalRgpdTab from "./components/LegalRgpdTab";
@@ -78,6 +80,8 @@ function SettingsPage() {
 
     // Ref to store scroll position for mobile back navigation
     const scrollYRef = useRef(0);
+    // Ref to scrollable container for desktop
+    const layoutContainerRef = useRef(null);
 
     // Form and user state
     const [firstName, setFirstName] = useState("Khalid");
@@ -108,20 +112,6 @@ function SettingsPage() {
         };
         fetchUserProfile();
     }, []);
-
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-        return document.documentElement.classList.contains("dark") || localStorage.getItem("theme") === "dark";
-    });
-
-    useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("theme", "dark");
-        } else {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("theme", "light");
-        }
-    }, [isDarkMode]);
 
     // Layout and Navigation State
     const [activeTab, setActiveTab] = useState(() => {
@@ -228,14 +218,38 @@ function SettingsPage() {
     };
 
     const [confirmConfig, setConfirmConfig] = useState(null);
+    const toastTimeoutRef = useRef(null);
 
-    const triggerToast = (message, isError = false) => {
+    const triggerToast = useCallback((message, isError = false) => {
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+            toastTimeoutRef.current = null;
+        }
         setToastMessage(message);
         setToastIsError(isError);
         setShowToast(true);
-        setTimeout(() => {
+
+        toastTimeoutRef.current = setTimeout(() => {
             setShowToast(false);
-        }, 3000);
+            toastTimeoutRef.current = null;
+        }, 3500);
+    }, []);
+
+    const handleToastMouseEnter = () => {
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+            toastTimeoutRef.current = null;
+        }
+    };
+
+    const handleToastMouseLeave = () => {
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+        }
+        toastTimeoutRef.current = setTimeout(() => {
+            setShowToast(false);
+            toastTimeoutRef.current = null;
+        }, 2000);
     };
 
     const triggerConfirm = ({ title, message, confirmText = "Confirmer", cancelText = "Annuler", type = "danger", onConfirm }) => {
@@ -260,6 +274,7 @@ function SettingsPage() {
                     title: "Mon compte",
                     items: [
                         { id: "profil", label: "Profil", icon: User, subtitle: "Vos informations personnelles" },
+                        { id: "affichage", label: "Affichage", icon: Palette, subtitle: "Thème et langue de l'interface" },
                         { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" }
                     ]
                 },
@@ -292,6 +307,7 @@ function SettingsPage() {
                 title: "Mon compte",
                 items: [
                     { id: "profil", label: "Profil", icon: User, subtitle: "Vos informations personnelles" },
+                    { id: "affichage", label: "Affichage", icon: Palette, subtitle: "Thème et langue de l'interface" },
                     { id: "ma-societe", label: "Entreprise", icon: Building, subtitle: "Coordonnées et statut juridique" },
                     { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
                     { id: "rgpd-legal", label: "Légal & RGPD", icon: Lock, subtitle: "Exportation de données et droits" },
@@ -394,9 +410,42 @@ function SettingsPage() {
         return () => window.removeEventListener("popstate", handlePopState);
     }, []);
 
+    // Helper to reset scroll to top across containers
+    const scrollToTop = useCallback(() => {
+        if (layoutContainerRef.current) {
+            layoutContainerRef.current.scrollTop = 0;
+            if (typeof layoutContainerRef.current.scrollTo === "function") {
+                layoutContainerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            }
+        }
+        if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            if (document.documentElement) document.documentElement.scrollTop = 0;
+            if (document.body) document.body.scrollTop = 0;
+        }
+        const mobileDetailEl = document.querySelector(".mobile-tab-content-wrapper");
+        if (mobileDetailEl) mobileDetailEl.scrollTop = 0;
+        const mobileViewEl = document.querySelector(".mobile-settings-view");
+        if (mobileViewEl) mobileViewEl.scrollTop = 0;
+        const mainContentEl = document.querySelector(".main-content");
+        if (mainContentEl) mainContentEl.scrollTop = 0;
+    }, []);
+
+    // Always scroll to top whenever activeTab changes
+    useLayoutEffect(() => {
+        scrollToTop();
+        const rafId = requestAnimationFrame(scrollToTop);
+        const timerId = setTimeout(scrollToTop, 160);
+        return () => {
+            cancelAnimationFrame(rafId);
+            clearTimeout(timerId);
+        };
+    }, [activeTab, scrollToTop]);
+
     // Helper to change tab
     const handleTabSelect = useCallback((itemId) => {
         setActiveTab(itemId);
+        scrollToTop();
         if (typeof window !== "undefined" && window.innerWidth <= 768) {
             scrollYRef.current = window.scrollY;
             if (mobileScreenState === "detail") {
@@ -407,7 +456,7 @@ function SettingsPage() {
             }
             window.scrollTo(0, 0);
         }
-    }, [mobileScreenState]);
+    }, [mobileScreenState, scrollToTop]);
 
     const handleBackFromDetail = useCallback(() => {
         if (typeof window !== "undefined" && window.history.state?.settingsDetail) {
@@ -445,6 +494,7 @@ function SettingsPage() {
                 initial={isMobileView ? { opacity: 1 } : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: isMobileView ? 0 : 0.2 }}
+                onAnimationComplete={scrollToTop}
             >
                 {!isMobileView && (
                     <>
@@ -468,6 +518,8 @@ function SettingsPage() {
                     switch (activeTab) {
                         case "profil":
                             return <ProfilTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} activeSubSheet={activeProfileSubSheet} setActiveSubSheet={setActiveProfileSubSheet} />;
+                        case "affichage":
+                            return <AffichageTab isMobileView={isMobileView} triggerToast={triggerToast} />;
                         case "ma-societe":
                             return <EntrepriseTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "securite":
@@ -626,30 +678,6 @@ function SettingsPage() {
                                 </div>
                             </div>
                         ))}
-
-                        {/* Theme Switcher Row */}
-                        <div className="mobile-group-section">
-                            <h4 className="mobile-group-header">Préférences d'affichage</h4>
-                            <div className="mobile-items-card">
-                                <div className="mobile-settings-row-btn" style={{ cursor: 'default' }}>
-                                    <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(91, 77, 219, 0.08)', color: 'var(--sidebar-primary)' }}>
-                                        {isDarkMode ? <Moon size={16} /> : <Sun size={16} />}
-                                    </span>
-                                    <span className="mobile-row-text-col">
-                                        <span className="mobile-row-label">Mode sombre</span>
-                                        <span className="mobile-row-subtitle">Activer le thème sombre de l'application</span>
-                                    </span>
-                                    <label className="mobile-toggle-switch" style={{ marginRight: '8px' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={isDarkMode}
-                                            onChange={(e) => setIsDarkMode(e.target.checked)}
-                                        />
-                                        <span className="toggle-slider" />
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Logout Row */}
                         <div className="mobile-group-section" style={{ marginBottom: '50px' }}>
@@ -824,17 +852,6 @@ function SettingsPage() {
                             })}
                         </div>
                         <div className="settings-sidebar-footer">
-                            <div className="desktop-theme-toggle-row">
-                                <span className="theme-toggle-label">Mode sombre</span>
-                                <label className="mobile-toggle-switch">
-                                    <input
-                                        type="checkbox"
-                                        checked={isDarkMode}
-                                        onChange={(e) => setIsDarkMode(e.target.checked)}
-                                    />
-                                    <span className="toggle-slider" />
-                                </label>
-                            </div>
                             <button
                                 onClick={() => {
                                     triggerConfirm({
@@ -859,7 +876,7 @@ function SettingsPage() {
                     <div className="main-content">
                         <Header />
 
-                        <div className="settings-layout-container">
+                        <div className="settings-layout-container" ref={layoutContainerRef}>
                             <div className="settings-content-panel">
                                 <AnimatePresence mode="wait">
                                     {renderTabContent(false)}
@@ -984,37 +1001,34 @@ function SettingsPage() {
                 )}
             </AnimatePresence>
 
-            {/* Custom confirmation toast - Centered top to bottom animation on PC */}
-            <AnimatePresence>
+            {/* Custom confirmation toast - Smooth top slide-in & slide-out, pause on hover */}
+            <AnimatePresence mode="wait">
                 {showToast && (
                     <motion.div
-                        className="custom-toast"
-                        initial={{ opacity: 0, y: -40, x: "-50%", scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
-                        exit={{ opacity: 0, y: -20, x: "-50%", scale: 0.95 }}
-                        transition={{ type: "spring", stiffness: 450, damping: 25 }}
-                        style={{
-                            position: 'fixed',
-                            top: '24px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            zIndex: 99999,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            padding: '14px 24px',
-                            borderRadius: '50px',
-                            backgroundColor: toastIsError ? '#ef4444' : '#22c55e',
-                            color: '#ffffff',
-                            boxShadow: '0 12px 32px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.1)',
-                            fontWeight: 700,
-                            fontSize: '14px',
-                            maxWidth: '90vw',
-                            textAlign: 'center',
-                            pointerEvents: 'none'
+                        key={toastMessage}
+                        initial={{ opacity: 0, y: -36, x: "-50%" }}
+                        animate={{ opacity: 1, y: 0, x: "-50%" }}
+                        exit={{ opacity: 0, y: -24, x: "-50%" }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        onMouseEnter={handleToastMouseEnter}
+                        onMouseLeave={handleToastMouseLeave}
+                        onClick={() => {
+                            if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+                            setShowToast(false);
                         }}
+                        className={`toast-notification custom-toast ${toastIsError ? 'error' : 'success'}`}
+                        style={{
+                            pointerEvents: "auto",
+                            cursor: "pointer",
+                            userSelect: "none"
+                        }}
+                        title="Cliquer pour masquer"
                     >
-                        {toastIsError ? <AlertTriangle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} style={{ flexShrink: 0 }} />}
+                        {toastIsError ? (
+                            <AlertTriangle size={18} style={{ color: "#EF4444", flexShrink: 0 }} />
+                        ) : (
+                            <CheckCircle2 size={18} style={{ color: "#10B981", flexShrink: 0 }} />
+                        )}
                         <span>{toastMessage}</span>
                     </motion.div>
                 )}

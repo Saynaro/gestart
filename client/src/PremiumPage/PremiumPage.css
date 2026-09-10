@@ -864,30 +864,57 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 20px;
-    border-radius: 30px;
-    font-size: 0.88rem;
+    padding: 11px 22px;
+    border-radius: 9999px;
+    font-size: 13.5px;
     font-weight: 600;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.1);
     pointer-events: auto;
-}
-
-.app-toast-pill.success {
-    background-color: #556B2F;
+    cursor: default;
+    user-select: none;
+    background-color: #0F172A;
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.app-toast-pill.error {
-    background-color: #ef4444;
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+.dark .app-toast-pill,
+:root.dark .app-toast-pill {
+    background-color: #1E293B;
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
 }
 
+.app-toast-pill.success,
+.app-toast-pill.error,
 .app-toast-pill.info {
-    background-color: #1e293b;
+    background-color: #0F172A;
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dark .app-toast-pill.success,
+.dark .app-toast-pill.error,
+.dark .app-toast-pill.info,
+:root.dark .app-toast-pill.success,
+:root.dark .app-toast-pill.error,
+:root.dark .app-toast-pill.info {
+    background-color: #1E293B;
+    color: #F8FAFC;
+}
+
+.app-toast-pill.success svg {
+    color: #10B981;
+    flex-shrink: 0;
+}
+
+.app-toast-pill.error svg {
+    color: #EF4444;
+    flex-shrink: 0;
+}
+
+.app-toast-pill.info svg {
+    color: #3B82F6;
+    flex-shrink: 0;
 }
 
 @media (max-width: 768px) {

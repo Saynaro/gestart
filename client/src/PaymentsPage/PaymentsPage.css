@@ -201,17 +201,26 @@
 }
 
 .payments-filter-badge {
-    padding: 2px 6px;
-    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 9px;
     font-size: 11px;
     font-weight: 700;
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #EF4444;
+    background-color: #D97706;
+    color: #FFFFFF;
+    margin-left: 2px;
+    box-shadow: 0 1px 3px rgba(217, 119, 6, 0.25);
+    transition: all 0.15s ease;
 }
 
 .payments-filter-tab.active .payments-filter-badge {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.28);
     color: #FFFFFF;
+    box-shadow: none;
 }
 
 .payments-search-box {
@@ -257,33 +266,65 @@
     color: var(--foreground);
 }
 
-/* Reconciliation Banner / Section */
+/* Reconciliation Banner / Section (Clean, unified card) */
 .payments-reconciliation-card {
-    background: linear-gradient(135deg, rgba(85, 107, 47, 0.08) 0%, rgba(99, 91, 255, 0.05) 100%);
-    border: 1px solid rgba(85, 107, 47, 0.3);
+    background-color: var(--card);
+    border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 20px;
+    padding: 0;
     margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .payments-reconciliation-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    padding: 16px 20px;
+    background-color: var(--card);
+    border-bottom: 1px solid var(--border);
+}
+
+.payments-reconciliation-icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--foreground);
+}
+
+.payments-reconciliation-list {
+    display: flex;
+    flex-direction: column;
 }
 
 .payments-reconciliation-item {
     background-color: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 12px;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    padding: 14px 20px;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 16px;
+    transition: background-color 0.15s ease;
+}
+
+.payments-reconciliation-item:last-child {
+    border-bottom: none;
+}
+
+.payments-reconciliation-item:hover {
+    background-color: rgba(0, 0, 0, 0.015);
 }
 
 /* Main Transactions Table */
@@ -808,4 +849,465 @@
     }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   RECONCILIATION ACTIONS & BADGES (Clean, native CRM design)
+   No AI-like pastel backgrounds or neon/purple/orange borders
+───────────────────────────────────────────────────────────── */
+.payments-btn-accept-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 15px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background-color: var(--foreground);
+    color: var(--background);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
 
+.payments-btn-accept-action:hover:not(:disabled) {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.payments-btn-link-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--foreground);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.payments-btn-link-action:hover:not(:disabled) {
+    background-color: var(--background);
+    border-color: rgba(26, 26, 26, 0.25);
+    transform: translateY(-1px);
+}
+
+.payments-btn-associate-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--foreground);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.payments-btn-associate-action:hover:not(:disabled) {
+    background-color: var(--background);
+    border-color: rgba(26, 26, 26, 0.25);
+    transform: translateY(-1px);
+}
+
+.payments-btn-ignore-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: var(--muted-foreground);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.payments-btn-ignore-action:hover:not(:disabled) {
+    color: var(--foreground);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Subtle, clean status metadata (No artificial AI pastel boxes) */
+.payments-reconciled-badge-paid,
+.payments-reconciled-badge-suggested,
+.payments-reconciled-badge-unmatched {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    padding: 5px 11px;
+    border-radius: 7px;
+    font-size: 12px;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+    flex-shrink: 0;
+    max-width: fit-content;
+}
+
+.payments-reconciled-badge-paid strong,
+.payments-reconciled-badge-suggested strong {
+    color: var(--foreground);
+    font-weight: 600;
+}
+
+.badge-dot-green {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #10B981;
+    flex-shrink: 0;
+}
+
+.badge-dot-primary {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    flex-shrink: 0;
+}
+
+.badge-dot-neutral {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--muted-foreground);
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+/* Pagination container & summaries */
+.payments-load-more-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 22px 0 16px 0;
+}
+
+.payments-load-more-summary {
+    font-size: 12.5px;
+    color: var(--muted-foreground);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MODAL D'ASSOCIATION MANUELLE DE FACTURE
+───────────────────────────────────────────────────────────── */
+.payments-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.payments-associate-modal {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 580px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.payments-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.payments-modal-header h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.payments-modal-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.payments-modal-close-btn:hover {
+    color: var(--foreground);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.payments-modal-tx-recap {
+    background-color: var(--background);
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.payments-modal-search-wrap {
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.payments-modal-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.payments-modal-search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13.5px;
+    color: var(--foreground);
+    width: 100%;
+}
+
+.payments-modal-invoices-list {
+    padding: 12px 22px;
+    overflow-y: auto;
+    max-height: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.payments-modal-invoice-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background-color: var(--background);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.payments-modal-invoice-item:hover {
+    border-color: var(--primary);
+    background-color: rgba(85, 107, 47, 0.05);
+    transform: translateY(-1px);
+}
+
+.payments-modal-invoice-item.match-amount {
+    border-color: rgba(16, 185, 129, 0.5);
+    background-color: rgba(16, 185, 129, 0.04);
+}
+
+.payments-modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ADAPTATION MOBILE COMPLÈTE (< 768px)
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .payments-modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .payments-associate-modal {
+        max-width: 100%;
+        max-height: 92vh;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        animation: slideUpModalMobile 0.25s ease-out;
+    }
+
+    .payments-modal-header {
+        padding: 16px 18px;
+    }
+
+    .payments-modal-header h3 {
+        font-size: 16px;
+    }
+
+    .payments-modal-tx-recap {
+        padding: 12px 18px;
+    }
+
+    .payments-modal-search-wrap {
+        padding: 12px 18px;
+    }
+
+    .payments-modal-search-box input {
+        font-size: 16px !important; /* Évite le zoom automatique agressif sous iOS Safari */
+    }
+
+    .payments-modal-invoices-list {
+        padding: 10px 18px;
+        max-height: 48vh;
+    }
+
+    .payments-modal-invoice-item {
+        padding: 12px 12px;
+    }
+
+    .payments-modal-footer {
+        padding: 14px 18px;
+        padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    }
+
+    .payments-modal-footer button {
+        width: 100%;
+        height: 44px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+
+    /* Badges en mode mobile : autoriser le retour à la ligne propre dans les cartes */
+    .payments-mobile-card .payments-reconciled-badge-paid,
+    .payments-mobile-card .payments-reconciled-badge-suggested,
+    .payments-mobile-card .payments-reconciled-badge-unmatched {
+        white-space: normal;
+        word-break: break-word;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .payments-mobile-card .payments-btn-accept-action,
+    .payments-mobile-card .payments-btn-link-action,
+    .payments-mobile-card .payments-btn-associate-action {
+        min-height: 40px;
+        font-size: 13px;
+    }
+
+    .payments-mobile-card .payments-btn-ignore-action {
+        min-height: 40px;
+        font-size: 13px;
+        padding: 0 16px;
+    }
+}
+
+@keyframes slideUpModalMobile {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Toast Notifications */
+.payments-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 22px;
+    border-radius: 9999px;
+    font-size: 13.5px;
+    font-weight: 600;
+    z-index: 999999;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+    cursor: default;
+    user-select: none;
+    white-space: nowrap;
+    background-color: #0F172A;
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dark .payments-toast,
+:root.dark .payments-toast {
+    background-color: #1E293B;
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+}
+
+.payments-toast--success,
+.payments-toast--error,
+.payments-toast--info {
+    background-color: #0F172A;
+    color: #FFFFFF;
+}
+
+.dark .payments-toast--success,
+.dark .payments-toast--error,
+.dark .payments-toast--info,
+:root.dark .payments-toast--success,
+:root.dark .payments-toast--error,
+:root.dark .payments-toast--info {
+    background-color: #1E293B;
+    color: #F8FAFC;
+}
+
+.payments-toast--success .payments-toast-icon {
+    color: #10B981;
+    flex-shrink: 0;
+}
+
+.payments-toast--error .payments-toast-icon {
+    color: #EF4444;
+    flex-shrink: 0;
+}
+
+.payments-toast--info .payments-toast-icon {
+    color: #3B82F6;
+    flex-shrink: 0;
+}
+
+.payments-toast-msg {
+    line-height: 1.3;
+}

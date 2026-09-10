@@ -198,14 +198,9 @@ export default function TechniciensPage() {
 
                     {/* Toast Alert - Centered Top */}
                     {toast.show && (
-                        <div style={{
-                            position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 99999,
-                            backgroundColor: toast.isError ? '#ef4444' : '#22c55e', color: '#fff',
-                            padding: '14px 24px', borderRadius: '50px', fontWeight: 700, fontSize: '14px',
-                            boxShadow: '0 12px 32px rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', gap: '10px',
-                            maxWidth: '90vw', pointerEvents: 'none'
-                        }}>
-                            {toast.message}
+                        <div className={`app-toast ${toast.isError ? 'dv-toast--error' : 'dv-toast--success'}`}>
+                            {toast.isError ? <AlertTriangle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} style={{ flexShrink: 0 }} />}
+                            <span>{toast.message}</span>
                         </div>
                     )}
 

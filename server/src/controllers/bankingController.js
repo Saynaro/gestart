@@ -430,3 +430,52 @@ export const ignoreReconciliationEndpoint = async (req, res) => {
         });
     }
 };
+
+/**
+ * Récupère les factures ouvertes ou récentes pour association manuelle
+ * GET /api/v1/banking/open-invoices
+ */
+export const getOpenInvoicesForReconciliation = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        const invoices = await prisma.invoice.findMany({
+            where: {
+                companyId,
+                status: { in: ["SENT", "OVERDUE", "DRAFT"] },
+                paymentStatus: { not: "PAID" }
+            },
+            take: 100,
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                number: true,
+                amountTTC: true,
+                amountPaid: true,
+                status: true,
+                paymentStatus: true,
+                issuedAt: true,
+                client: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        companyName: true,
+                        email: true
+                    }
+                }
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: { invoices }
+        });
+    } catch (error) {
+        console.error("GET OPEN INVOICES ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la récupération des factures"
+        });
+    }
+};

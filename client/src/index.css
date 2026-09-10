@@ -473,61 +473,156 @@ select:-webkit-autofill:active {
 .dv-toast,
 .fp-toast,
 .custom-toast,
-.toast-notification {
+.toast-notification,
+.payments-toast,
+.app-toast-pill {
   position: fixed !important;
   top: 24px !important;
   bottom: auto !important;
   left: 50% !important;
   right: auto !important;
-  transform: translateX(-50%) !important;
-  z-index: 99999 !important;
+  z-index: 999999 !important;
   display: inline-flex !important;
   align-items: center !important;
   gap: 10px !important;
-  padding: 12px 24px !important;
-  border-radius: 50px !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
+  padding: 11px 22px !important;
+  border-radius: 9999px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
   letter-spacing: -0.01em !important;
   color: #ffffff !important;
-  background-color: #22c55e !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-  animation: appToastDrop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-  pointer-events: none !important;
+  background-color: #0F172A !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  pointer-events: auto !important;
+  cursor: default !important;
+  user-select: none !important;
   white-space: nowrap !important;
   max-width: 90vw !important;
   text-align: center !important;
 }
 
+/* Static HTML div toasts animation (for non-Framer-motion pages) */
+.dv-toast,
+.fp-toast,
+.app-toast,
+.app-toast-pill {
+  transform: translate3d(-50%, 0, 0);
+  animation: appToastDrop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Dark Mode Toast Adaptation: elevated slate background with clear hairline border ── */
+.dark .app-toast,
+.dark .dv-toast,
+.dark .fp-toast,
+.dark .custom-toast,
+.dark .toast-notification,
+.dark .payments-toast,
+.dark .app-toast-pill,
+:root.dark .app-toast,
+:root.dark .dv-toast,
+:root.dark .fp-toast,
+:root.dark .custom-toast,
+:root.dark .toast-notification,
+:root.dark .payments-toast,
+:root.dark .app-toast-pill {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ── Unified background for all types (success, error, info) - distinctions via icon only ── */
 .dv-toast--success,
 .fp-toast--success,
-.toast-notification.success {
-  background-color: #22c55e !important;
-  color: #ffffff !important;
-}
-
+.toast-notification.success,
+.payments-toast--success,
+.app-toast-pill.success,
 .dv-toast--error,
 .fp-toast--error,
-.toast-notification.error {
-  background-color: #ef4444 !important;
+.toast-notification.error,
+.payments-toast--error,
+.app-toast-pill.error,
+.dv-toast--info,
+.fp-toast--info,
+.toast-notification.info,
+.payments-toast--info,
+.app-toast-pill.info {
+  background-color: #0F172A !important;
   color: #ffffff !important;
 }
 
-.dv-toast--info,
-.fp-toast--info,
-.toast-notification.info {
-  background-color: #3b82f6 !important;
-  color: #ffffff !important;
+.dark .dv-toast--success,
+.dark .fp-toast--success,
+.dark .toast-notification.success,
+.dark .payments-toast--success,
+.dark .app-toast-pill.success,
+.dark .dv-toast--error,
+.dark .fp-toast--error,
+.dark .toast-notification.error,
+.dark .payments-toast--error,
+.dark .app-toast-pill.error,
+.dark .dv-toast--info,
+.dark .fp-toast--info,
+.dark .toast-notification.info,
+.dark .payments-toast--info,
+.dark .app-toast-pill.info,
+:root.dark .dv-toast--success,
+:root.dark .fp-toast--success,
+:root.dark .toast-notification.success,
+:root.dark .payments-toast--success,
+:root.dark .app-toast-pill.success,
+:root.dark .dv-toast--error,
+:root.dark .fp-toast--error,
+:root.dark .toast-notification.error,
+:root.dark .payments-toast--error,
+:root.dark .app-toast-pill.error,
+:root.dark .dv-toast--info,
+:root.dark .fp-toast--info,
+:root.dark .toast-notification.info,
+:root.dark .payments-toast--info,
+:root.dark .app-toast-pill.info {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+/* ── Colored Icon Accents ── */
+.dv-toast--success svg,
+.fp-toast--success svg,
+.toast-notification.success svg,
+.payments-toast--success .payments-toast-icon,
+.app-toast-pill.success svg,
+.app-toast svg:first-child {
+  color: #10B981 !important;
+  flex-shrink: 0;
+}
+
+.dv-toast--error svg,
+.fp-toast--error svg,
+.toast-notification.error svg,
+.payments-toast--error .payments-toast-icon,
+.app-toast-pill.error svg {
+  color: #EF4444 !important;
+  flex-shrink: 0;
+}
+
+.dv-toast--info svg,
+.fp-toast--info svg,
+.toast-notification.info svg,
+.payments-toast--info .payments-toast-icon,
+.app-toast-pill.info svg {
+  color: #3B82F6 !important;
+  flex-shrink: 0;
 }
 
 @keyframes appToastDrop {
   from {
     opacity: 0;
-    transform: translate(-50%, -24px) scale(0.95);
+    transform: translate3d(-50%, -20px, 0) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: translate3d(-50%, 0, 0) scale(1);
   }
 }
 

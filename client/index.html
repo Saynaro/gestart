@@ -9,6 +9,26 @@
   <meta name="description"
     content="GestArt est le meilleur logiciel CRM pour les entreprises de maintenance. Automatisez les rappels SMS, planifiez les interventions de vos techniciens et facturez en 1 clic." />
 
+  <!-- Early theme initialization to prevent flash on reload -->
+  <script>
+    (function () {
+      try {
+        var mode = localStorage.getItem('theme_mode') || (localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
+        var isDark = false;
+        if (mode === 'system') {
+          isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        } else {
+          isDark = mode === 'dark';
+        }
+        if (isDark && window.location.pathname !== '/') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Google Fonts for Document Customizer, Previews & PDF exports -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

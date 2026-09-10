@@ -353,6 +353,41 @@ function DevisPage() {
         }
     };
 
+    const handleDownloadInvoicePdf = async (inv, customOverride = null) => {
+        try {
+            const token = getAuthToken();
+            const targetInv = inv || pdfModalInvoice;
+            if (!targetInv?.id) {
+                window.print();
+                return;
+            }
+            let endpointUrl = `/v1/invoices/${targetInv.id}/pdf`;
+            if (customOverride) {
+                const cleanCustom = { ...customOverride };
+                if (cleanCustom.logoUrl && cleanCustom.logoUrl.startsWith('data:')) delete cleanCustom.logoUrl;
+                if (cleanCustom.signatureUrl && cleanCustom.signatureUrl.startsWith('data:')) delete cleanCustom.signatureUrl;
+                const customParam = encodeURIComponent(JSON.stringify(cleanCustom));
+                endpointUrl += `?customization=${customParam}`;
+            }
+            const res = await fetch(getApiUrl(endpointUrl), {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error("Erreur téléchargement PDF");
+            const blob = await res.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            console.error("Erreur téléchargement PDF facture:", err);
+            window.print();
+        }
+    };
 
     const handleOpenLinkedInvoice = async (inv) => {
         setShowDetailDrawer(false);
@@ -509,7 +544,7 @@ function DevisPage() {
                 <InvoicePdfView
                     invoice={pdfModalInvoice}
                     onClose={() => setPdfModalInvoice(null)}
-                    onDownload={() => window.print()}
+                    onDownload={handleDownloadInvoicePdf}
                 />
             )}
 

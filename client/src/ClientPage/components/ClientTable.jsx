@@ -101,12 +101,12 @@ function ClientTable({
             <table className="client-data-table">
                 <thead>
                     <tr>
-                        <th style={{ width: "25%" }}>Client</th>
-                        <th style={{ width: "23%" }}>Adresse</th>
-                        <th style={{ width: "23%" }}>Équipement</th>
-                        <th style={{ width: "17%" }}>Entretien / Intervention</th>
-                        <th style={{ width: "10%" }}>Statut</th>
-                        <th style={{ width: "64px", paddingRight: "24px" }}></th>
+                        <th style={{ width: "23%" }}>Client</th>
+                        <th style={{ width: "20%" }}>Adresse</th>
+                        <th style={{ width: "20%" }}>Équipement</th>
+                        <th style={{ width: "18%" }}>Entretien / Intervention</th>
+                        <th style={{ width: "13%" }}>Statut</th>
+                        <th style={{ width: "6%" }}></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -175,17 +175,16 @@ function ClientTable({
                                         <span className="client-table-text-muted">Aucune</span>
                                     )}
                                 </td>
-                                <td>
+                                <td style={{ overflow: "visible", whiteSpace: "nowrap" }}>
                                     <span className={getStatusPillClass(statusVal)}>
-                                        {statusVal}
-                                    </span>
+                                         {statusVal}
+                                     </span>
                                 </td>
-                                <td onClick={(e) => e.stopPropagation()} style={{ position: "relative", overflow: "visible", paddingRight: "24px", textAlign: "right" }}>
+                                <td onClick={(e) => e.stopPropagation()} style={{ position: "relative", overflow: "visible" }}>
                                     <button 
                                         className={`client-row-more-btn ${activeDropdownId === client.id ? "active" : ""}`}
                                         onClick={(e) => toggleDropdown(e, client.id)}
                                         title="Actions"
-                                        style={{ marginLeft: "auto" }}
                                     >
                                         <MoreVertical size={18} />
                                     </button>

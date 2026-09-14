@@ -22,7 +22,8 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
         initials = `${f}${l}`.toUpperCase() || "CL";
     }
 
-    const availableTabs = isReadOnly ? ["interventions", "auto-rappel", "messages"] : ["interventions", "auto-rappel", "messages", "factures", "devis"];
+    const fullAddress = [selectedClient.address, [selectedClient.zip, selectedClient.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+    const availableTabs = isReadOnly ? ["interventions", "auto-rappel"] : ["interventions", "auto-rappel", "factures", "devis"];
     const currentTab = availableTabs.includes(detailTab) ? detailTab : "interventions";
     const [actionLoading, setActionLoading] = useState(null);
 
@@ -61,18 +62,44 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                     </h2>
 
                     <div className="client-profile-contact-info">
-                        <div className="mobile-contact-row">
-                            <Phone size={16} className="contact-icon-icon" />
-                            <span>{selectedClient.phone || "Non renseigné"}</span>
-                        </div>
-                        <div className="mobile-contact-row">
-                            <Mail size={16} className="contact-icon-icon" />
-                            <span>{selectedClient.email || "Non renseigné"}</span>
-                        </div>
-                        <div className="mobile-contact-row">
-                            <MapPin size={16} className="contact-icon-icon" />
-                            <span>{selectedClient.address ? `${selectedClient.address}, ${selectedClient.zip || ""} ${selectedClient.city || ""}` : "Non renseigné"}</span>
-                        </div>
+                        {selectedClient.phone ? (
+                            <a href={`tel:${selectedClient.phone.replace(/\s+/g, '')}`} className="mobile-contact-row clickable">
+                                <Phone size={16} className="contact-icon-icon" />
+                                <span>{selectedClient.phone}</span>
+                            </a>
+                        ) : (
+                            <div className="mobile-contact-row">
+                                <Phone size={16} className="contact-icon-icon" />
+                                <span>Non renseigné</span>
+                            </div>
+                        )}
+                        {selectedClient.email ? (
+                            <a href={`mailto:${selectedClient.email}`} className="mobile-contact-row clickable">
+                                <Mail size={16} className="contact-icon-icon" />
+                                <span>{selectedClient.email}</span>
+                            </a>
+                        ) : (
+                            <div className="mobile-contact-row">
+                                <Mail size={16} className="contact-icon-icon" />
+                                <span>Non renseigné</span>
+                            </div>
+                        )}
+                        {fullAddress ? (
+                            <a 
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="mobile-contact-row clickable"
+                            >
+                                <MapPin size={16} className="contact-icon-icon" />
+                                <span>{fullAddress}</span>
+                            </a>
+                        ) : (
+                            <div className="mobile-contact-row">
+                                <MapPin size={16} className="contact-icon-icon" />
+                                <span>Non renseigné</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="panel-divider"></div>
@@ -310,25 +337,6 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                             </div>
                         )}
 
-                        {detailTab === "messages" && (
-                            <div className="mobile-tab-panel">
-                                {details.messages.length === 0 ? (
-                                    <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '24px', fontSize: '13.5px' }}>
-                                        Aucun message SMS pour ce client.
-                                    </p>
-                                ) : (
-                                    details.messages.map((item, idx) => (
-                                        <div key={idx} className="mobile-history-card msg">
-                                            <div className="history-card-header">
-                                                <h4>{item.author}</h4>
-                                                <span className="history-card-date">{item.date}</span>
-                                            </div>
-                                            <p className="history-card-desc">"{item.text}"</p>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
 
                         {detailTab === "factures" && (
                             <div className="mobile-tab-panel">

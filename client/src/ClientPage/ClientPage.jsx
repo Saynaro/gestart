@@ -46,19 +46,24 @@ import { getAuthToken } from "../utils/auth";
 import { getApiUrl } from "../utils/config";
 import { useUser } from "../utils/useUser";
 
+// Module-level in-memory cache for instant (0ms) page switching
+let cachedClientsData = null;
+
 function ClientPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { role } = useUser();
     const isTechnician = role === "TECHNICIAN";
 
-    const [contacts, setContacts] = useState([]);
-    const [organisations, setOrganisations] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [contacts, setContacts] = useState(() => cachedClientsData?.contacts || []);
+    const [organisations, setOrganisations] = useState(() => cachedClientsData?.organisations || []);
+    const [loading, setLoading] = useState(() => !cachedClientsData);
 
-    const fetchClients = async () => {
+    const fetchClients = async (showLoadingSpinner = !cachedClientsData) => {
         try {
-            setLoading(true);
+            if (showLoadingSpinner) {
+                setLoading(true);
+            }
             const data = await apiFetch('/v1/clients');
             const clientList = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
             const mappedParticuliers = [];
@@ -138,7 +143,7 @@ function ClientPage() {
 
                 const mappedMessages = (c.smsLogs || []).map(m => ({
                     author: m.direction === 'INBOUND' ? 'Client' : 'Technicien / Entreprise',
-                    text: m.message,
+                    text: m.body || m.message || "",
                     date: new Date(m.createdAt).toLocaleDateString('fr-FR')
                 }));
 
@@ -249,6 +254,7 @@ function ClientPage() {
                 }
             });
 
+            cachedClientsData = { contacts: mappedParticuliers, organisations: mappedOrgs };
             setContacts(mappedParticuliers);
             setOrganisations(mappedOrgs);
         } catch (err) {
@@ -259,7 +265,7 @@ function ClientPage() {
     };
 
     useEffect(() => {
-        fetchClients();
+        fetchClients(!cachedClientsData);
     }, []);
 
     const [activeTabType, setActiveTabType] = useState("particulier"); // "particulier" or "organisation"
@@ -666,6 +672,14 @@ function ClientPage() {
         setToastMessage({ msg: cleanMsg, type, id: Date.now() });
     };
 
+    useEffect(() => {
+        if (location.state?.toast) {
+            showToast(location.state.toast.message, location.state.toast.type || "success");
+            const params = new URLSearchParams(location.search);
+            navigate({ search: params.toString() }, { replace: true, state: {} });
+        }
+    }, [location.state, navigate, location.search]);
+
     const handleDeleteClient = (client) => {
         setClientToDelete(client);
     };
@@ -692,7 +706,7 @@ function ClientPage() {
     };
 
     const handlePlanClient = (client) => {
-        navigate('/planning', { state: { clientId: client.id, clientName: client.name || `${client.firstName} ${client.lastName}` } });
+        navigate('/planning', { state: { clientId: client.id, clientName: client.name || `${client.firstName} ${client.lastName}`, returnUrl: `/client?id=${client.id}` } });
     };
 
     return (
@@ -700,21 +714,35 @@ function ClientPage() {
             {isMobile ? (
                 // Mobile View Layout
                 selectedClient ? (
-                    <ClientMobileDetailView
-                        selectedClient={selectedClient}
-                        setSelectedClient={() => navigate("/client")}
-                        getClientDetails={getClientDetails}
-                        detailTab={detailTab}
-                        setDetailTab={setDetailTab}
-                        onEdit={isTechnician ? null : handleOpenEdit}
-                        onOpenInvoice={isTechnician ? null : handleOpenInvoiceDrawer}
-                        onOpenQuote={isTechnician ? null : handleOpenQuoteDrawer}
-                        isReadOnly={isTechnician}
-                    />
+                    <motion.div
+                        key={`client-mobile-detail-${selectedClient.id}`}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        style={{ width: '100%', height: '100%' }}
+                    >
+                        <ClientMobileDetailView
+                            selectedClient={selectedClient}
+                            setSelectedClient={() => navigate("/client")}
+                            getClientDetails={getClientDetails}
+                            detailTab={detailTab}
+                            setDetailTab={setDetailTab}
+                            onEdit={isTechnician ? null : handleOpenEdit}
+                            onOpenInvoice={isTechnician ? null : handleOpenInvoiceDrawer}
+                            onOpenQuote={isTechnician ? null : handleOpenQuoteDrawer}
+                            isReadOnly={isTechnician}
+                        />
+                    </motion.div>
                 ) : (
                     <div className="mobile-contacts-view">
                         <Header />
-                        <div className="mobile-contacts-scrollable-content" style={{ paddingBottom: '90px' }}>
+                        <motion.div 
+                            className="mobile-contacts-scrollable-content" 
+                            style={{ paddingBottom: '90px' }}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        >
                             {/* Segmented Switcher Control */}
                             <div className="segmented-control-wrapper">
                                 <div className="segmented-control">
@@ -756,9 +784,10 @@ function ClientPage() {
                                 activeTabType={activeTabType}
                                 statusFilter={statusFilter}
                                 searchTerm={searchTerm}
+                                loading={loading}
                                 onOpenAddClient={isTechnician ? null : handleOpenAddClient}
                             />
-                        </div>
+                        </motion.div>
 
                         {/* Mobile Bottom Tab Bar */}
                         <SideBar onFabClick={isTechnician ? null : handleOpenAddClient} hideFab={isTechnician || !!selectedClient} />
@@ -771,6 +800,7 @@ function ClientPage() {
                     <div className="main-content">
                         <Header />
                         <motion.div 
+                            key={selectedClient ? `client-detail-${selectedClient.id}` : 'client-list'}
                             className="page-content"
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -848,6 +878,7 @@ function ClientPage() {
                                         onPlan={handlePlanClient}
                                         onDelete={isTechnician ? null : handleDeleteClient}
                                         isReadOnly={isTechnician}
+                                        loading={loading}
                                     />
                                 </>
                             )}

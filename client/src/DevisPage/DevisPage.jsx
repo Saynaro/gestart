@@ -29,13 +29,14 @@ const FILTERS = [
     { key: "SENT", label: "En attente" },
     { key: "ACCEPTED", label: "Signé" },
     { key: "REFUSED", label: "Refusé" },
-];
+];// Module-level in-memory cache for instant (0ms) page switching
+let cachedQuotesData = null;
 
 function DevisPage() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [quotes, setQuotes] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [quotes, setQuotes] = useState(() => cachedQuotesData || []);
+    const [loading, setLoading] = useState(() => !cachedQuotesData);
     const [emailWarningModalOpen, setEmailWarningModalOpen] = useState(false);
 
     const mapQuoteFromApi = (q) => ({
@@ -63,9 +64,10 @@ function DevisPage() {
             ...l,
             qty: Number(l.quantity || l.qty || 1),
             quantity: Number(l.quantity || l.qty || 1),
-            unitPrice: Number(l.unitPrice || 0),
-            tvaRate: l.tvaRate !== undefined && l.tvaRate !== null ? Number(l.tvaRate) : (q.tvaRate !== undefined && q.tvaRate !== null ? Number(q.tvaRate) : 20),
-            total: Number(l.total) || ((Number(l.unitPrice) || 0) * (Number(l.quantity || l.qty) || 1))
+            unitPrice: Number(l.unitPrice || l.price || 0),
+            price: Number(l.unitPrice || l.price || 0),
+            tva: Number(l.tvaRate !== undefined && l.tvaRate !== null ? l.tvaRate : 20),
+            total: Number(l.total || ((Number(l.quantity || 1)) * (Number(l.unitPrice || 0))))
         }))
     });
 
@@ -75,6 +77,7 @@ function DevisPage() {
             const data = await apiFetch('/v1/quotes');
             const rawQuotes = data.data?.quotes || data.quotes || (Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
             const mapped = rawQuotes.map(mapQuoteFromApi);
+            cachedQuotesData = mapped;
             setQuotes(mapped);
             setActiveQuote(prev => {
                 if (!prev) return null;
@@ -83,14 +86,14 @@ function DevisPage() {
             });
         } catch (err) {
             console.warn("API quotes error:", err.message);
-            if (!isBackground) setQuotes([]);
+            if (!isBackground && !cachedQuotesData) setQuotes([]);
         } finally {
             if (!isBackground) setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchQuotes();
+        fetchQuotes(!!cachedQuotesData);
     }, []);
 
     // Écoute temps réel WebSocket pour mise à jour instantanée sans rechargement de page
@@ -503,6 +506,7 @@ function DevisPage() {
                     {/* Quotes List */}
                     <QuoteList
                         quotes={filteredQuotes}
+                        loading={loading}
                         activeFilter={activeFilter}
                         onRowClick={openDetail}
                         onCreateQuote={() => setShowNewModal(true)}

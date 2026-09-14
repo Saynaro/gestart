@@ -19,6 +19,13 @@
     margin-bottom: 1.5rem;
 }
 
+@media (max-width: 768px) {
+    /* Hide duplicate header, duplicate subtitle, and duplicate top "Nouveau devis" button on mobile (matches FacturesPage) */
+    .dv-page-header {
+        display: none !important;
+    }
+}
+
 .dv-new-btn {
     display: inline-flex;
     align-items: center;

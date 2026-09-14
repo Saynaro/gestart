@@ -101,6 +101,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 import { useUser } from "../utils/useUser";
 
+// Module-level in-memory cache for instant (0ms) page switching
+let cachedEventsData = null;
+let cachedRawInterventionsData = null;
+let cachedClientsData = null;
+let cachedTechniciansData = null;
+
 function PlanningPage() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -113,11 +119,11 @@ function PlanningPage() {
     const editModalDragControls = useDragControls();
     const [toast, setToast] = useState(null);
 
-    const [events, setEvents] = useState([]);
-    const [rawInterventions, setRawInterventions] = useState([]);
-    const [clientDetails, setClientDetails] = useState([]);
-    const [techniciansList, setTechniciansList] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [events, setEvents] = useState(() => cachedEventsData || []);
+    const [rawInterventions, setRawInterventions] = useState(() => cachedRawInterventionsData || []);
+    const [clientDetails, setClientDetails] = useState(() => cachedClientsData || []);
+    const [techniciansList, setTechniciansList] = useState(() => cachedTechniciansData || []);
+    const [loading, setLoading] = useState(() => !cachedEventsData);
 
     const [activePlanningTab, setActivePlanningTab] = useState("calendar"); // "calendar" | "past"
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -131,6 +137,8 @@ function PlanningPage() {
     const [historySearch, setHistorySearch] = useState("");
     const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
     const statusDropdownRef = useRef(null);
+    const autoOpenedRef = useRef(false);
+    const returnUrlRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -138,15 +146,23 @@ function PlanningPage() {
                 setStatusDropdownOpen(false);
             }
         };
-        if (statusDropdownOpen) {
-            document.addEventListener("mousedown", handleClickOutside);
-        }
+        document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [statusDropdownOpen]);
 
     // Auto open intervention modal if navigated from Client details with preselected client
     useEffect(() => {
-        if (location.state?.clientId || location.state?.clientName) {
+        if ((location.state?.clientId || location.state?.clientName) && !autoOpenedRef.current) {
+            autoOpenedRef.current = true;
+            const targetClientId = location.state.clientId || "";
+            const targetClientName = location.state.clientName || "";
+            const targetServiceType = location.state.serviceType;
+            const targetReturnUrl = location.state.returnUrl || (targetClientId ? `/client?id=${targetClientId}` : null);
+            returnUrlRef.current = targetReturnUrl;
+
+            // Clear location.state so closing modal or subsequent re-renders won't re-trigger it
+            navigate(location.pathname, { replace: true, state: {} });
+
             const calendarApi = calendarRef.current?.getApi();
             const currentDate = calendarApi ? calendarApi.getDate() : new Date();
             const start = new Date(currentDate);
@@ -160,18 +176,18 @@ function PlanningPage() {
             setNewDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
             setStartTime("09:00");
             setEndTime("10:30");
-            setNewClientId(location.state.clientId || "");
-            setNewClientName(location.state.clientName || "");
-            setNewServiceTypes(location.state.serviceType ? [location.state.serviceType] : ["Entretien"]);
+            setNewClientId(targetClientId);
+            setNewClientName(targetClientName);
+            setNewServiceTypes(targetServiceType ? [targetServiceType] : ["Entretien"]);
             setNewTechnicianId("");
-            const matched = clientDetails.find(c => c.id === location.state.clientId || c.name === location.state.clientName);
+            const matched = clientDetails.find(c => c.id === targetClientId || c.name === targetClientName);
             setNewAddress(matched?.rawAddress || matched?.address || "");
             setNewNotes("");
             setShowAddModal(true);
 
             // Fetch client directly if not already present or address is missing
-            if (location.state.clientId && (!matched || !matched.address)) {
-                apiFetch(`/v1/clients/${location.state.clientId}`)
+            if (targetClientId && (!matched || !matched.address)) {
+                apiFetch(`/v1/clients/${targetClientId}`)
                     .then(res => {
                         const cl = res.data?.client || res.client || res.data;
                         if (cl) {
@@ -186,11 +202,12 @@ function PlanningPage() {
         }
     }, [location.state, clientDetails]);
 
-    const fetchInterventions = async () => {
+    const fetchInterventions = async (isBackground = false) => {
         try {
-            setLoading(true);
+            if (!isBackground) setLoading(true);
             const data = await apiFetch('/v1/interventions?limit=200');
             const rawList = data.data?.interventions || data.interventions || (Array.isArray(data) ? data : []);
+            cachedRawInterventionsData = rawList;
             setRawInterventions(rawList);
             const mappedEvents = rawList
                 .filter(item => item.status !== 'CANCELLED')
@@ -217,11 +234,13 @@ function PlanningPage() {
                         }
                     };
                 });
+            cachedEventsData = mappedEvents;
             setEvents(mappedEvents);
         } catch (err) {
             console.warn("API interventions non disponible:", err.message);
+            if (!isBackground && !cachedEventsData) setEvents([]);
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
         }
     };
 
@@ -240,6 +259,7 @@ function PlanningPage() {
                     city: c.city || "",
                     phone: c.phone || ""
                 })).sort((a, b) => a.name.localeCompare(b.name));
+                cachedClientsData = mapped;
                 setClientDetails(mapped);
             }
         } catch (err) {
@@ -252,6 +272,7 @@ function PlanningPage() {
             const usersData = await apiFetch("/v1/users");
             const userList = usersData.data?.users || usersData.users || (Array.isArray(usersData) ? usersData : []);
             const activeMembers = userList.filter(u => u.isActive !== false);
+            cachedTechniciansData = activeMembers;
             setTechniciansList(activeMembers);
         } catch (err) {
             console.warn("API techniciens non disponible:", err.message);
@@ -259,7 +280,7 @@ function PlanningPage() {
     };
 
     useEffect(() => {
-        fetchInterventions();
+        fetchInterventions(!!cachedEventsData);
         fetchClients();
         fetchTechnicians();
     }, []);
@@ -576,6 +597,11 @@ function PlanningPage() {
                 // the popstate already consumed one entry.
             } else if (showAddModal) {
                 setShowAddModal(false);
+                if (returnUrlRef.current) {
+                    const dest = returnUrlRef.current;
+                    returnUrlRef.current = null;
+                    navigate(dest);
+                }
             } else if (showEditModal) {
                 setShowEditModal(false);
             }
@@ -583,7 +609,7 @@ function PlanningPage() {
 
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
-    }, [isMobile, showClientSearch, showAddModal, showEditModal]);
+    }, [isMobile, showClientSearch, showAddModal, showEditModal, navigate]);
 
     // ── Modal close helpers (keep history stack clean on mobile) ──
     // When the user taps X or Annuler we must consume the history
@@ -591,7 +617,11 @@ function PlanningPage() {
     // try to close a modal that is already gone.
     const closeAddModal = () => {
         setShowAddModal(false);
-        if (location.state?.returnUrl) {
+        if (returnUrlRef.current) {
+            const dest = returnUrlRef.current;
+            returnUrlRef.current = null;
+            navigate(dest);
+        } else if (location.state?.returnUrl) {
             navigate(location.state.returnUrl);
         } else if (isMobile) {
             window.history.back();
@@ -799,11 +829,17 @@ function PlanningPage() {
                 })
             });
             await fetchInterventions();
-            setToast({ message: "Intervention planifiée avec succès !", type: "success" });
             setShowAddModal(false);
             setSelectedSlot(null);
-            if (location.state?.returnUrl) {
-                navigate(location.state.returnUrl);
+            if (returnUrlRef.current) {
+                const dest = returnUrlRef.current;
+                returnUrlRef.current = null;
+                navigate(dest, { state: { toast: { message: "Intervention planifiée avec succès !", type: "success" } } });
+            } else {
+                setToast({ message: "Intervention planifiée avec succès !", type: "success" });
+                if (location.state?.returnUrl) {
+                    navigate(location.state.returnUrl);
+                }
             }
         } catch (err) {
             console.error("Create intervention API error:", err);
@@ -2637,7 +2673,23 @@ function PlanningPage() {
                             </div>
 
                             {/* List of Interventions */}
-                            {filteredHistoryInterventions.length === 0 ? (
+                            {loading && filteredHistoryInterventions.length === 0 ? (
+                                <div className="history-items-grid">
+                                    {[1, 2, 3, 4, 5, 6].map(idx => (
+                                        <div key={idx} className="history-card" style={{ pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div className="skeleton-shimmer" style={{ width: '130px', height: '16px', borderRadius: '5px' }} />
+                                                <div className="skeleton-shimmer" style={{ width: '75px', height: '22px', borderRadius: '9999px' }} />
+                                            </div>
+                                            <div className="skeleton-shimmer" style={{ width: '65%', height: '14px', borderRadius: '4px', opacity: 0.7 }} />
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                                                <div className="skeleton-shimmer" style={{ width: '110px', height: '13px', borderRadius: '4px', opacity: 0.6 }} />
+                                                <div className="skeleton-shimmer" style={{ width: '80px', height: '13px', borderRadius: '4px', opacity: 0.6 }} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : filteredHistoryInterventions.length === 0 ? (
                                 <div className="history-empty-state">
                                     <div className="history-empty-icon">
                                         <History size={28} />

@@ -670,3 +670,26 @@ select:-webkit-autofill:active {
   background-color: rgba(255, 255, 255, 0.08);
   color: #e2e8f0;
 }
+
+/* ── Universal Skeleton Shimmer Loader ── */
+@keyframes skeletonShimmer {
+  0% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+
+.skeleton-shimmer {
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  background-color: var(--muted, rgba(148, 163, 184, 0.22)) !important;
+  pointer-events: none;
+}
+
+.dark .skeleton-shimmer {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}

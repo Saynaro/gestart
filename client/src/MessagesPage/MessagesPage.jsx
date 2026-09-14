@@ -155,12 +155,15 @@ const FormattedEmailContent = ({ body }) => {
   );
 };
 
+// Module-level in-memory cache for instant (0ms) page switching
+let cachedMessagesChats = null;
+
 function MessagesPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState(() => cachedMessagesChats || []);
   const [selectedClientData, setSelectedClientData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
@@ -175,7 +178,7 @@ function MessagesPage() {
 
   const [detailTab, setDetailTab] = useState("interventions");
   const [activeCall, setActiveCall] = useState(null);
-  const [isLoadingChats, setIsLoadingChats] = useState(true);
+  const [isLoadingChats, setIsLoadingChats] = useState(() => !cachedMessagesChats);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState(null);
@@ -303,9 +306,9 @@ function MessagesPage() {
   };
 
   // Fetch Conversation List
-  const fetchConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async (isBackground = false) => {
     try {
-      setIsLoadingChats(true);
+      if (!isBackground) setIsLoadingChats(true);
       const res = await apiFetch("/v1/messages/inbox");
       const convList = res.data?.conversations || [];
       convList.sort((a, b) => {
@@ -313,6 +316,7 @@ function MessagesPage() {
         const timeB = new Date(b.lastMessage?.createdAt || b.time || 0).getTime();
         return timeB - timeA;
       });
+      cachedMessagesChats = convList;
       setChats(convList);
     } catch (err) {
       // Fallback sur /v1/sms/inbox
@@ -324,17 +328,19 @@ function MessagesPage() {
           const timeB = new Date(b.lastMessage?.createdAt || b.time || 0).getTime();
           return timeB - timeA;
         });
+        cachedMessagesChats = list;
         setChats(list);
       } catch (e) {
         console.warn("[MESSAGES] Erreur chargement boite:", e.message);
+        if (!isBackground && !cachedMessagesChats) setChats([]);
       }
     } finally {
-      setIsLoadingChats(false);
+      if (!isBackground) setIsLoadingChats(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchConversations();
+    fetchConversations(!!cachedMessagesChats);
   }, [fetchConversations]);
 
   // Load clients for the "New Message" selection modal
@@ -415,11 +421,14 @@ function MessagesPage() {
     loadConversation();
   }, [activeChatIdParam]);
 
+  const autoOpenedChatRef = useRef(false);
+
   // Handle Navigation State auto-open (e.g. from Client profile page)
   useEffect(() => {
-    if (location.state?.clientId) {
+    if (location.state?.clientId && !autoOpenedChatRef.current) {
+      autoOpenedChatRef.current = true;
       const targetClientId = location.state.clientId;
-      navigate(`/messages?chat=${targetClientId}`, { replace: true });
+      navigate(`/messages?chat=${targetClientId}`, { replace: true, state: {} });
     }
   }, [location.state, navigate]);
 
@@ -651,20 +660,45 @@ function MessagesPage() {
     }
   };
 
-  const handleBackToChats = () => {
-    if (location.state?.returnUrl) {
-      navigate(location.state.returnUrl);
-    } else {
-      navigate("/messages");
+  const handleBackToChats = (e) => {
+    if (e) {
+      if (typeof e.preventDefault === "function") e.preventDefault();
+      if (typeof e.stopPropagation === "function") e.stopPropagation();
     }
+    autoOpenedChatRef.current = true;
+    setSearchParams({});
+    navigate("/messages", { replace: true, state: {} });
   };
+
+  // Mobile: handle iOS swipe back to return to list view
+  useEffect(() => {
+    if (!isMobile) return;
+    const handlePopState = () => {
+      if (activeChatIdParam) {
+        setSearchParams({});
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isMobile, activeChatIdParam, setSearchParams]);
 
   const handleBackToChatPane = () => {
     navigate(`/messages?chat=${activeChatIdParam}`);
   };
 
   const handleStartChatWithContact = (client) => {
-    navigate(`/messages?chat=${client.id}`);
+    const cleanClientPhone = (client.phone || "").replace(/\D/g, "");
+    const existing = chats.find(c => 
+      (c.clientId && c.clientId === client.id) || 
+      c.id === client.id ||
+      (cleanClientPhone && c.phone && (
+        c.phone.replace(/\D/g, "") === cleanClientPhone ||
+        c.phone.replace(/\D/g, "").endsWith(cleanClientPhone) ||
+        cleanClientPhone.endsWith(c.phone.replace(/\D/g, ""))
+      ))
+    );
+    const targetChatId = existing ? (existing.clientId || existing.id) : client.id;
+    navigate(`/messages?chat=${targetChatId}`);
     setIsClientModalOpen(false);
     setModalSearchTerm("");
   };
@@ -1080,12 +1114,39 @@ function MessagesPage() {
       return timeB - timeA;
     });
 
+  const hasActiveChat = (client) => {
+    if (!client) return false;
+    const cleanClientPhone = (client.phone || "").replace(/\D/g, "");
+    return chats.some(c => {
+      if (c.clientId && c.clientId === client.id) return true;
+      if (c.id && c.id === client.id) return true;
+      if (cleanClientPhone && c.phone) {
+        const cleanChatPhone = c.phone.replace(/\D/g, "");
+        if (cleanChatPhone && (
+          cleanChatPhone === cleanClientPhone ||
+          cleanChatPhone.endsWith(cleanClientPhone) ||
+          cleanClientPhone.endsWith(cleanChatPhone)
+        )) {
+          return true;
+        }
+      }
+      return false;
+    });
+  };
+
   const filteredContactsList = crmClientsList.filter(client => {
-    const fullName = `${client.firstName || ''} ${client.lastName || ''}`.toLowerCase();
+    const fullName = `${client.firstName || ''} ${client.lastName || ''} ${client.companyName || ''}`.toLowerCase();
     const phone = (client.phone || "").toLowerCase();
     const email = (client.email || "").toLowerCase();
-    const query = modalSearchTerm.toLowerCase();
-    return fullName.includes(query) || phone.includes(query) || email.includes(query);
+    const query = modalSearchTerm.toLowerCase().trim();
+
+    // If searching by text: search across all contacts
+    if (query) {
+      return fullName.includes(query) || phone.includes(query) || email.includes(query);
+    }
+
+    // Default view when opening +: only contacts WITHOUT an existing chat
+    return !hasActiveChat(client);
   });
 
   // Mobile layout state
@@ -1327,9 +1388,9 @@ function MessagesPage() {
         </div>
       </div>
 
-      {/* Search Input */}
-      <div style={{ padding: "0 16px 12px 16px" }}>
-        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+      {/* Search Input & Action */}
+      <div className="inbox-search-row" style={{ padding: "0 16px 12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ position: "relative", display: "flex", alignItems: "center", flex: 1 }}>
           <Search size={15} style={{ position: "absolute", left: "12px", color: "var(--muted-foreground)", pointerEvents: "none" }} />
           <input
             type="text"
@@ -1339,11 +1400,11 @@ function MessagesPage() {
             style={{
               width: "100%",
               padding: "8px 12px 8px 34px",
-              borderRadius: "8px",
+              borderRadius: "10px",
               border: "1px solid var(--border)",
               backgroundColor: "var(--background)",
               color: "var(--foreground)",
-              fontSize: "12.5px"
+              fontSize: "13px"
             }}
           />
           {searchTerm && (
@@ -1352,6 +1413,15 @@ function MessagesPage() {
             </button>
           )}
         </div>
+        <button
+          type="button"
+          className="inbox-mobile-new-chat-btn"
+          title="Nouveau Message"
+          onClick={() => setIsClientModalOpen(true)}
+          aria-label="Nouveau Message"
+        >
+          <Plus size={18} />
+        </button>
       </div>
 
       {/* Channel Filters */}
@@ -1379,8 +1449,26 @@ function MessagesPage() {
 
       <div className="chat-list">
         {isLoadingChats ? (
-          <div style={{ padding: "30px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
-            <p className="text-sm">Chargement des conversations...</p>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {[1, 2, 3, 4, 5, 6].map((idx) => (
+              <div
+                key={idx}
+                className="chat-item"
+                style={{ pointerEvents: "none", display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px" }}
+              >
+                <div className="skeleton-shimmer" style={{ width: "42px", height: "42px", borderRadius: "50%", flexShrink: 0 }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div className="skeleton-shimmer" style={{ width: `${90 + (idx % 3) * 25}px`, height: "15px", borderRadius: "4px" }} />
+                    <div className="skeleton-shimmer" style={{ width: "38px", height: "12px", borderRadius: "4px", opacity: 0.6 }} />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div className="skeleton-shimmer" style={{ width: "16px", height: "16px", borderRadius: "4px", opacity: 0.7 }} />
+                    <div className="skeleton-shimmer" style={{ width: `${120 + (idx % 2) * 40}px`, height: "12px", borderRadius: "4px", opacity: 0.6 }} />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredChats.length === 0 ? (
           <div style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", color: "var(--muted-foreground)", width: "100%", boxSizing: "border-box" }}>
@@ -1463,9 +1551,14 @@ function MessagesPage() {
   const renderChatPane = () => (
     <div className="chat-pane flex-1" ref={chatPaneRef}>
       {/* Mobile Header via Portal */}
-      {isMobile && selectedClientData && createPortal(
+      {isMobile && (selectedClientData || activeChat) && createPortal(
         <div className="chat-pane-header">
-          <button className="chat-back-btn" onClick={handleBackToChats}>
+          <button
+            type="button"
+            className="chat-back-btn"
+            onClick={handleBackToChats}
+            aria-label="Retour aux messages"
+          >
             <ArrowLeft size={20} />
           </button>
           <div className="chat-header-user-clickable" onClick={toggleClientInfo}>
@@ -2574,8 +2667,9 @@ function MessagesPage() {
       {isClientModalOpen && (
         <div className="client-modal-overlay" onClick={() => setIsClientModalOpen(false)}>
           <div className="client-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="client-modal-pull-handle" />
             <div className="client-modal-header">
-              <h3>Sélectionner un contact pour écrire</h3>
+              <h3>Nouvelle discussion</h3>
               <button className="client-modal-close" onClick={() => setIsClientModalOpen(false)}>
                 <X size={20} />
               </button>
@@ -2593,10 +2687,18 @@ function MessagesPage() {
               {isLoadingClients ? (
                 <p className="no-data">Chargement de vos clients...</p>
               ) : filteredContactsList.length === 0 ? (
-                <p className="no-data">Aucun client trouvé avec ce nom, téléphone ou email</p>
+                <div style={{ padding: "34px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
+                  <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
+                    {!modalSearchTerm.trim() ? "Tous vos clients ont déjà un fil actif" : "Aucun contact trouvé"}
+                  </p>
+                  <p style={{ fontSize: "0.82rem", lineHeight: "1.4" }}>
+                    {!modalSearchTerm.trim() ? "Recherchez un client ci-dessus pour ouvrir directement sa conversation." : "Vérifiez l'orthographe du nom, numéro ou email."}
+                  </p>
+                </div>
               ) : (
                 filteredContactsList.map((client) => {
                   const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || "Client";
+                  const inChat = hasActiveChat(client);
                   return (
                     <div
                       key={client.id}
@@ -2606,8 +2708,23 @@ function MessagesPage() {
                       <div className="client-modal-avatar">
                         {getInitials(fullName)}
                       </div>
-                      <div className="client-modal-info">
-                        <span className="client-modal-name">{fullName}</span>
+                      <div className="client-modal-info" style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                          <span className="client-modal-name">{fullName}</span>
+                          {inChat && (
+                            <span style={{
+                              fontSize: "11px",
+                              fontWeight: 600,
+                              padding: "2px 7px",
+                              borderRadius: "6px",
+                              backgroundColor: "rgba(85, 107, 47, 0.12)",
+                              color: "#556B2F",
+                              whiteSpace: "nowrap"
+                            }}>
+                              💬 En cours
+                            </span>
+                          )}
+                        </div>
                         <div style={{ display: "flex", gap: "8px", fontSize: "11.5px", color: "var(--muted-foreground)" }}>
                           {client.phone && <span className="font-mono">{client.phone}</span>}
                           {client.email && <span>· {client.email}</span>}

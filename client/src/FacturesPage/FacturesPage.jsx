@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info, AlertTriangle, Lock, Trash2, Mail, ExternalLink } from "lucide-react";
@@ -33,12 +33,16 @@ const FILTERS = [
     { key: "overdue",  label: "En retard" },
 ];
 
+// Module-level in-memory cache for instant (0ms) page switching
+let cachedInvoicesData = null;
+let cachedReceivedInvoicesData = null;
+
 function FacturesPage() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [invoices, setInvoices] = useState([]);
-    const [receivedInvoices, setReceivedInvoices] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [invoices, setInvoices] = useState(() => cachedInvoicesData || []);
+    const [receivedInvoices, setReceivedInvoices] = useState(() => cachedReceivedInvoicesData || []);
+    const [loading, setLoading] = useState(() => !cachedInvoicesData);
     const [loadingReceived, setLoadingReceived] = useState(false);
     const [activeTabMode, setActiveTabMode] = useState("emises"); // "emises" | "recues"
     const [activeReceivedInvoice, setActiveReceivedInvoice] = useState(null);
@@ -82,6 +86,7 @@ function FacturesPage() {
             const data = await apiFetch('/v1/invoices');
             const rawInvoices = data.data?.invoices || data.data || data || [];
             const mapped = rawInvoices.map(mapInvoiceFromApi);
+            cachedInvoicesData = mapped;
             setInvoices(mapped);
             setActiveInvoice(prev => {
                 if (!prev) return null;
@@ -90,29 +95,30 @@ function FacturesPage() {
             });
         } catch (err) {
             console.warn("API invoices error:", err.message);
-            if (!isBackground) setInvoices([]);
+            if (!isBackground && !cachedInvoicesData) setInvoices([]);
         } finally {
             if (!isBackground) setLoading(false);
         }
     };
 
-    const fetchReceivedInvoices = async () => {
+    const fetchReceivedInvoices = async (isBackground = false) => {
         try {
-            setLoadingReceived(true);
+            if (!isBackground) setLoadingReceived(true);
             const data = await apiFetch('/v1/e-invoicing/invoices/received');
             const raw = data.data?.invoices || data.invoices || [];
+            cachedReceivedInvoicesData = raw;
             setReceivedInvoices(raw);
         } catch (err) {
             console.warn("API received invoices error:", err.message);
-            setReceivedInvoices([]);
+            if (!isBackground && !cachedReceivedInvoicesData) setReceivedInvoices([]);
         } finally {
-            setLoadingReceived(false);
+            if (!isBackground) setLoadingReceived(false);
         }
     };
 
     useEffect(() => {
-        fetchInvoices();
-        fetchReceivedInvoices();
+        fetchInvoices(!!cachedInvoicesData);
+        fetchReceivedInvoices(!!cachedReceivedInvoicesData);
     }, []);
 
     // Écoute temps réel WebSocket pour mise à jour instantanée sans rechargement de page
@@ -165,12 +171,19 @@ function FacturesPage() {
     const [showEditPanel, setShowEditPanel] = useState(false);
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [showNewModal, setShowNewModal] = useState(false);
+    const [newModalClient, setNewModalClient] = useState(null);
+    const returnUrlRef = useRef(null);
 
     useEffect(() => {
         if (location.state?.openNewModal) {
             setShowNewModal(true);
+            setNewModalClient(location.state);
+            if (location.state.returnUrl) {
+                returnUrlRef.current = location.state.returnUrl;
+            }
+            navigate(location.pathname, { replace: true, state: {} });
         }
-    }, [location.state]);
+    }, [location.state, navigate]);
     const [paymentModalInvoice, setPaymentModalInvoice] = useState(null);
     const [invoiceToFinalise, setInvoiceToFinalise] = useState(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
@@ -425,6 +438,11 @@ function FacturesPage() {
             });
             showToast(`Facture créée avec succès !`, "success");
             fetchInvoices();
+            if (returnUrlRef.current) {
+                const dest = returnUrlRef.current;
+                returnUrlRef.current = null;
+                navigate(dest, { state: { toast: { message: "Facture créée avec succès !", type: "success" } } });
+            }
         } catch (err) {
             console.error("Create invoice API error:", err);
             showToast(err.message || "Erreur lors de la création de la facture", "error");
@@ -549,77 +567,45 @@ function FacturesPage() {
                     </div>
 
                     {/* Top Mode Switcher: Factures émises vs Factures reçues */}
-                    <div style={{
-                        display: 'flex',
-                        gap: '8px',
-                        marginBottom: '20px',
-                        padding: '4px',
-                        backgroundColor: 'var(--card)',
-                        borderRadius: '12px',
-                        border: '1px solid var(--border)',
-                        width: 'fit-content'
-                    }}>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTabMode("emises")}
-                            style={{
-                                padding: '8px 16px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                backgroundColor: activeTabMode === "emises" ? 'var(--sidebar-primary)' : 'transparent',
-                                color: activeTabMode === "emises" ? '#fff' : 'var(--muted-foreground)',
-                                fontWeight: 700,
-                                fontSize: '13px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 0.15s ease'
-                            }}
-                        >
-                            <Send size={15} />
-                            Factures émises (Clients)
-                            <span style={{
-                                padding: '1px 6px',
-                                borderRadius: '10px',
-                                backgroundColor: activeTabMode === "emises" ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.06)',
-                                fontSize: '11px'
-                            }}>
-                                {invoices.length}
-                            </span>
-                        </button>
+                    <div className="fp-mode-switcher-container">
+                        <div className="fp-mode-switcher">
+                            <button
+                                type="button"
+                                className={`fp-mode-tab ${activeTabMode === "emises" ? "active" : ""}`}
+                                onClick={() => setActiveTabMode("emises")}
+                            >
+                                <Send size={14} />
+                                <span className="fp-tab-label-desktop">Factures émises (Clients)</span>
+                                <span className="fp-tab-label-mobile">Factures clients</span>
+                                <span className="fp-tab-count">
+                                    {invoices.length}
+                                </span>
+                            </button>
 
-                        <button
-                            type="button"
-                            onClick={() => setActiveTabMode("recues")}
-                            style={{
-                                padding: '8px 16px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                backgroundColor: activeTabMode === "recues" ? 'var(--sidebar-primary)' : 'transparent',
-                                color: activeTabMode === "recues" ? '#fff' : 'var(--muted-foreground)',
-                                fontWeight: 700,
-                                fontSize: '13px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 0.15s ease'
-                            }}
-                        >
-                            <Inbox size={15} />
-                            Factures reçues (Fournisseurs - 2026)
-                            <span style={{
-                                padding: '1px 6px',
-                                borderRadius: '10px',
-                                backgroundColor: activeTabMode === "recues" ? 'rgba(255,255,255,0.25)' : 'rgba(34,197,94,0.15)',
-                                color: activeTabMode === "recues" ? '#fff' : '#16a34a',
-                                fontSize: '11px',
-                                fontWeight: 800
-                            }}>
-                                {receivedInvoices.length}
-                            </span>
-                        </button>
+                            <button
+                                type="button"
+                                className={`fp-mode-tab ${activeTabMode === "recues" ? "active" : ""}`}
+                                onClick={() => setActiveTabMode("recues")}
+                            >
+                                <Inbox size={14} />
+                                <span className="fp-tab-label-desktop">Factures reçues (Fournisseurs - 2026)</span>
+                                <span className="fp-tab-label-mobile">Fournisseurs</span>
+                                <span className="fp-tab-count">
+                                    {receivedInvoices.length}
+                                </span>
+                            </button>
+                        </div>
+                        {activeTabMode === "recues" && (
+                            <button
+                                type="button"
+                                className="fp-sync-btn-mobile"
+                                onClick={handleSyncReceived}
+                                disabled={loadingReceived}
+                                title="Synchroniser Plateforme Agréée"
+                            >
+                                {loadingReceived ? <Loader2 size={15} className="spin-loader" /> : <RefreshCw size={15} />}
+                            </button>
+                        )}
                     </div>
 
                     {activeTabMode === "recues" ? (
@@ -728,6 +714,7 @@ function FacturesPage() {
                             {/* Invoices List */}
                             <InvoiceList
                                 invoices={filteredInvoices}
+                                loading={loading}
                                 activeFilter={activeFilter}
                                 onRowClick={openDetail}
                                 onCreateFacture={() => setShowNewModal(true)}
@@ -826,9 +813,16 @@ function FacturesPage() {
             {/* New Invoice Modal */}
             {showNewModal && (
                 <NewInvoiceModal
-                    onClose={() => setShowNewModal(false)}
+                    onClose={() => {
+                        setShowNewModal(false);
+                        if (returnUrlRef.current) {
+                            const dest = returnUrlRef.current;
+                            returnUrlRef.current = null;
+                            navigate(dest);
+                        }
+                    }}
                     onCreateInvoice={handleCreateInvoice}
-                    initialClient={location.state}
+                    initialClient={newModalClient || location.state}
                 />
             )}
 

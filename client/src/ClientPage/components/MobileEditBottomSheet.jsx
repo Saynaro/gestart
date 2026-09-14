@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronDown, Plus, Search } from "lucide-react";
+import { X, ChevronDown, Plus } from "lucide-react";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete from "../../components/CompanyAutocomplete";
 import EquipmentSelector from "../../components/EquipmentSelector";
@@ -233,23 +233,6 @@ function MobileEditBottomSheet({
                                     </div>
                                 </div>
 
-                                {/* Toggle Delivery Address Card */}
-                                <div className="mobile-toggle-card">
-                                    <div className="mobile-toggle-row">
-                                        <span className="mobile-toggle-label">Préciser une adresse de livraison différente</span>
-                                        <label className="mobile-toggle-switch">
-                                            <input
-                                                type="checkbox"
-                                                checked={editDiffDelivery}
-                                                onChange={(e) => setEditDiffDelivery(e.target.checked)}
-                                            />
-                                            <span className="toggle-slider"></span>
-                                        </label>
-                                    </div>
-                                    <p className="mobile-toggle-desc">
-                                        La modification de l'adresse de livraison depuis le client ne modifiera pas celle sur le document en cours d'édition.
-                                    </p>
-                                </div>
 
                                 {/* Équipement installé Card */}
                                 <div className="mobile-form-card">
@@ -421,15 +404,6 @@ function MobileEditBottomSheet({
                             {activeSubSheet === "address" && (
                                 <div>
                                     <div className="mobile-sheet-body-stack" style={{ padding: '16px 16px 20px 16px' }}>
-                                        <div className="mobile-address-search-card">
-                                            <input
-                                                type="text"
-                                                placeholder="Chercher une adresse"
-                                                className="mobile-address-search-input"
-                                            />
-                                            <Search size={18} className="mobile-search-icon-right" />
-                                        </div>
-
                                         <div className="mobile-form-card select">
                                             <span className="mobile-form-card-label">Pays</span>
                                             <div className="mobile-form-card-row">

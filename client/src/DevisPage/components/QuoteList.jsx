@@ -20,6 +20,7 @@ function getStatusLabel(q) {
 
 function QuoteList({
     quotes,
+    loading = false,
     activeFilter = "all",
     onRowClick,
     onCreateQuote,
@@ -44,6 +45,33 @@ function QuoteList({
         e.stopPropagation();
         setActiveMenuId(prev => (prev === id ? null : id));
     };
+
+    if (loading && (!quotes || quotes.length === 0)) {
+        return (
+            <div className="dv-quote-list">
+                {[1, 2, 3, 4, 5].map(idx => (
+                    <div
+                        key={idx}
+                        className="dv-quote-card"
+                        style={{ pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '14px' }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className="skeleton-shimmer" style={{ width: '90px', height: '18px', borderRadius: '6px' }} />
+                            <div className="skeleton-shimmer" style={{ width: '85px', height: '20px', borderRadius: '6px' }} />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                                <div className="skeleton-shimmer" style={{ width: '70px', height: '14px', borderRadius: '4px', opacity: 0.7 }} />
+                                <span style={{ color: "var(--border)", userSelect: "none" }}>·</span>
+                                <div className="skeleton-shimmer" style={{ width: `${100 + (idx % 3) * 30}px`, height: '14px', borderRadius: '4px' }} />
+                            </div>
+                            <div className="skeleton-shimmer" style={{ width: '68px', height: '24px', borderRadius: '9999px' }} />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
 
     if (!quotes || quotes.length === 0) {
         let emptyTitle = "Vous n'avez pas encore de devis";

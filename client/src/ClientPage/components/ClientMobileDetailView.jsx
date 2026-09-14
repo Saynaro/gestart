@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { ArrowLeft, Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2, Clock, Play, Sparkles, Wrench } from "lucide-react";
 import InterventionDetailModal, { getInterventionStatusInfo } from "./InterventionDetailModal";
 import SideBar from "../../components/SideBar";
@@ -39,7 +40,13 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                 <div style={{ width: '36px' }} />
             </div>
             
-            <div className="mobile-contacts-scrollable-content" style={{ paddingBottom: '100px' }}>
+            <motion.div 
+                className="mobile-contacts-scrollable-content" 
+                style={{ paddingBottom: '100px' }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
                 {/* Mobile Detail Layout */}
                 <div className="mobile-detail-container" style={{ padding: '16px' }}>
                     {/* Profile Card */}
@@ -125,13 +132,30 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
 
                         <h3 className="mobile-section-title">STATUT ENTRETIEN</h3>
                         <div className={`mobile-maintenance-box ${details.maintenance.hasNext ? 'has-next' : 'no-next'}`}>
-                            <div className={`maintenance-badge ${details.maintenance.statusClass || (details.maintenance.hasNext ? 'green' : 'gray')}`}>
-                                <span>{details.maintenance.hasNext ? (details.maintenance.status || "OK") : "—"}</span>
+                            <div className={`maintenance-badge-icon ${details.maintenance.statusClass || (details.maintenance.hasNext ? 'green' : 'gray')}`}>
+                                {details.maintenance.hasNext ? (
+                                    (details.maintenance.status || "").toLowerCase().includes("rappel") ? (
+                                        <Sparkles size={17} />
+                                    ) : (
+                                        <Calendar size={17} />
+                                    )
+                                ) : (
+                                    <Clock size={17} />
+                                )}
                             </div>
-                            <div className={`maintenance-next ${details.maintenance.hasNext ? '' : 'muted'}`}>
-                                {details.maintenance.hasNext
-                                    ? `Prochain entretien: ${details.maintenance.nextMaintenance}`
-                                    : `Aucun entretien à venir`}
+                            <div className="maintenance-info-col">
+                                <div className="maintenance-status-row">
+                                    <span className={`status-pill ${details.maintenance.statusClass === 'green' ? 'ok' : details.maintenance.statusClass === 'warning' ? 'warning' : 'gray'}`}>
+                                        {details.maintenance.status || (details.maintenance.hasNext ? "OK" : "Aucun")}
+                                    </span>
+                                </div>
+                                <div className={`maintenance-next ${details.maintenance.hasNext ? '' : 'muted'}`}>
+                                    {details.maintenance.hasNext
+                                        ? (details.maintenance.nextMaintenance?.startsWith("Prochain") || details.maintenance.nextMaintenance?.startsWith("Rappel") || details.maintenance.nextMaintenance?.startsWith("RDV")
+                                            ? details.maintenance.nextMaintenance
+                                            : `Prochain entretien: ${details.maintenance.nextMaintenance}`)
+                                        : `Aucun entretien à venir`}
+                                </div>
                             </div>
                         </div>
 
@@ -142,16 +166,16 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                     <span>Modifier</span>
                                 </button>
                             )}
-                            <button className="mobile-action-btn planifier" onClick={() => navigate('/planning', { state: { clientId: selectedClient.id, clientName: displayName } })}>
+                            <button className="mobile-action-btn planifier" onClick={() => navigate('/planning', { state: { clientId: selectedClient.id, clientName: displayName, returnUrl: `/client?id=${selectedClient.id}` } })}>
                                 <Calendar size={16} />
                                 <span>Planifier</span>
                             </button>
-                            <button className="mobile-action-btn sms" onClick={() => navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName, phone: selectedClient.phone, email: selectedClient.email, address: selectedClient.address } })}>
+                            <button className="mobile-action-btn sms" onClick={() => navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName, phone: selectedClient.phone, email: selectedClient.email, address: selectedClient.address, returnUrl: `/client?id=${selectedClient.id}` } })}>
                                 <MessageSquare size={16} />
                                 <span>SMS</span>
                             </button>
                             {!isReadOnly && (
-                                <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, clientEmail: selectedClient.email, clientAddress: selectedClient.address, openNewModal: true } })}>
+                                <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, clientEmail: selectedClient.email, clientAddress: selectedClient.address, openNewModal: true, returnUrl: `/client?id=${selectedClient.id}` } })}>
                                     <FileText size={16} />
                                     <span>Facture</span>
                                 </button>
@@ -373,7 +397,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
             {/* Mobile Bottom Tab Bar */}
             <SideBar hideFab={true} />
 

@@ -367,8 +367,18 @@ export default function EquipmentSelector({
 
     // Horizontal scroll indicators and buttons
     const brandChipsRef = useRef(null);
+    const dropdownPanelRef = useRef(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
+
+    useEffect(() => {
+        if (isOpenSelector && dropdownPanelRef.current) {
+            const timer = setTimeout(() => {
+                dropdownPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 80);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpenSelector]);
 
     const checkScroll = () => {
         if (brandChipsRef.current) {
@@ -455,7 +465,7 @@ export default function EquipmentSelector({
 
             {/* Modal / Inline Dropdown Catalogue Selector */}
             {isOpenSelector && (
-                <div className="equip-dropdown-panel animate-fade-in">
+                <div ref={dropdownPanelRef} className="equip-dropdown-panel animate-fade-in">
                     {/* Header with Trades Selector */}
                     <div className="equip-panel-header">
                         <div className="equip-trades-tabs">
@@ -491,7 +501,6 @@ export default function EquipmentSelector({
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder={`Rechercher un modèle (${activeTradeData.name})...`}
                                 className="equip-search-input"
-                                autoFocus
                             />
                             {searchQuery && (
                                 <button type="button" className="equip-search-clear" onClick={() => setSearchQuery('')}>

@@ -8,8 +8,45 @@ function ClientMobileList({
     activeTabType = "particulier", 
     statusFilter = "Tous", 
     searchTerm = "", 
+    loading = false,
     onOpenAddClient 
 }) {
+    if (loading) {
+        return (
+            <div className="client-mobile-skeleton-container" style={{ width: '92%', margin: '14px auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                    {[1, 2, 3, 4, 5].map((idx) => (
+                        <div 
+                            key={idx} 
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '15px 18px',
+                                borderBottom: idx !== 5 ? '1px solid var(--border)' : 'none'
+                            }}
+                        >
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', flex: 1 }}>
+                                <div 
+                                    className="skeleton-shimmer" 
+                                    style={{ width: `${40 + (idx % 3) * 18}%`, height: '15px', borderRadius: '5px' }} 
+                                />
+                                <div 
+                                    className="skeleton-shimmer" 
+                                    style={{ width: `${55 + (idx % 2) * 15}%`, height: '12px', borderRadius: '4px', opacity: 0.6 }} 
+                                />
+                            </div>
+                            <div 
+                                className="skeleton-shimmer" 
+                                style={{ width: '14px', height: '14px', borderRadius: '3px', opacity: 0.3 }} 
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
     if (!sortedLetters || sortedLetters.length === 0) {
         const isOrg = activeTabType === "organisation";
         let emptyTitle = isOrg ? "Vous n'avez pas encore d'organisations" : "Vous n'avez pas encore de clients";

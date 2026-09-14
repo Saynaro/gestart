@@ -594,9 +594,12 @@ function SettingsPage() {
         const isDetail = mobileScreenState === "detail";
 
         return (
-            <div
+            <motion.div
                 className="mobile-settings-view"
                 style={{ backgroundColor: 'var(--background)' }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 onTouchStart={isDetail ? handleTouchStart : undefined}
                 onTouchEnd={isDetail ? handleTouchEnd : undefined}
             >
@@ -794,7 +797,7 @@ function SettingsPage() {
                         </>
                     )}
                 </AnimatePresence>
-            </div>
+            </motion.div>
         );
     };
 
@@ -892,13 +895,19 @@ function SettingsPage() {
                     <div className="main-content">
                         <Header />
 
-                        <div className="settings-layout-container" ref={layoutContainerRef}>
+                        <motion.div 
+                            className="settings-layout-container" 
+                            ref={layoutContainerRef}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        >
                             <div className="settings-content-panel">
                                 <AnimatePresence mode="wait">
                                     {renderTabContent(false)}
                                 </AnimatePresence>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             )}

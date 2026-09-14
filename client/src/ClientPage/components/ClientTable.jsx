@@ -28,6 +28,7 @@ function ClientTable({
     statusFilter = "Tous", 
     searchTerm = "", 
     onAddClient,
+    loading = false,
     isReadOnly = false 
 }) {
     const [activeDropdownId, setActiveDropdownId] = useState(null);
@@ -55,6 +56,20 @@ function ClientTable({
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    if (loading) {
+        return (
+            <div className="table-skeleton-container" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', backgroundColor: 'var(--card)', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div 
+                        key={i} 
+                        className="skeleton-shimmer" 
+                        style={{ height: '46px', borderRadius: '10px', width: '100%' }} 
+                    />
+                ))}
+            </div>
+        );
+    }
 
     if (!clients || clients.length === 0) {
         const isOrg = activeTabType === "organisation";

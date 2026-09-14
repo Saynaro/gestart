@@ -59,23 +59,34 @@ export const getClients = async (req, res) => {
                         orderBy: { nextReminderAt: "asc" }
                     },
                     invoices: {
-                        include: {
-                            lines: { orderBy: { position: "asc" } },
-                            client: true,
-                            company: true
+                        select: {
+                            id: true,
+                            number: true,
+                            issuedAt: true,
+                            createdAt: true,
+                            amountTTC: true,
+                            amountHT: true,
+                            status: true
                         },
-                        orderBy: { createdAt: "desc" }
+                        orderBy: { createdAt: "desc" },
+                        take: 20
                     },
                     quotes: {
-                        include: {
-                            lines: { orderBy: { position: "asc" } },
-                            client: true,
-                            company: true
+                        select: {
+                            id: true,
+                            number: true,
+                            issuedAt: true,
+                            createdAt: true,
+                            amountTTC: true,
+                            amountHT: true,
+                            status: true
                         },
-                        orderBy: { createdAt: "desc" }
+                        orderBy: { createdAt: "desc" },
+                        take: 20
                     },
                     smsLogs: {
-                        orderBy: { createdAt: "desc" }
+                        orderBy: { createdAt: "desc" },
+                        take: 15
                     },
                     _count: {
                         select: {

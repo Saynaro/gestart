@@ -1087,10 +1087,12 @@ function InvoiceDetailDrawer({
                                                     <Edit2 size={15} /> Modifier la facture
                                                 </button>
                                             )}
-                                            <button className="fp-dots-menu-item" onClick={() => setShowCustomizer(true)}>
-                                                <Palette size={15} /> Personnaliser le document
-                                            </button>
-                                            {onDelete && (
+                                            {!isPaid && (
+                                                <button className="fp-dots-menu-item" onClick={() => setShowCustomizer(true)}>
+                                                    <Palette size={15} /> Personnaliser le document
+                                                </button>
+                                            )}
+                                            {onDelete && !isPaid && (
                                                 <button
                                                     className="fp-dots-menu-item danger"
                                                     onClick={() => {
@@ -1494,10 +1496,12 @@ function InvoiceDetailDrawer({
                         <div className="preview-side-header">
                             <FileText size={14} />
                             <span>Aperçu de la facture</span>
-                            <button className="personnaliser-btn" onClick={() => setShowCustomizer(true)}>
-                                <Palette size={14} />
-                                Personnaliser
-                            </button>
+                            {!isPaid && (
+                                <button className="personnaliser-btn" onClick={() => setShowCustomizer(true)}>
+                                    <Palette size={14} />
+                                    Personnaliser
+                                </button>
+                            )}
                         </div>
                         <div className="preview-side-scrollable">
                             {renderPreview()}

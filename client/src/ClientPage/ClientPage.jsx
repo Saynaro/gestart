@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, useDragControls } from "framer-motion";
-import { AlertTriangle, Trash2, CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import { AlertTriangle, Trash2, CheckCircle2, AlertCircle, Info, X, Lock } from "lucide-react";
 import ToastNotification from "../components/ToastNotification";
+import { useSubscription } from "../utils/useSubscription";
 import "../HomePage/Homepage.css";
 import "./ClientPage.css";
 
@@ -53,6 +54,7 @@ function ClientPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { role } = useUser();
+    const { isExpired } = useSubscription();
     const isTechnician = role === "TECHNICIAN";
 
     const [contacts, setContacts] = useState(() => cachedClientsData?.contacts || []);
@@ -586,6 +588,12 @@ function ClientPage() {
 
     // Trigger creating new Client Modal / Bottom Sheet
     const handleOpenAddClient = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour ajouter un nouveau client, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         const isOrg = activeTabType === "organisation";
         setEditingClient({ id: null, isOrg, isNew: true });
         setEditFirstName("");
@@ -786,6 +794,7 @@ function ClientPage() {
                                 searchTerm={searchTerm}
                                 loading={loading}
                                 onOpenAddClient={isTechnician ? null : handleOpenAddClient}
+                                isExpired={isExpired}
                             />
                         </motion.div>
 
@@ -826,7 +835,12 @@ function ClientPage() {
                                             <p className="content-subtitle">{isTechnician ? "Consultez vos fiches clients et leurs informations." : "Gérez vos relations clients et leurs informations."}</p>
                                         </div>
                                         {!isTechnician && (
-                                            <button className="new-client-btn" onClick={handleOpenAddClient}>
+                                            <button
+                                                className="new-client-btn"
+                                                onClick={handleOpenAddClient}
+                                                style={isExpired ? { display: 'inline-flex', alignItems: 'center', gap: '6px' } : {}}
+                                            >
+                                                {isExpired && <Lock size={15} />}
                                                 + Nouveau Client
                                             </button>
                                         )}
@@ -879,6 +893,7 @@ function ClientPage() {
                                         onDelete={isTechnician ? null : handleDeleteClient}
                                         isReadOnly={isTechnician}
                                         loading={loading}
+                                        isExpired={isExpired}
                                     />
                                 </>
                             )}

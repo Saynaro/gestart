@@ -59,6 +59,7 @@ function QuoteDetailDrawer({
     const tvaAmount = Number(quote.tvaAmount !== undefined && quote.tvaAmount !== null ? quote.tvaAmount : (totalTtc - subtotalHt));
 
     const isAccepted = (quote.status || "").toUpperCase() === "ACCEPTED";
+    const isSignedOrAccepted = isAccepted || Boolean(quote.signedAt || quote.signature);
     const isDraft    = (quote.status || "").toUpperCase() === "DRAFT";
     const isSent     = (quote.status || "").toUpperCase() === "SENT";
 
@@ -1114,9 +1115,11 @@ function QuoteDetailDrawer({
                                         <button className="dv-dots-menu-item" onClick={() => {}}>
                                             <Copy size={15} /> Dupliquer
                                         </button>
-                                        <button className="dv-dots-menu-item" onClick={() => { setShowCustomizer(true); setShowDotsMenu(false); }}>
-                                            <Palette size={15} /> Personnaliser le document
-                                        </button>
+                                        {!isSignedOrAccepted && (
+                                            <button className="dv-dots-menu-item" onClick={() => { setShowCustomizer(true); setShowDotsMenu(false); }}>
+                                                <Palette size={15} /> Personnaliser le document
+                                            </button>
+                                        )}
                                         {onDelete && (
                                             <button
                                                 className="dv-dots-menu-item dv-danger-item"
@@ -1411,10 +1414,12 @@ function QuoteDetailDrawer({
                         <div className="preview-side-header">
                             <FileText size={14} />
                             <span>Aperçu du devis</span>
-                            <button className="personnaliser-btn" onClick={() => setShowCustomizer(true)}>
-                                <Palette size={14} />
-                                Personnaliser
-                            </button>
+                            {!isSignedOrAccepted && (
+                                <button className="personnaliser-btn" onClick={() => setShowCustomizer(true)}>
+                                    <Palette size={14} />
+                                    Personnaliser
+                                </button>
+                            )}
                         </div>
                         <div className="preview-side-scrollable">
                             {renderPreview()}

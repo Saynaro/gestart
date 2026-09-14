@@ -1,5 +1,6 @@
 import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
+import { generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
 
 ////// GET CURRENT SUBSCRIPTION //////
 export const getSubscription = async (req, res) => {
@@ -715,3 +716,88 @@ export const getSubscriptionInvoices = async (req, res) => {
         });
     }
 };
+
+////// GET SUBSCRIPTION PAYMENT RECEIPT PDF //////
+export const getSubscriptionReceiptPdf = async (req, res) => {
+    const companyId = req.user.companyId;
+    const { id } = req.params;
+
+    try {
+        const payment = await prisma.payment.findFirst({
+            where: {
+                id,
+                subscription: { companyId }
+            },
+            include: {
+                subscription: {
+                    include: {
+                        plan: true,
+                        company: true
+                    }
+                }
+            }
+        });
+
+        if (!payment) {
+            return res.status(404).json({ success: false, message: "Reçu de règlement introuvable" });
+        }
+
+        const company = payment.subscription?.company || {};
+        const clientName = company.name || `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || req.user.email || "Client GestArt";
+        const clientAddress = company.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "";
+        const clientSiret = company.siret || "";
+        const clientEmail = req.user.email || company.email || "";
+        const planName = payment.subscription?.plan?.displayName || payment.subscription?.plan?.name || "Unlimited";
+        const displayId = `REC-${payment.id.slice(-6).toUpperCase()}`;
+
+        const rawAmountTtc = Number(payment.amount || 1);
+        const rawAmountHt = rawAmountTtc / 1.2;
+        const rawTva = rawAmountTtc - rawAmountHt;
+
+        const paymentData = {
+            type: "SUBSCRIPTION",
+            docNumber: `${displayId} — Abonnement ${planName}`,
+            amountTTC: rawAmountTtc,
+            amountHT: rawAmountHt,
+            tvaAmount: rawTva,
+            tvaRate: 20,
+            companyName: "GestArt SAS",
+            companyAddress: "10 Place de la République, 75011 Paris, France",
+            companySiret: "944 087 725 00018",
+            companyEmail: "support@gestart.link",
+            companyPhone: "support@gestart.link",
+            clientName,
+            clientEmail,
+            clientPhone: company.phone || "",
+            clientAddress,
+            clientSiret,
+            cardBrand: "CARTE BANCAIRE (STRIPE)",
+            cardLast4: "",
+            transactionId: payment.stripePaymentIntentId || displayId,
+            paidAt: payment.paidAt || payment.createdAt
+        };
+
+        const pdfBuffer = await generateReceiptPdfBuffer({
+            paymentData,
+            company: {
+                name: "GestArt SAS",
+                address: "10 Place de la République",
+                postalCode: "75011",
+                city: "Paris",
+                siret: "944 087 725 00018",
+                email: "support@gestart.link"
+            },
+            customization: {
+                primaryColor: "#556B2F"
+            }
+        });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="Recu_Paiement_${displayId}.pdf"`);
+        return res.send(pdfBuffer);
+    } catch (error) {
+        console.error("GET SUBSCRIPTION RECEIPT PDF ERROR:", error);
+        return res.status(500).json({ success: false, message: "Erreur lors de la génération du reçu PDF" });
+    }
+};
+

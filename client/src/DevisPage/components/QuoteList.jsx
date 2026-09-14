@@ -198,7 +198,7 @@ function QuoteList({
                                         <Download size={14} /> Télécharger PDF
                                     </button>
 
-                                    {onCustomise && (
+                                    {onCustomise && q.status !== "ACCEPTED" && (
                                         <button
                                             type="button"
                                             className="dv-dots-menu-item"

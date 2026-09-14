@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info, AlertTriangle, Lock, Trash2, Mail, ExternalLink } from "lucide-react";
 import ToastNotification from "../components/ToastNotification";
+import { useSubscription } from "../utils/useSubscription";
 import "./FacturesPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -40,6 +41,7 @@ let cachedReceivedInvoicesData = null;
 function FacturesPage() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { isExpired } = useSubscription();
     const [invoices, setInvoices] = useState(() => cachedInvoicesData || []);
     const [receivedInvoices, setReceivedInvoices] = useState(() => cachedReceivedInvoicesData || []);
     const [loading, setLoading] = useState(() => !cachedInvoicesData);
@@ -47,6 +49,16 @@ function FacturesPage() {
     const [activeTabMode, setActiveTabMode] = useState("emises"); // "emises" | "recues"
     const [activeReceivedInvoice, setActiveReceivedInvoice] = useState(null);
     const [emailWarningModalOpen, setEmailWarningModalOpen] = useState(false);
+
+    const handleOpenCreateInvoice = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour créer de nouvelles factures, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
+        setShowNewModal(true);
+    };
 
     const mapInvoiceFromApi = (inv) => ({
         ...inv,
@@ -531,7 +543,7 @@ function FacturesPage() {
 
     return (
         <div className="home-page factures-page-wrapper">
-            <SideBar onFabClick={() => setShowNewModal(true)} />
+            <SideBar onFabClick={handleOpenCreateInvoice} />
             <div className="main-content">
                 <Header />
                 <motion.div 
@@ -559,8 +571,12 @@ function FacturesPage() {
                                     Synchroniser Plateforme Agréée
                                 </button>
                             ) : (
-                                <button className="fp-new-btn" onClick={() => setShowNewModal(true)}>
-                                    <Plus size={16} /> Nouvelle facture
+                                <button
+                                    className="fp-new-btn"
+                                    onClick={handleOpenCreateInvoice}
+                                    style={isExpired ? { display: 'inline-flex', alignItems: 'center', gap: '6px' } : {}}
+                                >
+                                    {isExpired ? <Lock size={16} /> : <Plus size={16} />} Nouvelle facture
                                 </button>
                             )}
                         </div>
@@ -717,7 +733,7 @@ function FacturesPage() {
                                 loading={loading}
                                 activeFilter={activeFilter}
                                 onRowClick={openDetail}
-                                onCreateFacture={() => setShowNewModal(true)}
+                                onCreateFacture={handleOpenCreateInvoice}
                                 onSend={(inv) => { setActiveInvoice(inv); setShowSendDrawer(true); }}
                                 onEdit={(inv) => { setActiveInvoice(inv); setShowEditPanel(true); }}
                                 onMarkPaid={(inv) => setPaymentModalInvoice(inv)}

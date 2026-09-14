@@ -147,8 +147,9 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             });
 
             const data = await response.json();
-            if (data.url) {
-                window.location.href = data.url;
+            const checkoutUrl = data.data?.checkoutUrl || data.checkoutUrl || data.url;
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
             } else {
                 alert(data.message || "Impossible d'initier l'abonnement Stripe");
             }
@@ -322,18 +323,17 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Carte Plan Actuel & Consommation */}
             <div style={{
-                background: isCancelled
-                    ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%)'
-                    : 'linear-gradient(135deg, rgba(85, 107, 47, 0.08) 0%, rgba(85, 107, 47, 0.02) 100%)',
-                border: isCancelled ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(85, 107, 47, 0.25)',
+                backgroundColor: 'var(--card)',
+                border: '1px solid var(--border)',
                 borderRadius: '16px',
-                padding: '24px'
+                padding: '24px',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                             <span style={{
-                                backgroundColor: isCancelled ? '#EF4444' : '#556B2F',
+                                backgroundColor: '#556B2F',
                                 color: '#fff',
                                 fontSize: '11px',
                                 fontWeight: 800,
@@ -344,9 +344,29 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             }}>
                                 Offre actuelle : {currentPlan}
                             </span>
-                            {isCancelled && (
-                                <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '50px' }}>
+                            {isCancelled ? (
+                                <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    color: '#EF4444',
+                                    fontSize: '12px',
+                                    fontWeight: 800
+                                }}>
+                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
                                     Résiliation programmée
+                                </span>
+                            ) : (
+                                <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    color: '#16A34A',
+                                    fontSize: '12px',
+                                    fontWeight: 700
+                                }}>
+                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A', display: 'inline-block' }}></span>
+                                    Abonnement actif
                                 </span>
                             )}
                         </div>
@@ -357,7 +377,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
 
                         <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)' }}>
                             {isCancelled ? (
-                                <span>Fin de la période d'accès le <strong>{formattedRenewalDate}</strong></span>
+                                <span>Fin de la période d'accès le <strong style={{ color: '#EF4444' }}>{formattedRenewalDate}</strong></span>
                             ) : (
                                 <span>Prochain prélèvement le <strong>{formattedRenewalDate}</strong> via Carte bancaire</span>
                             )}
@@ -499,20 +519,55 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             <div ref={comparisonRef} style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                     <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>Comparer nos formules</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--background)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border)' }}>
                         <button
                             type="button"
                             onClick={() => setBillingCycle("mensuel")}
-                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'mensuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'mensuel' ? 'var(--foreground)' : 'var(--muted-foreground)', boxShadow: billingCycle === 'mensuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
+                            style={{
+                                padding: '8px 14px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                fontWeight: 700,
+                                fontSize: '12.5px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                backgroundColor: billingCycle === 'mensuel' ? '#556B2F' : 'transparent',
+                                color: billingCycle === 'mensuel' ? '#FFFFFF' : 'var(--muted-foreground)',
+                                boxShadow: billingCycle === 'mensuel' ? '0 2px 6px rgba(85, 107, 47, 0.3)' : 'none'
+                            }}
                         >
                             Facturation mensuelle
                         </button>
                         <button
                             type="button"
                             onClick={() => setBillingCycle("annuel")}
-                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '12px', cursor: 'pointer', backgroundColor: billingCycle === 'annuel' ? 'var(--card)' : 'transparent', color: billingCycle === 'annuel' ? '#556B2F' : 'var(--muted-foreground)', boxShadow: billingCycle === 'annuel' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none' }}
+                            style={{
+                                padding: '8px 14px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                fontWeight: 700,
+                                fontSize: '12.5px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                backgroundColor: billingCycle === 'annuel' ? '#556B2F' : 'transparent',
+                                color: billingCycle === 'annuel' ? '#FFFFFF' : 'var(--muted-foreground)',
+                                boxShadow: billingCycle === 'annuel' ? '0 2px 6px rgba(85, 107, 47, 0.3)' : 'none'
+                            }}
                         >
-                            Facturation annuelle <span style={{ color: '#22c55e', fontWeight: 800 }}>-20%</span>
+                            Facturation annuelle
+                            <span style={{
+                                backgroundColor: billingCycle === 'annuel' ? 'rgba(255, 255, 255, 0.22)' : 'rgba(34, 197, 94, 0.15)',
+                                color: billingCycle === 'annuel' ? '#FFFFFF' : '#22c55e',
+                                fontWeight: 800,
+                                fontSize: '11px',
+                                padding: '2px 7px',
+                                borderRadius: '20px'
+                            }}>
+                                -20%
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -620,16 +675,94 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                     <div style={{ padding: '24px', textAlign: 'center', backgroundColor: 'var(--background)', borderRadius: '12px', color: 'var(--muted-foreground)', fontSize: '13px' }}>
                         Aucun paiement enregistré pour l'instant.
                     </div>
+                ) : isMobileView ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {paymentHistory.map((item, index) => {
+                            const paymentDate = item.paidAt || item.createdAt;
+                            const formattedDate = paymentDate ? new Date(paymentDate).toLocaleDateString('fr-FR') : '-';
+                            const displayId = item.id ? `REC-${item.id.slice(-6).toUpperCase()}` : `INV-${index + 1}`;
+                            const amountFormatted = `${Number(item.amount || 1).toFixed(2).replace('.', ',')} € HT`;
+                            const isPaid = item.status === 'succeeded' || item.status === 'paid';
+
+                            return (
+                                <div
+                                    key={item.id || index}
+                                    style={{
+                                        backgroundColor: 'var(--background)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '12px',
+                                        padding: '14px 16px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '10px'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontWeight: 800, fontSize: '14px', color: 'var(--foreground)' }}>
+                                            {displayId}
+                                        </span>
+                                        <span style={{
+                                            backgroundColor: isPaid ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                                            color: isPaid ? '#22c55e' : '#ef4444',
+                                            fontSize: '11px',
+                                            padding: '3px 10px',
+                                            borderRadius: '50px',
+                                            fontWeight: 700,
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            {isPaid ? 'Payé' : 'Échoué'}
+                                        </span>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>{formattedDate}</span>
+                                        <span style={{ fontWeight: 800, color: 'var(--foreground)' }}>{amountFormatted}</span>
+                                    </div>
+
+                                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setActiveReceipt({
+                                                    id: item.id,
+                                                    displayId,
+                                                    formattedDate,
+                                                    amount: item.amount || 1,
+                                                    planName: item.planName || currentPlan || 'Unlimited',
+                                                    status: item.status
+                                                });
+                                            }}
+                                            style={{
+                                                background: 'rgba(85, 107, 47, 0.1)',
+                                                border: '1px solid rgba(85, 107, 47, 0.25)',
+                                                color: '#556B2F',
+                                                cursor: 'pointer',
+                                                fontWeight: 700,
+                                                fontSize: '12px',
+                                                borderRadius: '8px',
+                                                padding: '7px 14px',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '6px'
+                                            }}
+                                        >
+                                            <Download size={14} /> Télécharger PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 ) : (
                     <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', whiteSpace: 'nowrap' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--muted-foreground)' }}>
-                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>N° Facture / Réf</th>
-                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>Date</th>
-                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>Montant</th>
-                                    <th style={{ padding: '10px 8px', fontWeight: 700 }}>Statut</th>
-                                    <th style={{ padding: '10px 8px', fontWeight: 700, textAlign: 'right' }}>Reçu</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>N° Facture / Réf</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Date</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Montant</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Statut</th>
+                                    <th style={{ padding: '10px 8px', fontWeight: 700, textAlign: 'right', whiteSpace: 'nowrap' }}>Reçu</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -641,22 +774,23 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
 
                                     return (
                                         <tr key={item.id || index} style={{ borderBottom: '1px solid var(--border)' }}>
-                                            <td style={{ padding: '12px 8px', fontWeight: 700 }}>{displayId}</td>
-                                            <td style={{ padding: '12px 8px', color: 'var(--muted-foreground)' }}>{formattedDate}</td>
-                                            <td style={{ padding: '12px 8px', fontWeight: 700 }}>{amountFormatted}</td>
-                                            <td style={{ padding: '12px 8px' }}>
+                                            <td style={{ padding: '12px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>{displayId}</td>
+                                            <td style={{ padding: '12px 8px', color: 'var(--muted-foreground)', whiteSpace: 'nowrap' }}>{formattedDate}</td>
+                                            <td style={{ padding: '12px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>{amountFormatted}</td>
+                                            <td style={{ padding: '12px 8px', whiteSpace: 'nowrap' }}>
                                                 <span style={{
                                                     backgroundColor: item.status === 'succeeded' || item.status === 'paid' ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
                                                     color: item.status === 'succeeded' || item.status === 'paid' ? '#22c55e' : '#ef4444',
                                                     fontSize: '11px',
                                                     padding: '3px 8px',
                                                     borderRadius: '50px',
-                                                    fontWeight: 700
+                                                    fontWeight: 700,
+                                                    whiteSpace: 'nowrap'
                                                 }}>
                                                     {item.status === 'succeeded' || item.status === 'paid' ? 'Payé' : 'Échoué'}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '12px 8px', textAlign: 'right' }}>
+                                            <td style={{ padding: '12px 8px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                                                 <button
                                                     type="button"
                                                     onClick={() => {
@@ -669,7 +803,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                                             status: item.status
                                                         });
                                                     }}
-                                                    style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                                    style={{ background: 'none', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
                                                 >
                                                     <Download size={14} /> PDF
                                                 </button>

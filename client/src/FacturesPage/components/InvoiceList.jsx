@@ -197,7 +197,7 @@ function InvoiceList({
                                         <Download size={14} /> Télécharger PDF
                                     </button>
 
-                                    {onCustomise && (
+                                    {onCustomise && inv.status !== "paid" && (
                                         <button
                                             type="button"
                                             className="fp-dots-menu-item"
@@ -211,7 +211,7 @@ function InvoiceList({
                                         </button>
                                     )}
 
-                                    {onDeleteInvoice && (
+                                    {onDeleteInvoice && inv.status !== "paid" && (
                                         <button
                                             type="button"
                                             className="fp-dots-menu-item danger"

@@ -24,7 +24,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 // Collections
-router.get("/", requireActive, getClients);
+router.get("/", getClients);
 router.get("/export", requireManager, exportClients);
 router.get("/urgent", getUrgentClients);
 

@@ -82,7 +82,10 @@ export function SubscriptionProvider({ children }) {
 
     const status = subscription?.status || 'ACTIVE';
     const isCancelled = status === 'CANCELLED' || Boolean(subscription?.cancelledAt);
-    const isExpired = status === 'EXPIRED';
+    const now = new Date();
+    const periodEnd = status === 'TRIALING' ? subscription?.trialEndsAt : subscription?.currentPeriodEnd;
+    const isPeriodEnded = Boolean(periodEnd && new Date(periodEnd) < now);
+    const isExpired = status === 'EXPIRED' || (isPeriodEnded && (status === 'CANCELLED' || status === 'EXPIRED' || status === 'TRIALING'));
 
     const isStarter = planName === 'STARTER';
     const isPro = planName === 'PRO';

@@ -11,7 +11,8 @@ import {
     getCompanyStats,
     createStripeConnectAccount,
     getStripeConnectStatus,
-    validateIbanPublic
+    validateIbanPublic,
+    deleteCompanyAccount
 } from "../controllers/companyController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -47,5 +48,8 @@ router.get("/stripe-connect/status", authMiddleware, requireOwner, getStripeConn
 
 // Statistiques Société
 router.get("/stats", authMiddleware, requireManager, getCompanyStats);
+
+// Suppression définitive du compte (Art. 17 RGPD)
+router.delete("/delete-account", authMiddleware, requireOwner, deleteCompanyAccount);
 
 export default router;

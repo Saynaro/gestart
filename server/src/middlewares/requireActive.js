@@ -43,7 +43,7 @@ export const requireActive = async (req, res, next) => {
                 ? subscription.trialEndsAt
                 : subscription.currentPeriodEnd;
 
-            if (endDate && new Date(endDate) < now && subscription.status !== "ACTIVE") {
+            if (endDate && new Date(endDate) < now) {
                 return res.status(403).json({
                     success: false,
                     message: "La période d'essai ou d'abonnement de votre société est expirée.",

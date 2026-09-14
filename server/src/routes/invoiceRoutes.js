@@ -15,6 +15,7 @@ import {
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
+import { requireActive } from "../middlewares/requireActive.js";
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ router.get("/:id", getInvoiceById);
 router.get("/:id/pdf", getInvoicePdf);
 
 // Actions et modification factures
-router.post("/", createInvoice);
+router.post("/", requireActive, createInvoice);
 router.patch("/:id", updateInvoice);
 router.put("/:id", updateInvoice);
 router.post("/:id/send", sendInvoice);

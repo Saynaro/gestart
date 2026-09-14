@@ -9,7 +9,8 @@ import {
     reactivateSubscription,
     getPortalUrl,
     getSubscriptionUsage,
-    getSubscriptionInvoices
+    getSubscriptionInvoices,
+    getSubscriptionReceiptPdf
 } from "../controllers/subscriptionController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -25,6 +26,7 @@ router.get("/", getSubscription);
 
 // Checkout & Upgrades
 router.post("/checkout", createCheckoutSession);
+router.post("/create-checkout-session", createCheckoutSession);
 router.post("/verify-session", verifyCheckoutSession);
 router.post("/payment-intent", createPaymentIntent);
 router.post("/upgrade", upgradeSubscription);
@@ -37,5 +39,6 @@ router.post("/reactivate", reactivateSubscription);
 router.get("/portal", getPortalUrl);
 router.get("/usage", getSubscriptionUsage);
 router.get("/invoices", getSubscriptionInvoices);
+router.get("/receipts/:id/pdf", getSubscriptionReceiptPdf);
 
 export default router;

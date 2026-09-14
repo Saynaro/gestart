@@ -21,7 +21,7 @@ export default function SubscriptionExpiredModal() {
 
     const handleGoToBilling = () => {
         setIsOpen(false);
-        navigate("/checkout");
+        navigate("/settings?tab=abonnement");
     };
 
     return (
@@ -94,7 +94,7 @@ export default function SubscriptionExpiredModal() {
                         style={{
                             width: "100%",
                             padding: "12px 20px",
-                            backgroundColor: "var(--sidebar-primary, #5B4DDB)",
+                            backgroundColor: "#556B2F",
                             color: "#FFFFFF",
                             border: "none",
                             borderRadius: "10px",
@@ -104,7 +104,8 @@ export default function SubscriptionExpiredModal() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            gap: "8px"
+                            gap: "8px",
+                            boxShadow: "0 4px 12px rgba(85, 107, 47, 0.25)"
                         }}
                     >
                         <Star size={16} fill="currentColor" />

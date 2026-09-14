@@ -603,4 +603,122 @@ export const validateIbanPublic = async (req, res) => {
     }
 };
 
+////// DELETE COMPANY ACCOUNT (RGPD ART. 17 - DROIT À L'EFFACEMENT) //////
+export const deleteCompanyAccount = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    if (!companyId) {
+        return res.status(400).json({
+            success: false,
+            message: "Identifiant de société manquant"
+        });
+    }
+
+    try {
+        // 1. Cancel Stripe Subscription if active
+        try {
+            const subscription = await prisma.subscription.findUnique({
+                where: { companyId }
+            });
+            if (stripe && subscription?.stripeSubscriptionId) {
+                await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
+            }
+        } catch (stripeErr) {
+            console.warn("Could not cancel Stripe subscription during account deletion:", stripeErr.message);
+        }
+
+        // 2. Cascade delete all company data in an atomic transaction
+        await prisma.$transaction(async (tx) => {
+            // Delete payments & subscription
+            const sub = await tx.subscription.findUnique({ where: { companyId } });
+            if (sub) {
+                await tx.payment.deleteMany({ where: { subscriptionId: sub.id } });
+                await tx.subscription.delete({ where: { id: sub.id } });
+            }
+
+            // Quotes
+            const quotes = await tx.quote.findMany({ where: { companyId }, select: { id: true } });
+            if (quotes.length > 0) {
+                const quoteIds = quotes.map(q => q.id);
+                await tx.quoteLine.deleteMany({ where: { quoteId: { in: quoteIds } } });
+                await tx.quote.deleteMany({ where: { companyId } });
+            }
+
+            // Invoices
+            const invoices = await tx.invoice.findMany({ where: { companyId }, select: { id: true } });
+            if (invoices.length > 0) {
+                const invoiceIds = invoices.map(i => i.id);
+                await tx.invoiceLine.deleteMany({ where: { invoiceId: { in: invoiceIds } } });
+                await tx.invoiceTransaction.deleteMany({ where: { invoiceId: { in: invoiceIds } } });
+                await tx.invoice.deleteMany({ where: { companyId } });
+            }
+
+            // Interventions
+            const interventions = await tx.intervention.findMany({ where: { companyId }, select: { id: true } });
+            if (interventions.length > 0) {
+                const interventionIds = interventions.map(i => i.id);
+                await tx.interventionPhoto.deleteMany({ where: { interventionId: { in: interventionIds } } });
+                await tx.intervention.deleteMany({ where: { companyId } });
+            }
+
+            // Clients & Equipments
+            const clients = await tx.client.findMany({ where: { companyId }, select: { id: true } });
+            if (clients.length > 0) {
+                const clientIds = clients.map(c => c.id);
+                await tx.equipment.deleteMany({ where: { clientId: { in: clientIds } } });
+                await tx.client.deleteMany({ where: { companyId } });
+            }
+
+            // Other related company records
+            await tx.smsLog.deleteMany({ where: { companyId } });
+            await tx.smsUsage.deleteMany({ where: { companyId } });
+            await tx.whatsappConnection.deleteMany({ where: { companyId } });
+            await tx.emailConnection.deleteMany({ where: { companyId } });
+            await tx.notification.deleteMany({ where: { companyId } });
+            await tx.invitation.deleteMany({ where: { companyId } });
+            await tx.auditLog.deleteMany({ where: { companyId } });
+            await tx.quoteRequest.deleteMany({ where: { companyId } });
+            await tx.catalogItem.deleteMany({ where: { companyId } });
+            await tx.interventionTypeItem.deleteMany({ where: { companyId } });
+            await tx.companyTradeCategory.deleteMany({ where: { companyId } });
+            await tx.bankTransaction.deleteMany({ where: { companyId } });
+            await tx.bankAccount.deleteMany({ where: { companyId } });
+            await tx.bankConnection.deleteMany({ where: { companyId } });
+            await tx.serviceType.deleteMany({ where: { companyId } });
+            await tx.reminderExecution.deleteMany({ where: { companyId } });
+            await tx.reminderAutomation.deleteMany({ where: { companyId } });
+            await tx.accountingExport.deleteMany({ where: { companyId } });
+            await tx.tvaSummary.deleteMany({ where: { companyId } });
+            await tx.accountingIntegration.deleteMany({ where: { companyId } });
+            await tx.receivedInvoice.deleteMany({ where: { companyId } });
+            await tx.eInvoicingEvent.deleteMany({ where: { companyId } });
+            await tx.eInvoicingJob.deleteMany({ where: { companyId } });
+            await tx.eInvoicingConnection.deleteMany({ where: { companyId } });
+            await tx.companySettings.deleteMany({ where: { companyId } });
+
+            // Users and push tokens
+            const users = await tx.user.findMany({ where: { companyId }, select: { id: true } });
+            if (users.length > 0) {
+                const userIds = users.map(u => u.id);
+                await tx.pushToken.deleteMany({ where: { userId: { in: userIds } } });
+                await tx.user.deleteMany({ where: { companyId } });
+            }
+
+            // Finally, the company
+            await tx.company.delete({ where: { id: companyId } });
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Votre compte et toutes vos données ont été définitivement supprimés (Art. 17 RGPD)."
+        });
+    } catch (error) {
+        console.error("DELETE ACCOUNT ERROR:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la suppression du compte: " + error.message
+        });
+    }
+};
+
 

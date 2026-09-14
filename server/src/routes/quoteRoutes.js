@@ -13,6 +13,7 @@ import {
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
+import { requireActive } from "../middlewares/requireActive.js";
 
 const router = express.Router();
 
@@ -25,12 +26,12 @@ router.get("/:id", getQuoteById);
 router.get("/:id/pdf", getQuotePdf);
 
 // Actions et création de devis
-router.post("/", requireManager, createQuote);
+router.post("/", requireManager, requireActive, createQuote);
 router.patch("/:id", requireManager, updateQuote);
 router.put("/:id", requireManager, updateQuote);
 router.post("/:id/send", requireManager, sendQuote);
 router.post("/:id/accept", requireManager, acceptQuote);
-router.post("/:id/convert-to-invoice", requireManager, convertQuoteToInvoice);
+router.post("/:id/convert-to-invoice", requireManager, requireActive, convertQuoteToInvoice);
 
 // Suppression devis réservée au OWNER
 router.delete("/:id", requireOwner, deleteQuote);

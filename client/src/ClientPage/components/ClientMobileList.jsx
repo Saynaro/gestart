@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronRight, Users } from "lucide-react";
+import { ChevronRight, Users, Lock } from "lucide-react";
 
 function ClientMobileList({ 
     sortedLetters, 
@@ -9,7 +9,8 @@ function ClientMobileList({
     statusFilter = "Tous", 
     searchTerm = "", 
     loading = false,
-    onOpenAddClient 
+    onOpenAddClient,
+    isExpired = false
 }) {
     if (loading) {
         return (
@@ -99,9 +100,13 @@ function ClientMobileList({
                             fontWeight: 700,
                             fontSize: '0.85rem',
                             cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
+                            boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
                         }}
                     >
+                        {isExpired && <Lock size={14} />}
                         + {isOrg ? "Nouvelle organisation" : "Nouveau client"}
                     </button>
                 )}

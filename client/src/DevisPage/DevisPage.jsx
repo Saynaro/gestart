@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, CheckCircle2, AlertCircle, Info, RefreshCw, Loader2, FileText, Check, Trash2, Mail, ExternalLink } from "lucide-react";
+import { Plus, CheckCircle2, AlertCircle, Info, RefreshCw, Loader2, FileText, Check, Trash2, Mail, ExternalLink, Lock } from "lucide-react";
 import ToastNotification from "../components/ToastNotification";
+import { useSubscription } from "../utils/useSubscription";
 import "./DevisPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -35,9 +36,20 @@ let cachedQuotesData = null;
 function DevisPage() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { isExpired } = useSubscription();
     const [quotes, setQuotes] = useState(() => cachedQuotesData || []);
     const [loading, setLoading] = useState(() => !cachedQuotesData);
     const [emailWarningModalOpen, setEmailWarningModalOpen] = useState(false);
+
+    const handleOpenCreateQuote = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour créer de nouveaux devis, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
+        setShowNewModal(true);
+    };
 
     const mapQuoteFromApi = (q) => ({
         ...q,
@@ -465,7 +477,7 @@ function DevisPage() {
 
     return (
         <div className="home-page devis-page-wrapper">
-            <SideBar onFabClick={() => setShowNewModal(true)} />
+            <SideBar onFabClick={handleOpenCreateQuote} />
             <div className="main-content">
                 <Header />
                 <motion.div 
@@ -481,8 +493,12 @@ function DevisPage() {
                             <h1 className="content-title">Devis</h1>
                             <p className="content-subtitle">Créez, envoyez et faites signer vos devis.</p>
                         </div>
-                        <button className="dv-new-btn" onClick={() => setShowNewModal(true)}>
-                            <Plus size={16} /> Nouveau devis
+                        <button
+                            className="dv-new-btn"
+                            onClick={handleOpenCreateQuote}
+                            style={isExpired ? { display: 'inline-flex', alignItems: 'center', gap: '6px' } : {}}
+                        >
+                            {isExpired ? <Lock size={16} /> : <Plus size={16} />} Nouveau devis
                         </button>
                     </div>
 
@@ -509,7 +525,7 @@ function DevisPage() {
                         loading={loading}
                         activeFilter={activeFilter}
                         onRowClick={openDetail}
-                        onCreateQuote={() => setShowNewModal(true)}
+                        onCreateQuote={handleOpenCreateQuote}
                         onSend={(q) => { setActiveQuote(q); setShowSendDrawer(true); }}
                         onEdit={(q) => { setActiveQuote(q); setShowEditPanel(true); }}
                         onConvertToInvoice={handleConvertToInvoice}

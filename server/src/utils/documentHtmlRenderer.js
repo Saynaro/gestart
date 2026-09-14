@@ -1269,7 +1269,7 @@ export function renderReceiptHtml({ paymentData = {}, company = {}, customizatio
     const formattedDate = paidDate.toLocaleDateString("fr-FR");
     const formattedTime = paidDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
-    const docTypeLabel = paymentData.type === "QUOTE" ? "Devis" : "Facture";
+    const docTypeLabel = paymentData.type === "QUOTE" ? "Devis" : (paymentData.type === "SUBSCRIPTION" ? "Abonnement" : "Facture");
     const docNumber = paymentData.docNumber || "N/A";
     const cardBrand = paymentData.cardBrand ? paymentData.cardBrand.toUpperCase() : "CARTE BANCAIRE";
     const cardLast4 = paymentData.cardLast4 ? `•••• ${paymentData.cardLast4}` : "";

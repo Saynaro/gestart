@@ -179,7 +179,7 @@ function PublicContact() {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="Ex: jean.dupont@email.com"
+                                            placeholder="exemple@gmail.com"
                                             style={{
                                                 padding: '11px 14px',
                                                 borderRadius: '10px',

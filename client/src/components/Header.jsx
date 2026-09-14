@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { Bell, MessageSquare, Send, X, ExternalLink } from "lucide-react";
+import { Bell, MessageSquare, Send, X, ExternalLink, Trash2, Check, AlertTriangle, CheckCheck, ChevronDown, ChevronUp, FileText, Calendar, User, Wrench, ListChecks } from "lucide-react";
 import "./Header.css";
 import { profilePages, DropdownIcons } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
@@ -28,6 +28,94 @@ function Header({ title }) {
     const [notificationsList, setNotificationsList] = useState([]);
     const [pendingInvites, setPendingInvites] = useState([]);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    // Multi-select & delete state
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [selectedItemIds, setSelectedItemIds] = useState(new Set());
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [expandedNotificationId, setExpandedNotificationId] = useState(null);
+
+    // Long-press detection to trigger iOS-style selection mode on touch/hold
+    const longPressTimerRef = useRef(null);
+    const isLongPressTriggeredRef = useRef(false);
+    const touchStartCoordsRef = useRef({ x: 0, y: 0 });
+
+    const handleItemTouchStart = (itemId) => (e) => {
+        if (isSelectionMode) return;
+        const touch = e.touches[0];
+        touchStartCoordsRef.current = { x: touch.clientX, y: touch.clientY };
+        isLongPressTriggeredRef.current = false;
+
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+        }
+
+        longPressTimerRef.current = setTimeout(() => {
+            isLongPressTriggeredRef.current = true;
+            if (typeof navigator !== "undefined" && navigator.vibrate) {
+                try {
+                    navigator.vibrate(40);
+                } catch (_) {}
+            }
+            setIsSelectionMode(true);
+            setSelectedItemIds(new Set([itemId]));
+            setExpandedNotificationId(null);
+        }, 450);
+    };
+
+    const handleItemTouchMove = (e) => {
+        if (!longPressTimerRef.current) return;
+        const touch = e.touches[0];
+        const dx = Math.abs(touch.clientX - touchStartCoordsRef.current.x);
+        const dy = Math.abs(touch.clientY - touchStartCoordsRef.current.y);
+        // If movement is more than 8px, user is scrolling: cancel long press
+        if (dx > 8 || dy > 8) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+    };
+
+    const handleItemTouchEnd = () => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+    };
+
+    const handleItemMouseDown = (itemId) => (e) => {
+        if (e.button !== 0 || isSelectionMode) return;
+        touchStartCoordsRef.current = { x: e.clientX, y: e.clientY };
+        isLongPressTriggeredRef.current = false;
+
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+        }
+
+        longPressTimerRef.current = setTimeout(() => {
+            isLongPressTriggeredRef.current = true;
+            setIsSelectionMode(true);
+            setSelectedItemIds(new Set([itemId]));
+            setExpandedNotificationId(null);
+        }, 500);
+    };
+
+    const handleItemMouseMove = (e) => {
+        if (!longPressTimerRef.current) return;
+        const dx = Math.abs(e.clientX - touchStartCoordsRef.current.x);
+        const dy = Math.abs(e.clientY - touchStartCoordsRef.current.y);
+        if (dx > 8 || dy > 8) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+    };
+
+    const handleItemMouseUp = () => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+    };
 
     // Clean email quotes and extract a clean single-line snippet
     const cleanSnippet = (text) => {
@@ -121,9 +209,29 @@ function Header({ title }) {
         }
     }, []);
 
+    // Fetch notifications list from backend
+    const fetchNotifications = useCallback(async () => {
+        try {
+            const res = await apiFetch("/v1/notifications");
+            if (res?.success && res.data?.notifications) {
+                setNotificationsList(res.data.notifications.map(n => ({
+                    id: n.id,
+                    title: n.title,
+                    text: n.body,
+                    time: formatMsgDate(n.createdAt),
+                    isRead: n.isRead,
+                    raw: n
+                })));
+            }
+        } catch (e) {
+            // Ignore silent error
+        }
+    }, []);
+
     useEffect(() => {
         fetchReceivedMessages();
-    }, [fetchReceivedMessages]);
+        fetchNotifications();
+    }, [fetchReceivedMessages, fetchNotifications]);
 
     // Socket real-time updates for notifications & incoming messages
     useEffect(() => {
@@ -136,10 +244,15 @@ function Header({ title }) {
         const handleMessageRead = () => {
             fetchReceivedMessages();
         };
+        const handleNewNotification = () => {
+            fetchNotifications();
+        };
 
         socket.on("message:new", handleNewMessage);
         socket.on("message:received", handleNewMessage);
         socket.on("message:read", handleMessageRead);
+        socket.on("notification:new", handleNewNotification);
+        socket.on("notification:read", handleNewNotification);
 
         window.addEventListener("messages-read", fetchReceivedMessages);
 
@@ -147,9 +260,11 @@ function Header({ title }) {
             socket.off("message:new", handleNewMessage);
             socket.off("message:received", handleNewMessage);
             socket.off("message:read", handleMessageRead);
+            socket.off("notification:new", handleNewNotification);
+            socket.off("notification:read", handleNewNotification);
             window.removeEventListener("messages-read", fetchReceivedMessages);
         };
-    }, [fetchReceivedMessages]);
+    }, [fetchReceivedMessages, fetchNotifications]);
 
     useEffect(() => {
         const fetchPendingInvites = async () => {
@@ -189,6 +304,104 @@ function Header({ title }) {
         }
     };
 
+    const toggleSelectItem = (id) => {
+        setSelectedItemIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    const currentTabItems = bellTab === "notifications" ? notificationsList : smsList;
+    const isAllSelected = currentTabItems.length > 0 && selectedItemIds.size === currentTabItems.length;
+
+    const toggleSelectAll = () => {
+        if (isAllSelected) {
+            setSelectedItemIds(new Set());
+        } else {
+            setSelectedItemIds(new Set(currentTabItems.map(item => item.id)));
+        }
+    };
+
+    const handleExecuteDelete = async () => {
+        if (selectedItemIds.size === 0) return;
+        setIsDeleting(true);
+        try {
+            const idsArray = Array.from(selectedItemIds);
+            if (bellTab === "notifications") {
+                await apiFetch("/v1/notifications/batch", {
+                    method: "DELETE",
+                    body: JSON.stringify({ notificationIds: idsArray })
+                });
+                setNotificationsList(prev => prev.filter(n => !selectedItemIds.has(n.id)));
+            } else {
+                const selectedClients = smsList.filter(s => selectedItemIds.has(s.id));
+                const clientIds = selectedClients.map(s => s.clientId || s.id);
+                await apiFetch("/v1/messages/batch", {
+                    method: "DELETE",
+                    body: JSON.stringify({ clientIds, messageIds: idsArray })
+                });
+                setSmsList(prev => prev.filter(s => !selectedItemIds.has(s.id)));
+                fetchReceivedMessages();
+                window.dispatchEvent(new CustomEvent("messages-updated"));
+            }
+            setIsSelectionMode(false);
+            setSelectedItemIds(new Set());
+            setShowDeleteConfirm(false);
+        } catch (err) {
+            console.error("Delete error:", err);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleNotificationClick = async (n) => {
+        if (isSelectionMode) {
+            toggleSelectItem(n.id);
+            return;
+        }
+
+        // Toggle accordion expansion
+        setExpandedNotificationId(prev => prev === n.id ? null : n.id);
+
+        // Mark as read if not already read
+        if (!n.isRead) {
+            try {
+                await apiFetch(`/v1/notifications/${n.id}/read`, { method: "PATCH" });
+                setNotificationsList(prev => prev.map(item => item.id === n.id ? { ...item, isRead: true } : item));
+                window.dispatchEvent(new CustomEvent("notification-read"));
+            } catch (err) {
+                console.error("Error marking notification as read:", err);
+            }
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            if (bellTab === "notifications") {
+                await apiFetch("/v1/notifications/read-all", { method: "PATCH" });
+                setNotificationsList(prev => prev.map(n => ({ ...n, isRead: true })));
+            } else {
+                await Promise.allSettled(
+                    smsList.filter(s => s.isUnread).map(s => 
+                        apiFetch(`/v1/messages/read/${encodeURIComponent(s.clientId || s.id)}`, { method: "PATCH" })
+                    )
+                );
+                setSmsList(prev => prev.map(s => ({ ...s, isUnread: false, unreadCount: 0 })));
+                setUnreadMsgCount(0);
+                window.dispatchEvent(new CustomEvent("messages-read"));
+            }
+            fetchNotifications();
+            fetchReceivedMessages();
+        } catch (err) {
+            console.error("Error marking all as read:", err);
+        }
+    };
+
     const [activePath, setActivePath] = useState(window.location.pathname || "/dashboard");
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -198,6 +411,10 @@ function Header({ title }) {
     const handleCloseNotifications = () => {
         setBellOpen(false);
         setActiveSmsReplyId(null);
+        setIsSelectionMode(false);
+        setSelectedItemIds(new Set());
+        setShowDeleteConfirm(false);
+        setExpandedNotificationId(null);
     };
 
     useEffect(() => {
@@ -311,8 +528,9 @@ function Header({ title }) {
         return "Home";
     };
 
+    const unreadNotificationsCount = notificationsList.filter(n => !n.isRead).length;
     const unreadMessagesCount = Math.max(unreadMsgCount, smsList.filter(s => s.isUnread).length);
-    const totalUnread = unreadMessagesCount + notificationsList.length + pendingInvites.length;
+    const totalUnread = unreadMessagesCount + unreadNotificationsCount + pendingInvites.length;
     const hasUnread = totalUnread > 0;
 
     return (
@@ -344,152 +562,415 @@ function Header({ title }) {
                                                     {totalUnread > 0 ? `${totalUnread} nouvelle${totalUnread > 1 ? 's' : ''}` : '0 nouvelle'}
                                                 </span>
                                             </div>
-                                            <button type="button" className="bell-panel-close-btn" onClick={handleCloseNotifications}>
-                                                <X size={22} />
-                                            </button>
-                                        </div>
-
-                                <div className="bell-tabs-header">
-                                    <button
-                                        type="button"
-                                        className={`bell-tab-btn ${bellTab === "notifications" ? "active" : ""}`}
-                                        onClick={() => setBellTab("notifications")}
-                                    >
-                                        <Bell size={15} /> Notifications ({notificationsList.length})
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={`bell-tab-btn ${bellTab === "sms" ? "active" : ""}`}
-                                        onClick={() => setBellTab("sms")}
-                                    >
-                                        <MessageSquare size={15} /> Messages reçus ({smsList.length})
-                                    </button>
-                                </div>
-
-                                <div className="bell-tabs-content">
-                                    {bellTab === "notifications" ? (
-                                        <div className="notifications-list">
-                                            {pendingInvites.map(inv => (
-                                                <div key={inv.id} className="notification-item" style={{ borderLeft: '4px solid #16A34A', background: 'rgba(34, 197, 94, 0.05)', padding: '14px' }}>
-                                                    <div className="meta">
-                                                        <span className="title" style={{ color: '#16A34A', fontWeight: 800 }}>Rejoindre l'entreprise {inv.company.name}</span>
-                                                        <span className="time">Invitation</span>
-                                                    </div>
-                                                    <p className="text" style={{ margin: '6px 0 10px 0' }}>
-                                                        L'entreprise <strong>{inv.company.name}</strong> vous invite à rejoindre son équipe en tant que technicien.
-                                                    </p>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRespondInvite(inv.id, "ACCEPT")}
-                                                            style={{ backgroundColor: '#16A34A', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
-                                                        >
-                                                            Accepter
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRespondInvite(inv.id, "REFUSE")}
-                                                            style={{ backgroundColor: 'transparent', color: '#EF4444', border: '1px solid #EF4444', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
-                                                        >
-                                                            Refuser
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {notificationsList.length === 0 && pendingInvites.length === 0 ? (
-                                                <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
-                                                    Aucune notification pour le moment
-                                                </p>
-                                            ) : (
-                                                notificationsList.map(n => (
-                                                    <div key={n.id} className="notification-item">
-                                                        <div className="meta">
-                                                            <span className="title">{n.title}</span>
-                                                            <span className="time">{n.time}</span>
-                                                        </div>
-                                                        <p className="text">{n.text}</p>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="sms-notifications-list">
-                                            {smsList.length === 0 ? (
-                                                <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
-                                                    Aucun message reçu pour le moment
-                                                </p>
-                                            ) : (
-                                                smsList.map(s => (
-                                                    <div 
-                                                        key={s.id} 
-                                                        className="sms-notification-item"
-                                                        onClick={() => {
-                                                            handleCloseNotifications();
-                                                            navigate(`/messages?chat=${encodeURIComponent(s.clientId || s.id)}`);
-                                                        }}
-                                                        style={{
-                                                            cursor: 'pointer',
-                                                            borderLeft: s.isUnread ? '4px solid #556B2F' : '1px solid var(--border)',
-                                                            backgroundColor: s.isUnread ? 'rgba(85, 107, 47, 0.05)' : 'var(--card)'
-                                                        }}
+                                            <div className="bell-header-right-actions">
+                                                {totalUnread > 0 && !isSelectionMode && (
+                                                    <button
+                                                        type="button"
+                                                        className="bell-mark-all-btn"
+                                                        onClick={handleMarkAllAsRead}
+                                                        title="Tout marquer comme lu"
+                                                        aria-label="Tout marquer comme lu"
                                                     >
-                                                        <div className="meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-                                                                {s.isUnread && (
-                                                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#556B2F', flexShrink: 0 }} />
-                                                                )}
-                                                                <span className="sender" style={{ fontWeight: s.isUnread ? 800 : 700, fontSize: '0.9rem', color: 'var(--foreground)' }}>
-                                                                    {s.sender}
-                                                                </span>
+                                                        <CheckCheck size={18} />
+                                                    </button>
+                                                )}
+                                                {(bellTab === "notifications" ? notificationsList.length : smsList.length) > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        className={`bell-mode-toggle-btn ${isSelectionMode ? "active" : ""}`}
+                                                        onClick={() => {
+                                                            setIsSelectionMode(!isSelectionMode);
+                                                            setSelectedItemIds(new Set());
+                                                            setExpandedNotificationId(null);
+                                                        }}
+                                                        title={isSelectionMode ? "Quitter le mode sélection" : "Sélectionner / Modifier"}
+                                                        aria-label={isSelectionMode ? "Terminé" : "Modifier"}
+                                                    >
+                                                        {isSelectionMode ? (
+                                                            <span className="bell-mode-done-text">Terminé</span>
+                                                        ) : (
+                                                            <ListChecks size={18} />
+                                                        )}
+                                                    </button>
+                                                )}
+                                                <button type="button" className="bell-panel-close-btn" onClick={handleCloseNotifications} title="Fermer" aria-label="Fermer">
+                                                    <X size={20} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="bell-tabs-header">
+                                            <div className="bell-tabs-segmented">
+                                                <button
+                                                    type="button"
+                                                    className={`bell-tab-btn ${bellTab === "notifications" ? "active" : ""}`}
+                                                    onClick={() => {
+                                                        setBellTab("notifications");
+                                                        setIsSelectionMode(false);
+                                                        setSelectedItemIds(new Set());
+                                                    }}
+                                                >
+                                                    <Bell size={13} /> Notifications ({notificationsList.length})
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`bell-tab-btn ${bellTab === "sms" ? "active" : ""}`}
+                                                    onClick={() => {
+                                                        setBellTab("sms");
+                                                        setIsSelectionMode(false);
+                                                        setSelectedItemIds(new Set());
+                                                    }}
+                                                >
+                                                    <MessageSquare size={13} /> Messages reçus ({smsList.length})
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="bell-tabs-content">
+                                            {bellTab === "notifications" ? (
+                                                <div className="notifications-list">
+                                                    {pendingInvites.map(inv => (
+                                                        <div key={inv.id} className="notification-item" style={{ borderLeft: '4px solid #16A34A', background: 'rgba(34, 197, 94, 0.05)', padding: '14px' }}>
+                                                            <div className="meta">
+                                                                <span className="title" style={{ color: '#16A34A', fontWeight: 800 }}>Rejoindre l'entreprise {inv.company.name}</span>
+                                                                <span className="time">Invitation</span>
                                                             </div>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                                                                {s.channel === "WHATSAPP" ? (
-                                                                    <span style={{ backgroundColor: 'rgba(37, 211, 102, 0.12)', color: '#25D366', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                                                        <WhatsAppIcon size={12} /> WhatsApp
-                                                                    </span>
-                                                                ) : s.channel === "EMAIL" ? (
-                                                                    <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                                                        <EmailIcon size={12} /> Email
-                                                                    </span>
-                                                                ) : (
-                                                                    <span style={{ backgroundColor: 'rgba(85, 107, 47, 0.12)', color: '#556B2F', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                                                        <SmsIcon size={12} /> SMS
-                                                                    </span>
-                                                                )}
-                                                                <span className="date" style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{s.date}</span>
+                                                            <p className="text" style={{ margin: '6px 0 10px 0' }}>
+                                                                L'entreprise <strong>{inv.company.name}</strong> vous invite à rejoindre son équipe en tant que technicien.
+                                                            </p>
+                                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRespondInvite(inv.id, "ACCEPT")}
+                                                                    style={{ backgroundColor: '#16A34A', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
+                                                                >
+                                                                    Accepter
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRespondInvite(inv.id, "REFUSE")}
+                                                                    style={{ backgroundColor: 'transparent', color: '#EF4444', border: '1px solid #EF4444', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
+                                                                >
+                                                                    Refuser
+                                                                </button>
                                                             </div>
                                                         </div>
-
-                                                        <p 
-                                                            className="msg" 
-                                                            style={{ 
-                                                                margin: '4px 0 8px 0', 
-                                                                fontSize: '0.85rem', 
-                                                                color: s.isUnread ? 'var(--foreground)' : '#94a3b8', 
-                                                                fontWeight: s.isUnread ? 600 : 400,
-                                                                whiteSpace: 'nowrap',
-                                                                overflow: 'hidden',
-                                                                textOverflow: 'ellipsis',
-                                                                display: 'block',
-                                                                maxWidth: '100%'
-                                                            }}
-                                                        >
-                                                            {s.msg}
+                                                    ))}
+                                                    {notificationsList.length === 0 && pendingInvites.length === 0 ? (
+                                                        <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
+                                                            Aucune notification pour le moment
                                                         </p>
+                                                    ) : (
+                                                        notificationsList.map(n => {
+                                                            const isSelected = selectedItemIds.has(n.id);
+                                                            const isExpanded = expandedNotificationId === n.id;
+                                                            const isUnread = !n.isRead;
+                                                            const clientId = n.raw?.data?.clientId || (n.raw?.entityType === "email" || n.raw?.entityType === "sms" || n.raw?.entityType === "whatsapp" ? n.raw?.entityId : null);
 
-                                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                            <span style={{ color: '#556B2F', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                                                Ouvrir le chat <ExternalLink size={12} />
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                ))
+                                                            return (
+                                                                <div 
+                                                                    key={n.id} 
+                                                                    className={`notification-item ${isUnread ? "unread" : "read"} ${isExpanded ? "expanded" : ""} ${isSelectionMode ? "selectable" : ""} ${isSelected ? "selected" : ""}`}
+                                                                    onClick={() => {
+                                                                        if (isLongPressTriggeredRef.current) {
+                                                                            isLongPressTriggeredRef.current = false;
+                                                                            return;
+                                                                        }
+                                                                        handleNotificationClick(n);
+                                                                    }}
+                                                                    onTouchStart={handleItemTouchStart(n.id)}
+                                                                    onTouchMove={handleItemTouchMove}
+                                                                    onTouchEnd={handleItemTouchEnd}
+                                                                    onTouchCancel={handleItemTouchEnd}
+                                                                    onMouseDown={handleItemMouseDown(n.id)}
+                                                                    onMouseMove={handleItemMouseMove}
+                                                                    onMouseUp={handleItemMouseUp}
+                                                                    onMouseLeave={handleItemMouseUp}
+                                                                    style={{ cursor: 'pointer' }}
+                                                                >
+                                                                    <div className="item-row-layout">
+                                                                        {isSelectionMode && (
+                                                                            <div className={`bell-selection-circle ${isSelected ? "checked" : ""}`}>
+                                                                                {isSelected && <Check size={12} color="#fff" strokeWidth={3} />}
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="item-content-body">
+                                                                            <div className="meta">
+                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                                                                                    {isUnread && (
+                                                                                        <span className="bell-unread-dot" title="Non lu" />
+                                                                                    )}
+                                                                                    <span className="title" style={{ fontWeight: isUnread ? 800 : 600 }}>
+                                                                                        {n.title}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                                                                                    <span className="time">{n.time}</span>
+                                                                                    {!isSelectionMode && (
+                                                                                        <span className="notif-chevron-icon">
+                                                                                            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                            <p className={`text ${isExpanded ? "expanded" : ""}`}>{n.text}</p>
+
+                                                                            {isExpanded && !isSelectionMode && (
+                                                                                <div className="notif-expanded-actions" onClick={e => e.stopPropagation()}>
+                                                                                    {n.raw?.entityType === "invoice" || n.raw?.type?.includes("INVOICE") ? (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="notif-action-btn"
+                                                                                            onClick={() => {
+                                                                                                handleCloseNotifications();
+                                                                                                navigate("/factures");
+                                                                                            }}
+                                                                                        >
+                                                                                            <FileText size={13} />
+                                                                                            <span>Voir la facture</span>
+                                                                                        </button>
+                                                                                    ) : n.raw?.entityType === "quote" || n.raw?.type?.includes("QUOTE") ? (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="notif-action-btn"
+                                                                                            onClick={() => {
+                                                                                                handleCloseNotifications();
+                                                                                                navigate("/devis");
+                                                                                            }}
+                                                                                        >
+                                                                                            <FileText size={13} />
+                                                                                            <span>Voir le devis</span>
+                                                                                        </button>
+                                                                                    ) : n.raw?.type?.includes("INTERVENTION") || n.raw?.type?.includes("TECHNICIAN") ? (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="notif-action-btn"
+                                                                                            onClick={() => {
+                                                                                                handleCloseNotifications();
+                                                                                                navigate("/planning");
+                                                                                            }}
+                                                                                        >
+                                                                                            <Calendar size={13} />
+                                                                                            <span>Voir l'intervention</span>
+                                                                                        </button>
+                                                                                    ) : n.raw?.type?.includes("MAINTENANCE") || n.raw?.type?.includes("RAPPEL") ? (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="notif-action-btn"
+                                                                                            onClick={() => {
+                                                                                                handleCloseNotifications();
+                                                                                                navigate("/premium");
+                                                                                            }}
+                                                                                        >
+                                                                                            <Wrench size={13} />
+                                                                                            <span>Voir les rappels</span>
+                                                                                        </button>
+                                                                                    ) : n.raw?.type?.includes("CLIENT") ? (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="notif-action-btn"
+                                                                                            onClick={() => {
+                                                                                                handleCloseNotifications();
+                                                                                                navigate("/clients");
+                                                                                            }}
+                                                                                        >
+                                                                                            <User size={13} />
+                                                                                            <span>Voir la fiche client</span>
+                                                                                        </button>
+                                                                                    ) : clientId ? (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="notif-action-btn"
+                                                                                            onClick={() => {
+                                                                                                handleCloseNotifications();
+                                                                                                navigate(`/messages?chat=${encodeURIComponent(clientId)}`);
+                                                                                            }}
+                                                                                        >
+                                                                                            <MessageSquare size={13} />
+                                                                                            <span>Ouvrir la conversation</span>
+                                                                                        </button>
+                                                                                    ) : null}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="sms-notifications-list">
+                                                    {smsList.length === 0 ? (
+                                                        <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
+                                                            Aucun message reçu pour le moment
+                                                        </p>
+                                                    ) : (
+                                                        smsList.map(s => {
+                                                            const isSelected = selectedItemIds.has(s.id);
+                                                            return (
+                                                                <div 
+                                                                    key={s.id} 
+                                                                    className={`sms-notification-item ${isSelectionMode ? "selectable" : ""} ${isSelected ? "selected" : ""}`}
+                                                                    onClick={() => {
+                                                                        if (isLongPressTriggeredRef.current) {
+                                                                            isLongPressTriggeredRef.current = false;
+                                                                            return;
+                                                                        }
+                                                                        if (isSelectionMode) {
+                                                                            toggleSelectItem(s.id);
+                                                                        } else {
+                                                                            handleCloseNotifications();
+                                                                            navigate(`/messages?chat=${encodeURIComponent(s.clientId || s.id)}`);
+                                                                        }
+                                                                    }}
+                                                                    onTouchStart={handleItemTouchStart(s.id)}
+                                                                    onTouchMove={handleItemTouchMove}
+                                                                    onTouchEnd={handleItemTouchEnd}
+                                                                    onTouchCancel={handleItemTouchEnd}
+                                                                    onMouseDown={handleItemMouseDown(s.id)}
+                                                                    onMouseMove={handleItemMouseMove}
+                                                                    onMouseUp={handleItemMouseUp}
+                                                                    onMouseLeave={handleItemMouseUp}
+                                                                    style={{
+                                                                        cursor: 'pointer',
+                                                                        borderLeft: s.isUnread ? '4px solid #556B2F' : '1px solid var(--border)',
+                                                                        backgroundColor: isSelected 
+                                                                            ? 'rgba(85, 107, 47, 0.12)' 
+                                                                            : (s.isUnread ? 'rgba(85, 107, 47, 0.05)' : 'var(--card)')
+                                                                    }}
+                                                                >
+                                                                    <div className="item-row-layout">
+                                                                        {isSelectionMode && (
+                                                                            <div className={`bell-selection-circle ${isSelected ? "checked" : ""}`}>
+                                                                                {isSelected && <Check size={12} color="#fff" strokeWidth={3} />}
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="item-content-body">
+                                                                            <div className="meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+                                                                                    {s.isUnread && (
+                                                                                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#556B2F', flexShrink: 0 }} />
+                                                                                    )}
+                                                                                    <span className="sender" style={{ fontWeight: s.isUnread ? 800 : 700, fontSize: '0.9rem', color: 'var(--foreground)' }}>
+                                                                                        {s.sender}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                                                                                    {s.channel === "WHATSAPP" ? (
+                                                                                        <span style={{ backgroundColor: 'rgba(37, 211, 102, 0.12)', color: '#25D366', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                                            <WhatsAppIcon size={12} /> WhatsApp
+                                                                                        </span>
+                                                                                    ) : s.channel === "EMAIL" ? (
+                                                                                        <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                                            <EmailIcon size={12} /> Email
+                                                                                        </span>
+                                                                                    ) : (
+                                                                                        <span style={{ backgroundColor: 'rgba(85, 107, 47, 0.12)', color: '#556B2F', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                                            <SmsIcon size={12} /> SMS
+                                                                                        </span>
+                                                                                    )}
+                                                                                    <span className="date" style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{s.date}</span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <p 
+                                                                                className="msg" 
+                                                                                style={{ 
+                                                                                    margin: '4px 0 8px 0', 
+                                                                                    fontSize: '0.85rem', 
+                                                                                    color: s.isUnread ? 'var(--foreground)' : 'var(--muted-foreground)', 
+                                                                                    fontWeight: s.isUnread ? 600 : 400,
+                                                                                    whiteSpace: 'nowrap',
+                                                                                    overflow: 'hidden',
+                                                                                    textOverflow: 'ellipsis',
+                                                                                    display: 'block',
+                                                                                    maxWidth: '100%'
+                                                                                }}
+                                                                            >
+                                                                                {s.msg}
+                                                                            </p>
+
+                                                                            {!isSelectionMode && (
+                                                                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                                                    <span style={{ color: '#556B2F', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                                        Ouvrir le chat <ExternalLink size={12} />
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
                                             )}
+                                        </div>
+
+                                        {isSelectionMode && (
+                                            <div className="bell-selection-bottom-bar">
+                                                <button
+                                                    type="button"
+                                                    className="bell-select-all-btn"
+                                                    onClick={toggleSelectAll}
+                                                >
+                                                    {isAllSelected ? "Tout désélectionner" : "Tout sélectionner"}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="bell-delete-selected-btn"
+                                                    disabled={selectedItemIds.size === 0 || isDeleting}
+                                                    onClick={() => setShowDeleteConfirm(true)}
+                                                >
+                                                    <Trash2 size={15} />
+                                                    <span>Supprimer{selectedItemIds.size > 0 ? ` (${selectedItemIds.size})` : ""}</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Delete Confirmation Modal */}
+                                    {showDeleteConfirm && (
+                                        <div 
+                                            className="bell-confirm-backdrop" 
+                                            onClick={() => !isDeleting && setShowDeleteConfirm(false)}
+                                        >
+                                            <div 
+                                                className="bell-confirm-card" 
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <div className="bell-confirm-icon-wrap">
+                                                    <AlertTriangle size={24} color="#DC2626" />
+                                                </div>
+                                                <h4 className="bell-confirm-title">
+                                                    {bellTab === "notifications" ? "Supprimer les notifications" : "Supprimer les messages"}
+                                                </h4>
+                                                <p className="bell-confirm-desc">
+                                                    Êtes-vous sûr de vouloir supprimer {selectedItemIds.size} élément{selectedItemIds.size > 1 ? 's' : ''} ? Cette action est irréversible.
+                                                </p>
+                                                <div className="bell-confirm-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="bell-confirm-cancel-btn"
+                                                        onClick={() => setShowDeleteConfirm(false)}
+                                                        disabled={isDeleting}
+                                                    >
+                                                        Annuler
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="bell-confirm-delete-btn"
+                                                        onClick={handleExecuteDelete}
+                                                        disabled={isDeleting}
+                                                    >
+                                                        {isDeleting ? "Suppression..." : "Supprimer"}
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
-                                </div>
-                            </div>
-                        </div>,
+                                </div>,
                         document.body
                     )}
                 </div>

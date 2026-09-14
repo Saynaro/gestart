@@ -99,10 +99,20 @@ export const ChannelConnectionService = {
         // Statut Email (Google / Microsoft / SMTP)
         const defaultEmail = emailConnections.find(e => e.isDefault) || emailConnections[0] || null;
 
+        // Auto-heal Google connection status if valid refresh token exists and status was flagged ERROR
+        let resolvedStatus = defaultEmail ? defaultEmail.status : "NOT_CONNECTED";
+        if (defaultEmail && defaultEmail.provider === "GOOGLE" && (defaultEmail.encryptedRefreshToken || defaultEmail.encryptedAccessToken) && resolvedStatus === "ERROR") {
+            resolvedStatus = "CONNECTED";
+            prisma.emailConnection.update({
+                where: { id: defaultEmail.id },
+                data: { status: "CONNECTED" }
+            }).catch(() => {});
+        }
+
         const emailChannel = {
             channel: "EMAIL",
             provider: defaultEmail ? defaultEmail.provider : null,
-            status: defaultEmail ? defaultEmail.status : "NOT_CONNECTED",
+            status: resolvedStatus,
             connectionId: defaultEmail?.id || null,
             emailAddress: defaultEmail?.emailAddress || company?.email || null,
             displayName: defaultEmail?.displayName || company?.name || null,
@@ -315,6 +325,12 @@ export const ChannelConnectionService = {
         const encryptedSmtpPass = smtpPass ? encryptCredential(smtpPass) : null;
         const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000) : null;
 
+        // Reset isDefault sur les autres connexions de l'entreprise
+        await prisma.emailConnection.updateMany({
+            where: { companyId },
+            data: { isDefault: false }
+        }).catch(() => {});
+
         const connection = await prisma.emailConnection.upsert({
             where: {
                 companyId_emailAddress: {
@@ -334,7 +350,8 @@ export const ChannelConnectionService = {
                 smtpUser: smtpUser || undefined,
                 encryptedSmtpPass: encryptedSmtpPass || undefined,
                 status: "CONNECTED",
-                isDefault: true
+                isDefault: true,
+                lastSyncAt: new Date()
             },
             create: {
                 companyId,
@@ -350,7 +367,8 @@ export const ChannelConnectionService = {
                 smtpUser: smtpUser || null,
                 encryptedSmtpPass,
                 status: "CONNECTED",
-                isDefault: true
+                isDefault: true,
+                lastSyncAt: new Date()
             }
         });
 
@@ -380,8 +398,10 @@ export const ChannelConnectionService = {
      * Test de connectivité Email
      */
     async testEmailConnection(companyId) {
+        // Rechercher d'abord la connexion par défaut ou active
         const connection = await prisma.emailConnection.findFirst({
-            where: { companyId, status: "CONNECTED" }
+            where: { companyId },
+            orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }]
         });
 
         if (!connection && !process.env.SMTP_USER) {
@@ -392,6 +412,80 @@ export const ChannelConnectionService = {
             };
         }
 
+        // Test connexion Google Workspace / Gmail
+        if (connection?.provider === "GOOGLE") {
+            try {
+                let accessToken = "";
+                if (connection.encryptedAccessToken) {
+                    try {
+                        accessToken = decryptCredential(connection.encryptedAccessToken);
+                    } catch (e) {}
+                }
+
+                const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, '');
+                const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, '');
+
+                // Rafraîchir si expiré ou bientôt expiré
+                const isNearExpiry = !connection.tokenExpiresAt || new Date(connection.tokenExpiresAt) <= new Date(Date.now() + 5 * 60 * 1000);
+                if ((!accessToken || isNearExpiry) && connection.encryptedRefreshToken && googleClientId && googleClientSecret) {
+                    const refreshToken = decryptCredential(connection.encryptedRefreshToken);
+                    const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams({
+                            client_id: googleClientId,
+                            client_secret: googleClientSecret,
+                            refresh_token: refreshToken,
+                            grant_type: "refresh_token"
+                        })
+                    });
+                    const refreshData = await refreshRes.json();
+                    if (refreshData.access_token) {
+                        accessToken = refreshData.access_token;
+                        await prisma.emailConnection.update({
+                            where: { id: connection.id },
+                            data: {
+                                encryptedAccessToken: encryptCredential(refreshData.access_token),
+                                tokenExpiresAt: new Date(Date.now() + (refreshData.expires_in || 3600) * 1000),
+                                status: "CONNECTED"
+                            }
+                        });
+                    }
+                }
+
+                if (!accessToken) {
+                    throw new Error("Jeton d'accès Google introuvable.");
+                }
+
+                // Vérification auprès de l'API Google
+                const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
+
+                if (!userRes.ok) {
+                    throw new Error(`Réponse API Google : ${userRes.statusText} (${userRes.status})`);
+                }
+
+                await prisma.emailConnection.update({
+                    where: { id: connection.id },
+                    data: { status: "CONNECTED" }
+                });
+
+                return {
+                    success: true,
+                    status: "CONNECTED",
+                    message: `Boîte Google Workspace / Gmail (${connection.emailAddress}) opérationnelle et validée ✓`
+                };
+            } catch (err) {
+                return {
+                    success: false,
+                    status: "ERROR",
+                    message: `Échec du test Google : ${err.message}`
+                };
+            }
+        }
+
+        // Test connexion SMTP dédiée
         if (connection?.provider === "SMTP" && connection.smtpHost) {
             try {
                 let pass = "";
@@ -406,6 +500,12 @@ export const ChannelConnectionService = {
                 });
 
                 await transporter.verify();
+
+                await prisma.emailConnection.update({
+                    where: { id: connection.id },
+                    data: { status: "CONNECTED" }
+                });
+
                 return {
                     success: true,
                     status: "CONNECTED",

@@ -15218,6 +15218,8 @@ export namespace Prisma {
   export type CompanySettingsAvgAggregateOutputType = {
     smsDaysBefore: number | null
     smsSecondReminderDays: number | null
+    invoiceReminderDays: number | null
+    quoteReminderDays: number | null
     invoiceNextNumber: number | null
     quoteNextNumber: number | null
     defaultTvaRate: number | null
@@ -15231,6 +15233,8 @@ export namespace Prisma {
   export type CompanySettingsSumAggregateOutputType = {
     smsDaysBefore: number | null
     smsSecondReminderDays: number | null
+    invoiceReminderDays: number | null
+    quoteReminderDays: number | null
     invoiceNextNumber: number | null
     quoteNextNumber: number | null
     defaultTvaRate: number | null
@@ -15254,6 +15258,10 @@ export namespace Prisma {
     smsSecondReminderDays: number | null
     smsReminderTemplate: string | null
     smsSignature: string | null
+    invoiceReminderEnabled: boolean | null
+    invoiceReminderDays: number | null
+    quoteReminderEnabled: boolean | null
+    quoteReminderDays: number | null
     notifyNewClient: boolean | null
     notifyNewMessage: boolean | null
     notifyInterventionDone: boolean | null
@@ -15303,6 +15311,10 @@ export namespace Prisma {
     smsSecondReminderDays: number | null
     smsReminderTemplate: string | null
     smsSignature: string | null
+    invoiceReminderEnabled: boolean | null
+    invoiceReminderDays: number | null
+    quoteReminderEnabled: boolean | null
+    quoteReminderDays: number | null
     notifyNewClient: boolean | null
     notifyNewMessage: boolean | null
     notifyInterventionDone: boolean | null
@@ -15352,6 +15364,10 @@ export namespace Prisma {
     smsSecondReminderDays: number
     smsReminderTemplate: number
     smsSignature: number
+    invoiceReminderEnabled: number
+    invoiceReminderDays: number
+    quoteReminderEnabled: number
+    quoteReminderDays: number
     notifyNewClient: number
     notifyNewMessage: number
     notifyInterventionDone: number
@@ -15397,6 +15413,8 @@ export namespace Prisma {
   export type CompanySettingsAvgAggregateInputType = {
     smsDaysBefore?: true
     smsSecondReminderDays?: true
+    invoiceReminderDays?: true
+    quoteReminderDays?: true
     invoiceNextNumber?: true
     quoteNextNumber?: true
     defaultTvaRate?: true
@@ -15410,6 +15428,8 @@ export namespace Prisma {
   export type CompanySettingsSumAggregateInputType = {
     smsDaysBefore?: true
     smsSecondReminderDays?: true
+    invoiceReminderDays?: true
+    quoteReminderDays?: true
     invoiceNextNumber?: true
     quoteNextNumber?: true
     defaultTvaRate?: true
@@ -15433,6 +15453,10 @@ export namespace Prisma {
     smsSecondReminderDays?: true
     smsReminderTemplate?: true
     smsSignature?: true
+    invoiceReminderEnabled?: true
+    invoiceReminderDays?: true
+    quoteReminderEnabled?: true
+    quoteReminderDays?: true
     notifyNewClient?: true
     notifyNewMessage?: true
     notifyInterventionDone?: true
@@ -15482,6 +15506,10 @@ export namespace Prisma {
     smsSecondReminderDays?: true
     smsReminderTemplate?: true
     smsSignature?: true
+    invoiceReminderEnabled?: true
+    invoiceReminderDays?: true
+    quoteReminderEnabled?: true
+    quoteReminderDays?: true
     notifyNewClient?: true
     notifyNewMessage?: true
     notifyInterventionDone?: true
@@ -15531,6 +15559,10 @@ export namespace Prisma {
     smsSecondReminderDays?: true
     smsReminderTemplate?: true
     smsSignature?: true
+    invoiceReminderEnabled?: true
+    invoiceReminderDays?: true
+    quoteReminderEnabled?: true
+    quoteReminderDays?: true
     notifyNewClient?: true
     notifyNewMessage?: true
     notifyInterventionDone?: true
@@ -15671,6 +15703,10 @@ export namespace Prisma {
     smsSecondReminderDays: number
     smsReminderTemplate: string | null
     smsSignature: string | null
+    invoiceReminderEnabled: boolean
+    invoiceReminderDays: number
+    quoteReminderEnabled: boolean
+    quoteReminderDays: number
     notifyNewClient: boolean
     notifyNewMessage: boolean
     notifyInterventionDone: boolean
@@ -15743,6 +15779,10 @@ export namespace Prisma {
     smsSecondReminderDays?: boolean
     smsReminderTemplate?: boolean
     smsSignature?: boolean
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: boolean
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: boolean
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -15797,6 +15837,10 @@ export namespace Prisma {
     smsSecondReminderDays?: boolean
     smsReminderTemplate?: boolean
     smsSignature?: boolean
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: boolean
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: boolean
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -15851,6 +15895,10 @@ export namespace Prisma {
     smsSecondReminderDays?: boolean
     smsReminderTemplate?: boolean
     smsSignature?: boolean
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: boolean
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: boolean
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -15905,6 +15953,10 @@ export namespace Prisma {
     smsSecondReminderDays?: boolean
     smsReminderTemplate?: boolean
     smsSignature?: boolean
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: boolean
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: boolean
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -15945,7 +15997,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "documentCustomization" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "bankTransferEnabled" | "stripePaymentEnabled" | "stripeFeeBearer" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "invoiceReminderEnabled" | "invoiceReminderDays" | "quoteReminderEnabled" | "quoteReminderDays" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "documentCustomization" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "bankTransferEnabled" | "stripePaymentEnabled" | "stripeFeeBearer" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -15974,6 +16026,10 @@ export namespace Prisma {
       smsSecondReminderDays: number
       smsReminderTemplate: string | null
       smsSignature: string | null
+      invoiceReminderEnabled: boolean
+      invoiceReminderDays: number
+      quoteReminderEnabled: boolean
+      quoteReminderDays: number
       notifyNewClient: boolean
       notifyNewMessage: boolean
       notifyInterventionDone: boolean
@@ -16448,6 +16504,10 @@ export namespace Prisma {
     readonly smsSecondReminderDays: FieldRef<"CompanySettings", 'Int'>
     readonly smsReminderTemplate: FieldRef<"CompanySettings", 'String'>
     readonly smsSignature: FieldRef<"CompanySettings", 'String'>
+    readonly invoiceReminderEnabled: FieldRef<"CompanySettings", 'Boolean'>
+    readonly invoiceReminderDays: FieldRef<"CompanySettings", 'Int'>
+    readonly quoteReminderEnabled: FieldRef<"CompanySettings", 'Boolean'>
+    readonly quoteReminderDays: FieldRef<"CompanySettings", 'Int'>
     readonly notifyNewClient: FieldRef<"CompanySettings", 'Boolean'>
     readonly notifyNewMessage: FieldRef<"CompanySettings", 'Boolean'>
     readonly notifyInterventionDone: FieldRef<"CompanySettings", 'Boolean'>
@@ -31010,6 +31070,7 @@ export namespace Prisma {
     amountTTC: number | null
     depositPercent: number | null
     depositAmount: number | null
+    customReminderDays: number | null
   }
 
   export type QuoteSumAggregateOutputType = {
@@ -31018,6 +31079,7 @@ export namespace Prisma {
     amountTTC: number | null
     depositPercent: number | null
     depositAmount: number | null
+    customReminderDays: number | null
   }
 
   export type QuoteMinAggregateOutputType = {
@@ -31052,6 +31114,8 @@ export namespace Prisma {
     emailSentTo: string | null
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
+    reminderDisabled: boolean | null
+    customReminderDays: number | null
     issuedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -31089,6 +31153,8 @@ export namespace Prisma {
     emailSentTo: string | null
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
+    reminderDisabled: boolean | null
+    customReminderDays: number | null
     issuedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -31127,6 +31193,8 @@ export namespace Prisma {
     emailSentTo: number
     reminder1SentAt: number
     reminder2SentAt: number
+    reminderDisabled: number
+    customReminderDays: number
     issuedAt: number
     createdAt: number
     updatedAt: number
@@ -31140,6 +31208,7 @@ export namespace Prisma {
     amountTTC?: true
     depositPercent?: true
     depositAmount?: true
+    customReminderDays?: true
   }
 
   export type QuoteSumAggregateInputType = {
@@ -31148,6 +31217,7 @@ export namespace Prisma {
     amountTTC?: true
     depositPercent?: true
     depositAmount?: true
+    customReminderDays?: true
   }
 
   export type QuoteMinAggregateInputType = {
@@ -31182,6 +31252,8 @@ export namespace Prisma {
     emailSentTo?: true
     reminder1SentAt?: true
     reminder2SentAt?: true
+    reminderDisabled?: true
+    customReminderDays?: true
     issuedAt?: true
     createdAt?: true
     updatedAt?: true
@@ -31219,6 +31291,8 @@ export namespace Prisma {
     emailSentTo?: true
     reminder1SentAt?: true
     reminder2SentAt?: true
+    reminderDisabled?: true
+    customReminderDays?: true
     issuedAt?: true
     createdAt?: true
     updatedAt?: true
@@ -31257,6 +31331,8 @@ export namespace Prisma {
     emailSentTo?: true
     reminder1SentAt?: true
     reminder2SentAt?: true
+    reminderDisabled?: true
+    customReminderDays?: true
     issuedAt?: true
     createdAt?: true
     updatedAt?: true
@@ -31382,6 +31458,8 @@ export namespace Prisma {
     emailSentTo: string | null
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
+    reminderDisabled: boolean
+    customReminderDays: number | null
     issuedAt: Date
     createdAt: Date
     updatedAt: Date
@@ -31439,6 +31517,8 @@ export namespace Prisma {
     emailSentTo?: boolean
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     issuedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -31483,6 +31563,8 @@ export namespace Prisma {
     emailSentTo?: boolean
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     issuedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -31525,6 +31607,8 @@ export namespace Prisma {
     emailSentTo?: boolean
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     issuedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -31567,12 +31651,14 @@ export namespace Prisma {
     emailSentTo?: boolean
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     issuedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type QuoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "subject" | "notes" | "conditions" | "documentCustomization" | "validUntil" | "acceptedAt" | "refusedAt" | "serviceDate" | "operationType" | "depositPercent" | "depositAmount" | "paymentConditions" | "signatureToken" | "signatureTokenExpiry" | "signedAt" | "signatureUrl" | "signatureIp" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "issuedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quote"]>
+  export type QuoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "subject" | "notes" | "conditions" | "documentCustomization" | "validUntil" | "acceptedAt" | "refusedAt" | "serviceDate" | "operationType" | "depositPercent" | "depositAmount" | "paymentConditions" | "signatureToken" | "signatureTokenExpiry" | "signedAt" | "signatureUrl" | "signatureIp" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderDisabled" | "customReminderDays" | "issuedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quote"]>
   export type QuoteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
@@ -31636,6 +31722,8 @@ export namespace Prisma {
       emailSentTo: string | null
       reminder1SentAt: Date | null
       reminder2SentAt: Date | null
+      reminderDisabled: boolean
+      customReminderDays: number | null
       issuedAt: Date
       createdAt: Date
       updatedAt: Date
@@ -32099,6 +32187,8 @@ export namespace Prisma {
     readonly emailSentTo: FieldRef<"Quote", 'String'>
     readonly reminder1SentAt: FieldRef<"Quote", 'DateTime'>
     readonly reminder2SentAt: FieldRef<"Quote", 'DateTime'>
+    readonly reminderDisabled: FieldRef<"Quote", 'Boolean'>
+    readonly customReminderDays: FieldRef<"Quote", 'Int'>
     readonly issuedAt: FieldRef<"Quote", 'DateTime'>
     readonly createdAt: FieldRef<"Quote", 'DateTime'>
     readonly updatedAt: FieldRef<"Quote", 'DateTime'>
@@ -33850,6 +33940,7 @@ export namespace Prisma {
     amountPaid: number | null
     penaltyRate: number | null
     recoveryFee: number | null
+    customReminderDays: number | null
   }
 
   export type InvoiceSumAggregateOutputType = {
@@ -33859,6 +33950,7 @@ export namespace Prisma {
     amountPaid: number | null
     penaltyRate: number | null
     recoveryFee: number | null
+    customReminderDays: number | null
   }
 
   export type InvoiceMinAggregateOutputType = {
@@ -33909,6 +34001,8 @@ export namespace Prisma {
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
     reminderSentAt: Date | null
+    reminderDisabled: boolean | null
+    customReminderDays: number | null
     einvoicingStatus: $Enums.EInvoicingStatus | null
     einvoicingProvider: $Enums.EInvoicingProviderType | null
     providerInvoiceId: string | null
@@ -33968,6 +34062,8 @@ export namespace Prisma {
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
     reminderSentAt: Date | null
+    reminderDisabled: boolean | null
+    customReminderDays: number | null
     einvoicingStatus: $Enums.EInvoicingStatus | null
     einvoicingProvider: $Enums.EInvoicingProviderType | null
     providerInvoiceId: string | null
@@ -34028,6 +34124,8 @@ export namespace Prisma {
     reminder1SentAt: number
     reminder2SentAt: number
     reminderSentAt: number
+    reminderDisabled: number
+    customReminderDays: number
     einvoicingStatus: number
     einvoicingProvider: number
     providerInvoiceId: number
@@ -34049,6 +34147,7 @@ export namespace Prisma {
     amountPaid?: true
     penaltyRate?: true
     recoveryFee?: true
+    customReminderDays?: true
   }
 
   export type InvoiceSumAggregateInputType = {
@@ -34058,6 +34157,7 @@ export namespace Prisma {
     amountPaid?: true
     penaltyRate?: true
     recoveryFee?: true
+    customReminderDays?: true
   }
 
   export type InvoiceMinAggregateInputType = {
@@ -34108,6 +34208,8 @@ export namespace Prisma {
     reminder1SentAt?: true
     reminder2SentAt?: true
     reminderSentAt?: true
+    reminderDisabled?: true
+    customReminderDays?: true
     einvoicingStatus?: true
     einvoicingProvider?: true
     providerInvoiceId?: true
@@ -34167,6 +34269,8 @@ export namespace Prisma {
     reminder1SentAt?: true
     reminder2SentAt?: true
     reminderSentAt?: true
+    reminderDisabled?: true
+    customReminderDays?: true
     einvoicingStatus?: true
     einvoicingProvider?: true
     providerInvoiceId?: true
@@ -34227,6 +34331,8 @@ export namespace Prisma {
     reminder1SentAt?: true
     reminder2SentAt?: true
     reminderSentAt?: true
+    reminderDisabled?: true
+    customReminderDays?: true
     einvoicingStatus?: true
     einvoicingProvider?: true
     providerInvoiceId?: true
@@ -34375,6 +34481,8 @@ export namespace Prisma {
     reminder1SentAt: Date | null
     reminder2SentAt: Date | null
     reminderSentAt: Date | null
+    reminderDisabled: boolean
+    customReminderDays: number | null
     einvoicingStatus: $Enums.EInvoicingStatus | null
     einvoicingProvider: $Enums.EInvoicingProviderType | null
     providerInvoiceId: string | null
@@ -34455,6 +34563,8 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     einvoicingStatus?: boolean
     einvoicingProvider?: boolean
     providerInvoiceId?: boolean
@@ -34526,6 +34636,8 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     einvoicingStatus?: boolean
     einvoicingProvider?: boolean
     providerInvoiceId?: boolean
@@ -34591,6 +34703,8 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     einvoicingStatus?: boolean
     einvoicingProvider?: boolean
     providerInvoiceId?: boolean
@@ -34656,6 +34770,8 @@ export namespace Prisma {
     reminder1SentAt?: boolean
     reminder2SentAt?: boolean
     reminderSentAt?: boolean
+    reminderDisabled?: boolean
+    customReminderDays?: boolean
     einvoicingStatus?: boolean
     einvoicingProvider?: boolean
     providerInvoiceId?: boolean
@@ -34668,7 +34784,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "documentCustomization" | "paymentMethod" | "paymentRef" | "pdfUrl" | "paymentStatus" | "invoicePaymentMethod" | "bankTransferEnabled" | "stripeEnabled" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "einvoicingStatus" | "einvoicingProvider" | "providerInvoiceId" | "einvoicingSentAt" | "einvoicingProcessedAt" | "einvoicingTransmissionId" | "einvoicingError" | "einvoicingRawPayload" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "clientId" | "interventionId" | "sourceQuoteId" | "interventionTypeId" | "number" | "status" | "amountHT" | "tvaRate" | "amountTTC" | "amountPaid" | "serviceDate" | "operationType" | "penaltyRate" | "recoveryFee" | "discountTerms" | "tvaOnDebit" | "isTvaFranchise" | "isAutoLiquidation" | "orderNumber" | "workDescription" | "subject" | "notes" | "conditions" | "documentCustomization" | "paymentMethod" | "paymentRef" | "pdfUrl" | "paymentStatus" | "invoicePaymentMethod" | "bankTransferEnabled" | "stripeEnabled" | "onlinePaymentEnabled" | "stripePaymentIntentId" | "stripeCheckoutUrl" | "stripeCheckoutSessionId" | "paymentToken" | "paymentTokenExpiry" | "paymentLinkOpenedAt" | "issuedAt" | "dueAt" | "paidAt" | "emailSentAt" | "emailSentTo" | "reminder1SentAt" | "reminder2SentAt" | "reminderSentAt" | "reminderDisabled" | "customReminderDays" | "einvoicingStatus" | "einvoicingProvider" | "providerInvoiceId" | "einvoicingSentAt" | "einvoicingProcessedAt" | "einvoicingTransmissionId" | "einvoicingError" | "einvoicingRawPayload" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
   export type InvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | ClientDefaultArgs<ExtArgs>
@@ -34756,6 +34872,8 @@ export namespace Prisma {
       reminder1SentAt: Date | null
       reminder2SentAt: Date | null
       reminderSentAt: Date | null
+      reminderDisabled: boolean
+      customReminderDays: number | null
       einvoicingStatus: $Enums.EInvoicingStatus | null
       einvoicingProvider: $Enums.EInvoicingProviderType | null
       providerInvoiceId: string | null
@@ -35246,6 +35364,8 @@ export namespace Prisma {
     readonly reminder1SentAt: FieldRef<"Invoice", 'DateTime'>
     readonly reminder2SentAt: FieldRef<"Invoice", 'DateTime'>
     readonly reminderSentAt: FieldRef<"Invoice", 'DateTime'>
+    readonly reminderDisabled: FieldRef<"Invoice", 'Boolean'>
+    readonly customReminderDays: FieldRef<"Invoice", 'Int'>
     readonly einvoicingStatus: FieldRef<"Invoice", 'EInvoicingStatus'>
     readonly einvoicingProvider: FieldRef<"Invoice", 'EInvoicingProviderType'>
     readonly providerInvoiceId: FieldRef<"Invoice", 'String'>
@@ -71495,6 +71615,10 @@ export namespace Prisma {
     smsSecondReminderDays: 'smsSecondReminderDays',
     smsReminderTemplate: 'smsReminderTemplate',
     smsSignature: 'smsSignature',
+    invoiceReminderEnabled: 'invoiceReminderEnabled',
+    invoiceReminderDays: 'invoiceReminderDays',
+    quoteReminderEnabled: 'quoteReminderEnabled',
+    quoteReminderDays: 'quoteReminderDays',
     notifyNewClient: 'notifyNewClient',
     notifyNewMessage: 'notifyNewMessage',
     notifyInterventionDone: 'notifyInterventionDone',
@@ -71794,6 +71918,8 @@ export namespace Prisma {
     emailSentTo: 'emailSentTo',
     reminder1SentAt: 'reminder1SentAt',
     reminder2SentAt: 'reminder2SentAt',
+    reminderDisabled: 'reminderDisabled',
+    customReminderDays: 'customReminderDays',
     issuedAt: 'issuedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -71870,6 +71996,8 @@ export namespace Prisma {
     reminder1SentAt: 'reminder1SentAt',
     reminder2SentAt: 'reminder2SentAt',
     reminderSentAt: 'reminderSentAt',
+    reminderDisabled: 'reminderDisabled',
+    customReminderDays: 'customReminderDays',
     einvoicingStatus: 'einvoicingStatus',
     einvoicingProvider: 'einvoicingProvider',
     providerInvoiceId: 'providerInvoiceId',
@@ -73845,6 +73973,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFilter<"CompanySettings"> | number
     smsReminderTemplate?: StringNullableFilter<"CompanySettings"> | string | null
     smsSignature?: StringNullableFilter<"CompanySettings"> | string | null
+    invoiceReminderEnabled?: BoolFilter<"CompanySettings"> | boolean
+    invoiceReminderDays?: IntFilter<"CompanySettings"> | number
+    quoteReminderEnabled?: BoolFilter<"CompanySettings"> | boolean
+    quoteReminderDays?: IntFilter<"CompanySettings"> | number
     notifyNewClient?: BoolFilter<"CompanySettings"> | boolean
     notifyNewMessage?: BoolFilter<"CompanySettings"> | boolean
     notifyInterventionDone?: BoolFilter<"CompanySettings"> | boolean
@@ -73899,6 +74031,10 @@ export namespace Prisma {
     smsSecondReminderDays?: SortOrder
     smsReminderTemplate?: SortOrderInput | SortOrder
     smsSignature?: SortOrderInput | SortOrder
+    invoiceReminderEnabled?: SortOrder
+    invoiceReminderDays?: SortOrder
+    quoteReminderEnabled?: SortOrder
+    quoteReminderDays?: SortOrder
     notifyNewClient?: SortOrder
     notifyNewMessage?: SortOrder
     notifyInterventionDone?: SortOrder
@@ -73956,6 +74092,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFilter<"CompanySettings"> | number
     smsReminderTemplate?: StringNullableFilter<"CompanySettings"> | string | null
     smsSignature?: StringNullableFilter<"CompanySettings"> | string | null
+    invoiceReminderEnabled?: BoolFilter<"CompanySettings"> | boolean
+    invoiceReminderDays?: IntFilter<"CompanySettings"> | number
+    quoteReminderEnabled?: BoolFilter<"CompanySettings"> | boolean
+    quoteReminderDays?: IntFilter<"CompanySettings"> | number
     notifyNewClient?: BoolFilter<"CompanySettings"> | boolean
     notifyNewMessage?: BoolFilter<"CompanySettings"> | boolean
     notifyInterventionDone?: BoolFilter<"CompanySettings"> | boolean
@@ -74010,6 +74150,10 @@ export namespace Prisma {
     smsSecondReminderDays?: SortOrder
     smsReminderTemplate?: SortOrderInput | SortOrder
     smsSignature?: SortOrderInput | SortOrder
+    invoiceReminderEnabled?: SortOrder
+    invoiceReminderDays?: SortOrder
+    quoteReminderEnabled?: SortOrder
+    quoteReminderDays?: SortOrder
     notifyNewClient?: SortOrder
     notifyNewMessage?: SortOrder
     notifyInterventionDone?: SortOrder
@@ -74071,6 +74215,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntWithAggregatesFilter<"CompanySettings"> | number
     smsReminderTemplate?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     smsSignature?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    invoiceReminderEnabled?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
+    invoiceReminderDays?: IntWithAggregatesFilter<"CompanySettings"> | number
+    quoteReminderEnabled?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
+    quoteReminderDays?: IntWithAggregatesFilter<"CompanySettings"> | number
     notifyNewClient?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
     notifyNewMessage?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
     notifyInterventionDone?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
@@ -75371,6 +75519,8 @@ export namespace Prisma {
     emailSentTo?: StringNullableFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
+    reminderDisabled?: BoolFilter<"Quote"> | boolean
+    customReminderDays?: IntNullableFilter<"Quote"> | number | null
     issuedAt?: DateTimeFilter<"Quote"> | Date | string
     createdAt?: DateTimeFilter<"Quote"> | Date | string
     updatedAt?: DateTimeFilter<"Quote"> | Date | string
@@ -75414,6 +75564,8 @@ export namespace Prisma {
     emailSentTo?: SortOrderInput | SortOrder
     reminder1SentAt?: SortOrderInput | SortOrder
     reminder2SentAt?: SortOrderInput | SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrderInput | SortOrder
     issuedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -75460,6 +75612,8 @@ export namespace Prisma {
     emailSentTo?: StringNullableFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
+    reminderDisabled?: BoolFilter<"Quote"> | boolean
+    customReminderDays?: IntNullableFilter<"Quote"> | number | null
     issuedAt?: DateTimeFilter<"Quote"> | Date | string
     createdAt?: DateTimeFilter<"Quote"> | Date | string
     updatedAt?: DateTimeFilter<"Quote"> | Date | string
@@ -75503,6 +75657,8 @@ export namespace Prisma {
     emailSentTo?: SortOrderInput | SortOrder
     reminder1SentAt?: SortOrderInput | SortOrder
     reminder2SentAt?: SortOrderInput | SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrderInput | SortOrder
     issuedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -75549,6 +75705,8 @@ export namespace Prisma {
     emailSentTo?: StringNullableWithAggregatesFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
     reminder2SentAt?: DateTimeNullableWithAggregatesFilter<"Quote"> | Date | string | null
+    reminderDisabled?: BoolWithAggregatesFilter<"Quote"> | boolean
+    customReminderDays?: IntNullableWithAggregatesFilter<"Quote"> | number | null
     issuedAt?: DateTimeWithAggregatesFilter<"Quote"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"Quote"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Quote"> | Date | string
@@ -75706,6 +75864,8 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    reminderDisabled?: BoolFilter<"Invoice"> | boolean
+    customReminderDays?: IntNullableFilter<"Invoice"> | number | null
     einvoicingStatus?: EnumEInvoicingStatusNullableFilter<"Invoice"> | $Enums.EInvoicingStatus | null
     einvoicingProvider?: EnumEInvoicingProviderTypeNullableFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: StringNullableFilter<"Invoice"> | string | null
@@ -75776,6 +75936,8 @@ export namespace Prisma {
     reminder1SentAt?: SortOrderInput | SortOrder
     reminder2SentAt?: SortOrderInput | SortOrder
     reminderSentAt?: SortOrderInput | SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrderInput | SortOrder
     einvoicingStatus?: SortOrderInput | SortOrder
     einvoicingProvider?: SortOrderInput | SortOrder
     providerInvoiceId?: SortOrderInput | SortOrder
@@ -75849,6 +76011,8 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    reminderDisabled?: BoolFilter<"Invoice"> | boolean
+    customReminderDays?: IntNullableFilter<"Invoice"> | number | null
     einvoicingStatus?: EnumEInvoicingStatusNullableFilter<"Invoice"> | $Enums.EInvoicingStatus | null
     einvoicingProvider?: EnumEInvoicingProviderTypeNullableFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: StringNullableFilter<"Invoice"> | string | null
@@ -75919,6 +76083,8 @@ export namespace Prisma {
     reminder1SentAt?: SortOrderInput | SortOrder
     reminder2SentAt?: SortOrderInput | SortOrder
     reminderSentAt?: SortOrderInput | SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrderInput | SortOrder
     einvoicingStatus?: SortOrderInput | SortOrder
     einvoicingProvider?: SortOrderInput | SortOrder
     providerInvoiceId?: SortOrderInput | SortOrder
@@ -75988,6 +76154,8 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
+    reminderDisabled?: BoolWithAggregatesFilter<"Invoice"> | boolean
+    customReminderDays?: IntNullableWithAggregatesFilter<"Invoice"> | number | null
     einvoicingStatus?: EnumEInvoicingStatusNullableWithAggregatesFilter<"Invoice"> | $Enums.EInvoicingStatus | null
     einvoicingProvider?: EnumEInvoicingProviderTypeNullableWithAggregatesFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
@@ -79949,6 +80117,10 @@ export namespace Prisma {
     smsSecondReminderDays?: number
     smsReminderTemplate?: string | null
     smsSignature?: string | null
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: number
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: number
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -80003,6 +80175,10 @@ export namespace Prisma {
     smsSecondReminderDays?: number
     smsReminderTemplate?: string | null
     smsSignature?: string | null
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: number
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: number
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -80055,6 +80231,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFieldUpdateOperationsInput | number
     smsReminderTemplate?: NullableStringFieldUpdateOperationsInput | string | null
     smsSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    invoiceReminderDays?: IntFieldUpdateOperationsInput | number
+    quoteReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    quoteReminderDays?: IntFieldUpdateOperationsInput | number
     notifyNewClient?: BoolFieldUpdateOperationsInput | boolean
     notifyNewMessage?: BoolFieldUpdateOperationsInput | boolean
     notifyInterventionDone?: BoolFieldUpdateOperationsInput | boolean
@@ -80109,6 +80289,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFieldUpdateOperationsInput | number
     smsReminderTemplate?: NullableStringFieldUpdateOperationsInput | string | null
     smsSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    invoiceReminderDays?: IntFieldUpdateOperationsInput | number
+    quoteReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    quoteReminderDays?: IntFieldUpdateOperationsInput | number
     notifyNewClient?: BoolFieldUpdateOperationsInput | boolean
     notifyNewMessage?: BoolFieldUpdateOperationsInput | boolean
     notifyInterventionDone?: BoolFieldUpdateOperationsInput | boolean
@@ -80162,6 +80346,10 @@ export namespace Prisma {
     smsSecondReminderDays?: number
     smsReminderTemplate?: string | null
     smsSignature?: string | null
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: number
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: number
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -80214,6 +80402,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFieldUpdateOperationsInput | number
     smsReminderTemplate?: NullableStringFieldUpdateOperationsInput | string | null
     smsSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    invoiceReminderDays?: IntFieldUpdateOperationsInput | number
+    quoteReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    quoteReminderDays?: IntFieldUpdateOperationsInput | number
     notifyNewClient?: BoolFieldUpdateOperationsInput | boolean
     notifyNewMessage?: BoolFieldUpdateOperationsInput | boolean
     notifyInterventionDone?: BoolFieldUpdateOperationsInput | boolean
@@ -80267,6 +80459,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFieldUpdateOperationsInput | number
     smsReminderTemplate?: NullableStringFieldUpdateOperationsInput | string | null
     smsSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    invoiceReminderDays?: IntFieldUpdateOperationsInput | number
+    quoteReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    quoteReminderDays?: IntFieldUpdateOperationsInput | number
     notifyNewClient?: BoolFieldUpdateOperationsInput | boolean
     notifyNewMessage?: BoolFieldUpdateOperationsInput | boolean
     notifyInterventionDone?: BoolFieldUpdateOperationsInput | boolean
@@ -81757,6 +81953,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -81800,6 +81998,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -81835,6 +82035,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81878,6 +82080,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81917,6 +82121,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -81951,6 +82157,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81989,6 +82197,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -82149,6 +82359,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -82219,6 +82431,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -82281,6 +82495,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82351,6 +82567,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82417,6 +82635,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -82474,6 +82694,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82535,6 +82757,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87076,6 +87300,10 @@ export namespace Prisma {
     smsSecondReminderDays?: SortOrder
     smsReminderTemplate?: SortOrder
     smsSignature?: SortOrder
+    invoiceReminderEnabled?: SortOrder
+    invoiceReminderDays?: SortOrder
+    quoteReminderEnabled?: SortOrder
+    quoteReminderDays?: SortOrder
     notifyNewClient?: SortOrder
     notifyNewMessage?: SortOrder
     notifyInterventionDone?: SortOrder
@@ -87119,6 +87347,8 @@ export namespace Prisma {
   export type CompanySettingsAvgOrderByAggregateInput = {
     smsDaysBefore?: SortOrder
     smsSecondReminderDays?: SortOrder
+    invoiceReminderDays?: SortOrder
+    quoteReminderDays?: SortOrder
     invoiceNextNumber?: SortOrder
     quoteNextNumber?: SortOrder
     defaultTvaRate?: SortOrder
@@ -87142,6 +87372,10 @@ export namespace Prisma {
     smsSecondReminderDays?: SortOrder
     smsReminderTemplate?: SortOrder
     smsSignature?: SortOrder
+    invoiceReminderEnabled?: SortOrder
+    invoiceReminderDays?: SortOrder
+    quoteReminderEnabled?: SortOrder
+    quoteReminderDays?: SortOrder
     notifyNewClient?: SortOrder
     notifyNewMessage?: SortOrder
     notifyInterventionDone?: SortOrder
@@ -87191,6 +87425,10 @@ export namespace Prisma {
     smsSecondReminderDays?: SortOrder
     smsReminderTemplate?: SortOrder
     smsSignature?: SortOrder
+    invoiceReminderEnabled?: SortOrder
+    invoiceReminderDays?: SortOrder
+    quoteReminderEnabled?: SortOrder
+    quoteReminderDays?: SortOrder
     notifyNewClient?: SortOrder
     notifyNewMessage?: SortOrder
     notifyInterventionDone?: SortOrder
@@ -87230,6 +87468,8 @@ export namespace Prisma {
   export type CompanySettingsSumOrderByAggregateInput = {
     smsDaysBefore?: SortOrder
     smsSecondReminderDays?: SortOrder
+    invoiceReminderDays?: SortOrder
+    quoteReminderDays?: SortOrder
     invoiceNextNumber?: SortOrder
     quoteNextNumber?: SortOrder
     defaultTvaRate?: SortOrder
@@ -88226,6 +88466,8 @@ export namespace Prisma {
     emailSentTo?: SortOrder
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrder
     issuedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -88237,6 +88479,7 @@ export namespace Prisma {
     amountTTC?: SortOrder
     depositPercent?: SortOrder
     depositAmount?: SortOrder
+    customReminderDays?: SortOrder
   }
 
   export type QuoteMaxOrderByAggregateInput = {
@@ -88271,6 +88514,8 @@ export namespace Prisma {
     emailSentTo?: SortOrder
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrder
     issuedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -88308,6 +88553,8 @@ export namespace Prisma {
     emailSentTo?: SortOrder
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrder
     issuedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -88319,6 +88566,7 @@ export namespace Prisma {
     amountTTC?: SortOrder
     depositPercent?: SortOrder
     depositAmount?: SortOrder
+    customReminderDays?: SortOrder
   }
 
   export type EnumQuoteStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -88517,6 +88765,8 @@ export namespace Prisma {
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
     reminderSentAt?: SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrder
     einvoicingStatus?: SortOrder
     einvoicingProvider?: SortOrder
     providerInvoiceId?: SortOrder
@@ -88536,6 +88786,7 @@ export namespace Prisma {
     amountPaid?: SortOrder
     penaltyRate?: SortOrder
     recoveryFee?: SortOrder
+    customReminderDays?: SortOrder
   }
 
   export type InvoiceMaxOrderByAggregateInput = {
@@ -88586,6 +88837,8 @@ export namespace Prisma {
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
     reminderSentAt?: SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrder
     einvoicingStatus?: SortOrder
     einvoicingProvider?: SortOrder
     providerInvoiceId?: SortOrder
@@ -88645,6 +88898,8 @@ export namespace Prisma {
     reminder1SentAt?: SortOrder
     reminder2SentAt?: SortOrder
     reminderSentAt?: SortOrder
+    reminderDisabled?: SortOrder
+    customReminderDays?: SortOrder
     einvoicingStatus?: SortOrder
     einvoicingProvider?: SortOrder
     providerInvoiceId?: SortOrder
@@ -88663,6 +88918,7 @@ export namespace Prisma {
     amountPaid?: SortOrder
     penaltyRate?: SortOrder
     recoveryFee?: SortOrder
+    customReminderDays?: SortOrder
   }
 
   export type EnumInvoiceStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -96939,6 +97195,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -97007,6 +97265,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -97063,6 +97323,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97104,6 +97366,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97433,6 +97697,10 @@ export namespace Prisma {
     smsSecondReminderDays?: number
     smsReminderTemplate?: string | null
     smsSignature?: string | null
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: number
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: number
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -97485,6 +97753,10 @@ export namespace Prisma {
     smsSecondReminderDays?: number
     smsReminderTemplate?: string | null
     smsSignature?: string | null
+    invoiceReminderEnabled?: boolean
+    invoiceReminderDays?: number
+    quoteReminderEnabled?: boolean
+    quoteReminderDays?: number
     notifyNewClient?: boolean
     notifyNewMessage?: boolean
     notifyInterventionDone?: boolean
@@ -98615,6 +98887,8 @@ export namespace Prisma {
     reminder1SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    reminderDisabled?: BoolFilter<"Invoice"> | boolean
+    customReminderDays?: IntNullableFilter<"Invoice"> | number | null
     einvoicingStatus?: EnumEInvoicingStatusNullableFilter<"Invoice"> | $Enums.EInvoicingStatus | null
     einvoicingProvider?: EnumEInvoicingProviderTypeNullableFilter<"Invoice"> | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: StringNullableFilter<"Invoice"> | string | null
@@ -98679,6 +98953,8 @@ export namespace Prisma {
     emailSentTo?: StringNullableFilter<"Quote"> | string | null
     reminder1SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
     reminder2SentAt?: DateTimeNullableFilter<"Quote"> | Date | string | null
+    reminderDisabled?: BoolFilter<"Quote"> | boolean
+    customReminderDays?: IntNullableFilter<"Quote"> | number | null
     issuedAt?: DateTimeFilter<"Quote"> | Date | string
     createdAt?: DateTimeFilter<"Quote"> | Date | string
     updatedAt?: DateTimeFilter<"Quote"> | Date | string
@@ -98956,6 +99232,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFieldUpdateOperationsInput | number
     smsReminderTemplate?: NullableStringFieldUpdateOperationsInput | string | null
     smsSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    invoiceReminderDays?: IntFieldUpdateOperationsInput | number
+    quoteReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    quoteReminderDays?: IntFieldUpdateOperationsInput | number
     notifyNewClient?: BoolFieldUpdateOperationsInput | boolean
     notifyNewMessage?: BoolFieldUpdateOperationsInput | boolean
     notifyInterventionDone?: BoolFieldUpdateOperationsInput | boolean
@@ -99008,6 +99288,10 @@ export namespace Prisma {
     smsSecondReminderDays?: IntFieldUpdateOperationsInput | number
     smsReminderTemplate?: NullableStringFieldUpdateOperationsInput | string | null
     smsSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    invoiceReminderDays?: IntFieldUpdateOperationsInput | number
+    quoteReminderEnabled?: BoolFieldUpdateOperationsInput | boolean
+    quoteReminderDays?: IntFieldUpdateOperationsInput | number
     notifyNewClient?: BoolFieldUpdateOperationsInput | boolean
     notifyNewMessage?: BoolFieldUpdateOperationsInput | boolean
     notifyInterventionDone?: BoolFieldUpdateOperationsInput | boolean
@@ -103240,6 +103524,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -103308,6 +103594,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -103364,6 +103652,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -103405,6 +103695,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -103983,6 +104275,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -104051,6 +104345,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -104107,6 +104403,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -104148,6 +104446,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -105476,6 +105776,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -105544,6 +105846,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -105595,6 +105899,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -105636,6 +105942,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -106337,6 +106645,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106405,6 +106715,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106462,6 +106774,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -106503,6 +106817,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -107460,6 +107776,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -107502,6 +107820,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -107593,6 +107913,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -107635,6 +107957,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -108695,6 +109019,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -108764,6 +109090,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -108882,6 +109210,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108951,6 +109281,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -112299,6 +112631,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -112368,6 +112702,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -112445,6 +112781,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -112514,6 +112852,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -114012,6 +114352,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -114081,6 +114423,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -114364,6 +114708,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -114433,6 +114779,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -114841,6 +115189,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -114910,6 +115260,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -115122,6 +115474,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -115191,6 +115545,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -116309,6 +116665,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -116378,6 +116736,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -116635,6 +116995,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -116704,6 +117066,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -119332,6 +119696,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -119376,6 +119742,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -120099,6 +120467,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120167,6 +120537,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120232,6 +120604,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120273,6 +120647,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -120314,6 +120690,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -120352,6 +120730,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -122424,6 +122804,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -122468,6 +122850,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -122608,6 +122992,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -122676,6 +123062,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -122741,6 +123129,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -122782,6 +123172,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -122823,6 +123215,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -122861,6 +123255,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -122959,6 +123355,8 @@ export namespace Prisma {
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
     reminderSentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     einvoicingStatus?: $Enums.EInvoicingStatus | null
     einvoicingProvider?: $Enums.EInvoicingProviderType | null
     providerInvoiceId?: string | null
@@ -123003,6 +123401,8 @@ export namespace Prisma {
     emailSentTo?: string | null
     reminder1SentAt?: Date | string | null
     reminder2SentAt?: Date | string | null
+    reminderDisabled?: boolean
+    customReminderDays?: number | null
     issuedAt?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -123281,6 +123681,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -123349,6 +123751,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -123414,6 +123818,8 @@ export namespace Prisma {
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     einvoicingStatus?: NullableEnumEInvoicingStatusFieldUpdateOperationsInput | $Enums.EInvoicingStatus | null
     einvoicingProvider?: NullableEnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType | null
     providerInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -123455,6 +123861,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -123496,6 +123904,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -123534,6 +123944,8 @@ export namespace Prisma {
     emailSentTo?: NullableStringFieldUpdateOperationsInput | string | null
     reminder1SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminder2SentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderDisabled?: BoolFieldUpdateOperationsInput | boolean
+    customReminderDays?: NullableIntFieldUpdateOperationsInput | number | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

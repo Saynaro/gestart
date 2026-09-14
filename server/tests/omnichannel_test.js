@@ -33,7 +33,7 @@ async function runOmnichannelTests() {
                     firstName: "Jean",
                     lastName: "Dupont",
                     phone: "+33698765432",
-                    email: "jean.dupont@example.com",
+                    email: "exemple@gmail.com",
                     address: "12 Rue de la Paix, Paris"
                 }
             });

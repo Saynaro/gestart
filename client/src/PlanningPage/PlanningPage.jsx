@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import ToastNotification from "../components/ToastNotification";
 import "../HomePage/Homepage.css";
 import "./PlanningPage.css";
 import SideBar from "../components/SideBar";
@@ -96,16 +97,21 @@ const getGroupedClients = (list) => {
     }, {});
 };
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 import { useUser } from "../utils/useUser";
 
 function PlanningPage() {
     const location = useLocation();
+    const navigate = useNavigate();
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth <= 768;
     const { role } = useUser();
     const isTechnician = role === "TECHNICIAN";
+
+    const addModalDragControls = useDragControls();
+    const editModalDragControls = useDragControls();
+    const [toast, setToast] = useState(null);
 
     const [events, setEvents] = useState([]);
     const [rawInterventions, setRawInterventions] = useState([]);
@@ -162,6 +168,21 @@ function PlanningPage() {
             setNewAddress(matched?.rawAddress || matched?.address || "");
             setNewNotes("");
             setShowAddModal(true);
+
+            // Fetch client directly if not already present or address is missing
+            if (location.state.clientId && (!matched || !matched.address)) {
+                apiFetch(`/v1/clients/${location.state.clientId}`)
+                    .then(res => {
+                        const cl = res.data?.client || res.client || res.data;
+                        if (cl) {
+                            const addr = `${cl.address || ''} ${cl.city || ''}`.trim() || cl.address || "";
+                            if (addr) setNewAddress(addr);
+                            const cName = cl.companyName || `${cl.firstName || ''} ${cl.lastName || ''}`.trim();
+                            if (cName) setNewClientName(cName);
+                        }
+                    })
+                    .catch(() => {});
+            }
         }
     }, [location.state, clientDetails]);
 
@@ -206,7 +227,7 @@ function PlanningPage() {
 
     const fetchClients = async () => {
         try {
-            const data = await apiFetch('/v1/clients');
+            const data = await apiFetch('/v1/clients?limit=500');
             const list = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
             if (list.length > 0) {
                 const mapped = list.map(c => ({
@@ -438,6 +459,16 @@ function PlanningPage() {
     const [newTechnicianId, setNewTechnicianId] = useState("");
     const [newAddress, setNewAddress] = useState("");
     const [newNotes, setNewNotes] = useState("");
+    const addCustomTypeInputRef = useRef(null);
+    const editCustomTypeInputRef = useRef(null);
+
+    const scrollToCustomInput = (inputEl) => {
+        if (!inputEl) return;
+        inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+            inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 320);
+    };
 
     // Modal state — edit
     const [showEditModal, setShowEditModal] = useState(false);
@@ -560,11 +591,19 @@ function PlanningPage() {
     // try to close a modal that is already gone.
     const closeAddModal = () => {
         setShowAddModal(false);
-        if (isMobile) window.history.back();
+        if (location.state?.returnUrl) {
+            navigate(location.state.returnUrl);
+        } else if (isMobile) {
+            window.history.back();
+        }
     };
     const closeEditModal = () => {
         setShowEditModal(false);
-        if (isMobile) window.history.back();
+        if (location.state?.returnUrl) {
+            navigate(location.state.returnUrl);
+        } else if (isMobile) {
+            window.history.back();
+        }
     };
     const closeClientSearch = () => {
         setShowClientSearch(false);
@@ -699,8 +738,8 @@ function PlanningPage() {
             return;
         }
 
-        const [startH, startM] = startTime.split(":").map(Number);
-        const [endH, endM] = endTime.split(":").map(Number);
+        const [startH, startM] = (startTime || "09:00").split(":").map(Number);
+        const [endH, endM] = (endTime || "10:30").split(":").map(Number);
         const durationMinutes = Math.max(15, (endH * 60 + endM) - (startH * 60 + startM));
 
         const baseDate = newDate ? new Date(newDate) : (selectedSlot?.start ? new Date(selectedSlot.start) : new Date());
@@ -708,32 +747,67 @@ function PlanningPage() {
         const scheduledAtIso = baseDate.toISOString();
 
         const matchedClient = clientDetails.find(c => c.id === newClientId) || clientDetails.find(c => c.name === newClientName);
-        const finalClientName = matchedClient?.name || newClientName;
-        const finalType = newServiceTypes.join(", ");
+        const finalClientName = matchedClient?.name || newClientName || "Client";
+        const finalType = newServiceTypes.length > 0 ? newServiceTypes.join(", ") : "Entretien";
+
+        let finalClientId = matchedClient?.id || newClientId;
+
+        // Auto-resolve client ID if missing
+        if (!finalClientId && finalClientName && finalClientName !== "Client") {
+            try {
+                const searchRes = await apiFetch(`/v1/clients?search=${encodeURIComponent(finalClientName)}&limit=1`);
+                const found = searchRes.data?.clients?.[0] || searchRes.clients?.[0];
+                if (found?.id) {
+                    finalClientId = found.id;
+                } else {
+                    const parts = finalClientName.trim().split(" ");
+                    const firstName = parts[0] || finalClientName;
+                    const lastName = parts.slice(1).join(" ") || "Client";
+                    const createdRes = await apiFetch('/v1/clients', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            firstName,
+                            lastName,
+                            phone: "0600000000",
+                            address: newAddress || "Adresse à renseigner",
+                            city: "France"
+                        })
+                    });
+                    finalClientId = createdRes.data?.client?.id || createdRes.client?.id;
+                }
+            } catch (err) {
+                console.warn("Auto-resolve client error:", err);
+            }
+        }
+
+        const finalAddress = newAddress || matchedClient?.rawAddress || matchedClient?.address || "Adresse à renseigner";
 
         try {
             await apiFetch('/v1/interventions', {
                 method: 'POST',
                 body: JSON.stringify({
-                    clientId: matchedClient?.id || undefined,
+                    clientId: finalClientId || undefined,
                     technicianId: newTechnicianId || undefined,
                     type: finalType,
                     serviceType: finalType,
                     title: `${finalType} - ${finalClientName}`,
                     scheduledAt: scheduledAtIso,
                     estimatedDuration: durationMinutes,
-                    address: newAddress || matchedClient?.rawAddress || matchedClient?.address || "Adresse à renseigner",
+                    address: finalAddress,
                     city: matchedClient?.city || "France",
                     description: newNotes || `Intervention ${finalType}`
                 })
             });
             await fetchInterventions();
-        } catch (err) {
-            console.error("Create intervention API error:", err);
-            alert(err.message || "Erreur lors de la planification de l'intervention");
-        } finally {
+            setToast({ message: "Intervention planifiée avec succès !", type: "success" });
             setShowAddModal(false);
             setSelectedSlot(null);
+            if (location.state?.returnUrl) {
+                navigate(location.state.returnUrl);
+            }
+        } catch (err) {
+            console.error("Create intervention API error:", err);
+            setToast({ message: err.message || "Erreur lors de la planification de l'intervention", isError: true });
         }
     };
 
@@ -768,7 +842,7 @@ function PlanningPage() {
             await apiFetch(`/v1/interventions/${selectedEvent.id}`, {
                 method: 'PUT',
                 body: JSON.stringify({
-                    clientId: matchedClient?.id || undefined,
+                    clientId: matchedClient?.id || editClientId || undefined,
                     technicianId: editTechnicianId || null,
                     type: finalType,
                     serviceType: finalType,
@@ -781,12 +855,15 @@ function PlanningPage() {
                 })
             });
             await fetchInterventions();
-        } catch (err) {
-            console.error("Update intervention API error:", err);
-            alert(err.message || "Erreur lors de la mise à jour");
-        } finally {
+            setToast({ message: "Intervention mise à jour avec succès !", type: "success" });
             setShowEditModal(false);
             setSelectedEvent(null);
+            if (location.state?.returnUrl) {
+                navigate(location.state.returnUrl);
+            }
+        } catch (err) {
+            console.error("Update intervention API error:", err);
+            setToast({ message: err.message || "Erreur lors de la mise à jour", isError: true });
         }
     };
 
@@ -898,6 +975,13 @@ function PlanningPage() {
     };
 
     const handleMobileOpenEdit = (ev) => {
+        const raw = ev.extendedProps?.raw || ev;
+        if (raw.status === "COMPLETED" || raw.clientSignature || (raw.photos && raw.photos.length > 0)) {
+            setSelectedDetailIntervention(raw);
+            setShowDetailModal(true);
+            return;
+        }
+
         setSelectedEvent(ev);
         const start = new Date(ev.start);
         const end = new Date(ev.end);
@@ -919,6 +1003,9 @@ function PlanningPage() {
         setEditTechnicianId(ev.extendedProps?.technicianId || "");
         setEditAddress(ev.extendedProps?.address || matched?.rawAddress || matched?.address || "");
         setEditNotes(ev.extendedProps?.description || "");
+        setShowEditCustomType(false);
+        setEditCustomTypeInput("");
+        setShowEditModal(true);
     };
 
     const handleMobileFabClick = () => {
@@ -952,53 +1039,74 @@ function PlanningPage() {
                             />
                             <motion.div
                                 className="add-event-modal"
-                                style={{ x: "-50%", y: "-50%" }}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
+                                style={isMobile ? undefined : { x: "-50%", y: "-50%" }}
+                                drag={isMobile ? "y" : false}
+                                dragListener={false}
+                                dragControls={addModalDragControls}
+                                dragConstraints={{ top: 0, bottom: 0 }}
+                                dragElastic={{ top: 0, bottom: 0.6 }}
+                                onDragEnd={(e, info) => {
+                                    if (info.offset.y > 70 || info.velocity.y > 350) {
+                                        closeAddModal();
+                                    }
+                                }}
+                                initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95 }}
+                                animate={isMobile ? { y: "0%" } : { opacity: 1, scale: 1 }}
+                                exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
                             >
+                                {isMobile && (
+                                    <div
+                                        className="bottom-sheet-drag-handle-zone"
+                                        onPointerDown={(e) => addModalDragControls.start(e)}
+                                        onClick={() => closeAddModal()}
+                                        title="Glisser vers le bas pour fermer"
+                                    >
+                                        <div className="bottom-sheet-drag-handle" />
+                                    </div>
+                                )}
                                 <div className="modal-header">
                                     <h3>Nouvelle Intervention</h3>
                                     <button className="modal-close-btn" onClick={() => closeAddModal()}><X size={18} /></button>
                                 </div>
-                                <form onSubmit={handleAddEventSubmit} className="modal-form-stack">
-                                    {/* Date & Time Selectors */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px' }}>
-                                        <div className="modal-field" style={{ margin: 0 }}>
-                                            <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
-                                            <input 
-                                                type="date" 
-                                                value={newDate} 
-                                                onChange={(e) => setNewDate(e.target.value)} 
-                                                className="modal-input-time"
-                                                required 
-                                            />
+                                <form onSubmit={handleAddEventSubmit} className="modal-form-container">
+                                    <div className="modal-form-body">
+                                        {/* Date & Time Selectors */}
+                                        <div className="modal-datetime-grid">
+                                            <div className="modal-field date-col" style={{ margin: 0 }}>
+                                                <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
+                                                <input 
+                                                    type="date" 
+                                                    value={newDate} 
+                                                    onChange={(e) => setNewDate(e.target.value)} 
+                                                    className="modal-input-time"
+                                                    required 
+                                                />
+                                            </div>
+                                            <div className="modal-field time-col" style={{ margin: 0 }}>
+                                                <label className="modal-label"><Clock size={14} /><span>Début</span></label>
+                                                <input 
+                                                    type="time" 
+                                                    value={startTime} 
+                                                    onChange={(e) => setStartTime(e.target.value)} 
+                                                    className="modal-input-time"
+                                                    required 
+                                                />
+                                            </div>
+                                            <div className="modal-field time-col" style={{ margin: 0 }}>
+                                                <label className="modal-label">
+                                                    <Clock size={14} />
+                                                    <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
+                                                </label>
+                                                <input 
+                                                    type="time" 
+                                                    value={endTime} 
+                                                    onChange={(e) => setEndTime(e.target.value)} 
+                                                    className="modal-input-time"
+                                                    required 
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="modal-field" style={{ margin: 0 }}>
-                                            <label className="modal-label"><Clock size={14} /><span>Début</span></label>
-                                            <input 
-                                                type="time" 
-                                                value={startTime} 
-                                                onChange={(e) => setStartTime(e.target.value)} 
-                                                className="modal-input-time"
-                                                required 
-                                            />
-                                        </div>
-                                        <div className="modal-field" style={{ margin: 0 }}>
-                                            <label className="modal-label">
-                                                <Clock size={14} />
-                                                <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
-                                            </label>
-                                            <input 
-                                                type="time" 
-                                                value={endTime} 
-                                                onChange={(e) => setEndTime(e.target.value)} 
-                                                className="modal-input-time"
-                                                required 
-                                            />
-                                        </div>
-                                    </div>
 
                                     {isTimeInvalid && (
                                         <div style={{
@@ -1092,10 +1200,15 @@ function PlanningPage() {
                                             {showAddCustomType ? (
                                                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                                     <input
+                                                        ref={(el) => {
+                                                            addCustomTypeInputRef.current = el;
+                                                            if (el) scrollToCustomInput(el);
+                                                        }}
                                                         type="text"
                                                         placeholder="Autre type..."
                                                         value={addCustomTypeInput}
                                                         onChange={(e) => setAddCustomTypeInput(e.target.value)}
+                                                        onFocus={(e) => scrollToCustomInput(e.target)}
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter') {
                                                                 e.preventDefault();
@@ -1169,7 +1282,15 @@ function PlanningPage() {
                                             ) : (
                                                 <button
                                                     type="button"
-                                                    onClick={() => setShowAddCustomType(true)}
+                                                    onClick={() => {
+                                                        setShowAddCustomType(true);
+                                                        setTimeout(() => {
+                                                            if (addCustomTypeInputRef.current) {
+                                                                scrollToCustomInput(addCustomTypeInputRef.current);
+                                                                addCustomTypeInputRef.current.focus();
+                                                            }
+                                                        }, 60);
+                                                    }}
                                                     style={{
                                                         padding: '6px 14px',
                                                         borderRadius: '20px',
@@ -1251,6 +1372,7 @@ function PlanningPage() {
                                             }}
                                         />
                                     </div>
+                                </div>
 
                                     <div className="modal-footer-row">
                                         <button type="button" className="modal-cancel-btn" onClick={() => closeAddModal()}>Annuler</button>
@@ -1275,12 +1397,32 @@ function PlanningPage() {
                             />
                             <motion.div
                                 className="add-event-modal"
-                                style={{ x: "-50%", y: "-50%" }}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
+                                style={isMobile ? undefined : { x: "-50%", y: "-50%" }}
+                                drag={isMobile ? "y" : false}
+                                dragListener={false}
+                                dragControls={editModalDragControls}
+                                dragConstraints={{ top: 0, bottom: 0 }}
+                                dragElastic={{ top: 0, bottom: 0.6 }}
+                                onDragEnd={(e, info) => {
+                                    if (info.offset.y > 70 || info.velocity.y > 350) {
+                                        closeEditModal();
+                                    }
+                                }}
+                                initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95 }}
+                                animate={isMobile ? { y: "0%" } : { opacity: 1, scale: 1 }}
+                                exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
                             >
+                                {isMobile && (
+                                    <div
+                                        className="bottom-sheet-drag-handle-zone"
+                                        onPointerDown={(e) => editModalDragControls.start(e)}
+                                        onClick={() => closeEditModal()}
+                                        title="Glisser vers le bas pour fermer"
+                                    >
+                                        <div className="bottom-sheet-drag-handle" />
+                                    </div>
+                                )}
                                 <div className="modal-header">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                         <h3 style={{ margin: 0 }}>{isTechnician ? "Détails de l'Intervention" : "Modifier l'Intervention"}</h3>
@@ -1314,56 +1456,58 @@ function PlanningPage() {
                                     <button className="modal-close-btn" onClick={() => closeEditModal()}><X size={18} /></button>
                                 </div>
                                 {isTechnician ? (
-                                    <div className="modal-form-stack" style={{ padding: '4px 0 0 0' }}>
-                                        <div className="modal-slot-info" style={{ marginBottom: '14px' }}>
-                                            <span className="slot-info-label">Horaire planifié :</span>
-                                            <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
-                                        </div>
-
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
-                                                    Client / Nom du contact
-                                                </span>
-                                                <span style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--foreground)' }}>
-                                                    {editClientName || selectedEvent?.title || "Non renseigné"}
-                                                </span>
+                                    <div className="modal-form-container">
+                                        <div className="modal-form-body">
+                                            <div className="modal-slot-info" style={{ marginBottom: '14px' }}>
+                                                <span className="slot-info-label">Horaire planifié :</span>
+                                                <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
                                             </div>
 
-                                            <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
-                                                    Type(s) de prestation
-                                                </span>
-                                                <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--foreground)' }}>
-                                                    {editServiceTypes?.join(", ") || "Installation"}
-                                                </span>
-                                            </div>
-
-                                            <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
-                                                    Technicien assigné
-                                                </span>
-                                                <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--foreground)' }}>
-                                                    {(() => {
-                                                        const t = techniciansList.find(tech => tech.id === editTechnicianId);
-                                                        return t ? `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email : "Non assigné";
-                                                    })()}
-                                                </span>
-                                            </div>
-
-                                            {editAddress && (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                                 <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
                                                     <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
-                                                        Adresse de l'intervention
+                                                        Client / Nom du contact
                                                     </span>
-                                                    <span style={{ fontSize: '0.88rem', color: 'var(--foreground)' }}>
-                                                        {editAddress}
+                                                    <span style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                                        {editClientName || selectedEvent?.title || "Non renseigné"}
                                                     </span>
                                                 </div>
-                                            )}
+
+                                                <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
+                                                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                                                        Type(s) de prestation
+                                                    </span>
+                                                    <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--foreground)' }}>
+                                                        {editServiceTypes?.join(", ") || "Installation"}
+                                                    </span>
+                                                </div>
+
+                                                <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
+                                                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                                                        Technicien assigné
+                                                    </span>
+                                                    <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--foreground)' }}>
+                                                        {(() => {
+                                                            const t = techniciansList.find(tech => tech.id === editTechnicianId);
+                                                            return t ? `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email : "Non assigné";
+                                                        })()}
+                                                    </span>
+                                                </div>
+
+                                                {editAddress && (
+                                                    <div style={{ background: 'var(--card, #FAFAF8)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 14px' }}>
+                                                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                                                            Adresse de l'intervention
+                                                        </span>
+                                                        <span style={{ fontSize: '0.88rem', color: 'var(--foreground)' }}>
+                                                            {editAddress}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                                        <div className="modal-footer-row" style={{ justifyContent: 'flex-end' }}>
                                             <button
                                                 type="button"
                                                 className="modal-submit-btn"
@@ -1375,43 +1519,44 @@ function PlanningPage() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <form onSubmit={handleEditEventSubmit} className="modal-form-stack">
-                                        {/* Date & Time Selectors */}
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px' }}>
-                                            <div className="modal-field" style={{ margin: 0 }}>
-                                                <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
-                                                <input 
-                                                    type="date" 
-                                                    value={editDate} 
-                                                    onChange={(e) => setEditDate(e.target.value)} 
-                                                    className="modal-input-time"
-                                                    required 
-                                                />
+                                    <form onSubmit={handleEditEventSubmit} className="modal-form-container">
+                                        <div className="modal-form-body">
+                                            {/* Date & Time Selectors */}
+                                            <div className="modal-datetime-grid">
+                                                <div className="modal-field date-col" style={{ margin: 0 }}>
+                                                    <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
+                                                    <input 
+                                                        type="date" 
+                                                        value={editDate} 
+                                                        onChange={(e) => setEditDate(e.target.value)} 
+                                                        className="modal-input-time"
+                                                        required 
+                                                    />
+                                                </div>
+                                                <div className="modal-field time-col" style={{ margin: 0 }}>
+                                                    <label className="modal-label"><Clock size={14} /><span>Début</span></label>
+                                                    <input 
+                                                        type="time" 
+                                                        value={startTime} 
+                                                        onChange={(e) => setStartTime(e.target.value)} 
+                                                        className="modal-input-time"
+                                                        required 
+                                                    />
+                                                </div>
+                                                <div className="modal-field time-col" style={{ margin: 0 }}>
+                                                    <label className="modal-label">
+                                                        <Clock size={14} />
+                                                        <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
+                                                    </label>
+                                                    <input 
+                                                        type="time" 
+                                                        value={endTime} 
+                                                        onChange={(e) => setEndTime(e.target.value)} 
+                                                        className="modal-input-time"
+                                                        required 
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="modal-field" style={{ margin: 0 }}>
-                                                <label className="modal-label"><Clock size={14} /><span>Début</span></label>
-                                                <input 
-                                                    type="time" 
-                                                    value={startTime} 
-                                                    onChange={(e) => setStartTime(e.target.value)} 
-                                                    className="modal-input-time"
-                                                    required 
-                                                />
-                                            </div>
-                                            <div className="modal-field" style={{ margin: 0 }}>
-                                                <label className="modal-label">
-                                                    <Clock size={14} />
-                                                    <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
-                                                </label>
-                                                <input 
-                                                    type="time" 
-                                                    value={endTime} 
-                                                    onChange={(e) => setEndTime(e.target.value)} 
-                                                    className="modal-input-time"
-                                                    required 
-                                                />
-                                            </div>
-                                        </div>
 
                                         {isTimeInvalid && (
                                             <div style={{
@@ -1505,10 +1650,15 @@ function PlanningPage() {
                                                 {showEditCustomType ? (
                                                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                                         <input
+                                                            ref={(el) => {
+                                                                editCustomTypeInputRef.current = el;
+                                                                if (el) scrollToCustomInput(el);
+                                                            }}
                                                             type="text"
                                                             placeholder="Autre type..."
                                                             value={editCustomTypeInput}
                                                             onChange={(e) => setEditCustomTypeInput(e.target.value)}
+                                                            onFocus={(e) => scrollToCustomInput(e.target)}
                                                             onKeyDown={(e) => {
                                                                 if (e.key === 'Enter') {
                                                                     e.preventDefault();
@@ -1582,7 +1732,15 @@ function PlanningPage() {
                                                 ) : (
                                                     <button
                                                         type="button"
-                                                        onClick={() => setShowEditCustomType(true)}
+                                                        onClick={() => {
+                                                            setShowEditCustomType(true);
+                                                            setTimeout(() => {
+                                                                if (editCustomTypeInputRef.current) {
+                                                                    scrollToCustomInput(editCustomTypeInputRef.current);
+                                                                    editCustomTypeInputRef.current.focus();
+                                                                }
+                                                            }, 60);
+                                                        }}
                                                         style={{
                                                             padding: '6px 14px',
                                                             borderRadius: '20px',
@@ -1664,6 +1822,7 @@ function PlanningPage() {
                                                 }}
                                             />
                                         </div>
+                                    </div>
 
                                         <div className="modal-footer-row edit-footer-row">
                                             <button type="button" className="modal-delete-btn" onClick={handleDeleteEvent}>Supprimer</button>
@@ -1842,12 +2001,8 @@ function PlanningPage() {
                                     return (
                                         <div 
                                             key={c.id || c.name}
-                                            className={`client-search-item ${isPending ? 'selected' : ''}`}
+                                            className={`client-search-item ${(pendingClientId && pendingClientId === c.id) || pendingClientName === c.name ? 'selected' : ''}`}
                                             onClick={() => {
-                                                setPendingClientName(c.name);
-                                                setPendingClientId(c.id);
-                                            }}
-                                            onDoubleClick={() => {
                                                 const addr = c.address || c.rawAddress || "";
                                                 if (clientSearchTarget === "add") {
                                                     setNewClientName(c.name);
@@ -1858,10 +2013,7 @@ function PlanningPage() {
                                                     setEditClientId(c.id);
                                                     if (addr) setEditAddress(addr);
                                                 }
-                                                setShowClientSearch(false);
-                                                setClientSearchQuery("");
-                                                setPendingClientName("");
-                                                setPendingClientId("");
+                                                closeClientSearch();
                                             }}
                                         >
                                             <span className="client-item-name">{c.name}</span>
@@ -1970,16 +2122,249 @@ function PlanningPage() {
         return (
             <div className="mobile-planning-view-wrapper">
                 <Header />
-                <MobilePlanningView
-                    events={filteredEvents}
-                    selectedDate={mobileSelectedDate}
-                    setSelectedDate={setMobileSelectedDate}
-                    onSelectSlot={isTechnician ? () => {} : handleMobileOpenAdd}
-                    onEventClick={handleMobileOpenEdit}
-                />
+
+                {/* Mobile Top Navigation Segmented Switcher */}
+                <div className="mobile-planning-segmented-wrap">
+                    <div className="mobile-planning-segmented-nav">
+                        <button
+                            type="button"
+                            className={`mobile-plan-tab-btn ${activePlanningTab === "calendar" ? "active" : ""}`}
+                            onClick={() => setActivePlanningTab("calendar")}
+                        >
+                            <Calendar size={15} />
+                            <span>Calendrier</span>
+                        </button>
+                        <button
+                            type="button"
+                            className={`mobile-plan-tab-btn ${activePlanningTab === "past" ? "active" : ""}`}
+                            onClick={() => setActivePlanningTab("past")}
+                        >
+                            <History size={15} />
+                            <span>Passées & Historique</span>
+                            {periodCounts.past > 0 && (
+                                <span className="tab-counter-badge">{periodCounts.past}</span>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                {activePlanningTab === "calendar" ? (
+                    <div className="mobile-planning-calendar-scroll-wrap">
+                        <MobilePlanningView
+                            events={filteredEvents}
+                            selectedDate={mobileSelectedDate}
+                            setSelectedDate={setMobileSelectedDate}
+                            onSelectSlot={isTechnician ? () => {} : handleMobileOpenAdd}
+                            onEventClick={handleMobileOpenEdit}
+                        />
+                    </div>
+                ) : (
+                    /* Mobile Past Interventions View */
+                    <div className="mobile-history-view-container">
+                        {/* Search bar */}
+                        <div className="mobile-history-search-card">
+                            <div className="mobile-history-search-wrap">
+                                <Search size={17} className="mobile-history-search-icon" />
+                                <input
+                                    type="text"
+                                    className="mobile-history-search-input"
+                                    placeholder="Rechercher client, adresse, tech..."
+                                    value={historySearch}
+                                    onChange={(e) => setHistorySearch(e.target.value)}
+                                />
+                                {historySearch && (
+                                    <button
+                                        type="button"
+                                        className="mobile-history-clear-btn"
+                                        onClick={() => setHistorySearch("")}
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Period Pills Scroll */}
+                        <div className="mobile-history-periods-scroll">
+                            <button
+                                type="button"
+                                className={`history-period-pill ${historyPeriod === "past" ? "active" : ""}`}
+                                onClick={() => handlePeriodChange("past")}
+                            >
+                                Passées ({periodCounts.past})
+                            </button>
+                            <button
+                                type="button"
+                                className={`history-period-pill ${historyPeriod === "all" ? "active" : ""}`}
+                                onClick={() => handlePeriodChange("all")}
+                            >
+                                Toutes ({periodCounts.all})
+                            </button>
+                            <button
+                                type="button"
+                                className={`history-period-pill ${historyPeriod === "upcoming" ? "active" : ""}`}
+                                onClick={() => handlePeriodChange("upcoming")}
+                            >
+                                À venir ({periodCounts.upcoming})
+                            </button>
+                            <button
+                                type="button"
+                                className={`history-period-pill ${historyPeriod === "today" ? "active" : ""}`}
+                                onClick={() => handlePeriodChange("today")}
+                            >
+                                Aujourd'hui ({periodCounts.today})
+                            </button>
+                        </div>
+
+                        {/* Status & Client Filters */}
+                        <div className="mobile-history-filter-row">
+                            <div className="mobile-filter-select-wrap">
+                                <span className="mobile-filter-label">Statut :</span>
+                                <select
+                                    className="mobile-history-select"
+                                    value={historyStatusFilter}
+                                    onChange={(e) => setHistoryStatusFilter(e.target.value)}
+                                >
+                                    {STATUS_OPTIONS.map(opt => (
+                                        <option key={opt.value} value={opt.value}>
+                                            {opt.label} ({statusCounts[opt.value] ?? 0})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mobile-filter-select-wrap">
+                                <span className="mobile-filter-label">Client :</span>
+                                <select
+                                    className="mobile-history-select"
+                                    value={historyClientFilter}
+                                    onChange={(e) => setHistoryClientFilter(e.target.value)}
+                                >
+                                    <option value="all">Tous les clients</option>
+                                    {clientDetails.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* List of Interventions */}
+                        <div className="mobile-history-items-list">
+                            {filteredHistoryInterventions.length === 0 ? (
+                                <div className="history-empty-state">
+                                    <History size={38} style={{ opacity: 0.4, margin: '0 auto 10px auto', color: '#556B2F' }} />
+                                    <h4 style={{ margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 700 }}>Aucune intervention trouvée</h4>
+                                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                        Aucun résultat pour cette période ou vos filtres.
+                                    </p>
+                                </div>
+                            ) : (
+                                filteredHistoryInterventions.map(item => {
+                                    const d = item.scheduledAt ? new Date(item.scheduledAt) : null;
+                                    const dayNum = d ? d.getDate() : "--";
+                                    const monthStr = d ? d.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase() : "";
+                                    const timeStr = d ? d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
+                                    const clientName = item.client 
+                                        ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() || item.client.companyName || "Client"
+                                        : "Client";
+                                    const typeName = item.interventionType?.name || item.type || "Intervention";
+                                    const techName = item.technician 
+                                        ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() || item.technician.email
+                                        : "Non assigné";
+                                    const photos = item.photos || [];
+                                    const hasSignature = !!item.clientSignature;
+                                    const statusInfo = getInterventionStatusInfo(item);
+
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className="mobile-history-card"
+                                            onClick={() => {
+                                                setSelectedDetailIntervention(item);
+                                                setShowDetailModal(true);
+                                            }}
+                                        >
+                                            <div className="mobile-history-card-top">
+                                                <div className="mobile-card-date-badge">
+                                                    <span className="card-day">{dayNum}</span>
+                                                    <span className="card-month">{monthStr}</span>
+                                                    {timeStr && <span className="card-time">{timeStr}</span>}
+                                                </div>
+
+                                                <div className="mobile-card-main-meta">
+                                                    <div className="mobile-card-client-row">
+                                                        <span className="mobile-card-client">{clientName}</span>
+                                                        <span className="history-type-badge">{typeName}</span>
+                                                    </div>
+                                                    {item.address && (
+                                                        <span className="mobile-card-address">
+                                                            <MapPin size={12} style={{ color: '#556B2F', flexShrink: 0 }} />
+                                                            <span>{item.address}{item.city ? `, ${item.city}` : ''}</span>
+                                                        </span>
+                                                    )}
+                                                    <span className="mobile-card-tech">
+                                                        <User size={12} style={{ color: '#556B2F', flexShrink: 0 }} />
+                                                        <span>Tech : {techName}</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="mobile-history-card-bottom">
+                                                <div className="history-proof-pills">
+                                                    {hasSignature ? (
+                                                        <span className="proof-pill signed" title="Signature validée">
+                                                            <PenTool size={11} />
+                                                            <span>Signée</span>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="proof-pill" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
+                                                            Non signée
+                                                        </span>
+                                                    )}
+
+                                                    {photos.length > 0 && (
+                                                        <span className="proof-pill photos" title={`${photos.length} photo(s)`}>
+                                                            <Camera size={11} />
+                                                            <span>{photos.length} photo{photos.length > 1 ? 's' : ''}</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <span
+                                                        className="history-status-badge"
+                                                        style={{ background: statusInfo.bg, color: statusInfo.color }}
+                                                    >
+                                                        {statusInfo.icon}
+                                                        {statusInfo.label}
+                                                    </span>
+                                                    <ChevronRight size={15} style={{ color: 'var(--muted-foreground)' }} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+
+                        {/* Spacer at the bottom to ensure the last card is clear of the FAB and bottom bar */}
+                        <div className="mobile-history-bottom-spacer" />
+                    </div>
+                )}
+
                 <SideBar onFabClick={isTechnician ? null : handleMobileFabClick} hideFab={isTechnician} />
                 {sharedModals}
                 {clientSearchPortal}
+
+                {/* Modal de consultation détaillée pour mobile (photos, signature, rapport) */}
+                <InterventionDetailModal
+                    isOpen={showDetailModal}
+                    onClose={() => {
+                        setShowDetailModal(false);
+                    }}
+                    intervention={selectedDetailIntervention}
+                    client={selectedDetailIntervention?.client}
+                />
             </div>
         );
     }
@@ -2387,11 +2772,12 @@ function PlanningPage() {
                 isOpen={showDetailModal}
                 onClose={() => {
                     setShowDetailModal(false);
-                    setSelectedDetailIntervention(null);
                 }}
                 intervention={selectedDetailIntervention}
                 client={selectedDetailIntervention?.client}
             />
+
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 }

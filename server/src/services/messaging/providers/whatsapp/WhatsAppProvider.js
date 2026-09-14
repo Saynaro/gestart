@@ -422,40 +422,6 @@ export class WhatsAppProvider extends MessageProvider {
         });
 
         // 6. Notification in-app pour le gérant
-        try {
-            const owner = await prisma.user.findFirst({
-                where: { companyId: company.id, role: "OWNER" }
-            });
-
-            if (owner) {
-                const notif = await prisma.notification.create({
-                    data: {
-                        companyId: company.id,
-                        userId: owner.id,
-                        type: "NEW_MESSAGE_RECEIVED",
-                        channel: "IN_APP",
-                        status: "SENT",
-                        title: `Nouveau WhatsApp de ${client.firstName} ${client.lastName}`,
-                        body: messageBody.length > 100 ? `${messageBody.slice(0, 97)}...` : messageBody,
-                        entityType: "whatsapp",
-                        entityId: messageLog.id,
-                        data: {
-                            clientId: client.id,
-                            messageId: messageLog.id,
-                            channel: "WHATSAPP"
-                        }
-                    }
-                });
-
-                emitToCompany(company.id, "notification:new", {
-                    type: "notification:new",
-                    notification: notif
-                });
-            }
-        } catch (e) {
-            console.error("[WHATSAPP_NOTIF_ERROR]", e.message);
-        }
-
         // 7. Émission temps réel dans la room de l'entreprise
         emitToCompany(company.id, "message:new", {
             type: "message:new",

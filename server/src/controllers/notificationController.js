@@ -4,18 +4,20 @@ import { prisma } from "../config/db.js";
 export const getNotifications = async (req, res) => {
     const userId = req.user.id;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 30;
     const skip = (page - 1) * limit;
 
     const { unreadOnly, type } = req.query;
 
-    const where = {
-        userId,
-        ...(unreadOnly === "true" && { isRead: false }),
-        ...(type && { type })
-    };
-
     try {
+        // Exclure les messages reçus car ils ont leur propre onglet dédié 'Messages reçus'
+        const where = {
+            userId,
+            type: { not: "NEW_MESSAGE_RECEIVED" },
+            ...(unreadOnly === "true" && { isRead: false }),
+            ...(type && { type })
+        };
+
         const [total, notifications] = await Promise.all([
             prisma.notification.count({ where }),
             prisma.notification.findMany({
@@ -52,9 +54,11 @@ export const getUnreadNotificationCount = async (req, res) => {
     const userId = req.user.id;
 
     try {
+        // Compter les notifications métier non lues (hors messages)
         const count = await prisma.notification.count({
             where: {
                 userId,
+                type: { not: "NEW_MESSAGE_RECEIVED" },
                 isRead: false
             }
         });
@@ -170,6 +174,40 @@ export const deleteNotification = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la suppression de la notification"
+        });
+    }
+};
+
+////// BATCH DELETE NOTIFICATIONS //////
+export const batchDeleteNotifications = async (req, res) => {
+    const userId = req.user.id;
+    const { notificationIds } = req.body || {};
+
+    try {
+        if (!Array.isArray(notificationIds) || notificationIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Aucun identifiant fourni"
+            });
+        }
+
+        const deleted = await prisma.notification.deleteMany({
+            where: {
+                id: { in: notificationIds },
+                userId
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: { count: deleted.count },
+            message: `${deleted.count} notification(s) supprimée(s) avec succès`
+        });
+    } catch (error) {
+        console.error("BATCH DELETE NOTIFICATIONS ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur serveur lors de la suppression des notifications"
         });
     }
 };

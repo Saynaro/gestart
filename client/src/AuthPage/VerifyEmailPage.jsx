@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import './VerifyEmailPage.css';
 import { API_URL } from '../utils/config';
+import OtpInput6 from '../components/OtpInput6';
 
 export default function VerifyEmailPage() {
     const navigate = useNavigate();
@@ -58,30 +59,47 @@ export default function VerifyEmailPage() {
         verifyTokenUrl();
     }, [tokenFromUrl]);
 
-    // Handle digit input change
+    // Handle digit input change (AutoFill OTP + Paste)
     const handleDigitChange = (index, value) => {
-        if (value.length > 1) {
-            // User pasted a full code
-            const pasted = value.trim().slice(0, 6).split('');
+        const cleaned = value.replace(/\D/g, '');
+        if (!cleaned && value !== '') return;
+
+        if (cleaned.length > 1) {
+            // User pasted or used keyboard OTP AutoFill
+            const pasted = cleaned.slice(0, 6).split('');
             const newDigits = [...digitCode];
             pasted.forEach((char, idx) => {
                 if (idx < 6) newDigits[idx] = char;
             });
             setDigitCode(newDigits);
-            if (pasted.length === 6) {
-                digitRefs[5].current?.focus();
-            }
+            setError('');
+            const focusTarget = Math.min(pasted.length, 5);
+            digitRefs[focusTarget]?.current?.focus();
             return;
         }
 
         const newDigits = [...digitCode];
-        newDigits[index] = value;
+        newDigits[index] = cleaned.slice(-1);
         setDigitCode(newDigits);
         setError('');
 
-        if (value && index < 5) {
+        if (cleaned && index < 5) {
             digitRefs[index + 1].current?.focus();
         }
+    };
+
+    const handleDigitPaste = (e) => {
+        e.preventDefault();
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (!pasted) return;
+        const newDigits = [...digitCode];
+        pasted.split('').forEach((char, idx) => {
+            if (idx < 6) newDigits[idx] = char;
+        });
+        setDigitCode(newDigits);
+        setError('');
+        const focusTarget = Math.min(pasted.length, 5);
+        digitRefs[focusTarget]?.current?.focus();
     };
 
     const handleKeyDown = (index, e) => {
@@ -286,7 +304,7 @@ export default function VerifyEmailPage() {
                                         <Mail className="input-icon" />
                                         <input
                                             type="email"
-                                            placeholder="jean.dupont@climpro.fr"
+                                            placeholder="exemple@gmail.com"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             required
@@ -294,23 +312,20 @@ export default function VerifyEmailPage() {
                                     </div>
                                 </div>
 
-                                <div className="input-group">
-                                    <label>Code de vérification à 6 chiffres *</label>
-                                    <div className="digit-inputs-row">
-                                        {digitCode.map((digit, idx) => (
-                                            <input
-                                                key={idx}
-                                                ref={digitRefs[idx]}
-                                                type="text"
-                                                inputMode="numeric"
-                                                maxLength={6}
-                                                className="digit-box"
-                                                value={digit}
-                                                onChange={(e) => handleDigitChange(idx, e.target.value)}
-                                                onKeyDown={(e) => handleKeyDown(idx, e)}
-                                            />
-                                        ))}
-                                    </div>
+                                <div className="input-group" style={{ textAlign: 'center' }}>
+                                    <label style={{ display: 'block', marginBottom: '6px', textAlign: 'center', fontWeight: 600 }}>
+                                        Code de vérification à 6 chiffres *
+                                    </label>
+                                    <OtpInput6
+                                        value={digitCode.join('')}
+                                        onChange={(val) => {
+                                            const arr = val.split('');
+                                            while (arr.length < 6) arr.push('');
+                                            setDigitCode(arr);
+                                            setError('');
+                                        }}
+                                        autoFocus
+                                    />
                                 </div>
 
                                 <button

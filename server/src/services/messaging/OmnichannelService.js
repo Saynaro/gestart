@@ -423,14 +423,21 @@ export const OmnichannelService = {
     /**
      * Supprime des messages de la timeline (localement dans le CRM)
      */
-    async deleteMessages({ companyId, messageIds = [] }) {
+    async deleteMessages({ companyId, messageIds = [], clientIds = [] }) {
         if (!companyId) throw new Error("CompanyId requis");
-        if (!Array.isArray(messageIds) || messageIds.length === 0) return { count: 0 };
+        const conditions = [];
+        if (Array.isArray(messageIds) && messageIds.length > 0) {
+            conditions.push({ id: { in: messageIds } });
+        }
+        if (Array.isArray(clientIds) && clientIds.length > 0) {
+            conditions.push({ clientId: { in: clientIds } });
+        }
+        if (conditions.length === 0) return { count: 0 };
 
         const result = await prisma.smsLog.deleteMany({
             where: {
-                id: { in: messageIds },
-                companyId
+                companyId,
+                OR: conditions
             }
         });
 

@@ -21,6 +21,7 @@ import { setAuthToken } from '../utils/auth';
 import { startProactiveTokenRefresh } from '../utils/api';
 import { useUser } from '../utils/useUser';
 import { useSubscription } from '../utils/useSubscription';
+import OtpInput6 from '../components/OtpInput6';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -299,35 +300,24 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            <div className="input-group">
-                                <label>Code de vérification (6 chiffres) *</label>
-                                <div className="input-wrapper">
-                                    <Shield className="input-icon" />
-                                    <input
-                                        type="text"
-                                        maxLength="6"
-                                        placeholder="123456"
-                                        value={twoFactorCode}
-                                        onChange={(e) => {
-                                            setTwoFactorCode(e.target.value.replace(/\D/g, ''));
-                                            setError('');
-                                        }}
-                                        style={{
-                                            letterSpacing: '6px',
-                                            fontSize: '18px',
-                                            fontWeight: 700,
-                                            textAlign: 'center'
-                                        }}
-                                        autoFocus
-                                        required
-                                    />
-                                </div>
+                            <div className="input-group" style={{ textAlign: 'center' }}>
+                                <label style={{ display: 'block', marginBottom: '6px', textAlign: 'center', fontWeight: 600 }}>
+                                    Code de vérification (6 chiffres) *
+                                </label>
+                                <OtpInput6
+                                    value={twoFactorCode}
+                                    onChange={(val) => {
+                                        setTwoFactorCode(val);
+                                        setError('');
+                                    }}
+                                    autoFocus
+                                />
                             </div>
 
                             <button
                                 type="submit"
                                 className="btn-submit pill-btn"
-                                disabled={loading}
+                                disabled={loading || twoFactorCode.length < 6}
                             >
                                 {loading ? 'Vérification en cours...' : (
                                     <>
@@ -360,62 +350,62 @@ export default function LoginPage() {
                         </form>
                     ) : (
                         <form onSubmit={handleSubmit} className="form-content">
-                        <div className="input-group">
-                            <label>Adresse Email *</label>
-                            <div className="input-wrapper">
-                                <Mail className="input-icon" />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="jean.dupont@climpro.fr"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                />
+                            <div className="input-group">
+                                <label>Adresse Email *</label>
+                                <div className="input-wrapper">
+                                    <Mail className="input-icon" />
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="exemple@gmail.com"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="input-group">
-                            <label>Mot de passe *</label>
-                            <div className="input-wrapper">
-                                <Lock className="input-icon" />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    name="password"
-                                    placeholder="••••••••••"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    className="password-toggle-btn"
-                                    onClick={() => setShowPassword(prev => !prev)}
-                                    tabIndex="-1"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
+                            <div className="input-group">
+                                <label>Mot de passe *</label>
+                                <div className="input-wrapper">
+                                    <Lock className="input-icon" />
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        name="password"
+                                        placeholder="••••••••••"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className="password-toggle-btn"
+                                        onClick={() => setShowPassword(prev => !prev)}
+                                        tabIndex="-1"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
+                                <div className="forgot-password-align">
+                                    <Link to="/forgot-password" className="forgot-link">
+                                        Mot de passe oublié ?
+                                    </Link>
+                                </div>
                             </div>
-                            <div className="forgot-password-align">
-                                <Link to="/forgot-password" className="forgot-link">
-                                    Mot de passe oublié ?
-                                </Link>
-                            </div>
-                        </div>
 
-                        <button
-                            type="submit"
-                            className="btn-submit pill-btn"
-                            disabled={loading}
-                        >
-                            {loading ? 'Connexion en cours...' : (
-                                <>
-                                    Se connecter
-                                    <ArrowRight size={18} />
-                                </>
-                            )}
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                className="btn-submit pill-btn"
+                                disabled={loading}
+                            >
+                                {loading ? 'Connexion en cours...' : (
+                                    <>
+                                        Se connecter
+                                        <ArrowRight size={18} />
+                                    </>
+                                )}
+                            </button>
+                        </form>
                     )}
 
                     <div className="divider">

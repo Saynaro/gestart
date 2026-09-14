@@ -620,16 +620,16 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.72rem;
-  color: #991B1B;
-  opacity: 0.88;
-  transition: all 0.2s ease;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #94A3B8;
+  user-select: none;
+  transition: none;
 }
 
 .rule-item.valid {
-  color: #15803D;
-  opacity: 1;
-  font-weight: 600;
+  color: #22C55E;
+  font-weight: 500;
 }
 
 /* Progress Bar Line & Percentage */

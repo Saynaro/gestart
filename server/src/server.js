@@ -4,6 +4,7 @@ import { connectDB, disconnectDB } from "./config/db.js";
 import { initSocket } from "./config/socket.js";
 
 import { autoRappelScheduler } from "./services/reminders/AutoRappelScheduler.js";
+import { documentReminderScheduler } from "./services/reminders/DocumentReminderScheduler.js";
 
 const PORT = process.env.PORT || 5001;
 
@@ -20,10 +21,11 @@ const startServer = async () => {
             console.log(`Server is running on PORT: ${PORT} : http://localhost:${PORT}`);
         });
 
-        // Démarrage du Planificateur Auto Rappel (Vérification PostgreSQL à intervalles réguliers)
+        // Démarrage des Planificateurs de Rappels
         autoRappelScheduler.start();
+        documentReminderScheduler.start();
 
-        // Worker en arrière-plan : Synchronisation automatique des emails entrants (Gmail) toutes les 20 secondes
+        // Worker en arrière-plan : Synchronisation automatique des emails entrants (Gmail) toutes les 60 secondes
         const syncInterval = setInterval(async () => {
             try {
                 const { prisma } = await import("./config/db.js");
@@ -38,13 +40,14 @@ const startServer = async () => {
                     await emailProvider.syncGoogleInbox(conn.companyId).catch(() => {});
                 }
             } catch (e) {}
-        }, 20000);
+        }, 60000);
 
         // graceful shutdown for docker
         // make sure that the server is closed before the database
         const gracefulShutdown = async () => {
             clearInterval(syncInterval);
             autoRappelScheduler.stop();
+            documentReminderScheduler.stop();
             console.log('Signal received. Shutting down...');
 
             const forceExitTimeout = setTimeout(() => {

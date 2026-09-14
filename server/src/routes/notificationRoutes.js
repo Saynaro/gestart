@@ -5,6 +5,7 @@ import {
     markNotificationAsRead,
     markAllNotificationsAsRead,
     deleteNotification,
+    batchDeleteNotifications,
     clearAllReadNotifications
 } from "../controllers/notificationController.js";
 
@@ -24,6 +25,7 @@ router.patch("/read-all", markAllNotificationsAsRead);
 router.patch("/:id/read", markNotificationAsRead);
 
 // Suppression
+router.delete("/batch", batchDeleteNotifications);
 router.delete("/clear-all", clearAllReadNotifications);
 router.delete("/:id", deleteNotification);
 

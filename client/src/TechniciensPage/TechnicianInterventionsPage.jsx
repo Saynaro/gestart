@@ -28,8 +28,10 @@ import {
     History,
     AlertTriangle,
     Image,
-    X
+    X,
+    ExternalLink
 } from "lucide-react";
+import ToastNotification from "../components/ToastNotification";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { apiFetch } from "../utils/api";
@@ -70,8 +72,7 @@ export default function TechnicianInterventionsPage() {
     // Toast Notification
     const [toast, setToast] = useState({ show: false, message: "", isError: false });
     const triggerToast = (message, isError = false) => {
-        setToast({ show: true, message, isError });
-        setTimeout(() => setToast({ show: false, message: "", isError: false }), 4000);
+        setToast({ show: true, message, isError, id: Date.now() });
     };
 
     // Load user & all assigned interventions (today + upcoming + history)
@@ -469,17 +470,7 @@ export default function TechnicianInterventionsPage() {
                 <main className="page-content tech-interventions-main">
 
                     {/* Toast Alert */}
-                    {toast.show && (
-                        <div style={{
-                            position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 999999,
-                            backgroundColor: toast.isError ? '#ef4444' : '#556B2F', color: '#fff',
-                            padding: '14px 24px', borderRadius: '50px', fontWeight: 700, fontSize: '14px',
-                            boxShadow: '0 12px 32px rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', gap: '10px',
-                            maxWidth: '90vw', pointerEvents: 'none'
-                        }}>
-                            {toast.message}
-                        </div>
-                    )}
+                    <ToastNotification toast={toast.show ? toast : null} onClose={() => setToast({ show: false, message: "", isError: false })} />
 
                     {/* 1. HERO HEADER */}
                     <div className="tech-header-card">

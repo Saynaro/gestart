@@ -652,7 +652,11 @@ function MessagesPage() {
   };
 
   const handleBackToChats = () => {
-    navigate("/messages");
+    if (location.state?.returnUrl) {
+      navigate(location.state.returnUrl);
+    } else {
+      navigate("/messages");
+    }
   };
 
   const handleBackToChatPane = () => {
@@ -2583,7 +2587,6 @@ function MessagesPage() {
                 placeholder="Rechercher par nom, téléphone ou email..."
                 value={modalSearchTerm}
                 onChange={(e) => setModalSearchTerm(e.target.value)}
-                autoFocus
               />
             </div>
             <div className="client-modal-list">

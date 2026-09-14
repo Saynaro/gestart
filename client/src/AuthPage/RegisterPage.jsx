@@ -39,6 +39,7 @@ import { setAuthToken } from '../utils/auth';
 import LegalModal from '../components/LegalHelpModal';
 import { useUser } from '../utils/useUser';
 import { useSubscription } from '../utils/useSubscription';
+import OtpInput6 from '../components/OtpInput6';
 
 const TRADE_CATEGORIES_LIST = [
     { id: 'clim', name: 'Climatisation / PAC air-air', icon: Snowflake },
@@ -93,6 +94,7 @@ export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
     const [activeLegalModal, setActiveLegalModal] = useState(null);
+    const passwordInputRef = useRef(null);
 
     // Toast System
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -260,17 +262,47 @@ export default function RegisterPage() {
         }
     };
 
-    // ÉTAPE 2 -> ÉTAPE 3
+    // ÉTAPE 2 -> ÉTAPE 3 (Support OTP AutoFill & Paste)
     const handleDigitChange = (index, value) => {
-        if (!/^\d*$/.test(value)) return;
+        const cleaned = value.replace(/\D/g, '');
+        if (!cleaned && value !== '') return;
+
+        if (cleaned.length > 1) {
+            // Mobile Keyboard AutoFill (iOS/Android) or paste
+            const digits = cleaned.slice(0, 6).split('');
+            const newCode = [...digitCode];
+            digits.forEach((char, i) => {
+                if (i < 6) newCode[i] = char;
+            });
+            setDigitCode(newCode);
+            setError('');
+            const focusTarget = Math.min(digits.length, 5);
+            digitRefs[focusTarget]?.current?.focus();
+            return;
+        }
+
         const newCode = [...digitCode];
-        newCode[index] = value.slice(-1);
+        newCode[index] = cleaned.slice(-1);
         setDigitCode(newCode);
         setError('');
 
-        if (value && index < 5) {
+        if (cleaned && index < 5) {
             digitRefs[index + 1].current?.focus();
         }
+    };
+
+    const handleDigitPaste = (e) => {
+        e.preventDefault();
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (!pasted) return;
+        const newCode = [...digitCode];
+        pasted.split('').forEach((char, i) => {
+            if (i < 6) newCode[i] = char;
+        });
+        setDigitCode(newCode);
+        setError('');
+        const focusTarget = Math.min(pasted.length, 5);
+        digitRefs[focusTarget]?.current?.focus();
     };
 
     const handleDigitKeyDown = (index, e) => {
@@ -557,9 +589,7 @@ export default function RegisterPage() {
 
                     {/* ÉTAPE 1: Email + MDP (30 sec) */}
                     {step === 1 && (
-                        <motion.form
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
+                        <form
                             className="form-content"
                             onSubmit={handleStep1Submit}
                         >
@@ -604,7 +634,7 @@ export default function RegisterPage() {
                                     <input
                                         type="email"
                                         name="email"
-                                        placeholder="jean.dupont@climpro.fr"
+                                        placeholder="exemple@gmail.com"
                                         value={formData.email}
                                         onChange={handleChange}
                                         required
@@ -617,6 +647,7 @@ export default function RegisterPage() {
                                 <div className="input-wrapper">
                                     <Lock className="input-icon" />
                                     <input
+                                        ref={passwordInputRef}
                                         type={showPassword ? "text" : "password"}
                                         name="password"
                                         placeholder="••••••••••"
@@ -629,39 +660,52 @@ export default function RegisterPage() {
                                     <button
                                         type="button"
                                         className="password-toggle-btn"
-                                        onClick={() => setShowPassword(prev => !prev)}
+                                        onMouseDown={(e) => {
+                                            e.preventDefault();
+                                        }}
+                                        onClick={() => {
+                                            setShowPassword(prev => !prev);
+                                            if (passwordInputRef.current) {
+                                                passwordInputRef.current.focus();
+                                            }
+                                        }}
                                         tabIndex="-1"
+                                        aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Live Password Rules Indicator (Visible on Focus) */}
-                            {isPasswordFocused && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
+                            {/* Live Password Rules Indicator - 2 rows x 2 columns */}
+                            {(isPasswordFocused || (formData.password && formData.password.length > 0)) && (
+                                <div
                                     className="password-rules-box"
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                                        gap: '6px 12px',
+                                        marginTop: '8px',
+                                        marginBottom: '6px'
+                                    }}
                                 >
-                                    <div className={`rule-item ${rules.length ? 'valid' : ''}`}>
-                                        {rules.length ? <Check size={14} /> : <X size={14} />}
+                                    <div className={`rule-item ${rules.length ? 'valid' : ''}`} style={{ color: rules.length ? '#22C55E' : '#94A3B8' }}>
+                                        {rules.length ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                         <span>Au moins 8 caractères</span>
                                     </div>
-                                    <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`}>
-                                        {rules.uppercase ? <Check size={14} /> : <X size={14} />}
+                                    <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`} style={{ color: rules.uppercase ? '#22C55E' : '#94A3B8' }}>
+                                        {rules.uppercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                         <span>1 lettre majuscule (A-Z)</span>
                                     </div>
-                                    <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`}>
-                                        {rules.lowercase ? <Check size={14} /> : <X size={14} />}
+                                    <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`} style={{ color: rules.lowercase ? '#22C55E' : '#94A3B8' }}>
+                                        {rules.lowercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                         <span>1 lettre minuscule (a-z)</span>
                                     </div>
-                                    <div className={`rule-item ${rules.number ? 'valid' : ''}`}>
-                                        {rules.number ? <Check size={14} /> : <X size={14} />}
+                                    <div className={`rule-item ${rules.number ? 'valid' : ''}`} style={{ color: rules.number ? '#22C55E' : '#94A3B8' }}>
+                                        {rules.number ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                         <span>1 chiffre (0-9)</span>
                                     </div>
-                                </motion.div>
+                                </div>
                             )}
 
                             <div className="terms-checkbox-group">
@@ -692,24 +736,24 @@ export default function RegisterPage() {
                                         </button>{' '}
                                         et les{' '}
                                         <button
-                                            type="button"
-                                            className="terms-link-btn"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setActiveLegalModal('mentions');
-                                            }}
-                                        >
-                                            Mentions Légales
-                                        </button>
-                                    </span>
-                                </label>
-                            </div>
+                                             type="button"
+                                             className="terms-link-btn"
+                                             onClick={(e) => {
+                                                 e.preventDefault();
+                                                 e.stopPropagation();
+                                                 setActiveLegalModal('privacy');
+                                             }}
+                                         >
+                                             Politiques de Confidentialité
+                                         </button>
+                                     </span>
+                                 </label>
+                             </div>
 
-                            <button type="submit" className="btn-submit pill-btn" disabled={loading}>
-                                {loading ? 'Envoi du code...' : 'Continuer vers la vérification →'}
-                            </button>
-                        </motion.form>
+                             <button type="submit" className="btn-submit pill-btn" disabled={loading}>
+                                 {loading ? 'Envoi du code...' : 'Continuer vers la vérification →'}
+                             </button>
+                         </form>
                     )}
 
                     {/* ÉTAPE 2: Vérification email (Code 6 chiffres) (15 sec) */}
@@ -732,21 +776,16 @@ export default function RegisterPage() {
                                 </div>
                             </div>
 
-                            <div className="digits-input-container">
-                                {digitCode.map((digit, idx) => (
-                                    <input
-                                        key={idx}
-                                        ref={digitRefs[idx]}
-                                        type="text"
-                                        maxLength="1"
-                                        className="digit-box"
-                                        value={digit}
-                                        onChange={(e) => handleDigitChange(idx, e.target.value)}
-                                        onKeyDown={(e) => handleDigitKeyDown(idx, e)}
-                                        autoFocus={idx === 0}
-                                    />
-                                ))}
-                            </div>
+                            <OtpInput6
+                                value={digitCode.join('')}
+                                onChange={(val) => {
+                                    const arr = val.split('');
+                                    while (arr.length < 6) arr.push('');
+                                    setDigitCode(arr);
+                                    setError('');
+                                }}
+                                autoFocus
+                            />
 
                             <div className="button-group">
                                 <button type="button" className="btn-back" onClick={() => setStep(1)}>

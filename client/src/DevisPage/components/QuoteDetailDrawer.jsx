@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette, Lock, Trash2 } from "lucide-react";
+import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
@@ -76,6 +76,50 @@ function QuoteDetailDrawer({
     
     const rawDueDate = quote.validUntil || quote.dueDate || (rawDocDate ? new Date(new Date(rawDocDate).getTime() + 30 * 86400000) : null);
     const formattedDueDate = rawDueDate ? new Date(rawDueDate).toLocaleDateString('fr-FR') : formattedDocDate;
+
+    // Relance automatique calculation for quote
+    const quoteReminderEnabled = !quote.reminderDisabled && (company?.settings?.quoteReminderEnabled !== false);
+    const quoteReminderDays = quote.customReminderDays || company?.settings?.quoteReminderDays || 5;
+
+    let quoteReminderBadge = null;
+    if (quote.reminder1SentAt) {
+        const sentDateStr = new Date(quote.reminder1SentAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        quoteReminderBadge = {
+            label: `Relance envoyée le ${sentDateStr}`,
+            type: 'sent'
+        };
+    } else if (isSent && !isAccepted && quoteReminderEnabled && quote.emailSentAt) {
+        const sentTime = new Date(quote.emailSentAt).getTime();
+        const targetTime = sentTime + quoteReminderDays * 24 * 60 * 60 * 1000;
+        const diffMs = targetTime - Date.now();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const targetDateStr = new Date(targetTime).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+
+        const hasRecipientEmail = Boolean(quote.emailSentTo || quote.client?.email);
+
+        if (!hasRecipientEmail) {
+            quoteReminderBadge = {
+                label: "Non programmée (aucun email client)",
+                type: "neutral"
+            };
+        } else if (diffDays > 0) {
+            quoteReminderBadge = {
+                label: `Relance dans ${diffDays} jour${diffDays > 1 ? 's' : ''} (le ${targetDateStr})`,
+                type: 'pending'
+            };
+        } else if (diffDays === 0) {
+            quoteReminderBadge = {
+                label: "Relance prévue aujourd'hui",
+                type: 'imminent'
+            };
+        } else {
+            // Délai dépassé, en attente du cycle automatique
+            quoteReminderBadge = {
+                label: "En attente d'envoi automatique",
+                type: 'imminent'
+            };
+        }
+    }
 
     const amountFactured = quote.amountFactured || 0;
     const progressPct = totalTtc > 0
@@ -1210,6 +1254,37 @@ function QuoteDetailDrawer({
                                 <span className="dv-drawer-row-label">Date d'exigibilité</span>
                                 <span className="dv-drawer-row-value">{formattedDueDate}</span>
                             </div>
+                            {quoteReminderBadge && (
+                                <div className="dv-drawer-row" style={{ alignItems: 'center' }}>
+                                    <span className="dv-drawer-row-label">Relance auto</span>
+                                    <span style={{
+                                        fontSize: "0.78rem",
+                                        padding: "3px 9px",
+                                        borderRadius: "12px",
+                                        fontWeight: 700,
+                                        backgroundColor: quoteReminderBadge.type === "sent"
+                                            ? "rgba(34, 197, 94, 0.12)"
+                                            : quoteReminderBadge.type === "neutral"
+                                            ? "rgba(100, 116, 139, 0.12)"
+                                            : "rgba(234, 179, 8, 0.15)",
+                                        color: quoteReminderBadge.type === "sent"
+                                            ? "#16a34a"
+                                            : quoteReminderBadge.type === "neutral"
+                                            ? "#64748b"
+                                            : "#b45309",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "5px"
+                                    }}>
+                                        {quoteReminderBadge.type === "sent" ? (
+                                            <Check size={13} strokeWidth={2.5} />
+                                        ) : (
+                                            <Clock size={13} strokeWidth={2.5} />
+                                        )}
+                                        <span>{quoteReminderBadge.label}</span>
+                                    </span>
+                                </div>
+                            )}
                             {quote.deliveryDate && (
                                 <div className="dv-drawer-row">
                                     <span className="dv-drawer-row-label">Date de livraison</span>

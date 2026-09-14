@@ -450,6 +450,18 @@ export const createIntervention = async (req, res) => {
             }
         }
 
+        // Arrêter automatiquement les relances actives si le client prend rendez-vous (RDV planifié)
+        if (clientId && (scheduledAt || newIntervention.status === "SCHEDULED")) {
+            try {
+                await ReminderEngineService.handleAppointmentCreated({
+                    clientId,
+                    companyId
+                });
+            } catch (appErr) {
+                console.warn("[HANDLE_APPOINTMENT_CREATED_WARN]:", appErr.message);
+            }
+        }
+
         // Déclenchement de la notification si un technicien a été assigné
         if (technicianId) {
             await createNotification({
@@ -575,6 +587,18 @@ export const updateIntervention = async (req, res) => {
                 body: `L'intervention "${updatedIntervention.title}" a été annulée.`,
                 entityId: id,
             });
+        }
+
+        // Arrêter automatiquement les relances actives si l'intervention est planifiée
+        if (updatedIntervention.clientId && (scheduledAt || updatedIntervention.status === "SCHEDULED")) {
+            try {
+                await ReminderEngineService.handleAppointmentCreated({
+                    clientId: updatedIntervention.clientId,
+                    companyId
+                });
+            } catch (appErr) {
+                console.warn("[HANDLE_APPOINTMENT_UPDATED_WARN]:", appErr.message);
+            }
         }
 
         return res.status(200).json({

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, CheckCircle2, AlertCircle, Info, RefreshCw, Loader2, FileText, Check, Trash2, Mail, ExternalLink } from "lucide-react";
+import ToastNotification from "../components/ToastNotification";
 import "./DevisPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -20,6 +21,7 @@ import { apiFetch } from "../utils/api";
 import { getAuthToken } from "../utils/auth";
 import { getApiUrl } from "../utils/config";
 import { getEffectiveCustomization } from "../utils/documentCustomization";
+import { getSocket } from "../utils/socket";
 
 const FILTERS = [
     { key: "all", label: "Tous" },
@@ -67,22 +69,72 @@ function DevisPage() {
         }))
     });
 
-    const fetchQuotes = async () => {
+    const fetchQuotes = async (isBackground = false) => {
         try {
-            setLoading(true);
+            if (!isBackground) setLoading(true);
             const data = await apiFetch('/v1/quotes');
             const rawQuotes = data.data?.quotes || data.quotes || (Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
-            setQuotes(rawQuotes.map(mapQuoteFromApi));
+            const mapped = rawQuotes.map(mapQuoteFromApi);
+            setQuotes(mapped);
+            setActiveQuote(prev => {
+                if (!prev) return null;
+                const fresh = mapped.find(q => q.id === prev.id);
+                return fresh ? { ...prev, ...fresh } : prev;
+            });
         } catch (err) {
             console.warn("API quotes error:", err.message);
-            setQuotes([]);
+            if (!isBackground) setQuotes([]);
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchQuotes();
+    }, []);
+
+    // Écoute temps réel WebSocket pour mise à jour instantanée sans rechargement de page
+    useEffect(() => {
+        const socket = getSocket();
+        if (!socket) return;
+
+        const handleRealtimeRefresh = () => {
+            fetchQuotes(true);
+        };
+
+        socket.on("quote:updated", handleRealtimeRefresh);
+        socket.on("quote:signed", handleRealtimeRefresh);
+        socket.on("quote:new", handleRealtimeRefresh);
+        socket.on("quote:deleted", handleRealtimeRefresh);
+        socket.on("quote:paid", handleRealtimeRefresh);
+
+        return () => {
+            socket.off("quote:updated", handleRealtimeRefresh);
+            socket.off("quote:signed", handleRealtimeRefresh);
+            socket.off("quote:new", handleRealtimeRefresh);
+            socket.off("quote:deleted", handleRealtimeRefresh);
+            socket.off("quote:paid", handleRealtimeRefresh);
+        };
+    }, []);
+
+    // Rafraîchissement automatique lorsque l'utilisateur revient sur l'onglet
+    useEffect(() => {
+        const handleFocus = () => {
+            fetchQuotes(true);
+        };
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                fetchQuotes(true);
+            }
+        };
+
+        window.addEventListener("focus", handleFocus);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener("focus", handleFocus);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
     }, []);
 
     const handleUpdateQuoteCustomization = async (qId, customSettings) => {
@@ -125,8 +177,7 @@ function DevisPage() {
 
     const showToast = (msg, type = "success") => {
         const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;
-        setToast({ msg: cleanMsg, type });
-        setTimeout(() => setToast(null), 3500);
+        setToast({ msg: cleanMsg, type, id: Date.now() });
     };
 
     const filteredQuotes = activeFilter === "all"
@@ -940,12 +991,7 @@ function DevisPage() {
             )}
 
             {/* Toast */}
-            {toast && (
-                <div className={`dv-toast dv-toast--${toast.type}`}>
-                    {toast.type === "success" ? <CheckCircle2 size={18} style={{ flexShrink: 0 }} /> : (toast.type === "error" ? <AlertCircle size={18} style={{ flexShrink: 0 }} /> : <Info size={18} style={{ flexShrink: 0 }} />)}
-                    <span>{toast.msg}</span>
-                </div>
-            )}
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 }

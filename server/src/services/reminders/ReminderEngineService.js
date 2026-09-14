@@ -488,17 +488,21 @@ export const ReminderEngineService = {
 
         const now = new Date();
 
-        // 1. Trouver les automatisations actives pour ce client avec stopOnReply = true
+        // 1. Trouver les automatisations actives (spécifiques au client ou globales) avec stopOnReply = true
         const activeAutomations = await prisma.reminderAutomation.findMany({
             where: {
-                clientId,
                 companyId,
                 enabled: true,
-                stopOnReply: true
+                stopOnReply: true,
+                OR: [
+                    { clientId },
+                    { clientId: null }
+                ]
             },
             include: {
                 executions: {
                     where: {
+                        clientId,
                         status: { in: ["SENT", "DELIVERED", "WAITING_FOR_RESPONSE"] }
                     },
                     orderBy: { createdAt: "desc" },
@@ -522,10 +526,11 @@ export const ReminderEngineService = {
                 });
             }
 
-            // Annuler toute relance ultérieure planifiée (follow-up 2, 3...)
+            // Annuler toute relance ultérieure planifiée pour ce client
             await prisma.reminderExecution.updateMany({
                 where: {
                     reminderAutomationId: auto.id,
+                    clientId,
                     status: "SCHEDULED"
                 },
                 data: {
@@ -534,19 +539,21 @@ export const ReminderEngineService = {
                 }
             });
 
-            // Passer le statut de l'automatisation en STOPPED_BY_REPLY
-            await prisma.reminderAutomation.update({
-                where: { id: auto.id },
-                data: {
-                    status: "STOPPED_BY_REPLY"
-                }
-            });
+            // Si c'est une règle dédiée à ce client, passer le statut en STOPPED_BY_REPLY
+            if (auto.clientId === clientId) {
+                await prisma.reminderAutomation.update({
+                    where: { id: auto.id },
+                    data: {
+                        status: "STOPPED_BY_REPLY"
+                    }
+                });
+            }
 
             stoppedCount++;
         }
 
         if (stoppedCount > 0) {
-            console.log(`[AUTO_RAPPEL_STOP_ON_REPLY] ${stoppedCount} automatisation(s) stoppée(s) pour client ${clientId}`);
+            console.log(`[AUTO_RAPPEL_STOP_ON_REPLY] ${stoppedCount} automatisation(s) / relance(s) stoppée(s) pour client ${clientId}`);
         }
 
         return { stoppedCount };
@@ -558,22 +565,27 @@ export const ReminderEngineService = {
     async handleAppointmentCreated({ clientId, companyId }) {
         if (!clientId || !companyId) return { stoppedCount: 0 };
 
+        // Trouver les règles actives (spécifiques au client ou globales) avec stopOnAppointment = true
         const activeAutomations = await prisma.reminderAutomation.findMany({
             where: {
-                clientId,
                 companyId,
                 enabled: true,
-                stopOnAppointment: true
+                stopOnAppointment: true,
+                OR: [
+                    { clientId },
+                    { clientId: null }
+                ]
             }
         });
 
         let stoppedCount = 0;
 
         for (const auto of activeAutomations) {
-            // Annuler les relances programmées
-            await prisma.reminderExecution.updateMany({
+            // Annuler les relances programmées pour ce client
+            const cancelRes = await prisma.reminderExecution.updateMany({
                 where: {
                     reminderAutomationId: auto.id,
+                    clientId,
                     status: "SCHEDULED"
                 },
                 data: {
@@ -582,14 +594,23 @@ export const ReminderEngineService = {
                 }
             });
 
-            await prisma.reminderAutomation.update({
-                where: { id: auto.id },
-                data: {
-                    status: "STOPPED_BY_APPOINTMENT"
-                }
-            });
+            // Si c'est une règle dédiée à ce client, passer le statut en STOPPED_BY_APPOINTMENT
+            if (auto.clientId === clientId) {
+                await prisma.reminderAutomation.update({
+                    where: { id: auto.id },
+                    data: {
+                        status: "STOPPED_BY_APPOINTMENT"
+                    }
+                });
+            }
 
-            stoppedCount++;
+            if (cancelRes.count > 0 || auto.clientId === clientId) {
+                stoppedCount++;
+            }
+        }
+
+        if (stoppedCount > 0) {
+            console.log(`[AUTO_RAPPEL_STOP_ON_APPOINTMENT] ${stoppedCount} relance(s) stoppée(s) suite au rendez-vous pour client ${clientId}`);
         }
 
         return { stoppedCount };

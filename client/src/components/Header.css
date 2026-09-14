@@ -331,13 +331,86 @@
     background-color: rgba(163, 230, 53, 0.15) !important;
 }
 
+.bell-header-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bell-mode-toggle-btn {
+    background: transparent;
+    border: none;
+    color: #556B2F;
+    cursor: pointer;
+    padding: 0 8px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.bell-mode-toggle-btn.active {
+    background-color: rgba(85, 107, 47, 0.12);
+    padding: 0 12px;
+}
+
+.bell-mode-done-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #556B2F;
+}
+
+.dark .bell-mode-toggle-btn {
+    color: #a3e635 !important;
+}
+
+.dark .bell-mode-toggle-btn.active {
+    background-color: rgba(163, 230, 53, 0.18) !important;
+}
+
+.dark .bell-mode-done-text {
+    color: #a3e635 !important;
+}
+
+.bell-mode-toggle-btn:hover {
+    background-color: rgba(85, 107, 47, 0.1);
+}
+
+.bell-mark-all-btn {
+    background: transparent;
+    border: none;
+    color: #556B2F;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.dark .bell-mark-all-btn {
+    color: #a3e635 !important;
+}
+
+.bell-mark-all-btn:hover {
+    background-color: rgba(85, 107, 47, 0.1);
+}
+
 .bell-panel-close-btn {
     background: transparent;
     border: none;
     color: var(--muted-foreground);
     cursor: pointer;
-    padding: 6px;
-    border-radius: 50%;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -345,6 +418,11 @@
 }
 
 .bell-panel-close-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--foreground);
+}
+
+.dark .bell-panel-close-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: var(--foreground);
 }
@@ -353,8 +431,8 @@
     display: flex;
     background-color: var(--card);
     border-bottom: 1px solid var(--border);
-    padding: 10px 16px;
-    gap: 8px;
+    padding: 8px 16px;
+    box-sizing: border-box;
 }
 
 .dark .bell-tabs-header {
@@ -362,21 +440,40 @@
     border-color: var(--border) !important;
 }
 
+.bell-tabs-segmented {
+    display: flex;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 4px;
+    box-sizing: border-box;
+}
+
+.dark .bell-tabs-segmented {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
 .bell-tab-btn {
     flex: 1;
+    height: 34px;
+    max-height: 34px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    border: 1px solid transparent;
+    gap: 6px;
+    border: none;
     background: transparent;
-    padding: 10px 14px;
-    font-size: 0.85rem;
+    padding: 0 8px;
+    font-size: 0.78rem;
     font-weight: 600;
     color: var(--muted-foreground);
     cursor: pointer;
-    border-radius: 12px;
-    transition: all 0.2s ease;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    user-select: none;
+    box-sizing: border-box;
 }
 
 .dark .bell-tab-btn {
@@ -387,7 +484,7 @@
     background-color: #556B2F !important;
     color: #ffffff !important;
     font-weight: 700;
-    box-shadow: 0 4px 12px rgba(85, 107, 47, 0.3);
+    box-shadow: 0 2px 8px rgba(85, 107, 47, 0.35);
 }
 
 .dark .bell-tab-btn.active {
@@ -399,6 +496,8 @@
     flex: 1;
     overflow-y: auto;
     padding: 16px;
+    padding-bottom: max(48px, calc(24px + env(safe-area-inset-bottom, 32px)));
+    box-sizing: border-box;
 }
 
 .notifications-list,
@@ -418,13 +517,91 @@
     flex-direction: column;
     gap: 6px;
     text-align: left;
-    transition: transform 0.15s ease, border-color 0.2s ease;
+    transition: transform 0.15s ease, border-color 0.2s ease, background-color 0.2s ease;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .dark .notification-item,
 .dark .sms-notification-item {
     background-color: var(--card) !important;
     border-color: var(--border) !important;
+}
+
+.notification-item.unread {
+    border-left: 3.5px solid #556B2F !important;
+    background-color: rgba(85, 107, 47, 0.05) !important;
+}
+
+.dark .notification-item.unread {
+    border-left: 3.5px solid #a3e635 !important;
+    background-color: rgba(163, 230, 53, 0.06) !important;
+}
+
+.notification-item.read {
+    opacity: 0.82;
+}
+
+.notification-item.read:hover {
+    opacity: 1;
+}
+
+.bell-unread-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #556B2F;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(85, 107, 47, 0.25);
+    display: inline-block;
+}
+
+.dark .bell-unread-dot {
+    background-color: #a3e635 !important;
+    box-shadow: 0 0 0 2px rgba(163, 230, 53, 0.25) !important;
+}
+
+.notif-chevron-icon {
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.notification-item .text.expanded {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+.notif-expanded-actions {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.notif-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #556B2F;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(85, 107, 47, 0.3);
+}
+
+.notif-action-btn:hover {
+    background-color: #435424;
+    transform: translateY(-1px);
 }
 
 .notification-item:hover,
@@ -454,26 +631,42 @@
 .notification-item .time,
 .sms-notification-item .date {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.dark .notification-item .time,
+.dark .sms-notification-item .date {
+    color: #94a3b8 !important;
 }
 
 .notification-item .text {
     font-size: 0.85rem;
-    color: #cbd5e1;
+    color: #64748b;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.45;
+    font-weight: 500;
+}
+
+.dark .notification-item .text {
+    color: #94a3b8 !important;
 }
 
 .sms-notification-item .msg {
     font-size: 0.85rem;
-    color: #cbd5e1;
+    color: #64748b;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.45;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
     max-width: 100%;
+    font-weight: 500;
+}
+
+.dark .sms-notification-item .msg {
+    color: #94a3b8 !important;
 }
 
 /* SMS quick reply elements */
@@ -534,4 +727,241 @@
     cursor: pointer;
     flex-shrink: 0;
     box-sizing: border-box;
+}
+
+/* Multi-select & iOS-style batch delete styles */
+.item-row-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+.item-content-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.bell-selection-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    background-color: transparent;
+    box-sizing: border-box;
+}
+
+.bell-selection-circle.checked {
+    background-color: #556B2F !important;
+    border-color: #556B2F !important;
+    box-shadow: 0 2px 6px rgba(85, 107, 47, 0.4);
+}
+
+.notification-item.selectable,
+.sms-notification-item.selectable {
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.notification-item.selected,
+.sms-notification-item.selected {
+    border-color: #556B2F !important;
+    background-color: rgba(85, 107, 47, 0.09) !important;
+}
+
+.dark .notification-item.selected,
+.dark .sms-notification-item.selected {
+    border-color: #a3e635 !important;
+    background-color: rgba(163, 230, 53, 0.1) !important;
+}
+
+.bell-selection-bottom-bar {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    padding-bottom: max(22px, calc(10px + env(safe-area-inset-bottom, 24px)));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    box-sizing: border-box;
+}
+
+.dark .bell-selection-bottom-bar {
+    background-color: var(--card) !important;
+    border-top-color: var(--border) !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.bell-select-all-btn {
+    background: transparent;
+    border: none;
+    color: var(--foreground);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.bell-select-all-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .bell-select-all-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.bell-delete-selected-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #dc2626;
+    color: #ffffff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+
+.bell-delete-selected-btn:hover:not(:disabled) {
+    background-color: #b91c1c;
+    transform: translateY(-1px);
+}
+
+.bell-delete-selected-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Confirmation modal styles */
+.bell-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100000;
+    animation: bellFadeIn 0.2s ease-out;
+}
+
+.bell-confirm-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: bellScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+}
+
+.dark .bell-confirm-card {
+    background-color: var(--card) !important;
+    border-color: var(--border) !important;
+}
+
+.bell-confirm-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba(220, 38, 38, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px auto;
+}
+
+.bell-confirm-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0 0 8px 0;
+}
+
+.dark .bell-confirm-title {
+    color: #ffffff !important;
+}
+
+.bell-confirm-desc {
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+    line-height: 1.45;
+    margin: 0 0 20px 0;
+}
+
+.bell-confirm-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.bell-confirm-cancel-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.bell-confirm-cancel-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .bell-confirm-cancel-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.bell-confirm-delete-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background-color: #dc2626;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.bell-confirm-delete-btn:hover {
+    background-color: #b91c1c;
+}
+
+@keyframes bellFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes bellScaleUp {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }

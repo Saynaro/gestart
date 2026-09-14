@@ -20,6 +20,7 @@ import {
     CheckCircle2,
     AlertTriangle
 } from "lucide-react";
+import ToastNotification from "../components/ToastNotification";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { apiFetch } from "../utils/api";
@@ -45,8 +46,7 @@ export default function TechniciensPage() {
     // Toast State
     const [toast, setToast] = useState({ show: false, message: "", isError: false });
     const triggerToast = (message, isError = false) => {
-        setToast({ show: true, message, isError });
-        setTimeout(() => setToast({ show: false, message: "", isError: false }), 4000);
+        setToast({ show: true, message, isError, id: Date.now() });
     };
 
     // Modal State
@@ -197,12 +197,7 @@ export default function TechniciensPage() {
                 >
 
                     {/* Toast Alert - Centered Top */}
-                    {toast.show && (
-                        <div className={`app-toast ${toast.isError ? 'dv-toast--error' : 'dv-toast--success'}`}>
-                            {toast.isError ? <AlertTriangle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} style={{ flexShrink: 0 }} />}
-                            <span>{toast.message}</span>
-                        </div>
-                    )}
+                    <ToastNotification toast={toast.show ? toast : null} onClose={() => setToast({ show: false, message: "", isError: false })} />
 
                     {/* Page Header */}
                     <div className="techniciens-header-row">

@@ -495,20 +495,11 @@ select:-webkit-autofill:active {
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   pointer-events: auto !important;
-  cursor: default !important;
+  cursor: pointer !important;
   user-select: none !important;
   white-space: nowrap !important;
   max-width: 90vw !important;
   text-align: center !important;
-}
-
-/* Static HTML div toasts animation (for non-Framer-motion pages) */
-.dv-toast,
-.fp-toast,
-.app-toast,
-.app-toast-pill {
-  transform: translate3d(-50%, 0, 0);
-  animation: appToastDrop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ── Dark Mode Toast Adaptation: elevated slate background with clear hairline border ── */

@@ -1,0 +1,102 @@
+.otp-input-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  user-select: none;
+}
+
+.otp-native-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 10;
+  cursor: pointer;
+  pointer-events: auto;
+  font-size: 16px; /* Prevents auto-zoom on iOS Safari */
+}
+
+.otp-slot-box {
+  position: relative;
+  width: 48px;
+  height: 56px;
+  border-radius: 13px;
+  border: 1.5px solid var(--border, #E2E8F0);
+  background: var(--card, #FFFFFF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--foreground, #0F172A);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.25s ease, transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.otp-slot-box.focused {
+  border-color: #556B2F;
+  box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.2);
+  background: var(--background, #FAFAFA);
+}
+
+.otp-slot-box.filled {
+  background: linear-gradient(135deg, #3A4B1E 0%, #556B2F 100%);
+  border-color: #556B2F;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(85, 107, 47, 0.28);
+}
+
+.otp-digit-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-family: inherit;
+  font-weight: 800;
+}
+
+.otp-dot-placeholder {
+  color: #94A3B8;
+  font-size: 1.7rem;
+  line-height: 1;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.otp-dot-active {
+  color: #556B2F;
+  font-size: 1.7rem;
+  line-height: 1;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: otpBlink 1s infinite ease-in-out;
+}
+
+@keyframes otpBlink {
+  0%, 100% { opacity: 1; transform: scale(1.1); }
+  50% { opacity: 0.3; transform: scale(0.9); }
+}
+
+@media (max-width: 480px) {
+  .otp-input-wrapper {
+    gap: 7px;
+    margin: 14px 0;
+  }
+
+  .otp-slot-box {
+    width: 42px;
+    height: 50px;
+    border-radius: 11px;
+    font-size: 1.35rem;
+  }
+}

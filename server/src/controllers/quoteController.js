@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { prisma } from "../config/db.js";
 import { sendQuoteClientEmail } from "../utils/emailService.js";
 import { generateQuotePdfBuffer } from "../utils/pdfGenerator.js";
+import { emitToCompany } from "../config/socket.js";
 
 ////// GET PAGINATED QUOTES //////
 export const getQuotes = async (req, res) => {
@@ -389,6 +390,9 @@ export const createQuote = async (req, res) => {
             }
         }
 
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "quote:new", result);
+
         return res.status(201).json({
             success: true,
             message: `Devis ${result.number} créé avec succès`,
@@ -632,6 +636,9 @@ export const updateQuote = async (req, res) => {
             }
         }
 
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "quote:updated", result);
+
         return res.status(200).json({
             success: true,
             message: "Devis mis à jour avec succès",
@@ -723,6 +730,9 @@ export const sendQuote = async (req, res) => {
             }
         });
 
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "quote:updated", updatedQuote);
+
         return res.status(200).json({
             success: true,
             message: `Devis ${quote.number} envoyé avec succès à ${recipientEmail || 'client'}`,
@@ -773,6 +783,10 @@ export const acceptQuote = async (req, res) => {
                 acceptedAt: new Date()
             }
         });
+
+        // Émission temps réel WebSocket
+        emitToCompany(quote.companyId, "quote:updated", updatedQuote);
+        emitToCompany(quote.companyId, "quote:signed", updatedQuote);
 
         return res.status(200).json({
             success: true,
@@ -876,6 +890,10 @@ export const convertQuoteToInvoice = async (req, res) => {
 
             return newInvoice;
         });
+
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "quote:updated", { ...quote, status: "ACCEPTED" });
+        emitToCompany(companyId, "invoice:new", invoice);
 
         return res.status(201).json({
             success: true,
@@ -983,6 +1001,9 @@ export const deleteQuote = async (req, res) => {
         // Suppression des lignes puis du devis
         await prisma.quoteLine.deleteMany({ where: { quoteId: id } });
         await prisma.quote.delete({ where: { id } });
+
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "quote:deleted", { id });
 
         return res.status(200).json({
             success: true,

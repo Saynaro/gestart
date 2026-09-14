@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info, AlertTriangle, Lock, Trash2, Mail, ExternalLink } from "lucide-react";
+import ToastNotification from "../components/ToastNotification";
 import "./FacturesPage.css";
 import "../PlanningPage/PlanningPage.css";
 
@@ -22,6 +23,7 @@ import { apiFetch } from "../utils/api";
 import { getAuthToken } from "../utils/auth";
 import { getApiUrl } from "../utils/config";
 import { getEffectiveCustomization } from "../utils/documentCustomization";
+import { getSocket } from "../utils/socket";
 
 const FILTERS = [
     { key: "all",      label: "Toutes" },
@@ -74,9 +76,9 @@ function FacturesPage() {
         }))
     });
 
-    const fetchInvoices = async () => {
+    const fetchInvoices = async (isBackground = false) => {
         try {
-            setLoading(true);
+            if (!isBackground) setLoading(true);
             const data = await apiFetch('/v1/invoices');
             const rawInvoices = data.data?.invoices || data.data || data || [];
             const mapped = rawInvoices.map(mapInvoiceFromApi);
@@ -88,9 +90,9 @@ function FacturesPage() {
             });
         } catch (err) {
             console.warn("API invoices error:", err.message);
-            setInvoices([]);
+            if (!isBackground) setInvoices([]);
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
         }
     };
 
@@ -111,6 +113,48 @@ function FacturesPage() {
     useEffect(() => {
         fetchInvoices();
         fetchReceivedInvoices();
+    }, []);
+
+    // Écoute temps réel WebSocket pour mise à jour instantanée sans rechargement de page
+    useEffect(() => {
+        const socket = getSocket();
+        if (!socket) return;
+
+        const handleRealtimeRefresh = () => {
+            fetchInvoices(true);
+        };
+
+        socket.on("invoice:updated", handleRealtimeRefresh);
+        socket.on("invoice:new", handleRealtimeRefresh);
+        socket.on("invoice:deleted", handleRealtimeRefresh);
+        socket.on("invoice:paid", handleRealtimeRefresh);
+
+        return () => {
+            socket.off("invoice:updated", handleRealtimeRefresh);
+            socket.off("invoice:new", handleRealtimeRefresh);
+            socket.off("invoice:deleted", handleRealtimeRefresh);
+            socket.off("invoice:paid", handleRealtimeRefresh);
+        };
+    }, []);
+
+    // Rafraîchissement automatique lorsque l'utilisateur revient sur l'onglet
+    useEffect(() => {
+        const handleFocus = () => {
+            fetchInvoices(true);
+        };
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                fetchInvoices(true);
+            }
+        };
+
+        window.addEventListener("focus", handleFocus);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener("focus", handleFocus);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
     }, []);
 
     const [activeFilter, setActiveFilter] = useState("all");
@@ -136,8 +180,7 @@ function FacturesPage() {
     const [toast, setToast] = useState(null);
     const showToast = (msg, type = "success") => {
         const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;
-        setToast({ msg: cleanMsg, type });
-        setTimeout(() => setToast(null), 3500);
+        setToast({ msg: cleanMsg, type, id: Date.now() });
     };
 
     const handleDeleteInvoice = (inv) => {
@@ -1165,12 +1208,7 @@ function FacturesPage() {
             )}
 
             {/* Toast */}
-            {toast && (
-                <div className={`fp-toast fp-toast--${toast.type}`}>
-                    {toast.type === "success" ? <CheckCircle2 size={18} style={{ flexShrink: 0 }} /> : (toast.type === "error" ? <AlertCircle size={18} style={{ flexShrink: 0 }} /> : <Info size={18} style={{ flexShrink: 0 }} />)}
-                    <span>{toast.msg}</span>
-                </div>
-            )}
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 }

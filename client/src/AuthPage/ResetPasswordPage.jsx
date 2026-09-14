@@ -29,10 +29,10 @@ export default function ResetPasswordPage() {
     const [code, setCode] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    
+
     const [showPassword, setShowPassword] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-    
+
     const [loading, setLoading] = useState(false);
     const [validatingToken, setValidatingToken] = useState(!!tokenFromUrl);
     const [tokenIsValid, setTokenIsValid] = useState(false);
@@ -231,7 +231,7 @@ export default function ResetPasswordPage() {
                                             <div className="input-wrapper">
                                                 <input
                                                     type="email"
-                                                    placeholder="jean.dupont@climpro.fr"
+                                                    placeholder="exemple@gmail.com"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     required
@@ -275,8 +275,12 @@ export default function ResetPasswordPage() {
                                         <button
                                             type="button"
                                             className="password-toggle-btn"
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                            }}
                                             onClick={() => setShowPassword(prev => !prev)}
                                             tabIndex="-1"
+                                            aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                                         >
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
@@ -285,20 +289,20 @@ export default function ResetPasswordPage() {
                                     {/* Password Rules helper */}
                                     {(isPasswordFocused || newPassword.length > 0) && (
                                         <div className="password-rules-box">
-                                            <div className={`rule-item ${rules.length ? 'valid' : ''}`}>
-                                                {rules.length ? <Check size={14} /> : <X size={14} />}
+                                            <div className={`rule-item ${rules.length ? 'valid' : ''}`} style={{ color: rules.length ? '#22C55E' : '#94A3B8' }}>
+                                                {rules.length ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                                 <span>Au moins 8 caractères</span>
                                             </div>
-                                            <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`}>
-                                                {rules.uppercase ? <Check size={14} /> : <X size={14} />}
+                                            <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`} style={{ color: rules.uppercase ? '#22C55E' : '#94A3B8' }}>
+                                                {rules.uppercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                                 <span>1 lettre majuscule (A-Z)</span>
                                             </div>
-                                            <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`}>
-                                                {rules.lowercase ? <Check size={14} /> : <X size={14} />}
+                                            <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`} style={{ color: rules.lowercase ? '#22C55E' : '#94A3B8' }}>
+                                                {rules.lowercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                                 <span>1 lettre minuscule (a-z)</span>
                                             </div>
-                                            <div className={`rule-item ${rules.number ? 'valid' : ''}`}>
-                                                {rules.number ? <Check size={14} /> : <X size={14} />}
+                                            <div className={`rule-item ${rules.number ? 'valid' : ''}`} style={{ color: rules.number ? '#22C55E' : '#94A3B8' }}>
+                                                {rules.number ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
                                                 <span>1 chiffre (0-9)</span>
                                             </div>
                                         </div>

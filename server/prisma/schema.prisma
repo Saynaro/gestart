@@ -641,6 +641,12 @@ model CompanySettings {
   // Signature en fin de SMS
   smsSignature             String? // "— Dupont Climatisation"
 
+  // ── RELANCES AUTOMATIQUES FACTURES & DEVIS ────────────────
+  invoiceReminderEnabled Boolean @default(true)
+  invoiceReminderDays    Int     @default(7) // délai après envoi en jours
+  quoteReminderEnabled   Boolean @default(true)
+  quoteReminderDays      Int     @default(5) // délai après envoi en jours
+
   // ── NOTIFICATIONS OWNER/MANAGER ───────────────────────────
   notifyNewClient         Boolean @default(true)
   notifyNewMessage        Boolean @default(true)
@@ -1238,8 +1244,10 @@ model Quote {
 
   // ── RAPPELS AUTOMATIQUES (cron) ───────────────────────────
   // Si devis non signé après X jours → rappel automatique
-  reminder1SentAt DateTime? // J+7 après envoi
-  reminder2SentAt DateTime? // J+14 après envoi
+  reminder1SentAt      DateTime? // rappel automatique envoyé
+  reminder2SentAt      DateTime? // 2ème rappel éventuel
+  reminderDisabled     Boolean   @default(false)
+  customReminderDays   Int?
 
   issuedAt DateTime @default(now())
 
@@ -1404,9 +1412,11 @@ model Invoice {
 
   // ── RAPPELS AUTOMATIQUES (cron) ───────────────────────────
   // Si facture non payée → rappel automatique
-  reminder1SentAt DateTime? // J+7 après dueAt
-  reminder2SentAt DateTime? // J+14 après dueAt
-  reminderSentAt  DateTime? // dernier rappel manuel (bouton "Relancer")
+  reminder1SentAt      DateTime? // rappel automatique envoyé
+  reminder2SentAt      DateTime? // 2ème rappel éventuel
+  reminderSentAt       DateTime? // dernier rappel manuel (bouton "Relancer")
+  reminderDisabled     Boolean   @default(false)
+  customReminderDays   Int?
 
   lines                InvoiceLine[]
   paymentEvents        InvoicePaymentEvent[]

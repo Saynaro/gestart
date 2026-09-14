@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette, Lock, Trash2 } from "lucide-react";
+import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
@@ -69,6 +69,50 @@ function InvoiceDetailDrawer({
     
     const rawDueDate = invoice.dueAt || invoice.dueDate || (rawDocDate ? new Date(new Date(rawDocDate).getTime() + (invoice.paymentDelay || 30) * 86400000) : null);
     const dueDate = rawDueDate ? new Date(rawDueDate).toLocaleDateString("fr-FR") : formattedDocDate;
+
+    // Relance automatique calculation
+    const reminderEnabled = !invoice.reminderDisabled && (company?.settings?.invoiceReminderEnabled !== false);
+    const reminderDelayDays = invoice.customReminderDays || company?.settings?.invoiceReminderDays || 7;
+
+    let reminderBadge = null;
+    if (invoice.reminder1SentAt) {
+        const sentDateStr = new Date(invoice.reminder1SentAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        reminderBadge = {
+            label: `Relance envoyée le ${sentDateStr}`,
+            type: 'sent'
+        };
+    } else if (!isPaid && !isDraft && reminderEnabled && invoice.emailSentAt) {
+        const sentTime = new Date(invoice.emailSentAt).getTime();
+        const targetTime = sentTime + reminderDelayDays * 24 * 60 * 60 * 1000;
+        const diffMs = targetTime - Date.now();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const targetDateStr = new Date(targetTime).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+
+        const hasRecipientEmail = Boolean(invoice.emailSentTo || invoice.client?.email);
+
+        if (!hasRecipientEmail) {
+            reminderBadge = {
+                label: "Non programmée (aucun email client)",
+                type: "neutral"
+            };
+        } else if (diffDays > 0) {
+            reminderBadge = {
+                label: `Relance dans ${diffDays} jour${diffDays > 1 ? 's' : ''} (le ${targetDateStr})`,
+                type: 'pending'
+            };
+        } else if (diffDays === 0) {
+            reminderBadge = {
+                label: "Relance prévue aujourd'hui",
+                type: 'imminent'
+            };
+        } else {
+            // Délai dépassé, en attente du cycle automatique
+            reminderBadge = {
+                label: "En attente d'envoi automatique",
+                type: 'imminent'
+            };
+        }
+    }
 
     React.useEffect(() => {
         window.history.pushState({ invoiceDetail: true }, "");
@@ -1188,6 +1232,37 @@ function InvoiceDetailDrawer({
                                     <span className="fp-drawer-row-label">Date d'exigibilité</span>
                                     <span className="fp-drawer-row-value">{dueDate}</span>
                                 </div>
+                                {reminderBadge && (
+                                    <div className="fp-drawer-row" style={{ alignItems: 'center' }}>
+                                        <span className="fp-drawer-row-label">Relance auto</span>
+                                        <span style={{
+                                            fontSize: "0.78rem",
+                                            padding: "3px 9px",
+                                            borderRadius: "12px",
+                                            fontWeight: 700,
+                                            backgroundColor: reminderBadge.type === "sent"
+                                                ? "rgba(34, 197, 94, 0.12)"
+                                                : reminderBadge.type === "neutral"
+                                                ? "rgba(100, 116, 139, 0.12)"
+                                                : "rgba(234, 179, 8, 0.15)",
+                                            color: reminderBadge.type === "sent"
+                                                ? "#16a34a"
+                                                : reminderBadge.type === "neutral"
+                                                ? "#64748b"
+                                                : "#b45309",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "5px"
+                                        }}>
+                                            {reminderBadge.type === "sent" ? (
+                                                <Check size={13} strokeWidth={2.5} />
+                                            ) : (
+                                                <Clock size={13} strokeWidth={2.5} />
+                                            )}
+                                            <span>{reminderBadge.label}</span>
+                                        </span>
+                                    </div>
+                                )}
                                 <div className="fp-drawer-row">
                                     <span className="fp-drawer-row-label">Sous-total HT</span>
                                     <span className="fp-drawer-row-value">{subtotalHt.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>

@@ -92,46 +92,50 @@ export const sendVerificationEmail = async ({ to, code, token, firstName = "Util
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const verifyUrl = `${frontendUrl}/verify-email?token=${token}&email=${encodeURIComponent(to)}`;
 
-    const subject = "Vérification de votre compte - GestArt CRM";
+    const subject = `${code} est votre code de vérification - GestArt CRM`;
 
     const html = `
-        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: linear-gradient(135deg, #131C0C 0%, #1C2812 100%); color: #F8FAFC; border-radius: 16px; border: 1px solid #36451C; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-            <div style="text-align: center; margin-bottom: 28px;">
-                <h1 style="color: #A3E635; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">GestArt CRM</h1>
-                <p style="color: #A3B18A; font-size: 14px; margin-top: 6px; font-weight: 500;">Confirmation de votre adresse email</p>
-            </div>
-            
-            <div style="background: #243317; padding: 28px; border-radius: 12px; border: 1px solid #36451C;">
-                <h2 style="font-size: 19px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${firstName},</h2>
-                <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">Merci de vous être inscrit sur <strong>GestArt CRM</strong>. Pour finaliser la création de votre compte, veuillez saisir le code de vérification ci-dessous ou cliquer sur le bouton.</p>
-                
-                <div style="text-align: center; margin: 32px 0;">
-                    <div style="font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #A3E635; background: #131C0C; display: inline-block; padding: 14px 32px; border-radius: 10px; border: 2px dashed #A3E635; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
-                        ${code}
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+            <div style="max-width: 540px; margin: 0 auto; padding: 32px 16px;">
+                <div style="margin-bottom: 24px;">
+                    <span style="font-size: 20px; font-weight: 800; color: #556B2F; letter-spacing: -0.02em;">GestArt CRM</span>
+                </div>
+                <div style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 32px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <h1 style="font-size: 20px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Confirmation de votre email</h1>
+                    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">
+                        Bonjour ${firstName},<br/>
+                        Merci de votre inscription. Votre code de vérification est :
+                    </p>
+                    
+                    <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 24px; text-align: center; margin: 24px 0;">
+                        <div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', monospace; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #0F172A;">
+                            ${code}
+                        </div>
+                        <div style="font-size: 12px; color: #64748B; margin-top: 6px;">Ce code expire dans 15 minutes</div>
                     </div>
-                    <p style="font-size: 12px; color: #A3B18A; margin-top: 10px;">Ce code est valable pendant 15 minutes.</p>
+
+                    <div style="text-align: center; margin: 28px 0 16px 0;">
+                        <a href="${verifyUrl}" style="background-color: #556B2F; color: #FFFFFF; padding: 14px 32px; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 10px; display: inline-block; box-shadow: 0 2px 8px rgba(85, 107, 47, 0.25);">
+                            Confirmer mon compte
+                        </a>
+                    </div>
                 </div>
-
-                <div style="text-align: center; margin: 28px 0;">
-                    <a href="${verifyUrl}" style="background-color: #556B2F; color: #ffffff; padding: 14px 32px; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 30px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
-                        Vérifier mon email
-                    </a>
+                <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                    <p style="margin: 0 0 6px 0;">Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.</p>
+                    <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM</p>
                 </div>
-
-                <p style="font-size: 13px; color: #94A3B8; margin-top: 24px; text-align: center;">
-                    Ou copiez ce lien dans votre navigateur : <br/>
-                    <a href="${verifyUrl}" style="color: #A3E635; word-break: break-all; font-weight: 500;">${verifyUrl}</a>
-                </p>
             </div>
-
-            <div style="text-align: center; margin-top: 28px; color: #A3B18A; font-size: 12px;">
-                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos emails, vérifiez votre dossier <strong>Spam / Courriers indésirables</strong>. Email officiel : <strong>support.gestart@gmail.com</strong></p>
-                <p>© 2026 GestArt CRM. L'outil CRM N°1 des artisans & installateurs.</p>
-            </div>
-        </div>
+        </body>
+        </html>
     `;
 
-    const text = `Bonjour ${firstName},\n\nVotre code de vérification GestArt CRM est: ${code}\n\nOu cliquez sur ce lien pour vérifier votre email: ${verifyUrl}\n\n(Pensez à vérifier votre dossier Spam si besoin. Expéditeur : support.gestart@gmail.com)`;
+    const text = `Votre code de vérification est : ${code}\n\nBonjour ${firstName},\nMerci de votre inscription sur GestArt CRM. Voici votre code de validation : ${code}\n\nOu confirmez directement via ce lien : ${verifyUrl}\n\n(Ce code expire dans 15 minutes)`;
 
     return await sendEmail({ to, subject, html, text });
 };
@@ -146,39 +150,41 @@ export const sendPasswordResetEmail = async ({ to, token, code, firstName = "Uti
     const subject = "Réinitialisation de votre mot de passe - GestArt CRM";
 
     const html = `
-        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: linear-gradient(135deg, #131C0C 0%, #1C2812 100%); color: #F8FAFC; border-radius: 16px; border: 1px solid #36451C; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-            <div style="text-align: center; margin-bottom: 28px;">
-                <h1 style="color: #A3E635; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">GestArt CRM</h1>
-                <p style="color: #A3B18A; font-size: 14px; margin-top: 6px; font-weight: 500;">Demande de réinitialisation du mot de passe</p>
-            </div>
-            
-            <div style="background: #243317; padding: 28px; border-radius: 12px; border: 1px solid #36451C;">
-                <h2 style="font-size: 19px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${firstName},</h2>
-                <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">Vous avez demandé la réinitialisation de votre mot de passe sur <strong>GestArt CRM</strong>. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.</p>
-                
-                <div style="text-align: center; margin: 32px 0;">
-                    <a href="${resetUrl}" style="background-color: #556B2F; color: #ffffff; padding: 14px 34px; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 30px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid #6B873B;">
-                        Réinitialiser mon mot de passe
-                    </a>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+            <div style="max-width: 540px; margin: 0 auto; padding: 32px 16px;">
+                <div style="margin-bottom: 24px;">
+                    <span style="font-size: 20px; font-weight: 800; color: #556B2F; letter-spacing: -0.02em;">GestArt CRM</span>
                 </div>
+                <div style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 32px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <h1 style="font-size: 20px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Réinitialisation de mot de passe</h1>
+                    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">
+                        Bonjour ${firstName},<br/>
+                        Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour en créer un nouveau :
+                    </p>
 
-                <p style="font-size: 12px; color: #A3B18A; margin-top: 18px; text-align: center;">Ce lien est valable pendant 1 heure.</p>
-
-                <p style="font-size: 13px; color: #94A3B8; margin-top: 24px; text-align: center;">
-                    Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur : <br/>
-                    <a href="${resetUrl}" style="color: #A3E635; word-break: break-all; font-weight: 500;">${resetUrl}</a>
-                </p>
+                    <div style="text-align: center; margin: 28px 0 16px 0;">
+                        <a href="${resetUrl}" style="background-color: #556B2F; color: #FFFFFF; padding: 14px 32px; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 10px; display: inline-block; box-shadow: 0 2px 8px rgba(85, 107, 47, 0.25);">
+                            Changer mon mot de passe
+                        </a>
+                    </div>
+                    <p style="font-size: 12px; color: #64748B; text-align: center; margin: 0;">Ce lien reste valide pendant 1 heure.</p>
+                </div>
+                <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                    <p style="margin: 0 0 6px 0;">Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en toute sécurité.</p>
+                    <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM</p>
+                </div>
             </div>
-
-            <div style="text-align: center; margin-top: 28px; color: #A3B18A; font-size: 12px;">
-                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos emails, vérifiez votre dossier <strong>Spam / Courriers indésirables</strong>. Email officiel : <strong>support.gestart@gmail.com</strong></p>
-                <p>Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en toute sécurité.</p>
-                <p>© 2026 GestArt CRM. L'outil CRM N°1 des artisans & installateurs.</p>
-            </div>
-        </div>
+        </body>
+        </html>
     `;
 
-    const text = `Bonjour ${firstName},\n\nVous avez demandé la réinitialisation de votre mot de passe sur GestArt CRM. Cliquez sur ce lien pour réinitialiser votre mot de passe: ${resetUrl}\n\nLien valable pendant 1 heure.\n\n(Pensez à vérifier votre dossier Spam si besoin. Expéditeur : support.gestart@gmail.com)`;
+    const text = `Bonjour ${firstName},\n\nVous avez demandé la réinitialisation de votre mot de passe sur GestArt CRM.\nCliquez sur ce lien : ${resetUrl}\n(Lien valable 1 heure)`;
 
     return await sendEmail({ to, subject, html, text });
 };
@@ -190,32 +196,40 @@ export const sendTwoFactorCodeEmail = async ({ to, code, firstName = "Utilisateu
     const subject = `${code} est votre code de vérification 2FA - GestArt CRM`;
 
     const html = `
-        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: linear-gradient(135deg, #131C0C 0%, #1C2812 100%); color: #F8FAFC; border-radius: 16px; border: 1px solid #36451C; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <h1 style="color: #A3E635; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">GestArt CRM</h1>
-                <p style="color: #A3B18A; font-size: 14px; margin-top: 6px; font-weight: 500;">Double Authentification (2FA)</p>
-            </div>
-            
-            <div style="background: #243317; padding: 28px; border-radius: 12px; border: 1px solid #36451C; text-align: center;">
-                <h2 style="font-size: 19px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${firstName},</h2>
-                <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">Voici votre code de sécurité à 6 chiffres pour vous connecter à votre compte GestArt CRM :</p>
-                
-                <div style="margin: 28px 0; padding: 18px 24px; background: #131C0C; border: 2px dashed #A3E635; border-radius: 12px; display: inline-block;">
-                    <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #A3E635;">${code}</span>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+            <div style="max-width: 540px; margin: 0 auto; padding: 32px 16px;">
+                <div style="margin-bottom: 24px;">
+                    <span style="font-size: 20px; font-weight: 800; color: #556B2F; letter-spacing: -0.02em;">GestArt CRM</span>
                 </div>
-
-                <p style="font-size: 13px; color: #A3B18A; margin-top: 8px;">Ce code expire dans <strong>10 minutes</strong>. Ne le partagez avec personne.</p>
+                <div style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 32px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <h1 style="font-size: 20px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Connexion sécurisée (2FA)</h1>
+                    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">
+                        Bonjour ${firstName},<br/>
+                        Voici votre code de sécurité pour valider votre connexion :
+                    </p>
+                    
+                    <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 24px; text-align: center; margin: 24px 0;">
+                        <div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', monospace; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #0F172A;">
+                            ${code}
+                        </div>
+                        <div style="font-size: 12px; color: #64748B; margin-top: 6px;">Ce code expire dans 10 minutes</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                    <p style="margin: 0;">Ne partagez jamais ce code. © ${new Date().getFullYear()} GestArt CRM</p>
+                </div>
             </div>
-
-            <div style="text-align: center; margin-top: 24px; color: #A3B18A; font-size: 12px;">
-                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos emails, vérifiez votre dossier <strong>Spam / Courriers indésirables</strong>. Email officiel : <strong>support.gestart@gmail.com</strong></p>
-                <p>Si vous n'êtes pas à l'origine de cette tentative de connexion, nous vous conseillons de changer immédiatement votre mot de passe.</p>
-                <p>© 2026 GestArt CRM.</p>
-            </div>
-        </div>
+        </body>
+        </html>
     `;
 
-    const text = `Bonjour ${firstName},\n\nVotre code de connexion 2FA GestArt CRM est : ${code}\n\nCe code expire dans 10 minutes.\n\n(Pensez à vérifier votre dossier Spam si besoin. Expéditeur : support.gestart@gmail.com)`;
+    const text = `Votre code de sécurité 2FA est : ${code}\n\nCe code expire dans 10 minutes.`;
 
     return await sendEmail({ to, subject, html, text });
 };
@@ -224,7 +238,7 @@ export const sendTwoFactorCodeEmail = async ({ to, code, firstName = "Utilisateu
  * Send Quote to Client with Signature & Online Payment Link + PDF Attachment
  * Utilise l'adresse email connectée (Google / SMTP / Microsoft) de l'entreprise
  */
-export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, senderEmail, primaryColor = "#556B2F", customization = {} }) => {
+export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, senderEmail, primaryColor = "#556B2F", customization = {}, isReminder = false }) => {
     const companyId = company?.id || quote.companyId;
     const companyName = company?.name || quote.company?.name || "Votre entreprise";
     const clientName = quote.client ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim() : "Client";
@@ -233,13 +247,28 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
     const accentColor = customization.primaryColor || company?.settings?.documentCustomization?.primaryColor || company?.settings?.primaryColor || primaryColor || "#556B2F";
 
     // 1. Vérifier la connexion email active de l'entreprise
-    const connection = await prisma.emailConnection.findFirst({
+    let connection = await prisma.emailConnection.findFirst({
         where: {
             companyId,
             status: "CONNECTED"
         },
         orderBy: { isDefault: "desc" }
     });
+
+    if (!connection) {
+        // Fallback auto-heal si une connexion existe avec identifiants enregistrés (ex: Google OAuth avec refresh token)
+        const existingConn = await prisma.emailConnection.findFirst({
+            where: { companyId },
+            orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }]
+        });
+        if (existingConn && (existingConn.encryptedRefreshToken || existingConn.encryptedSmtpPass || existingConn.encryptedAccessToken)) {
+            connection = existingConn;
+            prisma.emailConnection.update({
+                where: { id: existingConn.id },
+                data: { status: "CONNECTED" }
+            }).catch(() => {});
+        }
+    }
 
     if (!connection) {
         const error = new Error("EMAIL_NOT_CONFIGURED: Aucune adresse email professionnelle n'est connectée pour votre entreprise. Veuillez connecter votre compte Google/Email dans les Paramètres pour envoyer vos devis.");
@@ -255,48 +284,65 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
     }
 
     const fromAddress = `"${companyName}" <${connection.emailAddress}>`;
-    const subject = `Devis ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
+    const subjectPrefix = isReminder ? "[Rappel] " : "";
+    const subject = `${subjectPrefix}Devis ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
     const html = `
-        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: #0F172A; color: #F8FAFC; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <h1 style="color: #FFFFFF; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">${companyName}</h1>
-                <p style="color: #94A3B8; font-size: 14px; margin-top: 4px; font-weight: 500;">Devis & Proposition commerciale</p>
-            </div>
-            
-            <div style="background: #1E293B; padding: 28px; border-radius: 12px; border: 1px solid #334155;">
-                <h2 style="font-size: 18px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${clientName},</h2>
-                <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">
-                    Veuillez trouver ci-joint votre devis <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché).
-                </p>
-
-                <div style="margin: 24px 0; padding: 18px; background: #0F172A; border-radius: 10px; border: 1px solid #334155;">
-                    <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Montant du devis :</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">${totalTtc} € TTC</div>
-                </div>
-                
-                <p style="color: #E2E8F0; line-height: 1.5; font-size: 14px;">
-                    Vous pouvez consulter ce devis et <strong>le valider par signature électronique en ligne (valeur légale)</strong> :
-                </p>
-
-                <div style="text-align: center; margin: 28px 0;">
-                    <a href="${signatureUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
-                        Signer le devis en ligne
-                    </a>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+            <div style="max-width: 560px; margin: 0 auto; padding: 32px 16px;">
+                <!-- Header -->
+                <div style="margin-bottom: 20px;">
+                    <span style="font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">${companyName}</span>
+                    <div style="font-size: 13px; color: #64748B; margin-top: 2px;">Proposition commerciale & Devis</div>
                 </div>
 
-                <p style="font-size: 13px; color: #94A3B8; text-align: center; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${signatureUrl}" style="color: #A3E635 !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${signatureUrl}</a>
-                </p>
-            </div>
+                <!-- Main Card -->
+                <div style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 32px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    ${isReminder ? `
+                        <div style="display: inline-block; background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px;">
+                            Rappel de validation
+                        </div>
+                    ` : ''}
 
-            <div style="text-align: center; margin-top: 24px; color: #64748B; font-size: 12px; line-height: 1.5;">
-                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>.</p>
-                <p>Envoyé par <strong>${companyName}</strong> (${connection.emailAddress}).</p>
-                <p>Pour toute question relative à ce devis, vous pouvez répondre directement à cet email (<a href="mailto:${connection.emailAddress}" style="color: #94A3B8; text-decoration: underline;">${connection.emailAddress}</a>).</p>
-                <p>© ${new Date().getFullYear()} ${companyName} • Tous droits réservés.</p>
+                    <h2 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Bonjour ${clientName},</h2>
+                    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">
+                        ${isReminder
+                            ? `Sauf erreur de notre part, nous n'avons pas encore reçu votre accord concernant le devis <strong>${docNumber}</strong>. Vous pouvez le consulter et le valider par signature électronique en ligne ci-dessous :`
+                            : `Veuillez trouver ci-joint votre devis <strong>${docNumber}</strong> (document PDF joint à cet email). Vous pouvez le consulter et le signer directement en ligne :`
+                        }
+                    </p>
+
+                    <!-- Amount Box -->
+                    <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+                        <div style="font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Montant Total du Devis</div>
+                        <div style="font-size: 32px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">${totalTtc} € TTC</div>
+                        <div style="font-size: 12px; color: #94A3B8; margin-top: 4px;">Référence : ${docNumber}</div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <div style="text-align: center; margin: 28px 0 16px 0;">
+                        <a href="${signatureUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 15px 36px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 2px 8px rgba(85, 107, 47, 0.25);">
+                            ${isReminder ? "Consulter et signer mon devis" : "Signer le devis en ligne"}
+                        </a>
+                        <p style="font-size: 12px; color: #64748B; margin-top: 10px;">Signature électronique sécurisée à valeur légale</p>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #94A3B8; line-height: 1.6;">
+                    <p style="margin: 0 0 4px 0;">Envoyé par <strong>${companyName}</strong> (<a href="mailto:${connection.emailAddress}" style="color: #64748B; text-decoration: underline;">${connection.emailAddress}</a>)</p>
+                    <p style="margin: 0; font-size: 11px; color: #CBD5E1;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier Spam / Courriers indésirables.</p>
+                    <p style="margin-top: 8px;">© ${new Date().getFullYear()} ${companyName}</p>
+                </div>
             </div>
-        </div>
+        </body>
+        </html>
     `;
 
     const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter et le signer en ligne ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Expéditeur : ${connection.emailAddress})\n\nCordialement,\n${companyName}`;
@@ -379,7 +425,8 @@ export const sendInvoiceClientEmail = async ({
     senderEmail,
     primaryColor = "#556B2F",
     customization = {},
-    paymentOptions = {}
+    paymentOptions = {},
+    isReminder = false
 }) => {
     const companyId = company?.id || invoice.companyId;
     const companyName = company?.name || invoice.company?.name || "Votre entreprise";
@@ -389,13 +436,28 @@ export const sendInvoiceClientEmail = async ({
     const accentColor = customization.primaryColor || company?.settings?.documentCustomization?.primaryColor || company?.settings?.primaryColor || primaryColor || "#556B2F";
 
     // 1. Vérifier la connexion email active de l'entreprise
-    const connection = await prisma.emailConnection.findFirst({
+    let connection = await prisma.emailConnection.findFirst({
         where: {
             companyId,
             status: "CONNECTED"
         },
         orderBy: { isDefault: "desc" }
     });
+
+    if (!connection) {
+        // Fallback auto-heal si une connexion existe avec identifiants enregistrés (ex: Google OAuth avec refresh token)
+        const existingConn = await prisma.emailConnection.findFirst({
+            where: { companyId },
+            orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }]
+        });
+        if (existingConn && (existingConn.encryptedRefreshToken || existingConn.encryptedSmtpPass || existingConn.encryptedAccessToken)) {
+            connection = existingConn;
+            prisma.emailConnection.update({
+                where: { id: existingConn.id },
+                data: { status: "CONNECTED" }
+            }).catch(() => {});
+        }
+    }
 
     if (!connection) {
         const error = new Error("EMAIL_NOT_CONFIGURED: Aucune adresse email professionnelle n'est connectée pour votre entreprise. Veuillez connecter votre compte Google/Email dans les Paramètres pour envoyer vos factures.");
@@ -411,7 +473,8 @@ export const sendInvoiceClientEmail = async ({
     }
 
     const fromAddress = `"${companyName}" <${connection.emailAddress}>`;
-    const subject = `Facture ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
+    const subjectPrefix = isReminder ? "[Rappel] " : "";
+    const subject = `${subjectPrefix}Facture ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
     const isStripeActive = Boolean(paymentOptions.stripeEnabled);
     const isBankTransferActive = Boolean(paymentOptions.bankTransferEnabled);
@@ -422,6 +485,13 @@ export const sendInvoiceClientEmail = async ({
         reference: docNumber
     };
 
+    let dueDateFormatted = "";
+    if (invoice.dueAt) {
+        try {
+            dueDateFormatted = new Date(invoice.dueAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+        } catch(e) {}
+    }
+
     // Construction conditionnelle des sections de paiement
     let paymentSectionsHtml = "";
     let paymentTextGuide = "";
@@ -429,50 +499,37 @@ export const sendInvoiceClientEmail = async ({
     if (isStripeActive && isBankTransferActive) {
         paymentSectionsHtml = `
             <div style="margin-top: 24px;">
-                <p style="color: #E2E8F0; font-size: 14px; margin-bottom: 16px; font-weight: 600;">
-                    Modes de règlement disponibles :
-                </p>
-
-                <!-- Option A : Paiement par carte en ligne -->
-                <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 16px;">
-                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px;">
-                        <span>Option 1 : Paiement sécurisé en ligne</span>
-                    </div>
-                    <p style="color: #94A3B8; font-size: 13px; margin: 0 0 14px 0; line-height: 1.4;">
-                        Réglez instantanément par carte bancaire en quelques clics :
-                    </p>
-                    <div style="text-align: center;">
-                        <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
-                            Payer en ligne par carte bancaire
-                        </a>
-                    </div>
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 15px 36px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 2px 8px rgba(85, 107, 47, 0.25);">
+                        Payer en ligne par carte bancaire
+                    </a>
+                    <div style="font-size: 12px; color: #64748B; margin-top: 8px;">Paiement instantané et 100% sécurisé</div>
                 </div>
 
-                <div style="text-align: center; margin: 12px 0; color: #64748B; font-weight: 700; font-size: 11px; letter-spacing: 0.05em;">
+                <div style="text-align: center; margin: 16px 0; font-size: 11px; font-weight: 700; color: #94A3B8; letter-spacing: 0.05em;">
                     — OU PAR VIREMENT BANCAIRE —
                 </div>
 
-                <!-- Option B : Virement Bancaire -->
-                <div style="background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
-                    <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px;">
-                        <span>Option 2 : Virement bancaire</span>
+                <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 20px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 12px;">
+                        Coordonnées pour virement bancaire :
                     </div>
-                    <table style="width: 100%; font-size: 13px; color: #CBD5E1; border-collapse: collapse;">
+                    <table style="width: 100%; font-size: 13px; color: #334155; border-collapse: collapse;">
                         <tr>
-                            <td style="padding: 4px 0; color: #94A3B8; width: 110px;">Titulaire :</td>
-                            <td style="padding: 4px 0; font-weight: 600; color: #FFFFFF;">${bankDetails.accountOwner || companyName}</td>
+                            <td style="padding: 5px 0; color: #64748B; width: 110px;">Titulaire :</td>
+                            <td style="padding: 5px 0; font-weight: 600; color: #0F172A;">${bankDetails.accountOwner || companyName}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 4px 0; color: #94A3B8;">IBAN :</td>
-                            <td style="padding: 4px 0; font-family: monospace; font-weight: 700; color: #A3E635;">${bankDetails.iban || 'Non renseigné'}</td>
+                            <td style="padding: 5px 0; color: #64748B;">IBAN :</td>
+                            <td style="padding: 5px 0; font-family: monospace; font-weight: 700; color: #0F172A;"><span style="background: #EEF2F6; padding: 3px 8px; border-radius: 4px;">${bankDetails.iban || 'Non renseigné'}</span></td>
                         </tr>
                         <tr>
-                            <td style="padding: 4px 0; color: #94A3B8;">BIC :</td>
-                            <td style="padding: 4px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || 'Non renseigné'}</td>
+                            <td style="padding: 5px 0; color: #64748B;">BIC :</td>
+                            <td style="padding: 5px 0; font-family: monospace; color: #0F172A;">${bankDetails.bic || 'Non renseigné'}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 4px 0; color: #94A3B8;">Référence :</td>
-                            <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569;">${bankDetails.reference || docNumber}</span> (obligatoire)</td>
+                            <td style="padding: 5px 0; color: #64748B;">Référence :</td>
+                            <td style="padding: 5px 0; font-weight: 700; color: #0F172A;">${bankDetails.reference || docNumber}</td>
                         </tr>
                     </table>
                 </div>
@@ -482,49 +539,44 @@ export const sendInvoiceClientEmail = async ({
     } else if (isStripeActive) {
         paymentSectionsHtml = `
             <div style="margin-top: 24px; text-align: center;">
-                <p style="color: #E2E8F0; font-size: 14px; margin-bottom: 16px;">
-                    Vous pouvez régler cette facture en ligne de manière sécurisée :
-                </p>
-                <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
+                <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 15px 36px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 2px 8px rgba(85, 107, 47, 0.25);">
                     Payer ma facture en ligne
                 </a>
-                <p style="font-size: 13px; color: #94A3B8; margin-top: 16px;">
-                    Lien direct sécurisé : <a href="${paymentUrl}" style="color: #A3E635 !important; font-weight: 600; text-decoration: underline; word-break: break-all;">${paymentUrl}</a>
-                </p>
+                <div style="font-size: 12px; color: #64748B; margin-top: 8px;">Paiement instantané et 100% sécurisé</div>
             </div>
         `;
         paymentTextGuide = `Réglez votre facture en ligne ici : ${paymentUrl}`;
     } else if (isBankTransferActive) {
         paymentSectionsHtml = `
-            <div style="margin-top: 24px; background: #0F172A; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
-                <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px;">
-                    <span>Coordonnées pour virement bancaire :</span>
+            <div style="margin-top: 24px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 20px;">
+                <div style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 12px;">
+                    Coordonnées pour virement bancaire :
                 </div>
-                <table style="width: 100%; font-size: 13px; color: #CBD5E1; border-collapse: collapse;">
+                <table style="width: 100%; font-size: 13px; color: #334155; border-collapse: collapse;">
                     <tr>
-                        <td style="padding: 4px 0; color: #94A3B8; width: 110px;">Titulaire :</td>
-                        <td style="padding: 4px 0; font-weight: 600; color: #FFFFFF;">${bankDetails.accountOwner || companyName}</td>
+                        <td style="padding: 5px 0; color: #64748B; width: 110px;">Titulaire :</td>
+                        <td style="padding: 5px 0; font-weight: 600; color: #0F172A;">${bankDetails.accountOwner || companyName}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 4px 0; color: #94A3B8;">IBAN :</td>
-                        <td style="padding: 4px 0; font-family: monospace; font-weight: 700; color: #A3E635;">${bankDetails.iban || 'Non renseigné'}</td>
+                        <td style="padding: 5px 0; color: #64748B;">IBAN :</td>
+                        <td style="padding: 5px 0; font-family: monospace; font-weight: 700; color: #0F172A;"><span style="background: #EEF2F6; padding: 3px 8px; border-radius: 4px;">${bankDetails.iban || 'Non renseigné'}</span></td>
                     </tr>
                     <tr>
-                        <td style="padding: 4px 0; color: #94A3B8;">BIC :</td>
-                        <td style="padding: 4px 0; font-family: monospace; color: #FFFFFF;">${bankDetails.bic || 'Non renseigné'}</td>
+                        <td style="padding: 5px 0; color: #64748B;">BIC :</td>
+                        <td style="padding: 5px 0; font-family: monospace; color: #0F172A;">${bankDetails.bic || 'Non renseigné'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 4px 0; color: #94A3B8;">Référence :</td>
-                        <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;"><span style="background: #1E293B; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569;">${bankDetails.reference || docNumber}</span> (obligatoire)</td>
+                        <td style="padding: 5px 0; color: #64748B;">Référence :</td>
+                        <td style="padding: 5px 0; font-weight: 700; color: #0F172A;">${bankDetails.reference || docNumber}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 4px 0; color: #94A3B8;">Montant :</td>
-                        <td style="padding: 4px 0; font-weight: 700; color: #FFFFFF;">${totalTtc} €</td>
+                        <td style="padding: 5px 0; color: #64748B;">Montant :</td>
+                        <td style="padding: 5px 0; font-weight: 700; color: #0F172A;">${totalTtc} €</td>
                     </tr>
                 </table>
             </div>
             <div style="text-align: center; margin-top: 16px;">
-                <a href="${paymentUrl}" target="_blank" style="color: #A3E635; font-size: 13px; font-weight: 600; text-decoration: underline;">
+                <a href="${paymentUrl}" target="_blank" style="color: #556B2F; font-size: 13px; font-weight: 600; text-decoration: underline;">
                     Consulter et télécharger la facture en ligne
                 </a>
             </div>
@@ -533,7 +585,7 @@ export const sendInvoiceClientEmail = async ({
     } else {
         paymentSectionsHtml = `
             <div style="margin-top: 24px; text-align: center;">
-                <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 14px 34px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(85, 107, 47, 0.4); border: 1px solid rgba(255,255,255,0.2);">
+                <a href="${paymentUrl}" target="_blank" style="background-color: ${accentColor} !important; color: #FFFFFF !important; padding: 15px 36px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 2px 8px rgba(85, 107, 47, 0.25);">
                     Consulter la facture en ligne
                 </a>
             </div>
@@ -542,33 +594,55 @@ export const sendInvoiceClientEmail = async ({
     }
 
     const html = `
-        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: #0F172A; color: #F8FAFC; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <h1 style="color: #FFFFFF; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">${companyName}</h1>
-                <p style="color: #94A3B8; font-size: 14px; margin-top: 4px; font-weight: 500;">Facture officielle</p>
-            </div>
-            
-            <div style="background: #1E293B; padding: 28px; border-radius: 12px; border: 1px solid #334155;">
-                <h2 style="font-size: 18px; margin-top: 0; color: #FFFFFF; font-weight: 700;">Bonjour ${clientName},</h2>
-                <p style="color: #E2E8F0; line-height: 1.6; font-size: 15px;">
-                    Veuillez trouver ci-joint votre facture <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché).
-                </p>
-
-                <div style="margin: 20px 0; padding: 18px; background: #0F172A; border-radius: 10px; border: 1px solid #334155;">
-                    <div style="font-size: 13px; color: #94A3B8; margin-bottom: 4px;">Net à payer :</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">${totalTtc} € TTC</div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+            <div style="max-width: 560px; margin: 0 auto; padding: 32px 16px;">
+                <!-- Header -->
+                <div style="margin-bottom: 20px;">
+                    <span style="font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">${companyName}</span>
+                    <div style="font-size: 13px; color: #64748B; margin-top: 2px;">Facture officielle</div>
                 </div>
 
-                ${paymentSectionsHtml}
-            </div>
+                <!-- Main Card -->
+                <div style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 32px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    ${isReminder ? `
+                        <div style="display: inline-block; background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px;">
+                            Rappel de paiement
+                        </div>
+                    ` : ''}
 
-            <div style="text-align: center; margin-top: 24px; color: #64748B; font-size: 12px; line-height: 1.5;">
-                <p style="font-size: 11.5px; color: #94A3B8; margin-bottom: 8px;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier <strong>Spam / Courriers indésirables</strong>.</p>
-                <p>Envoyé par <strong>${companyName}</strong> (${connection.emailAddress}).</p>
-                <p>Pour toute question relative à cette facture, vous pouvez répondre directement à cet email (<a href="mailto:${connection.emailAddress}" style="color: #94A3B8; text-decoration: underline;">${connection.emailAddress}</a>).</p>
-                <p>© ${new Date().getFullYear()} ${companyName} • Tous droits réservés.</p>
+                    <h2 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Bonjour ${clientName},</h2>
+                    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">
+                        ${isReminder
+                            ? `Sauf erreur ou omission de notre part, nous constatons que votre facture <strong>${docNumber}</strong> est actuellement en attente de règlement.`
+                            : `Veuillez trouver ci-joint votre facture <strong>${docNumber}</strong> d'un montant de <strong>${totalTtc} € TTC</strong> (fichier PDF attaché à cet email).`
+                        }
+                    </p>
+
+                    <!-- Amount Card -->
+                    <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+                        <div style="font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Net à payer</div>
+                        <div style="font-size: 32px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">${totalTtc} € TTC</div>
+                        <div style="font-size: 12px; color: #94A3B8; margin-top: 4px;">Facture N° ${docNumber}${dueDateFormatted ? ` • Échéance : ${dueDateFormatted}` : ''}</div>
+                    </div>
+
+                    ${paymentSectionsHtml}
+                </div>
+
+                <!-- Footer -->
+                <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #94A3B8; line-height: 1.6;">
+                    <p style="margin: 0 0 4px 0;">Envoyé par <strong>${companyName}</strong> (<a href="mailto:${connection.emailAddress}" style="color: #64748B; text-decoration: underline;">${connection.emailAddress}</a>)</p>
+                    <p style="margin: 0; font-size: 11px; color: #CBD5E1;">💡 Si vous ne trouvez pas nos messages, pensez à vérifier votre dossier Spam / Courriers indésirables.</p>
+                    <p style="margin-top: 8px;">© ${new Date().getFullYear()} ${companyName}</p>
+                </div>
             </div>
-        </div>
+        </body>
+        </html>
     `;
 
     const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\n${paymentTextGuide}\n\nLien direct de consultation : ${paymentUrl}\n\n(Si besoin, vérifiez vos spams. Expéditeur : ${connection.emailAddress})\n\nCordialement,\n${companyName}`;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import ToastNotification from "../components/ToastNotification";
 import "./PaymentsPage.css";
 
 // Layout components
@@ -36,37 +37,11 @@ import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 export default function PaymentsPage() {
     const navigate = useNavigate();
 
-    // Toast state with timer ref and hover pause
+    // Toast state
     const [toast, setToast] = useState(null);
-    const toastTimeoutRef = useRef(null);
 
     const showToast = (msg, type = "success") => {
-        if (toastTimeoutRef.current) {
-            clearTimeout(toastTimeoutRef.current);
-            toastTimeoutRef.current = null;
-        }
-        setToast({ msg, type });
-        toastTimeoutRef.current = setTimeout(() => {
-            setToast(null);
-            toastTimeoutRef.current = null;
-        }, 3500);
-    };
-
-    const handleToastMouseEnter = () => {
-        if (toastTimeoutRef.current) {
-            clearTimeout(toastTimeoutRef.current);
-            toastTimeoutRef.current = null;
-        }
-    };
-
-    const handleToastMouseLeave = () => {
-        if (toastTimeoutRef.current) {
-            clearTimeout(toastTimeoutRef.current);
-        }
-        toastTimeoutRef.current = setTimeout(() => {
-            setToast(null);
-            toastTimeoutRef.current = null;
-        }, 2000);
+        setToast({ msg, type, id: Date.now() });
     };
 
     // Data States
@@ -1094,35 +1069,7 @@ export default function PaymentsPage() {
             )}
 
             {/* Toast Notification - Smooth top slide-in & slide-out, pause on hover */}
-            <AnimatePresence mode="wait">
-                {toast && (
-                    <motion.div
-                        key={toast.msg}
-                        initial={{ opacity: 0, y: -36, x: "-50%" }}
-                        animate={{ opacity: 1, y: 0, x: "-50%" }}
-                        exit={{ opacity: 0, y: -24, x: "-50%" }}
-                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        onMouseEnter={handleToastMouseEnter}
-                        onMouseLeave={handleToastMouseLeave}
-                        onClick={() => {
-                            if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-                            setToast(null);
-                        }}
-                        className={`payments-toast payments-toast--${toast.type}`}
-                        style={{
-                            pointerEvents: "auto",
-                            cursor: "pointer",
-                            userSelect: "none"
-                        }}
-                        title="Cliquer pour masquer"
-                    >
-                        {toast.type === "success" && <CheckCircle2 size={18} className="payments-toast-icon" />}
-                        {toast.type === "error" && <AlertCircle size={18} className="payments-toast-icon" />}
-                        {toast.type === "info" && <Info size={18} className="payments-toast-icon" />}
-                        <span className="payments-toast-msg">{toast.msg}</span>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 }

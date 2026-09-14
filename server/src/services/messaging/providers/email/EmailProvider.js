@@ -93,6 +93,37 @@ export class EmailProvider extends MessageProvider {
                     const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, '');
                     const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, '');
 
+                    // Proactive refresh if token is missing, expired, or near expiry (< 5 min)
+                    const isNearExpiry = !accessToken || !connection.tokenExpiresAt || new Date(connection.tokenExpiresAt) <= new Date(Date.now() + 5 * 60 * 1000);
+                    if (isNearExpiry && refreshToken && googleClientId && googleClientSecret) {
+                        try {
+                            const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                body: new URLSearchParams({
+                                    client_id: googleClientId,
+                                    client_secret: googleClientSecret,
+                                    refresh_token: refreshToken,
+                                    grant_type: "refresh_token"
+                                })
+                            });
+                            const refreshData = await refreshRes.json();
+                            if (refreshData.access_token) {
+                                accessToken = refreshData.access_token;
+                                await prisma.emailConnection.update({
+                                    where: { id: connection.id },
+                                    data: {
+                                        encryptedAccessToken: encryptCredential(refreshData.access_token),
+                                        tokenExpiresAt: new Date(Date.now() + (refreshData.expires_in || 3600) * 1000),
+                                        status: "CONNECTED"
+                                    }
+                                }).catch(() => {});
+                            }
+                        } catch (refErr) {
+                            console.warn("[EMAIL_TRANSPORTER] Erreur rafraîchissement token:", refErr.message);
+                        }
+                    }
+
                     const transporter = nodemailer.createTransport({
                         host: "smtp.gmail.com",
                         port: 465,
@@ -519,21 +550,33 @@ ${bodyContent}
             }
         });
 
-        // 4. Si client introuvable, création automatique du contact client
-        if (!client) {
-            client = await prisma.client.create({
-                data: {
+        // 4. Si client introuvable par email exact, vérifier si l'email répond à un échange avec un client existant
+        if (!client && (inReplyTo || references)) {
+            const cleanInReplyTo = inReplyTo ? inReplyTo.trim() : null;
+            const cleanReferences = references ? references.trim() : null;
+            const parentMsg = await prisma.smsLog.findFirst({
+                where: {
                     companyId: company.id,
-                    firstName: "Contact",
-                    lastName: cleanFrom.split("@")[0],
-                    email: cleanFrom,
-                    phone: "0000000000",
-                    address: "Reçu par Email",
-                    source: "email",
-                    preferredChannel: "EMAIL"
-                }
+                    OR: [
+                        ...(cleanInReplyTo ? [{ emailMessageId: cleanInReplyTo }, { externalMessageId: cleanInReplyTo }] : []),
+                        ...(cleanReferences ? [{ emailMessageId: cleanReferences }, { externalMessageId: cleanReferences }] : [])
+                    ]
+                },
+                include: { client: true }
             });
-            console.log(`[EMAIL_CLIENT_AUTO_CREATED] Nouveau client créé: ${client.id} (${cleanFrom})`);
+            if (parentMsg?.client && parentMsg.client.isActive) {
+                client = parentMsg.client;
+            }
+        }
+
+        // Si ce n'est PAS un client enregistré dans le CRM, ignorer le message (évite newsletters, Uber, Bybit, pubs)
+        if (!client) {
+            console.log(`[EMAIL_IGNORED_NON_CLIENT] Email de ${cleanFrom} ignoré (expéditeur non présent dans les clients enregistrés).`);
+            return {
+                success: true,
+                ignored: true,
+                reason: "Expéditeur non reconnu comme client enregistré."
+            };
         }
 
         // 5. Enregistrement du message entrant dans SmsLog
@@ -571,42 +614,7 @@ ${bodyContent}
             }
         });
 
-        // 6. Notification pour le gérant
-        try {
-            const owner = await prisma.user.findFirst({
-                where: { companyId: company.id, role: "OWNER" }
-            });
-
-            if (owner) {
-                const notif = await prisma.notification.create({
-                    data: {
-                        companyId: company.id,
-                        userId: owner.id,
-                        type: "NEW_MESSAGE_RECEIVED",
-                        channel: "IN_APP",
-                        status: "SENT",
-                        title: `Nouvel Email de ${client.firstName} ${client.lastName}`,
-                        body: `Objet : ${subject}`,
-                        entityType: "email",
-                        entityId: emailLog.id,
-                        data: {
-                            clientId: client.id,
-                            messageId: emailLog.id,
-                            channel: "EMAIL"
-                        }
-                    }
-                });
-
-                emitToCompany(company.id, "notification:new", {
-                    type: "notification:new",
-                    notification: notif
-                });
-            }
-        } catch (e) {
-            console.error("[EMAIL_NOTIF_ERROR]", e.message);
-        }
-
-        // 7. Émission temps réel dans la room de l'entreprise
+        // 6. Émission temps réel dans la room de l'entreprise
         emitToCompany(company.id, "message:new", {
             type: "message:new",
             clientId: client.id,
@@ -645,6 +653,9 @@ ${bodyContent}
         let totalSynced = 0;
 
         for (const connection of connections) {
+            // Ignorer les connexions explicitement déconnectées
+            if (connection.status === "DISCONNECTED") continue;
+
             try {
                 let accessToken = "";
                 if (connection.encryptedAccessToken) {
@@ -658,8 +669,10 @@ ${bodyContent}
                 const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, '');
                 const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim().replace(/^["']|["']$/g, '');
 
-                // Refresh token if available
-                if (connection.encryptedRefreshToken && googleClientId && googleClientSecret) {
+                // Rafraîchir le token UNIQUEMENT s'il est manquant ou expiré / expire dans moins de 5 minutes
+                const isTokenExpired = !accessToken || !connection.tokenExpiresAt || new Date(connection.tokenExpiresAt) <= new Date(Date.now() + 5 * 60 * 1000);
+
+                if (isTokenExpired && connection.encryptedRefreshToken && googleClientId && googleClientSecret) {
                     try {
                         const refreshToken = decryptCredential(connection.encryptedRefreshToken);
                         const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -675,18 +688,22 @@ ${bodyContent}
                         const refreshData = await refreshRes.json();
                         if (refreshData.access_token) {
                             accessToken = refreshData.access_token;
-                            // Persist newly refreshed access token
+                            // Persist newly refreshed access token and ensure CONNECTED status
                             await prisma.emailConnection.update({
                                 where: { id: connection.id },
-                                data: { encryptedAccessToken: encryptCredential(refreshData.access_token) }
+                                data: {
+                                    encryptedAccessToken: encryptCredential(refreshData.access_token),
+                                    tokenExpiresAt: new Date(Date.now() + (refreshData.expires_in || 3600) * 1000),
+                                    status: "CONNECTED"
+                                }
                             }).catch(() => {});
                         } else if (refreshData.error === "invalid_grant") {
-                            // Token revoked or expired: mark as disconnected
+                            // Uniquement si révoqué définitivement par l'utilisateur
                             await prisma.emailConnection.update({
                                 where: { id: connection.id },
                                 data: { status: "ERROR" }
                             }).catch(() => {});
-                            console.warn("[GMAIL_SYNC] Session Google expirée, reconnexion requise pour l'entreprise:", companyId);
+                            console.warn("[GMAIL_SYNC] Session Google révoquée pour l'entreprise:", companyId);
                             continue;
                         }
                     } catch (refErr) {
@@ -697,19 +714,52 @@ ${bodyContent}
                 if (!accessToken) continue;
 
                 // 1. Récupérer les 15 derniers messages dans Inbox
-                const listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=15&q=in:inbox", {
+                let listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=15&q=in:inbox", {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 });
 
+                // Si 401, tentative unique de rafraîchissement avec le refreshToken
+                if (listRes.status === 401 && connection.encryptedRefreshToken && googleClientId && googleClientSecret) {
+                    try {
+                        const refreshToken = decryptCredential(connection.encryptedRefreshToken);
+                        const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            body: new URLSearchParams({
+                                client_id: googleClientId,
+                                client_secret: googleClientSecret,
+                                refresh_token: refreshToken,
+                                grant_type: "refresh_token"
+                            })
+                        });
+                        const refreshData = await refreshRes.json();
+                        if (refreshData.access_token) {
+                            accessToken = refreshData.access_token;
+                            await prisma.emailConnection.update({
+                                where: { id: connection.id },
+                                data: {
+                                    encryptedAccessToken: encryptCredential(refreshData.access_token),
+                                    tokenExpiresAt: new Date(Date.now() + (refreshData.expires_in || 3600) * 1000),
+                                    status: "CONNECTED"
+                                }
+                            }).catch(() => {});
+
+                            // Nouvelle tentative de listing
+                            listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=15&q=in:inbox", {
+                                headers: { Authorization: `Bearer ${accessToken}` }
+                            });
+                        }
+                    } catch (retryErr) {
+                        console.warn("[GMAIL_SYNC] Erreur re-refresh token:", retryErr.message);
+                    }
+                }
+
                 if (!listRes.ok) {
-                    if (listRes.status === 401 || listRes.status === 403) {
-                        await prisma.emailConnection.update({
-                            where: { id: connection.id },
-                            data: { status: "ERROR" }
-                        }).catch(() => {});
-                        console.warn(`[GMAIL_SYNC] Permissions Gmail insuffisantes ou token expiré (${listRes.status}). Reconnexion requise dans Paramètres.`);
+                    // Les erreurs de lecture (ex: 403 API restreinte ou désactivée) ne doivent pas bloquer l'envoi de devis/factures
+                    if (listRes.status === 401) {
+                        console.warn(`[GMAIL_SYNC] Token Google non autorisé (401).`);
                     } else {
-                        console.warn("[GMAIL_SYNC] Erreur list messages Gmail (statut %s)", listRes.status);
+                        console.warn("[GMAIL_SYNC] Notice: list messages Gmail retour:", listRes.status);
                     }
                     continue;
                 }
@@ -922,34 +972,7 @@ ${bodyContent}
                         }
                     });
 
-                    // 5. Notification pour l'équipe
-                    try {
-                        const owner = await prisma.user.findFirst({
-                            where: { companyId, role: "OWNER" }
-                        });
-                        if (owner) {
-                            await prisma.notification.create({
-                                data: {
-                                    companyId,
-                                    userId: owner.id,
-                                    type: "NEW_MESSAGE_RECEIVED",
-                                    channel: "IN_APP",
-                                    status: "SENT",
-                                    title: `Nouvel Email de ${client.firstName} ${client.lastName}`,
-                                    body: `Objet : ${subject}`,
-                                    entityType: "email",
-                                    entityId: emailLog.id,
-                                    data: {
-                                        clientId: client.id,
-                                        messageId: emailLog.id,
-                                        channel: "EMAIL"
-                                    }
-                                }
-                            });
-                        }
-                    } catch (notifErr) {}
-
-                    // 6. Émettre en temps réel via Socket.io
+                    // 5. Émettre en temps réel via Socket.io
                     emitToCompany(companyId, "message:new", {
                         type: "message:new",
                         clientId: client.id,

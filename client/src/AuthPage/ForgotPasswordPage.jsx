@@ -137,7 +137,7 @@ export default function ForgotPasswordPage() {
                                         <Mail className="input-icon" />
                                         <input
                                             type="email"
-                                            placeholder="jean.dupont@climpro.fr"
+                                            placeholder="exemple@gmail.com"
                                             value={email}
                                             onChange={(e) => {
                                                 setEmail(e.target.value);

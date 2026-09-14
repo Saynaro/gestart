@@ -98,6 +98,40 @@ export const incrementSmsUsage = async (companyId, count = 1) => {
 };
 
 /**
+ * Vérifie si l'URL fournie est une URL publique valide et joignable pour les webhooks externes (ex: Twilio).
+ * Twilio rejette explicitement toute URL pointant vers localhost, 127.0.0.1 ou des réseaux locaux/privés.
+ * @param {string} urlStr
+ * @returns {boolean}
+ */
+export const isValidPublicWebhookUrl = (urlStr) => {
+    if (!urlStr || typeof urlStr !== "string") return false;
+    try {
+        const parsed = new URL(urlStr.trim());
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+            return false;
+        }
+        const hostname = parsed.hostname.toLowerCase();
+        if (
+            hostname === "localhost" ||
+            hostname === "127.0.0.1" ||
+            hostname === "0.0.0.0" ||
+            hostname === "::1" ||
+            hostname.endsWith(".local") ||
+            hostname.endsWith(".internal") ||
+            hostname.endsWith(".lan") ||
+            hostname.startsWith("10.") ||
+            hostname.startsWith("192.168.") ||
+            /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+        ) {
+            return false;
+        }
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+/**
  * Validation cryptographique de la signature Twilio
  * @param {import("express").Request} req 
  * @returns {boolean}
@@ -204,9 +238,16 @@ export const TwilioSmsService = {
             process.env.NODE_ENV !== "test"
         );
 
-        const statusUrl = statusCallbackUrl ||
+        const candidateStatusUrl = statusCallbackUrl ||
             process.env.TWILIO_STATUS_CALLBACK_URL ||
             (process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/api/v1/webhooks/twilio/status` : undefined);
+
+        // Twilio exige que statusCallback soit une URL publique accessible sur Internet.
+        // Si on tourne en local (localhost / 127.0.0.1), Twilio rejette la requête HTTP 400.
+        const statusUrl = isValidPublicWebhookUrl(candidateStatusUrl) ? candidateStatusUrl : undefined;
+        if (candidateStatusUrl && !statusUrl) {
+            console.log(`[SMS_SEND] Omission de statusCallback ('${candidateStatusUrl}') car Twilio requiert une URL publique accessible depuis Internet (pas de localhost/IP privée).`);
+        }
 
         // 4. Envoi via Twilio SDK si de vraies credentials sont configurées
         if (isRealTwilioCreds) {
@@ -436,40 +477,6 @@ export const TwilioSmsService = {
                 }
             }
         });
-
-        // 5. Création d'une notification in-app pour le gérant / owner
-        try {
-            const owner = await prisma.user.findFirst({
-                where: { companyId: company.id, role: "OWNER" }
-            });
-
-            if (owner) {
-                const notification = await prisma.notification.create({
-                    data: {
-                        companyId: company.id,
-                        userId: owner.id,
-                        type: "NEW_MESSAGE_RECEIVED",
-                        channel: "IN_APP",
-                        status: "SENT",
-                        title: `Nouveau SMS de ${client.firstName} ${client.lastName}`,
-                        body: body.length > 100 ? `${body.slice(0, 97)}...` : body,
-                        entityType: "sms",
-                        entityId: smsLog.id,
-                        data: {
-                            clientId: client.id,
-                            smsLogId: smsLog.id
-                        }
-                    }
-                });
-
-                emitToCompany(company.id, "notification:new", {
-                    type: "notification:new",
-                    notification
-                });
-            }
-        } catch (notifErr) {
-            console.error("[SMS INCOMING NOTIFICATION ERROR]", notifErr.message);
-        }
 
         // 6. Émission temps réel dans la room de l'entreprise
         emitToCompany(company.id, "message:new", {

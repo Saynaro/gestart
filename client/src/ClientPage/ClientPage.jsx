@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, useDragControls } from "framer-motion";
 import { AlertTriangle, Trash2, CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import ToastNotification from "../components/ToastNotification";
 import "../HomePage/Homepage.css";
 import "./ClientPage.css";
 
@@ -662,8 +663,7 @@ function ClientPage() {
 
     const showToast = (msg, type = "success") => {
         const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;
-        setToastMessage({ msg: cleanMsg, type });
-        setTimeout(() => setToastMessage(null), 3500);
+        setToastMessage({ msg: cleanMsg, type, id: Date.now() });
     };
 
     const handleDeleteClient = (client) => {
@@ -1023,12 +1023,7 @@ function ClientPage() {
             )}
 
             {/* Toast Notification */}
-            {toastMessage && (
-                <div className={`app-toast ${toastMessage.type === 'error' ? 'dv-toast--error' : 'dv-toast--success'}`}>
-                    {toastMessage.type === 'error' ? <AlertCircle size={18} style={{ flexShrink: 0 }} /> : <CheckCircle2 size={18} style={{ flexShrink: 0 }} />}
-                    <span>{toastMessage.msg}</span>
-                </div>
-            )}
+            <ToastNotification toast={toastMessage} onClose={() => setToastMessage(null)} />
         </>
     );
 }

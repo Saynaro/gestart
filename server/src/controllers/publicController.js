@@ -1,6 +1,7 @@
 import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
 import { generateInvoicePdfBuffer, generateQuotePdfBuffer, generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
+import { emitToCompany } from "../config/socket.js";
 
 ////// PUBLIC PLANS LIST (FOR LANDING PAGE) //////
 export const getPublicPlans = async (req, res) => {
@@ -533,6 +534,10 @@ export const signPublicQuote = async (req, res) => {
             }
         });
 
+        // Notification temps réel immédiate par WebSocket
+        emitToCompany(quote.companyId, "quote:updated", updatedQuote);
+        emitToCompany(quote.companyId, "quote:signed", updatedQuote);
+
         // Notification automatique au propriétaire de l'entreprise
         try {
             const owner = await prisma.user.findFirst({
@@ -736,6 +741,10 @@ export const verifyPublicPayment = async (req, res) => {
                     include: { company: true, client: true, lines: true }
                 });
 
+                // Émission temps réel WebSocket
+                emitToCompany(quote.companyId, "quote:updated", updatedQuote);
+                emitToCompany(quote.companyId, "quote:paid", updatedQuote);
+
                 const totalTtc = Number(updatedQuote.amountTTC || updatedQuote.totalTtc || 0);
                 const totalHt = Number(updatedQuote.amountHT || updatedQuote.totalHt || (totalTtc / 1.2));
                 const tvaAmount = Number(updatedQuote.tvaAmount !== undefined && updatedQuote.tvaAmount !== null ? updatedQuote.tvaAmount : (totalTtc - totalHt));
@@ -835,6 +844,10 @@ export const verifyPublicPayment = async (req, res) => {
                     },
                     include: { company: true, client: true, lines: true }
                 });
+
+                // Émission temps réel WebSocket
+                emitToCompany(invoice.companyId, "invoice:updated", updatedInvoice);
+                emitToCompany(invoice.companyId, "invoice:paid", updatedInvoice);
 
                 // Create invoice transaction record for Payments page
                 try {

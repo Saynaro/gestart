@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
     X,
     Calendar,
@@ -18,6 +18,7 @@ import {
     AlertTriangle
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import "../ClientPage.css";
 
 export const getInterventionStatusInfo = (item) => {
     if (!item) return { label: "En attente", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
@@ -48,19 +49,36 @@ export const getInterventionStatusInfo = (item) => {
         }
     }
 
-    return { label: "En attente", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
 };
 
 function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
     const [previewPhoto, setPreviewPhoto] = useState(null);
     const [liveData, setLiveData] = useState(null);
+    const [cachedIntervention, setCachedIntervention] = useState(intervention);
+    const [cachedClient, setCachedClient] = useState(client);
+    const [isMobile, setIsMobile] = useState(
+        typeof window !== "undefined" ? window.innerWidth <= 768 : false
+    );
+    const dragControls = useDragControls();
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
+        if (intervention) setCachedIntervention(intervention);
+        if (client) setCachedClient(client);
+    }, [intervention, client]);
 
     // Fetch fresh details from server if modal opens
     useEffect(() => {
         let isMounted = true;
-        if (isOpen && intervention?.id) {
+        const targetId = intervention?.id || cachedIntervention?.id;
+        if (isOpen && targetId) {
             setLiveData(null);
-            apiFetch(`/v1/interventions/${intervention.id}`)
+            apiFetch(`/v1/interventions/${targetId}`)
                 .then(res => {
                     if (isMounted && res?.data?.intervention) {
                         setLiveData(res.data.intervention);
@@ -69,7 +87,7 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
                 .catch(err => console.warn("[FETCH_INTERVENTION_DETAIL_WARN]", err.message));
         }
         return () => { isMounted = false; };
-    }, [isOpen, intervention?.id]);
+    }, [isOpen, intervention?.id, cachedIntervention?.id]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -85,69 +103,125 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, previewPhoto, onClose]);
 
-    if (!isOpen || !intervention) return null;
+    const activeIntervention = intervention || cachedIntervention;
+    const activeClient = client || cachedClient;
 
-    const raw = liveData || intervention.raw || intervention;
-    const title = intervention.title || raw.title || raw.type || "Intervention";
-    const serviceType = raw.type || raw.serviceType || intervention.type || "Intervention";
-    const techName = intervention.tech || (raw.technician ? `${raw.technician.firstName || ''} ${raw.technician.lastName || ''}`.trim() || raw.technician.email : "Non assigné");
-    const address = intervention.address || raw.address || client?.address || "Non renseignée";
-    const city = intervention.city || raw.city || client?.city || "";
-    const accessCode = intervention.accessCode || raw.accessCode || client?.notes || "";
-    const description = (raw.description || intervention.description || "").trim();
-    const techNotes = (raw.techNotes || intervention.techNotes || "").trim();
-    const materialsUsed = (raw.materialsUsed || intervention.materialsUsed || "").trim();
-    const signature = raw.clientSignature || intervention.clientSignature;
-    const signedAt = raw.clientSignedAt ? new Date(raw.clientSignedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : (intervention.clientSignedAt || null);
+    const raw = liveData || activeIntervention?.raw || activeIntervention;
+    const title = activeIntervention?.title || raw?.title || raw?.type || "Intervention";
+    const serviceType = raw?.type || raw?.serviceType || activeIntervention?.type || "Intervention";
+    const techName = activeIntervention?.tech || (raw?.technician ? `${raw.technician.firstName || ''} ${raw.technician.lastName || ''}`.trim() || raw.technician.email : "Non assigné");
+    const address = activeIntervention?.address || raw?.address || activeClient?.address || "Non renseignée";
+    const city = activeIntervention?.city || raw?.city || activeClient?.city || "";
+    const accessCode = activeIntervention?.accessCode || raw?.accessCode || activeClient?.notes || "";
+    const description = (raw?.description || activeIntervention?.description || "").trim();
+    const techNotes = (raw?.techNotes || activeIntervention?.techNotes || "").trim();
+    const materialsUsed = (raw?.materialsUsed || activeIntervention?.materialsUsed || "").trim();
+    const signature = raw?.clientSignature || activeIntervention?.clientSignature;
+    const signedAt = raw?.clientSignedAt ? new Date(raw.clientSignedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : (activeIntervention?.clientSignedAt || null);
 
-    const photos = raw.photos || intervention.photos || [];
+    const photos = raw?.photos || activeIntervention?.photos || [];
     const beforePhotos = photos.filter(p => (p.photoType === "BEFORE" || p.type === "before" || p.category === "before"));
     const afterPhotos = photos.filter(p => (p.photoType === "AFTER" || p.type === "after" || p.category === "after"));
     const otherPhotos = photos.filter(p => !beforePhotos.includes(p) && !afterPhotos.includes(p));
 
     const statusInfo = getInterventionStatusInfo(raw);
 
-    const displayDate = intervention.fullDate || (raw.scheduledAt ? new Date(raw.scheduledAt).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : intervention.date || "Date non définie");
-    const displayTime = raw.scheduledAt ? new Date(raw.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null;
+    const displayDate = activeIntervention?.fullDate || (raw?.scheduledAt ? new Date(raw.scheduledAt).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : activeIntervention?.date || "Date non définie");
+    const displayTime = raw?.scheduledAt ? new Date(raw.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null;
 
     return (
         <AnimatePresence>
-            <div className="intervention-detail-modal-overlay" onClick={onClose}>
+            {isOpen && activeIntervention && (
                 <motion.div
-                    className="intervention-detail-modal-card"
-                    onClick={(e) => e.stopPropagation()}
-                    initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    key="idm-modal-overlay"
+                    className="intervention-detail-modal-overlay"
+                    onClick={onClose}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.24 }}
                 >
-                    {/* Header */}
-                    <div className="idm-header">
-                        <div className="idm-header-left">
-                            <div className="idm-header-icon-box">
-                                <Wrench size={20} />
+                    <motion.div
+                        key="idm-modal-card"
+                        className="intervention-detail-modal-card"
+                        onClick={(e) => e.stopPropagation()}
+                        drag={isMobile ? "y" : false}
+                        dragListener={false}
+                        dragControls={dragControls}
+                        dragConstraints={{ top: 0, bottom: 0 }}
+                        dragElastic={{ top: 0.05, bottom: 0.7 }}
+                        onDragEnd={(e, info) => {
+                            if (info.offset.y > 70 || info.velocity.y > 250) {
+                                onClose();
+                            }
+                        }}
+                        initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                        animate={isMobile ? { y: "0%" } : { opacity: 1, scale: 1, y: 0 }}
+                        exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+                    >
+                        {/* Mobile Drag Handle */}
+                        {isMobile && (
+                            <div
+                                className="idm-mobile-drag-handle-zone"
+                                onPointerDown={(e) => dragControls.start(e)}
+                                title="Glisser vers le bas pour fermer"
+                            >
+                                <div className="idm-mobile-drag-handle" />
                             </div>
-                            <div>
-                                <div className="idm-header-title-row">
-                                    <h2 className="idm-title">{title}</h2>
-                                    <span
-                                        className="idm-status-pill"
-                                        style={{ backgroundColor: statusInfo.bg, color: statusInfo.color }}
-                                    >
-                                        {statusInfo.icon}
-                                        <span>{statusInfo.label}</span>
-                                    </span>
-                                </div>
-                                <p className="idm-subtitle">
-                                    {serviceType} · Client : {client?.name || (client?.firstName ? `${client?.firstName || ''} ${client?.lastName || ''}`.trim() : "Client")}
-                                </p>
-                            </div>
-                        </div>
+                        )}
 
-                        <button className="idm-close-btn" onClick={onClose} aria-label="Fermer">
-                            <X size={20} />
-                        </button>
-                    </div>
+                        {/* Header */}
+                        <div
+                            className="idm-header"
+                            onPointerDown={(e) => {
+                                if (isMobile && !e.target.closest('.idm-close-btn')) {
+                                    dragControls.start(e);
+                                }
+                            }}
+                        >
+                            <div className="idm-header-left">
+                                <div className="idm-header-icon-box">
+                                    <Wrench size={20} />
+                                </div>
+                                <div>
+                                    <div className="idm-header-title-row">
+                                        <h2 className="idm-title">{title}</h2>
+                                        <span
+                                            className="idm-status-pill"
+                                            style={{ backgroundColor: statusInfo.bg, color: statusInfo.color }}
+                                        >
+                                            {statusInfo.icon}
+                                            <span>{statusInfo.label}</span>
+                                        </span>
+                                    </div>
+                                    <p className="idm-subtitle">
+                                        {serviceType} · Client : {activeClient?.name || (activeClient?.firstName ? `${activeClient?.firstName || ''} ${activeClient?.lastName || ''}`.trim() : "Client")}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button 
+                                type="button"
+                                className="idm-close-btn" 
+                                onClick={onClose} 
+                                onPointerDown={(e) => e.stopPropagation()}
+                                aria-label="Fermer"
+                                style={{ 
+                                    width: '36px', 
+                                    height: '36px', 
+                                    minWidth: '36px', 
+                                    minHeight: '36px', 
+                                    borderRadius: '50%', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    padding: 0
+                                }}
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
 
                     {/* Content Body */}
                     <div className="idm-body">
@@ -429,7 +503,8 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
                         />
                     </div>
                 )}
-            </div>
+                </motion.div>
+            )}
         </AnimatePresence>
     );
 }

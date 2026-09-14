@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { prisma } from "../config/db.js";
 import { sendInvoiceClientEmail } from "../utils/emailService.js";
 import { generateInvoicePdfBuffer } from "../utils/pdfGenerator.js";
+import { emitToCompany } from "../config/socket.js";
 
 // Helper notification
 const createNotification = async ({ companyId, userId, type, title, body, entityId }) => {
@@ -492,6 +493,9 @@ export const createInvoice = async (req, res) => {
             }
         }
 
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "invoice:new", result);
+
         return res.status(201).json({
             success: true,
             message: `Facture ${result.number} créée avec succès`,
@@ -741,6 +745,9 @@ export const updateInvoice = async (req, res) => {
             }
         }
 
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "invoice:updated", result);
+
         return res.status(200).json({
             success: true,
             message: "Facture mise à jour avec succès",
@@ -847,6 +854,9 @@ export const sendInvoice = async (req, res) => {
                 emailSentTo: targetEmail || undefined,
             }
         });
+
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "invoice:updated", updatedInvoice);
 
         return res.status(200).json({
             success: true,
@@ -958,6 +968,9 @@ export const markInvoicePaid = async (req, res) => {
                 entityId: id
             });
         }
+
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "invoice:updated", updatedInvoice);
 
         return res.status(200).json({
             success: true,
@@ -1099,6 +1112,9 @@ export const deleteInvoice = async (req, res) => {
         // Suppression des lignes puis de la facture brouillon
         await prisma.invoiceLine.deleteMany({ where: { invoiceId: id } });
         await prisma.invoice.delete({ where: { id } });
+
+        // Émission temps réel WebSocket
+        emitToCompany(companyId, "invoice:deleted", { id });
 
         return res.status(200).json({
             success: true,

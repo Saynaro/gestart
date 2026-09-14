@@ -169,13 +169,13 @@ function SettingsPage() {
     const [mobileScreenState, setMobileScreenState] = useState("list");
     const [showUpgradeBanner, setShowUpgradeBanner] = useState(true);
 
-    // Desktop Accordion states
+    // Desktop Accordion states (closed by default)
     const [openCategories, setOpenCategories] = useState({
-        "Mon compte": true,
-        "Comptabilité": true,
-        "Config": true,
-        "Communauté": true,
-        "À propos": true
+        "Mon compte": false,
+        "Comptabilité": false,
+        "Config": false,
+        "Communauté": false,
+        "À propos": false
     });
 
     // Scroll tracking for header transition
@@ -423,29 +423,42 @@ function SettingsPage() {
             if (document.documentElement) document.documentElement.scrollTop = 0;
             if (document.body) document.body.scrollTop = 0;
         }
-        const mobileDetailEl = document.querySelector(".mobile-tab-content-wrapper");
-        if (mobileDetailEl) mobileDetailEl.scrollTop = 0;
-        const mobileViewEl = document.querySelector(".mobile-settings-view");
-        if (mobileViewEl) mobileViewEl.scrollTop = 0;
-        const mainContentEl = document.querySelector(".main-content");
-        if (mainContentEl) mainContentEl.scrollTop = 0;
+        const selectors = [
+            ".mobile-tab-content-wrapper",
+            ".mobile-settings-view",
+            ".settings-layout-container",
+            ".main-content",
+            ".settings-main-panel"
+        ];
+        selectors.forEach(sel => {
+            const el = document.querySelector(sel);
+            if (el) {
+                el.scrollTop = 0;
+                if (typeof el.scrollTo === "function") {
+                    el.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                }
+            }
+        });
     }, []);
 
-    // Always scroll to top whenever activeTab changes
+    // Always scroll to top whenever activeTab or mobileScreenState changes
     useLayoutEffect(() => {
         scrollToTop();
         const rafId = requestAnimationFrame(scrollToTop);
-        const timerId = setTimeout(scrollToTop, 160);
+        const timerId1 = setTimeout(scrollToTop, 25);
+        const timerId2 = setTimeout(scrollToTop, 80);
+        const timerId3 = setTimeout(scrollToTop, 180);
         return () => {
             cancelAnimationFrame(rafId);
-            clearTimeout(timerId);
+            clearTimeout(timerId1);
+            clearTimeout(timerId2);
+            clearTimeout(timerId3);
         };
-    }, [activeTab, scrollToTop]);
+    }, [activeTab, mobileScreenState, scrollToTop]);
 
     // Helper to change tab
     const handleTabSelect = useCallback((itemId) => {
         setActiveTab(itemId);
-        scrollToTop();
         if (typeof window !== "undefined" && window.innerWidth <= 768) {
             scrollYRef.current = window.scrollY;
             if (mobileScreenState === "detail") {
@@ -454,8 +467,11 @@ function SettingsPage() {
                 window.history.pushState({ settingsDetail: true, tab: itemId }, "", window.location.href);
                 setMobileScreenState("detail");
             }
-            window.scrollTo(0, 0);
         }
+        scrollToTop();
+        requestAnimationFrame(scrollToTop);
+        setTimeout(scrollToTop, 20);
+        setTimeout(scrollToTop, 80);
     }, [mobileScreenState, scrollToTop]);
 
     const handleBackFromDetail = useCallback(() => {

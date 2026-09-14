@@ -132,9 +132,38 @@ export const sendMessage = async (req, res) => {
 export const markMessagesAsRead = async (req, res) => {
     const { clientId } = req.params;
     const companyId = req.user.companyId;
+    const userId = req.user.id;
 
     try {
         await OmnichannelService.markAsRead({ companyId, clientId });
+
+        // Synchroniser également les notifications liées à ce client
+        try {
+            const unreadNotifs = await prisma.notification.findMany({
+                where: {
+                    userId,
+                    isRead: false,
+                    type: "NEW_MESSAGE_RECEIVED"
+                },
+                select: { id: true, data: true }
+            });
+
+            const idsToUpdate = unreadNotifs
+                .filter(n => n.data?.clientId === clientId)
+                .map(n => n.id);
+
+            if (idsToUpdate.length > 0) {
+                await prisma.notification.updateMany({
+                    where: { id: { in: idsToUpdate } },
+                    data: {
+                        isRead: true,
+                        readAt: new Date()
+                    }
+                });
+            }
+        } catch (notifSyncErr) {
+            console.warn("Failed to sync notifications read status:", notifSyncErr.message);
+        }
 
         return res.status(200).json({
             success: true,
@@ -202,27 +231,32 @@ export const getUnreadCount = async (req, res) => {
  */
 export const deleteMessages = async (req, res) => {
     const companyId = req.user.companyId;
-    const { messageIds } = req.body || {};
+    const { messageIds, clientIds } = req.body || {};
     const singleId = req.params?.id;
 
     const idsToDelete = Array.isArray(messageIds) && messageIds.length > 0
         ? messageIds
         : (singleId ? [singleId] : []);
+    const clientIdsToDelete = Array.isArray(clientIds) ? clientIds : [];
 
     try {
-        if (idsToDelete.length === 0) {
+        if (idsToDelete.length === 0 && clientIdsToDelete.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "Veuillez spécifier au moins un identifiant de message."
+                message: "Veuillez spécifier au moins un identifiant de message ou de client."
             });
         }
 
-        const result = await OmnichannelService.deleteMessages({ companyId, messageIds: idsToDelete });
+        const result = await OmnichannelService.deleteMessages({
+            companyId,
+            messageIds: idsToDelete,
+            clientIds: clientIdsToDelete
+        });
 
         return res.status(200).json({
             success: true,
             data: result,
-            message: `${result.count || idsToDelete.length} message(s) supprimé(s) avec succès.`
+            message: `${result.count || idsToDelete.length + clientIdsToDelete.length} message(s) supprimé(s) avec succès.`
         });
     } catch (error) {
         console.error("DELETE MESSAGES ERROR:", error.message);

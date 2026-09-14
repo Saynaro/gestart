@@ -410,6 +410,7 @@ export const updateReminderAutomation = async (req, res) => {
         const {
             name,
             enabled,
+            clientId,
             frequencyValue,
             frequencyUnit,
             advanceNoticeValue,
@@ -438,6 +439,7 @@ export const updateReminderAutomation = async (req, res) => {
             where: { id },
             data: {
                 name: name !== undefined ? name : existing.name,
+                clientId: clientId !== undefined ? (clientId === "ALL" ? null : clientId) : existing.clientId,
                 enabled: enabled !== undefined ? enabled : existing.enabled,
                 frequencyValue: freqVal,
                 frequencyUnit: freqUnit,
@@ -469,9 +471,13 @@ export const updateReminderAutomation = async (req, res) => {
         }
 
         // Mettre à jour l'exécution SCHEDULED active
+        const scheduledUpdateData = { scheduledAt: nextReminderAt };
+        if (clientId !== undefined) {
+            scheduledUpdateData.clientId = clientId === "ALL" ? null : clientId;
+        }
         await prisma.reminderExecution.updateMany({
             where: { reminderAutomationId: id, status: "SCHEDULED" },
-            data: { scheduledAt: nextReminderAt }
+            data: scheduledUpdateData
         });
 
         const fullUpdated = await prisma.reminderAutomation.findUnique({
@@ -587,11 +593,17 @@ export const executeReminderNow = async (req, res) => {
             where: { id: execution.id }
         });
 
+        if (refreshedExecution?.status === "FAILED") {
+            return res.status(400).json({
+                success: false,
+                message: `Échec d'envoi du rappel : ${refreshedExecution.error}`,
+                data: { execution: refreshedExecution }
+            });
+        }
+
         return res.status(200).json({
             success: true,
-            message: refreshedExecution.status === "FAILED"
-                ? `Rappel exécuté mais échec d'envoi : ${refreshedExecution.error}`
-                : "Rappel exécuté et envoyé avec succès.",
+            message: "Rappel exécuté et envoyé avec succès.",
             data: { execution: refreshedExecution }
         });
     } catch (error) {

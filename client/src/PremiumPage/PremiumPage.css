@@ -305,6 +305,7 @@
 
 .reminder-service-cell {
     flex: 1.5;
+    min-width: 0;
 }
 
 .service-chip {
@@ -317,6 +318,39 @@
     font-weight: 600;
     background-color: var(--muted);
     color: var(--foreground);
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.service-chip-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.reminder-date-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 120px;
+}
+
+.reminder-date-text {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.reminder-future-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
 }
 
 .reminder-channel-cell {
@@ -389,6 +423,46 @@
     color: var(--muted-foreground);
 }
 
+/* ── TAB 4: SERVICES CATALOG HEADER ──────────────────────── */
+.services-catalog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.services-catalog-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.services-catalog-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.services-catalog-subtitle {
+    margin: 4px 0 0 0;
+    font-size: 0.82rem;
+    color: var(--muted-foreground);
+    line-height: 1.45;
+}
+
+.add-service-btn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    height: 38px !important;
+    padding: 0 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+}
+
 /* ── VARIABLE TAGS FOR TEMPLATES ───────────────────────────── */
 .variable-pills-bar {
     display: flex;
@@ -418,7 +492,117 @@
     border-color: #556B2F;
 }
 
-/* ── SMARTPHONE SIMULATOR ──────────────────────────────────── */
+/* ── PREVIEW CHANNEL SELECTOR (TAB 3) ────────────────────── */
+.preview-channel-selector-bar {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.preview-channel-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border, #cbd5e1);
+    background-color: var(--card, #ffffff);
+    color: var(--foreground, #0f172a);
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.preview-channel-btn:hover {
+    border-color: #94a3b8;
+    background-color: var(--muted, #f8fafc);
+}
+
+.preview-channel-btn.active {
+    border-color: #556B2F;
+    background-color: rgba(85, 107, 47, 0.08);
+    box-shadow: 0 0 0 2px rgba(85, 107, 47, 0.15);
+    color: #556B2F;
+}
+
+[data-theme="dark"] .preview-channel-btn {
+    border-color: rgba(255, 255, 255, 0.16);
+    background-color: #1e293b;
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .preview-channel-btn:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background-color: #243044;
+}
+
+[data-theme="dark"] .preview-channel-btn.active {
+    border-color: #708a3e;
+    background-color: rgba(85, 107, 47, 0.2);
+    color: #a3e635;
+}
+
+/* Round Brand Icon Badges */
+.channel-icon-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.channel-icon-circle.whatsapp {
+    background-color: rgba(37, 211, 102, 0.16);
+    color: #16a34a;
+}
+
+.preview-channel-btn.active .channel-icon-circle.whatsapp {
+    background-color: #22c55e;
+    color: #ffffff;
+}
+
+.channel-icon-circle.sms {
+    background-color: rgba(59, 130, 246, 0.16);
+    color: #2563eb;
+}
+
+.preview-channel-btn.active .channel-icon-circle.sms {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+.channel-icon-circle.email {
+    background-color: rgba(139, 92, 246, 0.16);
+    color: #7c3aed;
+}
+
+.preview-channel-btn.active .channel-icon-circle.email {
+    background-color: #8b5cf6;
+    color: #ffffff;
+}
+
+/* ── SMARTPHONE SIMULATOR & LAYOUT ───────────────────────── */
+.premium-grid-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.premium-left-column {
+    flex: 1;
+    min-width: 0;
+}
+
 .smartphone-simulator-container {
     display: flex;
     flex-direction: column;
@@ -830,6 +1014,33 @@
     background-color: rgba(85, 107, 47, 0.08);
 }
 
+[data-theme="dark"] .custom-client-dropdown-menu {
+    background-color: #1e293b;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .custom-client-search-bar {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .custom-client-search-input {
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .custom-client-option-item {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .custom-client-option-item:hover,
+[data-theme="dark"] .custom-client-option-item.selected {
+    background-color: rgba(85, 107, 47, 0.22);
+}
+
+[data-theme="dark"] .custom-client-option-item.global-all {
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
 .save-sms-btn {
     display: inline-flex;
     align-items: center;
@@ -917,12 +1128,839 @@
     flex-shrink: 0;
 }
 
+/* ── DESKTOP VS MOBILE CONTAINERS ──────────────────────────── */
+.desktop-table-container {
+    display: block;
+}
+
+.mobile-records-container {
+    display: none;
+}
+
+/* ── MOBILE RESPONSIVE OPTIMIZATIONS (PHONE ONLY) ─────────── */
 @media (max-width: 768px) {
-    .premium-grid-layout {
-        flex-direction: column;
+    /* Desktop vs Mobile Toggle */
+    .desktop-table-container {
+        display: none !important;
     }
 
+    .mobile-records-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    /* Safe Area & Content Spacing */
+    .premium-page-wrapper .page-content {
+        padding: 14px 14px calc(85px + env(safe-area-inset-bottom, 20px)) 14px !important;
+        overflow-x: hidden;
+    }
+
+    /* Page Header on Mobile */
+    .premium-header-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .premium-header-row .content-title {
+        font-size: 1.35rem !important;
+    }
+
+    .premium-header-row .content-subtitle {
+        font-size: 0.82rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .premium-header-actions {
+        display: flex !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    .premium-header-actions .action-btn-pill {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 10px 14px !important;
+        font-size: 0.82rem !important;
+    }
+
+    /* Workflow Banner Hero Card on Mobile */
+    .auto-rappel-hero-card {
+        padding: 16px 14px !important;
+        margin-bottom: 1.25rem !important;
+        border-radius: 14px !important;
+    }
+
+    .hero-main-title {
+        font-size: 1.05rem !important;
+        gap: 8px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.8rem !important;
+        line-height: 1.45 !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Steps Flow: Horizontal Swipeable Ribbon instead of 6 stacked rows */
     .workflow-steps-flow {
-        font-size: 0.75rem;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding: 4px 2px 8px 2px !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+
+    .workflow-steps-flow::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .workflow-step-pill {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        font-size: 0.74rem !important;
+        padding: 6px 10px !important;
+        border-radius: 16px !important;
+    }
+
+    .workflow-step-arrow {
+        flex-shrink: 0 !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Tab Navigation on Mobile */
+    .premium-tabs-bar {
+        margin-bottom: 1.25rem !important;
+        gap: 4px !important;
+        padding: 0 2px 4px 2px !important;
+    }
+
+    .premium-tab-btn {
+        padding: 9px 12px !important;
+        font-size: 0.82rem !important;
+        gap: 6px !important;
+    }
+
+    .premium-tab-btn svg {
+        width: 15px !important;
+        height: 15px !important;
+    }
+
+    .premium-tab-btn .tab-badge-count {
+        font-size: 0.65rem !important;
+        padding: 1px 5px !important;
+    }
+
+    /* Stats Grid: Compact 2x2 Grid (fits in single view without filling whole page) */
+    .auto-rappel-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .rappel-stat-card {
+        padding: 12px !important;
+        gap: 10px !important;
+        border-radius: 12px !important;
+    }
+
+    .rappel-stat-icon-wrapper {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        border-radius: 10px !important;
+    }
+
+    .rappel-stat-icon-wrapper svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .rappel-stat-info h4 {
+        font-size: 1.25rem !important;
+        line-height: 1.1 !important;
+    }
+
+    .rappel-stat-info p {
+        font-size: 0.72rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* Quick Timeframe Filters (Horizontal Swipeable Bar) */
+    .premium-timeline-filters {
+        display: flex !important;
+        gap: 8px !important;
+        align-items: center !important;
+        margin-bottom: 14px !important;
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        padding: 2px 2px 8px 2px !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+
+    .premium-timeline-filters::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .premium-timeline-filters .action-btn-pill {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        font-size: 0.78rem !important;
+        padding: 7px 12px !important;
+    }
+
+    /* Group Card & Header on Mobile */
+    .timeline-group-card {
+        border-radius: 14px !important;
+    }
+
+    .timeline-group-header {
+        padding: 12px 14px !important;
+        gap: 8px !important;
+    }
+
+    .timeline-group-title {
+        font-size: 0.88rem !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+        flex: 1 !important;
+    }
+
+    .timeline-group-title span {
+        white-space: normal !important;
+        word-break: break-word !important;
+        line-height: 1.3 !important;
+    }
+
+    .timeline-group-badge {
+        font-size: 0.7rem !important;
+        padding: 2px 7px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* ── CARD-BASED LAYOUT FOR REMINDER ROWS ON MOBILE ───────── */
+    .reminder-row-item {
+        display: grid !important;
+        grid-template-areas:
+            "client date"
+            "service channel"
+            "actions actions" !important;
+        grid-template-columns: 1fr auto !important;
+        row-gap: 10px !important;
+        column-gap: 10px !important;
+        padding: 14px !important;
+        align-items: center !important;
+    }
+
+    .reminder-client-cell {
+        grid-area: client !important;
+        min-width: 0 !important;
+        flex: unset !important;
+        gap: 10px !important;
+    }
+
+    .reminder-client-avatar {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        font-size: 0.82rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .reminder-client-meta {
+        min-width: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .reminder-client-meta h5 {
+        font-size: 0.88rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .reminder-client-meta p {
+        font-size: 0.74rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .reminder-date-cell {
+        grid-area: date !important;
+        min-width: 0 !important;
+        align-items: flex-end !important;
+        text-align: right !important;
+        flex: unset !important;
+    }
+
+    .reminder-date-text {
+        font-size: 0.82rem !important;
+        white-space: nowrap !important;
+        color: var(--foreground) !important;
+    }
+
+    .reminder-future-badge {
+        align-self: flex-end !important;
+        font-size: 0.68rem !important;
+        padding: 2px 6px !important;
+        margin-top: 2px !important;
+    }
+
+    .reminder-service-cell {
+        grid-area: service !important;
+        min-width: 0 !important;
+        flex: unset !important;
+    }
+
+    .service-chip {
+        max-width: 100% !important;
+        min-width: 0 !important;
+        font-size: 0.75rem !important;
+        padding: 4px 10px !important;
+    }
+
+    .reminder-channel-cell {
+        grid-area: channel !important;
+        justify-content: flex-end !important;
+        font-size: 0.76rem !important;
+        flex: unset !important;
+    }
+
+    /* Actions Bottom Bar with Big, Touch-Friendly Tap Targets */
+    .reminder-actions-cell {
+        grid-area: actions !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 8px !important;
+        padding-top: 10px !important;
+        margin-top: 2px !important;
+        border-top: 1px solid var(--border) !important;
+    }
+
+    .reminder-actions-cell .action-btn-pill {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 8px 6px !important;
+        font-size: 0.76rem !important;
+        white-space: nowrap !important;
+        min-height: 34px !important;
+        box-sizing: border-box !important;
+    }
+
+    .reminder-actions-cell .action-btn-pill.icon-only-btn {
+        flex: 0 0 38px !important;
+        padding: 8px !important;
+    }
+
+    /* ── MOBILE RECORDS CARDS (FOR AUTOMATIONS & HISTORY) ────── */
+    .mobile-record-card {
+        background-color: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 14px !important;
+        padding: 12px 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+    }
+
+    .mobile-record-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    .mobile-record-client {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        min-width: 0 !important;
+        flex: 1 !important;
+    }
+
+    .mobile-record-title {
+        margin: 0 !important;
+        font-size: 0.88rem !important;
+        font-weight: 700 !important;
+        color: var(--foreground) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .mobile-record-subtitle {
+        font-size: 0.74rem !important;
+        color: var(--muted-foreground) !important;
+        display: block !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .status-badge-pill {
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
+        padding: 2px 8px !important;
+        border-radius: 12px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .status-badge-pill.active {
+        background-color: rgba(34, 197, 94, 0.12) !important;
+        color: #16a34a !important;
+    }
+
+    .status-badge-pill.paused {
+        background-color: rgba(107, 114, 128, 0.12) !important;
+        color: var(--muted-foreground) !important;
+    }
+
+    .mobile-record-details {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    .mobile-record-detail-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    .mobile-record-meta-row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 3px !important;
+        font-size: 0.74rem !important;
+        color: var(--muted-foreground) !important;
+    }
+
+    .mobile-record-meta-row span {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+
+    .mobile-record-msg-preview {
+        background: rgba(85, 107, 47, 0.05) !important;
+        border: 1px dashed rgba(85, 107, 47, 0.2) !important;
+        padding: 8px 10px !important;
+        border-radius: 8px !important;
+        font-size: 0.76rem !important;
+        color: var(--foreground) !important;
+        font-style: italic !important;
+        line-height: 1.35 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+    }
+
+    .mobile-record-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding-top: 8px !important;
+        border-top: 1px solid var(--border) !important;
+        margin-top: 2px !important;
+    }
+
+    .mobile-record-actions .action-btn-pill {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 7px 8px !important;
+        font-size: 0.76rem !important;
+        white-space: nowrap !important;
+        min-height: 34px !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-record-actions .action-btn-pill.icon-only-btn {
+        flex: 0 0 36px !important;
+        padding: 7px !important;
+    }
+
+    /* Pagination on Mobile */
+    .timeline-pagination-bar {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 12px 14px !important;
+        text-align: center !important;
+    }
+
+    /* Tab 2: Automations Filter Toolbar */
+    .automation-filter-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 10px 12px !important;
+    }
+
+    .automation-filter-field {
+        width: 100% !important;
+        min-width: 0 !important;
+        flex: unset !important;
+    }
+
+    /* Tab 3: Template & Simulator Layout */
+    .premium-grid-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 20px !important;
+        width: 100% !important;
+    }
+
+    .premium-left-column {
+        width: 100% !important;
+    }
+
+    .premium-right-column {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 10px 0 24px 0 !important;
+    }
+
+    .smartphone-simulator-container {
+        position: static !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .smartphone-bezel {
+        width: 280px !important;
+        height: 520px !important;
+        margin: 0 auto !important;
+    }
+
+    .simulator-label {
+        display: block !important;
+        text-align: center !important;
+        width: 100% !important;
+        margin: 10px auto 0 auto !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: var(--muted-foreground) !important;
+    }
+
+    .variable-pills-bar {
+        gap: 5px !important;
+    }
+
+    .var-pill-btn {
+        font-size: 0.72rem !important;
+        padding: 4px 8px !important;
+    }
+
+    /* Tab 4: Métiers & Services mobile layout */
+    .services-tab-card {
+        padding: 16px 14px !important;
+    }
+
+    .services-catalog-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .services-catalog-title {
+        font-size: 1.05rem !important;
+        line-height: 1.35 !important;
+    }
+
+    .services-catalog-subtitle {
+        font-size: 0.78rem !important;
+        line-height: 1.4 !important;
+        margin-top: 4px !important;
+    }
+
+    .add-service-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        height: 40px !important;
+        font-size: 0.84rem !important;
+        white-space: nowrap !important;
+        border-radius: 9px !important;
+    }
+
+    /* ── NATIVE BOTTOM SHEET ON MOBILE (PHONE ONLY) ────────── */
+    .bottom-sheet-drag-handle-zone {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0 6px 0;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .bottom-sheet-drag-handle-zone:active {
+        cursor: grabbing;
+    }
+
+    .bottom-sheet-drag-handle {
+        display: block !important;
+        width: 44px;
+        height: 5px;
+        background-color: #cbd5e1;
+        border-radius: 3px;
+        margin: 0 auto;
+        flex-shrink: 0;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    [data-theme="dark"] .bottom-sheet-drag-handle {
+        background-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .bottom-sheet-drag-handle-zone:active .bottom-sheet-drag-handle {
+        transform: scaleX(1.15);
+        background-color: #94a3b8;
+    }
+
+    .rappel-modal-backdrop {
+        padding: 0 !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
+        background: rgba(0, 0, 0, 0.55) !important;
+        backdrop-filter: blur(4px) !important;
+    }
+
+    .rappel-modal-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 88vh !important;
+        max-height: 88dvh !important;
+        border-radius: 20px 20px 0 0 !important;
+        border-bottom: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .rappel-modal-header {
+        padding: 10px 18px 12px 18px !important;
+        border-bottom: 1px solid var(--border) !important;
+    }
+
+    .rappel-modal-header h3 {
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+    }
+
+    .rappel-modal-body {
+        padding: 16px 18px 24px 18px !important;
+        gap: 14px !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .rappel-modal-body .form-field {
+        margin: 0 !important;
+    }
+
+    .rappel-modal-body .form-label {
+        font-size: 0.78rem !important;
+        margin-bottom: 5px !important;
+        font-weight: 600 !important;
+        color: var(--foreground) !important;
+    }
+
+    /* FULL, CRISP, VISIBLE TEXT IN INPUTS & SELECTS - NO CLIPPING */
+    .rappel-modal-body input:not([type="checkbox"]):not([type="radio"]),
+    .rappel-modal-body select {
+        padding: 9px 12px !important;
+        font-size: 0.88rem !important;
+        line-height: 1.4 !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 9px !important;
+        box-sizing: border-box !important;
+    }
+
+    .custom-client-trigger {
+        padding: 9px 12px !important;
+        font-size: 0.88rem !important;
+        line-height: 1.4 !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 9px !important;
+        box-sizing: border-box !important;
+    }
+
+    .modal-grid-cols {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        align-items: flex-start !important;
+    }
+
+    .modal-grid-cols .form-field {
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 !important;
+    }
+
+    .modal-grid-cols .form-label {
+        height: 18px !important;
+        line-height: 18px !important;
+        margin-bottom: 6px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .rappel-stop-conditions-box {
+        padding: 10px 14px !important;
+        gap: 8px !important;
+        border-radius: 10px !important;
+        margin-top: 4px !important;
+    }
+
+    .rappel-checkbox-label {
+        font-size: 0.78rem !important;
+        gap: 8px !important;
+        line-height: 1.35 !important;
+    }
+
+    .rappel-checkbox-input {
+        width: 17px !important;
+        height: 17px !important;
+        min-width: 17px !important;
+        min-height: 17px !important;
+    }
+
+    .rappel-modal-footer {
+        padding: 14px 18px calc(24px + env(safe-area-inset-bottom, 16px)) 18px !important;
+        gap: 10px !important;
+        border-top: 1px solid var(--border) !important;
+        background-color: var(--card) !important;
+        flex-shrink: 0 !important;
+    }
+
+    .rappel-modal-footer .action-btn-pill {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 11px 16px !important;
+        font-size: 0.88rem !important;
+        min-height: 42px !important;
+        border-radius: 9px !important;
     }
 }
+
+@media (max-width: 480px) {
+    .reminder-actions-cell .action-btn-pill {
+        padding: 7px 4px !important;
+        font-size: 0.74rem !important;
+        gap: 4px !important;
+    }
+
+    .reminder-client-meta h5 {
+        max-width: 145px !important;
+    }
+
+    .service-chip {
+        max-width: 100% !important;
+    }
+
+    .smartphone-bezel {
+        width: 260px !important;
+        height: 480px !important;
+        margin: 0 auto !important;
+    }
+
+    .preview-channel-btn {
+        padding: 0 8px !important;
+        font-size: 0.76rem !important;
+        gap: 6px !important;
+        height: 38px !important;
+    }
+
+    .channel-icon-circle {
+        width: 22px !important;
+        height: 22px !important;
+    }
+}
+
+/* ── Centered Alert Confirmation Dialog (Mobile & Desktop) ── */
+.rappel-confirm-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 2500;
+}
+
+.rappel-confirm-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.rappel-confirm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 14px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.rappel-confirm-body {
+    padding: 20px;
+}
+
+.rappel-confirm-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--background);
+}
+

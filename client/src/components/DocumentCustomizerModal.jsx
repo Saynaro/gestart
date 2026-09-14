@@ -64,7 +64,7 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
   // Dynamic Client Info from active document if present
   const clientDisplayName = doc?.client?.companyName || (doc?.client?.firstName ? `${doc.client.firstName} ${doc.client.lastName || ''}`.trim() : null) || doc?.clientName || "Jean Dupont";
   const clientDisplayAddress = doc?.client?.address ? `${doc.client.address}${doc.client.postalCode || doc.client.city ? `, ${doc.client.postalCode || ''} ${doc.client.city || ''}` : ''}`.trim() : (doc?.clientAddress || "12 Rue des Fleurs, 75001 Paris");
-  const clientDisplayEmail = doc?.client?.email || doc?.clientEmail || "jean.dupont@email.com";
+  const clientDisplayEmail = doc?.client?.email || doc?.clientEmail || "exemple@gmail.com";
   const clientDisplayPhone = doc?.client?.phone || doc?.clientPhone || "";
   const docNumber = doc?.number || (docType === "devis" ? "DEV-2026-0001" : "INV-2026-0001");
   const docDate = doc?.date ? new Date(doc.date).toLocaleDateString('fr-FR') : "01/08/2026";
@@ -582,8 +582,8 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     )}
 
                     {(() => {
-                      const isClientSigVisible = customization.showClientSignature !== undefined 
-                        ? customization.showClientSignature 
+                      const isClientSigVisible = customization.showClientSignature !== undefined
+                        ? customization.showClientSignature
                         : (docType === "devis");
                       return (
                         <>
@@ -1586,10 +1586,10 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                       >
                         {doc?.signatureUrl || doc?.clientSignatureUrl ? (
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
-                            <img 
-                              src={doc.signatureUrl || doc.clientSignatureUrl} 
-                              alt="Signature Client" 
-                              style={{ maxHeight: "36px", maxWidth: "90%", objectFit: "contain" }} 
+                            <img
+                              src={doc.signatureUrl || doc.clientSignatureUrl}
+                              alt="Signature Client"
+                              style={{ maxHeight: "36px", maxWidth: "90%", objectFit: "contain" }}
                             />
                             <span style={{ fontSize: "7pt", color: "#16a34a", fontWeight: 600, marginTop: "2px" }}>
                               ✓ Signé le {new Date(doc.signedAt || doc.acceptedAt || doc.date || doc.createdAt || Date.now()).toLocaleDateString("fr-FR")}
@@ -1613,8 +1613,8 @@ export default function DocumentCustomizerModal({ onClose, docType = "facture", 
                     else rightItems.push(renderCompanySig());
                   }
 
-                  const isClientSigVisible = customization.showClientSignature !== undefined 
-                    ? customization.showClientSignature 
+                  const isClientSigVisible = customization.showClientSignature !== undefined
+                    ? customization.showClientSignature
                     : (docType === "devis");
 
                   if (isClientSigVisible) {

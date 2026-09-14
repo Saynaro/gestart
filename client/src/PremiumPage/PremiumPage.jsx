@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import ToastNotification from "../components/ToastNotification";
 import {
     Star,
     MessageSquare,
@@ -117,11 +118,19 @@ function PremiumPage() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(null);
 
+    // Mobile viewport detection for Bottom Sheet
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     // Toast state
     const [toast, setToast] = useState(null);
     const triggerToast = (message, type = "success") => {
         setToast({ message, type, id: Date.now() });
-        setTimeout(() => setToast(null), 3500);
     };
 
     // Confirm Modal state
@@ -205,12 +214,14 @@ function PremiumPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingAutomation, setEditingAutomation] = useState(null);
     const [showServiceModal, setShowServiceModal] = useState(false);
+    const createModalDragControls = useDragControls();
+    const serviceModalDragControls = useDragControls();
     const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
     const [clientSearchQuery, setClientSearchQuery] = useState("");
 
     // Form states for modal
     const [modalForm, setModalForm] = useState({
-        clientId: "ALL",
+        clientId: "",
         name: "Rappel Entretien Annuel",
         serviceTypeId: "",
         frequencyValue: 12,
@@ -440,6 +451,11 @@ function PremiumPage() {
     const handleSaveAutomationForm = async (e) => {
         if (e) e.preventDefault();
 
+        if (!modalForm.clientId) {
+            triggerToast("Veuillez sélectionner un client concerné (ou Tous les clients)", "error");
+            return;
+        }
+
         // Si création d'une nouvelle règle, vérifier si une règle existe déjà pour ce client et cette prestation
         if (!editingAutomation) {
             const existingMatch = automations.find(a =>
@@ -545,7 +561,7 @@ function PremiumPage() {
     const openNewModal = () => {
         setEditingAutomation(null);
         setModalForm({
-            clientId: clientsList[0]?.id || "",
+            clientId: "",
             name: "Rappel Entretien Annuel",
             serviceTypeId: services[0]?.id || "",
             frequencyValue: 12,
@@ -566,28 +582,7 @@ function PremiumPage() {
     return (
         <div className="home-page premium-page-wrapper">
             {/* Custom Floating Animated Toast */}
-            <AnimatePresence>
-                {toast && (
-                    <div className="app-toast-container">
-                        <motion.div
-                            className={`app-toast-pill ${toast.type}`}
-                            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                            transition={{ duration: 0.25, ease: "easeOut" }}
-                        >
-                            {toast.type === "success" ? (
-                                <CheckCircle2 size={18} />
-                            ) : toast.type === "error" ? (
-                                <AlertCircle size={18} />
-                            ) : (
-                                <Sparkles size={18} />
-                            )}
-                            <span>{toast.message}</span>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
 
             <SideBar />
             <div className="main-content">
@@ -609,7 +604,7 @@ function PremiumPage() {
                                 Transformez vos interventions terminées en futurs rendez-vous automatiques.
                             </p>
                         </div>
-                        <div style={{ display: "flex", gap: "12px", alignItems: "center", flexShrink: 0 }}>
+                        <div className="premium-header-actions" style={{ display: "flex", gap: "12px", alignItems: "center", flexShrink: 0 }}>
                             <button className="action-btn-pill" onClick={loadDashboardData} title="Rafraîchir les données" style={{ padding: "10px 18px", display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600 }}>
                                 <RefreshCw size={15} /> Actualiser
                             </button>
@@ -748,7 +743,7 @@ function PremiumPage() {
                             </div>
 
                             {/* Quick Timeframe Filter Bar */}
-                            <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "18px", flexWrap: "wrap" }}>
+                            <div className="premium-timeline-filters" style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "18px", flexWrap: "wrap" }}>
                                 <button
                                     type="button"
                                     className={`action-btn-pill ${timelineFilter === "ALL" ? "primary" : ""}`}
@@ -944,7 +939,7 @@ function PremiumPage() {
 
                                         {/* Pagination Bar for Future Reminders */}
                                         {(dashboardData.groups?.future?.length || 0) > 0 && (
-                                            <div style={{
+                                            <div className="timeline-pagination-bar" style={{
                                                 display: "flex",
                                                 justifyContent: "space-between",
                                                 alignItems: "center",
@@ -1004,21 +999,16 @@ function PremiumPage() {
                     {activeTab === "automations" && (
                         <div className="tab-pane animate-fade-in">
                             <div className="comptability-card" style={{ padding: "20px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>Règles d'automatisation des relances</h3>
-                                        <p className="subtitle" style={{ margin: "4px 0 0 0", color: "var(--muted-foreground)", fontSize: "0.85rem" }}>
-                                            Chaque client et prestation dispose de sa propre périodicité indépendante.
-                                        </p>
-                                    </div>
-                                    <button className="action-btn-pill primary" onClick={openNewModal} style={{ padding: "9px 18px" }}>
-                                        <Plus size={16} /> Créer un rappel
-                                    </button>
+                                <div style={{ marginBottom: "20px" }}>
+                                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>Règles d'automatisation des relances</h3>
+                                    <p className="subtitle" style={{ margin: "4px 0 0 0", color: "var(--muted-foreground)", fontSize: "0.85rem" }}>
+                                        Chaque client et prestation dispose de sa propre périodicité indépendante.
+                                    </p>
                                 </div>
 
                                 {/* Filter & Search Toolbar */}
-                                <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", backgroundColor: "rgba(0, 0, 0, 0.02)", padding: "12px 14px", borderRadius: "10px", border: "1px solid var(--border)" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1 1 240px", minWidth: "200px" }}>
+                                <div className="automation-filter-toolbar" style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", backgroundColor: "rgba(0, 0, 0, 0.02)", padding: "12px 14px", borderRadius: "10px", border: "1px solid var(--border)" }}>
+                                    <div className="automation-filter-field" style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1 1 240px", minWidth: "200px" }}>
                                         <Search size={16} color="var(--muted-foreground)" />
                                         <input
                                             type="text"
@@ -1030,7 +1020,7 @@ function PremiumPage() {
                                         />
                                     </div>
 
-                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1 1 260px", minWidth: "220px" }}>
+                                    <div className="automation-filter-field" style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1 1 260px", minWidth: "220px" }}>
                                         <User size={16} color="var(--muted-foreground)" />
                                         <select
                                             className="profile-input option-select"
@@ -1091,7 +1081,8 @@ function PremiumPage() {
                                         )}
                                     </div>
                                 ) : (
-                                    <div style={{ overflowX: "auto" }}>
+                                    <>
+                                    <div className="desktop-table-container" style={{ overflowX: "auto" }}>
                                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                                             <thead>
                                                 <tr style={{ borderBottom: "1px solid var(--border)", textAlign: "left", color: "var(--muted-foreground)" }}>
@@ -1145,14 +1136,6 @@ function PremiumPage() {
                                                             <div style={{ display: "inline-flex", gap: "6px" }}>
                                                                 <button
                                                                     className="action-btn-pill"
-                                                                    onClick={() => handleExecuteNow(auto.id, `${auto.client?.firstName || ""} ${auto.client?.lastName || ""}`.trim())}
-                                                                    disabled={actionLoading === auto.id}
-                                                                    title="Exécuter immédiatement"
-                                                                >
-                                                                    <Play size={13} />
-                                                                </button>
-                                                                <button
-                                                                    className="action-btn-pill"
                                                                     onClick={() => handleToggleAutomation(auto.id)}
                                                                     title={auto.enabled ? "Mettre en pause" : "Activer"}
                                                                 >
@@ -1179,18 +1162,90 @@ function PremiumPage() {
                                                 ))}
                                             </tbody>
                                         </table>
+                                    </div>
+
+                                    {/* Mobile Cards View (No horizontal scroll on phone) */}
+                                    <div className="mobile-records-container">
+                                        {paginatedAutomations.map((auto) => (
+                                            <div key={auto.id} className="mobile-record-card">
+                                                <div className="mobile-record-header">
+                                                    <div className="mobile-record-client">
+                                                        <div className="reminder-client-avatar">
+                                                            {(auto.client?.firstName?.[0] || "") + (auto.client?.lastName?.[0] || "") || "CL"}
+                                                        </div>
+                                                        <div>
+                                                            <h5 className="mobile-record-title">{auto.client?.firstName} {auto.client?.lastName}</h5>
+                                                            <span className="mobile-record-subtitle">{auto.name}</span>
+                                                        </div>
+                                                    </div>
+                                                    <span className={`status-badge-pill ${auto.enabled ? "active" : "paused"}`}>
+                                                        {auto.enabled ? "Actif" : "En pause"}
+                                                    </span>
+                                                </div>
+
+                                                <div className="mobile-record-details">
+                                                    <div className="mobile-record-detail-row">
+                                                        <span className="service-chip" title={auto.trackedServices?.map(ts => ts.serviceType?.name).join(", ") || "Équipement général"}>
+                                                            <Wrench size={13} style={{ flexShrink: 0 }} />
+                                                            <span className="service-chip-text">{auto.trackedServices?.map(ts => ts.serviceType?.name).join(", ") || "Équipement général"}</span>
+                                                        </span>
+                                                        <span className="channel-chip">
+                                                            {renderChannelBadge(auto.channel)}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="mobile-record-meta-row">
+                                                        <span>
+                                                            <Clock size={12} color="#556B2F" /> Tous les {auto.frequencyValue} {auto.frequencyUnit === "MONTHS" ? "mois" : auto.frequencyUnit === "DAYS" ? "jours" : "ans"} (préavis {auto.advanceNoticeValue}j)
+                                                        </span>
+                                                        <span>
+                                                            <Calendar size={12} color="#556B2F" /> Prochaine échéance : <strong>{auto.nextReminderAt ? new Date(auto.nextReminderAt).toLocaleDateString("fr-FR") : "—"}</strong>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mobile-record-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn-pill"
+                                                        onClick={() => handleToggleAutomation(auto.id)}
+                                                        title={auto.enabled ? "Mettre en pause" : "Activer"}
+                                                    >
+                                                        {auto.enabled ? <><Pause size={13} /> Pause</> : <><Play size={13} /> Activer</>}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn-pill"
+                                                        onClick={() => openEditModal(auto)}
+                                                        title="Modifier"
+                                                    >
+                                                        <Edit3 size={13} /> Modifier
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn-pill icon-only-btn"
+                                                        onClick={() => handleDeleteAutomation(auto.id)}
+                                                        style={{ color: "#ef4444" }}
+                                                        title="Supprimer"
+                                                    >
+                                                        <Trash2 size={13} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
 
                                         {/* Pagination Bar for Automations */}
                                         {filteredAutomations.length > 0 && (
-                                            <div style={{
+                                            <div className="timeline-pagination-bar" style={{
                                                 display: "flex",
                                                 justifyContent: "space-between",
                                                 alignItems: "center",
-                                                padding: "16px 4px 4px 4px",
-                                                marginTop: "12px",
+                                                padding: "16px 20px",
                                                 borderTop: "1px solid var(--border)",
                                                 flexWrap: "wrap",
-                                                gap: "12px"
+                                                gap: "12px",
+                                                backgroundColor: "rgba(255, 255, 255, 0.01)"
                                             }}>
                                                 <div style={{ fontSize: "0.82rem", color: "var(--muted-foreground)" }}>
                                                     Affichage de {((automationsPage - 1) * ITEMS_PER_PAGE) + 1} à {Math.min(automationsPage * ITEMS_PER_PAGE, filteredAutomations.length)} sur {filteredAutomations.length} règle{filteredAutomations.length > 1 ? "s" : ""}
@@ -1232,7 +1287,7 @@ function PremiumPage() {
                                                 )}
                                             </div>
                                         )}
-                                    </div>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -1261,30 +1316,36 @@ function PremiumPage() {
                                         <label className="form-label" style={{ marginBottom: "8px", display: "block" }}>
                                             Canal de communication
                                         </label>
-                                        <div style={{ display: "flex", gap: "10px" }}>
+                                        <div className="preview-channel-selector-bar">
                                             <button
                                                 type="button"
-                                                className={`action-btn-pill ${previewChannel === "WHATSAPP" ? "primary" : ""}`}
+                                                className={`preview-channel-btn ${previewChannel === "WHATSAPP" ? "active" : ""}`}
                                                 onClick={() => setPreviewChannel("WHATSAPP")}
-                                                style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
                                             >
-                                                <MessageCircle size={15} color={previewChannel === "WHATSAPP" ? "#ffffff" : "#22c55e"} /> WhatsApp Business
+                                                <span className="channel-icon-circle whatsapp">
+                                                    <MessageCircle size={14} />
+                                                </span>
+                                                <span className="channel-btn-text">WhatsApp</span>
                                             </button>
                                             <button
                                                 type="button"
-                                                className={`action-btn-pill ${previewChannel === "SMS" ? "primary" : ""}`}
+                                                className={`preview-channel-btn ${previewChannel === "SMS" ? "active" : ""}`}
                                                 onClick={() => setPreviewChannel("SMS")}
-                                                style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
                                             >
-                                                <Smartphone size={15} color={previewChannel === "SMS" ? "#ffffff" : "#3b82f6"} /> SMS
+                                                <span className="channel-icon-circle sms">
+                                                    <Smartphone size={14} />
+                                                </span>
+                                                <span className="channel-btn-text">SMS</span>
                                             </button>
                                             <button
                                                 type="button"
-                                                className={`action-btn-pill ${previewChannel === "EMAIL" ? "primary" : ""}`}
+                                                className={`preview-channel-btn ${previewChannel === "EMAIL" ? "active" : ""}`}
                                                 onClick={() => setPreviewChannel("EMAIL")}
-                                                style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
                                             >
-                                                <Mail size={15} color={previewChannel === "EMAIL" ? "#ffffff" : "#8b5cf6"} /> Email
+                                                <span className="channel-icon-circle email">
+                                                    <Mail size={14} />
+                                                </span>
+                                                <span className="channel-btn-text">Email</span>
                                             </button>
                                         </div>
                                     </div>
@@ -1463,15 +1524,15 @@ function PremiumPage() {
                     {/* ── TAB 4: MÉTIERS & CATALOGUE DE SERVICES ─────────────── */}
                     {activeTab === "services" && (
                         <div className="tab-pane animate-fade-in">
-                            <div className="comptability-card" style={{ padding: "24px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: "1.1rem" }}>Catalogue des prestations & Recommandations par métier</h3>
-                                        <p className="subtitle" style={{ margin: "4px 0 0 0" }}>
+                            <div className="comptability-card services-tab-card" style={{ padding: "24px" }}>
+                                <div className="services-catalog-header">
+                                    <div className="services-catalog-info">
+                                        <h3 className="services-catalog-title">Catalogue des prestations & Recommandations par métier</h3>
+                                        <p className="services-catalog-subtitle">
                                             Chaque prestation réalisée lors d'une intervention déclenche son propre cycle de rappel.
                                         </p>
                                     </div>
-                                    <button className="action-btn-pill primary" onClick={() => setShowServiceModal(true)}>
+                                    <button className="action-btn-pill primary add-service-btn" onClick={() => setShowServiceModal(true)}>
                                         <Plus size={16} /> Ajouter une prestation
                                     </button>
                                 </div>
@@ -1539,7 +1600,8 @@ function PremiumPage() {
                                         Aucun historique de relance enregistré pour le moment.
                                     </p>
                                 ) : (
-                                    <div style={{ overflowX: "auto" }}>
+                                    <>
+                                    <div className="desktop-table-container" style={{ overflowX: "auto" }}>
                                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                                             <thead>
                                                 <tr style={{ borderBottom: "1px solid var(--border)", textAlign: "left", color: "var(--muted-foreground)" }}>
@@ -1602,7 +1664,8 @@ function PremiumPage() {
                                                                         state: {
                                                                             clientId: exec.client?.id,
                                                                             clientName: `${exec.client?.firstName || ""} ${exec.client?.lastName || ""}`.trim(),
-                                                                            serviceType: exec.reminderAutomation?.trackedServices?.[0]?.serviceType?.name || exec.reminderAutomation?.name || "Entretien"
+                                                                            serviceType: exec.reminderAutomation?.trackedServices?.[0]?.serviceType?.name || exec.reminderAutomation?.name || "Entretien",
+                                                                            returnUrl: "/premium"
                                                                         }
                                                                     })}
                                                                     title="Planifier un rendez-vous (RDV)"
@@ -1615,7 +1678,8 @@ function PremiumPage() {
                                                                     onClick={() => navigate("/messages", {
                                                                         state: {
                                                                             clientId: exec.client?.id,
-                                                                            clientName: `${exec.client?.firstName || ""} ${exec.client?.lastName || ""}`.trim()
+                                                                            clientName: `${exec.client?.firstName || ""} ${exec.client?.lastName || ""}`.trim(),
+                                                                            returnUrl: "/premium"
                                                                         }
                                                                     })}
                                                                     title="Voir la conversation"
@@ -1628,18 +1692,111 @@ function PremiumPage() {
                                                 ))}
                                             </tbody>
                                         </table>
+                                    </div>
+
+                                    {/* Mobile Cards View (No horizontal scroll on phone) */}
+                                    <div className="mobile-records-container">
+                                        {paginatedExecutions.map((exec) => (
+                                            <div key={exec.id} className="mobile-record-card">
+                                                <div className="mobile-record-header">
+                                                    <div>
+                                                        <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--foreground)" }}>
+                                                            {new Date(exec.scheduledAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                                                        </span>
+                                                        <span style={{ fontSize: "0.72rem", color: "var(--muted-foreground)", marginLeft: "8px" }}>
+                                                            {exec.sequenceStep === 1 ? "1er Rappel" : `Relance #${exec.sequenceStep}`}
+                                                        </span>
+                                                    </div>
+                                                    <span style={{
+                                                        padding: "2px 8px",
+                                                        borderRadius: "12px",
+                                                        fontSize: "0.7rem",
+                                                        fontWeight: 700,
+                                                        backgroundColor:
+                                                            exec.status === "RESPONDED" ? "rgba(34, 197, 94, 0.15)" :
+                                                                exec.status === "WAITING_FOR_RESPONSE" || exec.status === "SENT" ? "rgba(59, 130, 246, 0.15)" :
+                                                                    exec.status === "SCHEDULED" ? "rgba(234, 179, 8, 0.15)" :
+                                                                        "rgba(239, 68, 68, 0.15)",
+                                                        color:
+                                                            exec.status === "RESPONDED" ? "#16a34a" :
+                                                                exec.status === "WAITING_FOR_RESPONSE" || exec.status === "SENT" ? "#2563eb" :
+                                                                    exec.status === "SCHEDULED" ? "#ca8a04" :
+                                                                        "#ef4444"
+                                                    }}>
+                                                        {exec.status === "RESPONDED" ? "✓ Répondu" :
+                                                            exec.status === "WAITING_FOR_RESPONSE" ? "En attente" :
+                                                                exec.status === "SENT" ? "Envoyé" :
+                                                                    exec.status === "SCHEDULED" ? "Planifié" :
+                                                                        exec.status === "FAILED" ? "Échec" : exec.status}
+                                                    </span>
+                                                </div>
+
+                                                <div className="mobile-record-details">
+                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                                                        <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--foreground)" }}>
+                                                            {exec.client?.firstName} {exec.client?.lastName}
+                                                        </span>
+                                                        <span style={{ fontSize: "0.78rem" }}>
+                                                            {renderChannelBadge(exec.channel)}
+                                                        </span>
+                                                    </div>
+
+                                                    {exec.renderedContent && (
+                                                        <div className="mobile-record-msg-preview">
+                                                            "{exec.renderedContent}"
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="mobile-record-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn-pill"
+                                                        onClick={() => navigate("/planning", {
+                                                            state: {
+                                                                clientId: exec.client?.id,
+                                                                clientName: `${exec.client?.firstName || ""} ${exec.client?.lastName || ""}`.trim(),
+                                                                serviceType: exec.reminderAutomation?.trackedServices?.[0]?.serviceType?.name || exec.reminderAutomation?.name || "Entretien",
+                                                                returnUrl: "/premium"
+                                                            }
+                                                        })}
+                                                        title="Planifier un rendez-vous (RDV)"
+                                                        style={{ flex: 1, justifyContent: "center" }}
+                                                    >
+                                                        <Calendar size={13} color="#556B2F" /> Planifier RDV
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn-pill"
+                                                        onClick={() => navigate("/messages", {
+                                                            state: {
+                                                                clientId: exec.client?.id,
+                                                                clientName: `${exec.client?.firstName || ""} ${exec.client?.lastName || ""}`.trim(),
+                                                                returnUrl: "/premium"
+                                                            }
+                                                        })}
+                                                        title="Voir la conversation"
+                                                        style={{ flex: 1, justifyContent: "center" }}
+                                                    >
+                                                        <MessageSquare size={13} /> Chat
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
 
                                         {/* Pagination Bar for History */}
                                         {executions.length > 0 && (
-                                            <div style={{
+                                            <div className="timeline-pagination-bar" style={{
                                                 display: "flex",
                                                 justifyContent: "space-between",
                                                 alignItems: "center",
-                                                padding: "16px 4px 4px 4px",
+                                                padding: "16px 20px",
                                                 marginTop: "12px",
                                                 borderTop: "1px solid var(--border)",
                                                 flexWrap: "wrap",
-                                                gap: "12px"
+                                                gap: "12px",
+                                                backgroundColor: "rgba(255, 255, 255, 0.01)"
                                             }}>
                                                 <div style={{ fontSize: "0.82rem", color: "var(--muted-foreground)" }}>
                                                     Affichage de {((historyPage - 1) * ITEMS_PER_PAGE) + 1} à {Math.min(historyPage * ITEMS_PER_PAGE, executions.length)} sur {executions.length} relance{executions.length > 1 ? "s" : ""}
@@ -1681,7 +1838,7 @@ function PremiumPage() {
                                                 )}
                                             </div>
                                         )}
-                                    </div>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -1699,14 +1856,42 @@ function PremiumPage() {
             {/* ── MODAL: CRÉER / MODIFIER UNE RÈGLE DE RAPPEL ────────────── */}
             <AnimatePresence>
                 {showCreateModal && (
-                    <div className="rappel-modal-backdrop" onClick={() => setShowCreateModal(false)}>
+                    <motion.div
+                        className="rappel-modal-backdrop"
+                        onClick={() => setShowCreateModal(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                    >
                         <motion.div
                             className="rappel-modal-card"
                             onClick={(e) => e.stopPropagation()}
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
+                            drag={isMobile ? "y" : false}
+                            dragListener={false}
+                            dragControls={createModalDragControls}
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={{ top: 0, bottom: 0.6 }}
+                            onDragEnd={(e, info) => {
+                                if (info.offset.y > 70 || info.velocity.y > 350) {
+                                    setShowCreateModal(false);
+                                }
+                            }}
+                            initial={isMobile ? { y: "100%" } : { scale: 0.95, opacity: 0 }}
+                            animate={isMobile ? { y: "0%" } : { scale: 1, opacity: 1 }}
+                            exit={isMobile ? { y: "100%" } : { scale: 0.95, opacity: 0 }}
+                            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
                         >
+                            {isMobile && (
+                                <div
+                                    className="bottom-sheet-drag-handle-zone"
+                                    onPointerDown={(e) => createModalDragControls.start(e)}
+                                    onClick={() => setShowCreateModal(false)}
+                                    title="Glisser vers le bas pour fermer"
+                                >
+                                    <div className="bottom-sheet-drag-handle" />
+                                </div>
+                            )}
                             <div className="rappel-modal-header">
                                 <h3 style={{ margin: 0, fontSize: "1.1rem" }}>
                                     {editingAutomation ? "Modifier la règle de rappel" : "Créer une règle de rappel automatique"}
@@ -1724,8 +1909,7 @@ function PremiumPage() {
                                             <button
                                                 type="button"
                                                 className={`custom-client-trigger ${clientDropdownOpen ? "active" : ""}`}
-                                                onClick={() => !editingAutomation && setClientDropdownOpen(!clientDropdownOpen)}
-                                                disabled={!!editingAutomation}
+                                                onClick={() => setClientDropdownOpen(!clientDropdownOpen)}
                                             >
                                                 <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                                     {modalForm.clientId === "ALL" ? (
@@ -1733,10 +1917,10 @@ function PremiumPage() {
                                                             <Users size={16} color="#556B2F" />
                                                             <strong style={{ color: "#556B2F" }}>Tous les clients (Règle globale)</strong>
                                                         </>
-                                                    ) : (
+                                                    ) : modalForm.clientId ? (
                                                         (() => {
                                                             const selected = clientsList.find(c => c.id === modalForm.clientId);
-                                                            if (!selected) return <span style={{ color: "var(--muted-foreground)" }}>Sélectionnez un client ou tous les clients</span>;
+                                                            if (!selected) return <span style={{ color: "var(--muted-foreground)" }}>Sélectionner un client ou tous les clients *</span>;
                                                             return (
                                                                 <>
                                                                     <User size={16} color="#556B2F" />
@@ -1744,6 +1928,11 @@ function PremiumPage() {
                                                                 </>
                                                             );
                                                         })()
+                                                    ) : (
+                                                        <>
+                                                            <User size={16} color="var(--muted-foreground)" />
+                                                            <span style={{ color: "var(--muted-foreground)" }}>Sélectionner un client ou tous les clients *</span>
+                                                        </>
                                                     )}
                                                 </span>
                                                 <ChevronRight size={16} style={{ transform: clientDropdownOpen ? "rotate(-90deg)" : "rotate(90deg)", transition: "transform 0.2s ease" }} />
@@ -1765,7 +1954,6 @@ function PremiumPage() {
                                                                 placeholder="Rechercher un client..."
                                                                 value={clientSearchQuery}
                                                                 onChange={(e) => setClientSearchQuery(e.target.value)}
-                                                                autoFocus
                                                             />
                                                         </div>
                                                         <div className="custom-client-options-list">
@@ -1849,7 +2037,7 @@ function PremiumPage() {
                                     </div>
 
                                     {/* Frequency & Advance Notice */}
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                                    <div className="modal-grid-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                                         <div className="form-field">
                                             <label className="form-label">Fréquence du rappel</label>
                                             <div style={{ display: "flex", gap: "6px" }}>
@@ -1899,7 +2087,7 @@ function PremiumPage() {
                                     </div>
 
                                     {/* Channel selection */}
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                                    <div className="modal-grid-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                                         <div className="form-field">
                                             <label className="form-label">Canal prioritaire</label>
                                             <select
@@ -1915,7 +2103,7 @@ function PremiumPage() {
                                         </div>
 
                                         <div className="form-field">
-                                            <label className="form-label">Canal de secours (Fallback)</label>
+                                            <label className="form-label">Canal de secours</label>
                                             <select
                                                 className="profile-input option-select"
                                                 value={modalForm.fallbackChannel}
@@ -1960,21 +2148,49 @@ function PremiumPage() {
                                 </div>
                             </form>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
 
             {/* ── MODAL: AJOUTER UN SERVICE PERSONNALISÉ ─────────────── */}
             <AnimatePresence>
                 {showServiceModal && (
-                    <div className="rappel-modal-backdrop" onClick={() => setShowServiceModal(false)}>
+                    <motion.div
+                        className="rappel-modal-backdrop"
+                        onClick={() => setShowServiceModal(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                    >
                         <motion.div
                             className="rappel-modal-card"
                             onClick={(e) => e.stopPropagation()}
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
+                            drag={isMobile ? "y" : false}
+                            dragListener={false}
+                            dragControls={serviceModalDragControls}
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={{ top: 0, bottom: 0.6 }}
+                            onDragEnd={(e, info) => {
+                                if (info.offset.y > 70 || info.velocity.y > 350) {
+                                    setShowServiceModal(false);
+                                }
+                            }}
+                            initial={isMobile ? { y: "100%" } : { scale: 0.95, opacity: 0 }}
+                            animate={isMobile ? { y: "0%" } : { scale: 1, opacity: 1 }}
+                            exit={isMobile ? { y: "100%" } : { scale: 0.95, opacity: 0 }}
+                            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
                         >
+                            {isMobile && (
+                                <div
+                                    className="bottom-sheet-drag-handle-zone"
+                                    onPointerDown={(e) => serviceModalDragControls.start(e)}
+                                    onClick={() => setShowServiceModal(false)}
+                                    title="Glisser vers le bas pour fermer"
+                                >
+                                    <div className="bottom-sheet-drag-handle" />
+                                </div>
+                            )}
                             <div className="rappel-modal-header">
                                 <h3 style={{ margin: 0, fontSize: "1.1rem" }}>Ajouter une prestation personnalisée</h3>
                                 <button className="modal-close-btn" onClick={() => setShowServiceModal(false)}>
@@ -2066,23 +2282,23 @@ function PremiumPage() {
                                 </div>
                             </form>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* ── CUSTOM CONFIRMATION DIALOG ──────────────────────────── */}
+            {/* ── CUSTOM CONFIRMATION DIALOG (ALERT POPUP) ──────────── */}
             <AnimatePresence>
                 {confirmModal && (
-                    <div className="rappel-modal-backdrop" onClick={() => setConfirmModal(null)}>
+                    <div className="rappel-confirm-backdrop" onClick={() => setConfirmModal(null)}>
                         <motion.div
-                            className="rappel-modal-card"
-                            style={{ maxWidth: "440px" }}
+                            className="rappel-confirm-card"
                             onClick={(e) => e.stopPropagation()}
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
                         >
-                            <div className="rappel-modal-header">
+                            <div className="rappel-confirm-header">
                                 <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700 }}>
                                     {confirmModal.title || "Confirmation"}
                                 </h3>
@@ -2090,12 +2306,12 @@ function PremiumPage() {
                                     <X size={18} />
                                 </button>
                             </div>
-                            <div className="rappel-modal-body" style={{ padding: "18px 24px" }}>
+                            <div className="rappel-confirm-body">
                                 <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
                                     {confirmModal.message}
                                 </p>
                             </div>
-                            <div className="rappel-modal-footer">
+                            <div className="rappel-confirm-footer">
                                 <button
                                     type="button"
                                     className="action-btn-pill"
@@ -2160,26 +2376,20 @@ function ReminderRowItem({ exec, onExecuteNow, onOpenEdit, actionLoading, naviga
             </div>
 
             <div className="reminder-service-cell">
-                <span className="service-chip">
-                    <Wrench size={13} /> {serviceName}
+                <span className="service-chip" title={serviceName}>
+                    <Wrench size={13} style={{ flexShrink: 0 }} />
+                    <span className="service-chip-text">{serviceName}</span>
                 </span>
             </div>
 
-            <div className="reminder-date-cell" style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "120px" }}>
-                <span style={{ fontSize: "0.84rem", fontWeight: 600, color: "var(--foreground)" }}>
+            <div className="reminder-date-cell">
+                <span className="reminder-date-text">
                     {exec.scheduledAt ? new Date(exec.scheduledAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "—"}
                 </span>
                 {badge && (
-                    <span style={{
-                        fontSize: "0.68rem",
-                        fontWeight: 700,
-                        padding: "2px 8px",
-                        borderRadius: "10px",
+                    <span className="reminder-future-badge" style={{
                         backgroundColor: badge.bg,
-                        color: badge.color,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        width: "fit-content"
+                        color: badge.color
                     }}>
                         {badge.label}
                     </span>
@@ -2192,7 +2402,7 @@ function ReminderRowItem({ exec, onExecuteNow, onOpenEdit, actionLoading, naviga
 
             <div className="reminder-actions-cell">
                 <button
-                    className="action-btn-pill"
+                    className="action-btn-pill send-btn"
                     onClick={() => onExecuteNow(auto.id, `${client.firstName || ""} ${client.lastName || ""}`.trim())}
                     disabled={actionLoading === auto.id}
                     title="Exécuter et envoyer maintenant"
@@ -2200,22 +2410,22 @@ function ReminderRowItem({ exec, onExecuteNow, onOpenEdit, actionLoading, naviga
                     <Play size={13} /> Envoyer
                 </button>
                 <button
-                    className="action-btn-pill"
-                    onClick={() => navigate("/planning", { state: { clientId: client.id, clientName: `${client.firstName || ""} ${client.lastName || ""}`.trim(), serviceType: serviceName } })}
+                    className="action-btn-pill rdv-btn"
+                    onClick={() => navigate("/planning", { state: { clientId: client.id, clientName: `${client.firstName || ""} ${client.lastName || ""}`.trim(), serviceType: serviceName, returnUrl: "/premium" } })}
                     title="Planifier un rendez-vous (RDV)"
                     style={{ display: "inline-flex", alignItems: "center", gap: "5px", borderColor: "rgba(85, 107, 47, 0.4)", color: "var(--foreground)" }}
                 >
                     <Calendar size={13} color="#556B2F" /> RDV
                 </button>
                 <button
-                    className="action-btn-pill"
-                    onClick={() => navigate("/messages", { state: { clientId: client.id, clientName: `${client.firstName} ${client.lastName}` } })}
+                    className="action-btn-pill icon-only-btn"
+                    onClick={() => navigate("/messages", { state: { clientId: client.id, clientName: `${client.firstName} ${client.lastName}`, returnUrl: "/premium" } })}
                     title="Voir la conversation"
                 >
                     <MessageSquare size={13} />
                 </button>
                 <button
-                    className="action-btn-pill"
+                    className="action-btn-pill icon-only-btn"
                     onClick={() => onOpenEdit(auto)}
                     title="Modifier"
                 >

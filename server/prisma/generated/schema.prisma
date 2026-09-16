@@ -724,6 +724,7 @@ model User {
   lastName  String
   phone     String?
   avatarUrl String?
+  jobTitle  String?
   role      UserRole @default(TECHNICIAN)
   isActive  Boolean  @default(true)
 

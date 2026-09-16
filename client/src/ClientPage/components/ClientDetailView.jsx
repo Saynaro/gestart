@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2, Clock, Send, Play, Sparkles, Wrench } from "lucide-react";
+import { Phone, Mail, MapPin, Edit3, Calendar, MessageSquare, FileText, Camera, PenTool, CheckCircle2, Clock, Send, Play, Pause, Sparkles, Wrench, Lock } from "lucide-react";
 import InterventionDetailModal, { getInterventionStatusInfo } from "./InterventionDetailModal";
+import ToastNotification from "../../components/ToastNotification";
 import { apiFetch } from "../../utils/api";
 
-function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote, isReadOnly = false }) {
+function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails, detailTab, setDetailTab, onEdit, onOpenInvoice, onOpenQuote, isReadOnly = false, isExpired = false }) {
     const navigate = useNavigate();
     const [selectedInterventionForModal, setSelectedInterventionForModal] = useState(null);
     const details = getClientDetails(selectedClient);
@@ -23,9 +24,15 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
     }
 
     const fullAddress = [selectedClient.address, [selectedClient.zip, selectedClient.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
-    const availableTabs = isReadOnly ? ["interventions", "auto-rappel"] : ["interventions", "auto-rappel", "factures", "devis"];
+    const availableTabs = isReadOnly ? ["interventions"] : ["interventions", "auto-rappel", "factures", "devis"];
     const currentTab = availableTabs.includes(detailTab) ? detailTab : "interventions";
     const [actionLoading, setActionLoading] = useState(null);
+    const [toast, setToast] = useState(null);
+    const [automations, setAutomations] = useState(() => details.reminderAutomations || []);
+
+    useEffect(() => {
+        setAutomations(details.reminderAutomations || []);
+    }, [details.reminderAutomations]);
 
     const handleTriggerReminder = async (autoId) => {
         try {
@@ -33,9 +40,39 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
             const res = await apiFetch(`/v1/reminders/automations/${autoId}/execute-now`, {
                 method: "POST"
             });
-            alert(res.message || "Rappel exécuté !");
+            setToast({
+                message: res.message || "Rappel envoyé avec succès !",
+                type: "success"
+            });
         } catch (err) {
-            alert(err.message || "Erreur lors de l'exécution du rappel");
+            setToast({
+                message: err.message || "Erreur lors de l'exécution du rappel",
+                type: "error"
+            });
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleTogglePause = async (autoId) => {
+        try {
+            setActionLoading(`toggle-${autoId}`);
+            const res = await apiFetch(`/v1/reminders/automations/${autoId}/toggle`, {
+                method: "PATCH"
+            });
+            const isNowEnabled = res?.data?.automation?.enabled;
+            setAutomations(prev => prev.map(item => 
+                item.id === autoId ? { ...item, enabled: isNowEnabled !== undefined ? isNowEnabled : !item.enabled } : item
+            ));
+            setToast({
+                message: res.message || (isNowEnabled ? "Rappel réactivé avec succès." : "Rappel mis en pause."),
+                type: "success"
+            });
+        } catch (err) {
+            setToast({
+                message: err.message || "Erreur lors du changement d'état du rappel",
+                type: "error"
+            });
         } finally {
             setActionLoading(null);
         }
@@ -163,22 +200,66 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
 
                     <div className="mobile-action-grid">
                         {!isReadOnly && (
-                            <button className="mobile-action-btn modifier" onClick={() => onEdit(selectedClient, selectedClient.isOrg)}>
-                                <Edit3 size={16} />
+                            <button
+                                className="mobile-action-btn modifier"
+                                onClick={() => {
+                                    if (isExpired) {
+                                        window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                            detail: { message: "Votre abonnement a expiré. Pour modifier ce client, veuillez renouveler votre abonnement." }
+                                        }));
+                                        return;
+                                    }
+                                    onEdit(selectedClient, selectedClient.isOrg);
+                                }}
+                            >
+                                {isExpired ? <Lock size={15} /> : <Edit3 size={16} />}
                                 <span>Modifier</span>
                             </button>
                         )}
-                        <button className="mobile-action-btn planifier" onClick={() => navigate('/planning', { state: { clientId: selectedClient.id, clientName: displayName, returnUrl: `/client?id=${selectedClient.id}` } })}>
-                            <Calendar size={16} />
+                        <button
+                            className="mobile-action-btn planifier"
+                            onClick={() => {
+                                if (isExpired) {
+                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                        detail: { message: "Votre abonnement a expiré. Pour planifier une intervention, veuillez renouveler votre abonnement." }
+                                    }));
+                                    return;
+                                }
+                                navigate('/planning', { state: { clientId: selectedClient.id, clientName: displayName, returnUrl: `/client?id=${selectedClient.id}` } });
+                            }}
+                        >
+                            {isExpired ? <Lock size={15} /> : <Calendar size={16} />}
                             <span>Planifier</span>
                         </button>
-                        <button className="mobile-action-btn sms" onClick={() => navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName, phone: selectedClient.phone, email: selectedClient.email, address: selectedClient.address, returnUrl: `/client?id=${selectedClient.id}` } })}>
-                            <MessageSquare size={16} />
+                        <button
+                            className="mobile-action-btn sms"
+                            onClick={() => {
+                                if (isExpired) {
+                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                        detail: { message: "Votre abonnement a expiré. Pour envoyer des messages, veuillez renouveler votre abonnement." }
+                                    }));
+                                    return;
+                                }
+                                navigate('/messages', { state: { clientId: selectedClient.id, clientName: displayName, phone: selectedClient.phone, email: selectedClient.email, address: selectedClient.address, returnUrl: `/client?id=${selectedClient.id}` } });
+                            }}
+                        >
+                            {isExpired ? <Lock size={15} /> : <MessageSquare size={16} />}
                             <span>SMS</span>
                         </button>
                         {!isReadOnly && (
-                            <button className="mobile-action-btn facture" onClick={() => navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, clientEmail: selectedClient.email, clientAddress: selectedClient.address, openNewModal: true, returnUrl: `/client?id=${selectedClient.id}` } })}>
-                                <FileText size={16} />
+                            <button
+                                className="mobile-action-btn facture"
+                                onClick={() => {
+                                    if (isExpired) {
+                                        window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                            detail: { message: "Votre abonnement a expiré. Pour créer une facture, veuillez renouveler votre abonnement." }
+                                        }));
+                                        return;
+                                    }
+                                    navigate('/factures', { state: { clientId: selectedClient.id, clientName: displayName, clientEmail: selectedClient.email, clientAddress: selectedClient.address, openNewModal: true, returnUrl: `/client?id=${selectedClient.id}` } });
+                                }}
+                            >
+                                {isExpired ? <Lock size={15} /> : <FileText size={16} />}
                                 <span>Facture</span>
                             </button>
                         )}
@@ -187,17 +268,25 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
 
                 {/* Right Card: Tabs View */}
                 <div className="client-detail-tabs-card">
-                    <div className="mobile-tabs-header">
-                        {availableTabs.map((tab) => (
-                            <button
-                                key={tab}
-                                className={`mobile-tab-btn ${currentTab === tab ? "active" : ""}`}
-                                onClick={() => setDetailTab(tab)}
-                            >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            </button>
-                        ))}
-                    </div>
+                    {availableTabs.length > 1 ? (
+                        <div className="mobile-tabs-header">
+                            {availableTabs.map((tab) => (
+                                <button
+                                    key={tab}
+                                    className={`mobile-tab-btn ${currentTab === tab ? "active" : ""}`}
+                                    onClick={() => setDetailTab(tab)}
+                                >
+                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="mobile-tabs-header" style={{ borderBottom: '1px solid var(--border)' }}>
+                            <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--foreground)', padding: '12px 16px', display: 'inline-block' }}>
+                                Interventions ({details.interventions.length})
+                            </span>
+                        </div>
+                    )}
 
                     <div className="mobile-tabs-content">
                         {detailTab === "interventions" && (
@@ -279,7 +368,7 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                     </button>
                                 </div>
 
-                                {(!details.reminderAutomations || details.reminderAutomations.length === 0) ? (
+                                {(!automations || automations.length === 0) ? (
                                     <div style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 20px', fontSize: '13.5px' }}>
                                         <Clock size={28} style={{ opacity: 0.4, marginBottom: '8px' }} />
                                         <p style={{ margin: '0 0 10px 0' }}>Aucun cycle de rappel actif pour ce client.</p>
@@ -293,58 +382,197 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                        {details.reminderAutomations.map((auto, idx) => {
+                                        {automations.map((auto, idx) => {
                                             const serviceName = auto.trackedServices?.[0]?.serviceType?.name || auto.name || "Prestation générale";
                                             const nextDateStr = auto.nextReminderAt ? new Date(auto.nextReminderAt).toLocaleDateString('fr-FR') : "Non définie";
                                             const lastDateStr = auto.lastCompletedAt ? new Date(auto.lastCompletedAt).toLocaleDateString('fr-FR') : "Aucune";
 
                                             return (
-                                                <div key={auto.id || idx} className="mobile-history-card" style={{ borderLeft: '4px solid #556B2F', padding: '14px' }}>
-                                                    <div className="history-card-header" style={{ marginBottom: '8px' }}>
+                                                <div 
+                                                    key={auto.id || idx} 
+                                                    className="mobile-history-card" 
+                                                    style={{ 
+                                                        padding: '16px',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid var(--border)',
+                                                        backgroundColor: 'var(--card)',
+                                                        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)'
+                                                    }}
+                                                >
+                                                    <div className="history-card-header" style={{ marginBottom: '10px' }}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            <Wrench size={15} color="#556B2F" />
-                                                            <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>{serviceName}</h4>
+                                                            <Wrench size={15} color="var(--muted-foreground)" />
+                                                            <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)' }}>{serviceName}</h4>
                                                         </div>
-                                                        <span style={{
-                                                            fontSize: '0.72rem',
-                                                            fontWeight: 700,
-                                                            padding: '2px 8px',
-                                                            borderRadius: '10px',
-                                                            backgroundColor: auto.enabled ? 'rgba(34, 197, 94, 0.12)' : 'rgba(107, 114, 128, 0.12)',
-                                                            color: auto.enabled ? '#16a34a' : 'var(--muted-foreground)'
-                                                        }}>
-                                                            {auto.enabled ? "Cycle Actif" : "En pause"}
-                                                        </span>
+                                                        <div>
+                                                            {isExpired ? (
+                                                                <span style={{
+                                                                    fontSize: '11.5px',
+                                                                    fontWeight: 600,
+                                                                    padding: '3px 8px',
+                                                                    borderRadius: '6px',
+                                                                    backgroundColor: 'rgba(217, 119, 6, 0.08)',
+                                                                    color: '#b45309',
+                                                                    border: '1px solid rgba(217, 119, 6, 0.2)',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px'
+                                                                }}>
+                                                                    <Lock size={11} />
+                                                                    Suspendu (Abonnement)
+                                                                </span>
+                                                            ) : auto.enabled ? (
+                                                                <span style={{
+                                                                    fontSize: '11.5px',
+                                                                    fontWeight: 600,
+                                                                    padding: '3px 8px',
+                                                                    borderRadius: '6px',
+                                                                    backgroundColor: 'rgba(22, 163, 74, 0.08)',
+                                                                    color: '#15803d',
+                                                                    border: '1px solid rgba(22, 163, 74, 0.2)',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '5px'
+                                                                }}>
+                                                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#16a34a' }} />
+                                                                    Actif
+                                                                </span>
+                                                            ) : (
+                                                                <span style={{
+                                                                    fontSize: '11.5px',
+                                                                    fontWeight: 600,
+                                                                    padding: '3px 8px',
+                                                                    borderRadius: '6px',
+                                                                    backgroundColor: 'rgba(100, 116, 139, 0.08)',
+                                                                    color: '#475569',
+                                                                    border: '1px solid rgba(100, 116, 139, 0.2)',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px'
+                                                                }}>
+                                                                    <Pause size={10} />
+                                                                    En pause
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
 
-                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.78rem', color: 'var(--muted-foreground)', marginBottom: '10px' }}>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: '13px', color: 'var(--muted-foreground)', marginBottom: '12px' }}>
                                                         <div>
-                                                            <span>Dernière intervention: </span>
-                                                            <strong style={{ color: 'var(--foreground)' }}>{lastDateStr}</strong>
+                                                            <span>Dernière intervention : </span>
+                                                            <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{lastDateStr}</span>
                                                         </div>
                                                         <div>
-                                                            <span>Prochain rappel: </span>
-                                                            <strong style={{ color: '#556B2F' }}>{nextDateStr}</strong>
+                                                            <span>Prochain rappel : </span>
+                                                            <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{nextDateStr}</span>
                                                         </div>
                                                         <div>
-                                                            <span>Fréquence: </span>
-                                                            <strong style={{ color: 'var(--foreground)' }}>{auto.frequencyValue} {auto.frequencyUnit === 'MONTHS' ? 'mois' : 'jours'}</strong>
+                                                            <span>Fréquence : </span>
+                                                            <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{auto.frequencyValue} {auto.frequencyUnit === 'MONTHS' ? 'mois' : 'jours'}</span>
                                                         </div>
                                                         <div>
-                                                            <span>Canal: </span>
-                                                            <strong style={{ color: 'var(--foreground)' }}>{auto.channel === 'WHATSAPP' ? '🟢 WhatsApp' : auto.channel === 'SMS' ? '📱 SMS' : auto.channel === 'EMAIL' ? '✉️ Email' : '⚡ Dernier canal'}</strong>
+                                                            <span>Canal : </span>
+                                                            <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{auto.channel === 'WHATSAPP' ? 'WhatsApp' : auto.channel === 'SMS' ? 'SMS' : auto.channel === 'EMAIL' ? 'Email' : 'Dernier canal'}</span>
                                                         </div>
                                                     </div>
 
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
-                                                        <button
-                                                            className="mobile-action-btn"
-                                                            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
-                                                            onClick={() => handleTriggerReminder(auto.id)}
-                                                            disabled={actionLoading === auto.id}
-                                                        >
-                                                            <Play size={12} /> Déclencher maintenant
-                                                        </button>
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
+                                                        {isExpired ? (
+                                                            <button
+                                                                type="button"
+                                                                className="mobile-action-btn"
+                                                                style={{ 
+                                                                    padding: '6px 14px', 
+                                                                    fontSize: '12.5px',
+                                                                    fontWeight: 500,
+                                                                    borderRadius: '8px',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '6px',
+                                                                    border: '1px solid var(--border)',
+                                                                    backgroundColor: 'var(--background)',
+                                                                    color: 'var(--foreground)',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => {
+                                                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                                        detail: { message: "Votre abonnement a expiré. Pour réactiver vos cycles de rappel et déclencher des messages, veuillez renouveler votre abonnement." }
+                                                                    }));
+                                                                }}
+                                                            >
+                                                                <Lock size={12} style={{ color: 'var(--muted-foreground)' }} />
+                                                                <span>Déclencher maintenant</span>
+                                                            </button>
+                                                        ) : (
+                                                            <>
+                                                                {/* Toggle Pause / Resume */}
+                                                                <button
+                                                                    type="button"
+                                                                    className="mobile-action-btn"
+                                                                    style={{ 
+                                                                        padding: '6px 14px', 
+                                                                        fontSize: '12.5px',
+                                                                        fontWeight: 500,
+                                                                        borderRadius: '8px',
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '6px',
+                                                                        border: '1px solid var(--border)',
+                                                                        backgroundColor: 'var(--background)',
+                                                                        color: 'var(--foreground)',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => handleTogglePause(auto.id)}
+                                                                    disabled={actionLoading === `toggle-${auto.id}`}
+                                                                >
+                                                                    {auto.enabled ? (
+                                                                        <>
+                                                                            <Pause size={12} style={{ color: 'var(--muted-foreground)' }} />
+                                                                            <span>{actionLoading === `toggle-${auto.id}` ? "Mise en pause..." : "Mettre en pause"}</span>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Play size={12} style={{ color: 'var(--muted-foreground)' }} />
+                                                                            <span>{actionLoading === `toggle-${auto.id}` ? "Reprise..." : "Reprendre"}</span>
+                                                                        </>
+                                                                    )}
+                                                                </button>
+
+                                                                {/* Trigger Now */}
+                                                                <button
+                                                                    type="button"
+                                                                    className="mobile-action-btn"
+                                                                    style={{ 
+                                                                        padding: '6px 14px', 
+                                                                        fontSize: '12.5px',
+                                                                        fontWeight: 500,
+                                                                        borderRadius: '8px',
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '6px',
+                                                                        border: '1px solid var(--border)',
+                                                                        backgroundColor: 'var(--background)',
+                                                                        color: 'var(--foreground)',
+                                                                        opacity: !auto.enabled ? 0.6 : 1,
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        if (!auto.enabled) {
+                                                                            setToast({
+                                                                                message: "Ce rappel est en pause. Réactivez-le pour pouvoir l'envoyer.",
+                                                                                type: "info"
+                                                                            });
+                                                                            return;
+                                                                        }
+                                                                        handleTriggerReminder(auto.id);
+                                                                    }}
+                                                                    disabled={actionLoading === auto.id}
+                                                                >
+                                                                    <Play size={12} style={{ color: 'var(--muted-foreground)' }} />
+                                                                    <span>{actionLoading === auto.id ? "Envoi..." : "Déclencher maintenant"}</span>
+                                                                </button>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </div>
                                             );
@@ -453,6 +681,9 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                 intervention={selectedInterventionForModal}
                 client={selectedClient}
             />
+
+            {/* In-view Toast Notification */}
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </>
     );
 }

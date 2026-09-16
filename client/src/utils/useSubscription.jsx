@@ -25,19 +25,6 @@ export function SubscriptionProvider({ children }) {
             return null;
         }
 
-        // Technicians are attached to company account and do not manage individual subscriptions
-        try {
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                const parsed = JSON.parse(savedUser);
-                if (parsed.role === 'TECHNICIAN') {
-                    setSubscription(null);
-                    setLoading(false);
-                    return null;
-                }
-            }
-        } catch (e) {}
-
         try {
             const res = await apiFetch('/v1/subscription');
             const sub = res.data?.subscription || res.subscription;

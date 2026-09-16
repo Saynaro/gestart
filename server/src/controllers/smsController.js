@@ -12,13 +12,19 @@ export const getSmsInbox = async (req, res) => {
     const limit = parseInt(req.query.limit) || 50;
     const skip = (page - 1) * limit;
 
+    const { incomingOnly } = req.query;
+
     try {
         // Récupérer les clients ayant au moins un message SMS
         const clientsWithSms = await prisma.client.findMany({
             where: {
                 companyId,
                 isActive: true,
-                smsLogs: { some: {} }
+                smsLogs: { 
+                    some: {
+                        ...(incomingOnly === "true" ? { direction: "INCOMING" } : {})
+                    }
+                }
             },
             skip,
             take: limit,
@@ -34,6 +40,9 @@ export const getSmsInbox = async (req, res) => {
                 postalCode: true,
                 status: true,
                 smsLogs: {
+                    where: {
+                        ...(incomingOnly === "true" ? { direction: "INCOMING" } : {})
+                    },
                     take: 1,
                     orderBy: { createdAt: "desc" }
                 },

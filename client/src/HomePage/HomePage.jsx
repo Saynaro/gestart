@@ -27,13 +27,14 @@ import StatsTab from "./components/StatsTab";
 import ProductivityTab from "./components/ProductivityTab";
 
 import { apiFetch } from "../utils/api";
-
 import { useUser } from "../utils/useUser";
+import { useSubscription } from "../utils/useSubscription";
 
 function HomePage() {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, company, loading: userLoading } = useUser();
+    const { isExpired } = useSubscription();
     const [activeTab, setActiveTab] = useState("comptabilite");
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
@@ -84,18 +85,42 @@ function HomePage() {
     };
 
     const handleCreateFacture = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour créer des factures, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         navigate("/factures");
     };
 
     const handleCreateDevis = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour créer des devis, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         navigate("/devis");
     };
 
     const handlePlanIntervention = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour planifier des interventions, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         navigate("/planning");
     };
 
     const handleCreateTask = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour créer des tâches, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         navigate("/planning");
     };
 

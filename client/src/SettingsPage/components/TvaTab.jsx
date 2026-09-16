@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Receipt, Check, FileText, HelpCircle, ArrowRight, Loader2 } from "lucide-react";
+import { Receipt, Check, FileText, HelpCircle, ArrowRight, Loader2, Lock } from "lucide-react";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function TvaTab({ isMobileView, triggerToast }) {
+    const { isExpired } = useSubscription();
     const [tvaRegime, setTvaRegime] = useState("franchise"); // "franchise" | "simplifie" | "normal"
     const [defaultTvaRate, setDefaultTvaRate] = useState(20);
     const [declarationPeriodicity, setDeclarationPeriodicity] = useState("trimestrielle");
@@ -72,8 +74,23 @@ export default function TvaTab({ isMobileView, triggerToast }) {
         ];
     }, [invoices]);
 
+    const handleRegimeChange = (regime) => {
+        setTvaRegime(regime);
+        if (regime === 'franchise') {
+            setDefaultTvaRate(0);
+        } else if (defaultTvaRate === 0) {
+            setDefaultTvaRate(20);
+        }
+    };
+
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier les paramètres de TVA, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setSaving(true);
         try {
             await Promise.all([
@@ -106,17 +123,17 @@ export default function TvaTab({ isMobileView, triggerToast }) {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px', borderRadius: '8px', border: tvaRegime === 'franchise' ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)', backgroundColor: tvaRegime === 'franchise' ? 'rgba(91, 77, 219, 0.03)' : 'var(--background)', cursor: 'pointer' }}>
-                        <input type="radio" name="tvaRegime" value="franchise" checked={tvaRegime === 'franchise'} onChange={() => setTvaRegime('franchise')} style={{ marginTop: '3px' }} />
+                        <input type="radio" name="tvaRegime" value="franchise" checked={tvaRegime === 'franchise'} onChange={() => handleRegimeChange('franchise')} style={{ marginTop: '3px' }} />
                         <div>
                             <span style={{ fontSize: '14px', fontWeight: 700, display: 'block' }}>Franchise en base de TVA (Art. 293 B du CGI)</span>
                             <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
-                                Vous ne facturez pas la TVA à vos clients et vous ne la récupérez pas sur vos achats outillage. Mention légale imprimée automatiquement sur vos factures.
+                                Vous ne facturez pas la TVA à vos clients (Taux 0%) et vous ne la récupérez pas sur vos achats outillage. Mention légale imprimée automatiquement sur vos factures.
                             </span>
                         </div>
                     </label>
 
                     <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px', borderRadius: '8px', border: tvaRegime === 'simplifie' ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)', backgroundColor: tvaRegime === 'simplifie' ? 'rgba(91, 77, 219, 0.03)' : 'var(--background)', cursor: 'pointer' }}>
-                        <input type="radio" name="tvaRegime" value="simplifie" checked={tvaRegime === 'simplifie'} onChange={() => setTvaRegime('simplifie')} style={{ marginTop: '3px' }} />
+                        <input type="radio" name="tvaRegime" value="simplifie" checked={tvaRegime === 'simplifie'} onChange={() => handleRegimeChange('simplifie')} style={{ marginTop: '3px' }} />
                         <div>
                             <span style={{ fontSize: '14px', fontWeight: 700, display: 'block' }}>Régime Réel Simplifié</span>
                             <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
@@ -126,7 +143,7 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                     </label>
 
                     <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px', borderRadius: '8px', border: tvaRegime === 'normal' ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)', backgroundColor: tvaRegime === 'normal' ? 'rgba(91, 77, 219, 0.03)' : 'var(--background)', cursor: 'pointer' }}>
-                        <input type="radio" name="tvaRegime" value="normal" checked={tvaRegime === 'normal'} onChange={() => setTvaRegime('normal')} style={{ marginTop: '3px' }} />
+                        <input type="radio" name="tvaRegime" value="normal" checked={tvaRegime === 'normal'} onChange={() => handleRegimeChange('normal')} style={{ marginTop: '3px' }} />
                         <div>
                             <span style={{ fontSize: '14px', fontWeight: 700, display: 'block' }}>Régime Réel Normal</span>
                             <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
@@ -175,8 +192,21 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                         type="submit"
                         disabled={saving}
                         className="save-profile-btn"
-                        style={{ padding: '9px 20px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}
+                        style={{
+                            padding: '9px 20px',
+                            backgroundColor: 'var(--sidebar-primary)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            cursor: saving ? 'not-allowed' : 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            opacity: isExpired ? 0.85 : 1
+                        }}
                     >
+                        {isExpired && <Lock size={15} />}
                         {saving ? "Enregistrement..." : "Enregistrer la TVA"}
                     </button>
                 </div>

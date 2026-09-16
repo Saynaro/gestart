@@ -133,7 +133,6 @@ export const getMenuSections = (role) => {
             {
                 category: "GESTION & OUTILS",
                 items: [
-                    { title: "Messages", path: "/messages", iconKey: "messages" },
                     { title: "Catalogue", path: "/catalogue", iconKey: "catalogue" },
                 ]
             },
@@ -183,9 +182,8 @@ export const getMobileTabBarItems = (role) => {
         return [
             { title: "Interventions", path: "/interventions/today", iconKey: "techniciens" },
             { title: "Planning", path: "/planning", iconKey: "planning" },
-            { title: "Messages", path: "/messages", iconKey: "messages" },
             { title: "Clients", path: "/client", iconKey: "clients" },
-            { title: "Plus", path: "#plus", iconKey: "more", isPlus: true }
+            { title: "Catalogue", path: "/catalogue", iconKey: "catalogue" }
         ];
     }
     return [

@@ -6,13 +6,14 @@ import { OmnichannelService } from "../services/messaging/OmnichannelService.js"
  */
 export const getOmnichannelInbox = async (req, res) => {
     const companyId = req.user.companyId;
-    const { channel, unreadOnly, search, page, limit } = req.query;
+    const { channel, unreadOnly, incomingOnly, search, page, limit } = req.query;
 
     try {
         const result = await OmnichannelService.getOmnichannelInbox({
             companyId,
             channel,
             unreadOnly: unreadOnly === "true",
+            incomingOnly: incomingOnly === "true",
             search,
             page: parseInt(page) || 1,
             limit: parseInt(limit) || 50

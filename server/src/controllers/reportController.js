@@ -350,25 +350,65 @@ export const getInterventionsReport = async (req, res) => {
     const companyId = req.user.companyId;
     const { from, to, technicianId } = req.query;
 
-    const fromDate = from ? new Date(from) : new Date(new Date().getFullYear(), 0, 1);
-    const toDate = to ? new Date(to) : new Date();
+    const fromDate = from ? new Date(from) : null;
+    const toDate = to ? new Date(to) : null;
 
     const where = {
         companyId,
-        createdAt: { gte: fromDate, lte: toDate },
-        ...(technicianId && { technicianId })
+        ...(technicianId ? { technicianId } : {}),
+        ...(fromDate || toDate ? {
+            createdAt: {
+                ...(fromDate ? { gte: fromDate } : {}),
+                ...(toDate ? { lte: toDate } : {})
+            }
+        } : {})
     };
 
     try {
-        const [total, completed, cancelled, pending, inProgress, interventions] = await Promise.all([
+        const [total, completed, cancelled, pending, scheduled, inProgress, allInterventions, companyUsers, equipments] = await Promise.all([
             prisma.intervention.count({ where }),
             prisma.intervention.count({ where: { ...where, status: "COMPLETED" } }),
             prisma.intervention.count({ where: { ...where, status: "CANCELLED" } }),
             prisma.intervention.count({ where: { ...where, status: "PENDING" } }),
+            prisma.intervention.count({ where: { ...where, status: { in: ["SCHEDULED", "ARRIVED"] } } }),
             prisma.intervention.count({ where: { ...where, status: "IN_PROGRESS" } }),
             prisma.intervention.findMany({
-                where: { ...where, status: "COMPLETED" },
-                select: { startedAt: true, completedAt: true, estimatedDuration: true }
+                where,
+                select: {
+                    id: true,
+                    status: true,
+                    technicianId: true,
+                    startedAt: true,
+                    completedAt: true,
+                    estimatedDuration: true,
+                    technician: {
+                        select: { id: true, firstName: true, lastName: true, role: true }
+                    },
+                    createdBy: {
+                        select: { id: true, firstName: true, lastName: true, role: true }
+                    },
+                    equipment: {
+                        select: { id: true, brand: true, model: true }
+                    },
+                    interventionType: {
+                        select: { id: true, name: true }
+                    }
+                }
+            }),
+            prisma.user.findMany({
+                where: {
+                    companyId,
+                    role: { in: ["TECHNICIAN", "MANAGER", "OWNER"] },
+                    isActive: true
+                },
+                select: { id: true, firstName: true, lastName: true, role: true }
+            }),
+            prisma.equipment.findMany({
+                where: {
+                    client: { companyId, isActive: true },
+                    isActive: true
+                },
+                select: { brand: true, model: true }
             })
         ]);
 
@@ -376,21 +416,87 @@ export const getInterventionsReport = async (req, res) => {
         let totalDurationMinutes = 0;
         let validDurationsCount = 0;
 
-        interventions.forEach(item => {
-            if (item.startedAt && item.completedAt) {
-                const diffMs = new Date(item.completedAt) - new Date(item.startedAt);
-                const diffMin = Math.round(diffMs / 60000);
-                if (diffMin > 0 && diffMin < 1440) { // < 24h
-                    totalDurationMinutes += diffMin;
+        allInterventions.forEach(item => {
+            if (item.status === "COMPLETED") {
+                if (item.startedAt && item.completedAt) {
+                    const diffMs = new Date(item.completedAt) - new Date(item.startedAt);
+                    const diffMin = Math.round(diffMs / 60000);
+                    if (diffMin > 0 && diffMin < 1440) { // < 24h
+                        totalDurationMinutes += diffMin;
+                        validDurationsCount++;
+                    }
+                } else if (item.estimatedDuration) {
+                    totalDurationMinutes += item.estimatedDuration;
                     validDurationsCount++;
                 }
-            } else if (item.estimatedDuration) {
-                totalDurationMinutes += item.estimatedDuration;
-                validDurationsCount++;
             }
         });
 
         const avgDurationMinutes = validDurationsCount > 0 ? Math.round(totalDurationMinutes / validDurationsCount) : 0;
+        const scheduledTotal = scheduled + inProgress;
+
+        // 2. Technicians Workload
+        const techMap = new Map();
+        companyUsers.forEach(u => {
+            techMap.set(u.id, {
+                id: u.id,
+                name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || "Collaborateur",
+                role: u.role,
+                completed: 0,
+                planned: 0
+            });
+        });
+
+        allInterventions.forEach(item => {
+            const assigned = item.technician || item.createdBy;
+            const uid = assigned?.id || 'unassigned';
+            if (!techMap.has(uid)) {
+                techMap.set(uid, {
+                    id: uid,
+                    name: assigned ? `${assigned.firstName || ''} ${assigned.lastName || ''}`.trim() : "Non assigné",
+                    role: assigned?.role || "TECHNICIAN",
+                    completed: 0,
+                    planned: 0
+                });
+            }
+            const record = techMap.get(uid);
+            if (item.status === 'COMPLETED') {
+                record.completed += 1;
+            } else if (item.status !== 'CANCELLED') {
+                record.planned += 1;
+            }
+        });
+
+        const techWorkload = Array.from(techMap.values())
+            .sort((a, b) => (b.completed + b.planned) - (a.completed + a.planned));
+
+        // 3. Equipment Breakdown
+        const brandCounts = {};
+        allInterventions.forEach(item => {
+            if (item.equipment?.brand) {
+                const brand = item.equipment.brand.trim();
+                brandCounts[brand] = (brandCounts[brand] || 0) + 1;
+            } else if (item.interventionType?.name) {
+                const typeName = item.interventionType.name.trim();
+                brandCounts[typeName] = (brandCounts[typeName] || 0) + 1;
+            }
+        });
+
+        equipments.forEach(eq => {
+            if (eq.brand) {
+                const brand = eq.brand.trim();
+                brandCounts[brand] = (brandCounts[brand] || 0) + 1;
+            }
+        });
+
+        const totalEquipCount = Object.values(brandCounts).reduce((acc, c) => acc + c, 0);
+        const equipmentBreakdown = Object.entries(brandCounts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([brand, count]) => ({
+                brand,
+                count,
+                percentage: totalEquipCount > 0 ? Math.round((count / totalEquipCount) * 100) : 0
+            }));
 
         return res.status(200).json({
             success: true,
@@ -398,12 +504,15 @@ export const getInterventionsReport = async (req, res) => {
                 summary: {
                     total,
                     completed,
+                    scheduled: scheduledTotal,
                     cancelled,
                     pending,
                     inProgress,
-                    completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+                    completionRate: total > 0 ? Math.round((completed / (total - cancelled || 1)) * 100) : 0,
                     avgDurationMinutes
-                }
+                },
+                techWorkload,
+                equipmentBreakdown
             }
         });
     } catch (error) {
@@ -491,6 +600,100 @@ export const getClientsReport = async (req, res) => {
             prisma.client.count({ where: { companyId, isActive: true, status: "URGENT" } }),
         ]);
 
+        // Clients nécessitant une action (URGENT ou WARNING en priorité)
+        let actionClients = await prisma.client.findMany({
+            where: {
+                companyId,
+                isActive: true,
+                status: { in: ["URGENT", "WARNING"] }
+            },
+            take: 5,
+            orderBy: [
+                { status: "desc" },
+                { updatedAt: "desc" }
+            ],
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                companyName: true,
+                phone: true,
+                status: true,
+                equipment: {
+                    where: { isActive: true },
+                    take: 1,
+                    select: { name: true, brand: true, model: true }
+                }
+            }
+        });
+
+        // Si aucun client n'est en warning/urgent, renvoyer les derniers clients actifs
+        if (actionClients.length === 0) {
+            actionClients = await prisma.client.findMany({
+                where: {
+                    companyId,
+                    isActive: true
+                },
+                take: 5,
+                orderBy: { updatedAt: "desc" },
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    companyName: true,
+                    phone: true,
+                    status: true,
+                    equipment: {
+                        where: { isActive: true },
+                        take: 1,
+                        select: { name: true, brand: true, model: true }
+                    }
+                }
+            });
+        }
+
+        const formattedActionClients = actionClients.map(c => {
+            const fullName = `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.companyName || "Client";
+            const eq = c.equipment?.[0];
+            const eqDesc = eq 
+                ? `${eq.name || ''} ${eq.brand || ''} ${eq.model || ''}`.trim() 
+                : "Équipement en suivi";
+            return {
+                id: c.id,
+                name: fullName,
+                phone: c.phone || "",
+                status: c.status || "OK",
+                equipment: eqDesc
+            };
+        });
+
+        // Données SMS réelles de l'entreprise
+        const now = new Date();
+        const [smsUsage, subscription, outgoingSms, deliveredSms] = await Promise.all([
+            prisma.smsUsage.findFirst({
+                where: {
+                    companyId,
+                    month: now.getMonth() + 1,
+                    year: now.getFullYear()
+                }
+            }),
+            prisma.subscription.findUnique({
+                where: { companyId },
+                include: { plan: true }
+            }),
+            prisma.smsLog.count({
+                where: { companyId, direction: "OUTGOING" }
+            }),
+            prisma.smsLog.count({
+                where: { companyId, direction: "OUTGOING", status: { in: ["DELIVERED", "SENT"] } }
+            })
+        ]);
+
+        const planLimit = subscription?.plan?.maxSmsPerMonth ?? 50;
+        const sentSmsThisMonth = smsUsage?.count || subscription?.smsUsedThisMonth || 0;
+        const remainingSms = planLimit === -1 ? 9999 : Math.max(0, planLimit - sentSmsThisMonth);
+        const deliveryRate = outgoingSms > 0 ? Math.round((deliveredSms / outgoingSms) * 1000) / 10 : 100;
+
         return res.status(200).json({
             success: true,
             data: {
@@ -500,6 +703,19 @@ export const getClientsReport = async (req, res) => {
                     OK: okCount,
                     WARNING: warningCount,
                     URGENT: urgentCount
+                },
+                clientStats: {
+                    ok: okCount,
+                    warning: warningCount,
+                    urgent: urgentCount,
+                    total: totalActive
+                },
+                urgentClients: formattedActionClients,
+                smsStats: {
+                    sent: sentSmsThisMonth,
+                    limit: planLimit === -1 ? 9999 : planLimit,
+                    remaining: remainingSms,
+                    deliveryRate
                 }
             }
         });

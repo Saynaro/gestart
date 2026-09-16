@@ -148,10 +148,17 @@ export const markAllNotificationsAsRead = async (req, res) => {
 export const deleteNotification = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
+    const companyId = req.user.companyId;
 
     try {
         const notification = await prisma.notification.findFirst({
-            where: { id, userId }
+            where: {
+                id,
+                OR: [
+                    { userId },
+                    { companyId }
+                ]
+            }
         });
 
         if (!notification) {
@@ -181,6 +188,7 @@ export const deleteNotification = async (req, res) => {
 ////// BATCH DELETE NOTIFICATIONS //////
 export const batchDeleteNotifications = async (req, res) => {
     const userId = req.user.id;
+    const companyId = req.user.companyId;
     const { notificationIds } = req.body || {};
 
     try {
@@ -194,7 +202,10 @@ export const batchDeleteNotifications = async (req, res) => {
         const deleted = await prisma.notification.deleteMany({
             where: {
                 id: { in: notificationIds },
-                userId
+                OR: [
+                    { userId },
+                    { companyId }
+                ]
             }
         });
 

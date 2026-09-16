@@ -74,7 +74,7 @@ export class DocumentReminderScheduler {
                             }
                         }
                     },
-                    items: true
+                    lines: true
                 },
                 take: 50
             });
@@ -222,7 +222,7 @@ export class DocumentReminderScheduler {
                             }
                         }
                     },
-                    items: true
+                    lines: true
                 },
                 take: 50
             });

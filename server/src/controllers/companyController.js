@@ -615,13 +615,40 @@ export const deleteCompanyAccount = async (req, res) => {
     }
 
     try {
-        // 1. Cancel Stripe Subscription if active
+        // 1. Cancel Stripe Subscription immediately if active so no further charges occur
         try {
             const subscription = await prisma.subscription.findUnique({
                 where: { companyId }
             });
-            if (stripe && subscription?.stripeSubscriptionId) {
-                await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
+            if (stripe) {
+                // Cancel by subscription ID if present
+                if (subscription?.stripeSubscriptionId) {
+                    try {
+                        const cancelledSub = await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
+                        console.log(`[DELETE ACCOUNT] Stripe subscription ${cancelledSub.id} successfully cancelled.`);
+                    } catch (subCancelErr) {
+                        console.warn("[DELETE ACCOUNT] Could not cancel subscription by ID:", subCancelErr.message);
+                    }
+                }
+
+                // Also cancel all active subscriptions attached to the customer in Stripe
+                const customerId = subscription?.stripeCustomerId;
+                if (customerId) {
+                    try {
+                        const customerSubs = await stripe.subscriptions.list({
+                            customer: customerId,
+                            status: "all"
+                        });
+                        for (const subItem of customerSubs.data) {
+                            if (subItem.status !== "canceled") {
+                                await stripe.subscriptions.cancel(subItem.id);
+                                console.log(`[DELETE ACCOUNT] Additional customer subscription ${subItem.id} cancelled.`);
+                            }
+                        }
+                    } catch (custSubsErr) {
+                        console.warn("[DELETE ACCOUNT] Could not cancel customer subscriptions:", custSubsErr.message);
+                    }
+                }
             }
         } catch (stripeErr) {
             console.warn("Could not cancel Stripe subscription during account deletion:", stripeErr.message);

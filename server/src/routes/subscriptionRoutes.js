@@ -18,11 +18,11 @@ import { requireOwner } from "../middlewares/checkRole.js";
 
 const router = express.Router();
 
-// Tous les endpoints de gestion d'abonnement sont protégés pour le Владелец (OWNER)
-router.use(authMiddleware, requireOwner);
+// 1. Consultation du statut de l'abonnement (accessible à tous les membres connectés : Owner, Manager, Technicien)
+router.get("/", authMiddleware, getSubscription);
 
-// Subscription details
-router.get("/", getSubscription);
+// 2. Tous les endpoints de gestion/modification d'abonnement restent protégés pour le Propriétaire (OWNER)
+router.use(authMiddleware, requireOwner);
 
 // Checkout & Upgrades
 router.post("/checkout", createCheckoutSession);

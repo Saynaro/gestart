@@ -1,5 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { requireActive } from "../middlewares/requireActive.js";
 import {
     getCatalogItems,
     createCatalogItem,
@@ -12,8 +13,8 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.get("/", getCatalogItems);
-router.post("/", createCatalogItem);
-router.put("/:id", updateCatalogItem);
-router.delete("/:id", deleteCatalogItem);
+router.post("/", requireActive, createCatalogItem);
+router.put("/:id", requireActive, updateCatalogItem);
+router.delete("/:id", requireActive, deleteCatalogItem);
 
 export default router;

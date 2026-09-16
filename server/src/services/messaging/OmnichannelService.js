@@ -188,16 +188,15 @@ export const OmnichannelService = {
         companyId,
         channel,
         unreadOnly = false,
+        incomingOnly = false,
         search = "",
         page = 1,
         limit = 50
     }) {
-        // Synchroniser les emails récents de la boîte Gmail connectée
-        try {
-            await emailProvider.syncGoogleInbox(companyId);
-        } catch (syncErr) {
+        // Synchroniser les emails récents en arrière-plan sans bloquer l'affichage immédiat de la boîte
+        emailProvider.syncGoogleInbox(companyId).catch(syncErr => {
             console.warn("[GMAIL_SYNC_LIST_WARN]", syncErr.message);
-        }
+        });
 
         const skip = (page - 1) * limit;
 
@@ -208,7 +207,8 @@ export const OmnichannelService = {
             smsLogs: {
                 some: {
                     ...(channel ? { channel: channel.toUpperCase() } : {}),
-                    ...(unreadOnly ? { isRead: false, direction: "INCOMING" } : {})
+                    ...(unreadOnly ? { isRead: false, direction: "INCOMING" } : {}),
+                    ...(incomingOnly ? { direction: "INCOMING" } : {})
                 }
             }
         };
@@ -246,13 +246,17 @@ export const OmnichannelService = {
                 status: true,
                 updatedAt: true,
                 smsLogs: {
+                    where: { 
+                        companyId,
+                        ...(incomingOnly ? { direction: "INCOMING" } : {})
+                    },
                     take: 1,
                     orderBy: { createdAt: "desc" }
                 },
                 _count: {
                     select: {
                         smsLogs: {
-                            where: { isRead: false, direction: "INCOMING" }
+                            where: { companyId, isRead: false, direction: "INCOMING" }
                         }
                     }
                 }

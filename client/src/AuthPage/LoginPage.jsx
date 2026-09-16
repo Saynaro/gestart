@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import './LoginPage.css';
 import { API_URL } from '../utils/config';
-import { setAuthToken } from '../utils/auth';
+import { setAuthToken, clearAuthToken } from '../utils/auth';
 import { startProactiveTokenRefresh } from '../utils/api';
 import { useUser } from '../utils/useUser';
 import { useSubscription } from '../utils/useSubscription';
@@ -209,15 +209,21 @@ export default function LoginPage() {
     };
 
     const handleGoogleAuth = () => {
-        const googleAuthUrl = `${API_URL}/v1/auth/google`;
+        // Clear prior session so no cross-account pollution occurs
+        clearAuthToken();
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userEmail');
+
+        const currentOrigin = encodeURIComponent(window.location.origin);
+        const googleAuthUrl = `${API_URL}/v1/auth/google?origin=${currentOrigin}`;
         try {
             if (window.top && window.top !== window) {
-                window.top.location.href = googleAuthUrl;
+                window.top.location.replace(googleAuthUrl);
             } else {
-                window.location.href = googleAuthUrl;
+                window.location.replace(googleAuthUrl);
             }
         } catch (e) {
-            window.location.href = googleAuthUrl;
+            window.location.replace(googleAuthUrl);
         }
     };
 

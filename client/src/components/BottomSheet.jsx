@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, Lock } from "lucide-react";
 import { getSection1Items } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
@@ -9,7 +9,7 @@ import { useUser } from "../utils/useUser";
 
 const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCount = 0 }) => {
     const navigate = useNavigate();
-    const { isStarter } = useSubscription();
+    const { isStarter, isExpired } = useSubscription();
     const { role } = useUser();
     const section1Items = getSection1Items(role);
     const [showLogoutModal, setShowLogoutModal] = React.useState(false);
@@ -140,7 +140,11 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                                                         {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
                                                     </span>
                                                 )}
-                                                {(item.isPremium || (item.proOnly && isStarter)) && item.path !== "/messages" && (
+                                                {isExpired && (item.isPremium || (item.proOnly && isStarter) || item.path === "/premium") ? (
+                                                    <span className="ml-auto bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 p-1 rounded-full flex items-center justify-center">
+                                                        <Lock size={13} />
+                                                    </span>
+                                                ) : (item.isPremium || (item.proOnly && isStarter)) && item.path !== "/messages" && (
                                                     <span className="ml-auto bg-sidebar-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)' }}>
                                                         PRO
                                                     </span>

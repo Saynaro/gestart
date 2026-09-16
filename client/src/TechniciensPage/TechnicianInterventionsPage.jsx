@@ -597,9 +597,20 @@ export default function TechnicianInterventionsPage() {
 
                     {/* 4. CHRONOLOGICAL LIST GROUPED BY DATE */}
                     {loading ? (
-                        <div className="tech-loading-box">
-                            <div className="tech-spinner" />
-                            <p>Chargement de vos interventions...</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '10px 0' }}>
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} style={{ padding: '18px', borderRadius: '14px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div className="skeleton-shimmer" style={{ width: '130px', height: '18px', borderRadius: '6px' }} />
+                                        <div className="skeleton-shimmer" style={{ width: '80px', height: '22px', borderRadius: '20px' }} />
+                                    </div>
+                                    <div className="skeleton-shimmer" style={{ width: '60%', height: '14px', borderRadius: '4px', opacity: 0.7 }} />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                                        <div className="skeleton-shimmer" style={{ width: '100px', height: '12px', borderRadius: '4px', opacity: 0.5 }} />
+                                        <div className="skeleton-shimmer" style={{ width: '70px', height: '12px', borderRadius: '4px', opacity: 0.5 }} />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : groupedInterventions.length === 0 ? (
                         <div className="tech-empty-state-card">

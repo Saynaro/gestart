@@ -32,12 +32,12 @@ router.get("/:id", getInterventionById);
 
 // CRUD et Actions du technicien
 router.post("/", requireActive, createIntervention);
-router.patch("/:id", updateIntervention);
-router.put("/:id", updateIntervention);
+router.patch("/:id", requireActive, updateIntervention);
+router.put("/:id", requireActive, updateIntervention);
 router.patch("/:id/arrive", arriveIntervention);
 router.patch("/:id/start", startIntervention);
 router.patch("/:id/complete", completeIntervention);
-router.delete("/:id", requireManager, deleteIntervention);
+router.delete("/:id", requireManager, requireActive, deleteIntervention);
 
 // Photos d'intervention (avec middleware Cloudinary)
 router.post("/:id/photos", uploadPhotosMiddleware, uploadInterventionPhotos);

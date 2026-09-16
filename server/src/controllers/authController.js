@@ -60,17 +60,22 @@ export const register = async (req, res) => {
             city,
             website,
             logo,
+            avatarUrl,
+            isGoogle,
+            googleToken,
         } = req.body;
 
-        // 1. Validation des champs obligatoires (Étape 1 & Étape 2 du PRD)
-        if (!firstName || !lastName || !email || !password || !companyName) {
+        const isGoogleAuth = Boolean(isGoogle || googleToken);
+
+        // 1. Validation des champs obligatoires
+        if (!firstName || !lastName || !email || (!isGoogleAuth && !password) || !companyName) {
             return res.status(400).json({
                 success: false,
-                message: "Veuillez remplir tous les champs obligatoires (prénom, nom, email, mot de passe, nom de la société)",
+                message: `Veuillez remplir tous les champs obligatoires (prénom, nom, email, ${!isGoogleAuth ? "mot de passe, " : ""}nom de la société)`,
             });
         }
 
-        if (password.length < 8) {
+        if (!isGoogleAuth && password.length < 8) {
             return res.status(400).json({
                 success: false,
                 message: "Le mot de passe doit contenir au moins 8 caractères",
@@ -89,9 +94,10 @@ export const register = async (req, res) => {
             });
         }
 
-        // 3. Hash du mot de passe
+        // 3. Hash du mot de passe (ou mot de passe sécurisé aléatoire si compte Google)
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const rawPassword = password || crypto.randomBytes(32).toString("hex");
+        const hashedPassword = await bcrypt.hash(rawPassword, salt);
 
         // 4. Token de vérification email
         const emailVerifyToken = crypto.randomBytes(32).toString("hex");
@@ -172,6 +178,7 @@ export const register = async (req, res) => {
                     role: "OWNER",
                     emailVerifyToken: emailVerifyToken,
                     emailVerified: true,
+                    avatarUrl: avatarUrl || null,
                 },
             });
 
@@ -1049,13 +1056,23 @@ export const googleLogin = async (req, res) => {
 
         // Si GOOGLE_CLIENT_ID est configuré dans le .env, redirection vers Google OAuth officiel
         if (googleClientId && googleClientSecret) {
+            let clientOrigin = (process.env.FRONTEND_URL || 'http://localhost:5173').trim();
+            if (req.query.origin) {
+                clientOrigin = req.query.origin.trim();
+            } else if (req.headers.referer) {
+                try { clientOrigin = new URL(req.headers.referer).origin; } catch (e) {}
+            }
+
+            const stateStr = Buffer.from(JSON.stringify({ frontendUrl: clientOrigin })).toString('base64');
+
             const params = new URLSearchParams({
                 client_id: googleClientId,
                 redirect_uri: redirectUri,
                 response_type: 'code',
                 scope: 'openid profile email',
                 access_type: 'offline',
-                prompt: 'consent'
+                prompt: 'consent',
+                state: stateStr
             });
             const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
             return res.redirect(googleAuthUrl);
@@ -1090,57 +1107,35 @@ export const googleLogin = async (req, res) => {
             include: { company: true }
         });
 
-        // Si l'utilisateur n'existe pas, création automatique de sa Société + Compte Owner (Trial 14j)
+        // Si l'utilisateur n'existe pas, redirection vers finalisation d'inscription avec les données Google
         if (!user) {
-            const plan = await prisma.plan.findFirst({
-                where: { name: "STARTER" }
+            const googleRegToken = jwt.sign(
+                { email: formattedEmail, firstName, lastName, photoUrl, isGoogle: true },
+                process.env.JWT_SECRET || 'secret',
+                { expiresIn: '1h' }
+            );
+
+            if (req.method === 'GET') {
+                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+                const redirectUrl = new URL(`${frontendUrl}/auth/callback`);
+                redirectUrl.searchParams.set('google_signup', 'true');
+                redirectUrl.searchParams.set('email', formattedEmail);
+                if (firstName) redirectUrl.searchParams.set('firstName', firstName);
+                if (lastName) redirectUrl.searchParams.set('lastName', lastName);
+                if (photoUrl) redirectUrl.searchParams.set('avatarUrl', photoUrl);
+                redirectUrl.searchParams.set('googleToken', googleRegToken);
+                return res.redirect(redirectUrl.toString());
+            }
+
+            return res.status(200).json({
+                success: true,
+                isNewUser: true,
+                email: formattedEmail,
+                firstName,
+                lastName,
+                photoUrl,
+                googleToken: googleRegToken
             });
-
-            const trialEndsAt = new Date();
-            trialEndsAt.setDate(trialEndsAt.getDate() + 14);
-
-            const result = await prisma.$transaction(async (tx) => {
-                const companyName = `${firstName || "Ma"} Société`;
-                const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-
-                const company = await tx.company.create({
-                    data: {
-                        name: companyName,
-                        slug: `${slug}-${Date.now()}`,
-                        email: formattedEmail,
-                        settings: { create: {} }
-                    }
-                });
-
-                if (plan) {
-                    await tx.subscription.create({
-                        data: {
-                            companyId: company.id,
-                            planId: plan.id,
-                            status: "TRIALING",
-                            trialEndsAt
-                        }
-                    });
-                }
-
-                const newUser = await tx.user.create({
-                    data: {
-                        companyId: company.id,
-                        email: formattedEmail,
-                        password: "", // Auth sociale sans mot de passe local
-                        firstName: firstName || "Utilisateur",
-                        lastName: lastName || "Google",
-                        role: "OWNER",
-                        emailVerified: true,
-                        avatarUrl: photoUrl || null
-                    }
-                });
-
-                return { user: newUser, company };
-            });
-
-            user = result.user;
-            user.company = result.company;
         }
 
         const accessToken = generateAccessToken(user.id, user.role, user.companyId);
@@ -1149,7 +1144,7 @@ export const googleLogin = async (req, res) => {
 
         if (req.method === 'GET') {
             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-            return res.redirect(`${frontendUrl}/home?openOnboardingModal=true`);
+            return res.redirect(`${frontendUrl}/auth/callback?token=${encodeURIComponent(accessToken)}`);
         }
 
         return res.status(200).json({
@@ -1183,7 +1178,7 @@ export const googleLogin = async (req, res) => {
 
 export const googleCallback = async (req, res) => {
     const { code } = req.query;
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
     if (!code) {
         return res.redirect(`${frontendUrl}/login?error=no_code`);
@@ -1231,6 +1226,9 @@ export const googleCallback = async (req, res) => {
         if (req.query.state) {
             try {
                 stateData = JSON.parse(Buffer.from(req.query.state, "base64").toString("utf-8"));
+                if (stateData.frontendUrl) {
+                    frontendUrl = stateData.frontendUrl;
+                }
             } catch (e) {
                 // Ignore parsing errors for standard auth
             }
@@ -1261,61 +1259,29 @@ export const googleCallback = async (req, res) => {
         });
 
         if (!user) {
-            const plan = await prisma.plan.findFirst({
-                where: { name: "STARTER" }
-            });
+            // L'utilisateur n'a pas encore de compte GestArt -> redirection vers la finalisation d'inscription
+            const googleRegToken = jwt.sign(
+                { email: formattedEmail, firstName, lastName, photoUrl, isGoogle: true },
+                process.env.JWT_SECRET || 'secret',
+                { expiresIn: '1h' }
+            );
 
-            const trialEndsAt = new Date();
-            trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+            const redirectUrl = new URL(`${frontendUrl}/auth/callback`);
+            redirectUrl.searchParams.set('google_signup', 'true');
+            redirectUrl.searchParams.set('email', formattedEmail);
+            if (firstName) redirectUrl.searchParams.set('firstName', firstName);
+            if (lastName) redirectUrl.searchParams.set('lastName', lastName);
+            if (photoUrl) redirectUrl.searchParams.set('avatarUrl', photoUrl);
+            redirectUrl.searchParams.set('googleToken', googleRegToken);
 
-            const result = await prisma.$transaction(async (tx) => {
-                const companyName = `${firstName} Company`;
-                const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-
-                const company = await tx.company.create({
-                    data: {
-                        name: companyName,
-                        slug: `${slug}-${Date.now()}`,
-                        email: formattedEmail,
-                        settings: { create: {} }
-                    }
-                });
-
-                if (plan) {
-                    await tx.subscription.create({
-                        data: {
-                            companyId: company.id,
-                            planId: plan.id,
-                            status: "TRIALING",
-                            trialEndsAt
-                        }
-                    });
-                }
-
-                const newUser = await tx.user.create({
-                    data: {
-                        companyId: company.id,
-                        email: formattedEmail,
-                        password: "",
-                        firstName,
-                        lastName,
-                        role: "OWNER",
-                        emailVerified: true,
-                        avatarUrl: photoUrl || null
-                    }
-                });
-
-                return { user: newUser, company };
-            });
-
-            user = result.user;
+            return res.redirect(redirectUrl.toString());
         }
 
         const accessToken = generateAccessToken(user.id, user.role, user.companyId);
         const refreshToken = await generateRefreshToken(user.id);
         setAuthCookies(res, accessToken, refreshToken);
 
-        return res.redirect(`${frontendUrl}/home?openOnboardingModal=true`);
+        return res.redirect(`${frontendUrl}/auth/callback?token=${encodeURIComponent(accessToken)}`);
     } catch (error) {
         console.error("GOOGLE CALLBACK ERROR:", error.message);
         return res.redirect(`${frontendUrl}/login?error=oauth_failed`);

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Receipt, Palette, FileText, Check, AlertCircle, Loader2, Bell, Clock } from "lucide-react";
+import { Receipt, Palette, FileText, Check, AlertCircle, Loader2, Bell, Clock, Lock } from "lucide-react";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
 import { apiFetch } from "../../utils/api";
 import { getCustomization, saveCustomization } from "../../utils/documentCustomization";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function FacturationTab({ isMobileView, triggerToast }) {
+    const { isExpired } = useSubscription();
     const [invoicePrefix, setInvoicePrefix] = useState("INV");
     const [quotePrefix, setQuotePrefix] = useState("D");
     const [invoiceNextNumber, setInvoiceNextNumber] = useState(1);
@@ -71,6 +73,12 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier les réglages de facturation, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setSaving(true);
         try {
             // Update global document customization in localStorage and dispatch event
@@ -470,8 +478,21 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         type="submit"
                         disabled={saving}
                         className="save-profile-btn"
-                        style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        style={{
+                            padding: '10px 24px',
+                            backgroundColor: 'var(--sidebar-primary)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            cursor: saving ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            opacity: isExpired ? 0.85 : 1
+                        }}
                     >
+                        {isExpired && <Lock size={15} />}
                         {saving ? <><Loader2 size={16} className="spin-loader" /> Enregistrement...</> : "Enregistrer la Facturation"}
                     </button>
                 </div>

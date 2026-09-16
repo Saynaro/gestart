@@ -14,7 +14,8 @@ import { WhatsAppIcon, EmailIcon, SmsIcon } from "./ChannelIcons";
 
 function Header({ title }) {
     const navigate = useNavigate();
-    const { firstName, fullName, initials, avatarUrl } = useUser();
+    const { firstName, fullName, initials, avatarUrl, role } = useUser();
+    const isTechnician = role === "TECHNICIAN";
     const { displayName } = useSubscription();
     const [menuOpen, setMenuOpen] = useState(false);
     const [bellOpen, setBellOpen] = useState(false);
@@ -150,9 +151,14 @@ function Header({ title }) {
 
     // Fetch received messages and exact unread count
     const fetchReceivedMessages = useCallback(async () => {
+        if (isTechnician) {
+            setSmsList([]);
+            setUnreadMsgCount(0);
+            return;
+        }
         try {
             const [inboxRes, countRes] = await Promise.allSettled([
-                apiFetch("/v1/messages/inbox"),
+                apiFetch("/v1/messages/inbox?incomingOnly=true"),
                 apiFetch("/v1/messages/unread-count")
             ]);
 
@@ -187,7 +193,7 @@ function Header({ title }) {
         } catch (err) {
             // Fallback sur /v1/sms/inbox
             try {
-                const resFallback = await apiFetch("/v1/sms/inbox");
+                const resFallback = await apiFetch("/v1/sms/inbox?incomingOnly=true");
                 const list = resFallback.data?.conversations || [];
                 const mappedFallback = list.map(c => ({
                     id: c.id || c.clientId || String(Math.random()),
@@ -235,6 +241,7 @@ function Header({ title }) {
 
     // Socket real-time updates for notifications & incoming messages
     useEffect(() => {
+        if (isTechnician) return;
         const socket = getSocket();
         if (!socket) return;
 
@@ -316,7 +323,7 @@ function Header({ title }) {
         });
     };
 
-    const currentTabItems = bellTab === "notifications" ? notificationsList : smsList;
+    const currentTabItems = (isTechnician || bellTab === "notifications") ? notificationsList : smsList;
     const isAllSelected = currentTabItems.length > 0 && selectedItemIds.size === currentTabItems.length;
 
     const toggleSelectAll = () => {
@@ -332,7 +339,7 @@ function Header({ title }) {
         setIsDeleting(true);
         try {
             const idsArray = Array.from(selectedItemIds);
-            if (bellTab === "notifications") {
+            if (isTechnician || bellTab === "notifications") {
                 await apiFetch("/v1/notifications/batch", {
                     method: "DELETE",
                     body: JSON.stringify({ notificationIds: idsArray })
@@ -382,7 +389,7 @@ function Header({ title }) {
 
     const handleMarkAllAsRead = async () => {
         try {
-            if (bellTab === "notifications") {
+            if (isTechnician || bellTab === "notifications") {
                 await apiFetch("/v1/notifications/read-all", { method: "PATCH" });
                 setNotificationsList(prev => prev.map(n => ({ ...n, isRead: true })));
             } else {
@@ -529,7 +536,7 @@ function Header({ title }) {
     };
 
     const unreadNotificationsCount = notificationsList.filter(n => !n.isRead).length;
-    const unreadMessagesCount = Math.max(unreadMsgCount, smsList.filter(s => s.isUnread).length);
+    const unreadMessagesCount = isTechnician ? 0 : Math.max(unreadMsgCount, smsList.filter(s => s.isUnread).length);
     const totalUnread = unreadMessagesCount + unreadNotificationsCount + pendingInvites.length;
     const hasUnread = totalUnread > 0;
 
@@ -574,7 +581,7 @@ function Header({ title }) {
                                                         <CheckCheck size={18} />
                                                     </button>
                                                 )}
-                                                {(bellTab === "notifications" ? notificationsList.length : smsList.length) > 0 && (
+                                                {((isTechnician ? notificationsList.length : (bellTab === "notifications" ? notificationsList.length : smsList.length)) > 0) && (
                                                     <button
                                                         type="button"
                                                         className={`bell-mode-toggle-btn ${isSelectionMode ? "active" : ""}`}
@@ -599,35 +606,37 @@ function Header({ title }) {
                                             </div>
                                         </div>
 
-                                        <div className="bell-tabs-header">
-                                            <div className="bell-tabs-segmented">
-                                                <button
-                                                    type="button"
-                                                    className={`bell-tab-btn ${bellTab === "notifications" ? "active" : ""}`}
-                                                    onClick={() => {
-                                                        setBellTab("notifications");
-                                                        setIsSelectionMode(false);
-                                                        setSelectedItemIds(new Set());
-                                                    }}
-                                                >
-                                                    <Bell size={13} /> Notifications ({notificationsList.length})
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className={`bell-tab-btn ${bellTab === "sms" ? "active" : ""}`}
-                                                    onClick={() => {
-                                                        setBellTab("sms");
-                                                        setIsSelectionMode(false);
-                                                        setSelectedItemIds(new Set());
-                                                    }}
-                                                >
-                                                    <MessageSquare size={13} /> Messages reçus ({smsList.length})
-                                                </button>
+                                        {!isTechnician && (
+                                            <div className="bell-tabs-header">
+                                                <div className="bell-tabs-segmented">
+                                                    <button
+                                                        type="button"
+                                                        className={`bell-tab-btn ${bellTab === "notifications" ? "active" : ""}`}
+                                                        onClick={() => {
+                                                            setBellTab("notifications");
+                                                            setIsSelectionMode(false);
+                                                            setSelectedItemIds(new Set());
+                                                        }}
+                                                    >
+                                                        <Bell size={13} /> Notifications ({notificationsList.length})
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className={`bell-tab-btn ${bellTab === "sms" ? "active" : ""}`}
+                                                        onClick={() => {
+                                                            setBellTab("sms");
+                                                            setIsSelectionMode(false);
+                                                            setSelectedItemIds(new Set());
+                                                        }}
+                                                    >
+                                                        <MessageSquare size={13} /> Messages ({smsList.length})
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
                                         <div className="bell-tabs-content">
-                                            {bellTab === "notifications" ? (
+                                            {isTechnician || bellTab === "notifications" ? (
                                                 <div className="notifications-list">
                                                     {pendingInvites.map(inv => (
                                                         <div key={inv.id} className="notification-item" style={{ borderLeft: '4px solid #16A34A', background: 'rgba(34, 197, 94, 0.05)', padding: '14px' }}>
@@ -803,7 +812,7 @@ function Header({ title }) {
                                                 <div className="sms-notifications-list">
                                                     {smsList.length === 0 ? (
                                                         <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '30px 10px', fontSize: '0.875rem' }}>
-                                                            Aucun message reçu pour le moment
+                                                            Aucun message pour le moment
                                                         </p>
                                                     ) : (
                                                         smsList.map(s => {
@@ -820,8 +829,19 @@ function Header({ title }) {
                                                                         if (isSelectionMode) {
                                                                             toggleSelectItem(s.id);
                                                                         } else {
+                                                                            // Immediately mark as read in local state
+                                                                            setSmsList(prev => prev.map(item => (item.id === s.id || item.clientId === s.clientId) ? { ...item, isUnread: false, unreadCount: 0 } : item));
+                                                                            setUnreadMsgCount(prev => Math.max(0, prev - (s.unreadCount || (s.isUnread ? 1 : 0))));
+
+                                                                            // Mark as read on server & trigger global event
+                                                                            const targetClientId = s.clientId || s.id;
+                                                                            if (targetClientId) {
+                                                                                apiFetch(`/v1/messages/read/${encodeURIComponent(targetClientId)}`, { method: "PATCH" }).catch(() => {});
+                                                                                window.dispatchEvent(new Event("messages-read"));
+                                                                            }
+
                                                                             handleCloseNotifications();
-                                                                            navigate(`/messages?chat=${encodeURIComponent(s.clientId || s.id)}`);
+                                                                            navigate(`/messages?chat=${encodeURIComponent(targetClientId)}`);
                                                                         }
                                                                     }}
                                                                     onTouchStart={handleItemTouchStart(s.id)}

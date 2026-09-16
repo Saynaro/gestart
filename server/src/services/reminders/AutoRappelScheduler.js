@@ -128,8 +128,26 @@ export class AutoRappelScheduler {
                 return;
             }
 
-            // 3. Vérification de l'éligibilité abonnement Premium de l'entreprise
-            const plan = company?.subscription?.plan;
+            // 3. Vérification de la validité et de l'activité de l'abonnement
+            const sub = company?.subscription;
+            const plan = sub?.plan;
+            const subStatus = sub?.status;
+            const endDate = subStatus === "TRIALING" ? sub?.trialEndsAt : sub?.currentPeriodEnd;
+            const isSubExpired = subStatus === "EXPIRED" || subStatus === "CANCELLED" || (endDate && new Date(endDate) < now);
+
+            if (isSubExpired) {
+                // Suspendre l'envoi sans supprimer les données du client
+                await prisma.reminderExecution.update({
+                    where: { id },
+                    data: {
+                        status: "SKIPPED",
+                        error: "Envoi suspendu : abonnement de l'entreprise expiré ou inactif"
+                    }
+                });
+                console.log(`[AUTO_RAPPEL_PAUSED] Société ${companyId}: rappel #${id} suspendu car abonnement expiré/inactif.`);
+                return;
+            }
+
             const isPlanEligible = plan?.hasAutoSmsReminders || plan?.hasPremiumSettings || plan?.name === "PRO" || plan?.name === "UNLIMITED";
             
             // En environnement de développement ou démo, tolérer les tests

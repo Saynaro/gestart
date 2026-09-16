@@ -127,12 +127,32 @@
 }
 
 .tech-section-title {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+}
+
+.tech-section-title-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tech-section-title-icon.green {
+    background: rgba(85, 107, 47, 0.12);
+    color: #556B2F;
+}
+
+.tech-section-title-icon.blue {
+    background: rgba(37, 99, 235, 0.12);
+    color: #2563EB;
 }
 
 /* List Table */
@@ -203,12 +223,15 @@
 
 .tech-role-badge {
     display: inline-flex;
+    align-items: center;
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
     background: rgba(85, 107, 47, 0.12);
     color: #556B2F;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .tech-status-badge {
@@ -219,6 +242,8 @@
     border-radius: 20px;
     font-size: 0.78rem;
     font-weight: 700;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .tech-status-badge.active {
@@ -546,5 +571,175 @@
 .btn-cancel-delete:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* Responsive Styles for Mobile */
+@media (min-width: 769px) {
+    .tech-mobile-cards {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .techniciens-title-group {
+        display: none !important;
+    }
+
+    .techniciens-header-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .btn-invite-tech {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tech-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .tech-stat-card {
+        padding: 14px 16px;
+        border-radius: 14px;
+    }
+
+    .tech-section-card {
+        padding: 14px 12px !important;
+        border-radius: 14px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .tech-section-title {
+        font-size: 1.02rem !important;
+        gap: 10px !important;
+    }
+
+    .tech-section-title-icon {
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 9px !important;
+    }
+
+    .tech-desktop-table {
+        display: none !important;
+    }
+
+    .tech-mobile-cards {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .tech-mobile-card {
+        background: var(--card, #fff);
+        border: 1px solid var(--border, #E2E8F0);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .tech-mobile-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .tech-mobile-card .tech-user-row {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .tech-mobile-card .tech-avatar {
+        flex-shrink: 0;
+    }
+
+    .tech-mobile-card .tech-user-details {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .tech-mobile-card .tech-user-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        max-width: 100%;
+    }
+
+    .tech-mobile-card .tech-user-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        max-width: 100%;
+    }
+
+    .tech-mobile-card-body {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        font-size: 0.82rem;
+    }
+
+    .tech-mobile-info-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted-foreground);
+    }
+
+    .tech-mobile-link {
+        color: var(--foreground);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .tech-mobile-card-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding-top: 8px;
+        border-top: 1px solid var(--border, #F1F5F9);
+    }
+
+    .btn-delete-tech-mobile {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #EF4444;
+        color: #FFFFFF;
+        border: none;
+        padding: 7px 14px;
+        border-radius: 9px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+        transition: all 0.15s ease;
+    }
+
+    .btn-delete-tech-mobile:hover {
+        background: #DC2626;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-delete-tech-mobile:active {
+        transform: translateY(0);
+    }
 }
 

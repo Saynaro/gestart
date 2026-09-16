@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, CreditCard, Star, X } from "lucide-react";
+import { AlertTriangle, Star, X } from "lucide-react";
+import { useUser } from "../utils/useUser";
 
 export default function SubscriptionExpiredModal() {
     const [isOpen, setIsOpen] = useState(false);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
+    const { role } = useUser();
+    const isTechnician = role === "TECHNICIAN";
 
     useEffect(() => {
         const handleExpired = (e) => {
@@ -81,53 +84,77 @@ export default function SubscriptionExpiredModal() {
                 </div>
 
                 <h3 style={{ fontSize: "20px", fontWeight: 800, margin: "0 0 10px 0" }}>
-                    Abonnement ou période d'essai expiré
+                    {isTechnician ? "Abonnement entreprise expiré" : "Abonnement ou période d'essai expiré"}
                 </h3>
 
                 <p style={{ fontSize: "14px", color: "var(--muted-foreground, #64748b)", lineHeight: "1.5", margin: "0 0 24px 0" }}>
-                    {modalData?.message || "La période d'essai ou d'abonnement de votre société est expirée. Choisissez une offre pour réactiver l'accès complet à vos fonctionnalités CRM."}
+                    {modalData?.message || (isTechnician
+                        ? "L'abonnement de votre entreprise a expiré. Veuillez contacter votre responsable ou dirigeant pour réactiver l'accès complet."
+                        : "La période d'essai ou d'abonnement de votre société est expirée. Choisissez une offre pour réactiver l'accès complet à vos fonctionnalités CRM."
+                    )}
                 </p>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <button
-                        onClick={handleGoToBilling}
-                        style={{
-                            width: "100%",
-                            padding: "12px 20px",
-                            backgroundColor: "#556B2F",
-                            color: "#FFFFFF",
-                            border: "none",
-                            borderRadius: "10px",
-                            fontWeight: 700,
-                            fontSize: "14px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "8px",
-                            boxShadow: "0 4px 12px rgba(85, 107, 47, 0.25)"
-                        }}
-                    >
-                        <Star size={16} fill="currentColor" />
-                        Voir les offres & Renouveler l'abonnement
-                    </button>
-                    
-                    <button
-                        onClick={() => setIsOpen(false)}
-                        style={{
-                            width: "100%",
-                            padding: "10px 20px",
-                            backgroundColor: "transparent",
-                            color: "var(--muted-foreground, #64748b)",
-                            border: "1px solid var(--border, #e2e8f0)",
-                            borderRadius: "10px",
-                            fontWeight: 600,
-                            fontSize: "13px",
-                            cursor: "pointer"
-                        }}
-                    >
-                        Fermer
-                    </button>
+                    {!isTechnician ? (
+                        <>
+                            <button
+                                onClick={handleGoToBilling}
+                                style={{
+                                    width: "100%",
+                                    padding: "12px 20px",
+                                    backgroundColor: "#556B2F",
+                                    color: "#FFFFFF",
+                                    border: "none",
+                                    borderRadius: "10px",
+                                    fontWeight: 700,
+                                    fontSize: "14px",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "8px",
+                                    boxShadow: "0 4px 12px rgba(85, 107, 47, 0.25)"
+                                }}
+                            >
+                                <Star size={16} fill="currentColor" />
+                                Voir les offres & Renouveler l'abonnement
+                            </button>
+                            
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                style={{
+                                    width: "100%",
+                                    padding: "10px 20px",
+                                    backgroundColor: "transparent",
+                                    color: "var(--muted-foreground, #64748b)",
+                                    border: "1px solid var(--border, #e2e8f0)",
+                                    borderRadius: "10px",
+                                    fontWeight: 600,
+                                    fontSize: "13px",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Fermer
+                            </button>
+                        </>
+                    ) : (
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            style={{
+                                width: "100%",
+                                padding: "12px 20px",
+                                backgroundColor: "#0F172A",
+                                color: "#FFFFFF",
+                                border: "none",
+                                borderRadius: "10px",
+                                fontWeight: 700,
+                                fontSize: "14px",
+                                cursor: "pointer"
+                            }}
+                        >
+                            Compris
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

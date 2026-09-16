@@ -7,6 +7,7 @@ import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
 import PhoneInput from "../components/PhoneInput";
 import { apiFetch } from "../utils/api";
 import { useUser } from "../utils/useUser";
+import { handleLogout } from "../utils/auth";
 import "./SettingsPage.css";
 
 // Import Lucide icons
@@ -41,7 +42,8 @@ import {
     Percent,
     Link,
     RefreshCw,
-    Palette
+    Palette,
+    Check
 } from "lucide-react";
 
 // Import Tab Components
@@ -56,13 +58,9 @@ import ChiffreAffairesTab from "./components/ChiffreAffairesTab";
 import CotisationsTab from "./components/CotisationsTab";
 import TvaTab from "./components/TvaTab";
 import BanquesTab from "./components/BanquesTab";
-import TransactionsTab from "./components/TransactionsTab";
-import CategoriesPersoTab from "./components/CategoriesPersoTab";
 import FacturationTab from "./components/FacturationTab";
-import SmsTab from "./components/SmsTab";
 import CommunicationTab from "./components/CommunicationTab";
 import NotificationsTab from "./components/NotificationsTab";
-import PremiumTab from "./components/PremiumTab";
 import SupportTab from "./components/SupportTab";
 import AvisTab from "./components/AvisTab";
 import ParrainageTab from "./components/ParrainageTab";
@@ -111,6 +109,18 @@ function SettingsPage() {
             }
         };
         fetchUserProfile();
+
+        const handleProfileChanged = (e) => {
+            const data = e.detail;
+            if (!data) return;
+            if (data.firstName) setFirstName(data.firstName);
+            if (data.lastName) setLastName(data.lastName);
+            if (data.phone) setPhone(data.phone);
+            if (data.email) setEmail(data.email);
+            if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+        };
+        window.addEventListener('userProfileChanged', handleProfileChanged);
+        return () => window.removeEventListener('userProfileChanged', handleProfileChanged);
     }, []);
 
     // Layout and Navigation State
@@ -125,6 +135,37 @@ function SettingsPage() {
     const [toastMessage, setToastMessage] = useState("");
     const [toastIsError, setToastIsError] = useState(false);
     const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
+
+    // Header Auto-Save status indicator for mobile
+    const [headerSaveStatus, setHeaderSaveStatus] = useState("saved"); // "saving", "saved", "error"
+
+    useEffect(() => {
+        let timer;
+        const handleStatus = (e) => {
+            if (e.detail?.status) {
+                setHeaderSaveStatus(e.detail.status);
+            }
+        };
+        window.addEventListener('autoSaveStatus', handleStatus);
+        return () => window.removeEventListener('autoSaveStatus', handleStatus);
+    }, []);
+
+    const handleConfirmPhone = async () => {
+        setActiveProfileSubSheet(null);
+        window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
+        try {
+            const res = await apiFetch('/v1/users/me', {
+                method: 'PATCH',
+                body: JSON.stringify({ phone })
+            });
+            const updated = res.data?.user || res.user || { phone };
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { ...updated, phone } }));
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saved' } }));
+        } catch (err) {
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { phone } }));
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+        }
+    };
 
     // Sync tab from URL query params
     useEffect(() => {
@@ -320,9 +361,7 @@ function SettingsPage() {
                     { id: "chiffre-affaires", label: "Chiffre d'affaires", icon: Calculator, subtitle: "Plafonds et CA annuel" },
                     { id: "cotisations", label: "Cotisations sociales", icon: Percent, subtitle: "Taux et calcul de cotisations" },
                     { id: "tva-config", label: "TVA", icon: Receipt, subtitle: "Taux de TVA et déclarations" },
-                    { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos coordonnées bancaires" },
-                    { id: "transactions", label: "Transactions", icon: RefreshCw, subtitle: "Flux de transactions financières" },
-                    { id: "categories-perso", label: "Catégories personnalisées", icon: Settings, subtitle: "Gérez vos catégories de dépenses" }
+                    { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos coordonnées bancaires" }
                 ]
             },
             {
@@ -332,9 +371,7 @@ function SettingsPage() {
                     { id: "paiements", label: "Paiements", icon: CreditCard, subtitle: "Stripe Connect et virements" },
                     { id: "facturation", label: "Facturation", icon: Receipt, subtitle: "Réglages de facturation" },
                     { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
-                    { id: "sms", label: "SMS & Modèles", icon: MessageSquare, subtitle: "Crédits et expéditeur" },
-                    { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" },
-                    { id: "premium", label: "Premium", icon: Star, subtitle: "Fonctionnalités Pro avancées", badge: "PRO" }
+                    { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" }
                 ]
             },
             {
@@ -410,6 +447,9 @@ function SettingsPage() {
         return () => window.removeEventListener("popstate", handlePopState);
     }, []);
 
+    // Ref to mobile scroll container
+    const mobileScrollRef = useRef(null);
+
     // Helper to reset scroll to top across containers
     const scrollToTop = useCallback(() => {
         if (layoutContainerRef.current) {
@@ -418,17 +458,25 @@ function SettingsPage() {
                 layoutContainerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
             }
         }
+        if (mobileScrollRef.current) {
+            mobileScrollRef.current.scrollTop = 0;
+            if (typeof mobileScrollRef.current.scrollTo === "function") {
+                mobileScrollRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            }
+        }
         if (typeof window !== "undefined") {
             window.scrollTo({ top: 0, left: 0, behavior: "instant" });
             if (document.documentElement) document.documentElement.scrollTop = 0;
             if (document.body) document.body.scrollTop = 0;
         }
         const selectors = [
+            ".mobile-settings-scroll-container",
             ".mobile-tab-content-wrapper",
             ".mobile-settings-view",
             ".settings-layout-container",
             ".main-content",
-            ".settings-main-panel"
+            ".settings-main-panel",
+            ".settings-content-panel"
         ];
         selectors.forEach(sel => {
             const el = document.querySelector(sel);
@@ -553,10 +601,6 @@ function SettingsPage() {
                             return <TvaTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "banques":
                             return <BanquesTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
-                        case "transactions":
-                            return <TransactionsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
-                        case "categories-perso":
-                            return <CategoriesPersoTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "paiements":
                             return <PaiementsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "facturation":
@@ -565,12 +609,8 @@ function SettingsPage() {
                             return <EInvoicingTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "communication":
                             return <CommunicationTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
-                        case "sms":
-                            return <SmsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "notifications":
                             return <NotificationsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
-                        case "premium":
-                            return <PremiumTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "support":
                             return <SupportTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "avis":
@@ -604,133 +644,176 @@ function SettingsPage() {
                 onTouchEnd={isDetail ? handleTouchEnd : undefined}
             >
                 {/* Stable Fixed Sticky Header */}
-                <div className="mobile-nav-header">
-                    <button
-                        className="mobile-back-circle"
-                        onClick={isDetail ? handleBackFromDetail : handleMainListBack}
-                        style={!isDetail ? { opacity: 0.4, cursor: 'default' } : {}}
-                    >
-                        <ArrowLeft size={16} />
-                    </button>
-                    <span className="mobile-nav-header-title visible">
-                        {isDetail ? currentItem.label : "Paramètres"}
-                    </span>
-                    <div style={{ width: '36px' }} />
-                </div>
-
-                {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
-                <div style={{ display: !isDetail ? 'block' : 'none' }}>
-                    {/* Centered User Profile info */}
-                    <div className="mobile-settings-profile-header">
-                        <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
-                            {avatarUrl ? (
-                                <img src={avatarUrl} alt="Avatar" />
-                            ) : (
-                                <span>{firstName[0]}{lastName[0]}</span>
-                            )}
-                        </div>
-                        <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
-                        <p className="mobile-settings-profile-email">{email}</p>
+                <div className="mobile-nav-header" style={{ position: 'relative' }}>
+                    <div style={{ width: '40px', display: 'flex', alignItems: 'center' }}>
+                        {isDetail && (
+                            <button
+                                className="mobile-back-circle"
+                                onClick={handleBackFromDetail}
+                                title="Retour"
+                                aria-label="Retour"
+                            >
+                                <ArrowLeft size={16} />
+                            </button>
+                        )}
                     </div>
 
-                    {/* Pro Upgrade Banner (Owner/Manager only) */}
-                    {!isTechnician && showUpgradeBanner && (
-                        <div className="mobile-abby-banner">
-                            <button className="mobile-abby-banner-close" onClick={() => setShowUpgradeBanner(false)}>
-                                <X size={18} />
-                            </button>
-                            <h3 className="mobile-abby-banner-title">Passez à la vitesse supérieure !</h3>
-                            <p className="mobile-abby-banner-text">
-                                Votre plan Pro vous permet de gérer 250 clients et 2 techniciens.
-                            </p>
-                            <button className="mobile-abby-banner-btn" onClick={() => triggerToast("Passez au plan Unlimited !")}>
-                                Découvrir le plan Unlimited
-                            </button>
-                        </div>
-                    )}
+                    <span
+                        className="mobile-nav-header-title visible"
+                        style={{
+                            position: 'absolute',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            maxWidth: 'calc(100% - 180px)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            pointerEvents: 'none'
+                        }}
+                    >
+                        {isDetail ? currentItem.label : "Paramètres"}
+                    </span>
 
-                    {/* Categories and Rows */}
-                    <div className="mobile-group-container">
-                        {/* Custom Conformity Section (Owner/Manager only) */}
-                        {!isTechnician && (
-                            <div className="mobile-group-section">
-                                <h4 className="mobile-group-header">Conformité Légale</h4>
+                    <div style={{ marginLeft: 'auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', zIndex: 2 }}>
+                        {isDetail && activeTab === "profil" && (
+                            <div style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                color: headerSaveStatus === 'saving' ? 'var(--primary, #5F4BDB)' : headerSaveStatus === 'error' ? '#EF4444' : '#10B981',
+                                backgroundColor: headerSaveStatus === 'saving' ? 'rgba(95, 75, 219, 0.08)' : headerSaveStatus === 'error' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)',
+                                padding: '3px 8px',
+                                borderRadius: '12px',
+                                transition: 'all 0.25s ease'
+                            }}>
+                                {headerSaveStatus === 'saving' ? (
+                                    <RefreshCw size={11} className="spin-animation" />
+                                ) : (
+                                    <Check size={11} />
+                                )}
+                                <span>{headerSaveStatus === 'saving' ? 'Enregistrement...' : headerSaveStatus === 'error' ? 'Erreur' : 'Enregistré'}</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="mobile-settings-scroll-container" ref={mobileScrollRef}>
+                    {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
+                    <div style={{ display: !isDetail ? 'block' : 'none' }}>
+                        {/* Centered User Profile info */}
+                        <div className="mobile-settings-profile-header">
+                            <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt="Avatar" />
+                                ) : (
+                                    <span>{firstName[0]}{lastName[0]}</span>
+                                )}
+                            </div>
+                            <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
+                            <p className="mobile-settings-profile-email">{email}</p>
+                        </div>
+
+                        {/* Pro Upgrade Banner (Owner/Manager only) */}
+                        {!isTechnician && showUpgradeBanner && (
+                            <div className="mobile-abby-banner">
+                                <button className="mobile-abby-banner-close" onClick={() => setShowUpgradeBanner(false)}>
+                                    <X size={18} />
+                                </button>
+                                <h3 className="mobile-abby-banner-title">Passez à la vitesse supérieure !</h3>
+                                <p className="mobile-abby-banner-text">
+                                    Votre plan Pro vous permet de gérer 250 clients et 2 techniciens.
+                                </p>
+                                <button className="mobile-abby-banner-btn" onClick={() => triggerToast("Passez au plan Unlimited !")}>
+                                    Découvrir le plan Unlimited
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Categories and Rows */}
+                        <div className="mobile-group-container">
+                            {/* Custom Conformity Section (Owner/Manager only) */}
+                            {!isTechnician && (
+                                <div className="mobile-group-section">
+                                    <h4 className="mobile-group-header">Conformité Légale</h4>
+                                    <div className="mobile-items-card">
+                                        <button className="mobile-settings-row-btn" type="button" onClick={() => handleTabSelect("rgpd-legal")}>
+                                            <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', color: '#2563eb' }}><FileText size={16} /></span>
+                                            <span className="mobile-row-text-col">
+                                                <span className="mobile-row-label">Facturation électronique RGPD</span>
+                                                <span className="mobile-row-subtitle">Art. 289 CGI & Art. 15-21 RGPD</span>
+                                            </span>
+                                            <span className="mobile-row-badge">Conforme</span>
+                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {menuCategories.map((category) => (
+                                <div key={category.title} className="mobile-group-section">
+                                    <h4 className="mobile-group-header">{category.title}</h4>
+                                    <div className="mobile-items-card">
+                                        {category.items.map((item) => {
+                                            const RowIcon = item.icon;
+                                            return (
+                                                <button
+                                                    key={item.id}
+                                                    className="mobile-settings-row-btn"
+                                                    type="button"
+                                                    onClick={() => handleTabSelect(item.id)}
+                                                >
+                                                    <span className="mobile-row-icon-bg"><RowIcon size={16} /></span>
+                                                    <span className="mobile-row-text-col">
+                                                        <span className="mobile-row-label">{item.label}</span>
+                                                        <span className="mobile-row-subtitle">{item.subtitle}</span>
+                                                    </span>
+                                                    {item.badge && (
+                                                        <span className="mobile-row-badge" style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff' }}>{item.badge}</span>
+                                                    )}
+                                                    <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Logout Row */}
+                            <div className="mobile-group-section" style={{ marginBottom: '24px' }}>
                                 <div className="mobile-items-card">
-                                    <button className="mobile-settings-row-btn" type="button" onClick={() => handleTabSelect("rgpd-legal")}>
-                                        <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', color: '#2563eb' }}><FileText size={16} /></span>
+                                    <button className="mobile-settings-row-btn" type="button" onClick={() => {
+                                        triggerConfirm({
+                                            title: "Déconnexion de GestArt",
+                                            message: "Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte ?",
+                                            confirmText: "Oui, me déconnecter",
+                                            cancelText: "Annuler",
+                                            onConfirm: () => handleLogout(navigate)
+                                        });
+                                    }}>
+                                        <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
                                         <span className="mobile-row-text-col">
-                                            <span className="mobile-row-label">Facturation électronique RGPD</span>
-                                            <span className="mobile-row-subtitle">Art. 289 CGI & Art. 15-21 RGPD</span>
+                                            <span className="mobile-row-label" style={{ color: '#ef4444' }}>Déconnexion</span>
+                                            <span className="mobile-row-subtitle">Se déconnecter de votre compte</span>
                                         </span>
-                                        <span className="mobile-row-badge">Conforme</span>
                                         <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
                                     </button>
                                 </div>
                             </div>
-                        )}
-
-                        {menuCategories.map((category) => (
-                            <div key={category.title} className="mobile-group-section">
-                                <h4 className="mobile-group-header">{category.title}</h4>
-                                <div className="mobile-items-card">
-                                    {category.items.map((item) => {
-                                        const RowIcon = item.icon;
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                className="mobile-settings-row-btn"
-                                                type="button"
-                                                onClick={() => handleTabSelect(item.id)}
-                                            >
-                                                <span className="mobile-row-icon-bg"><RowIcon size={16} /></span>
-                                                <span className="mobile-row-text-col">
-                                                    <span className="mobile-row-label">{item.label}</span>
-                                                    <span className="mobile-row-subtitle">{item.subtitle}</span>
-                                                </span>
-                                                {item.badge && (
-                                                    <span className="mobile-row-badge" style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff' }}>{item.badge}</span>
-                                                )}
-                                                <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        ))}
-
-                        {/* Logout Row */}
-                        <div className="mobile-group-section" style={{ marginBottom: '50px' }}>
-                            <div className="mobile-items-card">
-                                <button className="mobile-settings-row-btn" type="button" onClick={() => {
-                                    triggerConfirm({
-                                        title: "Déconnexion de GestArt",
-                                        message: "Êtes-vous sûr de vouloir vous déconnecter de votre session actuelle ?",
-                                        confirmText: "Se déconnecter",
-                                        cancelText: "Annuler",
-                                        onConfirm: () => triggerToast("Déconnexion effectuée avec succès.")
-                                    });
-                                }}>
-                                    <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
-                                    <span className="mobile-row-text-col">
-                                        <span className="mobile-row-label" style={{ color: '#ef4444' }}>Déconnexion</span>
-                                        <span className="mobile-row-subtitle">Se déconnecter de votre compte</span>
-                                    </span>
-                                    <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                </button>
-                            </div>
                         </div>
                     </div>
 
-                    <SideBar />
+                    {/* Detail View Container - Kept mounted with CSS display toggle */}
+                    <div className="mobile-tab-content-wrapper" style={{ display: isDetail ? 'block' : 'none' }}>
+                        <h1 className="mobile-header-title">{currentItem.label}</h1>
+
+                        {/* Render active form detail */}
+                        {renderTabContent(true)}
+                    </div>
                 </div>
 
-                {/* Detail View Container - Kept mounted with CSS display toggle */}
-                <div className="mobile-tab-content-wrapper" style={{ display: isDetail ? 'block' : 'none' }}>
-                    <h1 className="mobile-header-title">{currentItem.label}</h1>
-
-                    {/* Render active form detail */}
-                    {renderTabContent(true)}
-                </div>
+                <SideBar />
 
                 {/* Profile Sub-Sheets (z-index 2200) */}
                 <AnimatePresence>
@@ -787,7 +870,7 @@ function SettingsPage() {
                                                 autoFocus
                                             />
 
-                                            <button className="mobile-sub-sheet-confirm-btn" onClick={() => setActiveProfileSubSheet(null)}>
+                                            <button className="mobile-sub-sheet-confirm-btn" onClick={handleConfirmPhone}>
                                                 Valider ce numéro
                                             </button>
                                         </div>
@@ -875,10 +958,10 @@ function SettingsPage() {
                                 onClick={() => {
                                     triggerConfirm({
                                         title: "Déconnexion de GestArt",
-                                        message: "Êtes-vous sûr de vouloir vous déconnecter de votre session actuelle ?",
-                                        confirmText: "Se déconnecter",
+                                        message: "Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte ?",
+                                        confirmText: "Oui, me déconnecter",
                                         cancelText: "Annuler",
-                                        onConfirm: () => triggerToast("Déconnexion effectuée avec succès.")
+                                        onConfirm: () => handleLogout(navigate)
                                     });
                                 }}
                                 className="settings-logout-btn"

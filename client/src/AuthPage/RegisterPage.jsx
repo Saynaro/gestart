@@ -35,7 +35,7 @@ import './RegisterPage.css';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
 import PhoneInput from '../components/PhoneInput';
 import { apiFetch } from '../utils/api';
-import { setAuthToken } from '../utils/auth';
+import { setAuthToken, clearAuthToken } from '../utils/auth';
 import LegalModal from '../components/LegalHelpModal';
 import { useUser } from '../utils/useUser';
 import { useSubscription } from '../utils/useSubscription';
@@ -89,8 +89,15 @@ export default function RegisterPage() {
         ? requestedPlan.toUpperCase()
         : 'PRO';
 
+    const isGoogleSignup = searchParams.get('google_signup') === 'true';
+    const googleEmail = searchParams.get('email') || '';
+    const googleFirstName = searchParams.get('firstName') || '';
+    const googleLastName = searchParams.get('lastName') || '';
+    const googleAvatarUrl = searchParams.get('avatarUrl') || '';
+    const googleToken = searchParams.get('googleToken') || '';
+
     const [mode, setMode] = useState(invitationToken ? 'TECHNICIAN' : 'OWNER');
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(isGoogleSignup ? 3 : 1);
     const [showPassword, setShowPassword] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
     const [activeLegalModal, setActiveLegalModal] = useState(null);
@@ -112,17 +119,20 @@ export default function RegisterPage() {
 
     // Form fields
     const [formData, setFormData] = useState({
-        email: '',
+        email: googleEmail || '',
         password: '',
-        firstName: '',
-        lastName: '',
+        firstName: googleFirstName || '',
+        lastName: googleLastName || '',
         phone: '',
         invitationCode: invitationToken || '',
         companyName: '',
         legalForm: 'SAS',
         tradeCategories: ['clim', 'plombier'],
         planName: initialPlan,
-        acceptTerms: false
+        acceptTerms: isGoogleSignup ? true : false,
+        isGoogle: isGoogleSignup,
+        googleToken: googleToken || '',
+        avatarUrl: googleAvatarUrl || ''
     });
 
     const [error, setError] = useState('');
@@ -165,6 +175,23 @@ export default function RegisterPage() {
                 .catch(() => { });
         }
     }, [searchParams]);
+
+    useEffect(() => {
+        if (isGoogleSignup && googleEmail) {
+            setStep(3);
+            setFormData(prev => ({
+                ...prev,
+                email: googleEmail,
+                firstName: prev.firstName || googleFirstName,
+                lastName: prev.lastName || googleLastName,
+                isGoogle: true,
+                googleToken: googleToken,
+                avatarUrl: googleAvatarUrl,
+                acceptTerms: true
+            }));
+            showToastNotification(`Compte Google vérifié (${googleEmail}) ! Complétez vos informations.`, 'success');
+        }
+    }, [isGoogleSignup, googleEmail, googleFirstName, googleLastName, googleToken, googleAvatarUrl]);
 
     const formWrapperRef = useRef(null);
 
@@ -454,15 +481,21 @@ export default function RegisterPage() {
     };
 
     const handleGoogleAuth = () => {
-        const googleAuthUrl = `${API_URL}/v1/auth/google`;
+        // Clear prior session so no cross-account pollution occurs
+        clearAuthToken();
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userEmail');
+
+        const currentOrigin = encodeURIComponent(window.location.origin);
+        const googleAuthUrl = `${API_URL}/v1/auth/google?origin=${currentOrigin}`;
         try {
             if (window.top && window.top !== window) {
-                window.top.location.href = googleAuthUrl;
+                window.top.location.replace(googleAuthUrl);
             } else {
-                window.location.href = googleAuthUrl;
+                window.location.replace(googleAuthUrl);
             }
         } catch (e) {
-            window.location.href = googleAuthUrl;
+            window.location.replace(googleAuthUrl);
         }
     };
 
@@ -811,6 +844,24 @@ export default function RegisterPage() {
                                 <p>Renseignez votre identité et votre téléphone portable</p>
                             </div>
 
+                            {formData.isGoogle && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 10,
+                                    padding: '10px 14px',
+                                    background: 'rgba(34, 197, 94, 0.1)',
+                                    border: '1px solid rgba(34, 197, 94, 0.25)',
+                                    borderRadius: 10,
+                                    marginBottom: 16,
+                                    fontSize: '0.88rem',
+                                    color: '#22c55e'
+                                }}>
+                                    <CheckCircle2 size={18} />
+                                    <span>Compte Google vérifié : <strong>{formData.email}</strong></span>
+                                </div>
+                            )}
+
                             <div className="form-row">
                                 <div className="input-group">
                                     <label>Prénom *</label>
@@ -852,9 +903,20 @@ export default function RegisterPage() {
                                 />
                             </div>
 
-                            <button type="submit" className="btn-submit pill-btn">
-                                {mode === 'OWNER' ? 'Étape suivante : Société →' : 'Finaliser mon compte →'}
-                            </button>
+                            <div className="button-group">
+                                {formData.isGoogle ? (
+                                    <button type="button" className="btn-back" onClick={() => navigate('/login')}>
+                                        <ArrowLeft size={18} /> Annuler
+                                    </button>
+                                ) : (
+                                    <button type="button" className="btn-back" onClick={() => setStep(2)}>
+                                        <ArrowLeft size={18} /> Retour
+                                    </button>
+                                )}
+                                <button type="submit" className="btn-submit pill-btn" style={{ flex: 1 }}>
+                                    {mode === 'OWNER' ? 'Étape suivante : Société →' : 'Finaliser mon compte →'}
+                                </button>
+                            </div>
                         </motion.form>
                     )}
 

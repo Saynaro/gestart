@@ -6,7 +6,7 @@ import CatalogueHeader from "./components/CatalogueHeader";
 import ArticleList from "./components/ArticleList";
 import NewArticleModal from "./components/NewArticleModal";
 import DeleteConfirmModal from "./components/DeleteConfirmModal";
-import { Plus } from "lucide-react";
+import { Plus, Lock } from "lucide-react";
 import "./CataloguePage.css";
 
 const INITIAL_MOCK_ARTICLES = [
@@ -68,9 +68,11 @@ const INITIAL_MOCK_ARTICLES = [
 
 import { apiFetch } from "../utils/api";
 import { useUser } from "../utils/useUser";
+import { useSubscription } from "../utils/useSubscription";
 
 function CataloguePage() {
     const { role } = useUser();
+    const { isExpired } = useSubscription();
     const isTechnician = role === "TECHNICIAN";
 
     // Articles state
@@ -167,6 +169,12 @@ function CataloguePage() {
 
     // Modal Actions
     const handleOpenNewModal = (articleToEdit = null) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: articleToEdit ? "Votre abonnement a expiré. Pour modifier cet article, veuillez renouveler votre abonnement." : "Votre abonnement a expiré. Pour créer un article, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setEditingArticle(articleToEdit);
         setShowArticleModal(true);
         window.history.pushState({ modalType: "article" }, "", window.location.href);
@@ -184,6 +192,12 @@ function CataloguePage() {
     };
 
     const handleOpenDeleteModal = (id) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour supprimer un article, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setDeletingArticleId(id);
         window.history.pushState({ modalType: "delete" }, "", window.location.href);
     };
@@ -291,16 +305,19 @@ function CataloguePage() {
                         totalCount={filteredArticles.length}
                         onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
                         isReadOnly={isTechnician}
+                        isExpired={isExpired}
                     />
 
                     {/* Article List / Empty State */}
                     <ArticleList
                         articles={filteredArticles}
                         searchQuery={searchQuery}
+                        loading={loading}
                         onEdit={isTechnician ? null : (article) => handleOpenNewModal(article)}
                         onDelete={isTechnician ? null : (id) => handleOpenDeleteModal(id)}
                         onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
                         isReadOnly={isTechnician}
+                        isExpired={isExpired}
                     />
                 </motion.div>
             </div>
@@ -310,10 +327,10 @@ function CataloguePage() {
                 <button
                     className={`catalogue-mobile-fab-btn ${isFabCollapsed ? "collapsed" : ""}`}
                     onClick={() => handleOpenNewModal()}
-                    title="Créer un article"
+                    title={isExpired ? "Renouvelez votre abonnement pour créer un article" : "Créer un article"}
                 >
                     <div className="fab-icon">
-                        <Plus size={20} />
+                        {isExpired ? <Lock size={18} /> : <Plus size={20} />}
                     </div>
                     <span className="fab-text">Créer un article</span>
                 </button>

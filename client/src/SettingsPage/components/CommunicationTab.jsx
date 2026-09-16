@@ -14,14 +14,17 @@ import {
     X,
     Info,
     ChevronRight,
-    Sparkles
+    Sparkles,
+    Lock
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { getAuthToken } from "../../utils/auth";
 import { API_URL } from "../../utils/config";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../../components/ChannelIcons";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function CommunicationTab({ isMobileView, triggerToast, triggerConfirm }) {
+    const { isExpired } = useSubscription();
     const [loading, setLoading] = useState(true);
     const [channelsData, setChannelsData] = useState(null);
     const [testingChannel, setTestingChannel] = useState(null);
@@ -88,6 +91,12 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
 
     // Meta Embedded Signup Flow handler
     const handleLaunchMetaEmbeddedSignup = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour configurer les canaux de communication, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         // Si le FB SDK / Meta Embedded Signup est configuré dans le projet
         if (window.FB && process.env.REACT_APP_META_APP_ID) {
             window.FB.login((response) => {
@@ -121,6 +130,12 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
     // Save WhatsApp Form
     const handleSaveWaManual = async (e) => {
         e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour configurer les canaux de communication, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         if (!waForm.phoneNumberId) {
             triggerToast("Le Phone Number ID est obligatoire", true);
             return;
@@ -145,6 +160,12 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
     // Save Email Form
     const handleSaveEmail = async (e) => {
         e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour configurer les canaux de communication, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         if (!emailForm.emailAddress || !emailForm.emailAddress.includes("@")) {
             triggerToast("Veuillez saisir une adresse email valide", true);
             return;
@@ -168,6 +189,12 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
 
     // Test Connection
     const handleTestChannel = async (channel) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour tester les canaux, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setTestingChannel(channel);
         try {
             const endpoint = channel === "WHATSAPP"
@@ -190,6 +217,12 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
 
     // Disconnect Channel
     const handleDisconnectChannel = (channel) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier les canaux, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         const channelName = channel === "WHATSAPP" ? "WhatsApp Business" : "votre compte Email";
 
         if (triggerConfirm) {
@@ -254,9 +287,31 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
 
     if (loading) {
         return (
-            <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
-                <Loader2 size={28} className="animate-spin" style={{ margin: "0 auto 12px auto" }} />
-                <p style={{ fontSize: "14px", fontWeight: 600 }}>Chargement de l'état des canaux de communication...</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                {/* Banner Skeleton */}
+                <div style={{ padding: "24px", borderRadius: "14px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <div className="skeleton-shimmer" style={{ width: "240px", height: "22px", borderRadius: "6px" }} />
+                    <div className="skeleton-shimmer" style={{ width: "80%", height: "14px", borderRadius: "4px", opacity: 0.7 }} />
+                </div>
+
+                {/* Channel Cards Skeletons */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} style={{ padding: "20px", borderRadius: "14px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                    <div className="skeleton-shimmer" style={{ width: "42px", height: "42px", borderRadius: "12px" }} />
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                        <div className="skeleton-shimmer" style={{ width: "90px", height: "16px", borderRadius: "4px" }} />
+                                        <div className="skeleton-shimmer" style={{ width: "130px", height: "11px", borderRadius: "4px", opacity: 0.6 }} />
+                                    </div>
+                                </div>
+                                <div className="skeleton-shimmer" style={{ width: "70px", height: "24px", borderRadius: "20px" }} />
+                            </div>
+                            <div className="skeleton-shimmer" style={{ width: "100%", height: "36px", borderRadius: "8px", opacity: 0.5 }} />
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }

@@ -10,6 +10,7 @@ import {
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireManager } from "../middlewares/checkRole.js";
+import { requireActive } from "../middlewares/requireActive.js";
 
 const router = express.Router();
 
@@ -22,8 +23,8 @@ router.get("/due-soon", getDueSoonEquipment);
 router.get("/:id", getEquipmentById);
 
 // CRUD Équipement
-router.post("/", createEquipment);
-router.patch("/:id", updateEquipment);
-router.delete("/:id", requireManager, deleteEquipment);
+router.post("/", requireActive, createEquipment);
+router.patch("/:id", requireActive, updateEquipment);
+router.delete("/:id", requireManager, requireActive, deleteEquipment);
 
 export default router;

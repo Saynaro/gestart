@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus, User, Briefcase, Building, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, User, Briefcase, Building, Clock, Lock } from "lucide-react";
 
-function MobilePlanningView({ events, setEvents, onEventClick, onSelectSlot, selectedDate, setSelectedDate }) {
+function MobilePlanningView({ events, setEvents, onEventClick, onSelectSlot, selectedDate, setSelectedDate, isExpired = false }) {
 
     // Swipe gesture refs
     const touchStartX = useRef(0);
@@ -302,7 +302,10 @@ function MobilePlanningView({ events, setEvents, onEventClick, onSelectSlot, sel
                                     </svg>
                                 </div>
                                 <h3>Aucun événement</h3>
-                                <p>Appuyez pour planifier une intervention</p>
+                                <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                                    {isExpired && <Lock size={13} />}
+                                    <span>Appuyez pour planifier une intervention</span>
+                                </p>
                             </div>
                         )}
                     </motion.div>

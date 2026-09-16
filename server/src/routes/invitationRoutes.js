@@ -12,6 +12,7 @@ import {
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner } from "../middlewares/checkRole.js";
 import { checkLimits } from "../middlewares/checkLimits.js";
+import { requireActive } from "../middlewares/requireActive.js";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.post("/respond-join", authMiddleware, respondToCompanyInvite);
 
 // Routes réservées au Владелец (OWNER) pour gérer l'équipe
 router.get("/", authMiddleware, requireOwner, getInvitations);
-router.post("/", authMiddleware, requireOwner, checkLimits("technician"), createInvitation);
+router.post("/", authMiddleware, requireOwner, requireActive, checkLimits("technician"), createInvitation);
 router.delete("/:id", authMiddleware, requireOwner, revokeInvitation);
 router.post("/resend/:id", authMiddleware, requireOwner, resendInvitation);
 

@@ -24,7 +24,9 @@ router.patch("/me", authMiddleware, updateMe);
 
 // Avatar Routes (avec middleware Cloudinary)
 router.patch("/me/avatar", authMiddleware, uploadAvatarMiddleware, uploadAvatar);
+router.patch("/avatar", authMiddleware, uploadAvatarMiddleware, uploadAvatar);
 router.delete("/me/avatar", authMiddleware, deleteAvatar);
+router.delete("/avatar", authMiddleware, deleteAvatar);
 
 // Company Users Management Routes
 router.get("/", authMiddleware, getCompanyUsers);

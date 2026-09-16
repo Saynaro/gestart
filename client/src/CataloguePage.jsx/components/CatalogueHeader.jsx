@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X, Package, Plus } from "lucide-react";
+import { Search, X, Package, Plus, Lock } from "lucide-react";
 
 const CATEGORIES = [
     { id: "all", label: "Tous les articles" },
@@ -15,7 +15,8 @@ function CatalogueHeader({
     setActiveCategory,
     totalCount,
     onOpenNewModal,
-    isReadOnly = false
+    isReadOnly = false,
+    isExpired = false
 }) {
     return (
         <div className="catalogue-header-wrapper">
@@ -36,8 +37,9 @@ function CatalogueHeader({
                     <button
                         className="catalogue-primary-add-btn desktop-only-btn"
                         onClick={() => onOpenNewModal()}
+                        style={isExpired ? { display: 'inline-flex', alignItems: 'center', gap: '8px' } : {}}
                     >
-                        <Plus size={18} />
+                        {isExpired ? <Lock size={16} /> : <Plus size={18} />}
                         <span>Nouveau produit / service</span>
                     </button>
                 )}

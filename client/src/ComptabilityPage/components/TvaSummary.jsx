@@ -163,38 +163,54 @@ function TvaSummary() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Taux 0%</td>
-                                <td className="text-right">{current.base0.toLocaleString("fr-FR")} €</td>
-                                <td className="text-right">{current.tva0.toLocaleString("fr-FR")} €</td>
-                            </tr>
-                            <tr>
-                                <td>Taux 5.5%</td>
-                                <td className="text-right">{current.base5.toLocaleString("fr-FR")} €</td>
-                                <td className="text-right">{current.tva5.toLocaleString("fr-FR")} €</td>
-                            </tr>
-                            <tr>
-                                <td>Taux 10%</td>
-                                <td className="text-right">{current.base10.toLocaleString("fr-FR")} €</td>
-                                <td className="text-right">{current.tva10.toLocaleString("fr-FR")} €</td>
-                            </tr>
-                            <tr>
-                                <td>Taux 20%</td>
-                                <td className="text-right">{current.base20.toLocaleString("fr-FR")} €</td>
-                                <td className="text-right">{current.tva20.toLocaleString("fr-FR")} €</td>
-                            </tr>
-                            <tr className="table-total-row">
-                                <td><strong>TOTAL</strong></td>
-                                <td className="text-right"><strong>{current.totalBase.toLocaleString("fr-FR")} €</strong></td>
-                                <td className="text-right"><strong>{current.totalTva.toLocaleString("fr-FR")} €</strong></td>
-                            </tr>
+                            {tvaReport === null ? (
+                                [1, 2, 3, 4, 5].map((i) => (
+                                    <tr key={i}>
+                                        <td><div className="skeleton-shimmer" style={{ width: "70px", height: "14px", borderRadius: "4px" }} /></td>
+                                        <td className="text-right"><div className="skeleton-shimmer" style={{ width: "90px", height: "14px", borderRadius: "4px", marginLeft: "auto" }} /></td>
+                                        <td className="text-right"><div className="skeleton-shimmer" style={{ width: "80px", height: "14px", borderRadius: "4px", marginLeft: "auto" }} /></td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <>
+                                    <tr>
+                                        <td>Taux 0%</td>
+                                        <td className="text-right">{current.base0.toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right">{current.tva0.toLocaleString("fr-FR")} €</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Taux 5.5%</td>
+                                        <td className="text-right">{current.base5.toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right">{current.tva5.toLocaleString("fr-FR")} €</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Taux 10%</td>
+                                        <td className="text-right">{current.base10.toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right">{current.tva10.toLocaleString("fr-FR")} €</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Taux 20%</td>
+                                        <td className="text-right">{current.base20.toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right">{current.tva20.toLocaleString("fr-FR")} €</td>
+                                    </tr>
+                                    <tr className="table-total-row">
+                                        <td><strong>TOTAL</strong></td>
+                                        <td className="text-right"><strong>{current.totalBase.toLocaleString("fr-FR")} €</strong></td>
+                                        <td className="text-right"><strong>{current.totalTva.toLocaleString("fr-FR")} €</strong></td>
+                                    </tr>
+                                </>
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 <div className="tva-declared-banner">
                     <span className="banner-label">TOTAL TVA À DÉCLARER</span>
-                    <span className="banner-value">{current.totalTva.toLocaleString("fr-FR")} €</span>
+                    {tvaReport === null ? (
+                        <div className="skeleton-shimmer" style={{ width: "120px", height: "24px", borderRadius: "6px" }} />
+                    ) : (
+                        <span className="banner-value">{current.totalTva.toLocaleString("fr-FR")} €</span>
+                    )}
                 </div>
             </div>
 

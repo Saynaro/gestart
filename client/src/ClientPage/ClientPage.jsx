@@ -611,7 +611,14 @@ function ClientPage() {
     };
 
     // Trigger editing Modal / Bottom Sheet
-    const handleOpenEdit = (client, isOrg = false) => {
+    const handleOpenEdit = (client) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier la fiche client, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
+        const isOrg = activeTabType === "organisation" || client.isOrg || !!client.name;
         setEditingClient({ ...client, isOrg });
         if (isOrg) {
             setEditFirstName(client.name);
@@ -634,6 +641,12 @@ function ClientPage() {
 
     const handleSaveClient = async () => {
         if (!editingClient) return;
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour enregistrer ce client, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
 
         const payload = {
             firstName: editFirstName || (editingClient.isOrg ? editFirstName : "Nouveau"),
@@ -689,11 +702,23 @@ function ClientPage() {
     }, [location.state, navigate, location.search]);
 
     const handleDeleteClient = (client) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour supprimer un client, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setClientToDelete(client);
     };
 
     const confirmDeleteClient = async () => {
         if (!clientToDelete) return;
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         try {
             setDeleteLoading(true);
             await apiFetch(`/v1/clients/${clientToDelete.id}`, {
@@ -714,6 +739,12 @@ function ClientPage() {
     };
 
     const handlePlanClient = (client) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour planifier une intervention, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         navigate('/planning', { state: { clientId: client.id, clientName: client.name || `${client.firstName} ${client.lastName}`, returnUrl: `/client?id=${client.id}` } });
     };
 
@@ -739,6 +770,7 @@ function ClientPage() {
                             onOpenInvoice={isTechnician ? null : handleOpenInvoiceDrawer}
                             onOpenQuote={isTechnician ? null : handleOpenQuoteDrawer}
                             isReadOnly={isTechnician}
+                            isExpired={isExpired}
                         />
                     </motion.div>
                 ) : (
@@ -826,6 +858,7 @@ function ClientPage() {
                                     onOpenInvoice={isTechnician ? null : handleOpenInvoiceDrawer}
                                     onOpenQuote={isTechnician ? null : handleOpenQuoteDrawer}
                                     isReadOnly={isTechnician}
+                                    isExpired={isExpired}
                                 />
                             ) : (
                                 <>

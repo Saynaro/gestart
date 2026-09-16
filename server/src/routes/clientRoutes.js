@@ -31,9 +31,9 @@ router.get("/urgent", getUrgentClients);
 // CRUD Client avec vérification des limites de plan
 router.post("/", requireActive, checkLimits("client"), createClient);
 router.get("/:id", getClientById);
-router.patch("/:id", updateClient);
-router.put("/:id", updateClient);
-router.delete("/:id", requireManager, deleteClient);
+router.patch("/:id", requireActive, updateClient);
+router.put("/:id", requireActive, updateClient);
+router.delete("/:id", requireManager, requireActive, deleteClient);
 
 // Relations Client
 router.get("/:id/interventions", getClientInterventions);

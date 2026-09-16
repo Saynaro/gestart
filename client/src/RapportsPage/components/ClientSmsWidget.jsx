@@ -1,35 +1,73 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Users2, MessageSquare, AlertTriangle, CheckCircle, Smartphone } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 function ClientSmsWidget({ startDate, endDate }) {
     const [viewMode, setViewMode] = useState("clients"); // 'clients' or 'sms'
+    const [loading, setLoading] = useState(true);
 
-    // Mock client stats matching ClientStatus enum
-    const clientStats = {
-        ok: 245,
-        warning: 38,
-        urgent: 12,
-        total: 295
-    };
+    const [clientStats, setClientStats] = useState({
+        ok: 0,
+        warning: 0,
+        urgent: 0,
+        total: 0
+    });
 
-    // Mock SMS statistics matching SmsUsage
-    const smsStats = {
-        sent: 412,
-        limit: 500,
-        remaining: 88,
-        deliveryRate: 98.4
-    };
+    const [smsStats, setSmsStats] = useState({
+        sent: 0,
+        limit: 50,
+        remaining: 50,
+        deliveryRate: 100
+    });
 
-    // List of urgent clients requiring attention
-    const urgentClients = [
-        { name: "Garage Central", phone: "+33 6 12 34 56 78", status: "URGENT", equipment: "Climatiseur Split Daikin" },
-        { name: "M. Jean Valjean", phone: "+33 6 98 76 54 32", status: "URGENT", equipment: "Chaudière Condensation Frisquet" },
-        { name: "Mme Sophie Dupont", phone: "+33 7 45 67 89 01", status: "WARNING", equipment: "Pompe à chaleur Atlantic" }
-    ];
+    const [urgentClients, setUrgentClients] = useState([]);
 
-    const okPercent = (clientStats.ok / clientStats.total) * 100;
-    const warningPercent = (clientStats.warning / clientStats.total) * 100;
-    const urgentPercent = (clientStats.urgent / clientStats.total) * 100;
+    useEffect(() => {
+        let isMounted = true;
+        const fetchClientReports = async () => {
+            setLoading(true);
+            try {
+                const res = await apiFetch(`/v1/reports/clients?from=${startDate || ''}&to=${endDate || ''}`);
+                const data = res.data || res;
+                if (!isMounted) return;
+
+                if (data.clientStats) {
+                    setClientStats(data.clientStats);
+                } else if (data.statusBreakdown) {
+                    setClientStats({
+                        ok: data.statusBreakdown.OK || 0,
+                        warning: data.statusBreakdown.WARNING || 0,
+                        urgent: data.statusBreakdown.URGENT || 0,
+                        total: data.totalActive || 0
+                    });
+                }
+
+                if (data.smsStats) {
+                    setSmsStats(data.smsStats);
+                }
+
+                if (Array.isArray(data.urgentClients)) {
+                    setUrgentClients(data.urgentClients);
+                }
+            } catch (err) {
+                console.warn("[REPORTS] Error fetching client report:", err.message);
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        };
+
+        fetchClientReports();
+        return () => { isMounted = false; };
+    }, [startDate, endDate]);
+
+    const totalCount = clientStats.total || (clientStats.ok + clientStats.warning + clientStats.urgent) || 1;
+    const okPercent = Math.round((clientStats.ok / totalCount) * 100);
+    const warningPercent = Math.round((clientStats.warning / totalCount) * 100);
+    const urgentPercent = Math.round((clientStats.urgent / totalCount) * 100);
+
+    const smsLimitNum = Number(smsStats.limit) || 50;
+    const smsSentNum = Number(smsStats.sent) || 0;
+    const smsGaugePercent = Math.min(100, Math.round((smsSentNum / smsLimitNum) * 100));
 
     return (
         <div className="rapports-card client-sms-widget">
@@ -40,7 +78,7 @@ function ClientSmsWidget({ startDate, endDate }) {
                     </div>
                     <div>
                         <h3>Clients & Notifications</h3>
-                        <p className="subtitle">État du parc et consommation SMS</p>
+                        <p className="subtitle">État du parc et consommation SMS en temps réel</p>
                     </div>
                 </div>
                 <div className="widget-toggles">
@@ -61,56 +99,88 @@ function ClientSmsWidget({ startDate, endDate }) {
 
             {/* KPI grid */}
             <div className="kpi-grid">
-                <div className="kpi-card success-accent">
-                    <span className="kpi-label">Clients OK</span>
-                    <span className="kpi-value text-success">{clientStats.ok}</span>
-                    <span className="kpi-subtext">Parc à jour</span>
-                </div>
-                <div className="kpi-card warning-accent">
-                    <span className="kpi-label">À Prévoir (60j)</span>
-                    <span className="kpi-value text-warning">{clientStats.warning}</span>
-                    <span className="kpi-subtext">Visites de maintenance</span>
-                </div>
-                <div className="kpi-card destructive-accent">
-                    <span className="kpi-label">Urgents / En retard</span>
-                    <span className="kpi-value text-danger">{clientStats.urgent}</span>
-                    <span className="kpi-subtext">Entretien dépassé</span>
-                </div>
-                <div className="kpi-card">
-                    <span className="kpi-label">Consommation SMS</span>
-                    <span className="kpi-value">{smsStats.sent} / {smsStats.limit}</span>
-                    <span className="kpi-subtext">SMS envoyés ce mois</span>
-                </div>
+                {loading ? (
+                    [1, 2, 3, 4].map((i) => (
+                        <div key={i} className="kpi-card" style={{ pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div className="skeleton-shimmer" style={{ width: '80px', height: '12px', borderRadius: '4px' }} />
+                            <div className="skeleton-shimmer" style={{ width: '60px', height: '22px', borderRadius: '6px' }} />
+                            <div className="skeleton-shimmer" style={{ width: '70px', height: '11px', borderRadius: '4px', opacity: 0.6 }} />
+                        </div>
+                    ))
+                ) : (
+                    <>
+                        <div className="kpi-card success-accent">
+                            <span className="kpi-label">Clients OK</span>
+                            <span className="kpi-value text-success">{clientStats.ok}</span>
+                            <span className="kpi-subtext">Parc à jour</span>
+                        </div>
+                        <div className="kpi-card warning-accent">
+                            <span className="kpi-label">À Prévoir (60j)</span>
+                            <span className="kpi-value text-warning">{clientStats.warning}</span>
+                            <span className="kpi-subtext">Visites de maintenance</span>
+                        </div>
+                        <div className="kpi-card destructive-accent">
+                            <span className="kpi-label">Urgents / En retard</span>
+                            <span className="kpi-value text-danger">{clientStats.urgent}</span>
+                            <span className="kpi-subtext">Entretien dépassé</span>
+                        </div>
+                        <div className="kpi-card">
+                            <span className="kpi-label">Consommation SMS</span>
+                            <span className="kpi-value">{smsStats.sent} / {smsStats.limit === 9999 ? "Illimité" : smsStats.limit}</span>
+                            <span className="kpi-subtext">SMS envoyés ce mois</span>
+                        </div>
+                    </>
+                )}
             </div>
 
             <div className="widget-content">
-                {viewMode === "clients" ? (
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px 0' }}>
+                        <div className="skeleton-shimmer" style={{ width: '100%', height: '12px', borderRadius: '6px' }} />
+                        <div className="skeleton-shimmer" style={{ width: '100%', height: '48px', borderRadius: '8px', opacity: 0.7 }} />
+                        <div className="skeleton-shimmer" style={{ width: '100%', height: '48px', borderRadius: '8px', opacity: 0.7 }} />
+                    </div>
+                ) : viewMode === "clients" ? (
                     <div className="clients-status-view">
                         <div className="status-ratio-bar">
-                            <div className="segment bg-success" style={{ width: `${okPercent}%` }} title={`Abonnés OK: ${okPercent.toFixed(0)}%`}></div>
-                            <div className="segment bg-warning" style={{ width: `${warningPercent}%` }} title={`Abonnés Warning: ${warningPercent.toFixed(0)}%`}></div>
-                            <div className="segment bg-danger" style={{ width: `${urgentPercent}%` }} title={`Abonnés Urgent: ${urgentPercent.toFixed(0)}%`}></div>
+                            <div className="segment bg-success" style={{ width: `${okPercent}%` }} title={`Abonnés OK: ${okPercent}%`}></div>
+                            <div className="segment bg-warning" style={{ width: `${warningPercent}%` }} title={`Abonnés Warning: ${warningPercent}%`}></div>
+                            <div className="segment bg-danger" style={{ width: `${urgentPercent}%` }} title={`Abonnés Urgent: ${urgentPercent}%`}></div>
                         </div>
 
                         <div className="clients-action-list">
                             <span className="section-title">Clients nécessitant une action rapide</span>
                             <div className="urgent-list-container">
-                                {urgentClients.map((client, idx) => (
-                                    <div key={idx} className="urgent-client-row">
-                                        <div className="client-info">
-                                            <span className="client-name"><strong>{client.name}</strong></span>
-                                            <span className="client-equipment">{client.equipment}</span>
-                                        </div>
-                                        <div className="client-contact">
-                                            <span className={`status-tag ${client.status === "URGENT" ? "danger" : "warning"}`}>
-                                                {client.status === "URGENT" ? "Urgent" : "À planifier"}
-                                            </span>
-                                            <a href={`tel:${client.phone}`} className="phone-btn">
-                                                <Smartphone size={14} />
-                                            </a>
-                                        </div>
+                                {urgentClients.length === 0 ? (
+                                    <div style={{ textAlign: "center", padding: "20px", color: "var(--muted-foreground)", backgroundColor: "var(--background)", borderRadius: "8px", border: "1px solid var(--border)" }}>
+                                        <CheckCircle size={24} style={{ margin: "0 auto 6px auto", color: "var(--success)", opacity: 0.8 }} />
+                                        <p style={{ fontWeight: 600, fontSize: "13px", color: "var(--foreground)", margin: "0 0 2px 0" }}>
+                                            Tous vos clients sont à jour
+                                        </p>
+                                        <p style={{ fontSize: "11.5px", margin: 0 }}>
+                                            Aucun équipement en retard d'entretien détecté dans votre base.
+                                        </p>
                                     </div>
-                                ))}
+                                ) : (
+                                    urgentClients.map((client, idx) => (
+                                        <div key={client.id || idx} className="urgent-client-row">
+                                            <div className="client-info">
+                                                <span className="client-name"><strong>{client.name}</strong></span>
+                                                <span className="client-equipment">{client.equipment}</span>
+                                            </div>
+                                            <div className="client-contact">
+                                                <span className={`status-tag ${client.status === "URGENT" ? "danger" : client.status === "WARNING" ? "warning" : "success"}`}>
+                                                    {client.status === "URGENT" ? "Urgent" : client.status === "WARNING" ? "À planifier" : "À jour"}
+                                                </span>
+                                                {client.phone && (
+                                                    <a href={`tel:${client.phone}`} className="phone-btn" title={`Appeler ${client.name}`}>
+                                                        <Smartphone size={14} />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
@@ -119,11 +189,11 @@ function ClientSmsWidget({ startDate, endDate }) {
                         <div className="sms-gauge-container">
                             <div className="sms-gauge">
                                 <div className="gauge-outer">
-                                    <div className="gauge-fill" style={{ width: `${(smsStats.sent / smsStats.limit) * 100}%`, backgroundColor: "var(--primary)" }}></div>
+                                    <div className="gauge-fill" style={{ width: `${smsGaugePercent}%`, backgroundColor: "var(--primary)" }}></div>
                                 </div>
                                 <div className="gauge-legend">
                                     <span><strong>{smsStats.sent}</strong> SMS envoyés</span>
-                                    <span><strong>{smsStats.remaining}</strong> restants</span>
+                                    <span><strong>{smsStats.remaining === 9999 ? "Illimité" : smsStats.remaining}</strong> restants</span>
                                 </div>
                             </div>
                         </div>
@@ -131,7 +201,7 @@ function ClientSmsWidget({ startDate, endDate }) {
                         <div className="sms-info-rows">
                             <div className="sms-row">
                                 <span className="label">Quota mensuel</span>
-                                <span className="val">{smsStats.limit} SMS</span>
+                                <span className="val">{smsStats.limit === 9999 ? "Illimité" : `${smsStats.limit} SMS`}</span>
                             </div>
                             <div className="sms-row">
                                 <span className="label">Taux de délivrabilité</span>

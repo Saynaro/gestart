@@ -1,7 +1,7 @@
 import React from "react";
-import { Edit3, Trash2, Tag, Percent } from "lucide-react";
+import { Edit3, Trash2, Tag, Percent, Lock } from "lucide-react";
 
-function ArticleCard({ article, onEdit, onDelete, isReadOnly = false }) {
+function ArticleCard({ article, onEdit, onDelete, isReadOnly = false, isExpired = false }) {
     const isService = article.category.toLowerCase().includes("prestation") || article.category.toLowerCase().includes("service");
 
     return (
@@ -29,23 +29,23 @@ function ArticleCard({ article, onEdit, onDelete, isReadOnly = false }) {
                     <div className="article-actions">
                         <button
                             className="article-action-btn edit-btn"
-                            title="Modifier l'article"
+                            title={isExpired ? "Renouvelez votre abonnement pour modifier" : "Modifier l'article"}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 if (onEdit) onEdit(article);
                             }}
                         >
-                            <Edit3 size={16} />
+                            {isExpired ? <Lock size={15} /> : <Edit3 size={16} />}
                         </button>
                         <button
                             className="article-action-btn delete-btn"
-                            title="Supprimer l'article"
+                            title={isExpired ? "Renouvelez votre abonnement pour supprimer" : "Supprimer l'article"}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 if (onDelete) onDelete(article.id);
                             }}
                         >
-                            <Trash2 size={16} />
+                            {isExpired ? <Lock size={15} /> : <Trash2 size={16} />}
                         </button>
                     </div>
                 )}

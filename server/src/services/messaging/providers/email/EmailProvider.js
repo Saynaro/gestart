@@ -22,6 +22,7 @@ if (!fs.existsSync(uploadDir)) {
 export class EmailProvider extends MessageProvider {
     constructor() {
         super("EMAIL");
+        this.activeSyncs = new Set();
     }
 
     /**
@@ -643,18 +644,26 @@ ${bodyContent}
      */
     async syncGoogleInbox(companyId) {
         if (!companyId) return { synced: 0 };
+        if (this.activeSyncs.has(companyId)) return { synced: 0 };
+        this.activeSyncs.add(companyId);
 
-        const connections = await prisma.emailConnection.findMany({
-            where: { companyId, provider: "GOOGLE", status: "CONNECTED" }
-        });
+        try {
+            const connections = await prisma.emailConnection.findMany({
+                where: { companyId, provider: "GOOGLE", status: "CONNECTED" }
+            });
 
-        if (!connections || connections.length === 0) return { synced: 0 };
+            if (!connections || connections.length === 0) return { synced: 0 };
 
-        let totalSynced = 0;
+            let totalSynced = 0;
 
-        for (const connection of connections) {
-            // Ignorer les connexions explicitement déconnectées
-            if (connection.status === "DISCONNECTED") continue;
+            for (const connection of connections) {
+                // Ignorer les connexions explicitement déconnectées
+                if (connection.status === "DISCONNECTED") continue;
+
+                // Cooldown : Si synchronisé il y a moins de 45s, ignorer l'appel réseau externe
+                if (connection.lastSyncAt && (Date.now() - new Date(connection.lastSyncAt).getTime() < 45 * 1000)) {
+                    continue;
+                }
 
             try {
                 let accessToken = "";
@@ -995,6 +1004,9 @@ ${bodyContent}
         }
 
         return { synced: totalSynced };
+        } finally {
+            this.activeSyncs.delete(companyId);
+        }
     }
 
     /**

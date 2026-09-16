@@ -17,6 +17,7 @@ import {
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
+import { requireActive } from "../middlewares/requireActive.js";
 
 const router = express.Router();
 
@@ -26,21 +27,21 @@ router.get("/validate-iban", validateIbanPublic);
 
 // Infos Société
 router.get("/", authMiddleware, getCompany);
-router.patch("/", authMiddleware, requireOwner, updateCompany);
-router.put("/", authMiddleware, requireOwner, updateCompany);
+router.patch("/", authMiddleware, requireOwner, requireActive, updateCompany);
+router.put("/", authMiddleware, requireOwner, requireActive, updateCompany);
 
 // Logo Société
-router.patch("/logo", authMiddleware, requireOwner, uploadCompanyLogo);
-router.delete("/logo", authMiddleware, requireOwner, deleteCompanyLogo);
+router.patch("/logo", authMiddleware, requireOwner, requireActive, uploadCompanyLogo);
+router.delete("/logo", authMiddleware, requireOwner, requireActive, deleteCompanyLogo);
 
 // Signature Société
-router.patch("/signature", authMiddleware, requireOwner, uploadCompanySignature);
-router.delete("/signature", authMiddleware, requireOwner, deleteCompanySignature);
+router.patch("/signature", authMiddleware, requireOwner, requireActive, uploadCompanySignature);
+router.delete("/signature", authMiddleware, requireOwner, requireActive, deleteCompanySignature);
 
 // Paramètres Société (SMS, Factures, PDF...)
 router.get("/settings", authMiddleware, requireOwner, getCompanySettings);
-router.patch("/settings", authMiddleware, requireOwner, updateCompanySettings);
-router.put("/settings", authMiddleware, requireOwner, updateCompanySettings);
+router.patch("/settings", authMiddleware, requireOwner, requireActive, updateCompanySettings);
+router.put("/settings", authMiddleware, requireOwner, requireActive, updateCompanySettings);
 
 // Stripe Connect (Liaison IBAN propriétaire pour encaissement factures)
 router.post("/stripe-connect/connect", authMiddleware, requireOwner, createStripeConnectAccount);

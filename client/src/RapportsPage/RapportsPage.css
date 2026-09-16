@@ -312,13 +312,8 @@
 
 @media (max-width: 768px) {
     .kpi-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .kpi-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
     }
 }
 
@@ -1020,6 +1015,115 @@
     }
 
     .rapports-page-wrapper .page-content {
-        padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px)) 16px !important;
+        padding: 12px 12px calc(120px + env(safe-area-inset-bottom, 0px)) 12px !important;
+    }
+
+    .reports-header-row {
+        gap: 0.75rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .grid-two-columns {
+        gap: 1rem !important;
+    }
+
+    .rapports-card {
+        padding: 12px 12px !important;
+        gap: 12px !important;
+        border-radius: 12px !important;
+    }
+
+    .widget-header {
+        gap: 0.5rem !important;
+    }
+
+    .widget-header h3 {
+        font-size: 0.95rem !important;
+    }
+
+    .widget-header .subtitle {
+        font-size: 0.72rem !important;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .kpi-card {
+        padding: 8px 10px !important;
+        gap: 2px !important;
+        border-radius: 8px !important;
+    }
+
+    .kpi-card::after {
+        width: 14px !important;
+        height: 14px !important;
+        border-bottom-left-radius: 8px !important;
+    }
+
+    .kpi-label {
+        font-size: 0.68rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .kpi-value {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+    }
+
+    .kpi-subtext {
+        font-size: 0.65rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    .widget-table {
+        font-size: 0.75rem !important;
+        width: 100% !important;
+    }
+
+    .widget-table th,
+    .widget-table td {
+        padding: 8px 4px !important;
+        white-space: nowrap;
+    }
+
+    .widget-table th:first-child,
+    .widget-table td:first-child {
+        padding-left: 2px !important;
+    }
+
+    .widget-table th:last-child,
+    .widget-table td:last-child {
+        padding-right: 2px !important;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .urgent-client-row {
+        padding: 8px 10px !important;
+        gap: 8px !important;
+    }
+
+    .urgent-client-row .client-name {
+        font-size: 0.82rem !important;
+    }
+
+    .urgent-client-row .client-equipment {
+        font-size: 0.7rem !important;
     }
 }

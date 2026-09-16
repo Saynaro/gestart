@@ -38,7 +38,8 @@ import {
   Trash2,
   CheckSquare,
   Square,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Lock
 } from "lucide-react";
 import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
@@ -51,6 +52,7 @@ import { getAuthToken } from "../utils/auth";
 import { getApiUrl, BACKEND_URL } from "../utils/config";
 import { getSocket } from "../utils/socket";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../components/ChannelIcons";
+import { useSubscription } from "../utils/useSubscription";
 
 // Clean Email Content Component with Clean Quoted History (No raw > characters)
 const FormattedEmailContent = ({ body }) => {
@@ -162,6 +164,7 @@ function MessagesPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isExpired } = useSubscription();
 
   const [chats, setChats] = useState(() => cachedMessagesChats || []);
   const [selectedClientData, setSelectedClientData] = useState(null);
@@ -566,6 +569,12 @@ function MessagesPage() {
   // Send Omnichannel Message Handler
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
+    if (isExpired) {
+      window.dispatchEvent(new CustomEvent('subscription_expired', {
+        detail: { message: "Votre abonnement a expiré. Pour envoyer des messages (SMS, WhatsApp, Email), veuillez renouveler votre abonnement." }
+      }));
+      return;
+    }
     if (!inputText.trim() && emailAttachments.length === 0) return;
     if (!activeChatIdParam || isSending) return;
 
@@ -736,6 +745,12 @@ function MessagesPage() {
   };
 
   const handleDeleteSelectedMessages = async () => {
+    if (isExpired) {
+      window.dispatchEvent(new CustomEvent('subscription_expired', {
+        detail: { message: "Votre abonnement a expiré. Pour supprimer des messages, veuillez renouveler votre abonnement." }
+      }));
+      return;
+    }
     if (selectedMessageIds.size === 0 || isDeleting) return;
     setIsDeleting(true);
 
@@ -1434,13 +1449,17 @@ function MessagesPage() {
           { id: "EMAIL", label: "Email", icon: EmailIcon }
         ].map(filter => {
           const IconComp = filter.icon;
+          const isActive = filterChannel === filter.id;
           return (
             <button
               key={filter.id}
-              className={`channel-filter-chip ${filterChannel === filter.id ? "active" : ""}`}
-              onClick={() => setFilterChannel(filter.id)}
+              className={`channel-filter-chip ${isActive ? "active" : ""}`}
+              onClick={(e) => {
+                setFilterChannel(filter.id);
+                e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+              }}
             >
-              {IconComp && <IconComp size={13} />}
+              {IconComp && <IconComp size={13} color={isActive ? "#ffffff" : undefined} />}
               <span>{filter.label}</span>
             </button>
           );
@@ -1471,32 +1490,36 @@ function MessagesPage() {
             ))}
           </div>
         ) : filteredChats.length === 0 ? (
-          <div style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", color: "var(--muted-foreground)", width: "100%", boxSizing: "border-box" }}>
-            <MessageSquare size={36} style={{ opacity: 0.4, margin: "0 auto 12px auto", display: "block" }} />
-            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
+          <div className="inbox-empty-state" style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", color: "var(--muted-foreground)", width: "100%", boxSizing: "border-box" }}>
+            <MessageSquare size={isMobile ? 42 : 36} style={{ opacity: 0.4, margin: "0 auto 12px auto", display: "block" }} />
+            <p className="inbox-empty-title" style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
               Aucun échange trouvé
             </p>
-            <p style={{ fontSize: "0.8rem", marginBottom: "16px", lineHeight: "1.4" }}>
+            <p className="inbox-empty-desc" style={{ fontSize: "0.8rem", marginBottom: "16px", lineHeight: "1.4" }}>
               Envoyez un message par SMS, WhatsApp ou Email. Les réponses apparaîtront ici.
             </p>
-            <button
-              onClick={() => setIsClientModalOpen(true)}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "var(--sidebar-primary)",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "0.85rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px"
-              }}
-            >
-              <Plus size={16} /> Nouveau message
-            </button>
+            {!isMobile && (
+              <button
+                type="button"
+                className="empty-inbox-new-btn"
+                onClick={() => setIsClientModalOpen(true)}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "var(--sidebar-primary)",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
+              >
+                <Plus size={16} /> Nouveau message
+              </button>
+            )}
           </div>
         ) : (
           filteredChats.map((chat, idx) => {
@@ -1505,10 +1528,12 @@ function MessagesPage() {
               ? Number(chat.unreadCount) 
               : (chat.lastMessage && chat.lastMessage.direction === "INCOMING" && chat.lastMessage.isRead === false ? 1 : 0);
             const unreadCount = isSelected ? 0 : rawUnread;
-            const isUnread = !isSelected && unreadCount > 0;
-            const previewText = chat.lastMessage?.subject
+            const isUnread = unreadCount > 0;
+            const isOutgoing = chat.lastMessage?.direction === "OUTGOING";
+            const rawBody = chat.lastMessage?.subject
               ? `[${chat.lastMessage.subject}] ${chat.lastMessage?.body || ''}`
               : (chat.lastMessage?.body || "Discussion démarrée");
+            const previewText = isOutgoing ? `Vous : ${rawBody}` : rawBody;
             const msgTime = formatMsgTime(chat.lastMessage?.createdAt || chat.time);
             const lastChannel = chat.lastMessage?.channel || chat.channel || "SMS";
 
@@ -1565,9 +1590,9 @@ function MessagesPage() {
             <div className="active-chat-avatar">{getInitials(activeClientName)}</div>
             <div className="active-chat-info">
               <h3>{activeClientName}</h3>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, overflow: "hidden" }}>
                 {renderChannelBadge(selectedChannel, "sm")}
-                <span className="active-chat-status font-mono text-xs">{clientObj.phone || clientObj.email || "Contact"}</span>
+                <span className="active-chat-status font-mono text-xs" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{clientObj.phone || clientObj.email || "Contact"}</span>
               </div>
             </div>
           </div>
@@ -1687,8 +1712,36 @@ function MessagesPage() {
       {/* Messages Scroll Area */}
       <div className="chat-messages-container" ref={messagesContainerRef}>
         {isLoadingMessages ? (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--muted-foreground)" }}>
-            <p className="text-sm">Chargement des messages chronologiques...</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "18px", padding: "16px 8px", width: "100%" }}>
+            {/* Incoming message skeleton */}
+            <div style={{ display: "flex", alignItems: "flex-end", gap: "8px", alignSelf: "flex-start", maxWidth: "75%" }}>
+              <div className="skeleton-shimmer" style={{ width: "28px", height: "28px", borderRadius: "50%", flexShrink: 0 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div className="skeleton-shimmer" style={{ width: "220px", height: "46px", borderRadius: "16px 16px 16px 4px" }} />
+                <div className="skeleton-shimmer" style={{ width: "45px", height: "10px", borderRadius: "3px", opacity: 0.5 }} />
+              </div>
+            </div>
+
+            {/* Outgoing message skeleton */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", alignSelf: "flex-end", maxWidth: "75%" }}>
+              <div className="skeleton-shimmer" style={{ width: "260px", height: "58px", borderRadius: "16px 16px 4px 16px" }} />
+              <div className="skeleton-shimmer" style={{ width: "55px", height: "10px", borderRadius: "3px", opacity: 0.5 }} />
+            </div>
+
+            {/* Incoming message skeleton */}
+            <div style={{ display: "flex", alignItems: "flex-end", gap: "8px", alignSelf: "flex-start", maxWidth: "75%" }}>
+              <div className="skeleton-shimmer" style={{ width: "28px", height: "28px", borderRadius: "50%", flexShrink: 0 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div className="skeleton-shimmer" style={{ width: "180px", height: "38px", borderRadius: "16px 16px 16px 4px" }} />
+                <div className="skeleton-shimmer" style={{ width: "45px", height: "10px", borderRadius: "3px", opacity: 0.5 }} />
+              </div>
+            </div>
+
+            {/* Outgoing message skeleton */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", alignSelf: "flex-end", maxWidth: "75%" }}>
+              <div className="skeleton-shimmer" style={{ width: "210px", height: "42px", borderRadius: "16px 16px 4px 16px" }} />
+              <div className="skeleton-shimmer" style={{ width: "55px", height: "10px", borderRadius: "3px", opacity: 0.5 }} />
+            </div>
           </div>
         ) : messages.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--muted-foreground)", textAlign: "center", padding: "20px" }}>
@@ -2377,8 +2430,9 @@ function MessagesPage() {
                 type="submit"
                 className="chat-send-btn email-send-btn"
                 disabled={(!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending}
+                style={isExpired ? { opacity: 0.85 } : {}}
               >
-                <Send size={14} />
+                {isExpired ? <Lock size={14} /> : <Send size={14} />}
                 <span className="email-send-text-full">Envoyer l'email</span>
                 <span className="email-send-text-short">Envoyer</span>
               </button>
@@ -2425,11 +2479,11 @@ function MessagesPage() {
             <button
               type="submit"
               className="chat-send-btn"
-              title={`Envoyer via ${selectedChannel}`}
+              title={isExpired ? "Abonnement requis pour envoyer" : `Envoyer via ${selectedChannel}`}
               disabled={!inputText.trim() || isSending}
               style={{ opacity: (!inputText.trim() || isSending) ? 0.6 : 1 }}
             >
-              <Send size={16} />
+              {isExpired ? <Lock size={16} /> : <Send size={16} />}
             </button>
           </form>
         )}
@@ -2685,7 +2739,17 @@ function MessagesPage() {
             </div>
             <div className="client-modal-list">
               {isLoadingClients ? (
-                <p className="no-data">Chargement de vos clients...</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px 0" }}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", borderRadius: "10px" }}>
+                      <div className="skeleton-shimmer" style={{ width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0 }} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                        <div className="skeleton-shimmer" style={{ width: `${110 + (i % 3) * 35}px`, height: "14px", borderRadius: "4px" }} />
+                        <div className="skeleton-shimmer" style={{ width: `${140 + (i % 2) * 30}px`, height: "11px", borderRadius: "4px", opacity: 0.6 }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : filteredContactsList.length === 0 ? (
                 <div style={{ padding: "34px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
                   <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
@@ -2713,6 +2777,9 @@ function MessagesPage() {
                           <span className="client-modal-name">{fullName}</span>
                           {inChat && (
                             <span style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
                               fontSize: "11px",
                               fontWeight: 600,
                               padding: "2px 7px",
@@ -2721,7 +2788,8 @@ function MessagesPage() {
                               color: "#556B2F",
                               whiteSpace: "nowrap"
                             }}>
-                              💬 En cours
+                              <MessageSquare size={11} strokeWidth={2.2} />
+                              <span>En cours</span>
                             </span>
                           )}
                         </div>

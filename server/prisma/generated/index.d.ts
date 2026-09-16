@@ -16984,6 +16984,7 @@ export namespace Prisma {
     lastName: string | null
     phone: string | null
     avatarUrl: string | null
+    jobTitle: string | null
     role: $Enums.UserRole | null
     isActive: boolean | null
     refreshTokenHash: string | null
@@ -17009,6 +17010,7 @@ export namespace Prisma {
     lastName: string | null
     phone: string | null
     avatarUrl: string | null
+    jobTitle: string | null
     role: $Enums.UserRole | null
     isActive: boolean | null
     refreshTokenHash: string | null
@@ -17034,6 +17036,7 @@ export namespace Prisma {
     lastName: number
     phone: number
     avatarUrl: number
+    jobTitle: number
     role: number
     isActive: number
     refreshTokenHash: number
@@ -17061,6 +17064,7 @@ export namespace Prisma {
     lastName?: true
     phone?: true
     avatarUrl?: true
+    jobTitle?: true
     role?: true
     isActive?: true
     refreshTokenHash?: true
@@ -17086,6 +17090,7 @@ export namespace Prisma {
     lastName?: true
     phone?: true
     avatarUrl?: true
+    jobTitle?: true
     role?: true
     isActive?: true
     refreshTokenHash?: true
@@ -17111,6 +17116,7 @@ export namespace Prisma {
     lastName?: true
     phone?: true
     avatarUrl?: true
+    jobTitle?: true
     role?: true
     isActive?: true
     refreshTokenHash?: true
@@ -17209,6 +17215,7 @@ export namespace Prisma {
     lastName: string
     phone: string | null
     avatarUrl: string | null
+    jobTitle: string | null
     role: $Enums.UserRole
     isActive: boolean
     refreshTokenHash: string | null
@@ -17251,6 +17258,7 @@ export namespace Prisma {
     lastName?: boolean
     phone?: boolean
     avatarUrl?: boolean
+    jobTitle?: boolean
     role?: boolean
     isActive?: boolean
     refreshTokenHash?: boolean
@@ -17286,6 +17294,7 @@ export namespace Prisma {
     lastName?: boolean
     phone?: boolean
     avatarUrl?: boolean
+    jobTitle?: boolean
     role?: boolean
     isActive?: boolean
     refreshTokenHash?: boolean
@@ -17312,6 +17321,7 @@ export namespace Prisma {
     lastName?: boolean
     phone?: boolean
     avatarUrl?: boolean
+    jobTitle?: boolean
     role?: boolean
     isActive?: boolean
     refreshTokenHash?: boolean
@@ -17338,6 +17348,7 @@ export namespace Prisma {
     lastName?: boolean
     phone?: boolean
     avatarUrl?: boolean
+    jobTitle?: boolean
     role?: boolean
     isActive?: boolean
     refreshTokenHash?: boolean
@@ -17354,7 +17365,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "email" | "password" | "firstName" | "lastName" | "phone" | "avatarUrl" | "role" | "isActive" | "refreshTokenHash" | "emailVerified" | "emailVerifyToken" | "passwordResetToken" | "passwordResetExpiry" | "lastLoginAt" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorCode" | "twoFactorExpiry" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "email" | "password" | "firstName" | "lastName" | "phone" | "avatarUrl" | "jobTitle" | "role" | "isActive" | "refreshTokenHash" | "emailVerified" | "emailVerifyToken" | "passwordResetToken" | "passwordResetExpiry" | "lastLoginAt" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorCode" | "twoFactorExpiry" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     pushTokens?: boolean | User$pushTokensArgs<ExtArgs>
@@ -17396,6 +17407,7 @@ export namespace Prisma {
       lastName: string
       phone: string | null
       avatarUrl: string | null
+      jobTitle: string | null
       role: $Enums.UserRole
       isActive: boolean
       refreshTokenHash: string | null
@@ -17850,6 +17862,7 @@ export namespace Prisma {
     readonly lastName: FieldRef<"User", 'String'>
     readonly phone: FieldRef<"User", 'String'>
     readonly avatarUrl: FieldRef<"User", 'String'>
+    readonly jobTitle: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'UserRole'>
     readonly isActive: FieldRef<"User", 'Boolean'>
     readonly refreshTokenHash: FieldRef<"User", 'String'>
@@ -71671,6 +71684,7 @@ export namespace Prisma {
     lastName: 'lastName',
     phone: 'phone',
     avatarUrl: 'avatarUrl',
+    jobTitle: 'jobTitle',
     role: 'role',
     isActive: 'isActive',
     refreshTokenHash: 'refreshTokenHash',
@@ -74271,6 +74285,7 @@ export namespace Prisma {
     lastName?: StringFilter<"User"> | string
     phone?: StringNullableFilter<"User"> | string | null
     avatarUrl?: StringNullableFilter<"User"> | string | null
+    jobTitle?: StringNullableFilter<"User"> | string | null
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     isActive?: BoolFilter<"User"> | boolean
     refreshTokenHash?: StringNullableFilter<"User"> | string | null
@@ -74305,6 +74320,7 @@ export namespace Prisma {
     lastName?: SortOrder
     phone?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
+    jobTitle?: SortOrderInput | SortOrder
     role?: SortOrder
     isActive?: SortOrder
     refreshTokenHash?: SortOrderInput | SortOrder
@@ -74342,6 +74358,7 @@ export namespace Prisma {
     lastName?: StringFilter<"User"> | string
     phone?: StringNullableFilter<"User"> | string | null
     avatarUrl?: StringNullableFilter<"User"> | string | null
+    jobTitle?: StringNullableFilter<"User"> | string | null
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     isActive?: BoolFilter<"User"> | boolean
     refreshTokenHash?: StringNullableFilter<"User"> | string | null
@@ -74376,6 +74393,7 @@ export namespace Prisma {
     lastName?: SortOrder
     phone?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
+    jobTitle?: SortOrderInput | SortOrder
     role?: SortOrder
     isActive?: SortOrder
     refreshTokenHash?: SortOrderInput | SortOrder
@@ -74407,6 +74425,7 @@ export namespace Prisma {
     lastName?: StringWithAggregatesFilter<"User"> | string
     phone?: StringNullableWithAggregatesFilter<"User"> | string | null
     avatarUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
+    jobTitle?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
     refreshTokenHash?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -80511,6 +80530,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -80545,6 +80565,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -80577,6 +80598,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80611,6 +80633,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80644,6 +80667,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -80668,6 +80692,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80693,6 +80718,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87572,6 +87598,7 @@ export namespace Prisma {
     lastName?: SortOrder
     phone?: SortOrder
     avatarUrl?: SortOrder
+    jobTitle?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     refreshTokenHash?: SortOrder
@@ -87597,6 +87624,7 @@ export namespace Prisma {
     lastName?: SortOrder
     phone?: SortOrder
     avatarUrl?: SortOrder
+    jobTitle?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     refreshTokenHash?: SortOrder
@@ -87622,6 +87650,7 @@ export namespace Prisma {
     lastName?: SortOrder
     phone?: SortOrder
     avatarUrl?: SortOrder
+    jobTitle?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     refreshTokenHash?: SortOrder
@@ -96922,6 +96951,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -96954,6 +96984,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -98705,6 +98736,7 @@ export namespace Prisma {
     lastName?: StringFilter<"User"> | string
     phone?: StringNullableFilter<"User"> | string | null
     avatarUrl?: StringNullableFilter<"User"> | string | null
+    jobTitle?: StringNullableFilter<"User"> | string | null
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     isActive?: BoolFilter<"User"> | boolean
     refreshTokenHash?: StringNullableFilter<"User"> | string | null
@@ -102144,6 +102176,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -102177,6 +102210,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -102224,6 +102258,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102257,6 +102292,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102288,6 +102324,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -102321,6 +102358,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -102368,6 +102406,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102401,6 +102440,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102432,6 +102472,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -102465,6 +102506,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -102512,6 +102554,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102545,6 +102588,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -104045,6 +104089,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -104078,6 +104123,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -104818,6 +104864,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -104851,6 +104898,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -105542,6 +105590,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -105575,6 +105624,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -105611,6 +105661,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -105644,6 +105695,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -106391,6 +106443,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106424,6 +106477,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106466,6 +106520,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106499,6 +106554,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -111205,6 +111261,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -111238,6 +111295,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -111426,6 +111484,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -111459,6 +111518,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -113013,6 +113073,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -113046,6 +113107,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -113234,6 +113296,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -113267,6 +113330,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -119574,6 +119638,7 @@ export namespace Prisma {
     lastName: string
     phone?: string | null
     avatarUrl?: string | null
+    jobTitle?: string | null
     role?: $Enums.UserRole
     isActive?: boolean
     refreshTokenHash?: string | null
@@ -120142,6 +120207,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120174,6 +120240,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120206,6 +120273,7 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null

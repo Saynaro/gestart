@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Building, Camera, Search, FileText, CheckCircle, PenTool, Trash2, Upload, RefreshCw } from "lucide-react";
+import { Building, Camera, Search, FileText, CheckCircle, PenTool, Trash2, Upload, RefreshCw, Lock } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { formatIBAN, formatBIC } from "../../utils/bankValidator";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
 import CompanyAutocomplete, { formatNafCode } from "../../components/CompanyAutocomplete";
 import SignaturePadModal from "../../components/SignaturePadModal";
 import PhoneInput from "../../components/PhoneInput";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function EntrepriseTab({ isMobileView, triggerToast }) {
+    const { isExpired } = useSubscription();
     const [companyName, setCompanyName] = useState("KHALID SAINARO");
     const [legalForm, setLegalForm] = useState("EI"); // SARL / SAS / EI / Auto-entrepreneur / EURL
     const [siret, setSiret] = useState("94408772500015");
@@ -184,6 +186,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
     };
 
     const handleLogoUpload = (e) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier le logo, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         const file = e.target.files[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) {
@@ -211,6 +219,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
     };
 
     const handleSignatureSave = async (dataUrl) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier la signature, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setSignatureUrl(dataUrl);
         try {
             await apiFetch('/v1/company/signature', {
@@ -242,6 +256,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
     };
 
     const handleDeleteSignature = async () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier la signature, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setSignatureUrl(null);
         try {
             await apiFetch('/v1/company/signature', {
@@ -257,6 +277,12 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier les coordonnées de l'entreprise, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         try {
             await apiFetch('/v1/company', {
                 method: 'PATCH',
@@ -621,7 +647,24 @@ export default function EntrepriseTab({ isMobileView, triggerToast }) {
                     <input type="text" className="form-input" value={bic} onChange={(e) => setBIC(formatBIC(e.target.value))} placeholder="BNPAFRPPXXX" style={{ fontFamily: 'monospace', fontWeight: 600 }} />
                 </div>
                 <div className="form-group-full" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--border)' }}>
-                    <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                    <button
+                        type="submit"
+                        className="save-profile-btn"
+                        style={{
+                            padding: '10px 24px',
+                            backgroundColor: 'var(--sidebar-primary)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            opacity: isExpired ? 0.85 : 1
+                        }}
+                    >
+                        {isExpired && <Lock size={15} />}
                         Enregistrer l'entreprise
                     </button>
                 </div>

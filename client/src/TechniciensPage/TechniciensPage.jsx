@@ -18,7 +18,8 @@ import {
     ExternalLink,
     Star,
     CheckCircle2,
-    AlertTriangle
+    AlertTriangle,
+    Lock
 } from "lucide-react";
 import ToastNotification from "../components/ToastNotification";
 import SideBar from "../components/SideBar";
@@ -56,7 +57,7 @@ export default function TechniciensPage() {
     const [createdInvite, setCreatedInvite] = useState(null);
     const [copied, setCopied] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { isStarter, isPro, isUnlimited, displayName, refreshSubscription } = useSubscription();
+    const { isStarter, isPro, isUnlimited, displayName, refreshSubscription, isExpired } = useSubscription();
 
     // Fetch Technicians & Invitations from API
     const loadData = async () => {
@@ -88,6 +89,12 @@ export default function TechniciensPage() {
     // Create Invitation Handler
     const handleCreateInvitation = async (e) => {
         e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour inviter de nouveaux techniciens, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setIsSubmitting(true);
         try {
             const body = inviteEmail ? { email: inviteEmail, role: "TECHNICIAN" } : { role: "TECHNICIAN" };
@@ -115,6 +122,12 @@ export default function TechniciensPage() {
 
     const handleConfirmRevokeInvite = async () => {
         if (!inviteToRevoke) return;
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour révoquer une invitation, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setIsRevokingInvite(true);
         try {
             setInvitations(prev => prev.filter(inv => inv.id !== inviteToRevoke.id));
@@ -136,6 +149,12 @@ export default function TechniciensPage() {
 
     const handleDeleteTechnician = async () => {
         if (!techToDelete) return;
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour supprimer un technicien, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setIsDeletingTech(true);
         try {
             await apiFetch(`/v1/users/${techToDelete.id}`, {
@@ -203,11 +222,17 @@ export default function TechniciensPage() {
                     <div className="techniciens-header-row">
                         <div className="techniciens-title-group">
                             <h1>Techniciens & Équipe</h1>
-                            <p>Gérez les accès de vos techniciens et invitez de nouveaux membres dans votre entreprise.</p>
+                            <p>Gérez les accès et invitez de nouveaux membres dans votre entreprise.</p>
                         </div>
                         <button
                             className="btn-invite-tech"
                             onClick={() => {
+                                if (isExpired) {
+                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                        detail: { message: "Votre abonnement a expiré. Pour inviter de nouveaux techniciens, veuillez renouveler votre abonnement." }
+                                    }));
+                                    return;
+                                }
                                 if (isStarter) {
                                     setShowUpgradeModal(true);
                                     return;
@@ -216,10 +241,10 @@ export default function TechniciensPage() {
                                 setInviteEmail("");
                                 setShowInviteModal(true);
                             }}
-                            style={isStarter ? { opacity: 0.9 } : {}}
+                            style={isExpired || isStarter ? { opacity: 0.9 } : {}}
                         >
-                            {isStarter ? <Star size={18} fill="currentColor" /> : <UserPlus size={18} />}
-                            {isStarter ? "Inviter un technicien (Pro)" : "Inviter un technicien"}
+                            {isExpired ? <Lock size={18} /> : isStarter ? <Star size={18} fill="currentColor" /> : <UserPlus size={18} />}
+                            {isExpired ? "Inviter un technicien" : isStarter ? "Inviter un technicien (Pro)" : "Inviter un technicien"}
                         </button>
                     </div>
 
@@ -275,84 +300,182 @@ export default function TechniciensPage() {
                     <div className="tech-section-card">
                         <div className="tech-section-header">
                             <h2 className="tech-section-title">
-                                <Wrench size={20} style={{ color: '#556B2F' }} />
-                                Membres & Techniciens de l'entreprise ({technicians.length})
+                                <div className="tech-section-title-icon green">
+                                    <Wrench size={20} />
+                                </div>
+                                <span>Membres & Techniciens de l'entreprise ({technicians.length})</span>
                             </h2>
                         </div>
 
                         {loading ? (
-                            <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '20px' }}>Chargement des membres...</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px 0' }}>
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div className="skeleton-shimmer" style={{ width: '38px', height: '38px', borderRadius: '50%' }} />
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <div className="skeleton-shimmer" style={{ width: `${110 + (i % 2) * 30}px`, height: '15px', borderRadius: '4px' }} />
+                                                <div className="skeleton-shimmer" style={{ width: '150px', height: '11px', borderRadius: '4px', opacity: 0.6 }} />
+                                            </div>
+                                        </div>
+                                        <div className="skeleton-shimmer" style={{ width: '70px', height: '22px', borderRadius: '20px' }} />
+                                    </div>
+                                ))}
+                            </div>
                         ) : technicians.length === 0 ? (
                             <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '20px' }}>Aucun technicien enregistré pour le moment.</p>
                         ) : (
-                            <div className="tech-table-wrapper">
-                                <table className="tech-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Membre</th>
-                                            <th>Rôle</th>
-                                            <th>Téléphone</th>
-                                            <th>Statut</th>
-                                            <th>Date d'ajout</th>
-                                            <th style={{ textAlign: 'right' }}>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {technicians.map((t) => {
-                                            const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
-                                            const initials = `${(t.firstName || 'T')[0]}${(t.lastName || 'E')[0]}`.toUpperCase();
-                                            return (
-                                                <tr key={t.id}>
-                                                    <td>
-                                                        <div className="tech-user-row">
-                                                            <div className="tech-avatar" style={{ overflow: 'hidden' }}>
-                                                                {t.avatarUrl ? (
-                                                                    <img src={t.avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-                                                                ) : (
-                                                                    initials
-                                                                )}
+                            <>
+                                {/* Desktop Table */}
+                                <div className="tech-table-wrapper tech-desktop-table">
+                                    <table className="tech-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Membre</th>
+                                                <th>Rôle</th>
+                                                <th>Téléphone</th>
+                                                <th>Statut</th>
+                                                <th>Date d'ajout</th>
+                                                <th style={{ textAlign: 'right' }}>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {technicians.map((t) => {
+                                                const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                                const initials = `${(t.firstName || 'T')[0]}${(t.lastName || 'E')[0]}`.toUpperCase();
+                                                return (
+                                                    <tr key={t.id}>
+                                                        <td>
+                                                            <div className="tech-user-row">
+                                                                <div className="tech-avatar" style={{ overflow: 'hidden' }}>
+                                                                    {t.avatarUrl ? (
+                                                                        <img src={t.avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                                                                    ) : (
+                                                                        initials
+                                                                    )}
+                                                                </div>
+                                                                <div className="tech-user-details">
+                                                                    <span className="tech-user-name">{fullName}</span>
+                                                                    <span className="tech-user-email">{t.email}</span>
+                                                                </div>
                                                             </div>
-                                                            <div className="tech-user-details">
-                                                                <span className="tech-user-name">{fullName}</span>
-                                                                <span className="tech-user-email">{t.email}</span>
-                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span className="tech-role-badge">
+                                                                {t.role === "OWNER" ? "Propriétaire" : t.role === "MANAGER" ? "Manager" : "Technicien"}
+                                                            </span>
+                                                        </td>
+                                                        <td>{t.phone || "—"}</td>
+                                                        <td>
+                                                            <span className={`tech-status-badge ${t.isActive !== false ? 'active' : 'pending'}`}>
+                                                                <CheckCircle2 size={13} />
+                                                                {t.isActive !== false ? "Actif" : "Inactif"}
+                                                            </span>
+                                                        </td>
+                                                        <td>{t.createdAt ? new Date(t.createdAt).toLocaleDateString('fr-FR') : "Récent"}</td>
+                                                        <td style={{ textAlign: 'right' }}>
+                                                            {t.role === "OWNER" ? (
+                                                                <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>
+                                                                    Compte principal
+                                                                </span>
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn-delete-tech-row"
+                                                                    title="Supprimer ce technicien"
+                                                                    onClick={() => {
+                                                                        if (isExpired) {
+                                                                            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                                                detail: { message: "Votre abonnement a expiré. Pour modifier l'équipe, veuillez renouveler votre abonnement." }
+                                                                            }));
+                                                                            return;
+                                                                        }
+                                                                        setTechToDelete(t);
+                                                                    }}
+                                                                >
+                                                                    <Trash2 size={15} />
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile Cards View */}
+                                <div className="tech-mobile-cards">
+                                    {technicians.map((t) => {
+                                        const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                        const initials = `${(t.firstName || 'T')[0]}${(t.lastName || 'E')[0]}`.toUpperCase();
+                                        return (
+                                            <div key={t.id} className="tech-mobile-card">
+                                                <div className="tech-mobile-card-header">
+                                                    <div className="tech-user-row">
+                                                        <div className="tech-avatar" style={{ overflow: 'hidden' }}>
+                                                            {t.avatarUrl ? (
+                                                                <img src={t.avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                                                            ) : (
+                                                                initials
+                                                            )}
                                                         </div>
-                                                    </td>
-                                                    <td>
-                                                        <span className="tech-role-badge">
-                                                            {t.role === "OWNER" ? "Propriétaire" : t.role === "MANAGER" ? "Manager" : "Technicien"}
-                                                        </span>
-                                                    </td>
-                                                    <td>{t.phone || "—"}</td>
-                                                    <td>
+                                                        <div className="tech-user-details">
+                                                            <span className="tech-user-name">{fullName}</span>
+                                                            <span className="tech-user-email">{t.email}</span>
+                                                        </div>
+                                                    </div>
+                                                    <span className="tech-role-badge">
+                                                        {t.role === "OWNER" ? "Propriétaire" : t.role === "MANAGER" ? "Manager" : "Technicien"}
+                                                    </span>
+                                                </div>
+
+                                                <div className="tech-mobile-card-body">
+                                                    {t.phone ? (
+                                                        <div className="tech-mobile-info-item">
+                                                            <Phone size={13} style={{ color: 'var(--muted-foreground)' }} />
+                                                            <a href={`tel:${t.phone}`} className="tech-mobile-link">{t.phone}</a>
+                                                        </div>
+                                                    ) : null}
+                                                    <div className="tech-mobile-info-item">
                                                         <span className={`tech-status-badge ${t.isActive !== false ? 'active' : 'pending'}`}>
-                                                            <CheckCircle2 size={13} />
+                                                            <CheckCircle2 size={12} />
                                                             {t.isActive !== false ? "Actif" : "Inactif"}
                                                         </span>
-                                                    </td>
-                                                    <td>{t.createdAt ? new Date(t.createdAt).toLocaleDateString('fr-FR') : "Récent"}</td>
-                                                    <td style={{ textAlign: 'right' }}>
-                                                        {t.role === "OWNER" ? (
-                                                            <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>
-                                                                Compte principal
-                                                            </span>
-                                                        ) : (
-                                                            <button
-                                                                type="button"
-                                                                className="btn-delete-tech-row"
-                                                                title="Supprimer ce technicien"
-                                                                onClick={() => setTechToDelete(t)}
-                                                            >
-                                                                <Trash2 size={15} />
-                                                            </button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                    </div>
+                                                </div>
+
+                                                {t.role !== "OWNER" ? (
+                                                    <div className="tech-mobile-card-footer">
+                                                        <button
+                                                            type="button"
+                                                            className="btn-delete-tech-mobile"
+                                                            onClick={() => {
+                                                                if (isExpired) {
+                                                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                                        detail: { message: "Votre abonnement a expiré. Pour modifier l'équipe, veuillez renouveler votre abonnement." }
+                                                                    }));
+                                                                    return;
+                                                                }
+                                                                setTechToDelete(t);
+                                                            }}
+                                                        >
+                                                            <Trash2 size={14} />
+                                                            <span>Supprimer</span>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="tech-mobile-card-footer">
+                                                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>
+                                                            Compte principal
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
                         )}
                     </div>
 
@@ -361,12 +484,15 @@ export default function TechniciensPage() {
                         <div className="tech-section-card">
                             <div className="tech-section-header">
                                 <h2 className="tech-section-title">
-                                    <Mail size={20} style={{ color: '#2563EB' }} />
-                                    Invitations en attente ({pendingInvitesCount})
+                                    <div className="tech-section-title-icon blue">
+                                        <Mail size={20} />
+                                    </div>
+                                    <span>Invitations en attente ({pendingInvitesCount})</span>
                                 </h2>
                             </div>
 
-                            <div className="tech-table-wrapper">
+                            {/* Desktop Table */}
+                            <div className="tech-table-wrapper tech-desktop-table">
                                 <table className="tech-table">
                                     <thead>
                                         <tr>
@@ -403,7 +529,15 @@ export default function TechniciensPage() {
                                                             </button>
                                                             <button
                                                                 type="button"
-                                                                onClick={() => setInviteToRevoke(inv)}
+                                                                onClick={() => {
+                                                                    if (isExpired) {
+                                                                        window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                                            detail: { message: "Votre abonnement a expiré. Pour révoquer une invitation, veuillez renouveler votre abonnement." }
+                                                                        }));
+                                                                        return;
+                                                                    }
+                                                                    setInviteToRevoke(inv);
+                                                                }}
                                                                 style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: 'none', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer' }}
                                                                 title="Révoquer"
                                                             >
@@ -416,6 +550,65 @@ export default function TechniciensPage() {
                                         })}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            {/* Mobile Cards for Invitations */}
+                            <div className="tech-mobile-cards">
+                                {invitations.map((inv) => {
+                                    const shareUrl = getShareableUrl(inv.token);
+                                    return (
+                                        <div key={inv.id} className="tech-mobile-card">
+                                            <div className="tech-mobile-card-header">
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
+                                                    <span style={{ fontWeight: 700, fontSize: '0.88rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        {inv.email.includes('@gestart.link') ? "Lien public généré" : inv.email}
+                                                    </span>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                                        Expire le {new Date(inv.expiresAt).toLocaleDateString('fr-FR')}
+                                                    </span>
+                                                </div>
+                                                <span className={`tech-status-badge ${inv.status === 'ACCEPTED' ? 'active' : 'pending'}`}>
+                                                    {inv.status === 'PENDING' ? 'En attente' : inv.status}
+                                                </span>
+                                            </div>
+
+                                            <div className="tech-mobile-card-body" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Code d'accès :</span>
+                                                <code style={{ background: 'var(--muted)', padding: '4px 8px', borderRadius: '6px', fontWeight: 700, fontSize: '0.82rem' }}>
+                                                    {inv.token}
+                                                </code>
+                                            </div>
+
+                                            <div className="tech-mobile-card-footer" style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    type="button"
+                                                    className="btn-copy-url"
+                                                    onClick={() => handleCopyUrl(shareUrl)}
+                                                    style={{ flex: 1, justifyContent: 'center', padding: '8px 12px', fontSize: '0.8rem' }}
+                                                >
+                                                    <Copy size={13} />
+                                                    Copier lien
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (isExpired) {
+                                                            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                                detail: { message: "Votre abonnement a expiré. Pour révoquer une invitation, veuillez renouveler votre abonnement." }
+                                                            }));
+                                                            return;
+                                                        }
+                                                        setInviteToRevoke(inv);
+                                                    }}
+                                                    style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' }}
+                                                    title="Révoquer"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}

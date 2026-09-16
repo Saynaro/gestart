@@ -135,9 +135,23 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '12px' }}>
-                <Loader2 size={32} className="spin-loader" style={{ color: 'var(--sidebar-primary)' }} />
-                <span style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Chargement du statut de facturation électronique...</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="skeleton-shimmer" style={{ width: '260px', height: '20px', borderRadius: '6px' }} />
+                    <div className="skeleton-shimmer" style={{ width: '75%', height: '14px', borderRadius: '4px', opacity: 0.7 }} />
+                </div>
+                <div style={{ padding: '24px', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <div className="skeleton-shimmer" style={{ width: '48px', height: '48px', borderRadius: '12px' }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div className="skeleton-shimmer" style={{ width: '140px', height: '18px', borderRadius: '4px' }} />
+                                <div className="skeleton-shimmer" style={{ width: '200px', height: '12px', borderRadius: '4px', opacity: 0.6 }} />
+                            </div>
+                        </div>
+                        <div className="skeleton-shimmer" style={{ width: '90px', height: '28px', borderRadius: '20px' }} />
+                    </div>
+                </div>
             </div>
         );
     }

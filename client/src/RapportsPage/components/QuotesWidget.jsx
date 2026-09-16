@@ -96,7 +96,7 @@ function QuotesWidget({ startDate, endDate }) {
                 </div>
                 <div className="kpi-card warning-accent">
                     <span className="kpi-label">En Attente</span>
-                    <span className="kpi-value text-warning">{quotesStats.sent - quotesStats.accepted - quotesStats.refused || 12}</span>
+                    <span className="kpi-value text-warning">{quotesStats.sent}</span>
                     <span className="kpi-subtext">Devis sans réponse</span>
                 </div>
             </div>

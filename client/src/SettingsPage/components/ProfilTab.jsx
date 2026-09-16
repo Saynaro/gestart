@@ -69,16 +69,21 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
 
                     const registeredTrades = tradeNames.join(" • ");
 
-                    const savedJobTitle = localStorage.getItem("userJobTitle");
-                    if (!savedJobTitle || savedJobTitle === "Gérant & Artisan" || savedJobTitle === "Gérant artisan" || savedJobTitle === "gerant artisan") {
-                        if (registeredTrades) {
-                            setJobTitle(registeredTrades);
-                            localStorage.setItem("userJobTitle", registeredTrades);
-                        } else {
-                            setJobTitle("Gérant & Artisan");
-                        }
+                    if (user.jobTitle) {
+                        setJobTitle(user.jobTitle);
+                        localStorage.setItem("userJobTitle", user.jobTitle);
                     } else {
-                        setJobTitle(savedJobTitle);
+                        const savedJobTitle = localStorage.getItem("userJobTitle");
+                        if (!savedJobTitle || savedJobTitle === "Gérant & Artisan" || savedJobTitle === "Gérant artisan" || savedJobTitle === "gerant artisan") {
+                            if (registeredTrades) {
+                                setJobTitle(registeredTrades);
+                                localStorage.setItem("userJobTitle", registeredTrades);
+                            } else {
+                                setJobTitle("Gérant & Artisan");
+                            }
+                        } else {
+                            setJobTitle(savedJobTitle);
+                        }
                     }
                 }
             } catch (err) {
@@ -87,32 +92,50 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
         };
 
         fetchUserProfile();
+
+        const handleExternalUpdate = (e) => {
+            if (e.detail?.phone !== undefined) {
+                setPhone(e.detail.phone);
+            }
+        };
+        window.addEventListener('userProfileChanged', handleExternalUpdate);
+        return () => window.removeEventListener('userProfileChanged', handleExternalUpdate);
     }, []);
 
-    const handleAvatarUpload = (e) => {
+    const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                triggerToast("L'image est trop volumineuse (max 5 Mo)", true);
-                return;
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            triggerToast("L'image est trop volumineuse (max 10 Mo)", true);
+            return;
+        }
+
+        // Preview immediately for instant UI feedback
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarUrl(previewUrl);
+
+        try {
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const res = await apiFetch('/v1/users/me/avatar', {
+                method: 'PATCH',
+                body: formData
+            });
+
+            const uploadedUrl = res.data?.avatarUrl || res.avatarUrl;
+            if (uploadedUrl) {
+                setAvatarUrl(uploadedUrl);
+                window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl: uploadedUrl, civility, jobTitle } }));
             }
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64Data = reader.result;
-                setAvatarUrl(base64Data);
-                try {
-                    await apiFetch('/v1/users/avatar', {
-                        method: 'PATCH',
-                        body: JSON.stringify({ avatarUrl: base64Data })
-                    });
-                    window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName, lastName, phone, email, avatarUrl: base64Data, civility, jobTitle } }));
-                    triggerToast("Photo de profil enregistrée avec succès !");
-                } catch (err) {
-                    console.error("Avatar upload error:", err);
-                    triggerToast("Photo mise à jour localement");
-                }
-            };
-            reader.readAsDataURL(file);
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saved' } }));
+            triggerToast("Photo de profil enregistrée avec succès !");
+        } catch (err) {
+            console.error("Avatar upload error:", err);
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+            triggerToast("Erreur lors de l'enregistrement de la photo", true);
         }
     };
 
@@ -123,9 +146,9 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
         try {
             const res = await apiFetch('/v1/users/me', {
                 method: 'PATCH',
-                body: JSON.stringify({ firstName, lastName, phone, avatarUrl })
+                body: JSON.stringify({ firstName, lastName, phone, avatarUrl, jobTitle })
             });
-            const updated = res.data?.user || res.user || { firstName, lastName, phone, email, avatarUrl };
+            const updated = res.data?.user || res.user || { firstName, lastName, phone, email, avatarUrl, jobTitle };
             window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { ...updated, civility, jobTitle } }));
             triggerToast("Profil enregistré avec succès !");
         } catch (err) {
@@ -134,11 +157,55 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
         }
     };
 
+    // Auto-save debounced effect for mobile
+    const isFirstMount = React.useRef(true);
+    const saveTimerRef = React.useRef(null);
+
+    const performSave = React.useCallback(async (dataToSave) => {
+        window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
+        const civ = dataToSave.civility !== undefined ? dataToSave.civility : civility;
+        const job = dataToSave.jobTitle !== undefined ? dataToSave.jobTitle : jobTitle;
+        const fn = dataToSave.firstName !== undefined ? dataToSave.firstName : firstName;
+        const ln = dataToSave.lastName !== undefined ? dataToSave.lastName : lastName;
+        const ph = dataToSave.phone !== undefined ? dataToSave.phone : phone;
+        const av = dataToSave.avatarUrl !== undefined ? dataToSave.avatarUrl : avatarUrl;
+
+        localStorage.setItem("userCivility", civ);
+        localStorage.setItem("userJobTitle", job);
+
+        try {
+            const res = await apiFetch('/v1/users/me', {
+                method: 'PATCH',
+                body: JSON.stringify({ firstName: fn, lastName: ln, phone: ph, avatarUrl: av, jobTitle: job })
+            });
+            const updated = res.data?.user || res.user || { firstName: fn, lastName: ln, phone: ph, email, avatarUrl: av, jobTitle: job };
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { ...updated, civility: civ, jobTitle: job } }));
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saved' } }));
+        } catch (err) {
+            window.dispatchEvent(new CustomEvent('userProfileChanged', { detail: { firstName: fn, lastName: ln, phone: ph, email, avatarUrl: av, civility: civ, jobTitle: job } }));
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+        }
+    }, [civility, jobTitle, firstName, lastName, phone, avatarUrl, email]);
+
+    const queueAutoSave = React.useCallback((partial) => {
+        window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+            performSave(partial);
+        }, 700);
+    }, [performSave]);
+
+    // Handle civility change with instant save
+    const handleCivilityChange = (newCiv) => {
+        setCivility(newCiv);
+        performSave({ civility: newCiv });
+    };
+
     if (isMobileView) {
         return (
             <div className="mobile-fields-stack">
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                    <div className="mobile-profile-avatar-circle" style={{ width: '100px', height: '100px', fontSize: '34px', position: 'relative' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', position: 'relative' }}>
+                    <div className="mobile-profile-avatar-circle" style={{ width: '96px', height: '96px', fontSize: '32px', position: 'relative' }}>
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
@@ -161,7 +228,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                                 <button
                                     key={opt.value}
                                     type="button"
-                                    onClick={() => setCivility(opt.value)}
+                                    onClick={() => handleCivilityChange(opt.value)}
                                     style={{
                                         flex: 1,
                                         padding: "8px 4px",
@@ -189,7 +256,12 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                         type="text"
                         className="mobile-input-card-field"
                         value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setFirstName(val);
+                            queueAutoSave({ firstName: val });
+                        }}
+                        onBlur={() => performSave({ firstName })}
                         placeholder="Khalid"
                     />
                 </div>
@@ -200,7 +272,12 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                         type="text"
                         className="mobile-input-card-field"
                         value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setLastName(val);
+                            queueAutoSave({ lastName: val });
+                        }}
+                        onBlur={() => performSave({ lastName })}
                         placeholder="Sainaro"
                     />
                 </div>
@@ -247,18 +324,15 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                         type="text"
                         className="mobile-input-card-field"
                         value={jobTitle}
-                        onChange={(e) => setJobTitle(e.target.value)}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setJobTitle(val);
+                            queueAutoSave({ jobTitle: val });
+                        }}
+                        onBlur={() => performSave({ jobTitle })}
                         placeholder="Intitulé du poste / Métier"
                         style={{ marginTop: "4px" }}
                     />
-                </div>
-
-                <div style={{ height: '12px' }} />
-
-                <div className="mobile-save-bar">
-                    <button className="mobile-save-btn active" onClick={handleSubmit}>
-                        Enregistrer
-                    </button>
                 </div>
             </div>
         );

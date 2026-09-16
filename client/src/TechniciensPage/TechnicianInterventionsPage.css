@@ -955,8 +955,13 @@
 
 /* RESPONSIVE DESIGN (MOBILE & TABLET) */
 @media (max-width: 768px) {
+    .page-content.tech-interventions-main,
     .tech-interventions-main {
-        padding: 14px 12px 90px 12px;
+        padding: 14px 12px calc(140px + env(safe-area-inset-bottom, 24px)) 12px !important;
+    }
+
+    .tech-groups-container {
+        margin-bottom: 50px !important;
     }
 
     .tech-header-card {

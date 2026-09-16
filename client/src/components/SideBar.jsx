@@ -7,6 +7,7 @@ import { Icons, getMenuSections, getMobileTabBarItems } from "./navigationConsta
 import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
+import { Lock } from "lucide-react";
 import { apiFetch } from "../utils/api";
 import { getSocket } from "../utils/socket";
 
@@ -15,7 +16,7 @@ function SideBar({ onFabClick, hideFab = false }) {
     const location = useLocation();
     const activePath = location.pathname || "/home";
     const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
-    const { isStarter, displayName } = useSubscription();
+    const { isStarter, displayName, isExpired } = useSubscription();
     const { fullName, initials, email, avatarUrl, role } = useUser();
     const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
@@ -25,6 +26,7 @@ function SideBar({ onFabClick, hideFab = false }) {
 
     // Track dynamic unread messages count
     useEffect(() => {
+        if (isTechnician) return;
         const fetchUnread = async () => {
             try {
                 const res = await apiFetch("/v1/messages/unread-count");
@@ -115,6 +117,12 @@ function SideBar({ onFabClick, hideFab = false }) {
 
     const navigateTo = (e, path) => {
         e.preventDefault();
+        if (isExpired && (path === "/premium" || path.startsWith("/premium"))) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour accéder aux fonctionnalités Premium, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         if (bottomSheetOpen) {
             setBottomSheetOpen(false);
             setTimeout(() => {
@@ -212,6 +220,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                     if (item.path === "/messages") {
                                         badge = unreadMessagesCount > 0 ? unreadMessagesCount : undefined;
                                     }
+                                    const showLock = isExpired && (item.path === "/premium" || (item.proOnly && isStarter));
                                     return (
                                         <li key={iIndex} className={`menu-item ${isActive ? "active" : ""}`}>
                                             <a 
@@ -222,7 +231,11 @@ function SideBar({ onFabClick, hideFab = false }) {
                                             >
                                                 <span className="icon-wrapper">{Icons[item.iconKey]}</span>
                                                 <span className="item-title">{item.title}</span>
-                                                {badge !== undefined && (
+                                                {showLock ? (
+                                                    <span className="badge badge-lock" style={{ display: 'inline-flex', alignItems: 'center', color: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.12)', padding: '2px 5px', borderRadius: '5px' }}>
+                                                        <Lock size={12} />
+                                                    </span>
+                                                ) : badge !== undefined && (
                                                     <span className={`badge ${typeof badge === "number" ? "badge-numeric" : "badge-text"} ${badge === "PRO" ? "badge-pro" : ""}`}
                                                         style={badge === "PRO" ? { background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)', color: '#FFF', fontSize: '9.5px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px' } : {}}>
                                                         {badge}
@@ -256,7 +269,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                                 data-tooltip="Déconnexion"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    handleLogout(navigate);
+                                    setShowLogoutModal(true);
                                 }}
                             >
                                 {Icons.logout}

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Bell, Shield, Wrench, Mail, Smartphone, Monitor } from "lucide-react";
+import { Bell, Shield, Wrench, Mail, Smartphone, Monitor, Lock } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function NotificationsTab({ isMobileView, triggerToast }) {
+    const { isExpired } = useSubscription();
     // OWNER / MANAGER Notification States (with Push / Email / In-app channels)
     const [ownerNotifs, setOwnerNotifs] = useState({
         newClient: { enabled: true, push: true, email: true, inapp: true, label: "Nouveau client ajouté" },
@@ -77,6 +79,12 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
 
     const handleSave = async (e) => {
         if (e) e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier les préférences de notification, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         try {
             await apiFetch('/v1/company/settings', {
                 method: 'PATCH',
@@ -190,7 +198,24 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
-                <button type="submit" className="save-profile-btn" style={{ padding: '10px 24px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                <button
+                    type="submit"
+                    className="save-profile-btn"
+                    style={{
+                        padding: '10px 24px',
+                        backgroundColor: 'var(--sidebar-primary)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        opacity: isExpired ? 0.85 : 1
+                    }}
+                >
+                    {isExpired && <Lock size={15} />}
                     Enregistrer les préférences
                 </button>
             </div>

@@ -12,10 +12,11 @@ import {
     ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, 
     Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2, Calendar, 
     MapPin, FileText, Check, History, CheckCircle2, Camera, PenTool, 
-    ExternalLink, Filter, ArrowUpDown, Sparkles
+    ExternalLink, Filter, ArrowUpDown, Sparkles, Lock
 } from "lucide-react";
 import InterventionDetailModal, { getInterventionStatusInfo } from "../ClientPage/components/InterventionDetailModal";
 import { getSocket } from "../utils/socket";
+import { useSubscription } from "../utils/useSubscription";
 
 // ── Responsive hook ──────────────────────────────────────────────
 function useWindowWidth() {
@@ -113,6 +114,7 @@ function PlanningPage() {
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth <= 768;
     const { role } = useUser();
+    const { isExpired } = useSubscription();
     const isTechnician = role === "TECHNICIAN";
 
     const addModalDragControls = useDragControls();
@@ -154,6 +156,13 @@ function PlanningPage() {
     useEffect(() => {
         if ((location.state?.clientId || location.state?.clientName) && !autoOpenedRef.current) {
             autoOpenedRef.current = true;
+            if (isExpired) {
+                navigate(location.pathname, { replace: true, state: {} });
+                window.dispatchEvent(new CustomEvent('subscription_expired', {
+                    detail: { message: "Votre abonnement a expiré. Pour planifier une intervention, veuillez renouveler votre abonnement." }
+                }));
+                return;
+            }
             const targetClientId = location.state.clientId || "";
             const targetClientName = location.state.clientName || "";
             const targetServiceType = location.state.serviceType;
@@ -662,6 +671,14 @@ function PlanningPage() {
 
     // Slot click → open Add modal
     const handleSelectSlot = (selectInfo) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour planifier des interventions sur le calendrier, veuillez renouveler votre abonnement." }
+            }));
+            const api = calendarRef.current?.getApi();
+            api?.unselect();
+            return;
+        }
         setSelectedSlot(selectInfo);
         const start = new Date(selectInfo.start);
         const end = new Date(selectInfo.end);
@@ -721,6 +738,12 @@ function PlanningPage() {
 
     // Header "+ Intervention" button
     const handleHeaderAddIntervention = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour créer une intervention, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         const calendarApi = calendarRef.current?.getApi();
         const currentDate = calendarApi ? calendarApi.getDate() : new Date();
         const start = new Date(currentDate);
@@ -756,6 +779,12 @@ function PlanningPage() {
     // Save new event
     const handleAddEventSubmit = async (e) => {
         e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour créer une intervention, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         if ((!newClientName && !newClientId)) return;
 
         if (!newServiceTypes || newServiceTypes.length === 0) {
@@ -850,6 +879,12 @@ function PlanningPage() {
     // Save edit
     const handleEditEventSubmit = async (e) => {
         e.preventDefault();
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier une intervention, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         if ((!editClientName && !editClientId) || !selectedEvent) return;
 
         if (!editServiceTypes || editServiceTypes.length === 0) {
@@ -905,6 +940,13 @@ function PlanningPage() {
 
     // Handle drag & drop and resize persistence
     const handleCalendarEventChange = async (updatedEvents, changeInfo) => {
+        if (isExpired) {
+            if (changeInfo && changeInfo.revert) changeInfo.revert();
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour déplacer des interventions, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setEvents(updatedEvents);
         if (changeInfo && changeInfo.event) {
             const event = changeInfo.event;
@@ -934,6 +976,12 @@ function PlanningPage() {
 
     // Delete event trigger
     const handleDeleteEvent = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour supprimer une intervention, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         if (!selectedEvent) return;
         setShowDeleteConfirm(true);
     };
@@ -991,6 +1039,12 @@ function PlanningPage() {
 
     // ── Mobile handlers ───────────────────────────────────────────
     const handleMobileOpenAdd = (slotInfo) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour planifier des interventions, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setSelectedSlot(slotInfo);
         const start = new Date(slotInfo.start);
         const end = new Date(slotInfo.end);
@@ -2192,6 +2246,7 @@ function PlanningPage() {
                             setSelectedDate={setMobileSelectedDate}
                             onSelectSlot={isTechnician ? () => {} : handleMobileOpenAdd}
                             onEventClick={handleMobileOpenEdit}
+                            isExpired={isExpired}
                         />
                     </div>
                 ) : (
@@ -2438,8 +2493,12 @@ function PlanningPage() {
                         </div>
 
                         {!isTechnician && (
-                            <button className="new-intervention-btn" onClick={handleHeaderAddIntervention}>
-                                <Plus size={16} />
+                            <button
+                                className="new-intervention-btn"
+                                onClick={handleHeaderAddIntervention}
+                                style={isExpired ? { opacity: 0.85 } : {}}
+                            >
+                                {isExpired ? <Lock size={15} /> : <Plus size={16} />}
                                 <span>Nouvelle intervention</span>
                             </button>
                         )}

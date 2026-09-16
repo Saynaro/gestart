@@ -28,28 +28,33 @@ export const requireActive = async (req, res, next) => {
             include: { plan: true }
         });
 
-        if (subscription) {
-            const now = new Date();
+        if (!subscription) {
+            return res.status(403).json({
+                success: false,
+                message: "Aucun abonnement actif trouvé pour votre société.",
+                code: "SUBSCRIPTION_EXPIRED"
+            });
+        }
 
-            if (subscription.status === "EXPIRED") {
-                return res.status(403).json({
-                    success: false,
-                    message: "L'abonnement de votre société a expiré. Veuillez le renouveler.",
-                    code: "SUBSCRIPTION_EXPIRED"
-                });
-            }
+        const now = new Date();
+        const endDate = subscription.status === "TRIALING"
+            ? subscription.trialEndsAt
+            : subscription.currentPeriodEnd;
 
-            const endDate = subscription.status === "TRIALING"
-                ? subscription.trialEndsAt
-                : subscription.currentPeriodEnd;
+        if (subscription.status === "EXPIRED" || (subscription.status === "CANCELLED" && (!endDate || new Date(endDate) < now))) {
+            return res.status(403).json({
+                success: false,
+                message: "L'abonnement de votre société a expiré ou a été résilié.",
+                code: "SUBSCRIPTION_EXPIRED"
+            });
+        }
 
-            if (endDate && new Date(endDate) < now) {
-                return res.status(403).json({
-                    success: false,
-                    message: "La période d'essai ou d'abonnement de votre société est expirée.",
-                    code: "SUBSCRIPTION_EXPIRED"
-                });
-            }
+        if (endDate && new Date(endDate) < now) {
+            return res.status(403).json({
+                success: false,
+                message: "La période d'essai ou d'abonnement de votre société est expirée.",
+                code: "SUBSCRIPTION_EXPIRED"
+            });
         }
 
         next();

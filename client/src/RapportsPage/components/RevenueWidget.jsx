@@ -5,9 +5,11 @@ import { apiFetch } from "../../utils/api";
 function RevenueWidget({ startDate, endDate }) {
     const [viewMode, setViewMode] = useState("chart"); // 'chart' or 'table'
     const [monthlyData, setMonthlyData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchRevenue = async () => {
+            setLoading(true);
             try {
                 const data = await apiFetch(`/v1/reports/revenue?startDate=${startDate}&endDate=${endDate}`);
                 if (data.data && Array.isArray(data.data.monthly)) {
@@ -18,6 +20,8 @@ function RevenueWidget({ startDate, endDate }) {
             } catch (err) {
                 console.warn("API reports revenue non disponible:", err.message);
                 setMonthlyData([]);
+            } finally {
+                setLoading(false);
             }
         };
         fetchRevenue();
@@ -35,7 +39,7 @@ function RevenueWidget({ startDate, endDate }) {
     // SVG configuration
     const width = 600;
     const height = 240;
-    const paddingLeft = 55;
+    const paddingLeft = 65;
     const paddingRight = 20;
     const paddingTop = 25;
     const paddingBottom = 35;
@@ -43,10 +47,46 @@ function RevenueWidget({ startDate, endDate }) {
     const graphWidth = width - paddingLeft - paddingRight;
     const graphHeight = height - paddingTop - paddingBottom;
 
-    const maxVal = Math.max(...monthlyData.map(d => d.caTTC || 0), 100) * 1.15;
-    const yTicks = [0, maxVal * 0.25, maxVal * 0.5, maxVal * 0.75, maxVal];
+    // Calculate clean, human-friendly Y-axis ticks and ceiling
+    const rawMax = Math.max(...monthlyData.map(d => Math.max(d.caTTC || 0, d.paid || 0)), 100) * 1.15;
 
-    const getX = (idx) => paddingLeft + (idx / Math.max(1, monthlyData.length - 1)) * graphWidth;
+    const calculateNiceScale = (maxTarget, targetTicks = 4) => {
+        const roughStep = maxTarget / targetTicks;
+        const exp = Math.floor(Math.log10(roughStep));
+        const factor = Math.pow(10, exp);
+        const fraction = roughStep / factor;
+
+        let niceStep;
+        if (fraction <= 1.2) niceStep = 1;
+        else if (fraction <= 2.2) niceStep = 2;
+        else if (fraction <= 3.5) niceStep = 2.5;
+        else if (fraction <= 7) niceStep = 5;
+        else niceStep = 10;
+
+        const step = niceStep * factor;
+        const ceiling = Math.ceil(maxTarget / step) * step;
+
+        const ticks = [];
+        for (let v = 0; v <= ceiling; v += step) {
+            ticks.push(Math.round(v));
+        }
+        return { ceiling: ceiling || 100, ticks };
+    };
+
+    const { ceiling: maxVal, ticks: yTicks } = calculateNiceScale(rawMax, 4);
+
+    const formatYTick = (val) => {
+        if (val === 0) return "0 €";
+        if (val >= 1000) {
+            const k = val / 1000;
+            return Number.isInteger(k) ? `${k}k €` : `${k.toFixed(1)}k €`;
+        }
+        return `${Math.round(val)} €`;
+    };
+
+    const getX = (idx) => monthlyData.length === 1 
+        ? paddingLeft + graphWidth / 2 
+        : paddingLeft + (idx / Math.max(1, monthlyData.length - 1)) * graphWidth;
     const getY = (val) => paddingTop + graphHeight - (Math.max(0, val || 0) / maxVal) * graphHeight;
 
     // Line paths for "Paid" trend
@@ -91,31 +131,47 @@ function RevenueWidget({ startDate, endDate }) {
 
             {/* KPI Row */}
             <div className="kpi-grid">
-                <div className="kpi-card">
-                    <span className="kpi-label">CA Total (TTC)</span>
-                    <span className="kpi-value">{totalTTC.toLocaleString("fr-FR")} €</span>
-                    <span className="kpi-subtext">HT: {totalHT.toLocaleString("fr-FR")} €</span>
-                </div>
-                <div className="kpi-card success-accent">
-                    <span className="kpi-label">CA Encaissé</span>
-                    <span className="kpi-value text-success">{totalPaid.toLocaleString("fr-FR")} €</span>
-                    <span className="kpi-subtext">Taux: {paidRate}%</span>
-                </div>
-                <div className="kpi-card warning-accent">
-                    <span className="kpi-label">Restant dû (TTC)</span>
-                    <span className="kpi-value text-warning">{totalPending.toLocaleString("fr-FR")} €</span>
-                    <span className="kpi-subtext">Factures non réglées</span>
-                </div>
-                <div className="kpi-card">
-                    <span className="kpi-label">Facture Moyenne (HT)</span>
-                    <span className="kpi-value">{avgInvoice.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} €</span>
-                    <span className="kpi-subtext">Sur {totalInvoices} facture{totalInvoices > 1 ? 's' : ''}</span>
-                </div>
+                {loading && monthlyData.length === 0 ? (
+                    [1, 2, 3, 4].map(i => (
+                        <div key={i} className="kpi-card" style={{ pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div className="skeleton-shimmer" style={{ width: '90px', height: '12px', borderRadius: '4px' }} />
+                            <div className="skeleton-shimmer" style={{ width: '120px', height: '24px', borderRadius: '6px' }} />
+                            <div className="skeleton-shimmer" style={{ width: '70px', height: '11px', borderRadius: '4px', opacity: 0.6 }} />
+                        </div>
+                    ))
+                ) : (
+                    <>
+                        <div className="kpi-card">
+                            <span className="kpi-label">CA Total (TTC)</span>
+                            <span className="kpi-value">{totalTTC.toLocaleString("fr-FR")} €</span>
+                            <span className="kpi-subtext">HT: {totalHT.toLocaleString("fr-FR")} €</span>
+                        </div>
+                        <div className="kpi-card success-accent">
+                            <span className="kpi-label">CA Encaissé</span>
+                            <span className="kpi-value text-success">{totalPaid.toLocaleString("fr-FR")} €</span>
+                            <span className="kpi-subtext">Taux: {paidRate}%</span>
+                        </div>
+                        <div className="kpi-card warning-accent">
+                            <span className="kpi-label">Restant dû (TTC)</span>
+                            <span className="kpi-value text-warning">{totalPending.toLocaleString("fr-FR")} €</span>
+                            <span className="kpi-subtext">Factures non réglées</span>
+                        </div>
+                        <div className="kpi-card">
+                            <span className="kpi-label">Facture Moyenne (HT)</span>
+                            <span className="kpi-value">{avgInvoice.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} €</span>
+                            <span className="kpi-subtext">Sur {totalInvoices} facture{totalInvoices > 1 ? 's' : ''}</span>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Viewport content */}
             <div className="widget-content">
-                {monthlyData.length === 0 ? (
+                {loading && monthlyData.length === 0 ? (
+                    <div style={{ padding: '24px 16px' }}>
+                        <div className="skeleton-shimmer" style={{ width: '100%', height: '220px', borderRadius: '12px' }} />
+                    </div>
+                ) : monthlyData.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 20px" }}>
                         <p style={{ fontWeight: 600, fontSize: "14px", color: "var(--foreground)", marginBottom: "4px" }}>
                             Vous n'avez pas encore de données de chiffre d'affaires
@@ -130,8 +186,8 @@ function RevenueWidget({ startDate, endDate }) {
                             <thead>
                                 <tr>
                                     <th>Période</th>
-                                    <th className="text-right">Nombre</th>
-                                    <th className="text-right">CA HT</th>
+                                    <th className="text-right hide-on-mobile">Nombre</th>
+                                    <th className="text-right hide-on-mobile">CA HT</th>
                                     <th className="text-right">CA TTC</th>
                                     <th className="text-right">Encaissé</th>
                                     <th className="text-right">En cours</th>
@@ -141,8 +197,8 @@ function RevenueWidget({ startDate, endDate }) {
                                 {monthlyData.map((d, i) => (
                                     <tr key={i}>
                                         <td><strong>{d.month || d.period || `Mois ${i + 1}`}</strong></td>
-                                        <td className="text-right">{d.count || 0}</td>
-                                        <td className="text-right">{(d.caHT || 0).toLocaleString("fr-FR")} €</td>
+                                        <td className="text-right hide-on-mobile">{d.count || 0}</td>
+                                        <td className="text-right hide-on-mobile">{(d.caHT || 0).toLocaleString("fr-FR")} €</td>
                                         <td className="text-right">{(d.caTTC || 0).toLocaleString("fr-FR")} €</td>
                                         <td className="text-right text-success">{(d.paid || 0).toLocaleString("fr-FR")} €</td>
                                         <td className="text-right text-warning">{((d.caTTC || 0) - (d.paid || 0)).toLocaleString("fr-FR")} €</td>
@@ -186,7 +242,7 @@ function RevenueWidget({ startDate, endDate }) {
                                                 textAnchor="end" 
                                                 className="axis-label"
                                             >
-                                                {val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} €
+                                                {formatYTick(val)}
                                             </text>
                                         </g>
                                     );
@@ -210,7 +266,7 @@ function RevenueWidget({ startDate, endDate }) {
                                     const barWidth = 24;
                                     const x = getX(idx) - barWidth / 2;
                                     const y = getY(d.caTTC || 0);
-                                    const barH = getY(0) - y;
+                                    const barH = Math.max(0, getY(0) - y);
                                     const label = d.month || d.period || `Mois ${idx + 1}`;
                                     return (
                                         <rect
@@ -234,7 +290,7 @@ function RevenueWidget({ startDate, endDate }) {
                                     const barWidth = 14;
                                     const x = getX(idx) - barWidth / 2;
                                     const y = getY(d.paid || 0);
-                                    const barH = getY(0) - y;
+                                    const barH = Math.max(0, getY(0) - y);
                                     const label = d.month || d.period || `Mois ${idx + 1}`;
                                     return (
                                         <rect

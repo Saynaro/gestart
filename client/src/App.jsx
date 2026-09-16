@@ -33,6 +33,7 @@ import LoginPage from './AuthPage/LoginPage'
 import ForgotPasswordPage from './AuthPage/ForgotPasswordPage'
 import ResetPasswordPage from './AuthPage/ResetPasswordPage'
 import VerifyEmailPage from './AuthPage/VerifyEmailPage'
+import OAuthCallbackPage from './AuthPage/OAuthCallbackPage'
 import SuperAdminPanel from './AdminPage/AdminPage'
 
 import CookieConsentBanner from './components/CookieConsentBanner'
@@ -164,6 +165,17 @@ function App() {
     return () => stopProactiveTokenRefresh();
   }, []);
 
+  // Handle BFCache (browser Back/Forward cache navigation) to prevent stale role/session display
+  useEffect(() => {
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        window.dispatchEvent(new CustomEvent('userProfileChanged'));
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   // Initialize theme and system OS theme listener globally
   useEffect(() => {
     initTheme();
@@ -211,7 +223,8 @@ function App() {
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminProtectedRoute><SuperAdminPanel /></AdminProtectedRoute>} />
 
-            {/* Auth Pages (Only accessible if NOT logged in) */}
+            {/* Auth Pages */}
+            <Route path="/auth/callback" element={<OAuthCallbackPage />} />
             <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
             <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
             <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />

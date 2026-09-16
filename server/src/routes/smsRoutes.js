@@ -22,11 +22,11 @@ router.use(authMiddleware);
 router.get("/unread-count", getUnreadSmsCount);
 
 // Inbox et historique
-router.get("/inbox", requireManager, getSmsInbox);
-router.get("/inbox/:clientId", requireManager, getClientSmsHistory);
+router.get("/inbox", getSmsInbox);
+router.get("/inbox/:clientId", getClientSmsHistory);
 
 // Envoi SMS (avec vérification du quota du plan)
-router.post("/send", requireManager, checkLimits("sms"), sendSms);
+router.post("/send", checkLimits("sms"), sendSms);
 router.post("/send-bulk", requireManager, checkLimits("sms"), sendBulkSms);
 
 // Lecture

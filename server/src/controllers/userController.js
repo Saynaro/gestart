@@ -14,6 +14,7 @@ export const getMe = async (req, res) => {
                 lastName: true,
                 phone: true,
                 avatarUrl: true,
+                jobTitle: true,
                 role: true,
                 isActive: true,
                 companyId: true,
@@ -62,7 +63,7 @@ export const getMe = async (req, res) => {
 ////// UPDATE ME //////
 export const updateMe = async (req, res) => {
     const userId = req.user.id;
-    const { firstName, lastName, phone, avatarUrl } = req.body;
+    const { firstName, lastName, phone, avatarUrl, jobTitle } = req.body;
 
     try {
         const user = await prisma.user.update({
@@ -72,6 +73,7 @@ export const updateMe = async (req, res) => {
                 ...(lastName !== undefined && { lastName: lastName.trim() }),
                 ...(phone !== undefined && { phone }),
                 ...(avatarUrl !== undefined && { avatarUrl }),
+                ...(jobTitle !== undefined && { jobTitle: jobTitle.trim() }),
             },
             select: {
                 id: true,
@@ -80,6 +82,7 @@ export const updateMe = async (req, res) => {
                 lastName: true,
                 phone: true,
                 avatarUrl: true,
+                jobTitle: true,
                 role: true,
                 companyId: true,
             }

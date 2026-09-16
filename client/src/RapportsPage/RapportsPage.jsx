@@ -5,6 +5,7 @@ import "./RapportsPage.css";
 // Layout components
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 
 // Modular report components
 import DateRangeSelector from "./components/DateRangeSelector";
@@ -22,6 +23,7 @@ function RapportsPage() {
     // Shared Date Filter State
     const [datePreset, setDatePreset] = useState("last_3_months");
     const [reportsData, setReportsData] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
     
     // Default: Last 3 months formatted YYYY-MM-DD
     const getDefaultStart = () => {
@@ -52,6 +54,14 @@ function RapportsPage() {
         fetchReports();
     }, [startDate, endDate]);
 
+    const handleRefresh = async () => {
+        try {
+            const data = await apiFetch(`/v1/reports/revenue?startDate=${startDate}&endDate=${endDate}`);
+            setReportsData(data.data || data);
+        } catch (err) {}
+        setRefreshKey(prev => prev + 1);
+    };
+
     const handleRangeChange = (presetId, start, end) => {
         setDatePreset(presetId);
         setStartDate(start);
@@ -63,42 +73,44 @@ function RapportsPage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <motion.div 
-                    className="page-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
-                    {/* Header section with page title & date selector */}
-                    <div className="content-header reports-header-row">
-                        <div>
-                            <h1 className="content-title">Analyses & Rapports</h1>
-                            <p className="content-subtitle">
-                                Suivi en temps réel de votre chiffre d'affaires, devis, interventions et clients.
-                            </p>
+                <PullToRefresh onRefresh={handleRefresh}>
+                    <motion.div 
+                        className="page-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                        {/* Header section with page title & date selector */}
+                        <div className="content-header reports-header-row">
+                            <div>
+                                <h1 className="content-title">Analyses & Rapports</h1>
+                                <p className="content-subtitle">
+                                    Suivi en temps réel de votre chiffre d'affaires, devis, interventions et clients.
+                                </p>
+                            </div>
+                            <DateRangeSelector 
+                                activePreset={datePreset}
+                                onRangeChange={handleRangeChange}
+                                startDate={startDate}
+                                endDate={endDate}
+                            />
                         </div>
-                        <DateRangeSelector 
-                            activePreset={datePreset}
-                            onRangeChange={handleRangeChange}
-                            startDate={startDate}
-                            endDate={endDate}
-                        />
-                    </div>
 
-                    {/* Dashboard Layout Grid */}
-                    <div className="rapports-dashboard-grid">
-                        <div className="grid-full-width">
-                            <RevenueWidget startDate={startDate} endDate={endDate} />
+                        {/* Dashboard Layout Grid */}
+                        <div className="rapports-dashboard-grid" key={refreshKey}>
+                            <div className="grid-full-width">
+                                <RevenueWidget startDate={startDate} endDate={endDate} />
+                            </div>
+                            <div className="grid-two-columns">
+                                <QuotesWidget startDate={startDate} endDate={endDate} />
+                                <InterventionsWidget startDate={startDate} endDate={endDate} />
+                            </div>
+                            <div className="grid-full-width">
+                                <ClientSmsWidget startDate={startDate} endDate={endDate} />
+                            </div>
                         </div>
-                        <div className="grid-two-columns">
-                            <QuotesWidget startDate={startDate} endDate={endDate} />
-                            <InterventionsWidget startDate={startDate} endDate={endDate} />
-                        </div>
-                        <div className="grid-full-width">
-                            <ClientSmsWidget startDate={startDate} endDate={endDate} />
-                        </div>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                </PullToRefresh>
             </div>
         </div>
     );

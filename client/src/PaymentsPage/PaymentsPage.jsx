@@ -7,6 +7,7 @@ import "./PaymentsPage.css";
 // Layout components
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 
 // Icons
 import {
@@ -324,12 +325,13 @@ export default function PaymentsPage() {
             <SideBar />
             <div className="main-content">
                 <Header title="Paiements" />
-                <motion.div
-                    className="page-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <PullToRefresh onRefresh={handleRefresh} disabled={showInvoiceModal || !!associatingTx}>
+                    <motion.div
+                        className="page-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    >
                     {/* Header line */}
                     <div className="payments-header-row">
                         {!isMobile ? (
@@ -907,6 +909,7 @@ export default function PaymentsPage() {
                         </div>
                     )}
                 </motion.div>
+                </PullToRefresh>
             </div>
 
             {/* Modal d'association manuelle d'un virement à une facture */}

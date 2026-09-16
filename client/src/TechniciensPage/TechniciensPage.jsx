@@ -24,6 +24,7 @@ import {
 import ToastNotification from "../components/ToastNotification";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 import { apiFetch } from "../utils/api";
 import { useSubscription } from "../utils/useSubscription";
 import FeatureLockBanner from "../components/FeatureLockBanner";
@@ -208,12 +209,13 @@ export default function TechniciensPage() {
             <SideBar activePath="/techniciens" />
             <div className="main-content">
                 <Header />
-                <motion.main 
-                    className="page-content techniciens-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <PullToRefresh onRefresh={loadData} disabled={showInviteModal || !!techToDelete || !!inviteToRevoke || showUpgradeModal}>
+                    <motion.main 
+                        className="page-content techniciens-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
 
                     {/* Toast Alert - Centered Top */}
                     <ToastNotification toast={toast.show ? toast : null} onClose={() => setToast({ show: false, message: "", isError: false })} />
@@ -901,6 +903,7 @@ export default function TechniciensPage() {
                     )}
 
                 </motion.main>
+                </PullToRefresh>
             </div>
         </div>
     );

@@ -1901,6 +1901,7 @@
 
     body .home-page .main-content {
         display: flex !important;
+        flex-direction: column !important;
         flex: 1 !important;
         height: 100vh !important;
         height: 100dvh !important;

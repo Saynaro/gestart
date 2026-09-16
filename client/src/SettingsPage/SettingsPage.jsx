@@ -5,6 +5,7 @@ import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
 import PhoneInput from "../components/PhoneInput";
+import PullToRefresh from "../components/PullToRefresh";
 import { apiFetch } from "../utils/api";
 import { useUser } from "../utils/useUser";
 import { handleLogout } from "../utils/auth";
@@ -89,25 +90,43 @@ function SettingsPage() {
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [civility, setCivility] = useState("");
     const [dob, setDob] = useState("");
+    const [tabRefreshKey, setTabRefreshKey] = useState(0);
+
+    const fetchUserProfile = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) return;
+            const data = await apiFetch('/v1/auth/me');
+            const user = data.data?.user || data.user || data;
+            if (user) {
+                if (user.firstName) setFirstName(user.firstName);
+                if (user.lastName) setLastName(user.lastName);
+                if (user.email) setEmail(user.email);
+                if (user.phone) setPhone(user.phone);
+                if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
+            }
+        } catch (err) {
+            console.warn("API me non disponible:", err.message);
+        }
+    }, []);
+
+    // Layout and Navigation State
+    const [activeTab, setActiveTab] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("id_connection") || params.get("banking")) {
+            return "paiements";
+        }
+        return params.get("tab") || "profil";
+    });
+
+    const handleSettingsRefresh = useCallback(async () => {
+        await fetchUserProfile();
+        setTabRefreshKey(prev => prev + 1);
+        window.dispatchEvent(new CustomEvent('settings_refresh', { detail: { activeTab } }));
+        await new Promise(r => setTimeout(r, 450));
+    }, [fetchUserProfile, activeTab]);
 
     useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const token = localStorage.getItem('accessToken');
-                if (!token) return;
-                const data = await apiFetch('/v1/auth/me');
-                const user = data.data?.user || data.user || data;
-                if (user) {
-                    if (user.firstName) setFirstName(user.firstName);
-                    if (user.lastName) setLastName(user.lastName);
-                    if (user.email) setEmail(user.email);
-                    if (user.phone) setPhone(user.phone);
-                    if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
-                }
-            } catch (err) {
-                console.warn("API me non disponible:", err.message);
-            }
-        };
         fetchUserProfile();
 
         const handleProfileChanged = (e) => {
@@ -121,16 +140,8 @@ function SettingsPage() {
         };
         window.addEventListener('userProfileChanged', handleProfileChanged);
         return () => window.removeEventListener('userProfileChanged', handleProfileChanged);
-    }, []);
+    }, [fetchUserProfile]);
 
-    // Layout and Navigation State
-    const [activeTab, setActiveTab] = useState(() => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("id_connection") || params.get("banking")) {
-            return "paiements";
-        }
-        return params.get("tab") || "profil";
-    });
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastIsError, setToastIsError] = useState(false);
@@ -554,7 +565,7 @@ function SettingsPage() {
 
         return (
             <motion.div
-                key={activeTab}
+                key={`${activeTab}-${tabRefreshKey}`}
                 initial={isMobileView ? { opacity: 1 } : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: isMobileView ? 0 : 0.2 }}
@@ -700,117 +711,119 @@ function SettingsPage() {
                 </div>
 
                 <div className="mobile-settings-scroll-container" ref={mobileScrollRef}>
-                    {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
-                    <div style={{ display: !isDetail ? 'block' : 'none' }}>
-                        {/* Centered User Profile info */}
-                        <div className="mobile-settings-profile-header">
-                            <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
-                                {avatarUrl ? (
-                                    <img src={avatarUrl} alt="Avatar" />
-                                ) : (
-                                    <span>{firstName[0]}{lastName[0]}</span>
+                    <PullToRefresh onRefresh={handleSettingsRefresh}>
+                        {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
+                        <div style={{ display: !isDetail ? 'block' : 'none' }}>
+                            {/* Centered User Profile info */}
+                            <div className="mobile-settings-profile-header">
+                                <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
+                                    {avatarUrl ? (
+                                        <img src={avatarUrl} alt="Avatar" />
+                                    ) : (
+                                        <span>{firstName[0]}{lastName[0]}</span>
+                                    )}
+                                </div>
+                                <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
+                                <p className="mobile-settings-profile-email">{email}</p>
+                            </div>
+
+                            {/* Pro Upgrade Banner (Owner/Manager only) */}
+                            {!isTechnician && showUpgradeBanner && (
+                                <div className="mobile-abby-banner">
+                                    <button className="mobile-abby-banner-close" onClick={() => setShowUpgradeBanner(false)}>
+                                        <X size={18} />
+                                    </button>
+                                    <h3 className="mobile-abby-banner-title">Passez à la vitesse supérieure !</h3>
+                                    <p className="mobile-abby-banner-text">
+                                        Votre plan Pro vous permet de gérer 250 clients et 2 techniciens.
+                                    </p>
+                                    <button className="mobile-abby-banner-btn" onClick={() => triggerToast("Passez au plan Unlimited !")}>
+                                        Découvrir le plan Unlimited
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Categories and Rows */}
+                            <div className="mobile-group-container">
+                                {/* Custom Conformity Section (Owner/Manager only) */}
+                                {!isTechnician && (
+                                    <div className="mobile-group-section">
+                                        <h4 className="mobile-group-header">Conformité Légale</h4>
+                                        <div className="mobile-items-card">
+                                            <button className="mobile-settings-row-btn" type="button" onClick={() => handleTabSelect("rgpd-legal")}>
+                                                <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', color: '#2563eb' }}><FileText size={16} /></span>
+                                                <span className="mobile-row-text-col">
+                                                    <span className="mobile-row-label">Facturation électronique RGPD</span>
+                                                    <span className="mobile-row-subtitle">Art. 289 CGI & Art. 15-21 RGPD</span>
+                                                </span>
+                                                <span className="mobile-row-badge">Conforme</span>
+                                                <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
-                            </div>
-                            <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
-                            <p className="mobile-settings-profile-email">{email}</p>
-                        </div>
 
-                        {/* Pro Upgrade Banner (Owner/Manager only) */}
-                        {!isTechnician && showUpgradeBanner && (
-                            <div className="mobile-abby-banner">
-                                <button className="mobile-abby-banner-close" onClick={() => setShowUpgradeBanner(false)}>
-                                    <X size={18} />
-                                </button>
-                                <h3 className="mobile-abby-banner-title">Passez à la vitesse supérieure !</h3>
-                                <p className="mobile-abby-banner-text">
-                                    Votre plan Pro vous permet de gérer 250 clients et 2 techniciens.
-                                </p>
-                                <button className="mobile-abby-banner-btn" onClick={() => triggerToast("Passez au plan Unlimited !")}>
-                                    Découvrir le plan Unlimited
-                                </button>
-                            </div>
-                        )}
+                                {menuCategories.map((category) => (
+                                    <div key={category.title} className="mobile-group-section">
+                                        <h4 className="mobile-group-header">{category.title}</h4>
+                                        <div className="mobile-items-card">
+                                            {category.items.map((item) => {
+                                                const RowIcon = item.icon;
+                                                return (
+                                                    <button
+                                                        key={item.id}
+                                                        className="mobile-settings-row-btn"
+                                                        type="button"
+                                                        onClick={() => handleTabSelect(item.id)}
+                                                    >
+                                                        <span className="mobile-row-icon-bg"><RowIcon size={16} /></span>
+                                                        <span className="mobile-row-text-col">
+                                                            <span className="mobile-row-label">{item.label}</span>
+                                                            <span className="mobile-row-subtitle">{item.subtitle}</span>
+                                                        </span>
+                                                        {item.badge && (
+                                                            <span className="mobile-row-badge" style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff' }}>{item.badge}</span>
+                                                        )}
+                                                        <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
 
-                        {/* Categories and Rows */}
-                        <div className="mobile-group-container">
-                            {/* Custom Conformity Section (Owner/Manager only) */}
-                            {!isTechnician && (
-                                <div className="mobile-group-section">
-                                    <h4 className="mobile-group-header">Conformité Légale</h4>
+                                {/* Logout Row */}
+                                <div className="mobile-group-section" style={{ marginBottom: '24px' }}>
                                     <div className="mobile-items-card">
-                                        <button className="mobile-settings-row-btn" type="button" onClick={() => handleTabSelect("rgpd-legal")}>
-                                            <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', color: '#2563eb' }}><FileText size={16} /></span>
+                                        <button className="mobile-settings-row-btn" type="button" onClick={() => {
+                                            triggerConfirm({
+                                                title: "Déconnexion de GestArt",
+                                                message: "Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte ?",
+                                                confirmText: "Oui, me déconnecter",
+                                                cancelText: "Annuler",
+                                                onConfirm: () => handleLogout(navigate)
+                                            });
+                                        }}>
+                                            <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
                                             <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label">Facturation électronique RGPD</span>
-                                                <span className="mobile-row-subtitle">Art. 289 CGI & Art. 15-21 RGPD</span>
+                                                <span className="mobile-row-label" style={{ color: '#ef4444' }}>Déconnexion</span>
+                                                <span className="mobile-row-subtitle">Se déconnecter de votre compte</span>
                                             </span>
-                                            <span className="mobile-row-badge">Conforme</span>
                                             <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
                                         </button>
                                     </div>
                                 </div>
-                            )}
-
-                            {menuCategories.map((category) => (
-                                <div key={category.title} className="mobile-group-section">
-                                    <h4 className="mobile-group-header">{category.title}</h4>
-                                    <div className="mobile-items-card">
-                                        {category.items.map((item) => {
-                                            const RowIcon = item.icon;
-                                            return (
-                                                <button
-                                                    key={item.id}
-                                                    className="mobile-settings-row-btn"
-                                                    type="button"
-                                                    onClick={() => handleTabSelect(item.id)}
-                                                >
-                                                    <span className="mobile-row-icon-bg"><RowIcon size={16} /></span>
-                                                    <span className="mobile-row-text-col">
-                                                        <span className="mobile-row-label">{item.label}</span>
-                                                        <span className="mobile-row-subtitle">{item.subtitle}</span>
-                                                    </span>
-                                                    {item.badge && (
-                                                        <span className="mobile-row-badge" style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff' }}>{item.badge}</span>
-                                                    )}
-                                                    <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            ))}
-
-                            {/* Logout Row */}
-                            <div className="mobile-group-section" style={{ marginBottom: '24px' }}>
-                                <div className="mobile-items-card">
-                                    <button className="mobile-settings-row-btn" type="button" onClick={() => {
-                                        triggerConfirm({
-                                            title: "Déconnexion de GestArt",
-                                            message: "Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte ?",
-                                            confirmText: "Oui, me déconnecter",
-                                            cancelText: "Annuler",
-                                            onConfirm: () => handleLogout(navigate)
-                                        });
-                                    }}>
-                                        <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
-                                        <span className="mobile-row-text-col">
-                                            <span className="mobile-row-label" style={{ color: '#ef4444' }}>Déconnexion</span>
-                                            <span className="mobile-row-subtitle">Se déconnecter de votre compte</span>
-                                        </span>
-                                        <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                    </button>
-                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Detail View Container - Kept mounted with CSS display toggle */}
-                    <div className="mobile-tab-content-wrapper" style={{ display: isDetail ? 'block' : 'none' }}>
-                        <h1 className="mobile-header-title">{currentItem.label}</h1>
+                        {/* Detail View Container - Kept mounted with CSS display toggle */}
+                        <div className="mobile-tab-content-wrapper" style={{ display: isDetail ? 'block' : 'none' }}>
+                            <h1 className="mobile-header-title">{currentItem.label}</h1>
 
-                        {/* Render active form detail */}
-                        {renderTabContent(true)}
-                    </div>
+                            {/* Render active form detail */}
+                            {renderTabContent(true)}
+                        </div>
+                    </PullToRefresh>
                 </div>
 
                 <SideBar />
@@ -978,19 +991,21 @@ function SettingsPage() {
                     <div className="main-content">
                         <Header />
 
-                        <motion.div 
-                            className="settings-layout-container" 
-                            ref={layoutContainerRef}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                        >
-                            <div className="settings-content-panel">
-                                <AnimatePresence mode="wait">
-                                    {renderTabContent(false)}
-                                </AnimatePresence>
-                            </div>
-                        </motion.div>
+                        <PullToRefresh onRefresh={handleSettingsRefresh}>
+                            <motion.div 
+                                className="settings-layout-container" 
+                                ref={layoutContainerRef}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                            >
+                                <div className="settings-content-panel">
+                                    <AnimatePresence mode="wait">
+                                        {renderTabContent(false)}
+                                    </AnimatePresence>
+                                </div>
+                            </motion.div>
+                        </PullToRefresh>
                     </div>
                 </div>
             )}

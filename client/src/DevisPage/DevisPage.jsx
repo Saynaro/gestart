@@ -9,6 +9,7 @@ import "../PlanningPage/PlanningPage.css";
 
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 
 import QuoteList from "./components/QuoteList";
 import QuoteDetailDrawer from "./components/QuoteDetailDrawer";
@@ -480,12 +481,13 @@ function DevisPage() {
             <SideBar onFabClick={handleOpenCreateQuote} />
             <div className="main-content">
                 <Header />
-                <motion.div 
-                    className="page-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <PullToRefresh onRefresh={() => fetchQuotes(true)} disabled={showNewModal || showEditPanel || showDetailDrawer || showPdfModal}>
+                    <motion.div 
+                        className="page-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
 
                     {/* Page Header */}
                     <div className="dv-page-header">
@@ -535,6 +537,7 @@ function DevisPage() {
                         onDeleteQuote={handleDeleteQuote}
                     />
                 </motion.div>
+                </PullToRefresh>
             </div>
 
             {/* Detail Drawer */}

@@ -45,6 +45,7 @@ import "./PremiumPage.css";
 // Layout components
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 import FeatureLockBanner from "../components/FeatureLockBanner";
 import AccountingIntegration from "../ComptabilityPage/components/AccountingIntegration";
 
@@ -587,8 +588,9 @@ function PremiumPage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <motion.div
-                    className="page-content"
+                <PullToRefresh onRefresh={loadDashboardData}>
+                    <motion.div
+                        className="page-content"
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -1850,7 +1852,8 @@ function PremiumPage() {
                             <AccountingIntegration />
                         </div>
                     )}
-                </motion.div>
+                    </motion.div>
+                </PullToRefresh>
             </div>
 
             {/* ── MODAL: CRÉER / MODIFIER UNE RÈGLE DE RAPPEL ────────────── */}

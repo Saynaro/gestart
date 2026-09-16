@@ -6,6 +6,7 @@ import "../HomePage/Homepage.css";
 import "./PlanningPage.css";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 import EventCalendar from "../components/EventCalendar";
 import MobilePlanningView from "./MobilePlanningView";
 import { 
@@ -286,6 +287,14 @@ function PlanningPage() {
         } catch (err) {
             console.warn("API techniciens non disponible:", err.message);
         }
+    };
+
+    const handleRefresh = async () => {
+        await Promise.all([
+            fetchInterventions(),
+            fetchClients(),
+            fetchTechnicians()
+        ]);
     };
 
     useEffect(() => {
@@ -2212,6 +2221,7 @@ function PlanningPage() {
         return (
             <div className="mobile-planning-view-wrapper">
                 <Header />
+                <PullToRefresh onRefresh={handleRefresh} disabled={showDetailModal || showAddModal || showEditModal}>
 
                 {/* Mobile Top Navigation Segmented Switcher */}
                 <div className="mobile-planning-segmented-wrap">
@@ -2442,6 +2452,7 @@ function PlanningPage() {
                         <div className="mobile-history-bottom-spacer" />
                     </div>
                 )}
+                </PullToRefresh>
 
                 <SideBar onFabClick={isTechnician ? null : handleMobileFabClick} hideFab={isTechnician} />
                 {sharedModals}

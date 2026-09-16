@@ -5,6 +5,9 @@
     align-items: center;
     padding: 0 24px;
     height: 64px;
+    min-height: 64px;
+    flex-shrink: 0 !important;
+    box-sizing: border-box;
     background-color: var(--sidebar);
     border-bottom: 1px solid var(--sidebar-border);
     position: sticky;
@@ -219,7 +222,11 @@
 /* Media query for mobile headers */
 @media (max-width: 768px) {
     .header {
-        padding: 0 16px;
+        padding: 0 18px;
+        height: 64px;
+        min-height: 64px;
+        flex-shrink: 0 !important;
+        box-sizing: border-box;
         background-color: var(--sidebar);
         border-bottom: none;
     }

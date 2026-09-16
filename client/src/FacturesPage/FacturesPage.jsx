@@ -9,6 +9,7 @@ import "../PlanningPage/PlanningPage.css";
 
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 
 import InvoiceList from "./components/InvoiceList";
 import InvoiceDetailDrawer from "./components/InvoiceDetailDrawer";
@@ -546,12 +547,13 @@ function FacturesPage() {
             <SideBar onFabClick={handleOpenCreateInvoice} />
             <div className="main-content">
                 <Header />
-                <motion.div 
-                    className="page-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <PullToRefresh onRefresh={() => fetchInvoices(true)} disabled={showNewModal || showEditPanel || showDetailDrawer || showPdfModal}>
+                    <motion.div 
+                        className="page-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
 
                     {/* Page Header */}
                     <div className="fp-page-header">
@@ -744,6 +746,7 @@ function FacturesPage() {
                         </>
                     )}
                 </motion.div>
+                </PullToRefresh>
             </div>
 
             {/* Detail Drawer */}

@@ -23,6 +23,7 @@ import InvoiceDetailDrawer from "../FacturesPage/components/InvoiceDetailDrawer"
 import QuoteDetailDrawer from "../DevisPage/components/QuoteDetailDrawer";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 import QuotePdfView from "../DevisPage/components/QuotePdfView";
+import PullToRefresh from "../components/PullToRefresh";
 
 // Helper to fill mock details if not present
 const getClientDetails = (client) => {
@@ -776,59 +777,61 @@ function ClientPage() {
                 ) : (
                     <div className="mobile-contacts-view">
                         <Header />
-                        <motion.div 
-                            className="mobile-contacts-scrollable-content" 
-                            style={{ paddingBottom: '90px' }}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                        >
-                            {/* Segmented Switcher Control */}
-                            <div className="segmented-control-wrapper">
-                                <div className="segmented-control">
-                                    <button
-                                        className={`segmented-btn ${activeTabType === "particulier" ? "active" : ""}`}
-                                        onClick={() => {
-                                            setActiveTabType("particulier");
-                                            setSelectedClient(null);
-                                        }}
-                                    >
-                                        Particulier
-                                    </button>
-                                    <button
-                                        className={`segmented-btn ${activeTabType === "organisation" ? "active" : ""}`}
-                                        onClick={() => {
-                                            setActiveTabType("organisation");
-                                            setSelectedClient(null);
-                                        }}
-                                    >
-                                        Organisation
-                                    </button>
+                        <PullToRefresh onRefresh={fetchClients} disabled={!!editingClient || !!clientToDelete}>
+                            <motion.div 
+                                className="mobile-contacts-scrollable-content" 
+                                style={{ paddingBottom: '90px' }}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                            >
+                                {/* Segmented Switcher Control */}
+                                <div className="segmented-control-wrapper">
+                                    <div className="segmented-control">
+                                        <button
+                                            className={`segmented-btn ${activeTabType === "particulier" ? "active" : ""}`}
+                                            onClick={() => {
+                                                setActiveTabType("particulier");
+                                                setSelectedClient(null);
+                                            }}
+                                        >
+                                            Particulier
+                                        </button>
+                                        <button
+                                            className={`segmented-btn ${activeTabType === "organisation" ? "active" : ""}`}
+                                            onClick={() => {
+                                                setActiveTabType("organisation");
+                                                setSelectedClient(null);
+                                            }}
+                                        >
+                                            Organisation
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Search and Filters card */}
-                            <ClientSearchFilter
-                                searchTerm={searchTerm}
-                                setSearchTerm={setSearchTerm}
-                                statusFilter={statusFilter}
-                                setStatusFilter={setStatusFilter}
-                                placeholder="Rechercher un contact..."
-                            />
+                                {/* Search and Filters card */}
+                                <ClientSearchFilter
+                                    searchTerm={searchTerm}
+                                    setSearchTerm={setSearchTerm}
+                                    statusFilter={statusFilter}
+                                    setStatusFilter={setStatusFilter}
+                                    placeholder="Rechercher un contact..."
+                                />
 
-                            {/* Grouped Client List */}
-                            <ClientMobileList
-                                sortedLetters={sortedLetters}
-                                groupedItems={groupedItems}
-                                onSelect={(client) => navigate("/client?id=" + client.id)}
-                                activeTabType={activeTabType}
-                                statusFilter={statusFilter}
-                                searchTerm={searchTerm}
-                                loading={loading}
-                                onOpenAddClient={isTechnician ? null : handleOpenAddClient}
-                                isExpired={isExpired}
-                            />
-                        </motion.div>
+                                {/* Grouped Client List */}
+                                <ClientMobileList
+                                    sortedLetters={sortedLetters}
+                                    groupedItems={groupedItems}
+                                    onSelect={(client) => navigate("/client?id=" + client.id)}
+                                    activeTabType={activeTabType}
+                                    statusFilter={statusFilter}
+                                    searchTerm={searchTerm}
+                                    loading={loading}
+                                    onOpenAddClient={isTechnician ? null : handleOpenAddClient}
+                                    isExpired={isExpired}
+                                />
+                            </motion.div>
+                        </PullToRefresh>
 
                         {/* Mobile Bottom Tab Bar */}
                         <SideBar onFabClick={isTechnician ? null : handleOpenAddClient} hideFab={isTechnician || !!selectedClient} />

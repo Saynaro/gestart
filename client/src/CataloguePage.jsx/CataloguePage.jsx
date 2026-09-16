@@ -6,6 +6,7 @@ import CatalogueHeader from "./components/CatalogueHeader";
 import ArticleList from "./components/ArticleList";
 import NewArticleModal from "./components/NewArticleModal";
 import DeleteConfirmModal from "./components/DeleteConfirmModal";
+import PullToRefresh from "../components/PullToRefresh";
 import { Plus, Lock } from "lucide-react";
 import "./CataloguePage.css";
 
@@ -290,36 +291,38 @@ function CataloguePage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <motion.div
-                    className="page-content catalogue-page-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
-                    {/* Header Section */}
-                    <CatalogueHeader
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        activeCategory={activeCategory}
-                        setActiveCategory={setActiveCategory}
-                        totalCount={filteredArticles.length}
-                        onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
-                        isReadOnly={isTechnician}
-                        isExpired={isExpired}
-                    />
+                <PullToRefresh onRefresh={fetchCatalog}>
+                    <motion.div
+                        className="page-content catalogue-page-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                        {/* Header Section */}
+                        <CatalogueHeader
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            activeCategory={activeCategory}
+                            setActiveCategory={setActiveCategory}
+                            totalCount={filteredArticles.length}
+                            onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
+                            isReadOnly={isTechnician}
+                            isExpired={isExpired}
+                        />
 
-                    {/* Article List / Empty State */}
-                    <ArticleList
-                        articles={filteredArticles}
-                        searchQuery={searchQuery}
-                        loading={loading}
-                        onEdit={isTechnician ? null : (article) => handleOpenNewModal(article)}
-                        onDelete={isTechnician ? null : (id) => handleOpenDeleteModal(id)}
-                        onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
-                        isReadOnly={isTechnician}
-                        isExpired={isExpired}
-                    />
-                </motion.div>
+                        {/* Article List / Empty State */}
+                        <ArticleList
+                            articles={filteredArticles}
+                            searchQuery={searchQuery}
+                            loading={loading}
+                            onEdit={isTechnician ? null : (article) => handleOpenNewModal(article)}
+                            onDelete={isTechnician ? null : (id) => handleOpenDeleteModal(id)}
+                            onOpenNewModal={isTechnician ? () => {} : () => handleOpenNewModal()}
+                            isReadOnly={isTechnician}
+                            isExpired={isExpired}
+                        />
+                    </motion.div>
+                </PullToRefresh>
             </div>
 
             {/* Mobile Floating FAB Action Button (Owner/Manager only) */}

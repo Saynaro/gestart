@@ -7,6 +7,7 @@ import "./Homepage.css";
 // Layout components
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 
 // Modular dashboard components
 import Greeting from "./components/Greeting";
@@ -39,6 +40,15 @@ function HomePage() {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
 
+    const fetchDashboard = async () => {
+        try {
+            const data = await apiFetch('/v1/dashboard');
+            setDashboardData(data.data || data);
+        } catch (err) {
+            console.warn("API dashboard non disponible:", err.message);
+        }
+    };
+
     useEffect(() => {
         if (!userLoading && user?.role === "TECHNICIAN") {
             navigate("/interventions/today", { replace: true });
@@ -63,15 +73,6 @@ function HomePage() {
     }, [user, userLoading, location, navigate]);
 
     useEffect(() => {
-        const fetchDashboard = async () => {
-            try {
-                const data = await apiFetch('/v1/dashboard');
-                setDashboardData(data.data || data);
-            } catch (err) {
-                console.warn("API dashboard non disponible:", err.message);
-            }
-        };
-
         fetchDashboard();
     }, []);
 
@@ -145,12 +146,13 @@ function HomePage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <motion.div 
-                    className="page-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <PullToRefresh onRefresh={fetchDashboard} disabled={showOnboarding}>
+                    <motion.div 
+                        className="page-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
                     {/* Welcome Greeting Section */}
                     <Greeting name={user?.firstName || "Khalid"} />
 
@@ -236,6 +238,7 @@ function HomePage() {
                         />
                     )}
                 </motion.div>
+                </PullToRefresh>
             </div>
 
             {/* Onboarding Welcome Modal */}

@@ -6,6 +6,7 @@ import "./ComptabilityPage.css";
 // Layout components
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 
 // Modular accounting components
 import TvaSummary from "./components/TvaSummary";
@@ -24,6 +25,7 @@ function ComptabilityPage() {
     const { isStarter } = useSubscription();
     const [activeSubTab, setActiveSubTab] = useState("tva");
     const [isMobile, setIsMobile] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     // Detect responsive screen size
     useEffect(() => {
@@ -65,66 +67,72 @@ function ComptabilityPage() {
             <SideBar />
             <div className="main-content">
                 <Header />
-                <motion.div 
-                    className="page-content"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
-                    {/* Header line */}
-                    <div className="content-header comptability-header-row">
-                        <div className="header-nav-title-group">
-                            {isMobile && (
-                                <button className="mobile-back-btn" onClick={() => navigate("/home")}>
-                                    <ArrowLeft size={18} />
-                                </button>
-                            )}
-                            <div>
-                                {!isMobile && <h1 className="content-title">Comptabilité</h1>}
-                                <p className="content-subtitle">
-                                    Suivi de TVA, génération d'exports comptables et synchronisation.
-                                </p>
+                <PullToRefresh onRefresh={async () => {
+                    setRefreshKey(prev => prev + 1);
+                    await new Promise(r => setTimeout(r, 450));
+                }}>
+                    <motion.div 
+                        key={refreshKey}
+                        className="page-content"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                        {/* Header line */}
+                        <div className="content-header comptability-header-row">
+                            <div className="header-nav-title-group">
+                                {isMobile && (
+                                    <button className="mobile-back-btn" onClick={() => navigate("/home")}>
+                                        <ArrowLeft size={18} />
+                                    </button>
+                                )}
+                                <div>
+                                    {!isMobile && <h1 className="content-title">Comptabilité</h1>}
+                                    <p className="content-subtitle">
+                                        Suivi de TVA, génération d'exports comptables et synchronisation.
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {isMobile ? (
-                        /* Mobile View: Scrollable vertical stack of all widgets */
-                        <div className="mobile-comptability-stack">
-                            <TvaSummary />
-                            <UrssafSummary />
-                            <ExportPanel />
-                            <ExportHistory />
-                            <AccountingIntegration />
-                        </div>
-                    ) : (
-                        /* Desktop View: Tabbed left-navigation and right-content layout */
-                        <div className="desktop-comptability-layout">
-                            <div className="comptability-nav-sidebar">
-                                <ul className="comptability-nav-menu">
-                                    {subTabs.map((tab) => {
-                                        const TabIcon = tab.icon;
-                                        return (
-                                            <li key={tab.id}>
-                                                <button
-                                                    className={`comptability-nav-item ${activeSubTab === tab.id ? "active" : ""}`}
-                                                    onClick={() => setActiveSubTab(tab.id)}
-                                                >
-                                                    <TabIcon size={16} className="nav-icon" />
-                                                    <span>{tab.label}</span>
-                                                </button>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
+                        {isMobile ? (
+                            /* Mobile View: Scrollable vertical stack of all widgets */
+                            <div className="mobile-comptability-stack">
+                                <TvaSummary />
+                                <UrssafSummary />
+                                <ExportPanel />
+                                <ExportHistory />
+                                <AccountingIntegration />
                             </div>
+                        ) : (
+                            /* Desktop View: Tabbed left-navigation and right-content layout */
+                            <div className="desktop-comptability-layout">
+                                <div className="comptability-nav-sidebar">
+                                    <ul className="comptability-nav-menu">
+                                        {subTabs.map((tab) => {
+                                            const TabIcon = tab.icon;
+                                            return (
+                                                <li key={tab.id}>
+                                                    <button
+                                                        className={`comptability-nav-item ${activeSubTab === tab.id ? "active" : ""}`}
+                                                        onClick={() => setActiveSubTab(tab.id)}
+                                                    >
+                                                        <TabIcon size={16} className="nav-icon" />
+                                                        <span>{tab.label}</span>
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
 
-                            <div className="comptability-content-panel">
-                                {renderActiveSubPanel()}
+                                <div className="comptability-content-panel">
+                                    {renderActiveSubPanel()}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </motion.div>
+                        )}
+                    </motion.div>
+                </PullToRefresh>
             </div>
         </div>
     );

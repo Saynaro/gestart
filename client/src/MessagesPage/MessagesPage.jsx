@@ -45,6 +45,7 @@ import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import PullToRefresh from "../components/PullToRefresh";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 import QuotePdfView from "../DevisPage/components/QuotePdfView";
 import { apiFetch } from "../utils/api";
@@ -341,6 +342,16 @@ function MessagesPage() {
       if (!isBackground) setIsLoadingChats(false);
     }
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    await fetchConversations(true);
+    if (activeChatIdParam) {
+      try {
+        const res = await apiFetch(`/v1/messages/inbox/${activeChatIdParam}`);
+        if (res.data?.messages) setMessages(res.data.messages);
+      } catch (_) {}
+    }
+  }, [fetchConversations, activeChatIdParam]);
 
   useEffect(() => {
     fetchConversations(!!cachedMessagesChats);
@@ -2642,7 +2653,9 @@ function MessagesPage() {
             {/* Desktop View Layout */}
             {!isMobile && (
               <>
-                {renderChatList()}
+                <PullToRefresh onRefresh={handleRefresh} style={{ height: "100%", width: "320px", flexShrink: 0 }}>
+                  {renderChatList()}
+                </PullToRefresh>
                 {activeChatIdParam ? renderChatPane() : (
                   <div className="chat-pane-placeholder flex-1 flex flex-col items-center justify-center bg-card text-muted-foreground p-8 text-center" style={{ borderRight: "1px solid var(--border)" }}>
                     <MessageSquare size={48} className="mb-4 opacity-40" />
@@ -2695,7 +2708,11 @@ function MessagesPage() {
             {/* Mobile View Layout */}
             {isMobile && (
               <div className="mobile-view-wrapper flex-1 flex flex-col relative w-full h-full overflow-hidden">
-                {mobileView === "list" && renderChatList()}
+                {mobileView === "list" && (
+                  <PullToRefresh onRefresh={handleRefresh} style={{ height: "100%", width: "100%", flex: 1, minHeight: 0 }}>
+                    {renderChatList()}
+                  </PullToRefresh>
+                )}
                 {mobileView === "chat" && renderChatPane()}
                 {mobileView === "info" && (
                   <div className="mobile-info-view-container absolute inset-0 bg-background z-50 flex flex-col w-full h-full">

@@ -622,7 +622,7 @@ export const getClientsReport = async (req, res) => {
                 equipment: {
                     where: { isActive: true },
                     take: 1,
-                    select: { name: true, brand: true, model: true }
+                    select: { brand: true, model: true, power: true }
                 }
             }
         });
@@ -646,7 +646,7 @@ export const getClientsReport = async (req, res) => {
                     equipment: {
                         where: { isActive: true },
                         take: 1,
-                        select: { name: true, brand: true, model: true }
+                        select: { brand: true, model: true, power: true }
                     }
                 }
             });
@@ -656,7 +656,7 @@ export const getClientsReport = async (req, res) => {
             const fullName = `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.companyName || "Client";
             const eq = c.equipment?.[0];
             const eqDesc = eq 
-                ? `${eq.name || ''} ${eq.brand || ''} ${eq.model || ''}`.trim() 
+                ? `${eq.brand || ''} ${eq.model || ''}${eq.power ? ` (${eq.power})` : ''}`.trim() 
                 : "Équipement en suivi";
             return {
                 id: c.id,

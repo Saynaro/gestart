@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
     Bell,
     MapPin,
@@ -1087,16 +1088,16 @@ export default function TechnicianInterventionsPage() {
             )}
 
             {/* 6. CONFIRMATION CLOSING MODAL */}
-            {showConfirmModal && (
+            {showConfirmModal && createPortal(
                 <div style={{
                     position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)',
-                    backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', padding: '20px'
+                    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', padding: '16px', overflowY: 'auto', boxSizing: 'border-box'
                 }}>
                     <div style={{
                         background: 'var(--card, #FFFFFF)', border: '1px solid var(--border)',
-                        borderRadius: '24px', padding: '28px', maxWidth: '440px', width: '100%', textAlign: 'center',
-                        boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
+                        borderRadius: '24px', padding: '28px', maxWidth: '440px', width: '100%', maxHeight: '90vh', overflowY: 'auto', textAlign: 'center',
+                        boxShadow: '0 25px 60px rgba(0,0,0,0.4)', margin: 'auto', boxSizing: 'border-box'
                     }}>
                         <div style={{
                             width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(85, 107, 47, 0.12)',
@@ -1128,7 +1129,8 @@ export default function TechnicianInterventionsPage() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
         </div>

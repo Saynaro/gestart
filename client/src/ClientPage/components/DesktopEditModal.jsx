@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, MapPin, Wrench, ChevronRight, ChevronLeft, Check } from "lucide-react";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
@@ -97,7 +98,7 @@ function DesktopEditModal({
         { id: 3, label: "Équipement", icon: Wrench }
     ];
 
-    return (
+    return createPortal(
         <AnimatePresence>
             {editingClient && (
                 <div className="desktop-modal-wrapper">
@@ -369,7 +370,8 @@ function DesktopEditModal({
                     </motion.div>
                 </div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }
 

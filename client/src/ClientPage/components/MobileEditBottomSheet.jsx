@@ -125,7 +125,7 @@ function MobileEditBottomSheet({
 
                         {/* Bottom Sheet Container */}
                         <motion.div
-                            className="fixed bottom-0 left-0 right-0 z-[2150] mx-auto w-full max-w-md bg-[#f8fafc] dark:bg-[#141416] rounded-t-[32px] shadow-[0_-10px_40px_rgba(0,0,0,0.15)] overflow-y-auto outline-none"
+                            className="fixed bottom-0 left-0 right-0 z-[2150] mx-auto w-full max-w-md bg-[var(--background)] dark:bg-[#141416] rounded-t-[32px] shadow-[0_-10px_40px_rgba(0,0,0,0.15)] overflow-y-auto outline-none"
                             style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}

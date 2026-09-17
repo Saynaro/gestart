@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { 
     Building, 
     ShieldCheck, 
@@ -429,17 +430,20 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Modal de Configuration Sécurisée */}
-            {showConfigModal && (
+            {showConfigModal && createPortal(
                 <div style={{
                     position: 'fixed',
                     inset: 0,
-                    backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.75)',
                     backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                     zIndex: 999999,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '20px'
+                    padding: '16px',
+                    boxSizing: 'border-box',
+                    overflowY: 'auto'
                 }}>
                     <div style={{
                         backgroundColor: 'var(--card)',
@@ -448,7 +452,11 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                         padding: '28px',
                         maxWidth: '520px',
                         width: '100%',
-                        boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
+                        boxSizing: 'border-box',
+                        boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+                        margin: 'auto'
                     }}>
                         <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: 'var(--foreground)' }}>
                             Configuration de la Plateforme Agréée
@@ -587,7 +595,8 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

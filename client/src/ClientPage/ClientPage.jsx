@@ -55,7 +55,7 @@ function ClientPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { role } = useUser();
-    const { isExpired } = useSubscription();
+    const { isExpired, isUnlimited, isStarter, subscription, displayName } = useSubscription();
     const isTechnician = role === "TECHNICIAN";
 
     const [contacts, setContacts] = useState(() => cachedClientsData?.contacts || []);
@@ -595,6 +595,21 @@ function ClientPage() {
             }));
             return;
         }
+
+        const maxClients = subscription?.plan?.maxClients ?? (isStarter ? 50 : 300);
+        const totalClientsCount = contacts.length + organisations.length;
+        if (!isUnlimited && maxClients !== -1 && totalClientsCount >= maxClients) {
+            window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+                detail: {
+                    reason: "clients",
+                    title: "Capacité maximale de clients atteinte",
+                    description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxClients} clients (${totalClientsCount}/${maxClients}). Débloquez un portefeuille client 100% illimité avec l'offre Unlimited.`,
+                    targetPlan: "UNLIMITED"
+                }
+            }));
+            return;
+        }
+
         const isOrg = activeTabType === "organisation";
         setEditingClient({ id: null, isOrg, isNew: true });
         setEditFirstName("");
@@ -679,6 +694,17 @@ function ClientPage() {
             showToast("Client enregistré avec succès !");
         } catch (err) {
             console.error("Save client API error:", err);
+            if (err.message && (err.message.includes("Limite") || err.message.includes("limite") || err.code === "LIMIT_REACHED")) {
+                window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+                    detail: {
+                        reason: "clients",
+                        title: "Capacité maximale de clients atteinte",
+                        description: err.message,
+                        targetPlan: "UNLIMITED"
+                    }
+                }));
+                return;
+            }
             showToast(err.message || "Erreur lors de la sauvegarde du client", "error");
         } finally {
             setEditingClient(null);

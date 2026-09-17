@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import {
     X,
@@ -51,7 +52,7 @@ export const getInterventionStatusInfo = (item) => {
 
 };
 
-function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
+function InterventionDetailModal({ isOpen, onClose, intervention, client, onEdit }) {
     const [previewPhoto, setPreviewPhoto] = useState(null);
     const [liveData, setLiveData] = useState(null);
     const [cachedIntervention, setCachedIntervention] = useState(intervention);
@@ -103,12 +104,23 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, previewPhoto, onClose]);
 
+    // Lock body scroll while modal is open
+    useEffect(() => {
+        if (!isOpen) return;
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, [isOpen]);
+
     const activeIntervention = intervention || cachedIntervention;
     const activeClient = client || cachedClient;
 
     const raw = liveData || activeIntervention?.raw || activeIntervention;
     const title = activeIntervention?.title || raw?.title || raw?.type || "Intervention";
     const serviceType = raw?.type || raw?.serviceType || activeIntervention?.type || "Intervention";
+    const clientDisplayName = activeClient?.name || (activeClient?.firstName ? `${activeClient.firstName || ''} ${activeClient.lastName || ''}`.trim() : (raw?.client?.name || (raw?.client?.firstName ? `${raw.client.firstName || ''} ${raw.client.lastName || ''}`.trim() : (raw?.clientName || "Client"))));
     const techName = activeIntervention?.tech || (raw?.technician ? `${raw.technician.firstName || ''} ${raw.technician.lastName || ''}`.trim() || raw.technician.email : "Non assigné");
     const address = activeIntervention?.address || raw?.address || activeClient?.address || "Non renseignée";
     const city = activeIntervention?.city || raw?.city || activeClient?.city || "";
@@ -126,10 +138,17 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
 
     const statusInfo = getInterventionStatusInfo(raw);
 
+    const schedTime = raw?.scheduledAt ? new Date(raw.scheduledAt).getTime() : (activeIntervention?.start ? new Date(activeIntervention.start).getTime() : null);
+    const isPast = schedTime ? schedTime < new Date().setHours(0, 0, 0, 0) : false;
+    const isCompletedOrCancelled = raw?.status === "COMPLETED" || raw?.status === "CANCELLED" || activeIntervention?.status === "COMPLETED";
+    const canEdit = Boolean(onEdit && !isPast && !isCompletedOrCancelled);
+
     const displayDate = activeIntervention?.fullDate || (raw?.scheduledAt ? new Date(raw.scheduledAt).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : activeIntervention?.date || "Date non définie");
     const displayTime = raw?.scheduledAt ? new Date(raw.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null;
 
-    return (
+    if (typeof document === "undefined") return null;
+
+    return createPortal(
         <AnimatePresence>
             {isOpen && activeIntervention && (
                 <motion.div
@@ -196,7 +215,7 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
                                         </span>
                                     </div>
                                     <p className="idm-subtitle">
-                                        {serviceType} · Client : {activeClient?.name || (activeClient?.firstName ? `${activeClient?.firstName || ''} ${activeClient?.lastName || ''}`.trim() : "Client")}
+                                        {serviceType} · Client : {clientDisplayName}
                                     </p>
                                 </div>
                             </div>
@@ -469,7 +488,35 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="idm-footer">
+                    <div className="idm-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px' }}>
+                        {canEdit && (
+                            <button
+                                type="button"
+                                className="idm-footer-edit-btn"
+                                onClick={() => {
+                                    const itemToEdit = raw || activeIntervention;
+                                    onClose();
+                                    onEdit(itemToEdit);
+                                }}
+                                style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    padding: "9px 18px",
+                                    background: "#556B2F",
+                                    color: "#ffffff",
+                                    border: "none",
+                                    borderRadius: "10px",
+                                    fontSize: "0.88rem",
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease"
+                                }}
+                            >
+                                <Wrench size={15} />
+                                <span>Modifier l'intervention</span>
+                            </button>
+                        )}
                         <button
                             type="button"
                             className="idm-footer-close-btn"
@@ -505,7 +552,8 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client }) {
                 )}
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }
 

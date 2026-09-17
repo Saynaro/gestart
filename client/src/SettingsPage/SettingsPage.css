@@ -801,7 +801,7 @@
 }
 
 .mobile-items-card {
-    background-color: white;
+    background-color: var(--card);
     border-radius: 16px;
     overflow: hidden;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
@@ -817,7 +817,7 @@
     text-align: left;
     cursor: pointer;
     transition: background-color 0.15s ease;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border);
 }
 
 .mobile-settings-row-btn:last-child {
@@ -825,7 +825,7 @@
 }
 
 .mobile-settings-row-btn:active {
-    background-color: #f8fafc;
+    background-color: var(--accent);
 }
 
 .mobile-row-icon-bg {
@@ -1372,66 +1372,66 @@
     margin: 0;
 }
 
-/* Abby-style Pro Upgrade Banner */
-.mobile-abby-banner {
-    position: relative;
+/* Compact Mobile Subscription Pill Badge */
+.mobile-plan-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 6px 14px;
+    border-radius: 9999px;
     background-color: var(--card);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin: 16px;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
-}
-
-.mobile-abby-banner-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: transparent;
-    border: none;
-    color: var(--muted-foreground);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.mobile-abby-banner-title {
-    font-size: 18px;
-    font-weight: 800;
     color: var(--foreground);
-    margin: 0 0 8px 0;
-    text-align: left;
-    letter-spacing: -0.01em;
-}
-
-.mobile-abby-banner-text {
-    font-size: 14px;
-    line-height: 1.45;
-    color: var(--muted-foreground);
-    margin: 0 0 16px 0;
-    text-align: left;
-}
-
-.mobile-abby-banner-btn {
-    width: 100%;
-    background-color: var(--sidebar-primary);
-    color: var(--sidebar-primary-foreground, #ffffff);
-    font-size: 16px;
-    font-weight: 700;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 600;
     cursor: pointer;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.15s ease;
 }
 
-.mobile-abby-banner-btn:active {
-    opacity: 0.9;
-    transform: scale(0.98);
+.mobile-plan-pill-badge:hover {
+    background-color: var(--accent);
+    border-color: rgba(85, 107, 47, 0.3);
+}
+
+.mobile-plan-pill-badge:active {
+    transform: scale(0.97);
+}
+
+.pill-badge-sparkle {
+    color: #556B2F;
+    flex-shrink: 0;
+}
+
+.dark .pill-badge-sparkle {
+    color: #a4c965;
+}
+
+.pill-badge-title {
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.pill-badge-dot {
+    color: var(--muted-foreground);
+    opacity: 0.6;
+}
+
+.pill-badge-action {
+    color: #556B2F;
+    font-weight: 600;
+}
+
+.dark .pill-badge-action {
+    color: #a4c965;
+}
+
+.pill-badge-arrow {
+    color: var(--muted-foreground);
+    opacity: 0.7;
+    margin-left: -2px;
+    flex-shrink: 0;
 }
 
 /* Theme Toggle Switches */
@@ -1509,7 +1509,7 @@ input:checked+.toggle-slider:before {
     /* Hide desktop parts when on mobile stack view */
     .home-page {
         flex-direction: column;
-        background-color: #f8fafc;
+        background-color: var(--background) !important;
         overflow-x: clip;
     }
 

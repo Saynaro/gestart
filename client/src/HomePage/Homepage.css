@@ -2,7 +2,7 @@
     display: flex;
     height: 100vh;
     width: 100%;
-    background-color: var(--sidebar);
+    background-color: var(--background);
     overflow: hidden;
 }
 
@@ -11,7 +11,7 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background-color: var(--sidebar);
+    background-color: var(--background);
     min-width: 0;
     overflow: hidden;
 }

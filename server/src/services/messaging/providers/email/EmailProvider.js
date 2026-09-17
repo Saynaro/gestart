@@ -1,18 +1,38 @@
 import nodemailer from "nodemailer";
 import crypto from "crypto";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import { MessageProvider } from "../../interfaces/MessageProvider.js";
 import { prisma } from "../../../../config/db.js";
 import { emitToCompany } from "../../../../config/socket.js";
 import { decryptCredential, encryptCredential } from "../../../../modules/e-invoicing/services/EncryptionService.js";
+import { cloudinary } from "../../../../config/cloudinary.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadDir = path.join(__dirname, "../../../../../uploads/attachments");
-if (!fs.existsSync(uploadDir)) {
-    try { fs.mkdirSync(uploadDir, { recursive: true }); } catch (e) {}
+/**
+ * Upload a buffer to Cloudinary and return the secure URL.
+ * @param {Buffer} buffer
+ * @param {string} filename
+ * @param {string} mimeType
+ * @returns {Promise<string>} Cloudinary secure URL
+ */
+async function uploadBufferToCloudinary(buffer, filename, mimeType) {
+    return new Promise((resolve, reject) => {
+        const isImage = (mimeType || "").startsWith("image/");
+        const resourceType = isImage ? "image" : "raw";
+        const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: "gestart/attachments",
+                public_id: `${Date.now()}_${Math.random().toString(36).slice(2, 7)}_${safeName}`,
+                resource_type: resourceType,
+                use_filename: false,
+                overwrite: false
+            },
+            (error, result) => {
+                if (error) return reject(error);
+                resolve(result.secure_url);
+            }
+        );
+        uploadStream.end(buffer);
+    });
 }
 
 /**
@@ -350,28 +370,38 @@ ${bodyContent}
                         }
                     }
 
-                    // Fichier personnalisé uploadé depuis l'ordinateur (base64 ou path)
+                    // Fichier personnalisé uploadé depuis l'ordinateur (base64 ou path) → upload vers Cloudinary
                     if (att.data || att.base64) {
                         const rawBase64 = (att.data || att.base64).replace(/^data:.*?;base64,/, '');
                         const buf = Buffer.from(rawBase64, 'base64');
                         const safeName = (att.filename || att.name || "fichier").replace(/[^a-zA-Z0-9._-]/g, "_");
-                        const uniqueName = `${Date.now()}_${Math.random().toString(36).slice(2, 7)}_${safeName}`;
-                        const filePath = path.join(uploadDir, uniqueName);
-                        await fs.promises.mkdir(uploadDir, { recursive: true });
-                        await fs.promises.writeFile(filePath, buf);
+                        const mimeType = att.mimeType || att.contentType || att.type || "application/octet-stream";
+                        const isImg = mimeType.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(safeName);
 
-                        const isImg = (att.mimeType || att.type || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(safeName);
-                        att.url = `/uploads/attachments/${uniqueName}`;
-                        att.path = `/uploads/attachments/${uniqueName}`;
-                        att.size = buf.length;
-                        att.isImage = isImg;
-                        delete att.data;
-                        delete att.base64;
+                        try {
+                            const cloudinaryUrl = await uploadBufferToCloudinary(buf, safeName, mimeType);
+                            att.url = cloudinaryUrl;
+                            att.path = cloudinaryUrl;
+                            att.size = buf.length;
+                            att.isImage = isImg;
+                            delete att.data;
+                            delete att.base64;
+                            console.log(`[ATTACHMENT_CLOUDINARY_UPLOAD] ${safeName} → ${cloudinaryUrl}`);
+                        } catch (cloudErr) {
+                            console.error("[ATTACHMENT_CLOUDINARY_ERROR]", cloudErr.message);
+                            // Keep the attachment for email sending even if Cloudinary fails
+                            att.url = null;
+                            att.path = null;
+                            att.size = buf.length;
+                            att.isImage = isImg;
+                            delete att.data;
+                            delete att.base64;
+                        }
 
                         preparedAttachments.push({
                             filename: att.filename || att.name || safeName,
                             content: buf,
-                            contentType: att.mimeType || att.contentType || (isImg ? "image/jpeg" : "application/octet-stream")
+                            contentType: mimeType
                         });
                         continue;
                     }
@@ -846,8 +876,27 @@ ${bodyContent}
                             } catch (e) {}
                         }
 
-                        // Détection d'une pièce jointe
-                        if (part.filename && part.filename.trim().length > 0) {
+                        // Uniquement les vrais documents joints (PDF, Word, Excel, etc.)
+                        // Les images sont systématiquement ignorées : elles proviennent presque toujours
+                        // de signatures, logos ou tracking pixels — jamais de vraies pièces jointes utiles.
+                        const DOCUMENT_MIME_TYPES = [
+                            "application/pdf",
+                            "application/msword",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            "application/vnd.ms-excel",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "application/vnd.ms-powerpoint",
+                            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                            "text/plain",
+                            "text/csv",
+                            "application/zip",
+                            "application/x-zip-compressed",
+                        ];
+                        const partMime = (part.mimeType || "").toLowerCase();
+                        const isRealDocument = DOCUMENT_MIME_TYPES.includes(partMime);
+                        const fileSize = part.body?.size || 0;
+
+                        if (part.filename && part.filename.trim().length > 0 && isRealDocument && fileSize > 0) {
                             let fileBuffer = null;
                             if (part.body?.data) {
                                 fileBuffer = Buffer.from(part.body.data, 'base64url');
@@ -869,23 +918,19 @@ ${bodyContent}
 
                             if (fileBuffer) {
                                 try {
-                                    const safeName = part.filename.replace(/[^a-zA-Z0-9._-]/g, "_");
-                                    const uniqueName = `${Date.now()}_${Math.random().toString(36).slice(2, 7)}_${safeName}`;
-                                    const filePath = path.join(uploadDir, uniqueName);
-                                    await fs.promises.writeFile(filePath, fileBuffer);
-
                                     const isImg = (part.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(part.filename);
+                                    const cloudinaryUrl = await uploadBufferToCloudinary(fileBuffer, part.filename, part.mimeType || "application/octet-stream");
                                     attachmentsList.push({
                                         name: part.filename,
                                         filename: part.filename,
-                                        url: `/uploads/attachments/${uniqueName}`,
-                                        path: `/uploads/attachments/${uniqueName}`,
-                                        size: part.body?.size || fileBuffer.length,
+                                        url: cloudinaryUrl,
+                                        size: fileBuffer.length,
                                         mimeType: part.mimeType || (isImg ? "image/jpeg" : "application/octet-stream"),
                                         isImage: isImg
                                     });
-                                } catch (saveErr) {
-                                    console.warn("[GMAIL_SYNC] Erreur écriture fichier pièce jointe:", saveErr.message);
+                                    console.log(`[GMAIL_SYNC] Pièce jointe uploadée sur Cloudinary: ${part.filename}`);
+                                } catch (cloudErr) {
+                                    console.warn("[GMAIL_SYNC] Erreur upload Cloudinary pièce jointe:", cloudErr.message);
                                 }
                             }
                         }

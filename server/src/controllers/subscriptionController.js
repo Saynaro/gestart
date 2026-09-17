@@ -39,6 +39,21 @@ export const getSubscription = async (req, res) => {
             }
         }
 
+        if (subscription) {
+            const now = new Date();
+            const periodEnd = subscription.status === "TRIALING" ? subscription.trialEndsAt : subscription.currentPeriodEnd;
+            const isPeriodEnded = Boolean(periodEnd && new Date(periodEnd) < now);
+            if (isPeriodEnded) {
+                if (subscription.status !== "EXPIRED") {
+                    subscription = await prisma.subscription.update({
+                        where: { id: subscription.id },
+                        data: { status: "EXPIRED" },
+                        include: { plan: true }
+                    });
+                }
+            }
+        }
+
         return res.status(200).json({
             success: true,
             data: { subscription }
@@ -761,11 +776,11 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
             amountHT: rawAmountHt,
             tvaAmount: rawTva,
             tvaRate: 20,
-            companyName: "GestArt SAS",
-            companyAddress: "10 Place de la République, 75011 Paris, France",
-            companySiret: "944 087 725 00018",
-            companyEmail: "support@gestart.link",
-            companyPhone: "support@gestart.link",
+            companyName: "KHALID SAINARO EI (GestArt)",
+            companyAddress: "23 Rue Paganini, 06000 Nice, France",
+            companySiret: "944 087 725 00015",
+            companyEmail: "support.gestart@gmail.com",
+            companyPhone: "",
             clientName,
             clientEmail,
             clientPhone: company.phone || "",
@@ -780,12 +795,12 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
         const pdfBuffer = await generateReceiptPdfBuffer({
             paymentData,
             company: {
-                name: "GestArt SAS",
-                address: "10 Place de la République",
-                postalCode: "75011",
-                city: "Paris",
-                siret: "944 087 725 00018",
-                email: "support@gestart.link"
+                name: "KHALID SAINARO EI (GestArt)",
+                address: "23 Rue Paganini",
+                postalCode: "06000",
+                city: "Nice",
+                siret: "944 087 725 00015",
+                email: "support.gestart@gmail.com"
             },
             customization: {
                 primaryColor: "#556B2F"

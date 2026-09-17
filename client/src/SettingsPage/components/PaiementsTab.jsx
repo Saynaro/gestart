@@ -6,7 +6,6 @@ import {
     AlertCircle,
     ArrowUpRight,
     RefreshCw,
-    ShieldCheck,
     Lock,
     ExternalLink,
     Loader2,
@@ -17,8 +16,7 @@ import {
     Copy,
     Calculator,
     User,
-    Wallet,
-    Trash2
+    Wallet
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { formatIBAN, formatBIC } from "../../utils/bankValidator";
@@ -46,29 +44,20 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
         requirements: []
     });
 
-    // Banking / Powens State
-    const [bankingStatus, setBankingStatus] = useState({
-        isConnected: false,
-        accounts: []
-    });
-
     // Loading & Action States
     const [loadingInitial, setLoadingInitial] = useState(true);
     const [savingSettings, setSavingSettings] = useState(false);
     const [onboardingLoading, setOnboardingLoading] = useState(false);
     const [syncingStripe, setSyncingStripe] = useState(false);
-    const [syncingBanking, setSyncingBanking] = useState(false);
-    const [disconnectingBanking, setDisconnectingBanking] = useState(false);
     const [ibanCopied, setIbanCopied] = useState(false);
     const [simAmount, setSimAmount] = useState(1000);
 
     // Fetch payment settings and Stripe status
     const loadPaymentData = async () => {
         try {
-            const [stripeRes, settingsRes, bankingRes] = await Promise.allSettled([
+            const [stripeRes, settingsRes] = await Promise.allSettled([
                 apiFetch("/v1/stripe/connect/status"),
-                apiFetch("/v1/company/settings"),
-                apiFetch("/v1/banking/accounts")
+                apiFetch("/v1/company/settings")
             ]);
 
             if (stripeRes.status === "fulfilled" && stripeRes.value?.data) {
@@ -91,10 +80,6 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                 if (s.bankName && !bankName) setBankName(s.bankName);
                 if (s.stripeFeeBearer) setStripeFeeBearer(s.stripeFeeBearer);
             }
-
-            if (bankingRes.status === "fulfilled" && bankingRes.value?.data) {
-                setBankingStatus(bankingRes.value.data);
-            }
         } catch (err) {
             console.error("Erreur chargement paramètres paiements:", err);
         } finally {
@@ -105,37 +90,10 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
     useEffect(() => {
         loadPaymentData();
 
-        // Vérification des query params (Stripe & Powens)
+        // Vérification des query params (Stripe)
         const params = new URLSearchParams(window.location.search);
         if (params.get("stripe") === "success") {
             handleSyncStripe(true);
-        }
-
-        const connectionId = params.get("connection_id") || params.get("id_connection");
-        const bankingErr = params.get("error");
-        if (bankingErr) {
-            triggerToast(`Erreur Powens: ${params.get("error_description") || bankingErr}`, true);
-            window.history.replaceState({}, "", "/settings?tab=paiements");
-        } else if (connectionId) {
-            (async () => {
-                try {
-                    const res = await apiFetch("/v1/banking/callback", {
-                        method: "POST",
-                        body: JSON.stringify({ connectionId })
-                    });
-                    if (res?.success) {
-                        triggerToast("Compte bancaire synchronisé avec succès !", false);
-                        await loadPaymentData();
-                    } else {
-                        triggerToast(res?.message || "Erreur de synchronisation Powens", true);
-                    }
-                } catch (e) {
-                    console.error("Banking callback error:", e);
-                    triggerToast(e.message || "Erreur lors de la synchronisation bancaire", true);
-                } finally {
-                    window.history.replaceState({}, "", "/settings?tab=paiements");
-                }
-            })();
         }
     }, []);
 
@@ -907,240 +865,6 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                         </div>
                     );
                 })()}
-            </div>
-
-            {/* ─────────────────────────────────────────────────────────────
-                3. RAPPROCHEMENT BANCAIRE AUTOMATIQUE (OPEN BANKING POWENS)
-            ───────────────────────────────────────────────────────────── */}
-            <div style={{
-                border: "1px solid var(--border)",
-                borderRadius: "14px",
-                padding: isMobileView ? "16px" : "24px",
-                backgroundColor: "var(--card)"
-            }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-                    <div>
-                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "10px" }}>
-                            <Building2 size={20} style={{ color: "var(--primary)" }} />
-                            Rapprochement bancaire automatique
-                            <span style={{
-                                fontSize: "11px",
-                                fontWeight: 700,
-                                padding: "2px 8px",
-                                borderRadius: "6px",
-                                backgroundColor: "rgba(85, 107, 47, 0.15)",
-                                color: "var(--primary)",
-                                border: "1px solid rgba(85, 107, 47, 0.3)"
-                            }}>
-                                Bêta Powens
-                            </span>
-                        </h3>
-                        <p style={{ color: "var(--muted-foreground)", fontSize: "13px", margin: "4px 0 0 0" }}>
-                            Connectez votre compte bancaire pour détecter automatiquement les virements reçus et les lettrer avec vos factures impayées.
-                        </p>
-                    </div>
-                </div>
-
-                <div style={{
-                    border: "1px solid var(--border)",
-                    borderRadius: "10px",
-                    padding: "16px",
-                    backgroundColor: "var(--background)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: "12px"
-                }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <div style={{
-                            width: "38px",
-                            height: "38px",
-                            borderRadius: "8px",
-                            backgroundColor: "rgba(85, 107, 47, 0.15)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "var(--primary)"
-                        }}>
-                            <ShieldCheck size={20} />
-                        </div>
-                        <div>
-                            <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground)" }}>
-                                {bankingStatus.isConnected ? "Compte bancaire synchronisé" : "Aucun compte bancaire synchronisé"}
-                            </div>
-                            <div style={{ fontSize: "12.5px", color: "var(--muted-foreground)" }}>
-                                Connexion chiffrée DSP2 sécurisée via l'API Powens (Budget Insight).
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        {bankingStatus.isConnected ? (
-                            <>
-                                <button
-                                    type="button"
-                                    disabled={syncingBanking}
-                                    onClick={async () => {
-                                        setSyncingBanking(true);
-                                        try {
-                                            const res = await apiFetch("/v1/banking/transactions/refresh", { method: "POST" });
-                                            triggerToast(res?.message || "Synchronisation bancaire terminée.", false);
-                                            await loadPaymentData();
-                                        } catch (e) {
-                                            triggerToast(e.message || "Erreur de synchronisation", true);
-                                        } finally {
-                                            setSyncingBanking(false);
-                                        }
-                                    }}
-                                    style={{
-                                        padding: "8px 14px",
-                                        borderRadius: "8px",
-                                        border: "1px solid var(--border)",
-                                        backgroundColor: "var(--card)",
-                                        color: "var(--foreground)",
-                                        fontSize: "12.5px",
-                                        fontWeight: 600,
-                                        cursor: syncingBanking ? "not-allowed" : "pointer",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "6px"
-                                    }}
-                                >
-                                    <RefreshCw size={14} style={{ animation: syncingBanking ? "spin 1s linear infinite" : "none" }} />
-                                    {syncingBanking ? "Synchronisation..." : "Synchroniser"}
-                                </button>
-
-                                <button
-                                    type="button"
-                                    disabled={disconnectingBanking}
-                                    onClick={async () => {
-                                        if (!window.confirm("Voulez-vous vraiment déconnecter votre compte bancaire ?")) return;
-                                        setDisconnectingBanking(true);
-                                        try {
-                                            await apiFetch("/v1/banking/disconnect", { method: "POST" });
-                                            triggerToast("Compte bancaire déconnecté.", false);
-                                            await loadPaymentData();
-                                        } catch (e) {
-                                            triggerToast(e.message || "Erreur lors de la déconnexion", true);
-                                        } finally {
-                                            setDisconnectingBanking(false);
-                                        }
-                                    }}
-                                    style={{
-                                        padding: "8px 14px",
-                                        borderRadius: "8px",
-                                        border: "1px solid rgba(239, 68, 68, 0.2)",
-                                        backgroundColor: "rgba(239, 68, 68, 0.08)",
-                                        color: "#ef4444",
-                                        fontSize: "12.5px",
-                                        fontWeight: 600,
-                                        cursor: disconnectingBanking ? "not-allowed" : "pointer",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "6px"
-                                    }}
-                                >
-                                    <Trash2 size={14} />
-                                    {disconnectingBanking ? "Déconnexion..." : "Déconnecter"}
-                                </button>
-                            </>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={async () => {
-                                    try {
-                                        const res = await apiFetch("/v1/banking/connect", { method: "POST" });
-                                        if (res.data?.connectUrl) {
-                                            window.location.href = res.data.connectUrl;
-                                        } else {
-                                            triggerToast(res.data?.message || "Module Open Banking prêt. En attente de configuration des clés Powens Sandbox.", false);
-                                        }
-                                    } catch (e) {
-                                        triggerToast(e.message || "Erreur Open Banking.", true);
-                                    }
-                                }}
-                                style={{
-                                    padding: "9px 18px",
-                                    borderRadius: "8px",
-                                    border: "1px solid var(--border)",
-                                    backgroundColor: "var(--card)",
-                                    color: "var(--foreground)",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    cursor: "pointer",
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "6px"
-                                }}
-                            >
-                                <ExternalLink size={14} />
-                                Connecter mon compte bancaire
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                {/* Liste des comptes bancaires synchronisés */}
-                {bankingStatus.isConnected && bankingStatus.accounts?.length > 0 && (
-                    <div style={{ marginTop: "14px", display: "grid", gap: "10px" }}>
-                        {bankingStatus.accounts.map((acc) => (
-                            <div
-                                key={acc.id}
-                                style={{
-                                    border: "1px solid var(--border)",
-                                    borderRadius: "10px",
-                                    padding: "14px 16px",
-                                    backgroundColor: "var(--card)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    flexWrap: "wrap",
-                                    gap: "10px"
-                                }}
-                            >
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                    <div style={{
-                                        width: "34px",
-                                        height: "34px",
-                                        borderRadius: "8px",
-                                        backgroundColor: "rgba(85, 107, 47, 0.12)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        color: "var(--primary)"
-                                    }}>
-                                        <Landmark size={18} />
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--foreground)" }}>
-                                            {acc.accountName || "Compte principal"}
-                                        </div>
-                                        <div style={{ fontSize: "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
-                                            {acc.iban ? formatIBAN(acc.iban) : `ID: ${acc.externalId}`}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div style={{ textAlign: "right" }}>
-                                    <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--foreground)" }}>
-                                        {typeof acc.balance === "number" ? `${acc.balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €` : "—"}
-                                    </div>
-                                    <span style={{
-                                        fontSize: "11px",
-                                        color: "#16a34a",
-                                        fontWeight: 600,
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "4px"
-                                    }}>
-                                        <CheckCircle2 size={12} /> Synchronisé
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
             </div>
 
             {/* Bouton de sauvegarde global */}

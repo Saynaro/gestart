@@ -1,12 +1,18 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
     Building,
+    Building2,
     CheckCircle2,
     AlertCircle,
     Shield,
     ChevronDown,
     Search,
-    Loader2
+    Loader2,
+    ShieldCheck,
+    RefreshCw,
+    Trash2,
+    ExternalLink,
+    Landmark
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { FRENCH_BANKS, formatIBAN, formatBIC, validateIBAN, validateBIC } from "../../utils/bankValidator";
@@ -25,31 +31,61 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
     const [saving, setSaving] = useState(false);
     const [loadingInitial, setLoadingInitial] = useState(true);
 
-    // Fetch initial company bank settings from real backend
+    // Powens Open Banking State
+    const [bankingStatus, setBankingStatus] = useState({
+        isConnected: false,
+        connection: null,
+        accounts: []
+    });
+    const [syncingBanking, setSyncingBanking] = useState(false);
+    const [disconnectingBanking, setDisconnectingBanking] = useState(false);
+
+    const loadBankingStatus = useCallback(async () => {
+        try {
+            const res = await apiFetch("/v1/banking/accounts");
+            if (res?.data) {
+                setBankingStatus(res.data);
+            }
+        } catch (err) {
+            console.warn("Could not fetch banking status:", err.message);
+        }
+    }, []);
+
+    // Fetch initial company bank settings & banking status
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const res = await apiFetch("/v1/company/settings");
-                const s = res.data?.settings || res.settings;
-                if (s) {
-                    if (s.bankIban) setIban(formatIBAN(s.bankIban));
-                    if (s.bankBic) setBic(s.bankBic);
-                    if (s.bankAccountOwner) setAccountOwner(s.bankAccountOwner);
+                const [settingsRes, bankingRes] = await Promise.allSettled([
+                    apiFetch("/v1/company/settings"),
+                    apiFetch("/v1/banking/accounts")
+                ]);
 
-                    if (s.bankName) {
-                        const matchedBank = FRENCH_BANKS.find(
-                            b => b.name.toLowerCase() === s.bankName.toLowerCase() || b.id === s.bankName.toLowerCase()
-                        );
-                        if (matchedBank) {
-                            setSelectedBankId(matchedBank.id);
-                        } else {
-                            setSelectedBankId("other");
-                            setCustomBankName(s.bankName);
+                if (settingsRes.status === "fulfilled") {
+                    const s = settingsRes.value?.data?.settings || settingsRes.value?.settings;
+                    if (s) {
+                        if (s.bankIban) setIban(formatIBAN(s.bankIban));
+                        if (s.bankBic) setBic(s.bankBic);
+                        if (s.bankAccountOwner) setAccountOwner(s.bankAccountOwner);
+
+                        if (s.bankName) {
+                            const matchedBank = FRENCH_BANKS.find(
+                                b => b.name.toLowerCase() === s.bankName.toLowerCase() || b.id === s.bankName.toLowerCase()
+                            );
+                            if (matchedBank) {
+                                setSelectedBankId(matchedBank.id);
+                            } else {
+                                setSelectedBankId("other");
+                                setCustomBankName(s.bankName);
+                            }
                         }
                     }
                 }
+
+                if (bankingRes.status === "fulfilled" && bankingRes.value?.data) {
+                    setBankingStatus(bankingRes.value.data);
+                }
             } catch (err) {
-                console.warn("Could not fetch company bank settings:", err.message);
+                console.warn("Could not fetch bank data:", err.message);
             } finally {
                 setLoadingInitial(false);
             }
@@ -57,6 +93,40 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
 
         fetchSettings();
     }, []);
+
+    // Handle Powens Callback redirect params if present
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const bankingCode = params.get("code");
+        const connectionId = params.get("connection_id");
+        const bankingErr = params.get("error");
+
+        if (bankingErr) {
+            if (triggerToast) triggerToast(`Erreur Powens: ${params.get("error_description") || bankingErr}`, true);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (bankingCode || connectionId) {
+            const finishConnect = async () => {
+                try {
+                    const res = await apiFetch("/v1/banking/callback", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            code: bankingCode,
+                            connection_id: connectionId,
+                            state: params.get("state")
+                        })
+                    });
+                    if (triggerToast) triggerToast(res?.message || "Connexion bancaire Powens établie avec succès !");
+                    await loadBankingStatus();
+                } catch (e) {
+                    console.error("Banking callback error:", e);
+                    if (triggerToast) triggerToast(e.message || "Erreur lors de la synchronisation Powens", true);
+                } finally {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            };
+            finishConnect();
+        }
+    }, [loadBankingStatus, triggerToast]);
 
     // Current bank object
     const selectedBank = useMemo(() => {
@@ -152,7 +222,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Formulaire IBAN / BIC Principal */}
-            <form onSubmit={handleSave} style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
+            <form onSubmit={handleSave} style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: isMobileView ? '16px' : '24px', backgroundColor: 'var(--card)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                     <div>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -459,6 +529,240 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                     </button>
                 </div>
             </form>
+
+            {/* Rapprochement bancaire automatique (Open Banking Powens) */}
+            <div style={{
+                border: "1px solid var(--border)",
+                borderRadius: "16px",
+                padding: isMobileView ? "16px" : "24px",
+                backgroundColor: "var(--card)"
+            }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+                    <div>
+                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(85,107,47,0.12)', color: '#556B2F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Building2 size={18} />
+                            </span>
+                            Rapprochement bancaire automatique
+                            <span style={{
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                padding: "2px 8px",
+                                borderRadius: "6px",
+                                backgroundColor: "rgba(85, 107, 47, 0.15)",
+                                color: "var(--primary)",
+                                border: "1px solid rgba(85, 107, 47, 0.3)"
+                            }}>
+                                Powens
+                            </span>
+                        </h3>
+                        <p style={{ color: "var(--muted-foreground)", fontSize: "13px", margin: "4px 0 0 0" }}>
+                            Connectez votre compte bancaire pour détecter automatiquement les virements reçus et les lettrer avec vos factures impayées.
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{
+                    border: "1px solid var(--border)",
+                    borderRadius: "10px",
+                    padding: "16px",
+                    backgroundColor: "var(--background)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: "12px"
+                }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div style={{
+                            width: "38px",
+                            height: "38px",
+                            borderRadius: "8px",
+                            backgroundColor: "rgba(85, 107, 47, 0.15)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "var(--primary)"
+                        }}>
+                            <ShieldCheck size={20} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground)" }}>
+                                {bankingStatus.isConnected ? "Compte bancaire synchronisé" : "Aucun compte bancaire synchronisé"}
+                            </div>
+                            <div style={{ fontSize: "12.5px", color: "var(--muted-foreground)" }}>
+                                Connexion chiffrée DSP2 sécurisée via l'API Powens (Budget Insight).
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        {bankingStatus.isConnected ? (
+                            <>
+                                <button
+                                    type="button"
+                                    disabled={syncingBanking}
+                                    onClick={async () => {
+                                        setSyncingBanking(true);
+                                        try {
+                                            const res = await apiFetch("/v1/banking/transactions/refresh", { method: "POST" });
+                                            if (triggerToast) triggerToast(res?.message || "Synchronisation bancaire terminée.", false);
+                                            await loadBankingStatus();
+                                        } catch (e) {
+                                            if (triggerToast) triggerToast(e.message || "Erreur de synchronisation", true);
+                                        } finally {
+                                            setSyncingBanking(false);
+                                        }
+                                    }}
+                                    style={{
+                                        padding: "8px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid var(--border)",
+                                        backgroundColor: "var(--card)",
+                                        color: "var(--foreground)",
+                                        fontSize: "12.5px",
+                                        fontWeight: 600,
+                                        cursor: syncingBanking ? "not-allowed" : "pointer",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "6px"
+                                    }}
+                                >
+                                    <RefreshCw size={14} style={{ animation: syncingBanking ? "spin 1s linear infinite" : "none" }} />
+                                    {syncingBanking ? "Synchronisation..." : "Synchroniser"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    disabled={disconnectingBanking}
+                                    onClick={async () => {
+                                        if (!window.confirm("Voulez-vous vraiment déconnecter votre compte bancaire ?")) return;
+                                        setDisconnectingBanking(true);
+                                        try {
+                                            await apiFetch("/v1/banking/disconnect", { method: "POST" });
+                                            if (triggerToast) triggerToast("Compte bancaire déconnecté.", false);
+                                            await loadBankingStatus();
+                                        } catch (e) {
+                                            if (triggerToast) triggerToast(e.message || "Erreur lors de la déconnexion", true);
+                                        } finally {
+                                            setDisconnectingBanking(false);
+                                        }
+                                    }}
+                                    style={{
+                                        padding: "8px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid rgba(239, 68, 68, 0.2)",
+                                        backgroundColor: "rgba(239, 68, 68, 0.08)",
+                                        color: "#ef4444",
+                                        fontSize: "12.5px",
+                                        fontWeight: 600,
+                                        cursor: disconnectingBanking ? "not-allowed" : "pointer",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "6px"
+                                    }}
+                                >
+                                    <Trash2 size={14} />
+                                    {disconnectingBanking ? "Déconnexion..." : "Déconnecter"}
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    try {
+                                        const res = await apiFetch("/v1/banking/connect", { method: "POST" });
+                                        if (res.data?.connectUrl) {
+                                            window.location.href = res.data.connectUrl;
+                                        } else {
+                                            if (triggerToast) triggerToast(res.data?.message || "Module Open Banking prêt. En attente de configuration des clés Powens Sandbox.", false);
+                                        }
+                                    } catch (e) {
+                                        if (triggerToast) triggerToast(e.message || "Erreur Open Banking.", true);
+                                    }
+                                }}
+                                style={{
+                                    padding: "9px 18px",
+                                    borderRadius: "8px",
+                                    border: "1px solid var(--border)",
+                                    backgroundColor: "var(--card)",
+                                    color: "var(--foreground)",
+                                    fontSize: "13px",
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px"
+                                }}
+                            >
+                                <ExternalLink size={14} />
+                                Connecter mon compte bancaire
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Liste des comptes bancaires synchronisés */}
+                {bankingStatus.isConnected && bankingStatus.accounts?.length > 0 && (
+                    <div style={{ marginTop: "14px", display: "grid", gap: "10px" }}>
+                        {bankingStatus.accounts.map((acc) => (
+                            <div
+                                key={acc.id}
+                                style={{
+                                    border: "1px solid var(--border)",
+                                    borderRadius: "10px",
+                                    padding: "14px 16px",
+                                    backgroundColor: "var(--card)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    flexWrap: "wrap",
+                                    gap: "10px"
+                                }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                    <div style={{
+                                        width: "34px",
+                                        height: "34px",
+                                        borderRadius: "8px",
+                                        backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        color: "var(--primary)"
+                                    }}>
+                                        <Landmark size={18} />
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--foreground)" }}>
+                                            {acc.accountName || "Compte principal"}
+                                        </div>
+                                        <div style={{ fontSize: "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
+                                            {acc.iban ? formatIBAN(acc.iban) : `ID: ${acc.externalId}`}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ textAlign: "right" }}>
+                                    <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--foreground)" }}>
+                                        {typeof acc.balance === "number" ? `${acc.balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €` : "—"}
+                                    </div>
+                                    <span style={{
+                                        fontSize: "11px",
+                                        color: "#16a34a",
+                                        fontWeight: 600,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px"
+                                    }}>
+                                        <CheckCircle2 size={12} /> Synchronisé
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

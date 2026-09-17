@@ -991,6 +991,20 @@ export const deleteIntervention = async (req, res) => {
             });
         }
 
+        // Unlink quotes & invoices first to allow complete cascade deletion
+        try {
+            await prisma.quote.updateMany({
+                where: { interventionId: id },
+                data: { interventionId: null }
+            });
+            await prisma.invoice.updateMany({
+                where: { interventionId: id },
+                data: { interventionId: null }
+            });
+        } catch (unlinkErr) {
+            console.warn("[UNLINK_INTERVENTION_WARN]", unlinkErr.message);
+        }
+
         // Delete photos if any
         if (intervention.photos && intervention.photos.length > 0) {
             await prisma.interventionPhoto.deleteMany({
@@ -1003,7 +1017,7 @@ export const deleteIntervention = async (req, res) => {
                 where: { id }
             });
         } catch (delErr) {
-            // If linked to quote/invoice, fallback to setting status CANCELLED
+            // If still constrained, fallback to setting status CANCELLED
             await prisma.intervention.update({
                 where: { id },
                 data: { status: "CANCELLED" }
@@ -1011,14 +1025,14 @@ export const deleteIntervention = async (req, res) => {
         }
 
         if (intervention.technicianId) {
-            await createNotification({
+            createNotification({
                 companyId,
                 userId: intervention.technicianId,
                 type: "INTERVENTION_CANCELLED",
                 title: "Intervention supprimée",
                 body: `L'intervention "${intervention.title}" a été supprimée.`,
                 entityId: id,
-            });
+            }).catch(() => {});
         }
 
         return res.status(200).json({
@@ -1030,6 +1044,101 @@ export const deleteIntervention = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la suppression de l'intervention"
+        });
+    }
+};
+
+////// BATCH DELETE INTERVENTIONS //////
+export const batchDeleteInterventions = async (req, res) => {
+    const { ids } = req.body;
+    const companyId = req.user.companyId;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: "Aucun identifiant d'intervention fourni"
+        });
+    }
+
+    try {
+        const interventions = await prisma.intervention.findMany({
+            where: { id: { in: ids }, companyId },
+            select: { id: true, title: true, technicianId: true }
+        });
+
+        const foundIds = interventions.map(i => i.id);
+        if (foundIds.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Aucune intervention correspondante trouvée"
+            });
+        }
+
+        // Unlink quotes and invoices
+        try {
+            await prisma.quote.updateMany({
+                where: { interventionId: { in: foundIds } },
+                data: { interventionId: null }
+            });
+            await prisma.invoice.updateMany({
+                where: { interventionId: { in: foundIds } },
+                data: { interventionId: null }
+            });
+        } catch (unlinkErr) {
+            console.warn("[UNLINK_BATCH_INTERVENTIONS_WARN]", unlinkErr.message);
+        }
+
+        // Delete photos
+        await prisma.interventionPhoto.deleteMany({
+            where: { interventionId: { in: foundIds } }
+        });
+
+        // Delete interventions
+        let deletedCount = 0;
+        try {
+            const delRes = await prisma.intervention.deleteMany({
+                where: { id: { in: foundIds }, companyId }
+            });
+            deletedCount = delRes.count;
+        } catch (delManyErr) {
+            // Fallback: delete one by one or cancel if constraint blocks
+            for (const item of interventions) {
+                try {
+                    await prisma.intervention.delete({ where: { id: item.id } });
+                    deletedCount++;
+                } catch {
+                    await prisma.intervention.update({
+                        where: { id: item.id },
+                        data: { status: "CANCELLED" }
+                    });
+                }
+            }
+        }
+
+        // Notify assigned technicians
+        for (const item of interventions) {
+            if (item.technicianId) {
+                createNotification({
+                    companyId,
+                    userId: item.technicianId,
+                    type: "INTERVENTION_CANCELLED",
+                    title: "Intervention supprimée",
+                    body: `L'intervention "${item.title}" a été supprimée.`,
+                    entityId: item.id,
+                }).catch(() => {});
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            deletedCount,
+            message: `${deletedCount} intervention(s) supprimée(s) avec succès`
+        });
+    } catch (error) {
+        console.error("BATCH DELETE INTERVENTIONS ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Erreur serveur lors de la suppression groupée"
         });
     }
 };

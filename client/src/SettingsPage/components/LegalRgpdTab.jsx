@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { Lock, Download, Trash2, ShieldCheck, Mail, FileText, CheckCircle2, Info, AlertTriangle, Loader2, X } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { useUser } from "../../utils/useUser";
@@ -221,9 +222,9 @@ export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfir
             </div>
 
             {/* Modal de confirmation de suppression */}
-            {showDeleteModal && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-                    <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', padding: '24px', maxWidth: '480px', width: '100%', border: '1px solid rgba(239, 68, 68, 0.3)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)', position: 'relative' }}>
+            {showDeleteModal && createPortal(
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', overflowY: 'auto', boxSizing: 'border-box' }}>
+                    <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', padding: '24px', maxWidth: '480px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid rgba(239, 68, 68, 0.3)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)', position: 'relative', margin: 'auto', boxSizing: 'border-box' }}>
                         <button
                             type="button"
                             onClick={() => !isDeleting && setShowDeleteModal(false)}
@@ -334,7 +335,8 @@ export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfir
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

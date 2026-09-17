@@ -92,20 +92,19 @@
 }
 
 .logo-icon-bg {
-    background-color: var(--sidebar-primary);
-    color: var(--sidebar-primary-foreground);
     width: 28px;
     height: 28px;
-    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.logo-snowflake {
-    width: 16px;
-    height: 16px;
+.logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
 }
 
 .logo-text {
@@ -197,6 +196,8 @@
     padding: 2px 0;
     height: 34px;
     gap: 0;
+    position: relative;
+    overflow: hidden;
 }
 
 .item-title {
@@ -312,19 +313,10 @@
     margin: 0;
 }
 
-.sidebar.collapsed .badge-text {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--warning);
-    border: 1.5px solid var(--sidebar);
-    padding: 0;
-    text-indent: -9999px;
-    overflow: hidden;
-    margin: 0;
+.sidebar.collapsed .badge-text,
+.sidebar.collapsed .badge-lock,
+.sidebar.collapsed .badge-pro {
+    display: none !important;
 }
 
 /* Bottom / User Section */

@@ -280,12 +280,11 @@ export const getDashboardData = async (req, res) => {
                 }
             }),
 
-            // 13. Factures payées pour le graphique financier (historique)
+            // 13. Factures pour le graphique financier (historique)
             prisma.invoice.findMany({
                 where: {
                     companyId,
-                    status: "PAID",
-                    paidAt: {
+                    createdAt: {
                         gte: new Date(now.getFullYear() - 1, 0, 1)
                     }
                 },
@@ -293,7 +292,9 @@ export const getDashboardData = async (req, res) => {
                     id: true,
                     amountHT: true,
                     amountTTC: true,
+                    status: true,
                     paidAt: true,
+                    createdAt: true,
                     clientId: true,
                     client: {
                         select: { firstName: true, lastName: true, companyName: true }
@@ -381,18 +382,20 @@ export const getDashboardData = async (req, res) => {
             }
         ];
 
-        // Calcul des 6 derniers mois pour le graphique financier
+        // Calcul des 6 derniers mois pour le graphique financier (factures payées par défaut)
         const monthNamesShort = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
         const monthlyChartData = [];
+        const paidInvoicesList = (paidInvoicesThisYear || []).filter(inv => inv.status === "PAID" || inv.status === "paid");
         for (let i = 5; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const mYear = String(d.getFullYear()).slice(-2);
             const label = `${monthNamesShort[d.getMonth()]} ${mYear}`;
             
-            // Filtrer les factures de ce mois précis
-            const invsInMonth = paidInvoicesThisYear.filter(inv => {
-                if (!inv.paidAt) return false;
-                const pDate = new Date(inv.paidAt);
+            // Filtrer les factures payées de ce mois précis
+            const invsInMonth = paidInvoicesList.filter(inv => {
+                const dateToCheck = inv.paidAt || inv.createdAt;
+                if (!dateToCheck) return false;
+                const pDate = new Date(dateToCheck);
                 return pDate.getFullYear() === d.getFullYear() && pDate.getMonth() === d.getMonth();
             });
 
@@ -426,7 +429,7 @@ export const getDashboardData = async (req, res) => {
 
         // Calcul du Top Clients
         const clientMap = {};
-        paidInvoicesThisYear.forEach(inv => {
+        paidInvoicesList.forEach(inv => {
             const clientName = inv.client ? (inv.client.companyName || `${inv.client.firstName || ''} ${inv.client.lastName || ''}`.trim()) : "Client";
             if (!clientMap[clientName]) {
                 clientMap[clientName] = { name: clientName, totalAmount: 0, count: 0 };
@@ -452,18 +455,18 @@ export const getDashboardData = async (req, res) => {
 
             return {
                 id: item.id,
-                title: item.title || item.type || "Intervention",
-                client: clientName,
-                time: timeStr && dateStr ? `${dateStr} à ${timeStr}` : (dateStr || timeStr || "—"),
+                title: item.title,
+                clientName,
+                address: item.client ? `${item.client.address || ''}, ${item.client.city || ''}`.trim().replace(/^,\s*/, '') : "",
                 date: dateStr,
-                status: item.status === "COMPLETED" ? "Terminé" : item.status === "IN_PROGRESS" ? "En cours" : "Planifié",
-                statusKey: item.status,
-                raw: item
+                time: timeStr,
+                status: item.status,
+                type: item.type
             };
         };
 
-        const formattedPlanned = (plannedInterventionsList || []).map(formatInterventionItem);
-        const formattedCompleted = (completedInterventionsList || []).map(formatInterventionItem);
+        const formattedPlanned = plannedInterventionsList.map(formatInterventionItem);
+        const formattedCompleted = completedInterventionsList.map(formatInterventionItem);
 
         // Données formatées pour le frontend
         return res.status(200).json({
@@ -534,24 +537,26 @@ export const getDashboardData = async (req, res) => {
                     completedInterventions: formattedCompleted,
                     trackingColumns
                 },
-                // Plafonds
+                // Plafonds (seuils légaux micro-entreprise CGI avec personnalisation)
                 plafonds: {
                     servicesCurrent: revenueThisYearAggregate._sum.amountHT || 0,
                     commercialCurrent: 0,
-                    servicesMax: 77700,
-                    servicesTva: 37500,
-                    servicesTvaMax: 41250,
-                    commercialMax: 203100,
-                    commercialTva: 85000,
-                    commercialTvaMax: 93500
+                    servicesMax: Number(docCustom?.plafonds?.servicesMax ?? 77700),
+                    servicesTva: Number(docCustom?.plafonds?.servicesTva ?? 36800),
+                    servicesTvaMax: Number(docCustom?.plafonds?.servicesTvaMax ?? 39100),
+                    commercialMax: Number(docCustom?.plafonds?.commercialMax ?? 188700),
+                    commercialTva: Number(docCustom?.plafonds?.commercialTva ?? 91900),
+                    commercialTvaMax: Number(docCustom?.plafonds?.commercialTvaMax ?? 101000)
                 },
                 // Graphique et Statistiques
                 financialChart: monthlyChartData,
                 financialTransactions: (paidInvoicesThisYear || []).map(inv => ({
                     id: inv.id,
-                    date: inv.paidAt,
+                    date: inv.paidAt || inv.createdAt,
+                    status: inv.status,
                     amountTTC: Number(inv.amountTTC || 0),
-                    amountHT: Number(inv.amountHT || 0)
+                    amountHT: Number(inv.amountHT || 0),
+                    source: (inv.status === "PAID" || inv.status === "paid") ? "factures_encaissees" : "factures_emises"
                 })),
                 cotisationsRate: cotisationsMultiplier,
                 topArticles,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Lock, ShieldCheck, Loader2, AlertCircle, Star, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
+import { X, Lock, Shield, ShieldCheck, Loader2, AlertCircle, Star, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 const PLANS_INFO = {
@@ -12,7 +13,6 @@ const PLANS_INFO = {
 export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO", initialCycle = "MONTHLY", onSuccess, mode = "checkout" }) {
     const [plan, setPlan] = useState(targetPlan.toUpperCase());
     const [billingCycle, setBillingCycle] = useState(initialCycle);
-    const [vatNumber, setVatNumber] = useState("");
     const [agreeTerms, setAgreeTerms] = useState(true);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -24,13 +24,6 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
         if (isOpen) {
             setErrorMsg("");
             setLoading(false);
-            try {
-                const saved = localStorage.getItem("crm_saved_card");
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.vatNumber) setVatNumber(parsed.vatNumber);
-                }
-            } catch (e) {}
         }
     }, [isOpen]);
 
@@ -41,20 +34,12 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
 
     const handleCheckout = async () => {
         if (!agreeTerms) {
-            setErrorMsg("Veuillez accepter les conditions de renouvellement pour continuer.");
+            setErrorMsg("Veuillez accepter les Conditions Générales de Vente pour continuer.");
             return;
         }
 
         setLoading(true);
         setErrorMsg("");
-
-        // Save VAT for later
-        if (vatNumber) {
-            try {
-                const saved = JSON.parse(localStorage.getItem("crm_saved_card") || "{}");
-                localStorage.setItem("crm_saved_card", JSON.stringify({ ...saved, vatNumber }));
-            } catch (e) {}
-        }
 
         try {
             const res = await apiFetch("/v1/subscription/checkout", {
@@ -95,7 +80,7 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
         }
     };
 
-    return (
+    return createPortal(
         <AnimatePresence>
             <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15,23,42,0.8)", backdropFilter: "blur(10px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto" }}>
                 <motion.div
@@ -120,8 +105,11 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                                 </p>
                             </div>
                         </div>
-                        <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "var(--muted-foreground, #94A3B8)", cursor: "pointer", padding: "8px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
-                            <X size={18} />
+                        <button
+                            onClick={onClose}
+                            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--border, rgba(255,255,255,0.1))", borderRadius: "8px", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--muted-foreground, #94A3B8)" }}
+                        >
+                            <X size={16} />
                         </button>
                     </div>
 
@@ -131,17 +119,10 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                         {/* Left column: Form */}
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             {errorMsg && (
-                                <div style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ef4444", padding: "12px 14px", borderRadius: "12px", fontSize: "13px", display: "flex", alignItems: "center", gap: "10px" }}>
+                                <div style={{ backgroundColor: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.35)", borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", color: "#FCA5A5", fontSize: "13px" }}>
                                     <AlertCircle size={16} style={{ flexShrink: 0 }} /><span>{errorMsg}</span>
                                 </div>
                             )}
-
-                            {/* VAT */}
-                            <div>
-                                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px", color: "var(--muted-foreground, #94A3B8)", textTransform: "uppercase", letterSpacing: "0.5px" }}>N° TVA / SIRET (optionnel)</label>
-                                <input type="text" placeholder="FR71944102805" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)}
-                                    style={{ width: "100%", padding: "11px 14px", backgroundColor: "var(--background, #0F172A)", border: "1px solid var(--border, rgba(255,255,255,0.12))", borderRadius: "10px", color: "var(--foreground, #F8FAFC)", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }} />
-                            </div>
 
                             {/* Stripe redirect info box */}
                             {mode !== "card_only" && (
@@ -214,22 +195,48 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                                         {[
                                             { value: "MONTHLY", label: "Paiement mensuel", sub: "Sans engagement", price: currentPlanObj.priceMonthly, badge: null },
                                             { value: "ANNUAL", label: "Paiement annuel", sub: "Économisez 20%", price: currentPlanObj.priceAnnual, badge: "-20%" }
-                                        ].map(opt => (
-                                            <div key={opt.value} onClick={() => setBillingCycle(opt.value)}
-                                                style={{ padding: "14px 16px", borderRadius: "12px", border: billingCycle === opt.value ? "2px solid #556B2F" : "1px solid var(--border, rgba(255,255,255,0.1))", backgroundColor: billingCycle === opt.value ? "rgba(85,107,47,0.1)" : "transparent", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", transition: "all 0.15s" }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                                                    <div style={{ width: "18px", height: "18px", borderRadius: "50%", border: billingCycle === opt.value ? "5px solid #556B2F" : "2px solid var(--muted-foreground, #64748B)", backgroundColor: "#FFF", flexShrink: 0, transition: "border 0.15s" }} />
-                                                    <div style={{ minWidth: 0 }}>
-                                                        <span style={{ fontWeight: 700, fontSize: "14px", display: "block" }}>{opt.label}</span>
-                                                        <div style={{ fontSize: "12px", color: opt.value === "ANNUAL" ? "#22C55E" : "var(--muted-foreground, #94A3B8)", fontWeight: opt.value === "ANNUAL" ? 600 : 400 }}>{opt.sub}</div>
+                                        ].map(opt => {
+                                            const isSelected = billingCycle === opt.value;
+                                            return (
+                                                <div key={opt.value} onClick={() => setBillingCycle(opt.value)}
+                                                    style={{
+                                                        boxSizing: "border-box",
+                                                        padding: "14px 16px",
+                                                        borderRadius: "12px",
+                                                        border: `1.5px solid ${isSelected ? "#556B2F" : "var(--border, rgba(0,0,0,0.1))"}`,
+                                                        backgroundColor: isSelected ? "rgba(85,107,47,0.08)" : "transparent",
+                                                        cursor: "pointer",
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        gap: "12px",
+                                                        transition: "background-color 0.15s ease, border-color 0.15s ease"
+                                                    }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+                                                        <div style={{
+                                                            width: "18px",
+                                                            height: "18px",
+                                                            minWidth: "18px",
+                                                            minHeight: "18px",
+                                                            boxSizing: "border-box",
+                                                            borderRadius: "50%",
+                                                            border: isSelected ? "5px solid #556B2F" : "2px solid var(--muted-foreground, #64748B)",
+                                                            backgroundColor: "#FFF",
+                                                            flexShrink: 0,
+                                                            transition: "border 0.15s ease"
+                                                        }} />
+                                                        <div style={{ minWidth: 0 }}>
+                                                            <span style={{ fontWeight: 600, fontSize: "14px", display: "block" }}>{opt.label}</span>
+                                                            <div style={{ fontSize: "12px", color: opt.value === "ANNUAL" ? "#22C55E" : "var(--muted-foreground, #94A3B8)", fontWeight: opt.value === "ANNUAL" ? 600 : 400 }}>{opt.sub}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                                                        <span style={{ fontWeight: 700, fontSize: "14px", whiteSpace: "nowrap" }}>{opt.price} € <span style={{ fontSize: "11px", fontWeight: 500 }}>HT/mois</span></span>
+                                                        {opt.badge && <span style={{ display: "block", fontSize: "10px", backgroundColor: "#22C55E", color: "#FFF", padding: "2px 7px", borderRadius: "20px", fontWeight: 700, marginTop: "3px" }}>{opt.badge}</span>}
                                                     </div>
                                                 </div>
-                                                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                                                    <span style={{ fontWeight: 800, fontSize: "15px", whiteSpace: "nowrap" }}>{opt.price} € <span style={{ fontSize: "11px", fontWeight: 500 }}>HT/mois</span></span>
-                                                    {opt.badge && <span style={{ display: "block", fontSize: "10px", backgroundColor: "#22C55E", color: "#FFF", padding: "2px 7px", borderRadius: "20px", fontWeight: 800, marginTop: "3px" }}>{opt.badge}</span>}
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
@@ -288,6 +295,7 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                     </div>
                 </motion.div>
             </div>
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }

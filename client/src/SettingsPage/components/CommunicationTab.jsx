@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
     MessageSquare,
     Smartphone,
@@ -533,9 +534,9 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
             </div>
 
             {/* Modal de Configuration WhatsApp */}
-            {isWaModalOpen && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
-                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "16px", width: "100%", maxWidth: "520px", padding: "24px", boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}>
+            {isWaModalOpen && createPortal(
+                <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 999999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto", boxSizing: "border-box" }}>
+                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "16px", width: "100%", maxWidth: "520px", maxHeight: "90vh", overflowY: "auto", padding: "24px", boxShadow: "0 20px 40px rgba(0,0,0,0.4)", margin: "auto", boxSizing: "border-box" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <div style={{ width: "36px", height: "36px", borderRadius: "10px", backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -623,13 +624,14 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* Modal de Configuration Email / SMTP */}
-            {isEmailModalOpen && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
-                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "16px", width: "100%", maxWidth: "520px", padding: "24px", boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}>
+            {isEmailModalOpen && createPortal(
+                <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 999999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto", boxSizing: "border-box" }}>
+                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "16px", width: "100%", maxWidth: "520px", maxHeight: "90vh", overflowY: "auto", padding: "24px", boxShadow: "0 20px 40px rgba(0,0,0,0.4)", margin: "auto", boxSizing: "border-box" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <div style={{ width: "36px", height: "36px", borderRadius: "10px", backgroundColor: "rgba(59, 130, 246, 0.12)", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -743,7 +745,8 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

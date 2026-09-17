@@ -210,11 +210,11 @@ function HomePage() {
                                 servicesCurrent={dashboardData?.plafonds?.servicesCurrent || 0}
                                 commercialCurrent={dashboardData?.plafonds?.commercialCurrent || 0}
                                 servicesMax={dashboardData?.plafonds?.servicesMax || 77700}
-                                servicesTva={dashboardData?.plafonds?.servicesTva || 37500}
-                                servicesTvaMax={dashboardData?.plafonds?.servicesTvaMax || 41250}
-                                commercialMax={dashboardData?.plafonds?.commercialMax || 203100}
-                                commercialTva={dashboardData?.plafonds?.commercialTva || 85000}
-                                commercialTvaMax={dashboardData?.plafonds?.commercialTvaMax || 93500}
+                                servicesTva={dashboardData?.plafonds?.servicesTva || 36800}
+                                servicesTvaMax={dashboardData?.plafonds?.servicesTvaMax || 39100}
+                                commercialMax={dashboardData?.plafonds?.commercialMax || 188700}
+                                commercialTva={dashboardData?.plafonds?.commercialTva || 91900}
+                                commercialTvaMax={dashboardData?.plafonds?.commercialTvaMax || 101000}
                             />
                         </div>
                     )}

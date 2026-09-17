@@ -75,13 +75,13 @@ function PlafondTooltip({ title, text, details }) {
 
 function PlafondsCard({
     commercialCurrent = 0,
-    commercialMax = 203100,
-    commercialTva = 85000,
-    commercialTvaMax = 93500,
+    commercialMax = 188700,
+    commercialTva = 91900,
+    commercialTvaMax = 101000,
     servicesCurrent = 0,
     servicesMax = 77700,
-    servicesTva = 37500,
-    servicesTvaMax = 41250
+    servicesTva = 36800,
+    servicesTvaMax = 39100
 }) {
     const formatCurrency = (val) => {
         return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(val);

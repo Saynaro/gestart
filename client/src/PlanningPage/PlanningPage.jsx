@@ -13,7 +13,7 @@ import {
     ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, 
     Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2, Calendar, 
     MapPin, FileText, Check, History, CheckCircle2, Camera, PenTool, 
-    ExternalLink, Filter, ArrowUpDown, Sparkles, Lock
+    ExternalLink, Filter, ArrowUpDown, Sparkles, Lock, CheckSquare, Square
 } from "lucide-react";
 import InterventionDetailModal, { getInterventionStatusInfo } from "../ClientPage/components/InterventionDetailModal";
 import { getSocket } from "../utils/socket";
@@ -142,6 +142,26 @@ function PlanningPage() {
     const statusDropdownRef = useRef(null);
     const autoOpenedRef = useRef(false);
     const returnUrlRef = useRef(null);
+
+    // History Multi-Select & Batch Delete State
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [selectedHistoryIds, setSelectedHistoryIds] = useState(new Set());
+    const [showBatchDeleteModal, setShowBatchDeleteModal] = useState(false);
+    const [isBatchDeleting, setIsBatchDeleting] = useState(false);
+    const longPressTimeoutRef = useRef(null);
+    const touchStartPosRef = useRef({ x: 0, y: 0 });
+    const isLongPressTriggeredRef = useRef(false);
+    const activeMobilePillRef = useRef(null);
+
+    useEffect(() => {
+        if (activeMobilePillRef.current) {
+            activeMobilePillRef.current.scrollIntoView({
+                behavior: "smooth",
+                inline: "center",
+                block: "nearest"
+            });
+        }
+    }, [historyPeriod, activePlanningTab]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -707,42 +727,146 @@ function PlanningPage() {
         setShowAddModal(true);
     };
 
-    // Event click → open Detail modal if completed, otherwise open Edit modal
-    const handleEventClick = (clickInfo) => {
-        const { event } = clickInfo;
-        const status = event.extendedProps?.status;
-        const raw = event.extendedProps?.raw;
-
-        if (status === "COMPLETED" || raw?.clientSignature) {
-            setSelectedDetailIntervention(raw || event);
-            setShowDetailModal(true);
-            return;
-        }
-
-        setSelectedEvent(event);
-        const start = new Date(event.start);
-        const end = new Date(event.end);
+    // Direct open edit modal (bypasses past check; e.g. from detail modal "Modifier" button)
+    const handleDirectOpenEdit = (item) => {
+        if (!item) return;
+        const raw = item.raw || item;
+        setSelectedEvent(item);
+        const sched = item.start || raw.scheduledAt;
+        const start = sched ? new Date(sched) : new Date();
+        const end = item.end ? new Date(item.end) : new Date(start.getTime() + (raw.estimatedDuration || 60) * 60000);
         const pad = (n) => String(n).padStart(2, "0");
         setEditDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
         setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
         setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
 
-        const currentClientId = event.extendedProps?.clientId;
-        const matched = clientDetails.find(c => c.id === currentClientId) || clientDetails.find(c => c.name === event.title);
+        const currentClientId = raw.clientId || item.extendedProps?.clientId;
+        const matched = clientDetails.find(c => c.id === currentClientId) || clientDetails.find(c => c.name === item.title || c.name === raw.client?.name);
 
         setEditClientId(matched?.id || currentClientId || "");
-        setEditClientName(matched?.name || event.title || "");
+        setEditClientName(matched?.name || raw.client?.name || item.title || "");
         
-        const rawType = event.extendedProps?.type || "Installation";
-        const parsed = rawType.split(/[,+]/).map(s => s.trim()).filter(Boolean);
+        const rawType = raw.type || item.extendedProps?.type || (raw.interventionType?.name) || "Installation";
+        const parsed = String(rawType).split(/[,+]/).map(s => s.trim()).filter(Boolean);
         setEditServiceTypes(parsed.length > 0 ? parsed : ["Installation"]);
 
-        setEditTechnicianId(event.extendedProps?.technicianId || "");
-        setEditAddress(event.extendedProps?.address || matched?.rawAddress || matched?.address || "");
-        setEditNotes(event.extendedProps?.description || "");
+        setEditTechnicianId(raw.technicianId || item.extendedProps?.technicianId || "");
+        setEditAddress(raw.address || item.extendedProps?.address || matched?.rawAddress || matched?.address || "");
+        setEditNotes(raw.description || item.extendedProps?.description || "");
         setShowEditCustomType(false);
         setEditCustomTypeInput("");
+        setShowDetailModal(false);
         setShowEditModal(true);
+    };
+
+    // Event click → open Detail modal if completed, cancelled or date is in the past; otherwise open Edit modal
+    const handleEventClick = (clickInfo) => {
+        const { event } = clickInfo;
+        const status = event.extendedProps?.status;
+        const raw = event.extendedProps?.raw;
+
+        const schedDate = event.start || raw?.scheduledAt;
+        const isPastDate = schedDate ? new Date(schedDate).getTime() < new Date().setHours(0, 0, 0, 0) : false;
+
+        if (isPastDate || status === "COMPLETED" || status === "CANCELLED" || raw?.status === "COMPLETED" || raw?.status === "CANCELLED" || raw?.clientSignature || (raw?.photos && raw?.photos.length > 0)) {
+            setSelectedDetailIntervention(raw || event);
+            setShowDetailModal(true);
+            return;
+        }
+
+        handleDirectOpenEdit(event);
+    };
+
+    // History multi-select handlers
+    const toggleSelectHistoryId = (id) => {
+        setSelectedHistoryIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const handleSelectAllHistory = () => {
+        if (selectedHistoryIds.size === filteredHistoryInterventions.length) {
+            setSelectedHistoryIds(new Set());
+        } else {
+            setSelectedHistoryIds(new Set(filteredHistoryInterventions.map(i => i.id)));
+        }
+    };
+
+    const handleCancelSelection = () => {
+        setIsSelectionMode(false);
+        setSelectedHistoryIds(new Set());
+    };
+
+    const handlePointerDownCard = (itemId, e) => {
+        if (isSelectionMode || isTechnician) return;
+        if (e.button !== undefined && e.button !== 0) return;
+        const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+        const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+        if (clientX === undefined) return;
+        touchStartPosRef.current = { x: clientX, y: clientY };
+        isLongPressTriggeredRef.current = false;
+        if (longPressTimeoutRef.current) clearTimeout(longPressTimeoutRef.current);
+        longPressTimeoutRef.current = setTimeout(() => {
+            isLongPressTriggeredRef.current = true;
+            try {
+                if (navigator.vibrate) navigator.vibrate(50);
+            } catch { /* ignore */ }
+            setIsSelectionMode(true);
+            setSelectedHistoryIds(new Set([itemId]));
+        }, 450);
+    };
+
+    const handlePointerMoveCard = (e) => {
+        if (!longPressTimeoutRef.current || !touchStartPosRef.current) return;
+        const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+        const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+        if (clientX === undefined) return;
+        const dx = Math.abs(clientX - touchStartPosRef.current.x);
+        const dy = Math.abs(clientY - touchStartPosRef.current.y);
+        if (dx > 18 || dy > 18) {
+            clearTimeout(longPressTimeoutRef.current);
+            longPressTimeoutRef.current = null;
+        }
+    };
+
+    const handlePointerUpCard = () => {
+        if (longPressTimeoutRef.current) {
+            clearTimeout(longPressTimeoutRef.current);
+            longPressTimeoutRef.current = null;
+        }
+    };
+
+    const handleBatchDeleteConfirm = async () => {
+        if (selectedHistoryIds.size === 0) return;
+        setIsBatchDeleting(true);
+        try {
+            const res = await apiFetch("/v1/interventions/batch-delete", {
+                method: "POST",
+                body: { ids: Array.from(selectedHistoryIds) }
+            });
+            if (res?.success) {
+                setToast({
+                    type: "success",
+                    message: `${selectedHistoryIds.size} intervention(s) supprimée(s) avec succès`
+                });
+                setShowBatchDeleteModal(false);
+                setIsSelectionMode(false);
+                setSelectedHistoryIds(new Set());
+                await fetchInterventions();
+            } else {
+                throw new Error(res?.message || "Erreur lors de la suppression");
+            }
+        } catch (err) {
+            setToast({
+                type: "error",
+                message: err.message || "Impossible de supprimer les interventions"
+            });
+        } finally {
+            setIsBatchDeleting(false);
+        }
     };
 
     // Header "+ Intervention" button
@@ -1075,36 +1199,16 @@ function PlanningPage() {
 
     const handleMobileOpenEdit = (ev) => {
         const raw = ev.extendedProps?.raw || ev;
-        if (raw.status === "COMPLETED" || raw.clientSignature || (raw.photos && raw.photos.length > 0)) {
+        const schedDate = ev.start || raw?.scheduledAt;
+        const isPastDate = schedDate ? new Date(schedDate).getTime() < new Date().setHours(0, 0, 0, 0) : false;
+
+        if (isPastDate || raw.status === "COMPLETED" || raw.status === "CANCELLED" || raw.clientSignature || (raw.photos && raw.photos.length > 0)) {
             setSelectedDetailIntervention(raw);
             setShowDetailModal(true);
             return;
         }
 
-        setSelectedEvent(ev);
-        const start = new Date(ev.start);
-        const end = new Date(ev.end);
-        const pad = (n) => String(n).padStart(2, "0");
-        setEditDate(`${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`);
-        setStartTime(`${pad(start.getHours())}:${pad(start.getMinutes())}`);
-        setEndTime(`${pad(end.getHours())}:${pad(end.getMinutes())}`);
-
-        const currentClientId = ev.extendedProps?.clientId;
-        const matched = clientDetails.find(c => c.id === currentClientId) || clientDetails.find(c => c.name === ev.title);
-
-        setEditClientId(matched?.id || currentClientId || "");
-        setEditClientName(matched?.name || ev.title || "");
-        
-        const rawType = ev.extendedProps?.type || "Installation";
-        const parsed = rawType.split(/[,+]/).map(s => s.trim()).filter(Boolean);
-        setEditServiceTypes(parsed.length > 0 ? parsed : ["Installation"]);
-
-        setEditTechnicianId(ev.extendedProps?.technicianId || "");
-        setEditAddress(ev.extendedProps?.address || matched?.rawAddress || matched?.address || "");
-        setEditNotes(ev.extendedProps?.description || "");
-        setShowEditCustomType(false);
-        setEditCustomTypeInput("");
-        setShowEditModal(true);
+        handleDirectOpenEdit(ev);
     };
 
     const handleMobileFabClick = () => {
@@ -1523,40 +1627,54 @@ function PlanningPage() {
                                     </div>
                                 )}
                                 <div className="modal-header">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <h3 style={{ margin: 0 }}>{isTechnician ? "Détails de l'Intervention" : "Modifier l'Intervention"}</h3>
-                                        {selectedEvent?.extendedProps?.raw && (
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setSelectedDetailIntervention(selectedEvent.extendedProps.raw);
-                                                    setShowDetailModal(true);
-                                                }}
-                                                style={{
-                                                    padding: '4px 10px',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid #556B2F',
-                                                    background: 'rgba(85, 107, 47, 0.1)',
-                                                    color: '#556B2F',
-                                                    fontSize: '0.78rem',
-                                                    fontWeight: 700,
-                                                    cursor: 'pointer',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '4px'
-                                                }}
-                                                title="Consulter la fiche détaillée, photos et signature"
-                                            >
-                                                <FileText size={13} />
-                                                <span>Fiche & Photos ↗</span>
-                                            </button>
-                                        )}
-                                    </div>
+                                    <h3 style={{ margin: 0, fontSize: isMobile ? '1.05rem' : '1.25rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                                        {isTechnician ? "Détails de l'Intervention" : "Modifier l'Intervention"}
+                                    </h3>
                                     <button className="modal-close-btn" onClick={() => closeEditModal()}><X size={18} /></button>
                                 </div>
                                 {isTechnician ? (
                                     <div className="modal-form-container">
                                         <div className="modal-form-body">
+                                            {(() => {
+                                                const raw = selectedEvent?.extendedProps?.raw;
+                                                const status = raw?.status || selectedEvent?.extendedProps?.status;
+                                                const isDoneOrPast = status === "COMPLETED" || status === "ARRIVED" || status === "IN_PROGRESS";
+                                                const hasPhotos = (Array.isArray(raw?.photos) && raw.photos.length > 0) || Boolean(raw?.signature) || Boolean(raw?.technicianReport);
+                                                if (!raw || (!isDoneOrPast && !hasPhotos)) return null;
+
+                                                return (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedDetailIntervention(raw);
+                                                            setShowDetailModal(true);
+                                                        }}
+                                                        style={{
+                                                            width: '100%',
+                                                            padding: '11px 14px',
+                                                            marginBottom: '14px',
+                                                            borderRadius: '12px',
+                                                            border: '1px solid rgba(85, 107, 47, 0.25)',
+                                                            background: 'rgba(85, 107, 47, 0.08)',
+                                                            color: '#556B2F',
+                                                            fontSize: '0.85rem',
+                                                            fontWeight: 700,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            boxSizing: 'border-box'
+                                                        }}
+                                                    >
+                                                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <FileText size={16} />
+                                                            <span>Fiche, photos & signature de l'intervention</span>
+                                                        </span>
+                                                        <ExternalLink size={15} />
+                                                    </button>
+                                                );
+                                            })()}
+
                                             <div className="modal-slot-info" style={{ marginBottom: '14px' }}>
                                                 <span className="slot-info-label">Horaire planifié :</span>
                                                 <span className="slot-info-val">{formatSlotDateTime(selectedEvent, startTime, endTime)}</span>
@@ -1620,6 +1738,47 @@ function PlanningPage() {
                                 ) : (
                                     <form onSubmit={handleEditEventSubmit} className="modal-form-container">
                                         <div className="modal-form-body">
+                                            {(() => {
+                                                const raw = selectedEvent?.extendedProps?.raw;
+                                                const status = raw?.status || selectedEvent?.extendedProps?.status;
+                                                const isDoneOrPast = status === "COMPLETED" || status === "ARRIVED" || status === "IN_PROGRESS";
+                                                const hasPhotos = (Array.isArray(raw?.photos) && raw.photos.length > 0) || Boolean(raw?.signature) || Boolean(raw?.technicianReport);
+                                                if (!raw || (!isDoneOrPast && !hasPhotos)) return null;
+
+                                                return (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedDetailIntervention(raw);
+                                                            setShowDetailModal(true);
+                                                        }}
+                                                        style={{
+                                                            width: '100%',
+                                                            padding: '11px 14px',
+                                                            marginBottom: '14px',
+                                                            borderRadius: '12px',
+                                                            border: '1px solid rgba(85, 107, 47, 0.25)',
+                                                            background: 'rgba(85, 107, 47, 0.08)',
+                                                            color: '#556B2F',
+                                                            fontSize: '0.85rem',
+                                                            fontWeight: 700,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            boxSizing: 'border-box',
+                                                            transition: 'background-color 0.15s'
+                                                        }}
+                                                    >
+                                                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <FileText size={16} />
+                                                            <span>Fiche, photos & signature de l'intervention</span>
+                                                        </span>
+                                                        <ExternalLink size={15} />
+                                                    </button>
+                                                );
+                                            })()}
+
                                             {/* Date & Time Selectors */}
                                             <div className="modal-datetime-grid">
                                                 <div className="modal-field date-col" style={{ margin: 0 }}>
@@ -2262,56 +2421,113 @@ function PlanningPage() {
                 ) : (
                     /* Mobile Past Interventions View */
                     <div className="mobile-history-view-container">
-                        {/* Search bar */}
-                        <div className="mobile-history-search-card">
-                            <div className="mobile-history-search-wrap">
-                                <Search size={17} className="mobile-history-search-icon" />
-                                <input
-                                    type="text"
-                                    className="mobile-history-search-input"
-                                    placeholder="Rechercher client, adresse, tech..."
-                                    value={historySearch}
-                                    onChange={(e) => setHistorySearch(e.target.value)}
-                                />
-                                {historySearch && (
-                                    <button
-                                        type="button"
-                                        className="mobile-history-clear-btn"
-                                        onClick={() => setHistorySearch("")}
-                                    >
-                                        <X size={14} />
-                                    </button>
-                                )}
+                        {/* Search bar & Selection toggle */}
+                        <div className="mobile-history-search-bar-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', marginTop: '2px' }}>
+                            <div className="mobile-history-search-card" style={{ flex: 1, margin: 0 }}>
+                                <div className="mobile-history-search-wrap">
+                                    <Search size={17} className="mobile-history-search-icon" />
+                                    <input
+                                        type="text"
+                                        className="mobile-history-search-input"
+                                        placeholder="Rechercher client, adresse, tech..."
+                                        value={historySearch}
+                                        onChange={(e) => setHistorySearch(e.target.value)}
+                                    />
+                                    {historySearch && (
+                                        <button
+                                            type="button"
+                                            className="mobile-history-clear-btn"
+                                            onClick={() => setHistorySearch("")}
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
+                            {!isTechnician && (
+                                <button
+                                    type="button"
+                                    className={`history-select-mode-icon-btn ${isSelectionMode ? 'active' : ''}`}
+                                    onClick={() => {
+                                        if (isSelectionMode) {
+                                            handleCancelSelection();
+                                        } else {
+                                            setIsSelectionMode(true);
+                                        }
+                                    }}
+                                    title={isSelectionMode ? "Quitter sélection" : "Sélectionner des interventions"}
+                                    aria-label="Sélectionner"
+                                    style={{
+                                        width: '42px',
+                                        height: '42px',
+                                        minWidth: '42px',
+                                        minHeight: '42px',
+                                        borderRadius: '14px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        border: isSelectionMode ? '1.5px solid #556B2F' : '1px solid var(--border)',
+                                        background: isSelectionMode ? 'rgba(85, 107, 47, 0.15)' : 'var(--card)',
+                                        color: '#556B2F',
+                                        boxShadow: '0 1px 4px rgba(0, 0, 0, 0.02)',
+                                        cursor: 'pointer',
+                                        flexShrink: 0,
+                                        padding: 0,
+                                        transition: 'all 0.15s ease'
+                                    }}
+                                >
+                                    {isSelectionMode ? <X size={20} color="#556B2F" /> : <CheckSquare size={20} color="#556B2F" />}
+                                </button>
+                            )}
                         </div>
 
                         {/* Period Pills Scroll */}
                         <div className="mobile-history-periods-scroll">
                             <button
+                                ref={historyPeriod === "past" ? activeMobilePillRef : null}
                                 type="button"
                                 className={`history-period-pill ${historyPeriod === "past" ? "active" : ""}`}
-                                onClick={() => handlePeriodChange("past")}
+                                onClick={(e) => {
+                                    handlePeriodChange("past");
+                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                    e.currentTarget.focus();
+                                }}
                             >
                                 Passées ({periodCounts.past})
                             </button>
                             <button
+                                ref={historyPeriod === "all" ? activeMobilePillRef : null}
                                 type="button"
                                 className={`history-period-pill ${historyPeriod === "all" ? "active" : ""}`}
-                                onClick={() => handlePeriodChange("all")}
+                                onClick={(e) => {
+                                    handlePeriodChange("all");
+                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                    e.currentTarget.focus();
+                                }}
                             >
                                 Toutes ({periodCounts.all})
                             </button>
                             <button
+                                ref={historyPeriod === "upcoming" ? activeMobilePillRef : null}
                                 type="button"
                                 className={`history-period-pill ${historyPeriod === "upcoming" ? "active" : ""}`}
-                                onClick={() => handlePeriodChange("upcoming")}
+                                onClick={(e) => {
+                                    handlePeriodChange("upcoming");
+                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                    e.currentTarget.focus();
+                                }}
                             >
                                 À venir ({periodCounts.upcoming})
                             </button>
                             <button
+                                ref={historyPeriod === "today" ? activeMobilePillRef : null}
                                 type="button"
                                 className={`history-period-pill ${historyPeriod === "today" ? "active" : ""}`}
-                                onClick={() => handlePeriodChange("today")}
+                                onClick={(e) => {
+                                    handlePeriodChange("today");
+                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                    e.currentTarget.focus();
+                                }}
                             >
                                 Aujourd'hui ({periodCounts.today})
                             </button>
@@ -2328,7 +2544,7 @@ function PlanningPage() {
                                 >
                                     {STATUS_OPTIONS.map(opt => (
                                         <option key={opt.value} value={opt.value}>
-                                            {opt.label} ({statusCounts[opt.value] ?? 0})
+                                            {opt.value === "all" ? `Tous (${statusCounts.all ?? filteredHistoryInterventions.length})` : `${opt.label} (${statusCounts[opt.value] ?? 0})`}
                                         </option>
                                     ))}
                                 </select>
@@ -2341,7 +2557,7 @@ function PlanningPage() {
                                     value={historyClientFilter}
                                     onChange={(e) => setHistoryClientFilter(e.target.value)}
                                 >
-                                    <option value="all">Tous les clients</option>
+                                    <option value="all">Tous</option>
                                     {clientDetails.map(c => (
                                         <option key={c.id} value={c.id}>{c.name}</option>
                                     ))}
@@ -2375,17 +2591,50 @@ function PlanningPage() {
                                     const photos = item.photos || [];
                                     const hasSignature = !!item.clientSignature;
                                     const statusInfo = getInterventionStatusInfo(item);
+                                    const isSelected = selectedHistoryIds.has(item.id);
 
                                     return (
                                         <div
                                             key={item.id}
-                                            className="mobile-history-card"
-                                            onClick={() => {
-                                                setSelectedDetailIntervention(item);
-                                                setShowDetailModal(true);
+                                            className={`mobile-history-card ${isSelectionMode && isSelected ? 'selected' : ''}`}
+                                            onPointerDown={(e) => handlePointerDownCard(item.id, e)}
+                                            onPointerMove={handlePointerMoveCard}
+                                            onPointerUp={handlePointerUpCard}
+                                            onPointerCancel={handlePointerUpCard}
+                                            onContextMenu={(e) => {
+                                                if (isLongPressTriggeredRef.current) {
+                                                    e.preventDefault();
+                                                }
+                                            }}
+                                            onClick={(e) => {
+                                                if (isLongPressTriggeredRef.current) {
+                                                    isLongPressTriggeredRef.current = false;
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    return;
+                                                }
+                                                if (isSelectionMode) {
+                                                    toggleSelectHistoryId(item.id);
+                                                } else {
+                                                    setSelectedDetailIntervention(item);
+                                                    setShowDetailModal(true);
+                                                }
+                                            }}
+                                            style={{
+                                                borderColor: isSelectionMode && isSelected ? '#556B2F' : undefined,
+                                                backgroundColor: isSelectionMode && isSelected ? 'rgba(85, 107, 47, 0.06)' : undefined,
+                                                userSelect: 'none',
+                                                WebkitUserSelect: 'none',
+                                                WebkitTouchCallout: 'none',
+                                                touchAction: 'pan-y'
                                             }}
                                         >
-                                            <div className="mobile-history-card-top">
+                                            <div className="mobile-history-card-top" style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                                {isSelectionMode && (
+                                                    <div className={`bell-selection-circle ${isSelected ? "checked selected" : ""}`} style={{ marginRight: '12px', marginTop: '6px' }}>
+                                                        {isSelected && <Check size={12} color="#ffffff" strokeWidth={3} />}
+                                                    </div>
+                                                )}
                                                 <div className="mobile-card-date-badge">
                                                     <span className="card-day">{dayNum}</span>
                                                     <span className="card-month">{monthStr}</span>
@@ -2454,9 +2703,74 @@ function PlanningPage() {
                 )}
                 </PullToRefresh>
 
-                <SideBar onFabClick={isTechnician ? null : handleMobileFabClick} hideFab={isTechnician} />
+                <SideBar onFabClick={isTechnician ? null : handleMobileFabClick} hideFab={isTechnician || isSelectionMode} />
                 {sharedModals}
                 {clientSearchPortal}
+
+                {/* Fixed Bottom Action Bar for Mobile (Matching Notifications Screen) */}
+                {isSelectionMode && (
+                    <div
+                        className="bell-selection-bottom-bar"
+                        style={{
+                            position: 'fixed',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            zIndex: 99999,
+                            backgroundColor: 'var(--card)',
+                            borderTop: '1px solid var(--border)',
+                            padding: '12px 20px',
+                            paddingBottom: 'max(18px, calc(10px + env(safe-area-inset-bottom, 20px)))',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)'
+                        }}
+                    >
+                        <button
+                            type="button"
+                            className="bell-select-all-btn"
+                            onClick={handleSelectAllHistory}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--foreground)',
+                                fontSize: '0.92rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                padding: '8px 4px'
+                            }}
+                        >
+                            {selectedHistoryIds.size === filteredHistoryInterventions.length && filteredHistoryInterventions.length > 0
+                                ? "Tout désélectionner"
+                                : "Tout sélectionner"}
+                        </button>
+                        <button
+                            type="button"
+                            className="bell-delete-selected-btn"
+                            disabled={selectedHistoryIds.size === 0 || isBatchDeleting}
+                            onClick={() => setShowBatchDeleteModal(true)}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                backgroundColor: '#dc2626',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '10px 18px',
+                                borderRadius: '12px',
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                cursor: selectedHistoryIds.size === 0 ? 'not-allowed' : 'pointer',
+                                opacity: selectedHistoryIds.size === 0 ? 0.45 : 1,
+                                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)'
+                            }}
+                        >
+                            <Trash2 size={16} />
+                            <span>Supprimer{selectedHistoryIds.size > 0 ? ` (${selectedHistoryIds.size})` : ""}</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Modal de consultation détaillée pour mobile (photos, signature, rapport) */}
                 <InterventionDetailModal
@@ -2466,6 +2780,7 @@ function PlanningPage() {
                     }}
                     intervention={selectedDetailIntervention}
                     client={selectedDetailIntervention?.client}
+                    onEdit={isTechnician ? null : handleDirectOpenEdit}
                 />
             </div>
         );
@@ -2614,15 +2929,58 @@ function PlanningPage() {
                             {/* Toolbar & Filters */}
                             <div className="history-toolbar-card">
                                 <div className="history-toolbar-top">
-                                    <div className="history-search-wrapper">
-                                        <Search size={16} className="history-search-icon" />
-                                        <input
-                                            type="text"
-                                            className="history-search-input"
-                                            placeholder="Rechercher par client, adresse, technicien, objet..."
-                                            value={historySearch}
-                                            onChange={(e) => setHistorySearch(e.target.value)}
-                                        />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '260px' }}>
+                                        <div className="history-search-wrapper" style={{ flex: 1 }}>
+                                            <Search size={16} className="history-search-icon" />
+                                            <input
+                                                type="text"
+                                                className="history-search-input"
+                                                placeholder="Rechercher par client, adresse, technicien, objet..."
+                                                value={historySearch}
+                                                onChange={(e) => setHistorySearch(e.target.value)}
+                                            />
+                                            {historySearch && (
+                                                <button
+                                                    type="button"
+                                                    className="mobile-history-clear-btn"
+                                                    onClick={() => setHistorySearch("")}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            )}
+                                        </div>
+                                        {!isTechnician && (
+                                            <button
+                                                type="button"
+                                                className={`history-select-toggle-btn ${isSelectionMode ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    if (isSelectionMode) {
+                                                        handleCancelSelection();
+                                                    } else {
+                                                        setIsSelectionMode(true);
+                                                    }
+                                                }}
+                                                style={{
+                                                    height: '38px',
+                                                    padding: '0 14px',
+                                                    borderRadius: '10px',
+                                                    fontSize: '0.84rem',
+                                                    fontWeight: 600,
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    border: isSelectionMode ? '1.5px solid #556B2F' : '1px solid var(--border)',
+                                                    background: isSelectionMode ? 'rgba(85, 107, 47, 0.12)' : 'var(--card)',
+                                                    color: isSelectionMode ? '#556B2F' : 'var(--foreground)',
+                                                    cursor: 'pointer',
+                                                    whiteSpace: 'nowrap',
+                                                    transition: 'all 0.15s ease'
+                                                }}
+                                            >
+                                                <CheckSquare size={16} />
+                                                <span>{isSelectionMode ? "Annuler" : "Sélectionner"}</span>
+                                            </button>
+                                        )}
                                     </div>
 
                                     <div className="history-period-pills">
@@ -2742,6 +3100,53 @@ function PlanningPage() {
                                 </div>
                             </div>
 
+                            {/* Desktop Batch Action Bar */}
+                            {isSelectionMode && (
+                                <div className="history-batch-action-bar">
+                                    <div className="batch-action-bar-left">
+                                        <span className="batch-selected-count">
+                                            {selectedHistoryIds.size} sélectionnée{selectedHistoryIds.size > 1 ? 's' : ''}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="batch-btn batch-select-all"
+                                            onClick={handleSelectAllHistory}
+                                        >
+                                            {selectedHistoryIds.size === filteredHistoryInterventions.length && filteredHistoryInterventions.length > 0 ? (
+                                                <>
+                                                    <CheckSquare size={15} />
+                                                    <span>Tout désélectionner</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Square size={15} />
+                                                    <span>Tout sélectionner ({filteredHistoryInterventions.length})</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                    <div className="batch-action-bar-right">
+                                        <button
+                                            type="button"
+                                            className="batch-btn batch-delete-btn"
+                                            disabled={selectedHistoryIds.size === 0}
+                                            onClick={() => setShowBatchDeleteModal(true)}
+                                        >
+                                            <Trash2 size={15} />
+                                            <span>Supprimer {selectedHistoryIds.size > 0 ? `(${selectedHistoryIds.size})` : ''}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="batch-btn batch-cancel-btn"
+                                            onClick={handleCancelSelection}
+                                        >
+                                            <X size={15} />
+                                            <span>Annuler</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* List of Interventions */}
                             {loading && filteredHistoryInterventions.length === 0 ? (
                                 <div className="history-items-grid">
@@ -2789,17 +3194,27 @@ function PlanningPage() {
                                         const photos = item.photos || [];
                                         const hasSignature = !!item.clientSignature;
                                         const statusInfo = getInterventionStatusInfo(item);
+                                        const isSelected = selectedHistoryIds.has(item.id);
 
                                         return (
                                             <div 
                                                 key={item.id} 
-                                                className="history-item-row"
+                                                className={`history-item-row ${isSelectionMode && isSelected ? 'selected' : ''}`}
                                                 onClick={() => {
-                                                    setSelectedDetailIntervention(item);
-                                                    setShowDetailModal(true);
+                                                    if (isSelectionMode) {
+                                                        toggleSelectHistoryId(item.id);
+                                                    } else {
+                                                        setSelectedDetailIntervention(item);
+                                                        setShowDetailModal(true);
+                                                    }
                                                 }}
                                             >
                                                 <div className="history-row-left">
+                                                    {isSelectionMode && (
+                                                        <div className={`bell-selection-circle ${isSelected ? 'checked selected' : ''}`} style={{ marginRight: '14px', alignSelf: 'center', flexShrink: 0 }}>
+                                                            {isSelected && <Check size={12} color="#ffffff" strokeWidth={3} />}
+                                                        </div>
+                                                    )}
                                                     <div className="history-date-badge">
                                                         <span className="history-date-day">{dayNum}</span>
                                                         <span className="history-date-month">{monthStr}</span>
@@ -2897,7 +3312,45 @@ function PlanningPage() {
                 }}
                 intervention={selectedDetailIntervention}
                 client={selectedDetailIntervention?.client}
+                onEdit={isTechnician ? null : handleDirectOpenEdit}
             />
+
+            {/* Modal de confirmation de suppression groupée */}
+            {showBatchDeleteModal && typeof document !== "undefined" && createPortal(
+                <div className="planning-batch-delete-modal-overlay" onClick={() => !isBatchDeleting && setShowBatchDeleteModal(false)}>
+                    <div className="planning-batch-delete-modal-card" onClick={(e) => e.stopPropagation()}>
+                        <div className="pbdm-header">
+                            <div className="pbdm-icon-wrap">
+                                <AlertTriangle size={22} color="#dc2626" />
+                            </div>
+                            <h3 className="pbdm-title">Supprimer {selectedHistoryIds.size} intervention{selectedHistoryIds.size > 1 ? 's' : ''} ?</h3>
+                        </div>
+                        <p className="pbdm-desc">
+                            Êtes-vous sûr de vouloir supprimer définitivement ces {selectedHistoryIds.size} intervention(s) ?<br/><br/>
+                            Leurs enregistrements, photos et comptes-rendus seront supprimés. Elles disparaîtront du calendrier, de l'espace technicien et ne seront plus comptabilisées dans le tableau de bord.
+                        </p>
+                        <div className="pbdm-actions">
+                            <button
+                                type="button"
+                                className="pbdm-cancel-btn"
+                                disabled={isBatchDeleting}
+                                onClick={() => setShowBatchDeleteModal(false)}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="button"
+                                className="pbdm-confirm-btn"
+                                disabled={isBatchDeleting}
+                                onClick={handleBatchDeleteConfirm}
+                            >
+                                {isBatchDeleting ? "Suppression en cours..." : `Supprimer définitivement (${selectedHistoryIds.size})`}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </div>

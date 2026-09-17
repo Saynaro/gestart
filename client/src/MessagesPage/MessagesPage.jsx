@@ -165,7 +165,22 @@ function MessagesPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isExpired } = useSubscription();
+  const { isExpired, isUnlimited, isStarter, subscription, displayName } = useSubscription();
+
+  const [smsUsage, setSmsUsage] = useState(null);
+
+  const fetchSmsUsage = useCallback(async () => {
+    try {
+      const res = await apiFetch("/v1/subscription/usage");
+      if (res?.data?.usage?.sms) {
+        setSmsUsage(res.data.usage.sms);
+      }
+    } catch (_) {}
+  }, []);
+
+  useEffect(() => {
+    fetchSmsUsage();
+  }, [fetchSmsUsage]);
 
   const [chats, setChats] = useState(() => cachedMessagesChats || []);
   const [selectedClientData, setSelectedClientData] = useState(null);
@@ -589,6 +604,19 @@ function MessagesPage() {
     if (!inputText.trim() && emailAttachments.length === 0) return;
     if (!activeChatIdParam || isSending) return;
 
+    // Check SMS quota limit
+    if (selectedChannel === "SMS" && smsUsage?.isLimitReached && !isUnlimited) {
+      window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+        detail: {
+          reason: "sms",
+          title: "Solde SMS mensuel épuisé",
+          description: `Vous avez utilisé l'intégralité de vos SMS inclus pour ce mois (${smsUsage.current}/${smsUsage.max} SMS). Passez à l'offre Unlimited pour bénéficier de 500 SMS inclus chaque mois et relancer vos clients en continu.`,
+          targetPlan: "UNLIMITED"
+        }
+      }));
+      return;
+    }
+
     if (selectedChannel === "EMAIL" && !emailSubject.trim()) {
       setSendError("L'objet de l'email est obligatoire.");
       return;
@@ -656,6 +684,16 @@ function MessagesPage() {
       }
     } catch (err) {
       console.error("[MESSAGE SEND ERROR]", err.message);
+      if (err.message && (err.message.includes("Limite") || err.message.includes("limite") || err.code === "LIMIT_REACHED" || err.message.includes("SMS") || err.message.includes("quota"))) {
+        window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+          detail: {
+            reason: "sms",
+            title: "Solde SMS mensuel épuisé",
+            description: err.message,
+            targetPlan: "UNLIMITED"
+          }
+        }));
+      }
       setSendError(err.message || "Impossible d'envoyer le message.");
       setMessages(prev => prev.map(m => m.id === tempId ? { ...m, status: "failed", errorMessage: err.message } : m));
     } finally {
@@ -2192,6 +2230,35 @@ function MessagesPage() {
       {/* Adaptive Omnichannel Composer */}
       <div className={`omnichannel-composer-container ${selectedChannel === "EMAIL" ? "email-mode" : ""}`}>
 
+        {/* SMS Quota Alert Banner when limit is reached */}
+        {selectedChannel === "SMS" && smsUsage?.isLimitReached && (
+          <div className="sms-limit-alert-banner">
+            <div className="sms-limit-alert-text">
+              <AlertCircle size={14} className="sms-limit-alert-icon" />
+              <span>
+                Quota SMS mensuel épuisé ({smsUsage.current}/{smsUsage.max} SMS).
+              </span>
+            </div>
+            <button
+              type="button"
+              className="sms-limit-upgrade-btn"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+                  detail: {
+                    reason: "sms",
+                    title: "Solde SMS mensuel épuisé",
+                    description: `Votre quota de ${smsUsage.max} SMS est épuisé pour ce mois. Passez au plan Unlimited pour bénéficier de 500 SMS inclus par mois.`,
+                    targetPlan: "UNLIMITED"
+                  }
+                }));
+              }}
+            >
+              <Zap size={13} />
+              <span>Débloquer 500 SMS</span>
+            </button>
+          </div>
+        )}
+
         {/* Composer Controls Bar */}
         <div className="composer-top-bar">
           {/* Smart Channel Selector Dropdown & Meta Toggle */}
@@ -2653,9 +2720,7 @@ function MessagesPage() {
             {/* Desktop View Layout */}
             {!isMobile && (
               <>
-                <PullToRefresh onRefresh={handleRefresh} style={{ height: "100%", width: "320px", flexShrink: 0 }}>
-                  {renderChatList()}
-                </PullToRefresh>
+                {renderChatList()}
                 {activeChatIdParam ? renderChatPane() : (
                   <div className="chat-pane-placeholder flex-1 flex flex-col items-center justify-center bg-card text-muted-foreground p-8 text-center" style={{ borderRight: "1px solid var(--border)" }}>
                     <MessageSquare size={48} className="mb-4 opacity-40" />

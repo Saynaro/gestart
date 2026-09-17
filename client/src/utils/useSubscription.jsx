@@ -65,18 +65,20 @@ export function SubscriptionProvider({ children }) {
 
     const rawName = subscription?.plan?.name || 'PRO';
     const planName = rawName.toUpperCase();
-    const displayName = subscription?.plan?.displayName || (planName === 'STARTER' ? 'Starter' : planName === 'UNLIMITED' ? 'Unlimited' : 'Pro');
+    const rawDisplayName = subscription?.plan?.displayName || (planName === 'STARTER' ? 'Starter' : planName === 'UNLIMITED' ? 'Unlimited' : 'Pro');
 
     const status = subscription?.status || 'ACTIVE';
     const isCancelled = status === 'CANCELLED' || Boolean(subscription?.cancelledAt);
     const now = new Date();
     const periodEnd = status === 'TRIALING' ? subscription?.trialEndsAt : subscription?.currentPeriodEnd;
     const isPeriodEnded = Boolean(periodEnd && new Date(periodEnd) < now);
-    const isExpired = status === 'EXPIRED' || (isPeriodEnded && (status === 'CANCELLED' || status === 'EXPIRED' || status === 'TRIALING'));
+    const isExpired = status === 'EXPIRED' || isPeriodEnded;
 
-    const isStarter = planName === 'STARTER';
-    const isPro = planName === 'PRO';
-    const isUnlimited = planName === 'UNLIMITED';
+    const displayName = isExpired ? 'Expiré' : rawDisplayName;
+    const isStarter = !isExpired && planName === 'STARTER';
+    const isPro = !isExpired && planName === 'PRO';
+    const isUnlimited = !isExpired && planName === 'UNLIMITED';
+    const hasActivePlan = !isExpired;
 
     return (
         <SubscriptionContext.Provider value={{
@@ -84,9 +86,12 @@ export function SubscriptionProvider({ children }) {
             setSubscription,
             planName,
             displayName,
+            rawDisplayName,
             status,
             isCancelled,
             isExpired,
+            isPeriodEnded,
+            hasActivePlan,
             isStarter,
             isPro,
             isUnlimited,

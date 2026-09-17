@@ -8,8 +8,8 @@
     min-height: 64px;
     flex-shrink: 0 !important;
     box-sizing: border-box;
-    background-color: var(--sidebar);
-    border-bottom: 1px solid var(--sidebar-border);
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 99;
@@ -227,8 +227,8 @@
         min-height: 64px;
         flex-shrink: 0 !important;
         box-sizing: border-box;
-        background-color: var(--sidebar);
-        border-bottom: none;
+        background-color: var(--background) !important;
+        border-bottom: none !important;
     }
     
     .greeting {

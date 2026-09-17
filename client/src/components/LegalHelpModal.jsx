@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, ShieldCheck, FileText, Scale, Lock, Cookie, HelpCircle, CheckCircle2 } from "lucide-react";
 
 export function LegalHelpTooltip({ title, text, lawArticle, positionDirection = "down" }) {
@@ -104,7 +105,7 @@ export default function LegalModal({ type, onClose }) {
         }
     }, [activeTab]);
 
-    return (
+    return createPortal(
         <div style={{
             position: 'fixed',
             inset: 0,
@@ -317,6 +318,7 @@ export default function LegalModal({ type, onClose }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

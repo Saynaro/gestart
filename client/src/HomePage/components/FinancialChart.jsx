@@ -39,7 +39,15 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
 
     // Build Dynamic Chart Data based on range & resolution
     const chartData = useMemo(() => {
-        const txs = Array.isArray(rawTransactions) ? rawTransactions : [];
+        const raw = Array.isArray(rawTransactions) ? rawTransactions : [];
+        
+        // Filter by source:
+        // "Factures" -> Seules les factures réglées / encaissées
+        // "Toutes" -> Toutes les factures émises et encaissées
+        const txs = sources === "Factures"
+            ? raw.filter(tx => tx.status === "PAID" || tx.status === "paid" || tx.source === "factures_encaissees")
+            : raw;
+
         const now = new Date();
         const rate = typeof cotisationsRate === "number" ? cotisationsRate : 0.212;
 
@@ -68,7 +76,7 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
                 let entrees = monthTxs.reduce((sum, t) => sum + (Number(t.amountTTC) || 0), 0);
 
                 // Fallback to data prop if rawTransactions is empty and it matches 6M default
-                if (txs.length === 0 && data && data.length > 0) {
+                if (raw.length === 0 && data && data.length > 0) {
                     const found = data.find(d => d.month === label);
                     if (found) {
                         entrees = found.entrees || 0;
@@ -169,17 +177,36 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
         }
 
         return data;
-    }, [rawTransactions, rangeKey, resolution, cotisationsRate, data]);
+    }, [rawTransactions, rangeKey, resolution, sources, cotisationsRate, data]);
 
     const highestVal = Math.max(...chartData.map(d => Math.max(d.entrees || 0, d.sorties || 0, d.resultat || 0)), 100);
-    const maxVal = Math.ceil(highestVal * 1.25 / 50) * 50 || 100;
-    const yGridLines = [maxVal, maxVal * 0.75, maxVal * 0.5, maxVal * 0.25, 0];
+
+    const { maxVal, yGridLines } = useMemo(() => {
+        // Compute clean, round step intervals without fractional decimals
+        const roughMax = Math.max(highestVal * 1.15, 100);
+        let step = 500;
+        if (roughMax <= 200) step = 50;
+        else if (roughMax <= 500) step = 100;
+        else if (roughMax <= 1200) step = 250;
+        else if (roughMax <= 3000) step = 500;
+        else if (roughMax <= 6000) step = 1000;
+        else if (roughMax <= 15000) step = 2500;
+        else if (roughMax <= 30000) step = 5000;
+        else step = Math.ceil(roughMax / 4 / 1000) * 1000;
+
+        const computedMax = Math.ceil(roughMax / step) * step;
+        const lines = [];
+        for (let v = computedMax; v >= 0; v -= step) {
+            lines.push(v);
+        }
+        return { maxVal: computedMax, yGridLines: lines };
+    }, [highestVal]);
 
     // SVG Layout Config
     const chartWidth = 500;
     const chartHeight = 200;
-    const paddingLeft = 45;
-    const paddingRight = 20;
+    const paddingLeft = 68;
+    const paddingRight = 35;
     const paddingTop = 15;
     const paddingBottom = 30;
 
@@ -370,17 +397,22 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
                             })}
 
                             {/* X-axis labels */}
-                            {chartData.map((d, idx) => (
-                                <text 
-                                    key={idx} 
-                                    x={getX(idx)} 
-                                    y={chartHeight - 8} 
-                                    textAnchor="middle" 
-                                    className="chart-axis-label"
-                                >
-                                    {d.month}
-                                </text>
-                            ))}
+                            {chartData.map((d, idx) => {
+                                const isFirst = idx === 0;
+                                const isLast = idx === chartData.length - 1;
+                                const anchor = isFirst ? "start" : (isLast ? "end" : "middle");
+                                return (
+                                    <text 
+                                        key={idx} 
+                                        x={getX(idx)} 
+                                        y={chartHeight - 8} 
+                                        textAnchor={anchor} 
+                                        className="chart-axis-label"
+                                    >
+                                        {d.month}
+                                    </text>
+                                );
+                            })}
 
                             {/* Bar charts (for entrees / revenues) */}
                             {viewType === "mixed" && chartData.map((d, idx) => {

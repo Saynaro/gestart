@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, RotateCcw, Check, PenTool, Upload, Trash2 } from "lucide-react";
 import "./SignaturePadModal.css";
 
@@ -146,7 +147,7 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
         onClose();
     };
 
-    return (
+    return createPortal(
         <div className="signature-modal-overlay" onClick={onClose}>
             <div className="signature-modal-card" onClick={e => e.stopPropagation()}>
                 {/* Header */}
@@ -251,6 +252,7 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

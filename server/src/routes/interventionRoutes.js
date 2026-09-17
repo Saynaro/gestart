@@ -10,6 +10,7 @@ import {
     startIntervention,
     completeIntervention,
     deleteIntervention,
+    batchDeleteInterventions,
     uploadInterventionPhotos,
     deleteInterventionPhoto
 } from "../controllers/interventionController.js";
@@ -32,6 +33,7 @@ router.get("/:id", getInterventionById);
 
 // CRUD et Actions du technicien
 router.post("/", requireActive, createIntervention);
+router.post("/batch-delete", requireManager, requireActive, batchDeleteInterventions);
 router.patch("/:id", requireActive, updateIntervention);
 router.put("/:id", requireActive, updateIntervention);
 router.patch("/:id/arrive", arriveIntervention);

@@ -182,7 +182,7 @@ export async function apiFetch(endpoint, options = {}) {
     }
 
     if (!response.ok) {
-        if (response.status === 403 && (data.code === 'SUBSCRIPTION_EXPIRED' || (data.message && data.message.toLowerCase().includes('expirée')))) {
+        if (response.status === 403 && (data.code === 'SUBSCRIPTION_EXPIRED' || (data.message && data.message.toLowerCase().includes('expir')))) {
             if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('subscription_expired', { detail: data }));
             }

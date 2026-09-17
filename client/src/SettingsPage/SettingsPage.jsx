@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
@@ -8,6 +9,7 @@ import PhoneInput from "../components/PhoneInput";
 import PullToRefresh from "../components/PullToRefresh";
 import { apiFetch } from "../utils/api";
 import { useUser } from "../utils/useUser";
+import { useSubscription } from "../utils/useSubscription";
 import { handleLogout } from "../utils/auth";
 import "./SettingsPage.css";
 
@@ -22,6 +24,7 @@ import {
     Bell,
     HelpCircle,
     Star,
+    Sparkles,
     Gift,
     FileText,
     BookOpen,
@@ -317,6 +320,7 @@ function SettingsPage() {
 
     const { role } = useUser();
     const isTechnician = role === "TECHNICIAN";
+    const { displayName, isUnlimited, isExpired } = useSubscription();
 
     // Configuration of Menu Categories (Filtered dynamically for Technicians vs Owners/Managers)
     const menuCategories = useMemo(() => {
@@ -372,6 +376,7 @@ function SettingsPage() {
                     { id: "chiffre-affaires", label: "Chiffre d'affaires", icon: Calculator, subtitle: "Plafonds et CA annuel" },
                     { id: "cotisations", label: "Cotisations sociales", icon: Percent, subtitle: "Taux et calcul de cotisations" },
                     { id: "tva-config", label: "TVA", icon: Receipt, subtitle: "Taux de TVA et déclarations" },
+                    { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
                     { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos coordonnées bancaires" }
                 ]
             },
@@ -381,7 +386,6 @@ function SettingsPage() {
                     { id: "communication", label: "Communication & Canaux", icon: MessageSquare, subtitle: "Twilio SMS, WhatsApp Business, Email" },
                     { id: "paiements", label: "Paiements", icon: CreditCard, subtitle: "Stripe Connect et virements" },
                     { id: "facturation", label: "Facturation", icon: Receipt, subtitle: "Réglages de facturation" },
-                    { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
                     { id: "notifications", label: "Notifications", icon: Bell, subtitle: "Canaux et fréquences" }
                 ]
             },
@@ -725,44 +729,39 @@ function SettingsPage() {
                                 </div>
                                 <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
                                 <p className="mobile-settings-profile-email">{email}</p>
-                            </div>
 
-                            {/* Pro Upgrade Banner (Owner/Manager only) */}
-                            {!isTechnician && showUpgradeBanner && (
-                                <div className="mobile-abby-banner">
-                                    <button className="mobile-abby-banner-close" onClick={() => setShowUpgradeBanner(false)}>
-                                        <X size={18} />
+                                {/* Clean & compact subscription badge */}
+                                {!isTechnician && (
+                                    <button
+                                        type="button"
+                                        className="mobile-plan-pill-badge"
+                                        onClick={() => handleTabSelect("abonnement")}
+                                        title={isExpired ? "Abonnement expiré — Cliquez pour renouveler" : "Gérer votre abonnement"}
+                                        style={isExpired ? {
+                                            borderColor: 'rgba(239, 68, 68, 0.4)',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                                            color: '#ef4444'
+                                        } : undefined}
+                                    >
+                                        {isExpired ? (
+                                            <AlertTriangle size={12} style={{ color: '#ef4444', flexShrink: 0 }} />
+                                        ) : (
+                                            <Sparkles size={12} className="pill-badge-sparkle" />
+                                        )}
+                                        <span className="pill-badge-title" style={isExpired ? { color: '#ef4444', fontWeight: 800 } : undefined}>
+                                            {isExpired ? "Abonnement expiré" : `Plan ${displayName || "Pro"}`}
+                                        </span>
+                                        <span className="pill-badge-dot" style={isExpired ? { color: '#ef4444' } : undefined}>·</span>
+                                        <span className="pill-badge-action" style={isExpired ? { color: '#ef4444', fontWeight: 800 } : undefined}>
+                                            {isExpired ? "Renouveler" : "Gérer"}
+                                        </span>
+                                        <ChevronRight size={13} className="pill-badge-arrow" style={isExpired ? { color: '#ef4444' } : undefined} />
                                     </button>
-                                    <h3 className="mobile-abby-banner-title">Passez à la vitesse supérieure !</h3>
-                                    <p className="mobile-abby-banner-text">
-                                        Votre plan Pro vous permet de gérer 250 clients et 2 techniciens.
-                                    </p>
-                                    <button className="mobile-abby-banner-btn" onClick={() => triggerToast("Passez au plan Unlimited !")}>
-                                        Découvrir le plan Unlimited
-                                    </button>
-                                </div>
-                            )}
+                                )}
+                            </div>
 
                             {/* Categories and Rows */}
                             <div className="mobile-group-container">
-                                {/* Custom Conformity Section (Owner/Manager only) */}
-                                {!isTechnician && (
-                                    <div className="mobile-group-section">
-                                        <h4 className="mobile-group-header">Conformité Légale</h4>
-                                        <div className="mobile-items-card">
-                                            <button className="mobile-settings-row-btn" type="button" onClick={() => handleTabSelect("rgpd-legal")}>
-                                                <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', color: '#2563eb' }}><FileText size={16} /></span>
-                                                <span className="mobile-row-text-col">
-                                                    <span className="mobile-row-label">Facturation électronique RGPD</span>
-                                                    <span className="mobile-row-subtitle">Art. 289 CGI & Art. 15-21 RGPD</span>
-                                                </span>
-                                                <span className="mobile-row-badge">Conforme</span>
-                                                <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
                                 {menuCategories.map((category) => (
                                     <div key={category.title} className="mobile-group-section">
                                         <h4 className="mobile-group-header">{category.title}</h4>
@@ -829,70 +828,73 @@ function SettingsPage() {
                 <SideBar />
 
                 {/* Profile Sub-Sheets (z-index 2200) */}
-                <AnimatePresence>
-                    {activeProfileSubSheet && (
-                        <>
-                            <motion.div
-                                className="fixed inset-0 z-[2200] bg-black/45 backdrop-blur-[2px]"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setActiveProfileSubSheet(null)}
-                            />
+                {createPortal(
+                    <AnimatePresence>
+                        {activeProfileSubSheet && (
+                            <>
+                                <motion.div
+                                    className="fixed inset-0 z-[2200] bg-black/45 backdrop-blur-[2px]"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setActiveProfileSubSheet(null)}
+                                />
 
-                            <motion.div
-                                className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
-                                style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
-                                initial={{ y: "100%" }}
-                                animate={{ y: 0 }}
-                                exit={{ y: "100%" }}
-                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
-                                drag="y"
-                                dragControls={dragControlsProfileSub}
-                                dragListener={false}
-                                dragConstraints={{ top: 0 }}
-                                dragElastic={{ top: 0, bottom: 0.8 }}
-                                onDragEnd={(event, info) => {
-                                    if (info.offset.y > 100) {
-                                        setActiveProfileSubSheet(null);
-                                    }
-                                }}
-                            >
-                                <div
-                                    className="mobile-sheet-header-drag-zone"
-                                    onPointerDown={(e) => dragControlsProfileSub.start(e)}
-                                    style={{ touchAction: "none" }}
+                                <motion.div
+                                    className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
+                                    style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
+                                    initial={{ y: "100%" }}
+                                    animate={{ y: 0 }}
+                                    exit={{ y: "100%" }}
+                                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
+                                    drag="y"
+                                    dragControls={dragControlsProfileSub}
+                                    dragListener={false}
+                                    dragConstraints={{ top: 0 }}
+                                    dragElastic={{ top: 0, bottom: 0.8 }}
+                                    onDragEnd={(event, info) => {
+                                        if (info.offset.y > 100) {
+                                            setActiveProfileSubSheet(null);
+                                        }
+                                    }}
                                 >
-                                    <div className="mobile-drag-handle-bar" />
-                                </div>
-
-                                {/* SUB-SHEET: PHONE */}
-                                {activeProfileSubSheet === "phone" && (
-                                    <div>
-                                        <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent' }}>
-                                            <button className="mobile-sheet-close-btn" onClick={() => setActiveProfileSubSheet(null)}>
-                                                <X size={18} />
-                                            </button>
-                                            <h2 className="mobile-sheet-title">Numéro de téléphone</h2>
-                                            <div style={{ width: '36px' }} />
-                                        </div>
-                                        <div className="mobile-sheet-body-stack" style={{ padding: '10px 16px 20px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                                            <PhoneInput
-                                                value={phone}
-                                                onChange={(formatted) => setPhone(formatted)}
-                                                autoFocus
-                                            />
-
-                                            <button className="mobile-sub-sheet-confirm-btn" onClick={handleConfirmPhone}>
-                                                Valider ce numéro
-                                            </button>
-                                        </div>
+                                    <div
+                                        className="mobile-sheet-header-drag-zone"
+                                        onPointerDown={(e) => dragControlsProfileSub.start(e)}
+                                        style={{ touchAction: "none" }}
+                                    >
+                                        <div className="mobile-drag-handle-bar" />
                                     </div>
-                                )}
-                            </motion.div>
-                        </>
-                    )}
-                </AnimatePresence>
+
+                                    {/* SUB-SHEET: PHONE */}
+                                    {activeProfileSubSheet === "phone" && (
+                                        <div>
+                                            <div className="mobile-sheet-header" style={{ borderBottom: 'none', backgroundColor: 'transparent' }}>
+                                                <button className="mobile-sheet-close-btn" onClick={() => setActiveProfileSubSheet(null)}>
+                                                    <X size={18} />
+                                                </button>
+                                                <h2 className="mobile-sheet-title">Numéro de téléphone</h2>
+                                                <div style={{ width: '36px' }} />
+                                            </div>
+                                            <div className="mobile-sheet-body-stack" style={{ padding: '10px 16px 20px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                                <PhoneInput
+                                                    value={phone}
+                                                    onChange={(formatted) => setPhone(formatted)}
+                                                    autoFocus
+                                                />
+
+                                                <button className="mobile-sub-sheet-confirm-btn" onClick={handleConfirmPhone}>
+                                                    Valider ce numéro
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>,
+                    document.body
+                )}
             </motion.div>
         );
     };
@@ -1011,118 +1013,121 @@ function SettingsPage() {
             )}
 
             {/* Custom Confirmation Dialog Toast for destructive actions */}
-            <AnimatePresence>
-                {confirmConfig && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        style={{
-                            position: 'fixed',
-                            inset: 0,
-                            zIndex: 999999,
-                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
-                            backdropFilter: 'blur(4px)',
-                            WebkitBackdropFilter: 'blur(4px)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '20px',
-                            boxSizing: 'border-box'
-                        }}
-                        onClick={() => setConfirmConfig(null)}
-                    >
+            {createPortal(
+                <AnimatePresence>
+                    {confirmConfig && (
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            transition={{ type: "spring", stiffness: 450, damping: 30 }}
-                            onClick={(e) => e.stopPropagation()}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             style={{
-                                backgroundColor: 'var(--card)',
-                                border: '1.5px solid var(--border)',
-                                borderRadius: '16px',
-                                padding: '20px 22px',
-                                maxWidth: '360px',
-                                width: '100%',
-                                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
+                                position: 'fixed',
+                                inset: 0,
+                                zIndex: 999999,
+                                backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                                backdropFilter: 'blur(4px)',
+                                WebkitBackdropFilter: 'blur(4px)',
                                 display: 'flex',
-                                flexDirection: 'column',
-                                gap: '16px',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '20px',
                                 boxSizing: 'border-box'
                             }}
+                            onClick={() => setConfirmConfig(null)}
                         >
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-                                <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    borderRadius: '50%',
-                                    backgroundColor: confirmConfig.type === 'success' ? 'rgba(34, 197, 94, 0.14)' : confirmConfig.type === 'info' ? 'rgba(37, 99, 235, 0.14)' : 'rgba(239, 68, 68, 0.12)',
-                                    color: confirmConfig.type === 'success' ? '#16a34a' : confirmConfig.type === 'info' ? '#2563eb' : '#ef4444',
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                    backgroundColor: 'var(--card)',
+                                    border: '1.5px solid var(--border)',
+                                    borderRadius: '16px',
+                                    padding: '20px 22px',
+                                    maxWidth: '360px',
+                                    width: '100%',
+                                    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexShrink: 0
-                                }}>
-                                    {confirmConfig.type === 'success' ? (
-                                        <Star size={22} fill="currentColor" />
-                                    ) : (
-                                        <AlertTriangle size={22} />
-                                    )}
+                                    flexDirection: 'column',
+                                    gap: '16px',
+                                    boxSizing: 'border-box'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                                    <div style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '50%',
+                                        backgroundColor: confirmConfig.type === 'success' ? 'rgba(34, 197, 94, 0.14)' : confirmConfig.type === 'info' ? 'rgba(37, 99, 235, 0.14)' : 'rgba(239, 68, 68, 0.12)',
+                                        color: confirmConfig.type === 'success' ? '#16a34a' : confirmConfig.type === 'info' ? '#2563eb' : '#ef4444',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0
+                                    }}>
+                                        {confirmConfig.type === 'success' ? (
+                                            <Star size={22} fill="currentColor" />
+                                        ) : (
+                                            <AlertTriangle size={22} />
+                                        )}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <h4 style={{ margin: '2px 0 0 0', fontSize: '15.5px', fontWeight: 700, color: 'var(--foreground)' }}>{confirmConfig.title}</h4>
+                                        <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.45 }}>{confirmConfig.message}</p>
+                                    </div>
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ margin: '2px 0 0 0', fontSize: '15.5px', fontWeight: 700, color: 'var(--foreground)' }}>{confirmConfig.title}</h4>
-                                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.45 }}>{confirmConfig.message}</p>
-                                </div>
-                            </div>
 
-                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setConfirmConfig(null)}
-                                    style={{
-                                        flex: 1,
-                                        padding: '10px 14px',
-                                        borderRadius: '10px',
-                                        border: '1px solid var(--border)',
-                                        backgroundColor: 'var(--background)',
-                                        color: 'var(--foreground)',
-                                        fontWeight: 600,
-                                        fontSize: '13px',
-                                        cursor: 'pointer',
-                                        textAlign: 'center'
-                                    }}
-                                >
-                                    {confirmConfig.cancelText || "Annuler"}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const cb = confirmConfig.onConfirm;
-                                        setConfirmConfig(null);
-                                        if (cb) cb();
-                                    }}
-                                    style={{
-                                        flex: 1,
-                                        padding: '10px 14px',
-                                        borderRadius: '10px',
-                                        border: 'none',
-                                        backgroundColor: confirmConfig.type === 'success' ? '#16a34a' : confirmConfig.type === 'info' ? '#2563eb' : '#ef4444',
-                                        color: '#ffffff',
-                                        fontWeight: 700,
-                                        fontSize: '13px',
-                                        cursor: 'pointer',
-                                        textAlign: 'center',
-                                        boxShadow: confirmConfig.type === 'success' ? '0 4px 14px rgba(22, 163, 74, 0.3)' : confirmConfig.type === 'info' ? '0 4px 14px rgba(37, 99, 235, 0.3)' : '0 4px 14px rgba(239, 68, 68, 0.3)'
-                                    }}
-                                >
-                                    {confirmConfig.confirmText || "Confirmer"}
-                                </button>
-                            </div>
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmConfig(null)}
+                                        style={{
+                                            flex: 1,
+                                            padding: '10px 14px',
+                                            borderRadius: '10px',
+                                            border: '1px solid var(--border)',
+                                            backgroundColor: 'var(--background)',
+                                            color: 'var(--foreground)',
+                                            fontWeight: 600,
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        {confirmConfig.cancelText || "Annuler"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const cb = confirmConfig.onConfirm;
+                                            setConfirmConfig(null);
+                                            if (cb) cb();
+                                        }}
+                                        style={{
+                                            flex: 1,
+                                            padding: '10px 14px',
+                                            borderRadius: '10px',
+                                            border: 'none',
+                                            backgroundColor: confirmConfig.type === 'success' ? '#16a34a' : confirmConfig.type === 'info' ? '#2563eb' : '#ef4444',
+                                            color: '#ffffff',
+                                            fontWeight: 700,
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            textAlign: 'center',
+                                            boxShadow: confirmConfig.type === 'success' ? '0 4px 14px rgba(22, 163, 74, 0.3)' : confirmConfig.type === 'info' ? '0 4px 14px rgba(37, 99, 235, 0.3)' : '0 4px 14px rgba(239, 68, 68, 0.3)'
+                                        }}
+                                    >
+                                        {confirmConfig.confirmText || "Confirmer"}
+                                    </button>
+                                </div>
+                            </motion.div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
 
             {/* Custom confirmation toast - Smooth top slide-in & slide-out, pause on hover */}
             <AnimatePresence mode="wait">

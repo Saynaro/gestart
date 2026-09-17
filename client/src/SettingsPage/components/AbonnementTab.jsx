@@ -159,6 +159,10 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
     };
 
     const isCancelled = subDetails?.status === "CANCELLED" || Boolean(subDetails?.cancelledAt);
+    const now = new Date();
+    const periodEnd = subDetails?.status === 'TRIALING' ? subDetails?.trialEndsAt : subDetails?.currentPeriodEnd;
+    const isPeriodEnded = Boolean(periodEnd && new Date(periodEnd) < now);
+    const isExpired = subDetails?.status === 'EXPIRED' || isPeriodEnded;
 
     // Cancel Subscription with real prompt
     const handleCancelSubscription = () => {
@@ -227,6 +231,25 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
         }
     };
 
+    // Direct redirect to Stripe Customer Portal for managing card & billing
+    const handleOpenStripePortal = async () => {
+        setActionLoading(true);
+        try {
+            if (triggerToast) triggerToast("Redirection vers le portail sécurisé Stripe...");
+            const res = await apiFetch('/v1/subscription/portal');
+            const portalUrl = res.data?.portalUrl;
+            if (portalUrl) {
+                window.location.href = portalUrl;
+                return;
+            }
+            if (triggerToast) triggerToast("Impossible d'accéder au portail Stripe.", true);
+        } catch (err) {
+            if (triggerToast) triggerToast(err.message || "Erreur lors de l'accès au portail Stripe.", true);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     // Pricing definition
     const plans = [
         {
@@ -281,23 +304,24 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
 
     // Format renewal date
     const formattedRenewalDate = useMemo(() => {
-        if (!subDetails?.currentPeriodEnd) return "15 août 2026";
+        const rawDate = subDetails?.currentPeriodEnd || subDetails?.trialEndsAt;
+        if (!rawDate) return "Non défini";
         try {
-            const d = new Date(subDetails.currentPeriodEnd);
+            const d = new Date(rawDate);
             return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
         } catch {
-            return "15 août 2026";
+            return "Non défini";
         }
     }, [subDetails]);
 
     // Current price formatted
     const currentPriceText = useMemo(() => {
         const p = subDetails?.plan || contextSub?.plan;
-        if (!p) return "129,00 € HT / mois";
+        if (!p) return "--";
         const cycle = subDetails?.cycle || contextSub?.cycle || "MONTHLY";
         const price = cycle === "ANNUAL" ? p.priceAnnual : p.priceMonthly;
         const period = cycle === "ANNUAL" ? "an" : "mois";
-        return `${Number(price || 1).toFixed(2).replace(".", ",")} € HT / ${period}`;
+        return `${Number(price || 0).toFixed(2).replace(".", ",")} € HT / ${period}`;
     }, [subDetails, contextSub]);
 
     // Usage percentages for gauges
@@ -332,51 +356,83 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                            <span style={{
-                                backgroundColor: '#556B2F',
-                                color: '#fff',
-                                fontSize: '11px',
-                                fontWeight: 800,
-                                padding: '4px 12px',
-                                borderRadius: '50px',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.04em'
-                            }}>
-                                Offre actuelle : {currentPlan}
-                            </span>
-                            {isCancelled ? (
-                                <span style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    color: '#EF4444',
-                                    fontSize: '12px',
-                                    fontWeight: 800
-                                }}>
-                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
-                                    Résiliation programmée
-                                </span>
+                            {isExpired ? (
+                                <>
+                                    <span style={{
+                                        backgroundColor: '#dc2626',
+                                        color: '#fff',
+                                        fontSize: '11px',
+                                        fontWeight: 800,
+                                        padding: '4px 12px',
+                                        borderRadius: '50px',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.04em'
+                                    }}>
+                                        Abonnement expiré
+                                    </span>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        color: '#EF4444',
+                                        fontSize: '12px',
+                                        fontWeight: 800
+                                    }}>
+                                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
+                                        Accès suspendu (Mode consultation)
+                                    </span>
+                                </>
                             ) : (
-                                <span style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    color: '#16A34A',
-                                    fontSize: '12px',
-                                    fontWeight: 700
-                                }}>
-                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A', display: 'inline-block' }}></span>
-                                    Abonnement actif
-                                </span>
+                                <>
+                                    <span style={{
+                                        backgroundColor: '#556B2F',
+                                        color: '#fff',
+                                        fontSize: '11px',
+                                        fontWeight: 800,
+                                        padding: '4px 12px',
+                                        borderRadius: '50px',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.04em'
+                                    }}>
+                                        Offre actuelle : {currentPlan}
+                                    </span>
+                                    {isCancelled ? (
+                                        <span style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            color: '#EF4444',
+                                            fontSize: '12px',
+                                            fontWeight: 800
+                                        }}>
+                                            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
+                                            Résiliation programmée
+                                        </span>
+                                    ) : (
+                                        <span style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            color: '#16A34A',
+                                            fontSize: '12px',
+                                            fontWeight: 700
+                                        }}>
+                                            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A', display: 'inline-block' }}></span>
+                                            Abonnement actif
+                                        </span>
+                                    )}
+                                </>
                             )}
                         </div>
 
                         <h3 style={{ margin: '10px 0 4px 0', fontSize: '22px', fontWeight: 800 }}>
-                            {currentPriceText}
+                            {isExpired ? "Accès limité en lecture seule" : currentPriceText}
                         </h3>
 
                         <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)' }}>
-                            {isCancelled ? (
+                            {isExpired ? (
+                                <span>Votre période d'accès à l'offre <strong>{currentPlan}</strong> a pris fin le <strong style={{ color: '#EF4444' }}>{formattedRenewalDate}</strong>. Vos données sont préservées.</span>
+                            ) : isCancelled ? (
                                 <span>Fin de la période d'accès le <strong style={{ color: '#EF4444' }}>{formattedRenewalDate}</strong></span>
                             ) : (
                                 <span>Prochain prélèvement le <strong>{formattedRenewalDate}</strong> via Carte bancaire</span>
@@ -385,128 +441,190 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                     </div>
 
                     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                        {/* Scroll smooth to Comparer nos formules */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }}
-                            style={{
-                                padding: '10px 18px',
-                                backgroundColor: '#556B2F',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '10px',
-                                fontWeight: 700,
-                                fontSize: '13px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
-                            }}
-                        >
-                            <Star size={15} fill="currentColor" />
-                            Changer de plan
-                        </button>
-
-                        {/* Manage Card Button */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setSelectedTargetPlan(currentPlan || 'PRO');
-                                setCheckoutMode('card_only');
-                                setCheckoutModalOpen(true);
-                            }}
-                            style={{
-                                padding: '10px 18px',
-                                backgroundColor: 'var(--card)',
-                                color: 'var(--foreground)',
-                                border: '1px solid var(--border)',
-                                borderRadius: '10px',
-                                fontWeight: 700,
-                                fontSize: '13px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px'
-                            }}
-                        >
-                            <CreditCard size={15} />
-                            Gérer ma carte
-                        </button>
-
-                        {/* Cancel or Reactivate button */}
-                        {isCancelled ? (
-                            <button
-                                type="button"
-                                onClick={handleReactivateSubscription}
-                                disabled={actionLoading}
-                                style={{
-                                    padding: '10px 18px',
-                                    backgroundColor: '#22C55E',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    fontWeight: 700,
-                                    fontSize: '13px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
-                            >
-                                <RefreshCw size={14} />
-                                Réactiver l'abonnement
-                            </button>
+                        {isExpired ? (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSelectedTargetPlan(currentPlan?.toUpperCase() || 'UNLIMITED');
+                                        setCheckoutMode('checkout');
+                                        setCheckoutModalOpen(true);
+                                    }}
+                                    style={{
+                                        padding: '10px 20px',
+                                        backgroundColor: '#16a34a',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        fontWeight: 800,
+                                        fontSize: '13px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        boxShadow: '0 4px 14px rgba(22, 163, 74, 0.35)'
+                                    }}
+                                >
+                                    <RefreshCw size={15} />
+                                    Renouveler mon abonnement
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleOpenStripePortal}
+                                    disabled={actionLoading}
+                                    style={{
+                                        padding: '10px 18px',
+                                        backgroundColor: 'var(--card)',
+                                        color: 'var(--foreground)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '10px',
+                                        fontWeight: 700,
+                                        fontSize: '13px',
+                                        cursor: actionLoading ? 'wait' : 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        opacity: actionLoading ? 0.7 : 1
+                                    }}
+                                >
+                                    <CreditCard size={15} />
+                                    {actionLoading ? "Ouverture..." : "Gérer ma carte"}
+                                </button>
+                            </>
                         ) : (
-                            <button
-                                type="button"
-                                onClick={handleCancelSubscription}
-                                disabled={actionLoading}
-                                style={{
-                                    padding: '10px 18px',
-                                    backgroundColor: 'transparent',
-                                    color: '#ef4444',
-                                    border: '1px solid rgba(239, 68, 68, 0.4)',
-                                    borderRadius: '10px',
-                                    fontWeight: 700,
-                                    fontSize: '13px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Résilier l'abonnement
-                            </button>
+                            <>
+                                {/* Scroll smooth to Comparer nos formules */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }}
+                                    style={{
+                                        padding: '10px 18px',
+                                        backgroundColor: '#556B2F',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        fontWeight: 700,
+                                        fontSize: '13px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
+                                    }}
+                                >
+                                    <Star size={15} fill="currentColor" />
+                                    Changer de plan
+                                </button>
+
+                                {/* Manage Card Button */}
+                                <button
+                                    type="button"
+                                    onClick={handleOpenStripePortal}
+                                    disabled={actionLoading}
+                                    style={{
+                                        padding: '10px 18px',
+                                        backgroundColor: 'var(--card)',
+                                        color: 'var(--foreground)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '10px',
+                                        fontWeight: 700,
+                                        fontSize: '13px',
+                                        cursor: actionLoading ? 'wait' : 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        opacity: actionLoading ? 0.7 : 1
+                                    }}
+                                >
+                                    <CreditCard size={15} />
+                                    {actionLoading ? "Ouverture..." : "Gérer ma carte"}
+                                </button>
+
+                                {/* Cancel or Reactivate button */}
+                                {isCancelled ? (
+                                    <button
+                                        type="button"
+                                        onClick={handleReactivateSubscription}
+                                        disabled={actionLoading}
+                                        style={{
+                                            padding: '10px 18px',
+                                            backgroundColor: '#22C55E',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '10px',
+                                            fontWeight: 700,
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px'
+                                        }}
+                                    >
+                                        <RefreshCw size={14} />
+                                        Réactiver l'abonnement
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleCancelSubscription}
+                                        disabled={actionLoading}
+                                        style={{
+                                            padding: '10px 18px',
+                                            backgroundColor: 'transparent',
+                                            color: '#EF4444',
+                                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                                            borderRadius: '10px',
+                                            fontWeight: 700,
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px'
+                                        }}
+                                    >
+                                        Résilier l'abonnement
+                                    </button>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
 
-                {/* Real Dynamic Usage Gauges */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '22px', paddingTop: '18px', borderTop: '1px solid rgba(85, 107, 47, 0.15)' }}>
+                {/* Progress Gauges */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '20px',
+                    marginTop: '24px',
+                    paddingTop: '20px',
+                    borderTop: '1px solid var(--border)'
+                }}>
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, marginBottom: '6px' }}>
-                            <span>Clients</span>
-                            <span>{usage.clients?.current ?? 0} / {usage.clients?.max === -1 ? 'Illimité' : (usage.clients?.max ?? 50)}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                            <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Clients</span>
+                            <span style={{ fontWeight: 800 }}>{usage.clients.current} / {usage.clients.max === -1 ? 'Illimité' : usage.clients.max}</span>
                         </div>
                         <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
-                            <div style={{ width: `${clientsPercent}%`, height: '100%', backgroundColor: '#556B2F', borderRadius: '4px', transition: 'width 0.3s' }} />
+                            <div style={{ width: `${clientsPercent}%`, height: '100%', backgroundColor: clientsPercent > 90 ? '#ef4444' : '#556B2F', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
 
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, marginBottom: '6px' }}>
-                            <span>Techniciens / Membres</span>
-                            <span>{usage.technicians?.current ?? 1} / {usage.technicians?.max === -1 ? 'Illimité' : (usage.technicians?.max ?? 1)}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                            <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Techniciens / Membres</span>
+                            <span style={{ fontWeight: 800 }}>{usage.technicians.current} / {usage.technicians.max === -1 ? 'Illimité' : usage.technicians.max}</span>
                         </div>
                         <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
-                            <div style={{ width: `${techsPercent}%`, height: '100%', backgroundColor: '#f59e0b', borderRadius: '4px', transition: 'width 0.3s' }} />
+                            <div style={{ width: `${techsPercent}%`, height: '100%', backgroundColor: techsPercent > 90 ? '#ef4444' : '#f59e0b', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
 
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, marginBottom: '6px' }}>
-                            <span>Crédits SMS restants</span>
-                            <span>{Math.max(0, (usage.sms?.max ?? 50) - (usage.sms?.current ?? 0))} / {usage.sms?.max === -1 ? 'Illimité' : (usage.sms?.max ?? 50)}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                            <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Crédits SMS restants</span>
+                            <span style={{ fontWeight: 800 }}>{usage.sms.max === -1 ? 'Illimité' : `${Math.max(0, usage.sms.max - usage.sms.current)} / ${usage.sms.max}`}</span>
                         </div>
                         <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${smsPercent}%`, height: '100%', backgroundColor: '#22c55e', borderRadius: '4px', transition: 'width 0.3s' }} />
@@ -575,23 +693,29 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '18px', alignItems: 'stretch' }}>
                     {plans.map((plan) => {
                         const price = billingCycle === "annuel" ? plan.priceAnnual : plan.priceMonthly;
-                        const isCurrent = currentPlan.toLowerCase() === plan.name.toLowerCase();
+                        const isCurrent = !isExpired && currentPlan.toLowerCase() === plan.name.toLowerCase();
+                        const isPreviousExpired = isExpired && currentPlan.toLowerCase() === plan.name.toLowerCase();
 
                         return (
                             <div
                                 key={plan.name}
                                 style={{
-                                    border: plan.recommended ? '2px solid #556B2F' : '1px solid var(--border)',
+                                    border: isPreviousExpired ? '2px solid #ef4444' : plan.recommended ? '2px solid #556B2F' : '1px solid var(--border)',
                                     borderRadius: '14px',
                                     padding: '22px',
                                     position: 'relative',
-                                    backgroundColor: plan.recommended ? 'rgba(85, 107, 47, 0.04)' : 'var(--background)',
+                                    backgroundColor: isPreviousExpired ? 'rgba(239, 68, 68, 0.03)' : plan.recommended ? 'rgba(85, 107, 47, 0.04)' : 'var(--background)',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     height: '100%',
                                     boxSizing: 'border-box'
                                 }}
                             >
+                                {isPreviousExpired && (
+                                    <span style={{ position: 'absolute', top: '-11px', left: '18px', backgroundColor: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', letterSpacing: '0.5px' }}>
+                                        VOTRE OFFRE EXPIRÉE
+                                    </span>
+                                )}
                                 {plan.recommended && (
                                     <span style={{ position: 'absolute', top: '-11px', right: '18px', backgroundColor: '#556B2F', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', letterSpacing: '0.5px' }}>
                                         RECOMMANDÉ
@@ -634,6 +758,27 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                             }}
                                         >
                                             Plan actuel
+                                        </button>
+                                    ) : isPreviousExpired ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSelectPlanStripe(plan.name)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '11px',
+                                                borderRadius: '10px',
+                                                border: 'none',
+                                                backgroundColor: '#16a34a',
+                                                color: '#ffffff',
+                                                fontWeight: 800,
+                                                fontSize: '13px',
+                                                cursor: 'pointer',
+                                                boxShadow: '0 4px 14px rgba(22, 163, 74, 0.35)',
+                                                boxSizing: 'border-box',
+                                                transition: 'transform 0.15s, background-color 0.15s'
+                                            }}
+                                        >
+                                            Réactiver {plan.name}
                                         </button>
                                     ) : (
                                         <button
@@ -687,6 +832,19 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             return (
                                 <div
                                     key={item.id || index}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => {
+                                        setActiveReceipt({
+                                            id: item.id,
+                                            displayId,
+                                            formattedDate,
+                                            amount: item.amount || 1,
+                                            planName: item.planName || currentPlan || 'Unlimited',
+                                            status: item.status
+                                        });
+                                    }}
+                                    className="payment-history-mobile-card"
                                     style={{
                                         backgroundColor: 'var(--background)',
                                         border: '1px solid var(--border)',
@@ -694,7 +852,8 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         padding: '14px 16px',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        gap: '10px'
+                                        gap: '10px',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -722,7 +881,8 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
                                         <button
                                             type="button"
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation();
                                                 setActiveReceipt({
                                                     id: item.id,
                                                     displayId,
@@ -773,7 +933,24 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     const amountFormatted = `${Number(item.amount || 1).toFixed(2).replace('.', ',')} € HT`;
 
                                     return (
-                                        <tr key={item.id || index} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <tr 
+                                            key={item.id || index} 
+                                            onClick={() => {
+                                                setActiveReceipt({
+                                                    id: item.id,
+                                                    displayId,
+                                                    formattedDate,
+                                                    amount: item.amount || 1,
+                                                    planName: item.planName || currentPlan || 'Unlimited',
+                                                    status: item.status
+                                                });
+                                            }}
+                                            className="payment-history-row"
+                                            style={{ 
+                                                borderBottom: '1px solid var(--border)',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
                                             <td style={{ padding: '12px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>{displayId}</td>
                                             <td style={{ padding: '12px 8px', color: 'var(--muted-foreground)', whiteSpace: 'nowrap' }}>{formattedDate}</td>
                                             <td style={{ padding: '12px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>{amountFormatted}</td>
@@ -793,7 +970,8 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                             <td style={{ padding: '12px 8px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                                                 <button
                                                     type="button"
-                                                    onClick={() => {
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         setActiveReceipt({
                                                             id: item.id,
                                                             displayId,

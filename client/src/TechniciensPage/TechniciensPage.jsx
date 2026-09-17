@@ -58,7 +58,7 @@ export default function TechniciensPage() {
     const [createdInvite, setCreatedInvite] = useState(null);
     const [copied, setCopied] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { isStarter, isPro, isUnlimited, displayName, refreshSubscription, isExpired } = useSubscription();
+    const { isStarter, isPro, isUnlimited, subscription, displayName, refreshSubscription, isExpired } = useSubscription();
 
     // Fetch Technicians & Invitations from API
     const loadData = async () => {
@@ -111,6 +111,18 @@ export default function TechniciensPage() {
                 loadData();
             }
         } catch (err) {
+            if (err.message && (err.message.includes("Limite") || err.message.includes("limite") || err.code === "LIMIT_REACHED")) {
+                setShowInviteModal(false);
+                window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+                    detail: {
+                        reason: "technicians",
+                        title: "Limite de techniciens atteinte",
+                        description: err.message,
+                        targetPlan: "UNLIMITED"
+                    }
+                }));
+                return;
+            }
             triggerToast(err.message || "Erreur lors de la création de l'invitation", true);
         } finally {
             setIsSubmitting(false);
@@ -236,14 +248,36 @@ export default function TechniciensPage() {
                                     return;
                                 }
                                 if (isStarter) {
-                                    setShowUpgradeModal(true);
+                                    window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+                                        detail: {
+                                            reason: "technicians",
+                                            title: "Passez à l'offre Pro ou Unlimited",
+                                            description: "L'invitation de techniciens et de collaborateurs est disponible à partir du plan Pro.",
+                                            targetPlan: "PRO"
+                                        }
+                                    }));
                                     return;
                                 }
+
+                                const maxTechs = subscription?.plan?.maxTechnicians ?? 5;
+                                const currentTechsCount = technicians.filter(t => t.role === "TECHNICIAN" || !t.role).length;
+                                if (!isUnlimited && maxTechs !== -1 && currentTechsCount >= maxTechs) {
+                                    window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
+                                        detail: {
+                                            reason: "technicians",
+                                            title: "Développez votre équipe sans limite",
+                                            description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxTechs} technicien(s). Passez à Unlimited pour ajouter une équipe illimitée et accélérer vos interventions.`,
+                                            targetPlan: "UNLIMITED"
+                                        }
+                                    }));
+                                    return;
+                                }
+
                                 setCreatedInvite(null);
                                 setInviteEmail("");
                                 setShowInviteModal(true);
                             }}
-                            style={isExpired || isStarter ? { opacity: 0.9 } : {}}
+                            style={isExpired ? { opacity: 0.9 } : {}}
                         >
                             {isExpired ? <Lock size={18} /> : isStarter ? <Star size={18} fill="currentColor" /> : <UserPlus size={18} />}
                             {isExpired ? "Inviter un technicien" : isStarter ? "Inviter un technicien (Pro)" : "Inviter un technicien"}

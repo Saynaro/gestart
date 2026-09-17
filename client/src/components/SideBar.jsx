@@ -180,14 +180,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                 <div className="sidebar-top">
                     <div className="logo-container">
                         <div className="logo-icon-bg">
-                            <svg className="logo-snowflake" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="12" y1="2" x2="12" y2="22"></line>
-                                <line x1="2" y1="12" x2="22" y2="12"></line>
-                                <path d="M20 16.5 12 12 20 7.5"></path>
-                                <path d="M4 7.5 12 12 4 16.5"></path>
-                                <path d="M7.5 20 12 12 16.5 20"></path>
-                                <path d="M16.5 4 12 12 7.5 4"></path>
-                            </svg>
+                            <img src="/Logo-transparent.png" alt="GestArt" className="logo-img" />
                         </div>
                         <span className="logo-text">GestArt</span>
                         <button 
@@ -227,19 +220,24 @@ function SideBar({ onFabClick, hideFab = false }) {
                                                 href={item.path} 
                                                 onClick={(e) => navigateTo(e, item.path)} 
                                                 className="menu-link"
-                                                data-tooltip={item.title}
+                                                data-tooltip={showLock ? `${item.title} (Verrouillé)` : item.title}
                                             >
                                                 <span className="icon-wrapper">{Icons[item.iconKey]}</span>
                                                 <span className="item-title">{item.title}</span>
-                                                {showLock ? (
-                                                    <span className="badge badge-lock" style={{ display: 'inline-flex', alignItems: 'center', color: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.12)', padding: '2px 5px', borderRadius: '5px' }}>
-                                                        <Lock size={12} />
-                                                    </span>
-                                                ) : badge !== undefined && (
-                                                    <span className={`badge ${typeof badge === "number" ? "badge-numeric" : "badge-text"} ${badge === "PRO" ? "badge-pro" : ""}`}
-                                                        style={badge === "PRO" ? { background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)', color: '#FFF', fontSize: '9.5px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px' } : {}}>
-                                                        {badge}
-                                                    </span>
+                                                {!isCollapsed && (
+                                                    showLock ? (
+                                                        <span className="badge badge-lock" style={{ display: 'inline-flex', alignItems: 'center', color: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.12)', padding: '2px 5px', borderRadius: '5px' }}>
+                                                            <Lock size={12} />
+                                                        </span>
+                                                    ) : badge !== undefined && (
+                                                        <span className={`badge ${typeof badge === "number" ? "badge-numeric" : "badge-text"} ${badge === "PRO" ? "badge-pro" : ""}`}
+                                                            style={badge === "PRO" ? { background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)', color: '#FFF', fontSize: '9.5px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px' } : {}}>
+                                                            {badge}
+                                                        </span>
+                                                    )
+                                                )}
+                                                {isCollapsed && typeof badge === "number" && (
+                                                    <span className="badge badge-numeric">{badge}</span>
                                                 )}
                                             </a>
                                         </li>
@@ -251,7 +249,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                 </div>
                 <div className="sidebar-bottom">
                     <div className="user-profile" onClick={toggleUserMenu}>
-                        <div className="avatar" style={{ overflow: 'hidden' }} data-tooltip={isCollapsed ? `${fullName} (${isTechnician ? "Technicien" : `Offre ${displayName}`})` : undefined}>
+                        <div className="avatar" style={{ overflow: 'hidden' }} data-tooltip={isCollapsed ? `${fullName} (${isTechnician ? "Technicien" : isExpired ? "Abonnement expiré" : `Offre ${displayName}`})` : undefined}>
                             {avatarUrl ? (
                                 <img src={avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
                             ) : (
@@ -260,7 +258,9 @@ function SideBar({ onFabClick, hideFab = false }) {
                         </div>
                         <div className="user-details">
                             <span className="username">{fullName}</span>
-                            <span className="user-plan">{isTechnician ? "Technicien" : `Offre ${displayName}`}</span>
+                            <span className="user-plan" style={isExpired ? { color: '#ef4444', fontWeight: 700 } : undefined}>
+                                {isTechnician ? "Technicien" : isExpired ? "Abonnement expiré" : `Offre ${displayName}`}
+                            </span>
                         </div>
                         {!isCollapsed && (
                             <button 
@@ -289,12 +289,18 @@ function SideBar({ onFabClick, hideFab = false }) {
                                     <div className="popover-user-info">
                                          <span className="popover-username">{fullName}</span>
                                          <span className="popover-email">{email}</span>
-                                         <span className="popover-plan">{isTechnician ? "Technicien" : `Offre ${displayName}`}</span>
+                                         <span className="popover-plan" style={isExpired ? { color: '#ef4444', fontWeight: 700 } : undefined}>
+                                             {isTechnician ? "Technicien" : isExpired ? "Abonnement expiré" : `Offre ${displayName}`}
+                                         </span>
                                      </div>
                                  </div>
                                  {!isTechnician && (
-                                     <button className="popover-upgrade-btn" onClick={(e) => navigateTo(e, "/premium")}>
-                                         Passer au niveau supérieur
+                                     <button
+                                         className="popover-upgrade-btn"
+                                         onClick={(e) => navigateTo(e, isExpired ? "/settings?tab=abonnement" : "/premium")}
+                                         style={isExpired ? { backgroundColor: '#dc2626', color: '#ffffff' } : undefined}
+                                     >
+                                         {isExpired ? "Réactiver l'abonnement" : "Passer au niveau supérieur"}
                                      </button>
                                  )}
                                  <div className="popover-divider"></div>
@@ -409,6 +415,12 @@ function SideBar({ onFabClick, hideFab = false }) {
                 <button
                     className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : "factures"}`}
                     onClick={(e) => {
+                        if (isExpired) {
+                            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                detail: { message: "Votre abonnement a expiré. Veuillez renouveler votre offre pour créer de nouveaux éléments." }
+                            }));
+                            return;
+                        }
                         if (onFabClick) {
                             onFabClick(e);
                         } else {

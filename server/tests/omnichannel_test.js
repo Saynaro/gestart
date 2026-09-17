@@ -6,7 +6,7 @@ import { emailProvider } from "../src/services/messaging/providers/email/EmailPr
 
 async function runOmnichannelTests() {
     console.log("==================================================");
-    console.log("🧪 STARTING OMNICHANNEL & CHANNELS SYSTEM TEST SUITE");
+    console.log("STARTING OMNICHANNEL & CHANNELS SYSTEM TEST SUITE");
     console.log("==================================================");
 
     try {
@@ -39,7 +39,7 @@ async function runOmnichannelTests() {
             });
         }
 
-        console.log(`✅ [1/7] Test Company (${company.name}) & Client (${client.firstName} ${client.lastName}) ready.`);
+        console.log(`[1/7] Test Company (${company.name}) & Client (${client.firstName} ${client.lastName}) ready.`);
 
         // 2. Connect WhatsApp channel for Company to test multi-tenant onboarding
         await ChannelConnectionService.connectWhatsApp({
@@ -52,11 +52,11 @@ async function runOmnichannelTests() {
 
         // 3. Test Channel Connection Service (Company level)
         const channelsStatus = await ChannelConnectionService.getCompanyChannels(company.id);
-        console.log(`✅ [2/7] Company Channels Status: SMS=${channelsStatus.channels.sms.status}, WA=${channelsStatus.channels.whatsapp.status}, Email=${channelsStatus.channels.email.status}`);
+        console.log(`[2/7] Company Channels Status: SMS=${channelsStatus.channels.sms.status}, WA=${channelsStatus.channels.whatsapp.status}, Email=${channelsStatus.channels.email.status}`);
 
         // 4. Test Channel Availability & Recommendation for Client
         const availability = await OmnichannelService.getClientChannelsAvailability(company.id, client.id);
-        console.log(`✅ [3/7] Client Channels Availability: Recommended=${availability.recommendedChannel} (${availability.recommendationReason})`);
+        console.log(`[3/7] Client Channels Availability: Recommended=${availability.recommendedChannel} (${availability.recommendationReason})`);
         console.log(`   - SMS available: ${availability.channels.SMS.available}`);
         console.log(`   - WhatsApp available: ${availability.channels.WHATSAPP.available}`);
         console.log(`   - Email available: ${availability.channels.EMAIL.available}`);
@@ -71,7 +71,7 @@ async function runOmnichannelTests() {
             channel: "SMS",
             body: "Bonjour Jean, votre devis ClimPro est disponible. À bientôt !"
         });
-        console.log(`✅ [4a/7] Outbound SMS created: ID=${smsMsg.id}, SID=${smsMsg.twilioSid}, Status=${smsMsg.status}`);
+        console.log(`[4a/7] Outbound SMS created: ID=${smsMsg.id}, SID=${smsMsg.twilioSid}, Status=${smsMsg.status}`);
 
         // 5b. WhatsApp
         const waMsg = await OmnichannelService.sendMessage({
@@ -80,7 +80,7 @@ async function runOmnichannelTests() {
             channel: "WHATSAPP",
             body: "Bonjour Jean, nous confirmons votre intervention de demain à 14h."
         });
-        console.log(`✅ [4b/7] Outbound WhatsApp created: ID=${waMsg.id}, WaID=${waMsg.whatsappMessageId}, Status=${waMsg.status}`);
+        console.log(`[4b/7] Outbound WhatsApp created: ID=${waMsg.id}, WaID=${waMsg.whatsappMessageId}, Status=${waMsg.status}`);
 
         // 5c. Email
         const emailMsg = await OmnichannelService.sendMessage({
@@ -91,7 +91,7 @@ async function runOmnichannelTests() {
             body: "Bonjour Jean,\n\nVeuillez trouver ci-joint votre facture acquittée.\n\nCordialement,\nClimPro",
             attachments: [{ filename: "Facture_F-2026-001.pdf", type: "invoice" }]
         });
-        console.log(`✅ [4c/7] Outbound Email created: ID=${emailMsg.id}, Subject="${emailMsg.subject}", MsgID=${emailMsg.emailMessageId}`);
+        console.log(`[4c/7] Outbound Email created: ID=${emailMsg.id}, Subject="${emailMsg.subject}", MsgID=${emailMsg.emailMessageId}`);
 
         // 6. Test Receiving Incoming Messages via Webhooks (WhatsApp & Email simulation)
         console.log("\n--- Simulating Incoming Webhooks ---");
@@ -126,7 +126,7 @@ async function runOmnichannelTests() {
         };
 
         const waWebhookResult = await whatsAppProvider.handleIncomingWebhook(waWebhookPayload);
-        console.log(`✅ [5a/7] Incoming WhatsApp Webhook handled: Success=${waWebhookResult.handled}, Count=${waWebhookResult.results.length}`);
+        console.log(`[5a/7] Incoming WhatsApp Webhook handled: Success=${waWebhookResult.handled}, Count=${waWebhookResult.results.length}`);
 
         // 6b. Incoming Email Webhook
         const emailWebhookPayload = {
@@ -139,7 +139,7 @@ async function runOmnichannelTests() {
         };
 
         const emailWebhookResult = await emailProvider.handleIncomingWebhook(emailWebhookPayload);
-        console.log(`✅ [5b/7] Incoming Email Webhook handled: Message ID=${emailWebhookResult.message.id}, Direction=${emailWebhookResult.message.direction}`);
+        console.log(`[5b/7] Incoming Email Webhook handled: Message ID=${emailWebhookResult.message.id}, Direction=${emailWebhookResult.message.direction}`);
 
         // 7. Test Omnichannel Timeline Retrieval (Chronological order check)
         console.log("\n--- Testing Unified Omnichannel Timeline ---");
@@ -148,7 +148,7 @@ async function runOmnichannelTests() {
             clientId: client.id
         });
 
-        console.log(`✅ [6/7] Unified Timeline retrieved: ${timeline.messages.length} messages found in chronological order.`);
+        console.log(`[6/7] Unified Timeline retrieved: ${timeline.messages.length} messages found in chronological order.`);
         timeline.messages.slice(-6).forEach((m, idx) => {
             const icon = m.channel === "WHATSAPP" ? "🟢" : (m.channel === "EMAIL" ? "✉️" : "📱");
             const dir = m.direction === "OUTGOING" ? "→ [OUT]" : "← [IN] ";
@@ -157,13 +157,13 @@ async function runOmnichannelTests() {
 
         // 8. Test Smart Channel Recommendation update
         const updatedAvail = await OmnichannelService.getClientChannelsAvailability(company.id, client.id);
-        console.log(`\n✅ [7/7] Updated Smart Channel Recommendation: ${updatedAvail.recommendedChannel} (${updatedAvail.recommendationReason})`);
+        console.log(`\n[7/7] Updated Smart Channel Recommendation: ${updatedAvail.recommendedChannel} (${updatedAvail.recommendationReason})`);
 
         console.log("\n==================================================");
-        console.log("🎉 ALL OMNICHANNEL TESTS COMPLETED WITH 100% SUCCESS!");
+        console.log("ALL OMNICHANNEL TESTS COMPLETED WITH 100% SUCCESS!");
         console.log("==================================================");
     } catch (err) {
-        console.error("❌ OMNICHANNEL TEST FAILED:", err);
+        console.error("OMNICHANNEL TEST FAILED:", err);
         process.exit(1);
     }
 }

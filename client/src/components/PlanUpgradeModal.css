@@ -1,0 +1,242 @@
+/* PlanUpgradeModal.css */
+.plan-upgrade-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.plan-upgrade-modal-card {
+    background-color: var(--card, #ffffff);
+    color: var(--foreground, #0f172a);
+    border-radius: 24px;
+    max-width: 460px;
+    width: 100%;
+    padding: 28px 24px 22px 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(85, 107, 47, 0.15);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.dark .plan-upgrade-modal-card {
+    background-color: #141716;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(85, 107, 47, 0.12);
+}
+
+.plan-upgrade-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: var(--muted-foreground, #64748b);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.plan-upgrade-close-btn:hover {
+    background-color: var(--accent, rgba(0, 0, 0, 0.05));
+    color: var(--foreground, #0f172a);
+}
+
+.plan-upgrade-icon-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.plan-upgrade-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(85, 107, 47, 0.16) 0%, rgba(85, 107, 47, 0.08) 100%);
+    border: 1px solid rgba(85, 107, 47, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #556B2F;
+    box-shadow: 0 8px 16px -4px rgba(85, 107, 47, 0.2);
+}
+
+.dark .plan-upgrade-icon-box {
+    background: linear-gradient(135deg, rgba(120, 150, 65, 0.22) 0%, rgba(85, 107, 47, 0.1) 100%);
+    border: 1px solid rgba(120, 150, 65, 0.35);
+    color: #a4c965;
+}
+
+.plan-upgrade-pill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background-color: rgba(85, 107, 47, 0.1);
+    color: #556B2F;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.dark .plan-upgrade-pill-tag {
+    background-color: rgba(120, 150, 65, 0.18);
+    color: #b5db73;
+}
+
+.plan-upgrade-text-header {
+    margin-bottom: 18px;
+    width: 100%;
+}
+
+.plan-upgrade-title {
+    font-size: 19px;
+    font-weight: 750;
+    margin: 0 0 8px 0;
+    color: var(--foreground, #0f172a);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.plan-upgrade-desc {
+    font-size: 13.5px;
+    color: var(--muted-foreground, #64748b);
+    line-height: 1.45;
+    margin: 0;
+    padding: 0 4px;
+}
+
+.plan-upgrade-features-box {
+    width: 100%;
+    background-color: var(--accent, rgba(0, 0, 0, 0.03));
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.dark .plan-upgrade-features-box {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plan-upgrade-features-heading {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground, #64748b);
+    margin-bottom: 10px;
+}
+
+.plan-upgrade-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.plan-upgrade-feature-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--foreground, #0f172a);
+}
+
+.dark .plan-upgrade-feature-row {
+    color: #e2e8f0;
+}
+
+.plan-upgrade-check-icon {
+    color: #556B2F;
+    flex-shrink: 0;
+}
+
+.dark .plan-upgrade-check-icon {
+    color: #a4c965;
+}
+
+.plan-upgrade-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.plan-upgrade-cta-btn {
+    width: 100%;
+    padding: 13px 20px;
+    background: linear-gradient(135deg, #556B2F 0%, #688536 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(85, 107, 47, 0.32);
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.plan-upgrade-cta-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(85, 107, 47, 0.4);
+    opacity: 0.96;
+}
+
+.plan-upgrade-cta-btn:active {
+    transform: translateY(0);
+}
+
+.plan-upgrade-dismiss-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--muted-foreground, #64748b);
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.plan-upgrade-dismiss-btn:hover {
+    background-color: var(--accent, rgba(0, 0, 0, 0.04));
+    color: var(--foreground, #0f172a);
+}
+
+.plan-upgrade-guarantee {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted-foreground, #94a3b8);
+    font-weight: 500;
+}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Printer, Download, ZoomIn, ZoomOut, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
 import { getAuthToken } from "../../utils/auth";
 import { getApiUrl } from "../../utils/config";
@@ -6,7 +7,17 @@ import "./SubscriptionReceiptModal.css";
 
 export default function SubscriptionReceiptModal({ receipt, user, company, currentPlan, onClose }) {
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-    const [zoom, setZoom] = useState(isMobile ? 0.65 : 1.0);
+    
+    // Compute initial zoom so that 210mm (~794px) fits nicely on small screens
+    const getFitZoom = () => {
+        if (typeof window === "undefined") return 1.0;
+        if (window.innerWidth <= 768) {
+            return Math.min(0.85, Math.max(0.42, Math.round(((window.innerWidth - 16) / 794) * 100) / 100));
+        }
+        return 1.0;
+    };
+
+    const [zoom, setZoom] = useState(getFitZoom);
     const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
@@ -17,6 +28,15 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [onClose]);
 
+    // Lock body scroll while full screen receipt preview is active
+    useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, []);
+
     if (!receipt) return null;
 
     const amountTotal = Number(receipt.amount || 1);
@@ -25,7 +45,7 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
 
     const zoomIn = () => setZoom(prev => Math.min(1.6, Math.round((prev + 0.1) * 100) / 100));
     const zoomOut = () => setZoom(prev => Math.max(0.35, Math.round((prev - 0.1) * 100) / 100));
-    const resetZoom = () => setZoom(isMobile ? 0.65 : 1.0);
+    const resetZoom = () => setZoom(getFitZoom());
 
     const handlePrint = () => {
         window.print();
@@ -70,7 +90,7 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
     const buyerEmail = user?.email || company?.email || "contact@entreprise.fr";
     const planLabel = receipt.planName || currentPlan || "Unlimited";
 
-    return (
+    const modalContent = (
         <div className="receipt-modal-backdrop pdf-viewer-overlay">
             {/* Top Bar matching Facture / Devis Previsualiser */}
             <div className="pdf-viewer-top-bar no-print">
@@ -181,11 +201,13 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                             <div className="sub-receipt-parties">
                                 <div className="sub-party-card">
                                     <span className="sub-party-label">Bénéficiaire / Émetteur</span>
-                                    <strong className="sub-party-name">GestArt SAS</strong>
-                                    <div className="sub-party-info">10 Place de la République</div>
-                                    <div className="sub-party-info">75011 Paris, France</div>
-                                    <div className="sub-party-info">SIRET : 944 087 725 00018</div>
-                                    <div className="sub-party-info">Email : support@gestart.link</div>
+                                    <strong className="sub-party-name">KHALID SAINARO EI</strong>
+                                    <div className="sub-party-info" style={{ fontWeight: 600, color: '#556B2F' }}>Nom commercial : GestArt</div>
+                                    <div className="sub-party-info">23 Rue Paganini</div>
+                                    <div className="sub-party-info">06000 Nice, France</div>
+                                    <div className="sub-party-info">SIRET : 944 087 725 00015</div>
+                                    <div className="sub-party-info">Code APE : 53.20Z</div>
+                                    <div className="sub-party-info">Email : support.gestart@gmail.com</div>
                                 </div>
 
                                 <div className="sub-party-card client-box">
@@ -198,14 +220,14 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                                 </div>
                             </div>
 
-                            {/* Table of items */}
+                            {/* Line items table */}
                             <table className="sub-receipt-table">
                                 <thead>
                                     <tr>
                                         <th style={{ textAlign: "left" }}>Désignation de la prestation</th>
                                         <th style={{ textAlign: "center", width: "70px" }}>Qté</th>
-                                        <th style={{ textAlign: "right", width: "120px" }}>Prix unitaire</th>
-                                        <th style={{ textAlign: "right", width: "120px" }}>Total HT</th>
+                                        <th style={{ textAlign: "right", width: "110px" }}>Prix unitaire</th>
+                                        <th style={{ textAlign: "right", width: "110px" }}>Total HT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -225,7 +247,7 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                                 </tbody>
                             </table>
 
-                            {/* Totals & Guarantee */}
+                            {/* Guarantee Box & Totals */}
                             <div className="sub-receipt-bottom-grid">
                                 <div className="sub-guarantee-box">
                                     <div className="sub-guarantee-title">
@@ -261,7 +283,7 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                         <div className="sub-receipt-footer">
                             <p>
                                 Document valant reçu de paiement et justificatif comptable conformément aux dispositions légales.
-                                GestArt SAS au capital de 10 000 € • RCS Paris • contact@gestart.link • Tous droits réservés.
+                                KHALID SAINARO EI (Nom commercial : GestArt) • SIRET : 944 087 725 00015 • APE : 53.20Z • 23 Rue Paganini, 06000 Nice • support.gestart@gmail.com • Tous droits réservés.
                             </p>
                         </div>
                     </div>
@@ -269,4 +291,7 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
             </div>
         </div>
     );
+
+    if (typeof document === "undefined") return null;
+    return createPortal(modalContent, document.body);
 }

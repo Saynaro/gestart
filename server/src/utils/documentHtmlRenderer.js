@@ -1,8 +1,9 @@
-/**
- * documentHtmlRenderer.js
- * Source of truth HTML/CSS renderer for Quotes & Invoices.
- * Produces exact DOM and CSS matching Previsualiser (InvoicePdfView / QuotePdfView).
- */
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function escapeHtml(str) {
     if (!str && str !== 0) return '';
@@ -1249,7 +1250,22 @@ export function renderReceiptHtml({ paymentData = {}, company = {}, customizatio
     const companyDisplaySiret = company?.siret || paymentData.companySiret || "Non renseigné";
     const companyDisplayPhone = company?.phone || paymentData.companyPhone || "Non renseigné";
     const companyDisplayEmail = company?.email || paymentData.companyEmail || "contact@entreprise.fr";
-    const companyLogo = customization.logoUrl || company?.logoUrl || company?.settings?.logoUrl;
+    let companyLogo = customization.logoUrl || company?.logoUrl || company?.settings?.logoUrl;
+    if (!companyLogo && (paymentData.type === "SUBSCRIPTION" || (companyDisplayName && companyDisplayName.includes("GestArt")))) {
+        try {
+            const possiblePaths = [
+                path.join(__dirname, "../assets/Logo-transparent.png"),
+                path.resolve(process.cwd(), "src/assets/Logo-transparent.png"),
+                path.resolve(process.cwd(), "../client/public/Logo-transparent.png")
+            ];
+            for (const p of possiblePaths) {
+                if (fs.existsSync(p)) {
+                    companyLogo = `data:image/png;base64,${fs.readFileSync(p).toString("base64")}`;
+                    break;
+                }
+            }
+        } catch (e) {}
+    }
 
     const clientDisplayName = paymentData.clientName || "Client";
     const clientDisplayEmail = paymentData.clientEmail || "";

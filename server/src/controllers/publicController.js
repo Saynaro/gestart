@@ -549,6 +549,8 @@ export const signPublicQuote = async (req, res) => {
                 : 'Client';
 
             if (owner) {
+                const totalVal = Number(quote.amountTTC || quote.totalTtc || 0);
+                const cleanAmount = parseFloat(totalVal.toFixed(2));
                 await prisma.notification.create({
                     data: {
                         companyId: quote.companyId,
@@ -557,7 +559,7 @@ export const signPublicQuote = async (req, res) => {
                         channel: "IN_APP",
                         status: "SENT",
                         title: `Devis ${quote.number} signé et accepté !`,
-                        body: `Le client ${clientName} a signé le devis ${quote.number} d'un montant de ${quote.amountTTC || quote.totalTtc || 0}€.`,
+                        body: `Le client ${clientName} a signé le devis ${quote.number} d'un montant de ${cleanAmount}€.`,
                         entityType: "quote",
                         entityId: quote.id
                     }

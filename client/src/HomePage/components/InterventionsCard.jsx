@@ -19,6 +19,20 @@ function InterventionsCard({
     const displayPlannedCount = plannedCount !== undefined ? plannedCount : listPlanned.length;
     const displayCompletedCount = completedCount !== undefined ? completedCount : listCompleted.length;
 
+    const getStatusBadge = (status) => {
+        const s = String(status || "").toUpperCase();
+        if (s === "COMPLETED" || s === "TERMINÉ" || s === "TERMINÉE") {
+            return { label: "Terminée", className: "completed" };
+        }
+        if (s === "IN_PROGRESS" || s === "ARRIVED" || s === "EN COURS") {
+            return { label: "En cours", className: "active" };
+        }
+        if (s === "CANCELLED" || s === "ANNULÉ" || s === "ANNULÉE") {
+            return { label: "Annulée", className: "cancelled" };
+        }
+        return { label: "Planifiée", className: "planned" };
+    };
+
     return (
         <div className="dashboard-grid-card">
             {/* Card Header */}
@@ -60,18 +74,21 @@ function InterventionsCard({
                 {activeInterventions.length > 0 ? (
                     <div className="dashboard-card-content-wrapper">
                         <div className="mini-interventions-list">
-                            {activeInterventions.map((item) => (
-                                <div key={item.id} className="mini-intervention-item" onClick={() => navigate(`/planning?id=${item.id}`)}>
-                                    <span className="mini-time">{item.time}</span>
-                                    <div className="mini-details">
-                                        <h4>{item.title}</h4>
-                                        <p>{item.client}</p>
+                            {activeInterventions.map((item) => {
+                                const { label, className } = getStatusBadge(item.status);
+                                return (
+                                    <div key={item.id} className="mini-intervention-item" onClick={() => navigate(`/planning?id=${item.id}`)}>
+                                        <span className="mini-time">{item.time}</span>
+                                        <div className="mini-details">
+                                            <h4>{item.title}</h4>
+                                            <p>{item.clientName || item.client}</p>
+                                        </div>
+                                        <span className={`mini-status ${className}`}>
+                                            {label}
+                                        </span>
                                     </div>
-                                    <span className={`mini-status ${item.status === "En cours" ? "active" : ""} ${item.status === "Terminé" ? "completed" : ""}`}>
-                                        {item.status}
-                                    </span>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                         <div className="card-list-action-row">
                             <button className="btn-card-action" onClick={onPlanIntervention}>

@@ -77,7 +77,9 @@ function QuoteList({
         let emptyTitle = "Vous n'avez pas encore de devis";
         let emptyDesc = "Créez votre premier devis client pour commencer à chiffrer vos interventions.";
 
-        const f = String(activeFilter).toUpperCase();
+        const f = String(activeFilter || "").toUpperCase();
+        const isFiltered = Boolean(f && f !== "ALL" && f !== "TOUS");
+
         if (f === "DRAFT") {
             emptyTitle = "Vous n'avez pas de devis en brouillon";
             emptyDesc = "Les devis en cours de préparation apparaîtront ici.";
@@ -96,10 +98,10 @@ function QuoteList({
             <div className="dv-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
                 <FileText size={44} style={{ opacity: 0.4, marginBottom: '12px' }} />
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>{emptyTitle}</h3>
-                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: isFiltered ? '0' : '20px' }}>
                     {emptyDesc}
                 </p>
-                {onCreateQuote && (
+                {!isFiltered && onCreateQuote && (
                     <button className="dv-new-btn" onClick={onCreateQuote}>
                         + Nouveau devis
                     </button>

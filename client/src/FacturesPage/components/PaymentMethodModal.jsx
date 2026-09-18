@@ -54,23 +54,26 @@ export default function PaymentMethodModal({ invoice, onConfirm, onClose }) {
     };
 
     return createPortal(
-        <AnimatePresence>
-            <div
-                style={{
-                    position: "fixed",
-                    inset: 0,
-                    zIndex: 999999,
-                    backgroundColor: "rgba(0, 0, 0, 0.65)",
-                    backdropFilter: "blur(6px)",
-                    WebkitBackdropFilter: "blur(6px)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "16px",
-                    boxSizing: "border-box"
-                }}
-                onClick={onClose}
-            >
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 999999,
+                backgroundColor: "rgba(0, 0, 0, 0.65)",
+                backdropFilter: "blur(6px)",
+                WebkitBackdropFilter: "blur(6px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "16px",
+                boxSizing: "border-box"
+            }}
+            onClick={onClose}
+        >
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -289,8 +292,7 @@ export default function PaymentMethodModal({ invoice, onConfirm, onClose }) {
                         </button>
                     </div>
                 </motion.div>
-            </div>
-        </AnimatePresence>,
+        </motion.div>,
         document.body
     );
 }

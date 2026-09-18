@@ -137,102 +137,100 @@ export default function UrssafSummary() {
                     <span>Période : <strong>{periodLabel}</strong> (Factures payées encaissées)</span>
                 </div>
 
-                {/* 3 Large KPI Summary Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', margin: '16px 0' }}>
-
+                {/* 3 KPI Summary Cards */}
+                <div className="urssaf-kpis-grid">
                     {/* CA Encaissé */}
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
-                        <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>
+                    <div className="urssaf-kpi-card ca-card">
+                        <span className="kpi-label">
                             Chiffre d'Affaires Encaissé
                         </span>
-                        <h3 style={{ margin: '6px 0 0 0', fontSize: '20px', fontWeight: 800 }}>
+                        <h3 className="kpi-value">
                             {qData.caHT.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                         </h3>
-                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>Base de calcul HT</span>
+                        <span className="kpi-hint">Base de calcul HT</span>
                     </div>
 
                     {/* Total Charges */}
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)' }}>
-                        <span style={{ fontSize: '11.5px', color: '#b91c1c', fontWeight: 700, textTransform: 'uppercase' }}>
-                            Total Cotisations & Impôts ({qData.totalTaxRate}%)
+                    <div className="urssaf-kpi-card charges-card">
+                        <span className="kpi-label danger-text">
+                            Total Cotisations ({qData.totalTaxRate}%)
                         </span>
-                        <h3 style={{ margin: '6px 0 0 0', fontSize: '20px', fontWeight: 800, color: '#dc2626' }}>
+                        <h3 className="kpi-value danger-value">
                             - {qData.totalCharges.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                         </h3>
-                        <span style={{ fontSize: '11px', color: '#b91c1c' }}>À verser à l'URSSAF</span>
+                        <span className="kpi-hint danger-text">À verser à l'URSSAF</span>
                     </div>
 
                     {/* Net en poche */}
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: 'rgba(34, 197, 94, 0.08)', border: '1.5px solid rgba(34, 197, 94, 0.3)' }}>
-                        <span style={{ fontSize: '11.5px', color: '#15803d', fontWeight: 800, textTransform: 'uppercase' }}>
-                            Revenu Net dans votre poche
+                    <div className="urssaf-kpi-card net-card">
+                        <span className="kpi-label success-text">
+                            Revenu Net en poche
                         </span>
-                        <h3 style={{ margin: '6px 0 0 0', fontSize: '22px', fontWeight: 900, color: '#16a34a' }}>
+                        <h3 className="kpi-value success-value">
                             {qData.netEnPoche.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                         </h3>
-                        <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#15803d' }}>{qData.netPercent}% du brut encaissé</span>
+                        <span className="kpi-hint success-text">{qData.netPercent}% du brut</span>
                     </div>
-
                 </div>
 
                 {/* Detailed Table Breakdown */}
                 <div className="table-responsive">
-                    <table className="widget-table comptability-table">
+                    <table className="widget-table comptability-table urssaf-table">
                         <thead>
                             <tr>
-                                <th>Poste de dépense</th>
-                                <th className="text-right">Taux appliqué</th>
-                                <th className="text-right">Montant déduit</th>
+                                <th>Poste</th>
+                                <th className="text-right">Taux</th>
+                                <th className="text-right">Montant</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>
-                                    <strong>1. Cotisations sociales URSSAF</strong>
-                                    <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                                        Retraite, Maladie, Invalidité, Maternité
+                                    <strong>1. Cotisations URSSAF</strong>
+                                    <div className="table-sublabel">
+                                        Retraite, Maladie, Maternité
                                     </div>
                                 </td>
-                                <td className="text-right" style={{ fontWeight: 600 }}>{qData.effectiveUrssafRate}%</td>
-                                <td className="text-right" style={{ fontWeight: 700, color: '#dc2626' }}>
+                                <td className="text-right font-medium">{qData.effectiveUrssafRate}%</td>
+                                <td className="text-right font-bold text-danger">
                                     - {qData.urssafDue.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>2. Formation Professionnelle (CFP)</strong>
-                                    <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                                        Contribution obligatoire aux fonds de formation
+                                    <strong>2. Formation (CFP)</strong>
+                                    <div className="table-sublabel">
+                                        Fonds de formation obligatoire
                                     </div>
                                 </td>
-                                <td className="text-right" style={{ fontWeight: 600 }}>{qData.cfpRate}%</td>
-                                <td className="text-right" style={{ fontWeight: 700, color: '#dc2626' }}>
+                                <td className="text-right font-medium">{qData.cfpRate}%</td>
+                                <td className="text-right font-bold text-danger">
                                     - {qData.cfpDue.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>3. Versement Libératoire de l'Impôt (IR)</strong>
-                                    <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                                        {qData.vlRate > 0 ? "Paiement direct de l'impôt sur le revenu" : "Non activé (Déclaration annuelle 2042)"}
+                                    <strong>3. Impôt libératoire (IR)</strong>
+                                    <div className="table-sublabel">
+                                        {qData.vlRate > 0 ? "Prélèvement direct IR" : "Non activé (annuel 2042)"}
                                     </div>
                                 </td>
-                                <td className="text-right" style={{ fontWeight: 600 }}>{qData.vlRate > 0 ? `${qData.vlRate}%` : "—"}</td>
-                                <td className="text-right" style={{ fontWeight: 700, color: qData.vlRate > 0 ? '#dc2626' : 'var(--muted-foreground)' }}>
+                                <td className="text-right font-medium">{qData.vlRate > 0 ? `${qData.vlRate}%` : "—"}</td>
+                                <td className="text-right font-bold" style={{ color: qData.vlRate > 0 ? '#dc2626' : 'var(--muted-foreground)' }}>
                                     {qData.vlRate > 0 ? `- ${qData.vlDue.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €` : "0,00 €"}
                                 </td>
                             </tr>
-                            <tr className="row-total" style={{ borderTop: '2px solid var(--border)' }}>
-                                <td><strong>TOTAL CHARGES SOCIALES & FISCALES</strong></td>
+                            <tr className="row-total">
+                                <td><strong>TOTAL CHARGES</strong></td>
                                 <td className="text-right"><strong>{qData.totalTaxRate}%</strong></td>
-                                <td className="text-right total-tva-cell" style={{ color: '#dc2626' }}>
+                                <td className="text-right text-danger font-extrabold">
                                     - {qData.totalCharges.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                                 </td>
                             </tr>
-                            <tr style={{ backgroundColor: 'rgba(34, 197, 94, 0.05)' }}>
-                                <td><strong style={{ color: '#16a34a', fontSize: '14px' }}>RESTE DANS VOTRE POCHE (NET)</strong></td>
-                                <td className="text-right"><strong style={{ color: '#16a34a' }}>{qData.netPercent}%</strong></td>
-                                <td className="text-right" style={{ color: '#16a34a', fontSize: '15px', fontWeight: 800 }}>
+                            <tr className="row-net-highlight">
+                                <td><strong className="text-success">REVENU NET</strong></td>
+                                <td className="text-right"><strong className="text-success">{qData.netPercent}%</strong></td>
+                                <td className="text-right text-success font-black text-lg">
                                     {qData.netEnPoche.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
                                 </td>
                             </tr>
@@ -280,7 +278,7 @@ export default function UrssafSummary() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => navigate("/settings")}
+                            onClick={() => navigate("/settings?tab=cotisations")}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#556B2F', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                         >
                             <Settings size={14} />

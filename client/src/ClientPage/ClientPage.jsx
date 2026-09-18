@@ -48,6 +48,8 @@ import { getAuthToken } from "../utils/auth";
 import { getApiUrl } from "../utils/config";
 import { useUser } from "../utils/useUser";
 
+import PlanLimitBanner from "../components/PlanLimitBanner";
+
 // Module-level in-memory cache for instant (0ms) page switching
 let cachedClientsData = null;
 
@@ -55,7 +57,19 @@ function ClientPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { role } = useUser();
-    const { isExpired, isUnlimited, isStarter, subscription, displayName } = useSubscription();
+    const {
+        isExpired,
+        isUnlimited,
+        isStarter,
+        isPro,
+        subscription,
+        displayName,
+        isClientLimitReached,
+        isClientLimitWarning,
+        clientsCurrent,
+        clientsMax,
+        triggerUpgrade
+    } = useSubscription();
     const isTechnician = role === "TECHNICIAN";
 
     const [contacts, setContacts] = useState(() => cachedClientsData?.contacts || []);
@@ -596,17 +610,15 @@ function ClientPage() {
             return;
         }
 
-        const maxClients = subscription?.plan?.maxClients ?? (isStarter ? 50 : 300);
-        const totalClientsCount = contacts.length + organisations.length;
-        if (!isUnlimited && maxClients !== -1 && totalClientsCount >= maxClients) {
-            window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
-                detail: {
-                    reason: "clients",
-                    title: "Capacité maximale de clients atteinte",
-                    description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxClients} clients (${totalClientsCount}/${maxClients}). Débloquez un portefeuille client 100% illimité avec l'offre Unlimited.`,
-                    targetPlan: "UNLIMITED"
-                }
-            }));
+        const totalClientsCount = clientsCurrent > 0 ? clientsCurrent : (contacts.length + organisations.length);
+        const maxClients = clientsMax !== -1 ? clientsMax : (subscription?.plan?.maxClients ?? (isStarter ? 100 : 500));
+        if (!isUnlimited && maxClients !== -1 && (isClientLimitReached || totalClientsCount >= maxClients)) {
+            triggerUpgrade({
+                reason: "clients",
+                title: "Capacité maximale de clients atteinte",
+                description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxClients} clients (${totalClientsCount}/${maxClients}). Débloquez un portefeuille ${isStarter ? "de 500 clients avec l'offre Pro" : "100% illimité avec l'offre Unlimited"}.`,
+                targetPlan: isStarter ? "PRO" : "UNLIMITED"
+            });
             return;
         }
 
@@ -811,6 +823,19 @@ function ClientPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                             >
+                                {/* Plan Limit & Warning Alert Banner */}
+                                {!isTechnician && (isClientLimitReached || isClientLimitWarning) && (
+                                    <PlanLimitBanner
+                                        type="clients"
+                                        variant={isClientLimitReached ? "reached" : "warning"}
+                                        current={clientsCurrent || (contacts.length + organisations.length)}
+                                        max={clientsMax}
+                                        unit="clients"
+                                        targetPlan={isStarter ? "PRO" : "UNLIMITED"}
+                                        style={{ margin: '0 12px 14px 12px' }}
+                                    />
+                                )}
+
                                 {/* Segmented Switcher Control */}
                                 <div className="segmented-control-wrapper">
                                     <div className="segmented-control">
@@ -900,13 +925,25 @@ function ClientPage() {
                                             <button
                                                 className="new-client-btn"
                                                 onClick={handleOpenAddClient}
-                                                style={isExpired ? { display: 'inline-flex', alignItems: 'center', gap: '6px' } : {}}
+                                                style={(isExpired || isClientLimitReached) ? { display: 'inline-flex', alignItems: 'center', gap: '6px' } : {}}
                                             >
-                                                {isExpired && <Lock size={15} />}
+                                                {(isExpired || isClientLimitReached) && <Lock size={15} />}
                                                 + Nouveau Client
                                             </button>
                                         )}
                                     </div>
+
+                                    {/* Plan Limit & Warning Alert Banner */}
+                                    {!isTechnician && (isClientLimitReached || isClientLimitWarning) && (
+                                        <PlanLimitBanner
+                                            type="clients"
+                                            variant={isClientLimitReached ? "reached" : "warning"}
+                                            current={clientsCurrent || (contacts.length + organisations.length)}
+                                            max={clientsMax}
+                                            unit="clients"
+                                            targetPlan={isStarter ? "PRO" : "UNLIMITED"}
+                                        />
+                                    )}
 
                                     {/* Segmented Switcher Control */}
                                     <div className="segmented-control-wrapper">

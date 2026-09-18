@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowLeft, Plus, Trash2, Search, ChevronRight, Edit2, Eye, MoreHorizontal, FileText, ChevronDown, Palette } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
@@ -787,6 +788,14 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
 
 function QuoteEditPanel({ quote, onClose, onSave }) {
     const { company } = useUser();
+    const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const [docCustomization, setDocCustomization] = useDocumentCustomization(quote);
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [q, setQ] = useState({
@@ -1479,8 +1488,31 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
     );
 
     return (
-        <div className="fp-edit-overlay" onClick={onClose}>
-            <div className="fp-detail-wide-container" onClick={e => e.stopPropagation()}>
+        <motion.div
+            className="fp-edit-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={onClose}
+        >
+            <motion.div
+                className="fp-detail-wide-container"
+                onClick={e => e.stopPropagation()}
+                initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                drag={isMobile ? "y" : false}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.8 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 80) onClose();
+                }}
+            >
+                {/* Mobile Drag Handle */}
+                {isMobile && <div className="mobile-drawer-drag-handle" style={{ width: 40, height: 4, background: "rgba(0,0,0,0.18)", borderRadius: 3, margin: "8px auto 4px auto" }} />}
+
                 {/* LEFT Panel */}
                 <div className="fp-edit-panel fp-detail-left">
                     <div className="fp-edit-header">
@@ -1669,7 +1701,7 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                         {renderPreview()}
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {showCustomizer && (
                 <DocumentCustomizerModal
@@ -1707,7 +1739,7 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                     onClose={() => setShowEcheancePicker(false)}
                 />
             )}
-        </div>
+        </motion.div>
     );
 }
 

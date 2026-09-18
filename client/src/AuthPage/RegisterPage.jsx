@@ -59,7 +59,7 @@ const PLANS_LIST = [
         name: 'Starter',
         price: '34€',
         period: '/mois',
-        features: ['50 clients max', '1 technicien (le patron)', '50 SMS manuels/mois', 'Essai 14j gratuit']
+        features: ['1 utilisateur (patron)', '100 clients max', '100 SMS/mois', 'Facturation & Chorus Pro', 'Rappels automatiques']
     },
     {
         id: 'PRO',
@@ -67,14 +67,14 @@ const PLANS_LIST = [
         price: '69€',
         period: '/mois',
         popular: true,
-        features: ['300 clients max', '10 techniciens', '500 SMS/mois', 'App Mobile Tech', 'Rappels SMS auto']
+        features: ['5 techniciens inclus', '500 clients max', '500 SMS/mois', 'App Mobile Techniciens', 'Support prioritaire 7j/7']
     },
     {
         id: 'UNLIMITED',
         name: 'Unlimited',
         price: '129€',
         period: '/mois',
-        features: ['Clients illimités', 'Techniciens illimités', '1000 SMS/mois', 'Chorus Pro & Numéro dédié']
+        features: ['Clients & Techs illimités', '1 500 SMS/mois', 'Facturation B2B & Chorus Pro', 'Support VIP 7j/7']
     }
 ];
 

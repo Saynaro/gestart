@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
@@ -41,6 +42,14 @@ function QuoteDetailDrawer({
     const [showStatusPicker, setShowStatusPicker] = useState(false);
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [globalCustomization] = useDocumentCustomization();
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const docCustomization = getEffectiveCustomization(quote, globalCustomization);
 
     const quoteLines = (quote.lines || []).map(l => ({
@@ -1075,13 +1084,43 @@ function QuoteDetailDrawer({
 
     return (
         <>
-            <div className="dv-drawer-overlay" style={overlayStyle} onClick={onClose}>
-                <div className="fp-detail-wide-container" role="dialog" aria-label="Détails du devis" onClick={e => e.stopPropagation()}>
+            <motion.div
+                className="dv-drawer-overlay"
+                style={overlayStyle}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22 }}
+                onClick={onClose}
+            >
+                <motion.div
+                    className="fp-detail-wide-container"
+                    role="dialog"
+                    aria-label="Détails du devis"
+                    initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                    animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                    exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                    onClick={e => e.stopPropagation()}
+                    drag={isMobile ? "y" : false}
+                    dragConstraints={{ top: 0 }}
+                    dragElastic={{ top: 0, bottom: 0.8 }}
+                    onDragEnd={(event, info) => {
+                        if (isMobile && info.offset.y > 80) {
+                            onClose();
+                        }
+                    }}
+                >
                     {/* LEFT: detail panel */}
                     <aside className="dv-drawer fp-detail-left">
-
-                    {/* Header */}
-                    <div className="dv-drawer-header">
+                        {/* Mobile Drag Handle */}
+                        {isMobile && (
+                            <div style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "10px", cursor: "grab" }}>
+                                <div style={{ width: "36px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                            </div>
+                        )}
+                        {/* Header */}
+                        <div className="dv-drawer-header">
                         <span className="dv-drawer-title">Détails du devis</span>
                         <div className="dv-drawer-header-actions">
                             <div style={{ position: "relative" }}>
@@ -1425,8 +1464,8 @@ function QuoteDetailDrawer({
                             {renderPreview()}
                         </div>
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             {showCustomizer && (
                 <DocumentCustomizerModal
@@ -1442,84 +1481,110 @@ function QuoteDetailDrawer({
             )}
 
             {/* Bottom Sheet overlay for Status Picker */}
-            {showStatusPicker && createPortal(
-                <div
-                    className="fp-status-sheet-overlay"
-                    onClick={() => setShowStatusPicker(false)}
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        zIndex: 12000,
-                        backgroundColor: "rgba(0, 0, 0, 0.55)",
-                        backdropFilter: "blur(3px)",
-                        display: "flex",
-                        alignItems: "flex-end",
-                        justifyContent: "center",
-                        padding: 0
-                    }}
-                >
-                    <div
-                        className="fp-status-sheet-container"
-                        onClick={e => e.stopPropagation()}
-                        style={{
-                            width: "100%",
-                            maxWidth: "500px",
-                            backgroundColor: "var(--card)",
-                            borderTopLeftRadius: "20px",
-                            borderTopRightRadius: "20px",
-                            padding: "20px 20px 32px 20px",
-                            boxShadow: "0 -8px 32px rgba(0, 0, 0, 0.25)",
-                            boxSizing: "border-box",
-                            animation: "mobileDrawerSlideUp 0.25s ease-out"
-                        }}
-                    >
-                        <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "var(--border)", margin: "0 auto 16px" }} />
-                        
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--foreground)", margin: 0 }}>Changer le statut du devis</h3>
-                            <button
+            {createPortal(
+                <AnimatePresence>
+                    {showStatusPicker && (
+                        <>
+                            <motion.div
+                                className="fp-status-sheet-overlay"
                                 onClick={() => setShowStatusPicker(false)}
-                                style={{ border: "none", background: "none", color: "var(--muted-foreground)", cursor: "pointer", padding: "4px" }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                style={{
+                                    position: "fixed",
+                                    inset: 0,
+                                    zIndex: 12000,
+                                    backgroundColor: "rgba(0, 0, 0, 0.55)",
+                                    backdropFilter: "blur(3px)",
+                                    display: "flex",
+                                    alignItems: "flex-end",
+                                    justifyContent: "center",
+                                    padding: 0
+                                }}
+                            />
+                            <motion.div
+                                className="fp-status-sheet-container"
+                                onClick={e => e.stopPropagation()}
+                                initial={{ y: "100%" }}
+                                animate={{ y: 0 }}
+                                exit={{ y: "100%" }}
+                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                                drag="y"
+                                dragConstraints={{ top: 0 }}
+                                dragElastic={{ top: 0, bottom: 0.8 }}
+                                onDragEnd={(event, info) => {
+                                    if (info.offset.y > 80) {
+                                        setShowStatusPicker(false);
+                                    }
+                                }}
+                                style={{
+                                    position: "fixed",
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    zIndex: 12001,
+                                    width: "100%",
+                                    maxWidth: "500px",
+                                    margin: "0 auto",
+                                    backgroundColor: "var(--card)",
+                                    borderTopLeftRadius: "20px",
+                                    borderTopRightRadius: "20px",
+                                    padding: "20px 20px max(32px, env(safe-area-inset-bottom, 32px)) 20px",
+                                    boxShadow: "0 -8px 32px rgba(0, 0, 0, 0.25)",
+                                    boxSizing: "border-box"
+                                }}
                             >
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            {STATUS_CHOICES.map(s => {
-                                const isSelected = quote.status === s.key;
-                                return (
+                                <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "var(--border)", margin: "0 auto 16px", cursor: "grab" }} />
+                                
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                                    <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--foreground)", margin: 0 }}>Changer le statut du devis</h3>
                                     <button
-                                        key={s.key}
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "space-between",
-                                            width: "100%",
-                                            padding: "14px 16px",
-                                            border: isSelected ? "2px solid #556B2F" : "1px solid var(--border)",
-                                            borderRadius: "12px",
-                                            background: isSelected ? "rgba(85, 107, 47, 0.08)" : "var(--background)",
-                                            cursor: "pointer",
-                                            fontFamily: "var(--font-body)",
-                                            fontSize: "0.95rem",
-                                            fontWeight: isSelected ? 800 : 600,
-                                            color: isSelected ? "#556B2F" : "var(--foreground)",
-                                            transition: "all 0.15s ease"
-                                        }}
-                                        onClick={() => {
-                                            onChangeStatus(quote, s.key);
-                                            setShowStatusPicker(false);
-                                        }}
+                                        onClick={() => setShowStatusPicker(false)}
+                                        style={{ border: "none", background: "none", color: "var(--muted-foreground)", cursor: "pointer", padding: "4px" }}
                                     >
-                                        <span>{s.label}</span>
-                                        {isSelected && <span style={{ color: "#556B2F", fontWeight: 800 }}>✓</span>}
+                                        <X size={20} />
                                     </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>,
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                    {STATUS_CHOICES.map(s => {
+                                        const isSelected = quote.status === s.key;
+                                        return (
+                                            <button
+                                                key={s.key}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "space-between",
+                                                    width: "100%",
+                                                    padding: "14px 16px",
+                                                    border: isSelected ? "2px solid #556B2F" : "1px solid var(--border)",
+                                                    borderRadius: "12px",
+                                                    background: isSelected ? "rgba(85, 107, 47, 0.08)" : "var(--background)",
+                                                    cursor: "pointer",
+                                                    fontFamily: "var(--font-body)",
+                                                    fontSize: "0.95rem",
+                                                    fontWeight: isSelected ? 800 : 600,
+                                                    color: isSelected ? "#556B2F" : "var(--foreground)",
+                                                    transition: "all 0.15s ease"
+                                                }}
+                                                onClick={() => {
+                                                    onChangeStatus(quote, s.key);
+                                                    setShowStatusPicker(false);
+                                                }}
+                                            >
+                                                <span>{s.label}</span>
+                                                {isSelected && <span style={{ color: "#556B2F", fontWeight: 800 }}>✓</span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>,
                 document.body
             )}
         </>

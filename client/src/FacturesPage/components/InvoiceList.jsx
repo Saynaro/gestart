@@ -76,7 +76,9 @@ function InvoiceList({
         let emptyTitle = "Vous n'avez pas encore de factures";
         let emptyDesc = "Créez votre première facture client pour enregistrer vos règlements.";
 
-        const f = String(activeFilter).toLowerCase();
+        const f = String(activeFilter || "").toLowerCase();
+        const isFiltered = Boolean(f && f !== "all" && f !== "tous");
+
         if (f === "draft") {
             emptyTitle = "Vous n'avez pas de factures en brouillon";
             emptyDesc = "Les factures en cours de préparation apparaîtront ici.";
@@ -95,10 +97,10 @@ function InvoiceList({
             <div className="fp-empty-state" style={{ padding: '60px 20px', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)' }}>
                 <FileText size={44} style={{ opacity: 0.4, marginBottom: '12px' }} />
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>{emptyTitle}</h3>
-                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: isFiltered ? '0' : '20px' }}>
                     {emptyDesc}
                 </p>
-                {onCreateFacture && (
+                {!isFiltered && onCreateFacture && (
                     <button className="fp-new-btn" onClick={onCreateFacture}>
                         + Nouvelle facture
                     </button>

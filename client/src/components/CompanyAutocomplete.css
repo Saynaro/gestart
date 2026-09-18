@@ -88,9 +88,9 @@
 
 .suggestion-item {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 10px 12px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -98,27 +98,27 @@
 
 .suggestion-item:hover,
 .suggestion-item.selected {
-  background: rgba(85, 107, 47, 0.18);
+  background: rgba(85, 107, 47, 0.12);
 }
 
 .company-icon-badge {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: rgba(85, 107, 47, 0.15);
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(85, 107, 47, 0.12);
   color: #556B2F;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .suggestion-details {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 1px;
   flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -126,13 +126,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
 .company-name {
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  color: var(--foreground, #F8FAFC);
+  color: var(--foreground, #0f172a);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,48 +141,35 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
   flex-shrink: 0;
 }
 
 .status-badge.active {
-  background: rgba(85, 107, 47, 0.2);
-  color: #8BA858;
-  border: 1px solid rgba(85, 107, 47, 0.4);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .status-badge.inactive {
-  background: rgba(239, 68, 68, 0.15);
-  color: #F87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 .company-meta-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.78rem;
-  color: var(--muted-foreground, #94A3B8);
-}
-
-.meta-chip {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.company-address-text {
-  font-size: 0.78rem;
-  color: var(--muted-foreground, #94A3B8);
+  gap: 5px;
+  font-size: 0.74rem;
+  color: var(--muted-foreground, #64748b);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 1px;
 }
 
 .suggestion-check {
@@ -191,5 +178,4 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 8px;
 }

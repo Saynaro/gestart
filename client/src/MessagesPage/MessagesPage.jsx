@@ -54,6 +54,7 @@ import { getApiUrl, BACKEND_URL } from "../utils/config";
 import { getSocket } from "../utils/socket";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../components/ChannelIcons";
 import { useSubscription } from "../utils/useSubscription";
+import PlanLimitBanner from "../components/PlanLimitBanner";
 
 // Clean Email Content Component with Clean Quoted History (No raw > characters)
 const FormattedEmailContent = ({ body }) => {
@@ -165,7 +166,20 @@ function MessagesPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isExpired, isUnlimited, isStarter, subscription, displayName } = useSubscription();
+  const {
+    isExpired,
+    isUnlimited,
+    isStarter,
+    isPro,
+    subscription,
+    displayName,
+    isSmsLimitReached,
+    isSmsLimitWarning,
+    smsUsed,
+    smsMax,
+    smsRemaining,
+    triggerUpgrade
+  } = useSubscription();
 
   const [smsUsage, setSmsUsage] = useState(null);
 
@@ -605,15 +619,13 @@ function MessagesPage() {
     if (!activeChatIdParam || isSending) return;
 
     // Check SMS quota limit
-    if (selectedChannel === "SMS" && smsUsage?.isLimitReached && !isUnlimited) {
-      window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
-        detail: {
-          reason: "sms",
-          title: "Solde SMS mensuel épuisé",
-          description: `Vous avez utilisé l'intégralité de vos SMS inclus pour ce mois (${smsUsage.current}/${smsUsage.max} SMS). Passez à l'offre Unlimited pour bénéficier de 500 SMS inclus chaque mois et relancer vos clients en continu.`,
-          targetPlan: "UNLIMITED"
-        }
-      }));
+    if (selectedChannel === "SMS" && (isSmsLimitReached || (smsUsage?.isLimitReached && !isUnlimited))) {
+      triggerUpgrade({
+        reason: "sms",
+        title: "Solde SMS mensuel épuisé",
+        description: `Vous avez utilisé l'intégralité de vos SMS inclus pour ce mois (${smsUsed || smsUsage?.current || 0}/${smsMax || smsUsage?.max || 100} SMS). Passez à l'offre ${isStarter ? "Pro (500 SMS)" : "Unlimited (1 500 SMS)"} pour continuer à relancer vos clients en continu.`,
+        targetPlan: isStarter ? "PRO" : "UNLIMITED"
+      });
       return;
     }
 
@@ -2518,187 +2530,238 @@ function MessagesPage() {
           </form>
         ) : (
           /* 2. CHAT COMPOSER (SMS & WhatsApp mode) */
-          <form className="chat-input-form" onSubmit={handleSendMessage}>
-            {selectedChannel === "WHATSAPP" && (
-              <button
-                type="button"
-                className="composer-action-btn"
-                title="Joindre un devis ou document"
-                onClick={() => setIsAttachModalOpen(true)}
-              >
-                <Paperclip size={18} />
-              </button>
-            )}
-
-            <div className="input-wrapper" style={{ position: "relative" }}>
-              <input
-                type="text"
-                placeholder={
-                  selectedChannel === "WHATSAPP"
-                    ? `Envoyer un message WhatsApp à ${clientObj.phone || activeClientName}...`
-                    : `Envoyer un SMS à ${clientObj.phone || activeClientName}...`
-                }
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onFocus={handleInputFocus}
-                onClick={handleInputFocus}
-                className="chat-input"
-                disabled={isSending}
+          <>
+            {selectedChannel === "SMS" && (isSmsLimitReached || isSmsLimitWarning) && (
+              <PlanLimitBanner
+                compact
+                type="sms"
+                variant={isSmsLimitReached ? "reached" : "warning"}
+                current={smsUsed}
+                max={smsMax}
+                unit="SMS"
+                targetPlan={isStarter ? "PRO" : "UNLIMITED"}
+                customTitle={isSmsLimitReached ? "Solde SMS mensuel épuisé (0 SMS restant)" : `Quota SMS : plus que ${smsRemaining} SMS disponible${smsRemaining > 1 ? "s" : ""}`}
+                customDescription={isSmsLimitReached ? `Passez à l'offre ${isStarter ? "Pro (500 SMS)" : "Unlimited (1 500 SMS)"}. Les canaux Email et WhatsApp restent illimités.` : `Votre solde SMS arrive à expiration pour ce mois.`}
+                style={{ margin: '0 0 10px 0' }}
               />
-              <span className="input-channel-tag">
-                {selectedChannel === "WHATSAPP" ? (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "#22c55e" }}><WhatsAppIcon size={14} /> WhatsApp</span>
-                ) : (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--sidebar-primary)" }}><SmsIcon size={14} /> SMS</span>
-                )}
-              </span>
-            </div>
+            )}
+            <form className="chat-input-form" onSubmit={handleSendMessage}>
+              {selectedChannel === "WHATSAPP" && (
+                <button
+                  type="button"
+                  className="composer-action-btn"
+                  title="Joindre un devis ou document"
+                  onClick={() => setIsAttachModalOpen(true)}
+                >
+                  <Paperclip size={18} />
+                </button>
+              )}
 
-            <button
-              type="submit"
-              className="chat-send-btn"
-              title={isExpired ? "Abonnement requis pour envoyer" : `Envoyer via ${selectedChannel}`}
-              disabled={!inputText.trim() || isSending}
-              style={{ opacity: (!inputText.trim() || isSending) ? 0.6 : 1 }}
-            >
-              {isExpired ? <Lock size={16} /> : <Send size={16} />}
-            </button>
-          </form>
+              <div className="input-wrapper" style={{ position: "relative" }}>
+                <input
+                  type="text"
+                  placeholder={
+                    selectedChannel === "WHATSAPP"
+                      ? `Envoyer un message WhatsApp à ${clientObj.phone || activeClientName}...`
+                      : (selectedChannel === "SMS" && isSmsLimitReached)
+                      ? `Solde SMS épuisé (Passez à ${isStarter ? "Pro" : "Unlimited"} ou utilisez WhatsApp/Email)...`
+                      : `Envoyer un SMS à ${clientObj.phone || activeClientName}...`
+                  }
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onFocus={handleInputFocus}
+                  onClick={handleInputFocus}
+                  className="chat-input"
+                  disabled={isSending || (selectedChannel === "SMS" && isSmsLimitReached)}
+                />
+                <span className="input-channel-tag">
+                  {selectedChannel === "WHATSAPP" ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "#22c55e" }}><WhatsAppIcon size={14} /> WhatsApp</span>
+                  ) : (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--sidebar-primary)" }}><SmsIcon size={14} /> SMS</span>
+                  )}
+                </span>
+              </div>
+
+              <button
+                type="submit"
+                className="chat-send-btn"
+                title={
+                  isExpired
+                    ? "Abonnement requis pour envoyer"
+                    : (selectedChannel === "SMS" && isSmsLimitReached)
+                    ? `Solde SMS épuisé · Passer à ${isStarter ? "Pro" : "Unlimited"}`
+                    : `Envoyer via ${selectedChannel}`
+                }
+                disabled={(!inputText.trim() && !(selectedChannel === "SMS" && isSmsLimitReached)) || isSending}
+                style={{
+                  opacity: (!inputText.trim() && !(selectedChannel === "SMS" && isSmsLimitReached)) || isSending ? 0.6 : 1,
+                  backgroundColor: (selectedChannel === "SMS" && isSmsLimitReached) ? 'rgba(239, 68, 68, 0.15)' : undefined,
+                  color: (selectedChannel === "SMS" && isSmsLimitReached) ? '#ef4444' : undefined,
+                  border: (selectedChannel === "SMS" && isSmsLimitReached) ? '1px solid rgba(239, 68, 68, 0.3)' : undefined
+                }}
+              >
+                {isExpired ? <Lock size={16} /> : (selectedChannel === "SMS" && isSmsLimitReached) ? <Lock size={16} /> : <Send size={16} />}
+              </button>
+            </form>
+          </>
         )}
       </div>
 
       {/* Document / PDF Attachment Modal */}
-      {isAttachModalOpen && (
-        <div className="client-modal-overlay attachment-modal-overlay" onClick={() => setIsAttachModalOpen(false)}>
-          <div className="client-modal-card attachment-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="client-modal-header attachment-modal-header" style={{ flexShrink: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <FileText size={18} style={{ color: "var(--sidebar-primary)" }} />
-                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Joindre un document</h3>
+      <AnimatePresence>
+        {isAttachModalOpen && (
+          <motion.div
+            className="client-modal-overlay attachment-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={() => setIsAttachModalOpen(false)}
+          >
+            <motion.div
+              className="client-modal-card attachment-modal-card"
+              onClick={(e) => e.stopPropagation()}
+              initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+              animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+              exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+              drag={isMobile ? "y" : false}
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.8 }}
+              onDragEnd={(e, info) => {
+                if (info.offset.y > 80) setIsAttachModalOpen(false);
+              }}
+            >
+              <div className="client-modal-header attachment-modal-header" style={{ flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <FileText size={18} style={{ color: "var(--sidebar-primary)" }} />
+                  <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Joindre un document</h3>
+                </div>
+                <button className="client-modal-close" onClick={() => setIsAttachModalOpen(false)}>
+                  <X size={20} />
+                </button>
               </div>
-              <button className="client-modal-close" onClick={() => setIsAttachModalOpen(false)}>
-                <X size={20} />
-              </button>
-            </div>
 
-            <div className="attachment-modal-client-bar" style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
-              <p style={{ fontSize: "13px", color: "var(--foreground)", margin: 0, fontWeight: 500 }}>
-                Documents de <strong>{activeClientName}</strong> :
-              </p>
-            </div>
+              <div className="attachment-modal-client-bar" style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
+                <p style={{ fontSize: "13px", color: "var(--foreground)", margin: 0, fontWeight: 500 }}>
+                  Documents de <strong>{activeClientName}</strong> :
+                </p>
+              </div>
 
-            <div className="attachment-modal-body" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
-              {/* Devis du client */}
-              {clientObj.quotes && clientObj.quotes.length > 0 && (
-                <div>
-                  <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
-                    Devis ({clientObj.quotes.length})
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    {clientObj.quotes.map((q) => (
-                      <div
-                        key={q.id}
-                        className="attachment-pick-item"
-                      >
-                        <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(85, 107, 47, 0.12)", color: "#556B2F" }}>
-                          <FileText size={18} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="attachment-item-title">Devis {q.number}</div>
-                          <div className="attachment-item-amount">
-                            Montant : <strong>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
+              <div className="attachment-modal-body" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
+                {/* Devis du client */}
+                {clientObj.quotes && clientObj.quotes.length > 0 && (
+                  <div>
+                    <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                      Devis ({clientObj.quotes.length})
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {clientObj.quotes.map((q) => (
+                        <div
+                          key={q.id}
+                          className="attachment-pick-item"
+                        >
+                          <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(85, 107, 47, 0.12)", color: "#556B2F" }}>
+                            <FileText size={18} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="attachment-item-title">Devis {q.number}</div>
+                            <div className="attachment-item-amount">
+                              Montant : <strong>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                            <button
+                              type="button"
+                              className="attachment-action-icon-btn"
+                              title="Prévisualiser ce devis"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenDocPreview(q, "quote");
+                              }}
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              className="attachment-join-btn"
+                              style={{ color: "#ffffff", backgroundColor: "#556B2F", boxShadow: "0 2px 8px rgba(85, 107, 47, 0.25)" }}
+                              onClick={() => {
+                                setEmailAttachments(prev => [...prev, { filename: `Devis_${q.number}.pdf`, id: q.id, quoteId: q.id, type: "quote", number: q.number, total: q.amountTTC ?? q.totalTtc ?? q.total ?? 0, ...q }]);
+                                setIsAttachModalOpen(false);
+                              }}
+                            >
+                              <Plus size={13} /> Joindre
+                            </button>
                           </div>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-                          <button
-                            type="button"
-                            className="attachment-action-icon-btn"
-                            title="Prévisualiser ce devis"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenDocPreview(q, "quote");
-                            }}
-                          >
-                            <Eye size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            className="attachment-join-btn"
-                            style={{ color: "#ffffff", backgroundColor: "#556B2F", boxShadow: "0 2px 8px rgba(85, 107, 47, 0.25)" }}
-                            onClick={() => {
-                              setEmailAttachments(prev => [...prev, { filename: `Devis_${q.number}.pdf`, id: q.id, quoteId: q.id, type: "quote", number: q.number, total: q.amountTTC ?? q.totalTtc ?? q.total ?? 0, ...q }]);
-                              setIsAttachModalOpen(false);
-                            }}
-                          >
-                            <Plus size={13} /> Joindre
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Factures du client */}
-              {clientObj.invoices && clientObj.invoices.length > 0 && (
-                <div>
-                  <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
-                    Factures ({clientObj.invoices.length})
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    {clientObj.invoices.map((inv) => (
-                      <div
-                        key={inv.id}
-                        className="attachment-pick-item"
-                      >
-                        <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#16a34a" }}>
-                          <FileText size={18} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="attachment-item-title">Facture {inv.number}</div>
-                          <div className="attachment-item-amount">
-                            Montant : <strong>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
+                {/* Factures du client */}
+                {clientObj.invoices && clientObj.invoices.length > 0 && (
+                  <div>
+                    <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                      Factures ({clientObj.invoices.length})
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {clientObj.invoices.map((inv) => (
+                        <div
+                          key={inv.id}
+                          className="attachment-pick-item"
+                        >
+                          <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#16a34a" }}>
+                            <FileText size={18} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="attachment-item-title">Facture {inv.number}</div>
+                            <div className="attachment-item-amount">
+                              Montant : <strong>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                            <button
+                              type="button"
+                              className="attachment-action-icon-btn"
+                              title="Prévisualiser cette facture"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenDocPreview(inv, "invoice");
+                              }}
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              className="attachment-join-btn"
+                              style={{ color: "#ffffff", backgroundColor: "#16a34a", boxShadow: "0 2px 8px rgba(22, 163, 74, 0.25)" }}
+                              onClick={() => {
+                                setEmailAttachments(prev => [...prev, { filename: `Facture_${inv.number}.pdf`, id: inv.id, invoiceId: inv.id, type: "invoice", number: inv.number, total: inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0, ...inv }]);
+                                setIsAttachModalOpen(false);
+                              }}
+                            >
+                              <Plus size={13} /> Joindre
+                            </button>
                           </div>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-                          <button
-                            type="button"
-                            className="attachment-action-icon-btn"
-                            title="Prévisualiser cette facture"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenDocPreview(inv, "invoice");
-                            }}
-                          >
-                            <Eye size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            className="attachment-join-btn"
-                            style={{ color: "#ffffff", backgroundColor: "#16a34a", boxShadow: "0 2px 8px rgba(22, 163, 74, 0.25)" }}
-                            onClick={() => {
-                              setEmailAttachments(prev => [...prev, { filename: `Facture_${inv.number}.pdf`, id: inv.id, invoiceId: inv.id, type: "invoice", number: inv.number, total: inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0, ...inv }]);
-                              setIsAttachModalOpen(false);
-                            }}
-                          >
-                            <Plus size={13} /> Joindre
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {(!clientObj.quotes || clientObj.quotes.length === 0) && (!clientObj.invoices || clientObj.invoices.length === 0) && (
-                <div style={{ padding: "30px 16px", textAlign: "center", color: "var(--muted-foreground)" }}>
-                  <p className="no-data" style={{ margin: 0 }}>Aucun devis ni facture trouvé pour {activeClientName}.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                {(!clientObj.quotes || clientObj.quotes.length === 0) && (!clientObj.invoices || clientObj.invoices.length === 0) && (
+                  <div style={{ padding: "30px 16px", textAlign: "center", color: "var(--muted-foreground)" }}>
+                    <p className="no-data" style={{ margin: 0 }}>Aucun devis ni facture trouvé pour {activeClientName}.</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 
@@ -2800,321 +2863,388 @@ function MessagesPage() {
       </div>
 
       {/* Select Client for New Message Modal */}
-      {isClientModalOpen && (
-        <div className="client-modal-overlay" onClick={() => setIsClientModalOpen(false)}>
-          <div className="client-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="client-modal-pull-handle" />
-            <div className="client-modal-header">
-              <h3>Nouvelle discussion</h3>
-              <button className="client-modal-close" onClick={() => setIsClientModalOpen(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="client-modal-search">
-              <Search size={16} className="modal-search-icon" />
-              <input
-                type="text"
-                placeholder="Rechercher par nom, téléphone ou email..."
-                value={modalSearchTerm}
-                onChange={(e) => setModalSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="client-modal-list">
-              {isLoadingClients ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px 0" }}>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", borderRadius: "10px" }}>
-                      <div className="skeleton-shimmer" style={{ width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0 }} />
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
-                        <div className="skeleton-shimmer" style={{ width: `${110 + (i % 3) * 35}px`, height: "14px", borderRadius: "4px" }} />
-                        <div className="skeleton-shimmer" style={{ width: `${140 + (i % 2) * 30}px`, height: "11px", borderRadius: "4px", opacity: 0.6 }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : filteredContactsList.length === 0 ? (
-                <div style={{ padding: "34px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
-                  <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
-                    {!modalSearchTerm.trim() ? "Tous vos clients ont déjà un fil actif" : "Aucun contact trouvé"}
-                  </p>
-                  <p style={{ fontSize: "0.82rem", lineHeight: "1.4" }}>
-                    {!modalSearchTerm.trim() ? "Recherchez un client ci-dessus pour ouvrir directement sa conversation." : "Vérifiez l'orthographe du nom, numéro ou email."}
-                  </p>
-                </div>
-              ) : (
-                filteredContactsList.map((client) => {
-                  const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || "Client";
-                  const inChat = hasActiveChat(client);
-                  return (
-                    <div
-                      key={client.id}
-                      className="client-modal-item"
-                      onClick={() => handleStartChatWithContact(client)}
-                    >
-                      <div className="client-modal-avatar">
-                        {getInitials(fullName)}
-                      </div>
-                      <div className="client-modal-info" style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-                          <span className="client-modal-name">{fullName}</span>
-                          {inChat && (
-                            <span style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "4px",
-                              fontSize: "11px",
-                              fontWeight: 600,
-                              padding: "2px 7px",
-                              borderRadius: "6px",
-                              backgroundColor: "rgba(85, 107, 47, 0.12)",
-                              color: "#556B2F",
-                              whiteSpace: "nowrap"
-                            }}>
-                              <MessageSquare size={11} strokeWidth={2.2} />
-                              <span>En cours</span>
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ display: "flex", gap: "8px", fontSize: "11.5px", color: "var(--muted-foreground)" }}>
-                          {client.phone && <span className="font-mono">{client.phone}</span>}
-                          {client.email && <span>· {client.email}</span>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Active Call UI Modal */}
-      {activeCall && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(12px)',
-          zIndex: 99999, display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', color: '#fff',
-          padding: '24px', textAlign: 'center'
-        }}>
-          <div style={{
-            width: 104, height: 104, borderRadius: '50%', background: 'linear-gradient(135deg, #36451C 0%, #556B2F 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '2.2rem', fontWeight: 800, marginBottom: 24,
-            boxShadow: '0 0 40px rgba(85, 107, 47, 0.4)'
-          }}>
-            {activeCall.contactName ? getInitials(activeCall.contactName) : 'CS'}
-          </div>
-          <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.02em' }}>
-            {activeCall.contactName}
-          </h3>
-          <p style={{ color: '#94A3B8', fontSize: '1rem', marginBottom: 40 }}>
-            Appel en cours...
-          </p>
-          <button
-            type="button"
-            onClick={() => setActiveCall(null)}
-            style={{
-              width: 64, height: 64, borderRadius: '50%', background: '#EF4444',
-              border: 'none', color: '#fff', cursor: 'pointer', display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)'
-            }}
-            title="Raccrocher"
+      <AnimatePresence>
+        {isClientModalOpen && (
+          <motion.div
+            className="client-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={() => setIsClientModalOpen(false)}
           >
-            <X size={28} />
-          </button>
-        </div>
-      )}
-      {/* Document PDF Previews */}
-      {previewQuote && (
-        <QuotePdfView
-          quote={previewQuote}
-          onClose={() => setPreviewQuote(null)}
-          onDownload={async (q) => {
-            const targetQ = q || previewQuote;
-            if (targetQ?.id && typeof targetQ.id === "string" && targetQ.id.length > 10) {
-              const token = getAuthToken();
-              try {
-                const res = await fetch(getApiUrl(`/v1/quotes/${targetQ.id}/pdf`), {
-                  headers: token ? { Authorization: `Bearer ${token}` } : {},
-                  credentials: "include"
-                });
-                if (res.ok) {
-                  const blob = await res.blob();
-                  const blobUrl = window.URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = blobUrl;
-                  link.download = `Devis_${(targetQ.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  window.URL.revokeObjectURL(blobUrl);
-                  return;
-                }
-              } catch (err) {
-                console.error("Erreur téléchargement PDF devis:", err);
-              }
-            }
-            window.print();
-          }}
-        />
-      )}
-
-      {previewInvoice && (
-        <InvoicePdfView
-          invoice={previewInvoice}
-          onClose={() => setPreviewInvoice(null)}
-          onDownload={async (inv) => {
-            const targetInv = inv || previewInvoice;
-            if (targetInv?.id && typeof targetInv.id === "string" && targetInv.id.length > 10) {
-              const token = getAuthToken();
-              try {
-                const res = await fetch(getApiUrl(`/v1/invoices/${targetInv.id}/pdf`), {
-                  headers: token ? { Authorization: `Bearer ${token}` } : {},
-                  credentials: "include"
-                });
-                if (res.ok) {
-                  const blob = await res.blob();
-                  const blobUrl = window.URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = blobUrl;
-                  link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  window.URL.revokeObjectURL(blobUrl);
-                  return;
-                }
-              } catch (err) {
-                console.error("Erreur téléchargement PDF facture:", err);
-              }
-            }
-            window.print();
-          }}
-        />
-      )}
-
-      {/* Lightbox Modal Gallery for attached photos */}
-      {lightboxGallery && createPortal(
-        <div className="lightbox-backdrop" onClick={() => setLightboxGallery(null)}>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <div className="lightbox-header">
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span className="lightbox-title">{lightboxGallery.images[lightboxGallery.index]?.name || "Photo"}</span>
-                {lightboxGallery.images.length > 1 && (
-                  <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94a3b8)", fontWeight: 600 }}>
-                    {lightboxGallery.index + 1} / {lightboxGallery.images.length}
-                  </span>
+            <motion.div
+              className="client-modal-card"
+              onClick={(e) => e.stopPropagation()}
+              initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+              animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+              exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+              drag={isMobile ? "y" : false}
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.8 }}
+              onDragEnd={(e, info) => {
+                if (info.offset.y > 80) setIsClientModalOpen(false);
+              }}
+            >
+              <div className="client-modal-pull-handle" />
+              <div className="client-modal-header">
+                <h3>Nouvelle discussion</h3>
+                <button className="client-modal-close" onClick={() => setIsClientModalOpen(false)}>
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="client-modal-search">
+                <Search size={16} className="modal-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Rechercher par nom, téléphone ou email..."
+                  value={modalSearchTerm}
+                  onChange={(e) => setModalSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="client-modal-list">
+                {isLoadingClients ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px 0" }}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", borderRadius: "10px" }}>
+                        <div className="skeleton-shimmer" style={{ width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0 }} />
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                          <div className="skeleton-shimmer" style={{ width: `${110 + (i % 3) * 35}px`, height: "14px", borderRadius: "4px" }} />
+                          <div className="skeleton-shimmer" style={{ width: `${140 + (i % 2) * 30}px`, height: "11px", borderRadius: "4px", opacity: 0.6 }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : filteredContactsList.length === 0 ? (
+                  <div style={{ padding: "34px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
+                    <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
+                      {!modalSearchTerm.trim() ? "Tous vos clients ont déjà un fil actif" : "Aucun contact trouvé"}
+                    </p>
+                    <p style={{ fontSize: "0.82rem", lineHeight: "1.4" }}>
+                      {!modalSearchTerm.trim() ? "Recherchez un client ci-dessus pour ouvrir directement sa conversation." : "Vérifiez l'orthographe du nom, numéro ou email."}
+                    </p>
+                  </div>
+                ) : (
+                  filteredContactsList.map((client) => {
+                    const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || "Client";
+                    const inChat = hasActiveChat(client);
+                    return (
+                      <div
+                        key={client.id}
+                        className="client-modal-item"
+                        onClick={() => handleStartChatWithContact(client)}
+                      >
+                        <div className="client-modal-avatar">
+                          {getInitials(fullName)}
+                        </div>
+                        <div className="client-modal-info" style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                            <span className="client-modal-name">{fullName}</span>
+                            {inChat && (
+                              <span style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                fontSize: "11px",
+                                fontWeight: 600,
+                                padding: "2px 7px",
+                                borderRadius: "6px",
+                                backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                color: "#556B2F",
+                                whiteSpace: "nowrap"
+                              }}>
+                                <MessageSquare size={11} strokeWidth={2.2} />
+                                <span>En cours</span>
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ display: "flex", gap: "8px", fontSize: "11.5px", color: "var(--muted-foreground)" }}>
+                            {client.phone && <span className="font-mono">{client.phone}</span>}
+                            {client.email && <span>· {client.email}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
-              <div className="lightbox-actions">
-                <button 
-                  type="button" 
-                  className="lightbox-btn" 
-                  title="Télécharger l'image"
-                  onClick={(e) => handleDownloadAttachment(
-                    e, 
-                    lightboxGallery.images[lightboxGallery.index]?.url, 
-                    lightboxGallery.images[lightboxGallery.index]?.name || "photo.jpg"
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Active Call UI Modal */}
+      <AnimatePresence>
+        {activeCall && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{
+              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(12px)',
+              zIndex: 99999, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', color: '#fff',
+              padding: '24px', textAlign: 'center'
+            }}
+          >
+            <div style={{
+              width: 104, height: 104, borderRadius: '50%', background: 'linear-gradient(135deg, #36451C 0%, #556B2F 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '2.2rem', fontWeight: 800, marginBottom: 24,
+              boxShadow: '0 0 40px rgba(85, 107, 47, 0.4)'
+            }}>
+              {activeCall.contactName ? getInitials(activeCall.contactName) : 'CS'}
+            </div>
+            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.02em' }}>
+              {activeCall.contactName}
+            </h3>
+            <p style={{ color: '#94A3B8', fontSize: '1rem', marginBottom: 40 }}>
+              Appel en cours...
+            </p>
+            <button
+              type="button"
+              onClick={() => setActiveCall(null)}
+              style={{
+                width: 64, height: 64, borderRadius: '50%', background: '#EF4444',
+                border: 'none', color: '#fff', cursor: 'pointer', display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)'
+              }}
+              title="Raccrocher"
+            >
+              <X size={28} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Document PDF Previews */}
+      <AnimatePresence>
+        {previewQuote && (
+          <QuotePdfView
+            quote={previewQuote}
+            onClose={() => setPreviewQuote(null)}
+            onDownload={async (q) => {
+              const targetQ = q || previewQuote;
+              if (targetQ?.id && typeof targetQ.id === "string" && targetQ.id.length > 10) {
+                const token = getAuthToken();
+                try {
+                  const res = await fetch(getApiUrl(`/v1/quotes/${targetQ.id}/pdf`), {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    credentials: "include"
+                  });
+                  if (res.ok) {
+                    const blob = await res.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = blobUrl;
+                    link.download = `Devis_${(targetQ.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(blobUrl);
+                    return;
+                  }
+                } catch (err) {
+                  console.error("Erreur téléchargement PDF devis:", err);
+                }
+              }
+              window.print();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {previewInvoice && (
+          <InvoicePdfView
+            invoice={previewInvoice}
+            onClose={() => setPreviewInvoice(null)}
+            onDownload={async (inv) => {
+              const targetInv = inv || previewInvoice;
+              if (targetInv?.id && typeof targetInv.id === "string" && targetInv.id.length > 10) {
+                const token = getAuthToken();
+                try {
+                  const res = await fetch(getApiUrl(`/v1/invoices/${targetInv.id}/pdf`), {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    credentials: "include"
+                  });
+                  if (res.ok) {
+                    const blob = await res.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = blobUrl;
+                    link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(blobUrl);
+                    return;
+                  }
+                } catch (err) {
+                  console.error("Erreur téléchargement PDF facture:", err);
+                }
+              }
+              window.print();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox Modal Gallery for attached photos */}
+      <AnimatePresence>
+        {lightboxGallery && createPortal(
+          <motion.div
+            className="lightbox-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setLightboxGallery(null)}
+          >
+            <motion.div
+              className="lightbox-content"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="lightbox-header">
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span className="lightbox-title">{lightboxGallery.images[lightboxGallery.index]?.name || "Photo"}</span>
+                  {lightboxGallery.images.length > 1 && (
+                    <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94a3b8)", fontWeight: 600 }}>
+                      {lightboxGallery.index + 1} / {lightboxGallery.images.length}
+                    </span>
                   )}
-                >
-                  <Download size={16} />
-                </button>
-                <button 
-                  type="button" 
-                  className="lightbox-btn" 
-                  onClick={() => setLightboxGallery(null)}
-                  title="Fermer (Échap)"
-                >
-                  <X size={18} />
-                </button>
+                </div>
+                <div className="lightbox-actions">
+                  <button 
+                    type="button" 
+                    className="lightbox-btn" 
+                    title="Télécharger l'image"
+                    onClick={(e) => handleDownloadAttachment(
+                      e, 
+                      lightboxGallery.images[lightboxGallery.index]?.url, 
+                      lightboxGallery.images[lightboxGallery.index]?.name || "photo.jpg"
+                    )}
+                  >
+                    <Download size={16} />
+                  </button>
+                  <button 
+                    type="button" 
+                    className="lightbox-btn" 
+                    onClick={() => setLightboxGallery(null)}
+                    title="Fermer (Échap)"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="lightbox-body" style={{ position: "relative" }}>
-              {lightboxGallery.images.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    className="lightbox-nav-btn prev"
-                    title="Précédente (←)"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLightboxGallery(prev => ({
-                        ...prev,
-                        index: (prev.index - 1 + prev.images.length) % prev.images.length
-                      }));
-                    }}
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button
-                    type="button"
-                    className="lightbox-nav-btn next"
-                    title="Suivante (→)"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLightboxGallery(prev => ({
-                        ...prev,
-                        index: (prev.index + 1) % prev.images.length
-                      }));
-                    }}
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-                </>
-              )}
-              <img 
-                src={lightboxGallery.images[lightboxGallery.index]?.url} 
-                alt={lightboxGallery.images[lightboxGallery.index]?.name} 
-                className="lightbox-full-img" 
-              />
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+              <div className="lightbox-body" style={{ position: "relative" }}>
+                {lightboxGallery.images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      className="lightbox-nav-btn prev"
+                      title="Précédente (←)"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxGallery(prev => ({
+                          ...prev,
+                          index: (prev.index - 1 + prev.images.length) % prev.images.length
+                        }));
+                      }}
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button
+                      type="button"
+                      className="lightbox-nav-btn next"
+                      title="Suivante (→)"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxGallery(prev => ({
+                          ...prev,
+                          index: (prev.index + 1) % prev.images.length
+                        }));
+                      }}
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+                <img 
+                  src={lightboxGallery.images[lightboxGallery.index]?.url} 
+                  alt={lightboxGallery.images[lightboxGallery.index]?.name} 
+                  className="lightbox-full-img" 
+                />
+              </div>
+            </motion.div>
+          </motion.div>,
+          document.body
+        )}
+      </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
-      {isDeleteModalOpen && createPortal(
-        <div className="delete-modal-backdrop" onClick={() => !isDeleting && setIsDeleteModalOpen(false)}>
-          <div className="delete-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="delete-modal-header">
-              <div className="delete-modal-icon-wrapper">
-                <Trash2 size={22} className="delete-modal-icon" />
+      <AnimatePresence>
+        {isDeleteModalOpen && createPortal(
+          <motion.div
+            className="delete-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => !isDeleting && setIsDeleteModalOpen(false)}
+          >
+            <motion.div
+              className="delete-modal-content"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.25 }}
+            >
+              <div className="delete-modal-header">
+                <div className="delete-modal-icon-wrapper">
+                  <Trash2 size={22} className="delete-modal-icon" />
+                </div>
+                <div className="delete-modal-titles">
+                  <h3>Supprimer ?</h3>
+                  <p>
+                    {selectedMessageIds.size > 1
+                      ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
+                      : "Voulez-vous supprimer ce message de votre historique CRM ?"}
+                  </p>
+                </div>
               </div>
-              <div className="delete-modal-titles">
-                <h3>Supprimer ?</h3>
-                <p>
-                  {selectedMessageIds.size > 1
-                    ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
-                    : "Voulez-vous supprimer ce message de votre historique CRM ?"}
-                </p>
+              <div className="delete-modal-actions">
+                <button
+                  type="button"
+                  className="delete-modal-btn cancel"
+                  disabled={isDeleting}
+                  onClick={() => setIsDeleteModalOpen(false)}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  className="delete-modal-btn confirm"
+                  disabled={isDeleting}
+                  onClick={handleDeleteSelectedMessages}
+                >
+                  {isDeleting ? "Suppression..." : "Supprimer"}
+                </button>
               </div>
-            </div>
-            <div className="delete-modal-actions">
-              <button
-                type="button"
-                className="delete-modal-btn cancel"
-                disabled={isDeleting}
-                onClick={() => setIsDeleteModalOpen(false)}
-              >
-                Annuler
-              </button>
-              <button
-                type="button"
-                className="delete-modal-btn confirm"
-                disabled={isDeleting}
-                onClick={handleDeleteSelectedMessages}
-              >
-                {isDeleting ? "Suppression..." : "Supprimer"}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+            </motion.div>
+          </motion.div>,
+          document.body
+        )}
+      </AnimatePresence>
     </div>
   );
 }

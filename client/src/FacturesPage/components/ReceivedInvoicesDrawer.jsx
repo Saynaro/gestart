@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { X, Download, Building, Calendar, FileText, CheckCircle, ShieldCheck, Loader2, ExternalLink } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 export default function ReceivedInvoicesDrawer({ invoice, onClose, onRefresh }) {
     const [downloading, setDownloading] = useState(false);
+    const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     if (!invoice) return null;
 
@@ -41,22 +49,42 @@ export default function ReceivedInvoicesDrawer({ invoice, onClose, onRefresh }) 
     const lines = rawInv.invoice_lines_attributes || rawInv.lines || [];
 
     return (
-        <div style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(6px)',
-            zIndex: 99999,
-            display: 'flex',
-            justifyContent: 'flex-end'
-        }} onClick={onClose}>
-            <div
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                backdropFilter: 'blur(6px)',
+                zIndex: 99999,
+                display: 'flex',
+                justifyContent: isMobile ? 'center' : 'flex-end',
+                alignItems: isMobile ? 'flex-end' : 'stretch'
+            }}
+            onClick={onClose}
+        >
+            <motion.div
+                initial={isMobile ? { y: "100%" } : { x: "100%" }}
+                animate={isMobile ? { y: 0 } : { x: 0 }}
+                exit={isMobile ? { y: "100%" } : { x: "100%" }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                drag={isMobile ? "y" : false}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.8 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 80) onClose();
+                }}
                 style={{
                     width: '100%',
-                    maxWidth: '560px',
-                    height: '100%',
+                    maxWidth: isMobile ? '100%' : '560px',
+                    height: isMobile ? '88vh' : '100%',
                     backgroundColor: 'var(--card)',
-                    borderLeft: '1px solid var(--border)',
+                    borderLeft: isMobile ? 'none' : '1px solid var(--border)',
+                    borderTopLeftRadius: isMobile ? '20px' : '0',
+                    borderTopRightRadius: isMobile ? '20px' : '0',
                     boxShadow: '-10px 0 30px rgba(0,0,0,0.2)',
                     display: 'flex',
                     flexDirection: 'column',
@@ -65,6 +93,7 @@ export default function ReceivedInvoicesDrawer({ invoice, onClose, onRefresh }) 
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
+                {isMobile && <div style={{ width: 40, height: 4, background: "rgba(0,0,0,0.18)", borderRadius: 3, margin: "-12px auto 16px auto" }} />}
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -211,7 +240,7 @@ export default function ReceivedInvoicesDrawer({ invoice, onClose, onRefresh }) 
                         Télécharger le document (Factur-X / PDF)
                     </button>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

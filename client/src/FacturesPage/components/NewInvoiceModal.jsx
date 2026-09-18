@@ -1179,7 +1179,14 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
     // ── MOBILE WIZARD INTERFACE ────────────────────────────────────────
     if (isMobile) {
         return createPortal(
-            <div className="mobile-preview-full-overlay" style={{ backgroundColor: 'var(--background)' }}>
+            <motion.div
+                className="mobile-preview-full-overlay"
+                style={{ backgroundColor: 'var(--background)' }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.28 }}
+            >
 
                 {/* Progress Header matching screenshot layout */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 16px', backgroundColor: 'var(--card)', borderBottom: '1px solid var(--border)' }}>
@@ -2320,14 +2327,29 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                     />
                 )}
 
-            </div>
+            </motion.div>
             , document.body);
     }
 
     // ── DESKTOP SPLIT VIEW INTERFACE ──────────────────────────────────
     return (
-        <div className="invoice-modal-overlay">
-            <div className="invoice-modal-container wide-invoice-modal-container" style={{ position: 'relative' }}>
+        <motion.div
+            className="invoice-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={onClose}
+        >
+            <motion.div
+                className="invoice-modal-container wide-invoice-modal-container"
+                style={{ position: 'relative' }}
+                initial={{ opacity: 0, scale: 0.96, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 15 }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.3 }}
+                onClick={e => e.stopPropagation()}
+            >
                 <AnimatePresence>
                     {modalAlert && (
                         <motion.div
@@ -2635,7 +2657,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                     </div>
                 </div>
 
-            </div>
+            </motion.div>
 
             {showCustomizer && (
                 <DocumentCustomizerModal
@@ -3360,7 +3382,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                     />
                 )
             )}
-        </div>
+        </motion.div>
     );
 }
 

@@ -168,9 +168,11 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                             {/* Header */}
                             <div className="sub-receipt-header">
                                 <div className="sub-receipt-brand">
-                                    <div className="sub-receipt-logo">
-                                        <span>G</span>
-                                    </div>
+                                    <img 
+                                        src="/Logo-transparent.png" 
+                                        alt="GestArt" 
+                                        className="sub-receipt-logo-img" 
+                                    />
                                     <div>
                                         <h1 className="sub-receipt-title">GestArt</h1>
                                         <p className="sub-receipt-subtitle">Plateforme SaaS de Facturation & CRM</p>
@@ -207,6 +209,7 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                                     <div className="sub-party-info">06000 Nice, France</div>
                                     <div className="sub-party-info">SIRET : 944 087 725 00015</div>
                                     <div className="sub-party-info">Code APE : 53.20Z</div>
+                                    <div className="sub-party-info">Tél : 06 51 60 43 16</div>
                                     <div className="sub-party-info">Email : support.gestart@gmail.com</div>
                                 </div>
 
@@ -283,7 +286,7 @@ export default function SubscriptionReceiptModal({ receipt, user, company, curre
                         <div className="sub-receipt-footer">
                             <p>
                                 Document valant reçu de paiement et justificatif comptable conformément aux dispositions légales.
-                                KHALID SAINARO EI (Nom commercial : GestArt) • SIRET : 944 087 725 00015 • APE : 53.20Z • 23 Rue Paganini, 06000 Nice • support.gestart@gmail.com • Tous droits réservés.
+                                KHALID SAINARO EI (Nom commercial : GestArt) • SIRET : 944 087 725 00015 • APE : 53.20Z • 23 Rue Paganini, 06000 Nice • Tél : 06 51 60 43 16 • support.gestart@gmail.com • Tous droits réservés.
                             </p>
                         </div>
                     </div>

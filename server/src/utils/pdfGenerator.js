@@ -31,7 +31,7 @@ async function getBrowser() {
 /**
  * Generate PDF buffer from HTML content via Puppeteer.
  */
-async function generatePdfFromHtml(fullHtml) {
+export async function generatePdfFromHtml(fullHtml) {
     const browser = await getBrowser();
     const page = await browser.newPage();
     try {
@@ -96,6 +96,7 @@ export async function generateReceiptPdfBuffer({ paymentData, company, customiza
 }
 
 export default {
+    generatePdfFromHtml,
     generateInvoicePdfBuffer,
     generateQuotePdfBuffer,
     generateReceiptPdfBuffer

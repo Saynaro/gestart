@@ -47,7 +47,9 @@ import {
     Link,
     RefreshCw,
     Palette,
-    Check
+    Check,
+    Scale,
+    ShieldCheck
 } from "lucide-react";
 
 // Import Tab Components
@@ -233,6 +235,8 @@ function SettingsPage() {
         "À propos": false
     });
 
+    const [isMobileHeaderTitleVisible, setIsMobileHeaderTitleVisible] = useState(false);
+
     // Scroll tracking for header transition
     useEffect(() => {
         const handleScroll = () => {
@@ -245,6 +249,25 @@ function SettingsPage() {
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    // Apple Large Title pattern: hide header title when at top, reveal when scrolled past body title
+    useEffect(() => {
+        const container = mobileScrollRef.current;
+        if (!container) return;
+
+        const handleMobileScroll = () => {
+            if (container.scrollTop > 35) {
+                setIsMobileHeaderTitleVisible(true);
+            } else {
+                setIsMobileHeaderTitleVisible(false);
+            }
+        };
+
+        container.addEventListener("scroll", handleMobileScroll, { passive: true });
+        handleMobileScroll();
+
+        return () => container.removeEventListener("scroll", handleMobileScroll);
+    }, [mobileScreenState, activeTab]);
 
     // Detect screen size on resize
     useEffect(() => {
@@ -352,7 +375,7 @@ function SettingsPage() {
                     items: [
                         { id: "mentions", label: "Mentions", icon: FileText, subtitle: "Mentions légales" },
                         { id: "cgu", label: "CGU", icon: BookOpen, subtitle: "Conditions Générales d'Utilisation" },
-                        { id: "confidentialite", label: "Confidentialité", icon: Lock, subtitle: "Politique de confidentialité" }
+                        { id: "confidentialite", label: "Confidentialité", icon: ShieldCheck, subtitle: "Politique de confidentialité" }
                     ]
                 }
             ];
@@ -366,7 +389,7 @@ function SettingsPage() {
                     { id: "affichage", label: "Affichage", icon: Palette, subtitle: "Thème et langue de l'interface" },
                     { id: "ma-societe", label: "Entreprise", icon: Building, subtitle: "Coordonnées et statut juridique" },
                     { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
-                    { id: "rgpd-legal", label: "Légal & RGPD", icon: Lock, subtitle: "Exportation de données et droits" },
+                    { id: "rgpd-legal", label: "Légal & RGPD", icon: Scale, subtitle: "Exportation de données et droits" },
                     { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" }
                 ]
             },
@@ -376,7 +399,7 @@ function SettingsPage() {
                     { id: "chiffre-affaires", label: "Chiffre d'affaires", icon: Calculator, subtitle: "Plafonds et CA annuel" },
                     { id: "cotisations", label: "Cotisations sociales", icon: Percent, subtitle: "Taux et calcul de cotisations" },
                     { id: "tva-config", label: "TVA", icon: Receipt, subtitle: "Taux de TVA et déclarations" },
-                    { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)", badge: "2026" },
+                    { id: "e-invoicing", label: "Facturation électronique", icon: CheckCircle2, subtitle: "Plateforme Agréée (B2Brouter)" },
                     { id: "banques", label: "Banques", icon: Building, subtitle: "Gérez vos coordonnées bancaires" }
                 ]
             },
@@ -519,8 +542,71 @@ function SettingsPage() {
         };
     }, [activeTab, mobileScreenState, scrollToTop]);
 
+    // Auto-scroll input into center view on mobile when focused & handle card click
+    useEffect(() => {
+        if (!isMobile) return;
+
+        const scrollToElementCenter = (el) => {
+            if (!el) return;
+            const container = el.closest('.mobile-input-card') || el.closest('.form-field') || el.closest('.form-group') || el;
+            if (container && typeof container.scrollIntoView === 'function') {
+                container.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+            }
+        };
+
+        const handleFocusIn = (e) => {
+            const target = e.target;
+            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
+                // Immediate scroll
+                scrollToElementCenter(target);
+                // Staggered scrolls to adjust as mobile virtual keyboard expands
+                setTimeout(() => scrollToElementCenter(target), 120);
+                setTimeout(() => scrollToElementCenter(target), 320);
+                setTimeout(() => scrollToElementCenter(target), 500);
+            }
+        };
+
+        const handleCardClick = (e) => {
+            const card = e.target.closest('.mobile-input-card');
+            if (card && !card.classList.contains('select') && !card.classList.contains('no-autofocus')) {
+                // If not clicking directly on an input, button or link, focus the first text input inside
+                if (!['INPUT', 'TEXTAREA', 'BUTTON', 'SELECT', 'A'].includes(e.target.tagName) && !e.target.closest('button')) {
+                    const input = card.querySelector('input:not([type="file"]):not([type="checkbox"]):not([type="radio"]), textarea, select');
+                    if (input) {
+                        input.focus();
+                        scrollToElementCenter(input);
+                        setTimeout(() => scrollToElementCenter(input), 280);
+                    }
+                }
+            }
+        };
+
+        // Also handle mobile visualViewport resize when virtual keyboard opens
+        const handleViewportResize = () => {
+            const activeEl = document.activeElement;
+            if (activeEl && ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl.tagName)) {
+                scrollToElementCenter(activeEl);
+            }
+        };
+
+        window.addEventListener('focusin', handleFocusIn);
+        window.addEventListener('click', handleCardClick);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleViewportResize);
+        }
+
+        return () => {
+            window.removeEventListener('focusin', handleFocusIn);
+            window.removeEventListener('click', handleCardClick);
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', handleViewportResize);
+            }
+        };
+    }, [isMobile]);
+
     // Helper to change tab
     const handleTabSelect = useCallback((itemId) => {
+        setIsMobileHeaderTitleVisible(false);
         setActiveTab(itemId);
         if (typeof window !== "undefined" && window.innerWidth <= 768) {
             scrollYRef.current = window.scrollY;
@@ -538,6 +624,7 @@ function SettingsPage() {
     }, [mobileScreenState, scrollToTop]);
 
     const handleBackFromDetail = useCallback(() => {
+        setIsMobileHeaderTitleVisible(false);
         if (typeof window !== "undefined" && window.history.state?.settingsDetail) {
             window.history.back();
         } else {
@@ -674,11 +761,13 @@ function SettingsPage() {
                     </div>
 
                     <span
-                        className="mobile-nav-header-title visible"
+                        className={`mobile-nav-header-title ${(!isDetail || isMobileHeaderTitleVisible) ? 'visible' : ''}`}
                         style={{
                             position: 'absolute',
                             left: '50%',
-                            transform: 'translateX(-50%)',
+                            transform: (!isDetail || isMobileHeaderTitleVisible) ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(4px)',
+                            opacity: (!isDetail || isMobileHeaderTitleVisible) ? 1 : 0,
+                            transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                             maxWidth: 'calc(100% - 180px)',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
@@ -690,7 +779,7 @@ function SettingsPage() {
                     </span>
 
                     <div style={{ marginLeft: 'auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', zIndex: 2 }}>
-                        {isDetail && activeTab === "profil" && (
+                        {isDetail && (activeTab === "profil" || activeTab === "entreprise" || activeTab === "ma-societe") && (
                             <div style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -880,7 +969,6 @@ function SettingsPage() {
                                                 <PhoneInput
                                                     value={phone}
                                                     onChange={(formatted) => setPhone(formatted)}
-                                                    autoFocus
                                                 />
 
                                                 <button className="mobile-sub-sheet-confirm-btn" onClick={handleConfirmPhone}>

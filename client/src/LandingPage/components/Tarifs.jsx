@@ -15,18 +15,19 @@ function Tarifs() {
             name: "STARTER",
             priceMonthly: 34,
             priceAnnual: 27,
-            badge: "Je gère tout moi-même",
+            badge: "Idéal pour débuter",
             features: [
-                { text: "50 clients max & 1 technicien (le patron)", highlight: true, included: true },
-                { text: "50 SMS manuels / mois", highlight: true, included: true },
-                { text: "Fiches clients, équipements & Historique", included: true },
-                { text: "Planning, Devis (signature élec.) & Factures", included: true },
-                { text: "Paiement Stripe & Export comptable Excel", included: true },
-                { text: "Notifications statut entretien & Support email", included: true },
+                { text: "1 utilisateur (le patron lui-même)", highlight: true, included: true },
+                { text: "Jusqu'à 100 fiches clients", highlight: true, included: true },
+                { text: "100 SMS de rappel / mois inclus", highlight: true, included: true },
+                { text: "Devis, Factures & Signature électronique", included: true },
+                { text: "Facturation électronique & Chorus Pro", highlight: true, included: true },
+                { text: "Planning & Suivi des chantiers", included: true },
+                { text: "Rappels automatiques des entretiens", highlight: true, included: true },
 
                 // Excluded items (✗)
-                { text: "Rappels SMS auto & App mobile tech", included: false },
-                { text: "Multi-techniciens & Rapports d'activité", included: false }
+                { text: "App mobile techniciens", included: false },
+                { text: "Multi-techniciens", included: false }
             ],
             cta: "Commencer l'essai 14j",
             popular: false
@@ -37,16 +38,16 @@ function Tarifs() {
             priceAnnual: 55,
             badge: "Pour les équipes en développement",
             features: [
-                { text: "300 clients max & 10 techniciens", highlight: true, included: true },
-                { text: "500 SMS / mois (manuels & auto)", highlight: true, included: true },
                 { text: "Tout le forfait Starter inclus", included: true },
-                { text: "Rappels SMS automatiques clients", included: true },
-                { text: "App Mobile Techniciens (iOS & Android)", included: true },
-                { text: "Rapports d'activité & Module URSSAF", included: true },
-                { text: "Support tél. & prioritaire 7j/7", included: true },
+                { text: "Jusqu'à 5 techniciens inclus", highlight: true, included: true },
+                { text: "Jusqu'à 500 clients", highlight: true, included: true },
+                { text: "500 SMS / mois inclus", highlight: true, included: true },
+                { text: "Application mobile techniciens", highlight: true, included: true },
+                { text: "Facturation électronique & Chorus Pro", included: true },
+                { text: "Support prioritaire 7j/7", highlight: true, included: true },
 
                 // Excluded items (✗)
-                { text: "Chorus Pro & Numéro SMS dédié", included: false }
+                { text: "Clients & techniciens illimités", included: false }
             ],
             cta: "Commencer l'essai Pro 14j",
             popular: true
@@ -57,13 +58,12 @@ function Tarifs() {
             priceAnnual: 103,
             badge: "Pour les grandes structures",
             features: [
-                { text: "Illimité clients & techniciens", highlight: true, included: true },
-                { text: "1000 SMS / mois (manuels & auto)", highlight: true, included: true },
                 { text: "Tout le forfait Pro inclus", included: true },
-                { text: "App Mobile Techniciens (iOS & Android)", included: true },
-                { text: "Chorus Pro (Mairies & État) & N° SMS dédié", included: true },
-                { text: "Gestion multi-sociétés & API REST", included: true },
-                { text: "Account manager & Support dédié 24/7", included: true }
+                { text: "Techniciens & Clients 100% Illimités", highlight: true, included: true },
+                { text: "1 500 SMS / mois inclus", highlight: true, included: true },
+                { text: "Facturation électronique intégrale", included: true },
+                { text: "Gestion multi-activités & Export comptable", included: true },
+                { text: "Support VIP prioritaire 7j/7", highlight: true, included: true }
             ],
             cta: "Activer le plan Unlimited",
             popular: false

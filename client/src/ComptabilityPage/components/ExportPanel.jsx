@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Download, FileSpreadsheet, FileText, CalendarDays } from "lucide-react";
+import { Download, FileSpreadsheet, FileText, FileCode, Loader2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { getAuthToken } from "../../utils/auth";
+import { getApiUrl } from "../../utils/config";
 
 function ExportPanel() {
     const now = new Date();
@@ -10,6 +12,7 @@ function ExportPanel() {
     const [startDate, setStartDate] = useState(defaultStart);
     const [endDate, setEndDate] = useState(defaultEnd);
     const [exportType, setExportType] = useState("annuel");
+    const [loadingFormat, setLoadingFormat] = useState(null); // 'excel' | 'pdf' | 'txt' | null
 
     // Real stats from database
     const [stats, setStats] = useState({
@@ -38,78 +41,55 @@ function ExportPanel() {
         fetchStats();
     }, [startDate, endDate]);
 
-    const handleExportExcel = async () => {
+    const handleDownload = async (format) => {
+        if (loadingFormat) return;
+        setLoadingFormat(format);
         try {
-            const data = await apiFetch('/v1/invoices');
-            const invoicesList = data.data?.invoices || data.invoices || (Array.isArray(data) ? data : []);
+            const token = getAuthToken();
+            const url = getApiUrl(`/v1/reports/export/${format}?startDate=${startDate}&endDate=${endDate}`);
 
-            const rows = [
-                ["Facture N*", "Client", "Montant HT", "Montant TVA", "Montant TTC", "Statut", "Date de creation"]
-            ];
-
-            invoicesList.forEach(inv => {
-                const clientName = inv.client ? `${inv.client.firstName || ''} ${inv.client.lastName || inv.client.companyName || ''}`.trim() : (inv.clientName || 'Client');
-                rows.push([
-                    inv.number || `F-2026-${inv.id}`,
-                    clientName,
-                    inv.totalHt || inv.subtotalHt || 0,
-                    inv.totalTva || inv.tvaAmount || 0,
-                    inv.totalTtc || 0,
-                    inv.status || 'draft',
-                    inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('fr-FR') : ''
-                ]);
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                credentials: "include"
             });
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            rows.forEach(function(rowArray) {
-                let row = rowArray.join(";");
-                csvContent += row + "\r\n";
-            });
+            if (!response.ok) {
+                let errorMsg = "Erreur lors de l'exportation des données";
+                try {
+                    const errJson = await response.json();
+                    errorMsg = errJson.message || errorMsg;
+                } catch (_) {}
+                throw new Error(errorMsg);
+            }
 
-            const encodedUri = encodeURI(csvContent);
+            const blob = await response.blob();
+            const disposition = response.headers.get("Content-Disposition");
+            let filename = `Export_Comptable_${startDate}_au_${endDate}.${format === 'excel' ? 'xlsx' : format === 'pdf' ? 'pdf' : 'txt'}`;
+            if (disposition && disposition.includes("filename=")) {
+                const match = disposition.match(/filename="?([^"]+)"?/);
+                if (match && match[1]) filename = match[1];
+            }
+
+            const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Export_Comptable_Factures_${startDate}_au_${endDate}.csv`);
+            link.href = downloadUrl;
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+            link.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+
+            // Notify history component
+            window.dispatchEvent(new CustomEvent("export_completed"));
         } catch (err) {
             console.error("Export error:", err);
-            alert("Erreur lors de l'exportation des données");
+            alert("Erreur lors de l'exportation : " + err.message);
+        } finally {
+            setLoadingFormat(null);
         }
-    };
-
-    const handleExportPDF = () => {
-        // Mock PDF via printing or a direct summary text file download
-        const textContent = `
-========================================
-       CLIMPRO - EXPORT COMPTABLE       
-========================================
-Periode: ${startDate} au ${endDate}
-Type d'export: ${exportType.toUpperCase()}
-----------------------------------------
-Factures totales: ${stats.invoicesCount}
-Chiffre d'Affaires HT: ${stats.totalHT} EUR
-Factures Payees: ${stats.paidCount}
-Factures en Attente: ${stats.pendingCount}
-----------------------------------------
-Recapitulatif TVA:
-- TVA 20.0%: 1 690,00 EUR
-- TVA 10.0%: 120,00 EUR
-- TVA  5.5%: 55,00 EUR
-- TVA  0.0%: 0,00 EUR
-----------------------------------------
-Generer le: ${new Date().toLocaleDateString("fr-FR")}
-========================================
-`;
-        
-        const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Export_Comptable_Summary_${startDate}_au_${endDate}.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     };
 
     return (
@@ -135,7 +115,10 @@ Generer le: ${new Date().toLocaleDateString("fr-FR")}
                             type="date" 
                             className="picker-input"
                             value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
+                            onChange={(e) => {
+                                setStartDate(e.target.value);
+                                setExportType("personnalise");
+                            }}
                         />
                     </div>
                     <div className="picker-field">
@@ -144,7 +127,10 @@ Generer le: ${new Date().toLocaleDateString("fr-FR")}
                             type="date" 
                             className="picker-input"
                             value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
+                            onChange={(e) => {
+                                setEndDate(e.target.value);
+                                setExportType("personnalise");
+                            }}
                         />
                     </div>
                 </div>
@@ -153,26 +139,31 @@ Generer le: ${new Date().toLocaleDateString("fr-FR")}
                 <div className="export-types-section">
                     <span className="section-label">Type d'export :</span>
                     <div className="export-type-selectors">
-                        {["mensuel", "trimestriel", "annuel", "personnalise"].map((t) => (
+                        {[
+                            { id: "mensuel", label: "Mensuel" },
+                            { id: "trimestriel", label: "Trimestriel" },
+                            { id: "annuel", label: "Annuel" },
+                            { id: "personnalise", label: "Personnalisé" }
+                        ].map((t) => (
                             <button
-                                key={t}
-                                className={`type-btn ${exportType === t ? "active" : ""}`}
+                                key={t.id}
+                                className={`type-btn ${exportType === t.id ? "active" : ""}`}
                                 onClick={() => {
-                                    setExportType(t);
+                                    setExportType(t.id);
                                     let d = new Date();
-                                    if (t === "mensuel") {
+                                    if (t.id === "mensuel") {
                                         setStartDate(new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0]);
                                         setEndDate(new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0]);
-                                    } else if (t === "trimestriel") {
+                                    } else if (t.id === "trimestriel") {
                                         setStartDate("2026-01-01");
                                         setEndDate("2026-03-31");
-                                    } else if (t === "annuel") {
+                                    } else if (t.id === "annuel") {
                                         setStartDate("2026-01-01");
                                         setEndDate("2026-12-31");
                                     }
                                 }}
                             >
-                                {t.charAt(0).toUpperCase() + t.slice(1)}
+                                {t.label}
                             </button>
                         ))}
                     </div>
@@ -201,27 +192,49 @@ Generer le: ${new Date().toLocaleDateString("fr-FR")}
                     </div>
                 </div>
 
-                {/* Export buttons */}
+                {/* Export buttons: Excel, PDF, TXT */}
                 <div className="export-action-buttons">
                     <button 
                         className="export-action-btn excel-btn"
-                        onClick={handleExportExcel}
+                        onClick={() => handleDownload("excel")}
+                        disabled={loadingFormat !== null}
                     >
-                        <FileSpreadsheet size={16} /> Exporter en Excel
+                        {loadingFormat === "excel" ? (
+                            <><Loader2 size={16} className="animate-spin" /> Génération Excel...</>
+                        ) : (
+                            <><FileSpreadsheet size={16} /> Exporter en Excel (.xlsx)</>
+                        )}
                     </button>
                     <button 
                         className="export-action-btn pdf-btn"
-                        onClick={handleExportPDF}
+                        onClick={() => handleDownload("pdf")}
+                        disabled={loadingFormat !== null}
                     >
-                        <FileText size={16} /> Exporter en PDF / Texte
+                        {loadingFormat === "pdf" ? (
+                            <><Loader2 size={16} className="animate-spin" /> Génération PDF...</>
+                        ) : (
+                            <><FileText size={16} /> Exporter en PDF (.pdf)</>
+                        )}
+                    </button>
+                    <button 
+                        className="export-action-btn txt-btn"
+                        onClick={() => handleDownload("txt")}
+                        disabled={loadingFormat !== null}
+                    >
+                        {loadingFormat === "txt" ? (
+                            <><Loader2 size={16} className="animate-spin" /> Génération TXT...</>
+                        ) : (
+                            <><FileCode size={16} /> Exporter en Texte (.txt)</>
+                        )}
                     </button>
                 </div>
 
                 <div className="export-sheet-details">
-                    <span className="details-header">Le fichier contient :</span>
+                    <span className="details-header">Contenu des exports (données réelles) :</span>
                     <ul>
-                        <li>• <strong>Feuille 1 : Factures</strong> (N°, Client, HT, TVA, TTC, Statut, Date paiement)</li>
-                        <li>• <strong>Feuille 2 : Récap TVA</strong> (Totaux par taux de taxe collectée)</li>
+                        <li>• <strong>Excel (.xlsx) :</strong> Feuille 1 (Toutes les factures et règlements), Feuille 2 (Ventilation TVA 0%, 5.5%, 10%, 20%), Feuille 3 (Cotisations URSSAF & Net)</li>
+                        <li>• <strong>PDF (.pdf) :</strong> Synthèse financière officielle prête pour comptable avec en-tête d'entreprise</li>
+                        <li>• <strong>Texte (.txt) :</strong> Rapport financier texte brut structuré</li>
                     </ul>
                 </div>
             </div>

@@ -16,7 +16,7 @@ import ExportHistory from "./components/ExportHistory";
 import AccountingIntegration from "./components/AccountingIntegration";
 
 // Icons
-import { ArrowLeft, Landmark, Calculator, FileSpreadsheet, History, Link2 } from "lucide-react";
+import { Landmark, Calculator, FileSpreadsheet, History, Link2 } from "lucide-react";
 import { useSubscription } from "../utils/useSubscription";
 import FeatureLockBanner from "../components/FeatureLockBanner";
 
@@ -24,41 +24,55 @@ function ComptabilityPage() {
     const navigate = useNavigate();
     const { isStarter } = useSubscription();
     const [activeSubTab, setActiveSubTab] = useState("tva");
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
     const [refreshKey, setRefreshKey] = useState(0);
+    const tabRefs = React.useRef({});
+    const pillBarRef = React.useRef(null);
+
+    // Auto-scroll active tab into view in the horizontal scrollable bar
+    useEffect(() => {
+        if (isMobile && tabRefs.current[activeSubTab]) {
+            const targetEl = tabRefs.current[activeSubTab];
+            targetEl.scrollIntoView({
+                behavior: "smooth",
+                inline: "center",
+                block: "nearest"
+            });
+        }
+    }, [activeSubTab, isMobile]);
 
     // Detect responsive screen size
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 768);
         };
-        handleResize(); // run initial
+        handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     const subTabs = [
-        { id: "tva", label: "Résumé TVA", icon: Landmark },
-        { id: "urssaf", label: "Déclaration URSSAF & Net", icon: Calculator },
-        { id: "export", label: "Export comptable", icon: FileSpreadsheet },
-        { id: "history", label: "Historique exports", icon: History },
-        { id: "integration", label: "Intégration comptable", icon: Link2 }
+        { id: "tva", label: "Résumé TVA", shortLabel: "TVA", icon: Landmark },
+        { id: "urssaf", label: "Déclaration URSSAF & Net", shortLabel: "URSSAF & Net", icon: Calculator },
+        { id: "export", label: "Export comptable", shortLabel: "Export", icon: FileSpreadsheet },
+        { id: "history", label: "Historique exports", shortLabel: "Historique", icon: History },
+        { id: "integration", label: "Intégration comptable", shortLabel: "Intégration", icon: Link2 }
     ];
 
     const renderActiveSubPanel = () => {
         switch (activeSubTab) {
             case "tva":
-                return <TvaSummary />;
+                return <TvaSummary isMobile={isMobile} />;
             case "urssaf":
-                return <UrssafSummary />;
+                return <UrssafSummary isMobile={isMobile} />;
             case "export":
-                return <ExportPanel />;
+                return <ExportPanel isMobile={isMobile} />;
             case "history":
-                return <ExportHistory />;
+                return <ExportHistory isMobile={isMobile} />;
             case "integration":
-                return <AccountingIntegration />;
+                return <AccountingIntegration isMobile={isMobile} />;
             default:
-                return <TvaSummary />;
+                return <TvaSummary isMobile={isMobile} />;
         }
     };
 
@@ -78,31 +92,45 @@ function ComptabilityPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        {/* Header line */}
-                        <div className="content-header comptability-header-row">
-                            <div className="header-nav-title-group">
-                                {isMobile && (
-                                    <button className="mobile-back-btn" onClick={() => navigate("/home")}>
-                                        <ArrowLeft size={18} />
-                                    </button>
-                                )}
-                                <div>
-                                    {!isMobile && <h1 className="content-title">Comptabilité</h1>}
-                                    <p className="content-subtitle">
-                                        Suivi de TVA, génération d'exports comptables et synchronisation.
-                                    </p>
+                        {/* Header line on Desktop */}
+                        {!isMobile && (
+                            <div className="content-header comptability-header-row">
+                                <div className="header-nav-title-group">
+                                    <div>
+                                        <h1 className="content-title">Comptabilité</h1>
+                                        <p className="content-subtitle">
+                                            Suivi de TVA, déclaration URSSAF, génération d'exports comptables et synchronisation.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {isMobile ? (
-                            /* Mobile View: Scrollable vertical stack of all widgets */
-                            <div className="mobile-comptability-stack">
-                                <TvaSummary />
-                                <UrssafSummary />
-                                <ExportPanel />
-                                <ExportHistory />
-                                <AccountingIntegration />
+                            /* Mobile View: Clean tab bar + single active panel */
+                            <div className="mobile-comptability-container">
+                                <div className="mobile-subtabs-pill-bar" ref={pillBarRef}>
+                                    {subTabs.map((tab) => {
+                                        const TabIcon = tab.icon;
+                                        const isActive = activeSubTab === tab.id;
+                                        return (
+                                            <button
+                                                key={tab.id}
+                                                ref={(el) => { tabRefs.current[tab.id] = el; }}
+                                                type="button"
+                                                className={`mobile-subtab-pill ${isActive ? "active" : ""}`}
+                                                onClick={() => setActiveSubTab(tab.id)}
+                                            >
+                                                <TabIcon size={15} />
+                                                <span>{tab.shortLabel || tab.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="mobile-subpanel-wrapper">
+                                    {renderActiveSubPanel()}
+                                </div>
                             </div>
                         ) : (
                             /* Desktop View: Tabbed left-navigation and right-content layout */

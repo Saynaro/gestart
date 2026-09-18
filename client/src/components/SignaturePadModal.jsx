@@ -198,26 +198,26 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
                             className="signature-tool-btn"
                             onClick={handleUndo}
                             disabled={history.length === 0}
-                            title="Annuler le dernier trait"
+                            title="Défaire le dernier trait"
                         >
-                            <RotateCcw size={15} />
-                            <span>Annuler</span>
+                            <RotateCcw size={14} />
+                            <span>Défaire</span>
                         </button>
 
                         <button
                             type="button"
-                            className="signature-tool-btn"
+                            className="signature-tool-btn signature-tool-btn-danger"
                             onClick={handleClear}
                             disabled={!hasDrawn}
                             title="Effacer tout"
                         >
-                            <Trash2 size={15} />
+                            <Trash2 size={14} />
                             <span>Effacer</span>
                         </button>
 
                         <label className="signature-tool-btn file-upload-label" title="Importer une image de signature">
-                            <Upload size={15} />
-                            <span>Importer photo</span>
+                            <Upload size={14} />
+                            <span>Importer</span>
                             <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
                         </label>
                     </div>
@@ -247,8 +247,8 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
                         onClick={handleConfirm}
                         disabled={!hasDrawn}
                     >
-                        <Check size={16} />
-                        <span>Enregistrer la signature</span>
+                        <Check size={15} />
+                        <span>Enregistrer</span>
                     </button>
                 </div>
             </div>

@@ -5,9 +5,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -20,23 +20,23 @@
 .signature-modal-card {
     background: var(--card, #ffffff);
     color: var(--foreground, #1A1A1A);
-    border-radius: 18px;
+    border-radius: 16px;
     width: 100%;
-    max-width: 560px;
+    max-width: 480px;
     max-height: 92vh;
-    overflow-y: auto;
+    overflow: hidden;
     margin: auto;
     box-sizing: border-box;
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--border);
     display: flex;
     flex-direction: column;
-    animation: signatureModalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: signatureModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes signatureModalIn {
     from {
         opacity: 0;
-        transform: scale(0.95) translateY(10px);
+        transform: scale(0.96) translateY(8px);
     }
     to {
         opacity: 1;
@@ -48,22 +48,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
+    padding: 14px 18px;
     border-bottom: 1px solid var(--border);
 }
 
 .signature-modal-title-group {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .signature-modal-icon-badge {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: rgba(85, 107, 47, 0.12);
-    color: #556B2F;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--muted, #F4F3EF);
+    color: var(--foreground);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -72,19 +72,20 @@
 
 .signature-modal-title-group h3 {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
 .signature-modal-title-group p {
     margin: 2px 0 0 0;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     color: var(--muted-foreground);
+    line-height: 1.25;
 }
 
 .signature-modal-close-btn {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     border: none;
     background: var(--muted, #F4F3EF);
@@ -94,6 +95,7 @@
     justify-content: center;
     cursor: pointer;
     transition: background 0.15s ease;
+    flex-shrink: 0;
 }
 
 .signature-modal-close-btn:hover {
@@ -103,7 +105,7 @@
 .signature-canvas-wrapper {
     position: relative;
     width: 100%;
-    height: 220px;
+    height: 180px;
     background: #ffffff;
     border-bottom: 1px solid var(--border);
     cursor: crosshair;
@@ -128,17 +130,18 @@
     justify-content: center;
     pointer-events: none;
     color: #94a3b8;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
     text-align: center;
+    padding: 0 12px;
 }
 
 .signature-canvas-baseline {
     position: absolute;
-    bottom: 40px;
-    left: 24px;
-    right: 24px;
-    border-bottom: 1.5px dashed rgba(0, 0, 0, 0.15);
+    bottom: 30px;
+    left: 20px;
+    right: 20px;
+    border-bottom: 1.5px dashed rgba(0, 0, 0, 0.12);
     pointer-events: none;
 }
 
@@ -146,41 +149,45 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: 8px 14px;
     background: var(--muted, #FAFAF8);
     border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
     gap: 8px;
 }
 
 .signature-tools-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: nowrap;
 }
 
 .signature-tool-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
+    gap: 4px;
+    padding: 5px 9px;
+    border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--card, #ffffff);
     color: var(--foreground);
-    font-size: 0.8rem;
+    font-size: 0.74rem;
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
     transition: all 0.15s ease;
 }
 
 .signature-tool-btn:hover:not(:disabled) {
     background: var(--background);
-    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.signature-tool-btn-danger {
+    color: #ef4444;
 }
 
 .signature-tool-btn:disabled {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
@@ -192,65 +199,97 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
 }
 
 .sig-color-swatch {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     border: 2px solid transparent;
     cursor: pointer;
     transition: transform 0.15s ease;
+    padding: 0;
 }
 
 .sig-color-swatch.active {
     transform: scale(1.2);
     border-color: #556B2F;
-    box-shadow: 0 0 0 2px rgba(85, 107, 47, 0.3);
+    box-shadow: 0 0 0 2px rgba(85, 107, 47, 0.25);
 }
 
 .signature-modal-footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 10px;
-    padding: 16px 24px;
+    gap: 8px;
+    padding: 12px 18px;
+    background: var(--card, #ffffff);
 }
 
 .signature-cancel-btn {
-    padding: 10px 18px;
-    border-radius: 8px;
+    padding: 7px 14px;
+    border-radius: 7px;
     border: 1px solid var(--border);
     background: transparent;
     color: var(--foreground);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.82rem;
     cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.signature-cancel-btn:hover {
+    background: var(--muted, #F4F3EF);
 }
 
 .signature-save-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 22px;
-    border-radius: 8px;
+    gap: 5px;
+    padding: 7px 16px;
+    border-radius: 7px;
     border: none;
     background: #556B2F;
     color: #ffffff;
-    font-weight: 700;
-    font-size: 0.875rem;
+    font-weight: 600;
+    font-size: 0.82rem;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(85, 107, 47, 0.3);
-    transition: transform 0.15s ease, background 0.15s ease;
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .signature-save-btn:hover:not(:disabled) {
-    background: #465827;
-    transform: translateY(-1px);
+    opacity: 0.92;
 }
 
 .signature-save-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
-    box-shadow: none;
+}
+
+@media (max-width: 480px) {
+    .signature-modal-card {
+        border-radius: 14px;
+    }
+
+    .signature-canvas-wrapper {
+        height: 160px;
+    }
+
+    .signature-modal-toolbar {
+        padding: 8px 12px;
+    }
+
+    .signature-tools-left {
+        gap: 5px;
+    }
+
+    .signature-tool-btn {
+        padding: 5px 7px;
+        font-size: 0.72rem;
+    }
+
+    .signature-modal-footer {
+        padding: 10px 14px;
+    }
 }

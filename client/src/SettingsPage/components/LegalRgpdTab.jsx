@@ -1,56 +1,255 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
-import { Lock, Download, Trash2, ShieldCheck, Mail, FileText, CheckCircle2, Info, AlertTriangle, Loader2, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+    Download, 
+    Trash2, 
+    ShieldCheck, 
+    Mail, 
+    FileSpreadsheet, 
+    AlertTriangle, 
+    Loader2, 
+    X
+} from "lucide-react";
+import * as XLSX from "xlsx";
 import { apiFetch } from "../../utils/api";
 import { useUser } from "../../utils/useUser";
 
-export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfirm }) {
-    const { company } = useUser();
-    const [cookieConsent, setCookieConsent] = useState(true);
-    const [marketingConsent, setMarketingConsent] = useState(false);
-    const [dpoEmail, setDpoEmail] = useState("support.gestart@gmail.com");
+export default function LegalRgpdTab({ isMobileView, triggerToast }) {
+    const { user, company } = useUser();
+    const [dpoEmail] = useState("support.gestart@gmail.com");
     
+    // Export loading states
+    const [isExportingJson, setIsExportingJson] = useState(false);
+    const [isExportingExcel, setIsExportingExcel] = useState(false);
+
     // Delete Account states
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [deleteConfirmText, setDeleteConfirmText] = useState("");
     const [deleteChecked, setDeleteChecked] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState(null);
 
-    const registrationDate = "05/05/2025";
-    const lastConnectionDate = "24/07/2026 13:42";
-
-    const handleExportJson = () => {
-        const data = {
-            user: { firstName: "Khalid", lastName: "Sainaro", email: "khalid.cizdoev777@gmail.com", phone: "0651604316" },
-            company: { name: company?.name || "KHALID SAINARO", siret: company?.siret || "94408772500015", siren: company?.siren || "944087725", legalForm: company?.legalForm || "EI" },
-            exportDate: new Date().toISOString(),
-            rgpdArticle: "Art. 20 RGPD - Droit à la portabilité"
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `export-rgpd-gestart-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        triggerToast("Exportation JSON des données effectuée (art. 20 RGPD) !");
+    const formatDate = (dateStr) => {
+        if (!dateStr) return "Aujourd'hui";
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "Aujourd'hui";
+        return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
     };
 
-    const handleExportCsv = () => {
-        const csvContent = "data:text/csv;charset=utf-8,Nom,Prénom,Email,SIRET,DateInscription\nSainaro,Khalid,support.gestart@gmail.com,94408772500015,05/05/2025\n";
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `export-clients-gestart-${Date.now()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        triggerToast("Exportation CSV des données effectuée !");
+    const formatDateTime = (dateStr) => {
+        if (!dateStr) return formatDate(new Date());
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return formatDate(new Date());
+        const datePart = d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+        const timePart = d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+        return `${datePart} ${timePart}`;
+    };
+
+    const rawRegistration = user?.createdAt || company?.createdAt;
+    const rawLastLogin = user?.lastLoginAt || user?.updatedAt || user?.createdAt;
+
+    const registrationDate = formatDate(rawRegistration);
+    const lastConnectionDate = formatDateTime(rawLastLogin);
+
+    // Helper to fetch all business data
+    const fetchAllData = async () => {
+        const [clientsRes, invoicesRes, quotesRes] = await Promise.allSettled([
+            apiFetch("/v1/clients?limit=500"),
+            apiFetch("/v1/invoices?limit=500"),
+            apiFetch("/v1/quotes?limit=500")
+        ]);
+
+        const clients = clientsRes.status === "fulfilled" && clientsRes.value?.data ? (clientsRes.value.data.clients || clientsRes.value.data || []) : (clientsRes.value?.clients || []);
+        const invoices = invoicesRes.status === "fulfilled" && invoicesRes.value?.data ? (invoicesRes.value.data.invoices || invoicesRes.value.data || []) : (invoicesRes.value?.invoices || []);
+        const quotes = quotesRes.status === "fulfilled" && quotesRes.value?.data ? (quotesRes.value.data.quotes || quotesRes.value.data || []) : (quotesRes.value?.quotes || []);
+
+        return {
+            clients: Array.isArray(clients) ? clients : [],
+            invoices: Array.isArray(invoices) ? invoices : [],
+            quotes: Array.isArray(quotes) ? quotes : []
+        };
+    };
+
+    // 1. REAL JSON EXPORT
+    const handleExportJson = async () => {
+        try {
+            setIsExportingJson(true);
+            const { clients, invoices, quotes } = await fetchAllData();
+
+            const exportPayload = {
+                titre: "Exportation intégrale des données (Art. 20 RGPD — Portabilité)",
+                dateExport: new Date().toISOString(),
+                exportateur: {
+                    nom: user?.lastName || "",
+                    prenom: user?.firstName || "",
+                    email: user?.email || "",
+                    telephone: user?.phone || "",
+                    role: user?.role || "OWNER",
+                    dateInscription: registrationDate,
+                    derniereConnexion: lastConnectionDate
+                },
+                entreprise: {
+                    nom: company?.name || "Mon Entreprise",
+                    siret: company?.siret || "",
+                    siren: company?.siren || "",
+                    formeJuridique: company?.legalForm || "",
+                    adresse: company?.address || "",
+                    codePostal: company?.postalCode || "",
+                    ville: company?.city || "",
+                    numeroTVA: company?.vatNumber || "",
+                    emailContact: company?.email || user?.email || "",
+                    telephoneContact: company?.phone || user?.phone || ""
+                },
+                statistiques: {
+                    nombreClients: clients.length,
+                    nombreFactures: invoices.length,
+                    nombreDevis: quotes.length
+                },
+                clients: clients.map(c => ({
+                    id: c.id,
+                    nom: c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                    email: c.email || "",
+                    telephone: c.phone || "",
+                    adresse: c.address || "",
+                    ville: c.city || "",
+                    codePostal: c.postalCode || "",
+                    siret: c.siret || "",
+                    dateCreation: formatDate(c.createdAt)
+                })),
+                factures: invoices.map(i => ({
+                    numero: i.invoiceNumber || i.number || i.id,
+                    client: i.client?.name || i.clientName || "Client",
+                    dateEmission: formatDate(i.issueDate || i.date || i.createdAt),
+                    dateEcheance: formatDate(i.dueDate),
+                    totalHT: i.totalHT != null ? `${Number(i.totalHT).toFixed(2)} €` : "",
+                    totalTTC: i.totalTTC != null ? `${Number(i.totalTTC).toFixed(2)} €` : "",
+                    statut: i.status || "",
+                    modePaiement: i.paymentMethod || ""
+                })),
+                devis: quotes.map(q => ({
+                    numero: q.quoteNumber || q.number || q.id,
+                    client: q.client?.name || q.clientName || "Client",
+                    dateCreation: formatDate(q.date || q.createdAt),
+                    totalHT: q.totalHT != null ? `${Number(q.totalHT).toFixed(2)} €` : "",
+                    totalTTC: q.totalTTC != null ? `${Number(q.totalTTC).toFixed(2)} €` : "",
+                    statut: q.status || ""
+                }))
+            };
+
+            const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const fileName = `export-donnees-gestart-${new Date().toISOString().slice(0, 10)}.json`;
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (triggerToast) triggerToast("Export JSON téléchargé avec succès !");
+        } catch (err) {
+            console.error("Export JSON failed:", err);
+            if (triggerToast) triggerToast("Erreur lors de l'export JSON");
+        } finally {
+            setIsExportingJson(false);
+        }
+    };
+
+    // 2. REAL EXCEL (XLSX) EXPORT
+    const handleExportExcel = async () => {
+        try {
+            setIsExportingExcel(true);
+            const { clients, invoices, quotes } = await fetchAllData();
+
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: Profil & Entreprise
+            const profileData = [
+                ["Information", "Valeur"],
+                ["Nom de l'utilisateur", `${user?.firstName || ""} ${user?.lastName || ""}`.trim()],
+                ["Email", user?.email || ""],
+                ["Téléphone", user?.phone || ""],
+                ["Rôle", user?.role || "OWNER"],
+                ["Date d'inscription", registrationDate],
+                ["Dernière connexion", lastConnectionDate],
+                ["", ""],
+                ["Entreprise", company?.name || "Mon Entreprise"],
+                ["SIRET", company?.siret || ""],
+                ["SIREN", company?.siren || ""],
+                ["Forme juridique", company?.legalForm || ""],
+                ["Adresse", company?.address || ""],
+                ["Code Postal", company?.postalCode || ""],
+                ["Ville", company?.city || ""],
+                ["N° TVA Intracommunautaire", company?.vatNumber || ""],
+                ["Date de l'export", new Date().toLocaleString("fr-FR")]
+            ];
+            const wsProfile = XLSX.utils.aoa_to_sheet(profileData);
+            XLSX.utils.book_append_sheet(wb, wsProfile, "Profil & Entreprise");
+
+            // Sheet 2: Clients
+            const clientsData = [
+                ["Nom / Raison Sociale", "Email", "Téléphone", "Adresse", "Ville", "Code Postal", "SIRET", "Date de création"],
+                ...clients.map(c => [
+                    c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim() || "Sans nom",
+                    c.email || "",
+                    c.phone || "",
+                    c.address || "",
+                    c.city || "",
+                    c.postalCode || "",
+                    c.siret || "",
+                    formatDate(c.createdAt)
+                ])
+            ];
+            const wsClients = XLSX.utils.aoa_to_sheet(clientsData);
+            XLSX.utils.book_append_sheet(wb, wsClients, "Clients");
+
+            // Sheet 3: Factures
+            const invoicesData = [
+                ["Numéro", "Client", "Date d'émission", "Échéance", "Montant HT (€)", "Montant TTC (€)", "Statut", "Règlement"],
+                ...invoices.map(i => [
+                    i.invoiceNumber || i.number || i.id,
+                    i.client?.name || i.clientName || "Client",
+                    formatDate(i.issueDate || i.date || i.createdAt),
+                    formatDate(i.dueDate),
+                    i.totalHT != null ? Number(i.totalHT) : "",
+                    i.totalTTC != null ? Number(i.totalTTC) : "",
+                    i.status || "",
+                    i.paymentMethod || ""
+                ])
+            ];
+            const wsInvoices = XLSX.utils.aoa_to_sheet(invoicesData);
+            XLSX.utils.book_append_sheet(wb, wsInvoices, "Factures");
+
+            // Sheet 4: Devis
+            const quotesData = [
+                ["Numéro", "Client", "Date", "Montant HT (€)", "Montant TTC (€)", "Statut"],
+                ...quotes.map(q => [
+                    q.quoteNumber || q.number || q.id,
+                    q.client?.name || q.clientName || "Client",
+                    formatDate(q.date || q.createdAt),
+                    q.totalHT != null ? Number(q.totalHT) : "",
+                    q.totalTTC != null ? Number(q.totalTTC) : "",
+                    q.status || ""
+                ])
+            ];
+            const wsQuotes = XLSX.utils.aoa_to_sheet(quotesData);
+            XLSX.utils.book_append_sheet(wb, wsQuotes, "Devis");
+
+            const fileName = `export-donnees-gestart-${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            if (triggerToast) triggerToast("Export Excel (XLSX) téléchargé avec succès !");
+        } catch (err) {
+            console.error("Export Excel failed:", err);
+            if (triggerToast) triggerToast("Erreur lors de l'export Excel");
+        } finally {
+            setIsExportingExcel(false);
+        }
     };
 
     const handleDeleteAccount = async () => {
-        if (!deleteChecked || deleteConfirmText.trim().toUpperCase() !== "SUPPRIMER") {
+        if (!deleteChecked || isDeleting) {
             return;
         }
 
@@ -62,280 +261,508 @@ export default function LegalRgpdTab({ isMobileView, triggerToast, triggerConfir
                 method: "DELETE"
             });
 
-            if (res.success) {
+            if (res && (res.success || res.status === 200 || !res.error)) {
                 if (triggerToast) triggerToast("Votre compte et toutes vos données ont été définitivement supprimés.");
                 localStorage.clear();
                 sessionStorage.clear();
                 setTimeout(() => {
                     window.location.href = "/login?deleted=true";
-                }, 1000);
+                }, 800);
             } else {
-                setDeleteError(res.message || "Erreur lors de la suppression du compte");
+                setDeleteError(res?.message || "Erreur lors de la suppression du compte");
                 setIsDeleting(false);
             }
         } catch (err) {
-            setDeleteError(err.message || "Erreur lors de la communication avec le serveur");
+            setDeleteError(err?.message || "Erreur lors de la communication avec le serveur");
             setIsDeleting(false);
         }
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Banner Information RGPD */}
-            <div style={{ backgroundColor: 'rgba(91, 77, 219, 0.04)', border: '1px solid rgba(91, 77, 219, 0.15)', borderRadius: '12px', padding: '18px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <ShieldCheck size={20} style={{ color: 'var(--sidebar-primary)' }} />
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>Vos Droits RGPD (Règlement Général sur la Protection des Données)</h3>
-                </div>
-                <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: '1.5' }}>
-                    GestArt garantit le respect strict des articles 15 à 21 du RGPD et de la loi Informatique et Libertés (Loi n° 78-17). Vous gardez le contrôle total sur vos données personnelles et celles de votre entreprise.
-                </p>
-                <div style={{ display: 'flex', gap: '20px', marginTop: '14px', fontSize: '12px', fontWeight: 600 }}>
-                    <div>Date d'inscription : <span style={{ color: 'var(--sidebar-primary)' }}>{registrationDate}</span></div>
-                    <div>Dernière connexion : <span style={{ color: 'var(--sidebar-primary)' }}>{lastConnectionDate}</span></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '800px' }}>
+            {/* 1. Banner Information RGPD */}
+            <div style={{
+                backgroundColor: 'var(--card, #FFFFFF)',
+                border: '1px solid var(--border, #e2e8f0)',
+                borderRadius: '14px',
+                padding: '16px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <div style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(85, 107, 47, 0.1)',
+                        color: 'var(--sidebar-primary, #556B2F)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                    }}>
+                        <ShieldCheck size={22} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 700, color: 'var(--foreground)' }}>
+                            Vos droits RGPD
+                        </h3>
+                        <p style={{ margin: '0 0 12px 0', fontSize: '12.5px', color: 'var(--muted-foreground)', lineHeight: '1.45' }}>
+                            Conformité stricte aux normes européennes de protection des données (RGPD). Vos données d'entreprise restent privées et sous votre contrôle.
+                        </p>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <div style={{
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                backgroundColor: 'var(--background)',
+                                border: '1px solid var(--border)',
+                                fontSize: '11.5px',
+                                color: 'var(--muted-foreground)'
+                            }}>
+                                Inscription : <strong style={{ color: 'var(--foreground)' }}>{registrationDate}</strong>
+                            </div>
+                            <div style={{
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                backgroundColor: 'var(--background)',
+                                border: '1px solid var(--border)',
+                                fontSize: '11.5px',
+                                color: 'var(--muted-foreground)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                            }}>
+                                <span>Session :</span>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#16a34a', fontWeight: 600 }}>
+                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
+                                    En ligne (Active)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Exportation de données */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Download size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                    Exporter mes données (Art. 20 RGPD — Portabilité)
-                </h3>
-                <p style={{ margin: '0 0 16px 0', fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
-                    Téléchargez une copie complète et structurée de toutes vos données (clients, factures, devis, profil, paramètres) au format JSON ou CSV.
-                </p>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {/* 2. Exportation de données (JSON & Excel) */}
+            <div style={{
+                backgroundColor: 'var(--card, #FFFFFF)',
+                border: '1px solid var(--border, #e2e8f0)',
+                borderRadius: '14px',
+                padding: '16px'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '14px' }}>
+                    <div style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        color: '#3b82f6',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                    }}>
+                        <Download size={20} />
+                    </div>
+                    <div>
+                        <h3 style={{ margin: '0 0 3px 0', fontSize: '15px', fontWeight: 700, color: 'var(--foreground)' }}>
+                            Exporter mes données
+                        </h3>
+                        <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
+                            Téléchargez l'intégralité de vos clients, factures, devis et profil.
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '10px' }}>
                     <button
                         type="button"
                         onClick={handleExportJson}
-                        style={{ padding: '10px 18px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        disabled={isExportingJson || isExportingExcel}
+                        style={{
+                            padding: '11px 16px',
+                            backgroundColor: 'var(--sidebar-primary, #556B2F)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '10px',
+                            fontWeight: 600,
+                            fontSize: '13px',
+                            cursor: (isExportingJson || isExportingExcel) ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: '0 2px 8px rgba(85, 107, 47, 0.25)',
+                            transition: 'all 0.15s ease'
+                        }}
                     >
-                        <Download size={15} />
-                        Exporter tout au format JSON
+                        {isExportingJson ? (
+                            <>
+                                <Loader2 size={16} className="spin-loader" />
+                                <span>Génération JSON...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Download size={16} />
+                                <span>Format JSON</span>
+                            </>
+                        )}
                     </button>
+
                     <button
                         type="button"
-                        onClick={handleExportCsv}
-                        style={{ padding: '10px 18px', backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        onClick={handleExportExcel}
+                        disabled={isExportingJson || isExportingExcel}
+                        style={{
+                            padding: '11px 16px',
+                            backgroundColor: 'var(--background)',
+                            color: 'var(--foreground)',
+                            border: '1px solid var(--border)',
+                            borderRadius: '10px',
+                            fontWeight: 600,
+                            fontSize: '13px',
+                            cursor: (isExportingJson || isExportingExcel) ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            transition: 'all 0.15s ease'
+                        }}
                     >
-                        <FileText size={15} />
-                        Exporter en CSV (Excel)
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => triggerToast("Téléchargement des archives PDF factures démarré !")}
-                        style={{ padding: '10px 18px', backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
-                    >
-                        Télécharger factures archivées (ZIP)
+                        {isExportingExcel ? (
+                            <>
+                                <Loader2 size={16} className="spin-loader" />
+                                <span>Génération Excel...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FileSpreadsheet size={16} style={{ color: '#10b981' }} />
+                                <span>Format Excel (.xlsx)</span>
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
 
-            {/* Consentements */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700 }}>Gestion des consentements (Art. 82 Loi 78-17)</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Cookies analytiques et de mesure d'audience</span>
-                            <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block' }}>Permet d'améliorer l'expérience utilisateur et les fonctionnalités de l'application.</span>
-                        </div>
-                        <label className="mobile-toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={cookieConsent}
-                                onChange={(e) => {
-                                    setCookieConsent(e.target.checked);
-                                    triggerToast("Consentement cookies mis à jour !");
-                                }}
-                            />
-                            <span className="toggle-slider" />
-                        </label>
+            {/* 3. Contact DPO */}
+            <div style={{
+                backgroundColor: 'var(--card, #FFFFFF)',
+                border: '1px solid var(--border, #e2e8f0)',
+                borderRadius: '14px',
+                padding: '16px'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        color: '#10b981',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                    }}>
+                        <Mail size={20} />
                     </div>
-
-                    <div style={{ height: '1px', backgroundColor: 'var(--border)' }} />
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Communications marketing & Nouveautés produit</span>
-                            <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block' }}>Recevoir nos conseils pour artisans et les annonces de nouvelles versions.</span>
-                        </div>
-                        <label className="mobile-toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={marketingConsent}
-                                onChange={(e) => {
-                                    setMarketingConsent(e.target.checked);
-                                    triggerToast("Consentement marketing mis à jour !");
-                                }}
-                            />
-                            <span className="toggle-slider" />
-                        </label>
+                    <div>
+                        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--foreground)' }}>
+                            Délégué aux données (DPO)
+                        </h3>
                     </div>
                 </div>
-            </div>
 
-            {/* Contact DPO */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Mail size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                    Délégué à la Protection des Données (DPO)
-                </h3>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <input type="text" className="form-input" value={dpoEmail} readOnly style={{ flex: 1, backgroundColor: 'var(--background)' }} />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: isMobileView ? 'wrap' : 'nowrap' }}>
+                    <div style={{
+                        flex: 1,
+                        minWidth: '200px',
+                        padding: '9px 12px',
+                        borderRadius: '8px',
+                        backgroundColor: 'var(--background)',
+                        border: '1px solid var(--border)',
+                        fontSize: '13px',
+                        color: 'var(--foreground)',
+                        fontWeight: 500,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                    }}>
+                        {dpoEmail}
+                    </div>
                     <button
                         type="button"
                         onClick={() => {
                             window.location.href = `mailto:${dpoEmail}`;
-                            triggerToast("Client email ouvert pour contacter le DPO.");
+                            if (triggerToast) triggerToast("Client email ouvert.");
                         }}
-                        style={{ padding: '9px 16px', borderRadius: '8px', backgroundColor: 'var(--background)', border: '1px solid var(--border)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+                        style={{
+                            padding: '9px 14px',
+                            borderRadius: '8px',
+                            backgroundColor: 'var(--background)',
+                            border: '1px solid var(--border)',
+                            fontWeight: 600,
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            color: 'var(--foreground)',
+                            flexShrink: 0,
+                            width: isMobileView ? '100%' : 'auto'
+                        }}
                     >
                         Contacter le DPO
                     </button>
                 </div>
             </div>
 
-            {/* Suppression du compte */}
-            <div style={{ border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', padding: '20px', backgroundColor: 'rgba(239, 68, 68, 0.03)' }}>
-                <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 700, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Trash2 size={18} />
-                    Supprimer mon compte (Art. 17 RGPD — Droit à l'effacement)
-                </h3>
-                <p style={{ margin: '0 0 14px 0', fontSize: '12.5px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
-                    Cette action est irréversible. Toutes vos données d'entreprise, factures, devis, fiches clients et comptes utilisateurs seront définitivement effacés de nos serveurs.
-                </p>
+            {/* 4. Suppression du compte - Zone Danger propre et sobre */}
+            <div style={{
+                backgroundColor: 'var(--card, #FFFFFF)',
+                border: '1px solid var(--border, #e2e8f0)',
+                borderRadius: '14px',
+                padding: '16px'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '14px' }}>
+                    <div style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        color: '#ef4444',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                    }}>
+                        <Trash2 size={20} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ margin: '0 0 3px 0', fontSize: '15px', fontWeight: 700, color: 'var(--foreground)' }}>
+                            Supprimer mon compte
+                        </h3>
+                        <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
+                            Suppression irréversible de votre compte entreprise, devis, factures et fichiers clients.
+                        </p>
+                    </div>
+                </div>
+
                 <button
                     type="button"
-                    onClick={() => {
-                        setDeleteConfirmText("");
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         setDeleteChecked(false);
                         setDeleteError(null);
                         setIsDeleting(false);
                         setShowDeleteModal(true);
                     }}
-                    style={{ padding: '10px 18px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+                    style={{
+                        padding: '10px 16px',
+                        backgroundColor: '#ef4444',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        borderRadius: '9px',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        width: isMobileView ? '100%' : 'auto',
+                        boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)'
+                    }}
                 >
-                    Demander la suppression définitive du compte
+                    <Trash2 size={16} />
+                    <span>Supprimer définitivement mon compte</span>
                 </button>
             </div>
 
             {/* Modal de confirmation de suppression */}
-            {showDeleteModal && createPortal(
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', overflowY: 'auto', boxSizing: 'border-box' }}>
-                    <div style={{ backgroundColor: 'var(--card)', borderRadius: '16px', padding: '24px', maxWidth: '480px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid rgba(239, 68, 68, 0.3)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)', position: 'relative', margin: 'auto', boxSizing: 'border-box' }}>
-                        <button
-                            type="button"
+            {createPortal(
+                <AnimatePresence>
+                    {showDeleteModal && (
+                        <motion.div
+                            key="delete-account-overlay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
                             onClick={() => !isDeleting && setShowDeleteModal(false)}
-                            disabled={isDeleting}
-                            style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)' }}
+                            style={{
+                                position: 'fixed',
+                                inset: 0,
+                                backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                                backdropFilter: 'blur(6px)',
+                                WebkitBackdropFilter: 'blur(6px)',
+                                zIndex: 9999999,
+                                display: 'flex',
+                                alignItems: isMobileView ? 'flex-end' : 'center',
+                                justifyContent: 'center',
+                                padding: isMobileView ? 0 : '16px',
+                                boxSizing: 'border-box'
+                            }}
                         >
-                            <X size={18} />
-                        </button>
-
-                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                            <AlertTriangle size={24} />
-                        </div>
-
-                        <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#ef4444' }}>
-                            Suppression irréversible du compte
-                        </h4>
-
-                        <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px', fontSize: '12.5px', color: 'var(--foreground)', lineHeight: '1.5' }}>
-                            <p style={{ margin: '0 0 8px 0', fontWeight: 700, color: '#ef4444' }}>
-                                ⚠️ Cette action est définitive et sans retour possible :
-                            </p>
-                            <ul style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <li>Toutes vos <strong>fiches clients</strong>, devis et factures seront supprimés.</li>
-                                <li>Tout votre <strong>planning</strong> et historique d'interventions seront détruits.</li>
-                                <li>Votre <strong>abonnement</strong> sera immédiatement résilié (aucun prélèvement futur).</li>
-                                <li>Votre compte sera supprimé et votre <strong>adresse email libérée</strong>, vous permettant si besoin de vous réinscrire ultérieurement.</li>
-                            </ul>
-                        </div>
-
-                        {deleteError && (
-                            <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, marginBottom: '14px' }}>
-                                {deleteError}
-                            </div>
-                        )}
-
-                        <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginBottom: '14px', fontSize: '12.5px', fontWeight: 600, color: 'var(--foreground)' }}>
-                            <input
-                                type="checkbox"
-                                checked={deleteChecked}
-                                onChange={(e) => setDeleteChecked(e.target.checked)}
-                                disabled={isDeleting}
-                                style={{ marginTop: '2px', accentColor: '#ef4444', width: '16px', height: '16px' }}
-                            />
-                            <span>Je confirme vouloir supprimer définitivement mon compte et toutes mes données (Art. 17 RGPD).</span>
-                        </label>
-
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', fontSize: '12px', color: 'var(--muted-foreground)', marginBottom: '6px', fontWeight: 600 }}>
-                                Pour confirmer, tapez le mot <strong>SUPPRIMER</strong> ci-dessous :
-                            </label>
-                            <input
-                                type="text"
-                                value={deleteConfirmText}
-                                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                                placeholder="SUPPRIMER"
-                                disabled={isDeleting}
+                            <motion.div
+                                key="delete-account-modal-card"
+                                initial={isMobileView ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 15 }}
+                                animate={isMobileView ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                                exit={isMobileView ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 15 }}
+                                transition={{ type: 'tween', ease: [0.16, 1, 0.3, 1], duration: 0.25 }}
+                                onClick={(e) => e.stopPropagation()}
                                 style={{
+                                    backgroundColor: 'var(--card, #FFFFFF)',
+                                    borderRadius: isMobileView ? '24px 24px 0 0' : '18px',
+                                    padding: isMobileView ? '16px 20px 28px 20px' : '24px',
+                                    maxWidth: isMobileView ? '100%' : '440px',
                                     width: '100%',
-                                    padding: '9px 12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid var(--border)',
-                                    backgroundColor: 'var(--background)',
-                                    color: 'var(--foreground)',
-                                    fontSize: '13px',
-                                    fontWeight: 700,
-                                    outline: 'none',
+                                    maxHeight: isMobileView ? '85vh' : '90vh',
+                                    overflowY: 'auto',
+                                    border: isMobileView ? 'none' : '1px solid var(--border, #e2e8f0)',
+                                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)',
+                                    position: 'relative',
                                     boxSizing: 'border-box'
                                 }}
-                            />
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                            <button
-                                type="button"
-                                onClick={() => setShowDeleteModal(false)}
-                                disabled={isDeleting}
-                                style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'transparent', color: 'var(--foreground)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
                             >
-                                Annuler
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleDeleteAccount}
-                                disabled={!deleteChecked || deleteConfirmText.trim().toUpperCase() !== "SUPPRIMER" || isDeleting}
-                                style={{
-                                    padding: '9px 18px',
-                                    borderRadius: '8px',
-                                    backgroundColor: (!deleteChecked || deleteConfirmText.trim().toUpperCase() !== "SUPPRIMER" || isDeleting) ? '#9ca3af' : '#ef4444',
-                                    color: '#fff',
-                                    border: 'none',
-                                    fontWeight: 700,
-                                    fontSize: '13px',
-                                    cursor: (!deleteChecked || deleteConfirmText.trim().toUpperCase() !== "SUPPRIMER" || isDeleting) ? 'not-allowed' : 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
-                            >
-                                {isDeleting ? (
-                                    <>
-                                        <Loader2 size={15} className="spin-loader" /> Suppression...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Trash2 size={15} /> Supprimer définitivement
-                                    </>
+                                {isMobileView && (
+                                    <div style={{
+                                        width: '36px',
+                                        height: '4px',
+                                        borderRadius: '2px',
+                                        backgroundColor: 'rgba(100, 116, 139, 0.3)',
+                                        margin: '0 auto 16px auto'
+                                    }} />
                                 )}
-                            </button>
-                        </div>
-                    </div>
-                </div>,
+
+                                <button
+                                    type="button"
+                                    onClick={() => !isDeleting && setShowDeleteModal(false)}
+                                    disabled={isDeleting}
+                                    aria-label="Fermer"
+                                    style={{
+                                        position: 'absolute',
+                                        top: isMobileView ? '16px' : '16px',
+                                        right: '16px',
+                                        width: '30px',
+                                        height: '30px',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'rgba(100, 116, 139, 0.08)',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: 'var(--muted-foreground)'
+                                    }}
+                                >
+                                    <X size={16} />
+                                </button>
+
+                                <div style={{
+                                    width: '46px',
+                                    height: '46px',
+                                    borderRadius: '12px',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                    color: '#ef4444',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: '14px'
+                                }}>
+                                    <AlertTriangle size={24} />
+                                </div>
+
+                                <h4 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 700, color: 'var(--foreground)' }}>
+                                    Supprimer définitivement le compte ?
+                                </h4>
+
+                                <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: '1.45' }}>
+                                    Cette action est irréversible. Toutes vos fiches clients, factures, devis et plannings будут définitivement supprimés, et votre abonnement sera résilié.
+                                </p>
+
+                                {deleteError && (
+                                    <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '10px 12px', borderRadius: '8px', fontSize: '12.5px', fontWeight: 600, marginBottom: '14px' }}>
+                                        {deleteError}
+                                    </div>
+                                )}
+
+                                <label style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '10px',
+                                    cursor: 'pointer',
+                                    margin: '14px 0 20px 0',
+                                    padding: '12px',
+                                    borderRadius: '10px',
+                                    backgroundColor: 'var(--background)',
+                                    border: '1px solid var(--border)',
+                                    fontSize: '12.5px',
+                                    fontWeight: 500,
+                                    color: 'var(--foreground)',
+                                    lineHeight: '1.4'
+                                }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={deleteChecked}
+                                        onChange={(e) => setDeleteChecked(e.target.checked)}
+                                        disabled={isDeleting}
+                                        style={{ marginTop: '2px', accentColor: '#ef4444', width: '17px', height: '17px', flexShrink: 0, cursor: 'pointer' }}
+                                    />
+                                    <span>Je comprends et j'accepte que mon compte et toutes mes données soient supprimés définitivement.</span>
+                                </label>
+
+                                <div style={{ display: 'flex', gap: '8px', flexDirection: isMobileView ? 'column-reverse' : 'row', justifyContent: 'flex-end' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDeleteModal(false)}
+                                        disabled={isDeleting}
+                                        style={{
+                                            padding: '10px 16px',
+                                            borderRadius: '9px',
+                                            border: '1px solid var(--border)',
+                                            backgroundColor: 'transparent',
+                                            color: 'var(--foreground)',
+                                            fontWeight: 600,
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            height: '42px'
+                                        }}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleDeleteAccount}
+                                        disabled={!deleteChecked || isDeleting}
+                                        style={{
+                                            padding: '10px 18px',
+                                            borderRadius: '9px',
+                                            backgroundColor: (!deleteChecked || isDeleting) ? 'rgba(100, 116, 139, 0.25)' : '#ef4444',
+                                            color: (!deleteChecked || isDeleting) ? 'var(--muted-foreground)' : '#FFFFFF',
+                                            border: 'none',
+                                            fontWeight: 600,
+                                            fontSize: '13px',
+                                            cursor: (!deleteChecked || isDeleting) ? 'not-allowed' : 'pointer',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '6px',
+                                            height: '42px',
+                                            transition: 'all 0.15s ease'
+                                        }}
+                                    >
+                                        {isDeleting ? (
+                                            <>
+                                                <Loader2 size={16} className="spin-loader" /> Suppression en cours...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Trash2 size={16} /> Supprimer définitivement
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>,
                 document.body
             )}
         </div>

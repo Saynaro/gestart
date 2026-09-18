@@ -148,7 +148,7 @@ export class AutoRappelScheduler {
                 return;
             }
 
-            const isPlanEligible = plan?.hasAutoSmsReminders || plan?.hasPremiumSettings || plan?.name === "PRO" || plan?.name === "UNLIMITED";
+            const isPlanEligible = plan?.hasAutoSmsReminders || plan?.hasPremiumSettings || plan?.name === "STARTER" || plan?.name === "PRO" || plan?.name === "UNLIMITED";
             
             // En environnement de développement ou démo, tolérer les tests
             const isDevelopment = process.env.NODE_ENV !== "production";
@@ -157,7 +157,7 @@ export class AutoRappelScheduler {
                     where: { id },
                     data: {
                         status: "SKIPPED",
-                        error: "Fonctionnalité Auto Rappel réservée aux offres Pro & Unlimited"
+                        error: "Fonctionnalité Auto Rappel réservée aux offres actives"
                     }
                 });
                 return;

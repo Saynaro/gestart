@@ -791,27 +791,31 @@
 }
 
 .mobile-group-header {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
-    color: #64748b;
+    color: var(--muted-foreground, #64748b);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     margin-bottom: 8px;
-    margin-left: 8px;
+    margin-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .mobile-items-card {
     background-color: var(--card);
-    border-radius: 16px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .mobile-settings-row-btn {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 14px 16px;
+    padding: 13px 16px;
     background: none;
     border: none;
     text-align: left;
@@ -825,7 +829,11 @@
 }
 
 .mobile-settings-row-btn:active {
-    background-color: var(--accent);
+    background-color: var(--accent, rgba(0, 0, 0, 0.04));
+}
+
+.mobile-settings-row-btn.active-row {
+    background-color: rgba(85, 107, 47, 0.04);
 }
 
 .mobile-row-icon-bg {
@@ -849,14 +857,14 @@
 }
 
 .mobile-row-label {
-    font-size: 16.5px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--foreground);
 }
 
 .mobile-row-subtitle {
-    font-size: 14px;
-    color: #64748b;
+    font-size: 12.5px;
+    color: var(--muted-foreground, #64748b);
 }
 
 .mobile-row-badge {
@@ -874,7 +882,7 @@
 }
 
 .mobile-row-arrow {
-    color: #94a3b8;
+    color: var(--muted-foreground, #94a3b8);
     display: flex;
     align-items: center;
 }
@@ -883,25 +891,35 @@
 .mobile-fields-stack {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 16px;
+    gap: 14px;
+    padding: 0;
+    width: 100%;
 }
 
 .mobile-input-card {
-    background-color: white;
-    border: 1px solid #e2e8f0;
+    background-color: var(--card, white);
+    border: 1.5px solid var(--border, #e2e8f0);
     border-radius: 14px;
     padding: 10px 14px;
     display: flex;
     flex-direction: column;
     gap: 2px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.005);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    scroll-margin-top: 80px;
+    scroll-margin-bottom: 140px;
+}
+
+.mobile-input-card:focus-within {
+    border-color: #556B2F !important;
+    box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.15) !important;
 }
 
 .mobile-input-card-label {
     font-size: 13px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--muted-foreground, #64748b);
+    user-select: none;
 }
 
 .mobile-input-card-field {
@@ -909,7 +927,7 @@
     padding: 0;
     font-size: 17px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--foreground, #0f172a);
     background: transparent;
     width: 100%;
 }

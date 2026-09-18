@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
-import logo from "../../assets/logo.png";
 import { isAuthenticated } from "../../utils/auth";
 
 function Navbar() {
@@ -39,7 +38,7 @@ function Navbar() {
     return (
         <nav className={`navbar ${isOpen ? 'menu-open' : ''}`}>
             <div className="brand">
-                <img src={logo} alt="GestArt" className="brand-logo" />
+                <img src="/LOGO.png" alt="GestArt" className="brand-logo" />
             </div>
             
             {isOpen && <div className="menu-backdrop" onClick={closeMenu} />}

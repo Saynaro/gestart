@@ -178,6 +178,14 @@
     gap: 12px;
 }
 
+.sub-receipt-logo-img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
 .sub-receipt-logo {
     width: 44px;
     height: 44px;

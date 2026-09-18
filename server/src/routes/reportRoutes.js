@@ -7,7 +7,11 @@ import {
     getMaintenanceReport,
     getSmsReport,
     toggleTvaDeclaration,
-    toggleUrssafDeclaration
+    toggleUrssafDeclaration,
+    exportAccountingExcel,
+    exportAccountingPdf,
+    exportAccountingTxt,
+    getExportHistory
 } from "../controllers/reportController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -17,6 +21,12 @@ const router = express.Router();
 
 // Tous les rapports nécessitent l'authentification
 router.use(authMiddleware);
+
+// Exports comptables (Excel, PDF, TXT) avec données réelles et historique
+router.get("/export/history", requireManager, getExportHistory);
+router.get("/export/excel", requireManager, exportAccountingExcel);
+router.get("/export/pdf", requireManager, exportAccountingPdf);
+router.get("/export/txt", requireManager, exportAccountingTxt);
 
 // Rapports accessibles aux Managers et Owner
 router.get("/revenue", requireManager, getRevenueReport);

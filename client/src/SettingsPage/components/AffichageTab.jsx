@@ -49,9 +49,9 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
         return (
             <div className="mobile-fields-stack">
                 {/* SECTION THÈME */}
-                <div className="mobile-group-section" style={{ margin: "0 0 16px 0" }}>
-                    <h4 className="mobile-group-header" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <Sparkles size={14} style={{ color: "var(--primary)" }} />
+                <div className="mobile-group-section" style={{ margin: "0 0 18px 0" }}>
+                    <h4 className="mobile-group-header">
+                        <Sparkles size={13} style={{ color: "#556B2F" }} />
                         <span>Thème de l'interface</span>
                     </h4>
 
@@ -62,14 +62,26 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
                             onClick={() => applyTheme("light")}
                         >
                             <span className="mobile-row-icon-bg" style={{ backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#F59E0B" }}>
-                                <Sun size={17} />
+                                <Sun size={18} />
                             </span>
                             <span className="mobile-row-text-col">
                                 <span className="mobile-row-label">Thème Clair</span>
                                 <span className="mobile-row-subtitle">Interface lumineuse standard</span>
                             </span>
                             {themeMode === "light" && (
-                                <Check size={18} style={{ color: "var(--primary)", marginLeft: "auto" }} />
+                                <div style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginLeft: "auto",
+                                    flexShrink: 0
+                                }}>
+                                    <Check size={14} strokeWidth={3} style={{ color: "#556B2F" }} />
+                                </div>
                             )}
                         </button>
 
@@ -79,14 +91,26 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
                             onClick={() => applyTheme("dark")}
                         >
                             <span className="mobile-row-icon-bg" style={{ backgroundColor: "rgba(99, 102, 241, 0.12)", color: "#6366F1" }}>
-                                <Moon size={17} />
+                                <Moon size={18} />
                             </span>
                             <span className="mobile-row-text-col">
                                 <span className="mobile-row-label">Thème Sombre</span>
                                 <span className="mobile-row-subtitle">Réduit la fatigue oculaire</span>
                             </span>
                             {themeMode === "dark" && (
-                                <Check size={18} style={{ color: "var(--primary)", marginLeft: "auto" }} />
+                                <div style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginLeft: "auto",
+                                    flexShrink: 0
+                                }}>
+                                    <Check size={14} strokeWidth={3} style={{ color: "#556B2F" }} />
+                                </div>
                             )}
                         </button>
 
@@ -96,14 +120,26 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
                             onClick={() => applyTheme("system")}
                         >
                             <span className="mobile-row-icon-bg" style={{ backgroundColor: "rgba(107, 114, 128, 0.12)", color: "var(--foreground)" }}>
-                                <Laptop size={17} />
+                                <Laptop size={18} />
                             </span>
                             <span className="mobile-row-text-col">
-                                <span className="mobile-row-label">Système</span>
+                                <span className="mobile-row-label">Automatique (Système)</span>
                                 <span className="mobile-row-subtitle">S'adapte aux réglages de votre appareil</span>
                             </span>
                             {themeMode === "system" && (
-                                <Check size={18} style={{ color: "var(--primary)", marginLeft: "auto" }} />
+                                <div style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginLeft: "auto",
+                                    flexShrink: 0
+                                }}>
+                                    <Check size={14} strokeWidth={3} style={{ color: "#556B2F" }} />
+                                </div>
                             )}
                         </button>
                     </div>
@@ -111,8 +147,8 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
 
                 {/* SECTION LANGUE */}
                 <div className="mobile-group-section" style={{ margin: "0 0 24px 0" }}>
-                    <h4 className="mobile-group-header" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <Globe size={14} style={{ color: "var(--primary)" }} />
+                    <h4 className="mobile-group-header">
+                        <Globe size={13} style={{ color: "#556B2F" }} />
                         <span>Langue de l'application</span>
                     </h4>
 
@@ -122,7 +158,7 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
                             className={`mobile-settings-row-btn ${language === "FR" ? "active-row" : ""}`}
                             onClick={() => handleLanguageChange("FR")}
                         >
-                            <span style={{ fontSize: "20px", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <span className="mobile-row-icon-bg" style={{ backgroundColor: "rgba(59, 130, 246, 0.08)", fontSize: "18px" }}>
                                 🇫🇷
                             </span>
                             <span className="mobile-row-text-col">
@@ -130,7 +166,19 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
                                 <span className="mobile-row-subtitle">Langue par défaut du système</span>
                             </span>
                             {language === "FR" && (
-                                <Check size={18} style={{ color: "var(--primary)", marginLeft: "auto" }} />
+                                <div style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginLeft: "auto",
+                                    flexShrink: 0
+                                }}>
+                                    <Check size={14} strokeWidth={3} style={{ color: "#556B2F" }} />
+                                </div>
                             )}
                         </button>
 
@@ -139,7 +187,7 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
                             className={`mobile-settings-row-btn ${language === "EN" ? "active-row" : ""}`}
                             onClick={() => handleLanguageChange("EN")}
                         >
-                            <span style={{ fontSize: "20px", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <span className="mobile-row-icon-bg" style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", fontSize: "18px" }}>
                                 🇬🇧
                             </span>
                             <span className="mobile-row-text-col">
@@ -147,7 +195,19 @@ export default function AffichageTab({ isMobileView, triggerToast }) {
                                 <span className="mobile-row-subtitle">English interface translation</span>
                             </span>
                             {language === "EN" && (
-                                <Check size={18} style={{ color: "var(--primary)", marginLeft: "auto" }} />
+                                <div style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginLeft: "auto",
+                                    flexShrink: 0
+                                }}>
+                                    <Check size={14} strokeWidth={3} style={{ color: "#556B2F" }} />
+                                </div>
                             )}
                         </button>
                     </div>

@@ -215,6 +215,16 @@ function Header({ title }) {
         }
     }, []);
 
+    const cleanNotificationAmounts = (text) => {
+        if (!text) return "";
+        return text.replace(/(\d+\.\d+)\s*(€|EUR)/gi, (match, numStr) => {
+            const num = parseFloat(numStr);
+            if (isNaN(num)) return match;
+            const rounded = parseFloat(num.toFixed(2));
+            return `${rounded}€`;
+        });
+    };
+
     // Fetch notifications list from backend
     const fetchNotifications = useCallback(async () => {
         try {
@@ -223,7 +233,7 @@ function Header({ title }) {
                 setNotificationsList(res.data.notifications.map(n => ({
                     id: n.id,
                     title: n.title,
-                    text: n.body,
+                    text: cleanNotificationAmounts(n.body),
                     time: formatMsgDate(n.createdAt),
                     isRead: n.isRead,
                     raw: n
@@ -732,7 +742,14 @@ function Header({ title }) {
                                                                                             className="notif-action-btn"
                                                                                             onClick={() => {
                                                                                                 handleCloseNotifications();
-                                                                                                navigate("/factures");
+                                                                                                const invoiceNumberMatch = (n.title + ' ' + (n.text || '')).match(/\b(F-\d{4}-\d+)\b/i);
+                                                                                                const invoiceNumber = invoiceNumberMatch ? invoiceNumberMatch[1] : null;
+                                                                                                const invoiceId = n.raw?.entityId || n.raw?.data?.invoiceId || n.raw?.data?.id || n.raw?.invoiceId || null;
+                                                                                                const params = new URLSearchParams();
+                                                                                                if (invoiceId) params.set("id", invoiceId);
+                                                                                                if (invoiceNumber) params.set("number", invoiceNumber);
+                                                                                                const queryParam = params.toString() ? `?${params.toString()}` : "";
+                                                                                                navigate(`/factures${queryParam}`);
                                                                                             }}
                                                                                         >
                                                                                             <FileText size={13} />
@@ -744,19 +761,27 @@ function Header({ title }) {
                                                                                             className="notif-action-btn"
                                                                                             onClick={() => {
                                                                                                 handleCloseNotifications();
-                                                                                                navigate("/devis");
+                                                                                                const quoteNumberMatch = (n.title + ' ' + (n.text || '')).match(/\b(D-\d{4}-\d+)\b/i);
+                                                                                                const quoteNumber = quoteNumberMatch ? quoteNumberMatch[1] : null;
+                                                                                                const quoteId = n.raw?.entityId || n.raw?.data?.quoteId || n.raw?.data?.id || n.raw?.quoteId || null;
+                                                                                                const params = new URLSearchParams();
+                                                                                                if (quoteId) params.set("id", quoteId);
+                                                                                                if (quoteNumber) params.set("number", quoteNumber);
+                                                                                                const queryParam = params.toString() ? `?${params.toString()}` : "";
+                                                                                                navigate(`/devis${queryParam}`);
                                                                                             }}
                                                                                         >
                                                                                             <FileText size={13} />
                                                                                             <span>Voir le devis</span>
                                                                                         </button>
-                                                                                    ) : n.raw?.type?.includes("INTERVENTION") || n.raw?.type?.includes("TECHNICIAN") ? (
+                                                                                    ) : n.raw?.entityType === "intervention" || n.raw?.type?.includes("INTERVENTION") || n.raw?.type?.includes("TECHNICIAN") || n.title?.toLowerCase().includes("intervention") ? (
                                                                                         <button
                                                                                             type="button"
                                                                                             className="notif-action-btn"
                                                                                             onClick={() => {
                                                                                                 handleCloseNotifications();
-                                                                                                navigate("/planning");
+                                                                                                const interId = n.raw?.entityId || n.raw?.data?.interventionId || n.raw?.data?.id || null;
+                                                                                                navigate(interId ? `/planning?id=${encodeURIComponent(interId)}` : "/planning");
                                                                                             }}
                                                                                         >
                                                                                             <Calendar size={13} />
@@ -780,7 +805,8 @@ function Header({ title }) {
                                                                                             className="notif-action-btn"
                                                                                             onClick={() => {
                                                                                                 handleCloseNotifications();
-                                                                                                navigate("/clients");
+                                                                                                const cId = n.raw?.entityId || n.raw?.data?.clientId || n.raw?.data?.id || null;
+                                                                                                navigate(cId ? `/client?id=${encodeURIComponent(cId)}` : "/client");
                                                                                             }}
                                                                                         >
                                                                                             <User size={13} />

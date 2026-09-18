@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Users, UserPlus, Shield, Mail, RefreshCw, Trash2, CheckCircle2, AlertTriangle, X, Loader2 } from "lucide-react";
+import { Users, UserPlus, Shield, Mail, RefreshCw, Trash2, CheckCircle2, AlertTriangle, X, Loader2, Lock } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { useSubscription } from "../../utils/useSubscription";
+import PlanLimitBanner from "../../components/PlanLimitBanner";
 
 export default function UtilisateursTab({ isMobileView, triggerToast, triggerConfirm }) {
-    const { isStarter, isPro, isUnlimited, planName } = useSubscription();
+    const {
+        isStarter,
+        isPro,
+        isUnlimited,
+        planName,
+        isTechLimitReached,
+        isTechLimitWarning,
+        techsCurrent,
+        techsMax,
+        triggerUpgrade
+    } = useSubscription();
     const [members, setMembers] = useState([]);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -15,7 +26,7 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
     const [newInviteEmail, setNewInviteEmail] = useState("");
     const [newInviteRole, setNewInviteRole] = useState("TECHNICIAN");
 
-    const maxUsers = isStarter ? 1 : isPro ? 10 : 9999;
+    const maxUsers = isStarter ? 1 : isPro ? 5 : 9999;
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -64,6 +75,30 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
         fetchUsers();
     }, []);
 
+    const handleOpenInvite = () => {
+        if (isStarter) {
+            triggerUpgrade({
+                reason: "technicians",
+                title: "Passez à l'offre Pro ou Unlimited",
+                description: "L'invitation de techniciens et de collaborateurs est disponible à partir du plan Pro.",
+                targetPlan: "PRO"
+            });
+            return;
+        }
+
+        if (isTechLimitReached || members.length + invitations.length >= maxUsers) {
+            triggerUpgrade({
+                reason: "technicians",
+                title: "Limite de membres atteinte",
+                description: `Votre offre permet de gérer jusqu'à ${maxUsers} membres. Passez à Unlimited pour ajouter des membres illimités.`,
+                targetPlan: "UNLIMITED"
+            });
+            return;
+        }
+
+        setShowInviteModal(true);
+    };
+
     const handleInviteSubmit = (e) => {
         e.preventDefault();
         if (!newInviteEmail) {
@@ -72,13 +107,19 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
         }
 
         if (isStarter) {
-            triggerToast("L'offre Starter inclut 1 seul membre (le patron). Passez à l'offre Pro pour inviter des techniciens !", true);
+            triggerUpgrade({
+                reason: "technicians",
+                targetPlan: "PRO"
+            });
             setShowInviteModal(false);
             return;
         }
 
-        if (members.length + invitations.length >= maxUsers) {
-            triggerToast(`Limite de votre offre atteinte (${maxUsers} membres). Passez à l'offre Unlimited pour ajouter des membres illimités.`, true);
+        if (isTechLimitReached || members.length + invitations.length >= maxUsers) {
+            triggerUpgrade({
+                reason: "technicians",
+                targetPlan: "UNLIMITED"
+            });
             setShowInviteModal(false);
             return;
         }
@@ -131,7 +172,7 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Header & Capacité Équipe */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -149,14 +190,40 @@ export default function UtilisateursTab({ isMobileView, triggerToast, triggerCon
 
                     <button
                         type="button"
-                        onClick={() => setShowInviteModal(true)}
-                        style={{ padding: '9px 16px', backgroundColor: 'var(--sidebar-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        onClick={handleOpenInvite}
+                        style={{
+                            padding: '9px 16px',
+                            backgroundColor: (isStarter || isTechLimitReached) ? 'var(--card)' : 'var(--sidebar-primary)',
+                            color: (isStarter || isTechLimitReached) ? 'var(--foreground)' : '#fff',
+                            border: (isStarter || isTechLimitReached) ? '1px solid var(--border)' : 'none',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                        }}
                     >
-                        <UserPlus size={15} />
-                        Inviter un collaborateur
+                        {(isStarter || isTechLimitReached) ? <Lock size={15} /> : <UserPlus size={15} />}
+                        {isStarter ? "Inviter (Offre Pro requise)" : isTechLimitReached ? "Limite atteinte (Unlimited)" : "Inviter un collaborateur"}
                     </button>
                 </div>
             </div>
+
+            {/* Plan Limit / Warning Alert Banner for Technicians */}
+            {!isStarter && (isTechLimitReached || isTechLimitWarning) && (
+                <PlanLimitBanner
+                    type="technicians"
+                    variant={isTechLimitReached ? "reached" : "warning"}
+                    current={techsCurrent || members.length}
+                    max={techsMax}
+                    unit="membres"
+                    targetPlan="UNLIMITED"
+                    customTitle={isTechLimitReached ? "Capacité maximale de membres atteinte (5/5)" : "Quota membres presque atteint (4/5)"}
+                    customDescription={isTechLimitReached ? "Votre offre Pro inclut jusqu'à 5 membres. Passez à l'offre Unlimited pour gérer une équipe sans aucune limite." : "Il ne vous reste qu'un seul emplacement de membre sur votre abonnement Pro."}
+                />
+            )}
 
             {/* Liste des Membres Actifs */}
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', backgroundColor: 'var(--card)' }}>

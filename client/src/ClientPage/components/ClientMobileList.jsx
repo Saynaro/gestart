@@ -55,10 +55,14 @@ function ClientMobileList({
             ? "Ajoutez votre première organisation pour commencer à gérer ses fiches et contacts." 
             : "Ajoutez votre premier client particulier pour commencer à gérer vos fiches et devis.";
 
-        if (searchTerm && searchTerm.trim()) {
+        const hasSearch = Boolean(searchTerm && searchTerm.trim());
+        const hasStatus = Boolean(statusFilter && statusFilter !== "Tous");
+        const isFiltered = hasSearch || hasStatus;
+
+        if (hasSearch) {
             emptyTitle = "Aucun contact trouvé";
             emptyDesc = `Aucun ${isOrg ? "organisation" : "client"} ne correspond à votre recherche "${searchTerm}".`;
-        } else if (statusFilter && statusFilter !== "Tous") {
+        } else if (hasStatus) {
             emptyTitle = `Aucun ${isOrg ? "organisation" : "client"} avec le statut "${statusFilter}"`;
             emptyDesc = `Vous n'avez aucun contact ${isOrg ? "organisation" : "particulier"} dans la catégorie "${statusFilter}".`;
         }
@@ -85,10 +89,10 @@ function ClientMobileList({
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--foreground)', marginBottom: '6px' }}>
                     {emptyTitle}
                 </h3>
-                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', lineHeight: '1.4', margin: '0 auto 20px auto', maxWidth: '260px' }}>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', lineHeight: '1.4', margin: isFiltered ? '0 auto' : '0 auto 20px auto', maxWidth: '260px' }}>
                     {emptyDesc}
                 </p>
-                {onOpenAddClient && (
+                {!isFiltered && onOpenAddClient && (
                     <button 
                         onClick={onOpenAddClient}
                         style={{

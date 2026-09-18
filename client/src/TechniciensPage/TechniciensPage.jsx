@@ -28,6 +28,7 @@ import PullToRefresh from "../components/PullToRefresh";
 import { apiFetch } from "../utils/api";
 import { useSubscription } from "../utils/useSubscription";
 import FeatureLockBanner from "../components/FeatureLockBanner";
+import PlanLimitBanner from "../components/PlanLimitBanner";
 import StripeCheckoutModal from "../SettingsPage/components/StripeCheckoutModal";
 import "./TechniciensPage.css";
 
@@ -58,7 +59,20 @@ export default function TechniciensPage() {
     const [createdInvite, setCreatedInvite] = useState(null);
     const [copied, setCopied] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { isStarter, isPro, isUnlimited, subscription, displayName, refreshSubscription, isExpired } = useSubscription();
+    const {
+        isStarter,
+        isPro,
+        isUnlimited,
+        subscription,
+        displayName,
+        refreshSubscription,
+        isExpired,
+        isTechLimitReached,
+        isTechLimitWarning,
+        techsCurrent,
+        techsMax,
+        triggerUpgrade
+    } = useSubscription();
 
     // Fetch Technicians & Invitations from API
     const loadData = async () => {
@@ -248,28 +262,24 @@ export default function TechniciensPage() {
                                     return;
                                 }
                                 if (isStarter) {
-                                    window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
-                                        detail: {
-                                            reason: "technicians",
-                                            title: "Passez à l'offre Pro ou Unlimited",
-                                            description: "L'invitation de techniciens et de collaborateurs est disponible à partir du plan Pro.",
-                                            targetPlan: "PRO"
-                                        }
-                                    }));
+                                    triggerUpgrade({
+                                        reason: "technicians",
+                                        title: "Passez à l'offre Pro ou Unlimited",
+                                        description: "L'invitation de techniciens et de collaborateurs est disponible à partir du plan Pro.",
+                                        targetPlan: "PRO"
+                                    });
                                     return;
                                 }
 
-                                const maxTechs = subscription?.plan?.maxTechnicians ?? 5;
-                                const currentTechsCount = technicians.filter(t => t.role === "TECHNICIAN" || !t.role).length;
-                                if (!isUnlimited && maxTechs !== -1 && currentTechsCount >= maxTechs) {
-                                    window.dispatchEvent(new CustomEvent('open_upgrade_modal', {
-                                        detail: {
-                                            reason: "technicians",
-                                            title: "Développez votre équipe sans limite",
-                                            description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxTechs} technicien(s). Passez à Unlimited pour ajouter une équipe illimitée et accélérer vos interventions.`,
-                                            targetPlan: "UNLIMITED"
-                                        }
-                                    }));
+                                const maxTechs = techsMax !== -1 ? techsMax : (subscription?.plan?.maxTechnicians ?? 5);
+                                const currentTechsCount = techsCurrent || technicians.filter(t => t.role === "TECHNICIAN" || !t.role).length;
+                                if (!isUnlimited && maxTechs !== -1 && (isTechLimitReached || currentTechsCount >= maxTechs)) {
+                                    triggerUpgrade({
+                                        reason: "technicians",
+                                        title: "Développez votre équipe sans limite",
+                                        description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxTechs} technicien(s). Passez à Unlimited pour ajouter une équipe illimitée et accélérer vos interventions.`,
+                                        targetPlan: "UNLIMITED"
+                                    });
                                     return;
                                 }
 
@@ -277,12 +287,26 @@ export default function TechniciensPage() {
                                 setInviteEmail("");
                                 setShowInviteModal(true);
                             }}
-                            style={isExpired ? { opacity: 0.9 } : {}}
+                            style={isExpired || isTechLimitReached ? { opacity: 0.9 } : {}}
                         >
-                            {isExpired ? <Lock size={18} /> : isStarter ? <Star size={18} fill="currentColor" /> : <UserPlus size={18} />}
-                            {isExpired ? "Inviter un technicien" : isStarter ? "Inviter un technicien (Pro)" : "Inviter un technicien"}
+                            {isExpired || isTechLimitReached ? <Lock size={18} /> : isStarter ? <Star size={18} fill="currentColor" /> : <UserPlus size={18} />}
+                            {isExpired ? "Inviter un technicien" : isStarter ? "Inviter un technicien (Pro)" : isTechLimitReached ? "Limite atteinte (Unlimited)" : "Inviter un technicien"}
                         </button>
                     </div>
+
+                    {/* Pro Limit & Warning Alert Banner (Pro plan only) */}
+                    {!isStarter && (isTechLimitReached || isTechLimitWarning) && (
+                        <PlanLimitBanner
+                            type="technicians"
+                            variant={isTechLimitReached ? "reached" : "warning"}
+                            current={techsCurrent || technicians.length}
+                            max={techsMax}
+                            unit="techniciens"
+                            targetPlan="UNLIMITED"
+                            customTitle={isTechLimitReached ? "Capacité maximale de techniciens atteinte (5/5)" : "Quota techniciens presque atteint (4/5)"}
+                            customDescription={isTechLimitReached ? "Votre offre Pro inclut jusqu'à 5 techniciens. Passez à l'offre Unlimited pour gérer une équipe sans aucune limite." : "Il ne vous reste qu'un seul emplacement de technicien sur votre abonnement Pro."}
+                        />
+                    )}
 
                     {/* Pro Paywall / Upgrade Banner if on Starter */}
                     {isStarter && (

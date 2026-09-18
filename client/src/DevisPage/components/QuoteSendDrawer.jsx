@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, AlertTriangle, CreditCard, Building, RefreshCw, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../utils/useUser";
@@ -13,6 +14,13 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
     const [isSending, setIsSending] = useState(false);
     const [loadingChannels, setLoadingChannels] = useState(true);
     const [channelStatus, setChannelStatus] = useState(null);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const fetchChannels = async () => {
         try {
@@ -106,8 +114,36 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
     };
 
     return (
-        <div className="dv-send-drawer-overlay" onClick={onClose}>
-            <div className="dv-send-drawer" onClick={e => e.stopPropagation()}>
+        <motion.div
+            className="dv-send-drawer-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={onClose}
+        >
+            <motion.div
+                className="dv-send-drawer"
+                initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                onClick={e => e.stopPropagation()}
+                drag={isMobile ? "y" : false}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.8 }}
+                onDragEnd={(event, info) => {
+                    if (isMobile && info.offset.y > 80) {
+                        onClose();
+                    }
+                }}
+            >
+                {/* Mobile Drag Handle */}
+                {isMobile && (
+                    <div style={{ display: "flex", justifyContent: "center", width: "100%", paddingBottom: "10px", cursor: "grab" }}>
+                        <div style={{ width: "36px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                    </div>
+                )}
                 {/* Header */}
                 <div className="dv-send-drawer-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -553,8 +589,8 @@ function QuoteSendDrawer({ quote, onClose, onSelfSend, onAutoSend, onDownloadPdf
                         </div>
                     </div>
                 )}
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
 

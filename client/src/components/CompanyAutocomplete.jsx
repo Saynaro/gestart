@@ -284,39 +284,32 @@ export default function CompanyAutocomplete({
                                 onMouseEnter={() => setSelectedIndex(index)}
                             >
                                 <div className="company-icon-badge">
-                                    <Building2 size={18} />
+                                    <Building2 size={15} />
                                 </div>
                                 <div className="suggestion-details">
                                     <div className="company-title-row">
                                         <span className="company-name">{item.nom}</span>
                                         {item.est_active ? (
                                             <span className="status-badge active">
-                                                <ShieldCheck size={10} /> Actif
+                                                <ShieldCheck size={9} /> Actif
                                             </span>
                                         ) : (
                                             <span className="status-badge inactive">
-                                                <AlertCircle size={10} /> Inactif
+                                                <AlertCircle size={9} /> Inactif
                                             </span>
                                         )}
                                     </div>
 
                                     <div className="company-meta-row">
-                                        {item.siret && (
-                                            <span className="meta-chip">SIRET: <strong>{item.siret}</strong></span>
-                                        )}
-                                        {item.code_ape && (
-                                            <span className="meta-chip">APE: <strong>{item.code_ape}</strong></span>
-                                        )}
+                                        {item.siret && <span>SIRET: {item.siret}</span>}
+                                        {item.code_ape && <span>• APE: {item.code_ape}</span>}
+                                        {item.ville && <span>• {item.ville}</span>}
                                     </div>
-
-                                    {item.adresse && (
-                                        <span className="company-address-text">{item.adresse}</span>
-                                    )}
                                 </div>
 
                                 {isSelected && (
                                     <div className="suggestion-check">
-                                        <Check size={14} />
+                                        <Check size={13} />
                                     </div>
                                 )}
                             </li>

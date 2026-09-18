@@ -19,6 +19,8 @@ export const getMe = async (req, res) => {
                 isActive: true,
                 companyId: true,
                 createdAt: true,
+                updatedAt: true,
+                lastLoginAt: true,
                 company: {
                     include: {
                         subscription: {

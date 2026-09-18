@@ -1,6 +1,12 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
 import { generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 ////// GET CURRENT SUBSCRIPTION //////
 export const getSubscription = async (req, res) => {
@@ -780,7 +786,7 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
             companyAddress: "23 Rue Paganini, 06000 Nice, France",
             companySiret: "944 087 725 00015",
             companyEmail: "support.gestart@gmail.com",
-            companyPhone: "",
+            companyPhone: "06 51 60 43 16",
             clientName,
             clientEmail,
             clientPhone: company.phone || "",
@@ -792,6 +798,24 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
             paidAt: payment.paidAt || payment.createdAt
         };
 
+        let logoDataUri = null;
+        try {
+            const possiblePaths = [
+                path.join(__dirname, "../assets/Logo-transparent.png"),
+                path.resolve(process.cwd(), "src/assets/Logo-transparent.png"),
+                path.resolve(process.cwd(), "../client/public/Logo-transparent.png")
+            ];
+            for (const p of possiblePaths) {
+                if (fs.existsSync(p)) {
+                    const buf = fs.readFileSync(p);
+                    logoDataUri = `data:image/png;base64,${buf.toString("base64")}`;
+                    break;
+                }
+            }
+        } catch (e) {
+            console.warn("Could not load receipt logo:", e);
+        }
+
         const pdfBuffer = await generateReceiptPdfBuffer({
             paymentData,
             company: {
@@ -800,10 +824,13 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
                 postalCode: "06000",
                 city: "Nice",
                 siret: "944 087 725 00015",
-                email: "support.gestart@gmail.com"
+                phone: "06 51 60 43 16",
+                email: "support.gestart@gmail.com",
+                logoUrl: logoDataUri
             },
             customization: {
-                primaryColor: "#556B2F"
+                primaryColor: "#556B2F",
+                logoUrl: logoDataUri
             }
         });
 

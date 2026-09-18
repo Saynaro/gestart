@@ -460,8 +460,19 @@
     color: white;
 }
 
-.export-action-btn:hover {
+.export-action-btn.txt-btn {
+    background-color: #475569;
+    color: white;
+}
+
+.export-action-btn:hover:not(:disabled) {
     opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.export-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .export-sheet-details {
@@ -488,59 +499,110 @@
     gap: 2px;
 }
 
-/* History List Panel */
+/* History List Panel - Compact & Elegant */
 .history-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
-.history-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--background);
+.history-item-compact {
+    background-color: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 12px 14px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.15s;
 }
 
-.history-item:hover {
-    box-shadow: 0 4px 12px rgba(85, 107, 47, 0.05);
+.history-item-compact:hover {
+    background-color: var(--background);
+    border-color: rgba(85, 107, 47, 0.4);
 }
 
-.history-meta {
+.history-compact-left {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
 }
 
-.history-meta .period-badge {
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.history-meta .details-row {
+.history-compact-title-row {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
+    min-width: 0;
 }
 
-.history-actions {
+.history-format-pill-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.history-format-pill-sm.excel {
+    background-color: #16a34a;
+    color: #ffffff;
+}
+
+.history-format-pill-sm.pdf {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+.history-format-pill-sm.txt {
+    background-color: #475569;
+    color: #ffffff;
+}
+
+.history-compact-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-compact-meta-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted-foreground);
+    flex-wrap: wrap;
 }
 
-.history-actions .export-date {
-    font-size: 0.75rem;
+.compact-stat {
+    font-weight: 500;
+}
+
+.compact-amount {
+    font-weight: 700;
+    color: #556B2F;
+}
+
+.compact-dot {
+    opacity: 0.5;
+    font-size: 9px;
+}
+
+.compact-date {
+    font-size: 10.5px;
     color: var(--muted-foreground);
 }
 
-.download-btn-circle {
+.download-btn-compact {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -551,11 +613,24 @@
     color: white;
     border: none;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, transform 0.15s;
+    flex-shrink: 0;
 }
 
-.download-btn-circle:hover {
+.download-btn-compact:hover {
     opacity: 0.9;
+    transform: scale(1.08);
+}
+
+.download-btn-compact:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.history-load-more-btn:hover {
+    background-color: var(--muted) !important;
+    border-color: #556B2F !important;
+    color: #556B2F !important;
 }
 
 /* Integration third party configuration form */
@@ -691,6 +766,131 @@
     opacity: 0.9;
 }
 
+/* Mobile Subtabs Pill Bar */
+.mobile-subtabs-pill-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 4px 12px 4px;
+    margin-bottom: 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scroll-padding: 0 16px;
+}
+
+.mobile-subtabs-pill-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.mobile-subtab-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--muted-foreground);
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.mobile-subtab-pill.active {
+    background-color: #556B2F;
+    color: #ffffff;
+    border-color: #556B2F;
+    box-shadow: 0 2px 8px rgba(85, 107, 47, 0.25);
+}
+
+.mobile-subtab-pill svg {
+    flex-shrink: 0;
+}
+
+/* URSSAF KPIs Grid */
+.urssaf-kpis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 14px 0;
+}
+
+.urssaf-kpi-card {
+    padding: 14px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.urssaf-kpi-card.ca-card {
+    background-color: var(--muted);
+    border: 1px solid var(--border);
+}
+
+.urssaf-kpi-card.charges-card {
+    background-color: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.18);
+}
+
+.urssaf-kpi-card.net-card {
+    background-color: rgba(34, 197, 94, 0.08);
+    border: 1.5px solid rgba(34, 197, 94, 0.3);
+}
+
+.kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--muted-foreground);
+}
+
+.kpi-value {
+    margin: 4px 0 0 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--foreground);
+}
+
+.kpi-hint {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    margin-top: 2px;
+}
+
+.danger-text {
+    color: #dc2626 !important;
+}
+
+.danger-value {
+    color: #dc2626 !important;
+}
+
+.success-text {
+    color: #16a34a !important;
+    font-weight: 700 !important;
+}
+
+.success-value {
+    color: #16a34a !important;
+    font-weight: 900 !important;
+}
+
+.table-sublabel {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    margin-top: 2px;
+}
+
+.row-net-highlight {
+    background-color: rgba(34, 197, 94, 0.06);
+}
+
 /* Responsive layout configurations */
 .desktop-comptability-layout,
 .mobile-comptability-stack {
@@ -699,7 +899,7 @@
 
 @media (max-width: 768px) {
     .content-header.comptability-header-row {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
     .comptability-page-wrapper .main-content {
         height: 100vh !important;
@@ -708,7 +908,78 @@
         padding-bottom: 0 !important;
     }
     .comptability-page-wrapper .page-content {
-        padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px)) 16px !important;
+        padding: 12px 14px calc(110px + env(safe-area-inset-bottom, 0px)) 14px !important;
+    }
+    .comptability-card {
+        padding: 14px !important;
+        border-radius: 14px !important;
+        gap: 12px !important;
+    }
+    .urssaf-kpis-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        margin: 10px 0 !important;
+    }
+    .urssaf-kpi-card {
+        padding: 10px 14px !important;
+    }
+    .kpi-value {
+        font-size: 17px !important;
+    }
+    /* Fixed 100% width tables without horizontal overflow */
+    .table-responsive {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .comptability-table {
+        width: 100% !important;
+        table-layout: fixed !important;
+        font-size: 12px !important;
+    }
+    .comptability-table th,
+    .comptability-table td {
+        padding: 7px 4px !important;
+        word-break: break-word !important;
+    }
+    .comptability-table th:first-child,
+    .comptability-table td:first-child {
+        width: 48% !important;
+        padding-left: 0 !important;
+    }
+    .comptability-table th:nth-child(2),
+    .comptability-table td:nth-child(2) {
+        width: 24% !important;
+        text-align: right !important;
+    }
+    .comptability-table th:last-child,
+    .comptability-table td:last-child {
+        width: 28% !important;
+        text-align: right !important;
+        padding-right: 0 !important;
+    }
+    .quarter-btn {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+    }
+    .year-selector {
+        padding: 5px 8px !important;
+        font-size: 12px !important;
+    }
+    .preview-metrics {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    .preview-metrics .metric {
+        padding: 6px 8px !important;
+    }
+    .preview-metrics .metric .val {
+        font-size: 15px !important;
+    }
+    .declaration-status-area {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
     }
 }
 

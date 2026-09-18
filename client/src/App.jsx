@@ -205,8 +205,8 @@ function App() {
         <PlanUpgradeModal />
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public Landing Page */}
-            <Route path="/" element={<LandingPage />} />
+            {/* Public Landing Page (Redirects to /home if already logged in) */}
+            <Route path="/" element={<PublicOnlyRoute><LandingPage /></PublicOnlyRoute>} />
 
             {/* Protected Private App Routes */}
             <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />

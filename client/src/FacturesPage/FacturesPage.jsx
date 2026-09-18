@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Inbox, Send, RefreshCw, Building, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Info, AlertTriangle, Lock, Trash2, Mail, ExternalLink } from "lucide-react";
 import ToastNotification from "../components/ToastNotification";
 import { useSubscription } from "../utils/useSubscription";
@@ -261,6 +261,39 @@ function FacturesPage() {
             return s === key.toLowerCase();
         }).length;
 
+    // Handle deep-link to a specific invoice (?id=... or ?number=...)
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const targetId = params.get("id") || location.state?.openInvoiceId || location.state?.invoiceId;
+        const targetNumber = params.get("number") || location.state?.invoiceNumber;
+
+        if (!targetId && !targetNumber) return;
+
+        if (invoices.length > 0) {
+            const found = invoices.find(inv => 
+                (targetId && (inv.id === targetId || String(inv.id) === String(targetId))) ||
+                (targetNumber && (inv.number?.toLowerCase() === targetNumber.toLowerCase() || String(inv.id) === String(targetNumber)))
+            );
+
+            if (found) {
+                openDetail(found);
+                return;
+            }
+        }
+
+        if (targetId) {
+            apiFetch(`/v1/invoices/${targetId}`).then(res => {
+                const raw = res.data?.invoice || res.invoice || (res.success && res.data) || null;
+                if (raw) {
+                    const mapped = mapInvoiceFromApi(raw);
+                    openDetail(mapped);
+                }
+            }).catch(err => {
+                console.warn("Could not fetch target invoice from deep-link:", err);
+            });
+        }
+    }, [location.search, location.state, invoices]);
+
     const openDetail = (inv) => {
         setActiveInvoice(inv);
         setShowDetailDrawer(true);
@@ -272,6 +305,13 @@ function FacturesPage() {
         setShowDetailDrawer(false);
         setShowSendDrawer(false);
         setShowEditPanel(false);
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("id") || params.has("number")) {
+            params.delete("id");
+            params.delete("number");
+            const newSearch = params.toString();
+            navigate(newSearch ? `?${newSearch}` : location.pathname, { replace: true });
+        }
     };
 
     const handleFinalise = (inv) => {
@@ -750,285 +790,196 @@ function FacturesPage() {
             </div>
 
             {/* Detail Drawer */}
-            {showDetailDrawer && activeInvoice && (
-                <InvoiceDetailDrawer
-                    invoice={activeInvoice}
-                    onClose={closeAll}
-                    onPreview={() => { setShowDetailDrawer(false); setShowPdfModal(true); }}
-                    onEdit={() => { setShowDetailDrawer(false); setShowEditPanel(true); }}
-                    onSend={() => setShowSendDrawer(true)}
-                    onFinalise={handleFinalise}
-                    onMarkPaid={handleMarkPaid}
-                    onMarkUnpaid={handleMarkUnpaid}
-                    onDelete={handleDeleteInvoice}
-                    onOpenLinkedDevis={handleOpenLinkedDevis}
-                    onUpdateInvoiceCustomization={handleUpdateInvoiceCustomization}
-                />
-            )}
+            <AnimatePresence>
+                {showDetailDrawer && activeInvoice && (
+                    <InvoiceDetailDrawer
+                        invoice={activeInvoice}
+                        onClose={closeAll}
+                        onPreview={() => { setShowDetailDrawer(false); setShowPdfModal(true); }}
+                        onEdit={() => { setShowDetailDrawer(false); setShowEditPanel(true); }}
+                        onSend={() => setShowSendDrawer(true)}
+                        onFinalise={handleFinalise}
+                        onMarkPaid={handleMarkPaid}
+                        onMarkUnpaid={handleMarkUnpaid}
+                        onDelete={handleDeleteInvoice}
+                        onOpenLinkedDevis={handleOpenLinkedDevis}
+                        onUpdateInvoiceCustomization={handleUpdateInvoiceCustomization}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Linked Quote Drawer */}
-            {linkedQuoteForDrawer && (
-                <QuoteDetailDrawer
-                    quote={linkedQuoteForDrawer}
-                    onClose={() => {
-                        setLinkedQuoteForDrawer(null);
-                        setShowDetailDrawer(true);
-                    }}
-                    overlayStyle={{ zIndex: 1200 }}
-                    onPreview={() => setPdfModalQuote(linkedQuoteForDrawer)}
-                    onSend={() => {
-                        setLinkedQuoteForDrawer(null);
-                        setShowDetailDrawer(true);
-                    }}
-                    onConvertToInvoice={() => {}}
-                    onChangeStatus={() => {}}
-                    onEdit={() => {}}
-                    onOpenLinkedInvoice={(inv) => {
-                        setLinkedQuoteForDrawer(null);
-                        setActiveInvoice(inv?.id === activeInvoice?.id ? activeInvoice : (inv || activeInvoice));
-                        setShowDetailDrawer(true);
-                    }}
-                />
-            )}
+            <AnimatePresence>
+                {linkedQuoteForDrawer && (
+                    <QuoteDetailDrawer
+                        quote={linkedQuoteForDrawer}
+                        onClose={() => {
+                            setLinkedQuoteForDrawer(null);
+                            setShowDetailDrawer(true);
+                        }}
+                        overlayStyle={{ zIndex: 1200 }}
+                        onPreview={() => setPdfModalQuote(linkedQuoteForDrawer)}
+                        onSend={() => {
+                            setLinkedQuoteForDrawer(null);
+                            setShowDetailDrawer(true);
+                        }}
+                        onConvertToInvoice={() => {}}
+                        onChangeStatus={() => {}}
+                        onEdit={() => {}}
+                        onOpenLinkedInvoice={(inv) => {
+                            setLinkedQuoteForDrawer(null);
+                            setActiveInvoice(inv?.id === activeInvoice?.id ? activeInvoice : (inv || activeInvoice));
+                            setShowDetailDrawer(true);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Edit Panel */}
-            {showEditPanel && activeInvoice && (
-                <InvoiceEditPanel
-                    invoice={activeInvoice}
-                    onClose={() => { setShowEditPanel(false); setShowDetailDrawer(true); }}
-                    onSave={handleSaveEdit}
-                    onFinalise={handleFinalise}
-                />
-            )}
+            <AnimatePresence>
+                {showEditPanel && activeInvoice && (
+                    <InvoiceEditPanel
+                        invoice={activeInvoice}
+                        onClose={() => { setShowEditPanel(false); setShowDetailDrawer(true); }}
+                        onSave={handleSaveEdit}
+                        onFinalise={handleFinalise}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Send Drawer */}
-            {showSendDrawer && activeInvoice && (
-                <InvoiceSendDrawer
-                    invoice={activeInvoice}
-                    onClose={() => setShowSendDrawer(false)}
-                    onSelfSend={handleSelfSend}
-                    onAutoSend={handleAutoSend}
-                    onDownloadPdf={handleDownloadPdf}
-                />
-            )}
+            <AnimatePresence>
+                {showSendDrawer && activeInvoice && (
+                    <InvoiceSendDrawer
+                        invoice={activeInvoice}
+                        onClose={() => setShowSendDrawer(false)}
+                        onSelfSend={handleSelfSend}
+                        onAutoSend={handleAutoSend}
+                        onDownloadPdf={handleDownloadPdf}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* PDF Preview */}
-            {showPdfModal && activeInvoice && (
-                <InvoicePdfView
-                    invoice={activeInvoice}
-                    onClose={() => { setShowPdfModal(false); setShowDetailDrawer(true); }}
-                    onDownload={handleDownloadPdf}
-                />
-            )}
+            <AnimatePresence>
+                {showPdfModal && activeInvoice && (
+                    <InvoicePdfView
+                        invoice={activeInvoice}
+                        onClose={() => { setShowPdfModal(false); setShowDetailDrawer(true); }}
+                        onDownload={handleDownloadPdf}
+                    />
+                )}
+            </AnimatePresence>
 
-            {pdfModalQuote && (
-                <QuotePdfView
-                    quote={pdfModalQuote}
-                    onClose={() => setPdfModalQuote(null)}
-                    onDownload={() => window.print()}
-                />
-            )}
+            <AnimatePresence>
+                {pdfModalQuote && (
+                    <QuotePdfView
+                        quote={pdfModalQuote}
+                        onClose={() => setPdfModalQuote(null)}
+                        onDownload={() => window.print()}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* New Invoice Modal */}
-            {showNewModal && (
-                <NewInvoiceModal
-                    onClose={() => {
-                        setShowNewModal(false);
-                        if (returnUrlRef.current) {
-                            const dest = returnUrlRef.current;
-                            returnUrlRef.current = null;
-                            navigate(dest);
-                        }
-                    }}
-                    onCreateInvoice={handleCreateInvoice}
-                    initialClient={newModalClient || location.state}
-                />
-            )}
+            <AnimatePresence>
+                {showNewModal && (
+                    <NewInvoiceModal
+                        onClose={() => {
+                            setShowNewModal(false);
+                            if (returnUrlRef.current) {
+                                const dest = returnUrlRef.current;
+                                returnUrlRef.current = null;
+                                navigate(dest);
+                            }
+                        }}
+                        onCreateInvoice={handleCreateInvoice}
+                        initialClient={newModalClient || location.state}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Received Supplier Invoice Detail Drawer */}
-            {activeReceivedInvoice && (
-                <ReceivedInvoicesDrawer
-                    invoice={activeReceivedInvoice}
-                    onClose={() => setActiveReceivedInvoice(null)}
-                    onRefresh={fetchReceivedInvoices}
-                />
-            )}
+            <AnimatePresence>
+                {activeReceivedInvoice && (
+                    <ReceivedInvoicesDrawer
+                        invoice={activeReceivedInvoice}
+                        onClose={() => setActiveReceivedInvoice(null)}
+                        onRefresh={fetchReceivedInvoices}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Payment Method Selector Modal */}
-            {paymentModalInvoice && (
-                <PaymentMethodModal
-                    invoice={paymentModalInvoice}
-                    onConfirm={handleConfirmPayment}
-                    onClose={() => setPaymentModalInvoice(null)}
-                />
-            )}
+            <AnimatePresence>
+                {paymentModalInvoice && (
+                    <PaymentMethodModal
+                        invoice={paymentModalInvoice}
+                        onConfirm={handleConfirmPayment}
+                        onClose={() => setPaymentModalInvoice(null)}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Finalise Confirmation Modal */}
-            {invoiceToFinalise && (
-                <div
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        zIndex: 13000,
-                        backgroundColor: "rgba(0, 0, 0, 0.65)",
-                        backdropFilter: "blur(4px)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "16px"
-                    }}
-                    onClick={() => setInvoiceToFinalise(null)}
-                >
+            <AnimatePresence>
+                {invoiceToFinalise && (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                         style={{
-                            backgroundColor: "var(--card, #FFFFFF)",
-                            color: "var(--foreground, #111)",
-                            borderRadius: "18px",
-                            padding: "24px 28px",
-                            maxWidth: "460px",
-                            width: "100%",
-                            boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-                            border: "1px solid var(--border)",
-                            position: "relative"
+                            position: "fixed",
+                            inset: 0,
+                            zIndex: 13000,
+                            backgroundColor: "rgba(0, 0, 0, 0.65)",
+                            backdropFilter: "blur(4px)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "16px"
                         }}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={() => setInvoiceToFinalise(null)}
                     >
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
-                            <div style={{
-                                width: "42px",
-                                height: "42px",
-                                borderRadius: "12px",
-                                backgroundColor: "rgba(234, 179, 8, 0.15)",
-                                color: "#ca8a04",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0
-                            }}>
-                                <AlertTriangle size={22} />
-                            </div>
-                            <div>
-                                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>Finaliser la facture {invoiceToFinalise.number} ?</h3>
-                                <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "var(--muted-foreground)" }}>Action comptable définitive</p>
-                            </div>
-                        </div>
-
-                        <div style={{
-                            backgroundColor: "var(--muted, #f8f9fa)",
-                            borderRadius: "12px",
-                            padding: "12px 14px",
-                            fontSize: "0.88rem",
-                            lineHeight: 1.45,
-                            color: "var(--foreground)",
-                            marginBottom: "20px",
-                            border: "1px solid var(--border)"
-                        }}>
-                            <div style={{ fontWeight: 700, color: "#b45309", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
-                                <Lock size={14} /> Attention : Modification impossible après finalisation
-                            </div>
-                            Conformément aux normes comptables et fiscales (loi anti-fraude TVA), une facture finalisée devient <strong>définitive</strong>. Vous ne pourrez plus modifier le client, les articles, ni les montants.
-                        </div>
-
-                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                            <button
-                                onClick={() => setInvoiceToFinalise(null)}
-                                style={{
-                                    padding: "10px 16px",
-                                    borderRadius: "10px",
-                                    border: "1px solid var(--border)",
-                                    background: "transparent",
-                                    color: "var(--foreground)",
-                                    fontSize: "0.9rem",
-                                    fontWeight: 600,
-                                    cursor: "pointer"
-                                }}
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                onClick={handleConfirmFinalise}
-                                style={{
-                                    padding: "10px 20px",
-                                    borderRadius: "10px",
-                                    border: "none",
-                                    background: "var(--sidebar-primary, #556B2F)",
-                                    color: "#FFFFFF",
-                                    fontSize: "0.9rem",
-                                    fontWeight: 700,
-                                    cursor: "pointer",
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ duration: 0.2 }}
+                            style={{
+                                backgroundColor: "var(--card, #FFFFFF)",
+                                color: "var(--foreground, #111)",
+                                borderRadius: "18px",
+                                padding: "24px 28px",
+                                maxWidth: "460px",
+                                width: "100%",
+                                boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+                                border: "1px solid var(--border)",
+                                position: "relative"
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
+                                <div style={{
+                                    width: "42px",
+                                    height: "42px",
+                                    borderRadius: "12px",
+                                    backgroundColor: "rgba(234, 179, 8, 0.15)",
+                                    color: "#ca8a04",
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "6px"
-                                }}
-                            >
-                                ✓ Confirmer la finalisation
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
-
-            {/* Confirm Delete Invoice Modal */}
-            {invoiceToDelete && (
-                <div
-                    className="modal-overlay"
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        backdropFilter: "blur(4px)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        zIndex: 10000,
-                        padding: "16px"
-                    }}
-                    onClick={() => setInvoiceToDelete(null)}
-                >
-                    <motion.div
-                        className="modal-container"
-                        style={{
-                            backgroundColor: "var(--card)",
-                            borderRadius: "16px",
-                            padding: "24px",
-                            width: "100%",
-                            maxWidth: "460px",
-                            boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
-                            border: "1px solid var(--border)",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "16px"
-                        }}
-                        initial={{ scale: 0.95, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <div style={{
-                                width: "42px",
-                                height: "42px",
-                                borderRadius: "12px",
-                                backgroundColor: "rgba(239, 68, 68, 0.12)",
-                                color: "#ef4444",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0
-                            }}>
-                                <Trash2 size={20} />
+                                    justifyContent: "center",
+                                    flexShrink: 0
+                                }}>
+                                    <AlertTriangle size={22} />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>Finaliser la facture {invoiceToFinalise.number} ?</h3>
+                                    <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "var(--muted-foreground)" }}>Action comptable définitive</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>Supprimer la facture ?</h3>
-                                <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "var(--muted-foreground)" }}>
-                                    {invoiceToDelete.number} · {invoiceToDelete.clientName}
-                                </p>
-                            </div>
-                        </div>
 
-                        {(invoiceToDelete.status || "").toLowerCase() === "draft" ? (
                             <div style={{
                                 backgroundColor: "var(--muted, #f8f9fa)",
                                 borderRadius: "12px",
@@ -1036,189 +987,318 @@ function FacturesPage() {
                                 fontSize: "0.88rem",
                                 lineHeight: 1.45,
                                 color: "var(--foreground)",
+                                marginBottom: "20px",
                                 border: "1px solid var(--border)"
                             }}>
-                                Êtes-vous sûr de vouloir supprimer définitivement ce brouillon de facture ? Cette action est irréversible.
+                                <div style={{ fontWeight: 700, color: "#b45309", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <Lock size={14} /> Attention : Modification impossible après finalisation
+                                </div>
+                                Conformément aux normes comptables et fiscales (loi anti-fraude TVA), une facture finalisée devient <strong>définitive</strong>. Vous ne pourrez plus modifier le client, les articles, ni les montants.
                             </div>
-                        ) : (
-                            <div style={{
-                                backgroundColor: "rgba(239, 68, 68, 0.08)",
-                                borderRadius: "12px",
-                                padding: "12px 14px",
-                                fontSize: "0.88rem",
-                                lineHeight: 1.45,
-                                color: "#b91c1c",
-                                border: "1px solid rgba(239, 68, 68, 0.2)"
-                            }}>
-                                <strong>Information légale :</strong> Conformément à la législation française (loi anti-fraude TVA), une facture émise ou finalisée ne peut pas être supprimée. Seuls les brouillons peuvent être supprimés.
-                            </div>
-                        )}
 
-                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
-                            <button
-                                disabled={actionLoading}
-                                onClick={() => setInvoiceToDelete(null)}
-                                style={{
-                                    padding: "10px 16px",
-                                    borderRadius: "10px",
-                                    border: "1px solid var(--border)",
-                                    background: "transparent",
-                                    color: "var(--foreground)",
-                                    fontSize: "0.9rem",
-                                    fontWeight: 600,
-                                    cursor: "pointer"
-                                }}
-                            >
-                                Annuler
-                            </button>
-                            {(invoiceToDelete.status || "").toLowerCase() === "draft" && (
+                            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
                                 <button
-                                    disabled={actionLoading}
-                                    onClick={() => executeDeleteInvoice(invoiceToDelete)}
+                                    onClick={() => setInvoiceToFinalise(null)}
+                                    style={{
+                                        padding: "10px 16px",
+                                        borderRadius: "10px",
+                                        border: "1px solid var(--border)",
+                                        background: "transparent",
+                                        color: "var(--foreground)",
+                                        fontSize: "0.9rem",
+                                        fontWeight: 600,
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={handleConfirmFinalise}
                                     style={{
                                         padding: "10px 20px",
                                         borderRadius: "10px",
                                         border: "none",
-                                        background: "#ef4444",
+                                        background: "var(--sidebar-primary, #556B2F)",
                                         color: "#FFFFFF",
                                         fontSize: "0.9rem",
                                         fontWeight: 700,
-                                        cursor: actionLoading ? "not-allowed" : "pointer",
+                                        cursor: "pointer",
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: "6px",
-                                        boxShadow: "0 4px 14px rgba(239, 68, 68, 0.35)"
+                                        gap: "6px"
                                     }}
                                 >
-                                    {actionLoading ? <Loader2 size={16} className="spin-loader" /> : <Trash2 size={16} />}
-                                    Supprimer
+                                    ✓ Confirmer la finalisation
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        </motion.div>
                     </motion.div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
+
+            {/* Confirm Delete Invoice Modal */}
+            <AnimatePresence>
+                {invoiceToDelete && (
+                    <motion.div
+                        className="modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            backdropFilter: "blur(4px)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            zIndex: 10000,
+                            padding: "16px"
+                        }}
+                        onClick={() => setInvoiceToDelete(null)}
+                    >
+                        <motion.div
+                            className="modal-container"
+                            style={{
+                                backgroundColor: "var(--card)",
+                                borderRadius: "16px",
+                                padding: "24px",
+                                width: "100%",
+                                maxWidth: "460px",
+                                boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+                                border: "1px solid var(--border)",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "16px"
+                            }}
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                <div style={{
+                                    width: "42px",
+                                    height: "42px",
+                                    borderRadius: "12px",
+                                    backgroundColor: "rgba(239, 68, 68, 0.12)",
+                                    color: "#ef4444",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0
+                                }}>
+                                    <Trash2 size={20} />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>Supprimer la facture ?</h3>
+                                    <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "var(--muted-foreground)" }}>
+                                        {invoiceToDelete.number} · {invoiceToDelete.clientName}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {(invoiceToDelete.status || "").toLowerCase() === "draft" ? (
+                                <div style={{
+                                    backgroundColor: "var(--muted, #f8f9fa)",
+                                    borderRadius: "12px",
+                                    padding: "12px 14px",
+                                    fontSize: "0.88rem",
+                                    lineHeight: 1.45,
+                                    color: "var(--foreground)",
+                                    border: "1px solid var(--border)"
+                                }}>
+                                    Êtes-vous sûr de vouloir supprimer définitivement ce brouillon de facture ? Cette action est irréversible.
+                                </div>
+                            ) : (
+                                <div style={{
+                                    backgroundColor: "rgba(239, 68, 68, 0.08)",
+                                    borderRadius: "12px",
+                                    padding: "12px 14px",
+                                    fontSize: "0.88rem",
+                                    lineHeight: 1.45,
+                                    color: "#b91c1c",
+                                    border: "1px solid rgba(239, 68, 68, 0.2)"
+                                }}>
+                                    <strong>Information légale :</strong> Conformément à la législation française (loi anti-fraude TVA), une facture émise ou finalisée ne peut pas être supprimée. Seuls les brouillons peuvent être supprimés.
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
+                                <button
+                                    disabled={actionLoading}
+                                    onClick={() => setInvoiceToDelete(null)}
+                                    style={{
+                                        padding: "10px 16px",
+                                        borderRadius: "10px",
+                                        border: "1px solid var(--border)",
+                                        background: "transparent",
+                                        color: "var(--foreground)",
+                                        fontSize: "0.9rem",
+                                        fontWeight: 600,
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    Annuler
+                                </button>
+                                {(invoiceToDelete.status || "").toLowerCase() === "draft" && (
+                                    <button
+                                        disabled={actionLoading}
+                                        onClick={() => executeDeleteInvoice(invoiceToDelete)}
+                                        style={{
+                                            padding: "10px 20px",
+                                            borderRadius: "10px",
+                                            border: "none",
+                                            background: "#ef4444",
+                                            color: "#FFFFFF",
+                                            fontSize: "0.9rem",
+                                            fontWeight: 700,
+                                            cursor: actionLoading ? "not-allowed" : "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "6px",
+                                            boxShadow: "0 4px 14px rgba(239, 68, 68, 0.35)"
+                                        }}
+                                    >
+                                        {actionLoading ? <Loader2 size={16} className="spin-loader" /> : <Trash2 size={16} />}
+                                        Supprimer
+                                    </button>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Modal d'avertissement configuration email */}
-            {emailWarningModalOpen && (
-                <div 
-                    onClick={() => setEmailWarningModalOpen(false)}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.65)',
-                        backdropFilter: 'blur(5px)',
-                        zIndex: 99999,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '16px'
-                    }}
-                >
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        onClick={(e) => e.stopPropagation()}
+            <AnimatePresence>
+                {emailWarningModalOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={() => setEmailWarningModalOpen(false)}
                         style={{
-                            backgroundColor: 'var(--card, #FFFFFF)',
-                            border: '1px solid var(--border, #E2E8F0)',
-                            borderRadius: '16px',
-                            padding: '24px',
-                            maxWidth: '460px',
-                            width: '100%',
-                            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                            backdropFilter: 'blur(5px)',
+                            zIndex: 99999,
                             display: 'flex',
-                            flexDirection: 'column',
-                            gap: '16px'
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '16px'
                         }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{
-                                width: '42px',
-                                height: '42px',
-                                borderRadius: '12px',
-                                backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                backgroundColor: 'var(--card, #FFFFFF)',
+                                border: '1px solid var(--border, #E2E8F0)',
+                                borderRadius: '16px',
+                                padding: '24px',
+                                maxWidth: '460px',
+                                width: '100%',
+                                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
                                 display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexShrink: 0
-                            }}>
-                                <Mail size={22} style={{ color: '#556B2F' }} />
-                            </div>
-                            <div>
-                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--foreground)' }}>
-                                    Adresse email non connectée
-                                </h3>
-                                <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                    Configuration requise pour l'envoi
-                                </p>
-                            </div>
-                        </div>
-
-                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', lineHeight: 1.5 }}>
-                            Pour envoyer vos factures automatiquement depuis <strong>votre propre adresse professionnelle</strong> (Gmail / Google Workspace), vous devez d'abord la connecter dans vos Paramètres.
-                        </p>
-
-                        <div style={{
-                            padding: '12px',
-                            borderRadius: '10px',
-                            backgroundColor: 'var(--muted, #F4F3EF)',
-                            fontSize: '0.82rem',
-                            color: 'var(--muted-foreground)',
-                            lineHeight: 1.4
-                        }}>
-                            💡 Une fois connecté via Google, vos factures, devis et messages seront tous envoyés directement depuis votre adresse sans passer par un email tiers.
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
-                            <button
-                                type="button"
-                                onClick={() => setEmailWarningModalOpen(false)}
-                                style={{
-                                    padding: '10px 16px',
-                                    borderRadius: '10px',
-                                    border: '1px solid var(--border)',
-                                    backgroundColor: 'transparent',
-                                    color: 'var(--foreground)',
-                                    fontWeight: 600,
-                                    fontSize: '0.88rem',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Plus tard
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEmailWarningModalOpen(false);
-                                    navigate('/settings?tab=communication');
-                                }}
-                                style={{
-                                    padding: '10px 18px',
-                                    borderRadius: '10px',
-                                    border: 'none',
-                                    backgroundColor: '#556B2F',
-                                    color: '#FFFFFF',
-                                    fontWeight: 700,
-                                    fontSize: '0.88rem',
-                                    cursor: 'pointer',
-                                    display: 'inline-flex',
+                                flexDirection: 'column',
+                                gap: '16px'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                    width: '42px',
+                                    height: '42px',
+                                    borderRadius: '12px',
+                                    backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                                    display: 'flex',
                                     alignItems: 'center',
-                                    gap: '8px',
-                                    boxShadow: '0 4px 14px rgba(85, 107, 47, 0.35)'
-                                }}
-                            >
-                                <span>Connecter mon compte Google</span>
-                                <ExternalLink size={15} />
-                            </button>
-                        </div>
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                }}>
+                                    <Mail size={22} style={{ color: '#556B2F' }} />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                        Adresse email non connectée
+                                    </h3>
+                                    <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                        Configuration requise pour l'envoi
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', lineHeight: 1.5 }}>
+                                Pour envoyer vos factures automatiquement depuis <strong>votre propre adresse professionnelle</strong> (Gmail / Google Workspace), vous devez d'abord la connecter dans vos Paramètres.
+                            </p>
+
+                            <div style={{
+                                padding: '12px',
+                                borderRadius: '10px',
+                                backgroundColor: 'var(--muted, #F4F3EF)',
+                                fontSize: '0.82rem',
+                                color: 'var(--muted-foreground)',
+                                lineHeight: 1.4
+                            }}>
+                                💡 Une fois connecté via Google, vos factures, devis et messages seront tous envoyés directement depuis votre adresse sans passer par un email tiers.
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setEmailWarningModalOpen(false)}
+                                    style={{
+                                        padding: '10px 16px',
+                                        borderRadius: '10px',
+                                        border: '1px solid var(--border)',
+                                        backgroundColor: 'transparent',
+                                        color: 'var(--foreground)',
+                                        fontWeight: 600,
+                                        fontSize: '0.88rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Plus tard
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEmailWarningModalOpen(false);
+                                        navigate('/settings?tab=communication');
+                                    }}
+                                    style={{
+                                        padding: '10px 18px',
+                                        borderRadius: '10px',
+                                        border: 'none',
+                                        backgroundColor: '#556B2F',
+                                        color: '#FFFFFF',
+                                        fontWeight: 700,
+                                        fontSize: '0.88rem',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        boxShadow: '0 4px 14px rgba(85, 107, 47, 0.35)'
+                                    }}
+                                >
+                                    <span>Connecter mon compte Google</span>
+                                    <ExternalLink size={15} />
+                                </button>
+                            </div>
+                        </motion.div>
                     </motion.div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
 
             {/* Toast */}
             <ToastNotification toast={toast} onClose={() => setToast(null)} />

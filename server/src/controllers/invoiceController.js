@@ -959,12 +959,14 @@ export const markInvoicePaid = async (req, res) => {
         });
 
         if (owner) {
+            const totalVal = Number(invoice.amountTTC || 0);
+            const cleanAmount = parseFloat(totalVal.toFixed(2));
             await createNotification({
                 companyId,
                 userId: owner.id,
                 type: "INVOICE_PAID",
                 title: "Facture payée",
-                body: `La facture ${invoice.number} d'un montant de ${invoice.amountTTC}€ a été marquée comme payée.`,
+                body: `La facture ${invoice.number} d'un montant de ${cleanAmount}€ a été marquée comme payée.`,
                 entityId: id
             });
         }

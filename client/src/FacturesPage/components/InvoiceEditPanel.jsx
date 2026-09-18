@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowLeft, Plus, Trash2, Search, ChevronRight, Edit2, Eye, MoreHorizontal, Check, ChevronDown, Palette } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
@@ -803,6 +804,14 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     const { company } = useUser();
     const [docCustomization, setDocCustomization] = useDocumentCustomization(invoice);
     const [showCustomizer, setShowCustomizer] = useState(false);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const [inv, setInv] = useState({
         ...invoice,
         lines: (invoice.lines || []).map((l, i) => ({
@@ -1529,26 +1538,56 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
 
     return (
         <>
-            <div className="fp-edit-overlay" onClick={onClose}>
-            <div className="fp-detail-wide-container" role="dialog" aria-label="Modifier la facture" onClick={e => e.stopPropagation()}>
-                {/* LEFT: edit form */}
-                <aside className="fp-edit-panel fp-detail-left">
-                {/* Header */}
-                <div className="fp-edit-header">
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <button
-                            className="fp-icon-btn"
-                            onClick={onClose}
-                            style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", color: "var(--foreground)" }}
-                        >
-                            <ArrowLeft size={18} />
-                        </button>
-                        <span style={{ fontWeight: 700, fontSize: "1rem" }}>Modifier la facture {inv.number}</span>
-                    </div>
-                    <button className="fp-icon-btn" onClick={onClose} aria-label="Fermer">
-                        <X size={16} />
-                    </button>
-                </div>
+            <motion.div
+                className="fp-edit-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22 }}
+                onClick={onClose}
+            >
+                <motion.div
+                    className="fp-detail-wide-container"
+                    role="dialog"
+                    aria-label="Modifier la facture"
+                    initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                    animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                    exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                    onClick={e => e.stopPropagation()}
+                    drag={isMobile ? "y" : false}
+                    dragConstraints={{ top: 0 }}
+                    dragElastic={{ top: 0, bottom: 0.8 }}
+                    onDragEnd={(event, info) => {
+                        if (isMobile && info.offset.y > 80) {
+                            onClose();
+                        }
+                    }}
+                >
+                    {/* LEFT: edit form */}
+                    <aside className="fp-edit-panel fp-detail-left">
+                        {/* Mobile Drag Handle */}
+                        {isMobile && (
+                            <div style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "10px", cursor: "grab" }}>
+                                <div style={{ width: "36px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                            </div>
+                        )}
+                        {/* Header */}
+                        <div className="fp-edit-header">
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <button
+                                    className="fp-icon-btn"
+                                    onClick={onClose}
+                                    style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", color: "var(--foreground)" }}
+                                >
+                                    <ArrowLeft size={18} />
+                                </button>
+                                <span style={{ fontWeight: 700, fontSize: "1rem" }}>Modifier la facture {inv.number}</span>
+                            </div>
+                            <button className="fp-icon-btn" onClick={onClose} aria-label="Fermer">
+                                <X size={16} />
+                            </button>
+                        </div>
 
                 {/* Form area */}
                 <div className="fp-edit-body">
@@ -1762,8 +1801,8 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                         {renderPreview()}
                     </div>
                 </div>
-            </div>
-            </div>
+            </motion.div>
+            </motion.div>
 
             {showCustomizer && (
                 <DocumentCustomizerModal

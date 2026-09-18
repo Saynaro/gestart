@@ -43,12 +43,13 @@ export default function CheckoutSubscriptionPage() {
             priceAnnual: 27,
             description: "Idéal pour débuter votre activité d'installation & maintenance",
             features: [
-                "1 technicien (le patron lui-même)",
-                "Fiches clients + équipements",
-                "Planning & Signature devis",
-                "50 SMS manuels/mois",
-                "Export comptable Excel",
-                "Support email"
+                "1 utilisateur (le patron lui-même)",
+                "Jusqu'à 100 fiches clients",
+                "100 SMS de rappel / mois inclus",
+                "Devis, Factures & Signature électronique",
+                "Facturation électronique & Chorus Pro",
+                "Planning & Suivi des chantiers",
+                "Rappels automatiques des entretiens"
             ]
         },
         PRO: {
@@ -60,9 +61,11 @@ export default function CheckoutSubscriptionPage() {
             description: "Pour les entreprises en croissance et équipes sur le terrain",
             features: [
                 "Toutes les fonctions Starter",
-                "Rappels SMS automatiques (ТО / entretien)",
-                "App Mobile Techniciens",
-                "Module auto-entrepreneur URSSAF",
+                "Jusqu'à 5 techniciens inclus",
+                "Jusqu'à 500 clients",
+                "500 SMS / mois inclus",
+                "Application mobile techniciens",
+                "Facturation électronique & Chorus Pro",
                 "Support prioritaire 7j/7"
             ]
         },
@@ -73,10 +76,12 @@ export default function CheckoutSubscriptionPage() {
             priceAnnual: 103,
             description: "Accès illimité sans aucune restriction pour grandes structures",
             features: [
-                "Tout en illimité",
-                "Accès API REST dédié",
-                "Chorus Pro & Numéro dédié",
-                "Gestion multi-sociétés"
+                "Toutes les fonctions Pro",
+                "Techniciens & Clients 100% Illimités",
+                "1 500 SMS / mois inclus",
+                "Facturation électronique intégrale",
+                "Gestion multi-activités & Export comptable",
+                "Support VIP prioritaire 7j/7"
             ]
         }
     };

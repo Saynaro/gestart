@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
@@ -36,6 +37,14 @@ function InvoiceDetailDrawer({
     const [showDotsMenu, setShowDotsMenu] = useState(false);
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [globalCustomization] = useDocumentCustomization();
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const docCustomization = getEffectiveCustomization(invoice, globalCustomization);
     const client = invoice.client || {};
     const clientDisplayName = client.companyName || `${client.firstName || ''} ${client.lastName || ''}`.trim() || invoice.clientName || "Client";
@@ -1059,10 +1068,41 @@ function InvoiceDetailDrawer({
 
     return (
         <>
-            <div className="fp-drawer-overlay" style={overlayStyle} onClick={onClose}>
-                <div className="fp-detail-wide-container" role="dialog" aria-label="Détails de la facture" onClick={e => e.stopPropagation()}>
+            <motion.div
+                className="fp-drawer-overlay"
+                style={overlayStyle}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22 }}
+                onClick={onClose}
+            >
+                <motion.div
+                    className="fp-detail-wide-container"
+                    role="dialog"
+                    aria-label="Détails de la facture"
+                    initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                    animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                    exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
+                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                    onClick={e => e.stopPropagation()}
+                    drag={isMobile ? "y" : false}
+                    dragConstraints={{ top: 0 }}
+                    dragElastic={{ top: 0, bottom: 0.8 }}
+                    onDragEnd={(event, info) => {
+                        if (isMobile && info.offset.y > 80) {
+                            onClose();
+                        }
+                    }}
+                >
                     {/* LEFT: detail panel */}
                     <aside className="fp-drawer fp-detail-left">
+                        {/* Mobile Drag Handle */}
+                        {isMobile && (
+                            <div style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "10px", cursor: "grab" }}>
+                                <div style={{ width: "36px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                            </div>
+                        )}
                         {/* Header */}
                         <div className="fp-drawer-header">
                             <span className="fp-drawer-title">Détails de la facture</span>
@@ -1507,8 +1547,8 @@ function InvoiceDetailDrawer({
                             {renderPreview()}
                         </div>
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
             {showCustomizer && (
                 <DocumentCustomizerModal
                     docType="facture"

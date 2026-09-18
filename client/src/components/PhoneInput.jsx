@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronDown, Search, X } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ChevronDown, Search, X, Check } from "lucide-react";
 import "./PhoneInput.css";
 
 export const COUNTRIES = [
@@ -111,28 +112,37 @@ function PhoneInput({
     style = {}
 }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [placement, setPlacement] = useState("top"); // "top" by default
+    const [placement, setPlacement] = useState("top"); // "top" by default on desktop
     const [searchQuery, setSearchQuery] = useState("");
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
     const dropdownRef = useRef(null);
     const inputRef = useRef(null);
+    const searchInputRef = useRef(null);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Parse initial value or value changes
     const initialParsed = useMemo(() => parsePhoneNumber(value), []);
     const [selectedCountry, setSelectedCountry] = useState(initialParsed.country);
     const [localDigits, setLocalDigits] = useState(initialParsed.digits);
 
-    // Dynamic placement check when dropdown opens
+    // Dynamic placement check when dropdown opens on desktop
     useEffect(() => {
-        if (isOpen && dropdownRef.current) {
+        if (isOpen && !isMobile && dropdownRef.current) {
             const rect = dropdownRef.current.getBoundingClientRect();
-            // If space above is too tight (< 260px) and bottom has more space, open bottom
             if (rect.top < 260 && (window.innerHeight - rect.bottom > rect.top)) {
                 setPlacement("bottom");
             } else {
                 setPlacement("top");
             }
         }
-    }, [isOpen]);
+    }, [isOpen, isMobile]);
 
     // Keep state in sync if external value changes drastically
     useEffect(() => {
@@ -147,19 +157,31 @@ function PhoneInput({
         }
     }, [value]);
 
-    // Close dropdown on click outside
+    // Close dropdown on click outside for desktop
     useEffect(() => {
+        if (!isOpen || isMobile) return;
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                 setIsOpen(false);
                 setSearchQuery("");
             }
         };
-        if (isOpen) {
-            document.addEventListener("mousedown", handleClickOutside);
-        }
+        document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [isOpen]);
+    }, [isOpen, isMobile]);
+
+    const toggleCountryPicker = (e) => {
+        if (disabled) return;
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        // Dismiss keyboard first to avoid touch cancellation and provide smooth sheet opening
+        if (inputRef.current) {
+            inputRef.current.blur();
+        }
+        setIsOpen(prev => !prev);
+    };
 
     const handleInputChange = (e) => {
         let raw = e.target.value;
@@ -192,8 +214,13 @@ function PhoneInput({
         setSelectedCountry(country);
         setIsOpen(false);
         setSearchQuery("");
-        if (inputRef.current) {
-            inputRef.current.focus();
+        
+        if (!isMobile) {
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, 100);
         }
 
         let digits = localDigits;
@@ -247,7 +274,11 @@ function PhoneInput({
             <button
                 type="button"
                 className="phone-country-btn"
-                onClick={() => !disabled && setIsOpen(prev => !prev)}
+                onPointerDown={(e) => {
+                    // Prevent focus loss conflict on touch start
+                    e.preventDefault();
+                }}
+                onClick={toggleCountryPicker}
                 title={`${safeCountry.name} (${safeCountry.dialCode})`}
                 aria-label="Sélectionner le pays"
                 disabled={disabled}
@@ -287,8 +318,189 @@ function PhoneInput({
                 </button>
             )}
 
-            {/* Country Dropdown Picker */}
-            {isOpen && (
+            {/* Mobile Country Picker Modal / Sheet (via Portal) */}
+            {isOpen && isMobile && typeof document !== "undefined" && createPortal(
+                <div style={{
+                    position: "fixed",
+                    inset: 0,
+                    zIndex: 9999999,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end"
+                }}>
+                    {/* Backdrop */}
+                    <div
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            backgroundColor: "rgba(0, 0, 0, 0.55)",
+                            backdropFilter: "blur(3px)",
+                            WebkitBackdropFilter: "blur(3px)"
+                        }}
+                        onClick={() => {
+                            setIsOpen(false);
+                            setSearchQuery("");
+                        }}
+                    />
+
+                    {/* Sheet Content */}
+                    <div
+                        style={{
+                            position: "relative",
+                            width: "100%",
+                            maxWidth: "480px",
+                            margin: "0 auto",
+                            backgroundColor: "var(--card, #ffffff)",
+                            color: "var(--foreground, #0f172a)",
+                            borderTopLeftRadius: "24px",
+                            borderTopRightRadius: "24px",
+                            boxShadow: "0 -10px 40px rgba(0, 0, 0, 0.25)",
+                            maxHeight: "75vh",
+                            display: "flex",
+                            flexDirection: "column",
+                            overflow: "hidden",
+                            animation: "phoneMenuSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1)",
+                            paddingBottom: "max(16px, env(safe-area-inset-bottom, 16px))"
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Drag indicator */}
+                        <div style={{ display: "flex", justifyContent: "center", paddingTop: "10px", paddingBottom: "6px" }}>
+                            <div style={{ width: "36px", height: "4px", borderRadius: "999px", backgroundColor: "var(--border, #cbd5e1)" }} />
+                        </div>
+
+                        {/* Sheet Header */}
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "6px 18px 12px 18px"
+                        }}>
+                            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>
+                                Indicatif pays
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    setSearchQuery("");
+                                }}
+                                style={{
+                                    border: "none",
+                                    background: "rgba(0, 0, 0, 0.05)",
+                                    width: "30px",
+                                    height: "30px",
+                                    borderRadius: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer",
+                                    color: "var(--muted-foreground, #64748b)"
+                                }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        {/* Search Input Box */}
+                        <div style={{ padding: "0 16px 10px 16px" }}>
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                padding: "8px 12px",
+                                backgroundColor: "var(--muted, #f1f5f9)",
+                                borderRadius: "10px",
+                                border: "1px solid var(--border, #e2e8f0)"
+                            }}>
+                                <Search size={15} style={{ color: "var(--muted-foreground, #94a3b8)" }} />
+                                <input
+                                    ref={searchInputRef}
+                                    type="text"
+                                    placeholder="Rechercher un pays ou indicatif (+33...)"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    style={{
+                                        width: "100%",
+                                        border: "none",
+                                        background: "transparent",
+                                        outline: "none",
+                                        fontSize: "14px",
+                                        color: "var(--foreground, #0f172a)"
+                                    }}
+                                />
+                                {searchQuery && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSearchQuery("")}
+                                        style={{ border: "none", background: "none", color: "#94a3b8", cursor: "pointer", padding: 0 }}
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Country List */}
+                        <ul style={{
+                            margin: 0,
+                            padding: "4px 12px",
+                            listStyle: "none",
+                            overflowY: "auto",
+                            flex: 1,
+                            maxHeight: "50vh"
+                        }}>
+                            {filteredCountries.length > 0 ? (
+                                filteredCountries.map((c) => {
+                                    const isSelected = c.code === selectedCountry.code;
+                                    return (
+                                        <li key={c.code} style={{ marginBottom: "2px" }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleSelectCountry(c)}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "space-between",
+                                                    width: "100%",
+                                                    padding: "11px 14px",
+                                                    border: "none",
+                                                    backgroundColor: isSelected ? "rgba(85, 107, 47, 0.08)" : "transparent",
+                                                    borderRadius: "10px",
+                                                    cursor: "pointer",
+                                                    textAlign: "left",
+                                                    color: isSelected ? "#556B2F" : "var(--foreground, #0f172a)",
+                                                    fontWeight: isSelected ? 700 : 500,
+                                                    fontSize: "14.5px"
+                                                }}
+                                            >
+                                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                                    <span style={{ fontSize: "20px", lineHeight: 1 }}>{c.flag}</span>
+                                                    <span>{c.name}</span>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                    <span style={{ fontSize: "13.5px", color: isSelected ? "#556B2F" : "var(--muted-foreground, #64748b)", fontWeight: 600 }}>
+                                                        {c.dialCode}
+                                                    </span>
+                                                    {isSelected && <Check size={16} strokeWidth={2.5} style={{ color: "#556B2F" }} />}
+                                                </div>
+                                            </button>
+                                        </li>
+                                    );
+                                })
+                            ) : (
+                                <li style={{ padding: "24px 0", textAlign: "center", color: "var(--muted-foreground, #94a3b8)", fontSize: "13.5px" }}>
+                                    Aucun pays trouvé
+                                </li>
+                            )}
+                        </ul>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Desktop Country Dropdown Picker */}
+            {isOpen && !isMobile && (
                 <div className={`phone-dropdown-menu placement-${placement}`}>
                     <div className="phone-dropdown-search-wrapper">
                         <Search size={14} style={{ color: "var(--muted-foreground, #94a3b8)" }} />

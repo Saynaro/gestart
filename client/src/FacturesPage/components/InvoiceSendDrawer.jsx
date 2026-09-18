@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, CreditCard, Building2, Eye, EyeOff, AlertTriangle, Info, RefreshCw, Loader2 } from "lucide-react";
 import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
@@ -12,6 +13,13 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
     const [showEmailPreview, setShowEmailPreview] = useState(false);
     const [loadingChannels, setLoadingChannels] = useState(true);
     const [channelStatus, setChannelStatus] = useState(null);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const fetchChannels = async () => {
         try {
@@ -114,8 +122,36 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
     };
 
     return (
-        <div className="fp-send-drawer-overlay" onClick={onClose}>
-            <div className="fp-send-drawer" onClick={e => e.stopPropagation()}>
+        <motion.div
+            className="fp-send-drawer-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={onClose}
+        >
+            <motion.div
+                className="fp-send-drawer"
+                initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                onClick={e => e.stopPropagation()}
+                drag={isMobile ? "y" : false}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.8 }}
+                onDragEnd={(event, info) => {
+                    if (isMobile && info.offset.y > 80) {
+                        onClose();
+                    }
+                }}
+            >
+                {/* Mobile Drag Handle */}
+                {isMobile && (
+                    <div style={{ display: "flex", justifyContent: "center", width: "100%", paddingBottom: "10px", cursor: "grab" }}>
+                        <div style={{ width: "36px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                    </div>
+                )}
                 {/* Header */}
                 <div className="fp-send-drawer-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -506,180 +542,244 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                         </div>
                     </div>
                 )}
-            </div>
+            </motion.div>
 
             {/* ─────────────────────────────────────────────────────────────
                 MODALE SÉPARÉE D'APERÇU D'EMAIL (OVERLAY INDÉPENDANT)
             ───────────────────────────────────────────────────────────── */}
-            {showEmailPreview && (
-                <div
-                    onClick={() => setShowEmailPreview(false)}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                        backdropFilter: 'blur(4px)',
-                        zIndex: 11000,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '16px'
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
+            <AnimatePresence>
+                {showEmailPreview && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={() => setShowEmailPreview(false)}
                         style={{
-                            width: '100%',
-                            maxWidth: '580px',
-                            maxHeight: '90vh',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            backgroundColor: '#0B1120',
-                            borderRadius: '16px',
-                            border: '1px solid #334155',
-                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.65)',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {/* Header de la modale */}
-                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            backdropFilter: 'blur(4px)',
+                            zIndex: 11000,
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '14px 20px',
-                            borderBottom: '1px solid #1E293B',
-                            backgroundColor: '#0F172A'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Eye size={16} style={{ color: '#A3E635' }} />
-                                <span style={{ fontSize: '14px', fontWeight: 700, color: '#F8FAFC' }}>
-                                    Aperçu de l'e-mail client
-                                </span>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setShowEmailPreview(false)}
-                                style={{
-                                    border: 'none',
-                                    background: 'rgba(255, 255, 255, 0.08)',
-                                    color: '#94A3B8',
-                                    cursor: 'pointer',
-                                    padding: '6px',
-                                    borderRadius: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                <X size={15} />
-                            </button>
-                        </div>
-
-                        {/* Contenu scrollable de l'e-mail */}
-                        <div style={{ overflowY: 'auto', flex: 1 }}>
-                            {/* Barre d'en-tête client mail */}
-                            <div style={{
-                                backgroundColor: '#0F172A',
-                                padding: '12px 18px',
-                                borderBottom: '1px solid #1E293B',
-                                fontSize: '11.5px',
-                                color: '#94A3B8',
+                            justifyContent: 'center',
+                            padding: '16px'
+                        }}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                            transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.28 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                width: '100%',
+                                maxWidth: '580px',
+                                maxHeight: '90vh',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: '3px'
+                                backgroundColor: '#0B1120',
+                                borderRadius: '16px',
+                                border: '1px solid #334155',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.65)',
+                                overflow: 'hidden'
+                            }}
+                        >
+                            {/* Header de la modale */}
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '14px 20px',
+                                borderBottom: '1px solid #1E293B',
+                                backgroundColor: '#0F172A'
                             }}>
-                                <div><strong style={{ color: '#CBD5E1' }}>De :</strong> {companyDisplayName} &lt;{senderEmailAddress}&gt;</div>
-                                <div><strong style={{ color: '#CBD5E1' }}>À :</strong> {targetEmail || 'email.client@exemple.fr'}</div>
-                                <div><strong style={{ color: '#CBD5E1' }}>Objet :</strong> Facture {docNumber} ({totalTtc} € TTC) — {companyDisplayName}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Eye size={16} style={{ color: '#A3E635' }} />
+                                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#F8FAFC' }}>
+                                        Aperçu de l'e-mail client
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEmailPreview(false)}
+                                    style={{
+                                        border: 'none',
+                                        background: 'rgba(255, 255, 255, 0.08)',
+                                        color: '#94A3B8',
+                                        cursor: 'pointer',
+                                        padding: '6px',
+                                        borderRadius: '8px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <X size={15} />
+                                </button>
                             </div>
 
-                            {/* Corps du message HTML */}
-                            <div style={{
-                                padding: '24px 20px',
-                                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                                color: '#F8FAFC',
-                                backgroundColor: '#0F172A',
-                                fontSize: '13px'
-                            }}>
-                                {/* Titre entreprise */}
-                                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                                    <div style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF' }}>
-                                        {companyDisplayName}
-                                    </div>
-                                    <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>
-                                        Facture &amp; Coordonnées de paiement
-                                    </div>
+                            {/* Contenu scrollable de l'e-mail */}
+                            <div style={{ overflowY: 'auto', flex: 1 }}>
+                                {/* Barre d'en-tête client mail */}
+                                <div style={{
+                                    backgroundColor: '#0F172A',
+                                    padding: '12px 18px',
+                                    borderBottom: '1px solid #1E293B',
+                                    fontSize: '11.5px',
+                                    color: '#94A3B8',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '3px'
+                                }}>
+                                    <div><strong style={{ color: '#CBD5E1' }}>De :</strong> {companyDisplayName} &lt;{senderEmailAddress}&gt;</div>
+                                    <div><strong style={{ color: '#CBD5E1' }}>À :</strong> {targetEmail || 'email.client@exemple.fr'}</div>
+                                    <div><strong style={{ color: '#CBD5E1' }}>Objet :</strong> Facture {docNumber} ({totalTtc} € TTC) — {companyDisplayName}</div>
                                 </div>
 
-                                {/* Cadre carte principale */}
+                                {/* Corps du message HTML */}
                                 <div style={{
-                                    backgroundColor: '#1E293B',
-                                    padding: '22px',
-                                    borderRadius: '12px',
-                                    border: '1px solid #334155'
+                                    padding: '24px 20px',
+                                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                                    color: '#F8FAFC',
+                                    backgroundColor: '#0F172A',
+                                    fontSize: '13px'
                                 }}>
-                                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#FFFFFF', marginBottom: '8px' }}>
-                                        Bonjour {clientName},
+                                    {/* Titre entreprise */}
+                                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF' }}>
+                                            {companyDisplayName}
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>
+                                            Facture &amp; Coordonnées de paiement
+                                        </div>
                                     </div>
-                                    <p style={{ color: '#E2E8F0', fontSize: '13px', lineHeight: 1.5, margin: '0 0 16px 0' }}>
-                                        Veuillez trouver ci-joint votre facture <strong>{docNumber}</strong> d'un montant de <strong>{totalTtc} € TTC</strong> (fichier PDF attaché).
-                                    </p>
 
-                                    {/* Montant total */}
+                                    {/* Cadre carte principale */}
                                     <div style={{
-                                        backgroundColor: '#0F172A',
-                                        padding: '14px 16px',
-                                        borderRadius: '8px',
-                                        border: '1px solid #334155',
-                                        marginBottom: '18px'
+                                        backgroundColor: '#1E293B',
+                                        padding: '22px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155'
                                     }}>
-                                        <div style={{ fontSize: '11.5px', color: '#94A3B8', marginBottom: '2px' }}>Montant total de la facture :</div>
-                                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF' }}>{totalTtc} € TTC</div>
-                                    </div>
+                                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#FFFFFF', marginBottom: '8px' }}>
+                                            Bonjour {clientName},
+                                        </div>
+                                        <p style={{ color: '#E2E8F0', fontSize: '13px', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+                                            Veuillez trouver ci-joint votre facture <strong>{docNumber}</strong> d'un montant de <strong>{totalTtc} € TTC</strong> (fichier PDF attaché).
+                                        </p>
 
-                                    {/* Modes de paiement dynamiques selon les cases cochées */}
-                                    {stripeEnabled && bankTransferEnabled && (
-                                        <div>
-                                            <div style={{ color: '#E2E8F0', fontSize: '12.5px', fontWeight: 600, marginBottom: '12px' }}>
-                                                Modes de règlement disponibles :
+                                        {/* Montant total */}
+                                        <div style={{
+                                            backgroundColor: '#0F172A',
+                                            padding: '14px 16px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #334155',
+                                            marginBottom: '18px'
+                                        }}>
+                                            <div style={{ fontSize: '11.5px', color: '#94A3B8', marginBottom: '2px' }}>Montant total de la facture :</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF' }}>{totalTtc} € TTC</div>
+                                        </div>
+
+                                        {/* Modes de paiement dynamiques selon les cases cochées */}
+                                        {stripeEnabled && bankTransferEnabled && (
+                                            <div>
+                                                <div style={{ color: '#E2E8F0', fontSize: '12.5px', fontWeight: 600, marginBottom: '12px' }}>
+                                                    Modes de règlement disponibles :
+                                                </div>
+
+                                                {/* Option 1 : Stripe */}
+                                                <div style={{ backgroundColor: '#0F172A', padding: '16px', borderRadius: '10px', border: '1px solid #334155', marginBottom: '12px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 700, color: '#FFFFFF', marginBottom: '6px' }}>
+                                                        <CreditCard size={15} style={{ color: '#635BFF' }} />
+                                                        <span>Option 1 : Paiement sécurisé en ligne (Stripe)</span>
+                                                    </div>
+                                                    <div style={{ color: '#94A3B8', fontSize: '12px', marginBottom: '12px' }}>
+                                                        Réglez instantanément par carte bancaire en quelques clics :
+                                                    </div>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <span style={{
+                                                            display: 'inline-block',
+                                                            backgroundColor: '#556B2F',
+                                                            color: '#FFFFFF',
+                                                            padding: '10px 22px',
+                                                            borderRadius: '8px',
+                                                            fontWeight: 700,
+                                                            fontSize: '13px'
+                                                        }}>
+                                                            Payer en ligne par carte bancaire
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ textAlign: 'center', margin: '10px 0', color: '#64748B', fontWeight: 700, fontSize: '11px', letterSpacing: '0.05em' }}>
+                                                    — OU PAR VIREMENT BANCAIRE —
+                                                </div>
+
+                                                {/* Option 2 : Virement */}
+                                                <div style={{ backgroundColor: '#0F172A', padding: '16px', borderRadius: '10px', border: '1px solid #334155' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 700, color: '#FFFFFF', marginBottom: '10px' }}>
+                                                        <Building2 size={15} style={{ color: '#A3E635' }} />
+                                                        <span>Option 2 : Virement bancaire</span>
+                                                    </div>
+                                                    <table style={{ width: '100%', fontSize: '12px', color: '#CBD5E1', borderCollapse: 'collapse' }}>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style={{ padding: '4px 0', color: '#94A3B8', width: '95px' }}>Titulaire :</td>
+                                                                <td style={{ padding: '4px 0', fontWeight: 600, color: '#FFFFFF' }}>{bankOwner}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style={{ padding: '4px 0', color: '#94A3B8' }}>IBAN :</td>
+                                                                <td style={{ padding: '4px 0', fontFamily: 'monospace', fontWeight: 700, color: '#A3E635' }}>{bankIban}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style={{ padding: '4px 0', color: '#94A3B8' }}>BIC :</td>
+                                                                <td style={{ padding: '4px 0', fontFamily: 'monospace', color: '#FFFFFF' }}>{bankBic}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style={{ padding: '4px 0', color: '#94A3B8' }}>Référence :</td>
+                                                                <td style={{ padding: '4px 0', fontWeight: 700, color: '#FFFFFF' }}><span style={{ backgroundColor: '#1E293B', padding: '2px 7px', borderRadius: '4px', border: '1px solid #475569' }}>{docNumber}</span> (obligatoire)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style={{ padding: '4px 0', color: '#94A3B8' }}>Montant :</td>
+                                                                <td style={{ padding: '4px 0', fontWeight: 700, color: '#FFFFFF' }}>{totalTtc} €</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
+                                        )}
 
-                                            {/* Option 1 : Stripe */}
-                                            <div style={{ backgroundColor: '#0F172A', padding: '16px', borderRadius: '10px', border: '1px solid #334155', marginBottom: '12px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 700, color: '#FFFFFF', marginBottom: '6px' }}>
-                                                    <CreditCard size={15} style={{ color: '#635BFF' }} />
-                                                    <span>Option 1 : Paiement sécurisé en ligne (Stripe)</span>
-                                                </div>
-                                                <div style={{ color: '#94A3B8', fontSize: '12px', marginBottom: '12px' }}>
-                                                    Réglez instantanément par carte bancaire en quelques clics :
-                                                </div>
-                                                <div style={{ textAlign: 'center' }}>
+                                        {stripeEnabled && !bankTransferEnabled && (
+                                            <div>
+                                                <p style={{ color: '#E2E8F0', fontSize: '13px', margin: '0 0 14px 0' }}>
+                                                    Vous pouvez consulter votre facture et <strong>effectuer votre paiement sécurisé en ligne par carte bancaire</strong> :
+                                                </p>
+                                                <div style={{ textAlign: 'center', margin: '16px 0' }}>
                                                     <span style={{
                                                         display: 'inline-block',
                                                         backgroundColor: '#556B2F',
                                                         color: '#FFFFFF',
-                                                        padding: '10px 22px',
+                                                        padding: '12px 26px',
                                                         borderRadius: '8px',
                                                         fontWeight: 700,
-                                                        fontSize: '13px'
+                                                        fontSize: '13.5px'
                                                     }}>
-                                                        Payer en ligne par carte bancaire
+                                                        Payer ma facture en ligne ({totalTtc} €)
                                                     </span>
                                                 </div>
                                             </div>
+                                        )}
 
-                                            <div style={{ textAlign: 'center', margin: '10px 0', color: '#64748B', fontWeight: 700, fontSize: '11px', letterSpacing: '0.05em' }}>
-                                                — OU PAR VIREMENT BANCAIRE —
-                                            </div>
-
-                                            {/* Option 2 : Virement */}
+                                        {!stripeEnabled && bankTransferEnabled && (
                                             <div style={{ backgroundColor: '#0F172A', padding: '16px', borderRadius: '10px', border: '1px solid #334155' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 700, color: '#FFFFFF', marginBottom: '10px' }}>
                                                     <Building2 size={15} style={{ color: '#A3E635' }} />
-                                                    <span>Option 2 : Virement bancaire</span>
+                                                    <span>Coordonnées pour virement bancaire :</span>
                                                 </div>
                                                 <table style={{ width: '100%', fontSize: '12px', color: '#CBD5E1', borderCollapse: 'collapse' }}>
                                                     <tbody>
@@ -706,15 +806,10 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                                                     </tbody>
                                                 </table>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {stripeEnabled && !bankTransferEnabled && (
-                                        <div>
-                                            <p style={{ color: '#E2E8F0', fontSize: '13px', margin: '0 0 14px 0' }}>
-                                                Vous pouvez consulter votre facture et <strong>effectuer votre paiement sécurisé en ligne par carte bancaire</strong> :
-                                            </p>
-                                            <div style={{ textAlign: 'center', margin: '16px 0' }}>
+                                        {!stripeEnabled && !bankTransferEnabled && (
+                                            <div style={{ textAlign: 'center', padding: '12px 0' }}>
                                                 <span style={{
                                                     display: 'inline-block',
                                                     backgroundColor: '#556B2F',
@@ -724,98 +819,49 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                                                     fontWeight: 700,
                                                     fontSize: '13.5px'
                                                 }}>
-                                                    Payer ma facture en ligne ({totalTtc} €)
+                                                    Consulter ma facture en ligne
                                                 </span>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
 
-                                    {!stripeEnabled && bankTransferEnabled && (
-                                        <div style={{ backgroundColor: '#0F172A', padding: '16px', borderRadius: '10px', border: '1px solid #334155' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 700, color: '#FFFFFF', marginBottom: '10px' }}>
-                                                <Building2 size={15} style={{ color: '#A3E635' }} />
-                                                <span>Coordonnées pour virement bancaire :</span>
-                                            </div>
-                                            <table style={{ width: '100%', fontSize: '12px', color: '#CBD5E1', borderCollapse: 'collapse' }}>
-                                                <tbody>
-                                                    <tr>
-                                                        <td style={{ padding: '4px 0', color: '#94A3B8', width: '95px' }}>Titulaire :</td>
-                                                        <td style={{ padding: '4px 0', fontWeight: 600, color: '#FFFFFF' }}>{bankOwner}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style={{ padding: '4px 0', color: '#94A3B8' }}>IBAN :</td>
-                                                        <td style={{ padding: '4px 0', fontFamily: 'monospace', fontWeight: 700, color: '#A3E635' }}>{bankIban}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style={{ padding: '4px 0', color: '#94A3B8' }}>BIC :</td>
-                                                        <td style={{ padding: '4px 0', fontFamily: 'monospace', color: '#FFFFFF' }}>{bankBic}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style={{ padding: '4px 0', color: '#94A3B8' }}>Référence :</td>
-                                                        <td style={{ padding: '4px 0', fontWeight: 700, color: '#FFFFFF' }}><span style={{ backgroundColor: '#1E293B', padding: '2px 7px', borderRadius: '4px', border: '1px solid #475569' }}>{docNumber}</span> (obligatoire)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style={{ padding: '4px 0', color: '#94A3B8' }}>Montant :</td>
-                                                        <td style={{ padding: '4px 0', fontWeight: 700, color: '#FFFFFF' }}>{totalTtc} €</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
-
-                                    {!stripeEnabled && !bankTransferEnabled && (
-                                        <div style={{ textAlign: 'center', padding: '12px 0' }}>
-                                            <span style={{
-                                                display: 'inline-block',
-                                                backgroundColor: '#556B2F',
-                                                color: '#FFFFFF',
-                                                padding: '12px 26px',
-                                                borderRadius: '8px',
-                                                fontWeight: 700,
-                                                fontSize: '13.5px'
-                                            }}>
-                                                Consulter ma facture en ligne
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Footer du mail */}
-                                <div style={{ textAlign: 'center', marginTop: '18px', color: '#64748B', fontSize: '11.5px' }}>
-                                    <p style={{ margin: '0 0 4px 0' }}>© 2026 {companyDisplayName}.</p>
+                                    {/* Footer du mail */}
+                                    <div style={{ textAlign: 'center', marginTop: '18px', color: '#64748B', fontSize: '11.5px' }}>
+                                        <p style={{ margin: '0 0 4px 0' }}>© 2026 {companyDisplayName}.</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Footer de la modale */}
-                        <div style={{
-                            padding: '12px 20px',
-                            borderTop: '1px solid #1E293B',
-                            backgroundColor: '#0F172A',
-                            display: 'flex',
-                            justifyContent: 'flex-end'
-                        }}>
-                            <button
-                                type="button"
-                                onClick={() => setShowEmailPreview(false)}
-                                style={{
-                                    padding: '8px 18px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #334155',
-                                    backgroundColor: '#1E293B',
-                                    color: '#F8FAFC',
-                                    fontWeight: 600,
-                                    fontSize: '12.5px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Fermer l'aperçu
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+                            {/* Footer de la modale */}
+                            <div style={{
+                                padding: '12px 20px',
+                                borderTop: '1px solid #1E293B',
+                                backgroundColor: '#0F172A',
+                                display: 'flex',
+                                justifyContent: 'flex-end'
+                            }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEmailPreview(false)}
+                                    style={{
+                                        padding: '8px 18px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #334155',
+                                        backgroundColor: '#1E293B',
+                                        color: '#F8FAFC',
+                                        fontWeight: 600,
+                                        fontSize: '12.5px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Fermer l'aperçu
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
     );
 }
 

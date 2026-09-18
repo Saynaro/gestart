@@ -201,6 +201,19 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
         performSave({ civility: newCiv });
     };
 
+    // Refs for mobile input cards focus
+    const firstNameRef = React.useRef(null);
+    const lastNameRef = React.useRef(null);
+    const jobTitleRef = React.useRef(null);
+
+    const handleInputFocus = (e) => {
+        const target = e.currentTarget || e.target;
+        const card = target.closest('.mobile-input-card') || target;
+        setTimeout(() => {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 250);
+    };
+
     if (isMobileView) {
         return (
             <div className="mobile-fields-stack">
@@ -250,9 +263,14 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                     </div>
                 </div>
 
-                <div className="mobile-input-card">
+                <div 
+                    className="mobile-input-card" 
+                    onClick={() => firstNameRef.current?.focus()}
+                    style={{ cursor: 'text' }}
+                >
                     <span className="mobile-input-card-label">Prénom</span>
                     <input
+                        ref={firstNameRef}
                         type="text"
                         className="mobile-input-card-field"
                         value={firstName}
@@ -261,14 +279,20 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                             setFirstName(val);
                             queueAutoSave({ firstName: val });
                         }}
+                        onFocus={handleInputFocus}
                         onBlur={() => performSave({ firstName })}
                         placeholder="Khalid"
                     />
                 </div>
 
-                <div className="mobile-input-card">
+                <div 
+                    className="mobile-input-card" 
+                    onClick={() => lastNameRef.current?.focus()}
+                    style={{ cursor: 'text' }}
+                >
                     <span className="mobile-input-card-label">Nom</span>
                     <input
+                        ref={lastNameRef}
                         type="text"
                         className="mobile-input-card-field"
                         value={lastName}
@@ -277,6 +301,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                             setLastName(val);
                             queueAutoSave({ lastName: val });
                         }}
+                        onFocus={handleInputFocus}
                         onBlur={() => performSave({ lastName })}
                         placeholder="Sainaro"
                     />
@@ -296,7 +321,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                     </div>
                 </div>
 
-                <div className="mobile-input-card select" onClick={() => setActiveSubSheet && setActiveSubSheet("phone")}>
+                <div className="mobile-input-card select" onClick={() => setActiveSubSheet && setActiveSubSheet("phone")} style={{ cursor: 'pointer' }}>
                     <span className="mobile-input-card-label">Téléphone personnel</span>
                     <div className="mobile-input-card-row">
                         <span className="mobile-flag">🇫🇷</span>
@@ -306,7 +331,11 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                 </div>
 
                 {/* Rôle & Poste Mobile */}
-                <div className="mobile-input-card">
+                <div 
+                    className="mobile-input-card" 
+                    onClick={() => jobTitleRef.current?.focus()}
+                    style={{ cursor: 'text' }}
+                >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span className="mobile-input-card-label">Rôle d'accès</span>
                         <span style={{
@@ -321,6 +350,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                         </span>
                     </div>
                     <input
+                        ref={jobTitleRef}
                         type="text"
                         className="mobile-input-card-field"
                         value={jobTitle}
@@ -329,6 +359,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                             setJobTitle(val);
                             queueAutoSave({ jobTitle: val });
                         }}
+                        onFocus={handleInputFocus}
                         onBlur={() => performSave({ jobTitle })}
                         placeholder="Intitulé du poste / Métier"
                         style={{ marginTop: "4px" }}

@@ -232,6 +232,48 @@ function PlanningPage() {
         }
     }, [location.state, clientDetails]);
 
+    const handleCloseDetailModal = () => {
+        setShowDetailModal(false);
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("id")) {
+            params.delete("id");
+            const newSearch = params.toString();
+            navigate(newSearch ? `?${newSearch}` : location.pathname, { replace: true });
+        }
+    };
+
+    // Auto open intervention detail modal if navigated with ?id=... or location.state
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const targetInterId = params.get("id") || location.state?.openInterventionId || location.state?.interventionId;
+        if (!targetInterId) return;
+
+        if (rawInterventions.length > 0) {
+            const found = rawInterventions.find(i => String(i.id) === String(targetInterId));
+            if (found) {
+                setSelectedDetailIntervention(found);
+                setShowDetailModal(true);
+                return;
+            }
+        }
+
+        apiFetch(`/v1/interventions/${targetInterId}`)
+            .then(res => {
+                const item = res.data?.intervention || res.intervention || res.data;
+                if (item) {
+                    setSelectedDetailIntervention(item);
+                    setShowDetailModal(true);
+                } else {
+                    setSelectedDetailIntervention({ id: targetInterId });
+                    setShowDetailModal(true);
+                }
+            })
+            .catch(() => {
+                setSelectedDetailIntervention({ id: targetInterId });
+                setShowDetailModal(true);
+            });
+    }, [location.search, location.state, rawInterventions]);
+
     const fetchInterventions = async (isBackground = false) => {
         try {
             if (!isBackground) setLoading(true);
@@ -2775,9 +2817,7 @@ function PlanningPage() {
                 {/* Modal de consultation détaillée pour mobile (photos, signature, rapport) */}
                 <InterventionDetailModal
                     isOpen={showDetailModal}
-                    onClose={() => {
-                        setShowDetailModal(false);
-                    }}
+                    onClose={handleCloseDetailModal}
                     intervention={selectedDetailIntervention}
                     client={selectedDetailIntervention?.client}
                     onEdit={isTechnician ? null : handleDirectOpenEdit}
@@ -3307,9 +3347,7 @@ function PlanningPage() {
             {/* Modal de consultation détaillée pour toutes interventions */}
             <InterventionDetailModal
                 isOpen={showDetailModal}
-                onClose={() => {
-                    setShowDetailModal(false);
-                }}
+                onClose={handleCloseDetailModal}
                 intervention={selectedDetailIntervention}
                 client={selectedDetailIntervention?.client}
                 onEdit={isTechnician ? null : handleDirectOpenEdit}

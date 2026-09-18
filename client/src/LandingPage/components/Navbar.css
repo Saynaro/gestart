@@ -28,8 +28,7 @@
 }
 
 .brand-logo {
-    height: 180px;
-    padding-top: 5px;
+    height: 38px;
     width: auto;
     object-fit: contain;
     display: block;
@@ -168,7 +167,7 @@
     }
 
     .brand-logo {
-        height: 120px;
+        height: 32px;
         /* Smaller logo for mobile */
         width: auto;
         object-fit: contain;

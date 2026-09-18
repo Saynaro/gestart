@@ -1,4 +1,6 @@
 import { prisma } from "../config/db.js";
+import * as XLSX from "xlsx";
+import { generatePdfFromHtml } from "../utils/pdfGenerator.js";
 
 ////// REVENUE & TVA REPORT //////
 export const getRevenueReport = async (req, res) => {
@@ -826,5 +828,686 @@ export const getSmsReport = async (req, res) => {
             success: false,
             message: "Erreur serveur lors de la génération du rapport SMS"
         });
+    }
+};
+
+////// HELPER: FETCH ACCOUNTING EXPORT DATA //////
+async function getAccountingData(companyId, startDate, endDate) {
+    const fromDate = startDate ? new Date(startDate) : new Date(new Date().getFullYear(), 0, 1);
+    const toDate = endDate ? new Date(endDate) : new Date(new Date().getFullYear(), 11, 31, 23, 59, 59, 999);
+    toDate.setHours(23, 59, 59, 999);
+
+    const [invoices, company, companySettings] = await Promise.all([
+        prisma.invoice.findMany({
+            where: {
+                companyId,
+                status: { not: "CANCELLED" },
+                createdAt: {
+                    gte: fromDate,
+                    lte: toDate
+                }
+            },
+            include: {
+                client: true,
+                lines: true
+            },
+            orderBy: { createdAt: "asc" }
+        }),
+        prisma.company.findUnique({
+            where: { id: companyId }
+        }),
+        prisma.companySettings.findUnique({
+            where: { companyId }
+        })
+    ]);
+
+    let totalHT = 0;
+    let totalTTC = 0;
+    let totalPaid = 0;
+    let paidCount = 0;
+
+    const tvaMap = {
+        "0%": { base: 0, tva: 0 },
+        "5.5%": { base: 0, tva: 0 },
+        "10%": { base: 0, tva: 0 },
+        "20%": { base: 0, tva: 0 }
+    };
+
+    invoices.forEach(inv => {
+        const ht = Number(inv.amountHT || inv.totalHt || 0);
+        const ttc = Number(inv.amountTTC || inv.totalTtc || ht);
+        const isPaid = inv.status === "PAID";
+
+        totalHT += ht;
+        totalTTC += ttc;
+
+        if (isPaid) {
+            totalPaid += ttc;
+            paidCount++;
+        }
+
+        if (Array.isArray(inv.lines) && inv.lines.length > 0) {
+            inv.lines.forEach(line => {
+                const lineHt = Number(line.totalHT || line.amountHT || ((line.unitPrice || 0) * (line.quantity || 1)));
+                const rate = Number(line.tvaRate !== undefined ? line.tvaRate : (line.taxRate !== undefined ? line.taxRate : 20));
+                let key = "20%";
+                if (rate === 0) key = "0%";
+                else if (rate === 5.5) key = "5.5%";
+                else if (rate === 10) key = "10%";
+                else key = "20%";
+
+                const lineTva = Math.round(lineHt * (rate / 100) * 100) / 100;
+                tvaMap[key].base += lineHt;
+                tvaMap[key].tva += lineTva;
+            });
+        } else {
+            const diff = Math.max(0, ttc - ht);
+            tvaMap["20%"].base += ht;
+            tvaMap["20%"].tva += diff;
+        }
+    });
+
+    const totalTVA = Math.round((totalTTC - totalHT) * 100) / 100;
+    const pendingCount = Math.max(0, invoices.length - paidCount);
+    const totalPending = Math.max(0, totalTTC - totalPaid);
+
+    // Cotisations sociales (Taux auto-entrepreneur standard / configuré)
+    const urssafRate = 21.2;
+    const cfpRate = 0.3;
+    const urssafDue = Math.round(totalHT * (urssafRate / 100) * 100) / 100;
+    const cfpDue = Math.round(totalHT * (cfpRate / 100) * 100) / 100;
+    const totalCharges = Math.round((urssafDue + cfpDue) * 100) / 100;
+    const netEnPoche = Math.round((totalHT - totalCharges) * 100) / 100;
+    const netPercent = totalHT > 0 ? Math.round((netEnPoche / totalHT) * 1000) / 10 : 78.5;
+
+    return {
+        company: {
+            name: company?.name || "KHALID SAINARO",
+            commercialName: company?.commercialName || "GestArt",
+            siret: company?.siret || "944 087 725 00015",
+            siren: company?.siren || "944 087 725",
+            ape: company?.apeCode || "53.20Z",
+            address: company?.address || "23 RUE PAGANINI, 06000 NICE",
+            email: company?.email || "support.gestart@gmail.com",
+            phone: company?.phone || "06 51 60 43 16"
+        },
+        period: {
+            startDate: fromDate.toLocaleDateString("fr-FR"),
+            endDate: toDate.toLocaleDateString("fr-FR"),
+            rawStart: startDate || fromDate.toISOString().split("T")[0],
+            rawEnd: endDate || toDate.toISOString().split("T")[0]
+        },
+        summary: {
+            totalInvoices: invoices.length,
+            totalHT: Math.round(totalHT * 100) / 100,
+            totalTTC: Math.round(totalTTC * 100) / 100,
+            totalTVA,
+            totalPaid: Math.round(totalPaid * 100) / 100,
+            totalPending: Math.round(totalPending * 100) / 100,
+            paidCount,
+            pendingCount
+        },
+        invoices,
+        tvaMap,
+        socialCharges: {
+            urssafRate,
+            cfpRate,
+            urssafDue,
+            cfpDue,
+            totalCharges,
+            netEnPoche,
+            netPercent
+        }
+    };
+}
+
+////// 1. EXPORT EXCEL (.xlsx) //////
+export const exportAccountingExcel = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { startDate, endDate } = req.query;
+
+        const data = await getAccountingData(companyId, startDate, endDate);
+        const { company, period, summary, invoices, tvaMap, socialCharges } = data;
+
+        const wb = XLSX.utils.book_new();
+
+        // SHEET 1: Factures
+        const invoiceRows = [
+            ["N° Facture", "Date Émission", "Client", "Email", "Téléphone", "Statut", "Montant HT (€)", "Montant TVA (€)", "Montant TTC (€)", "Date Paiement", "Mode de Règlement"]
+        ];
+
+        invoices.forEach(inv => {
+            const clientName = inv.client ? `${inv.client.firstName || ''} ${inv.client.lastName || inv.client.companyName || ''}`.trim() : (inv.clientName || 'Client divers');
+            const ht = Number(inv.amountHT || inv.totalHt || 0);
+            const ttc = Number(inv.amountTTC || inv.totalTtc || ht);
+            const tva = Math.round((ttc - ht) * 100) / 100;
+            const statusLabel = inv.status === "PAID" ? "Payée" : inv.status === "SENT" ? "Émise (En attente)" : inv.status === "OVERDUE" ? "En retard" : "Brouillon";
+
+            invoiceRows.push([
+                inv.number || `F-${inv.id}`,
+                inv.createdAt ? new Date(inv.createdAt).toLocaleDateString("fr-FR") : "",
+                clientName,
+                inv.client?.email || "",
+                inv.client?.phone || "",
+                statusLabel,
+                ht,
+                tva,
+                ttc,
+                inv.paidAt ? new Date(inv.paidAt).toLocaleDateString("fr-FR") : (inv.status === "PAID" ? "Réglé" : ""),
+                inv.paymentMethod || (inv.status === "PAID" ? "Virement / CB" : "")
+            ]);
+        });
+
+        // Add summary total row
+        invoiceRows.push([
+            "TOTAL",
+            "",
+            `${summary.totalInvoices} facture(s)`,
+            "",
+            "",
+            `${summary.paidCount} payée(s) / ${summary.pendingCount} en attente`,
+            summary.totalHT,
+            summary.totalTVA,
+            summary.totalTTC,
+            `${summary.totalPaid} € encaissé`,
+            ""
+        ]);
+
+        const wsInvoices = XLSX.utils.aoa_to_sheet(invoiceRows);
+        wsInvoices["!cols"] = [
+            { wch: 15 }, { wch: 14 }, { wch: 24 }, { wch: 24 }, { wch: 15 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 18 }
+        ];
+        XLSX.utils.book_append_sheet(wb, wsInvoices, "Factures & Ventes");
+
+        // SHEET 2: Récapitulatif TVA
+        const tvaRows = [
+            ["Taux de TVA", "Base Hors Taxe (HT €)", "Montant TVA Collectée (€)", "Régime d'exigibilité"],
+            ["Taux 0%", Math.round(tvaMap["0%"].base * 100) / 100, Math.round(tvaMap["0%"].tva * 100) / 100, "Franchise / Exonéré"],
+            ["Taux 5.5%", Math.round(tvaMap["5.5%"].base * 100) / 100, Math.round(tvaMap["5.5%"].tva * 100) / 100, "Encaissements (Art. 269-2 CGI)"],
+            ["Taux 10%", Math.round(tvaMap["10%"].base * 100) / 100, Math.round(tvaMap["10%"].tva * 100) / 100, "Encaissements (Art. 269-2 CGI)"],
+            ["Taux 20%", Math.round(tvaMap["20%"].base * 100) / 100, Math.round(tvaMap["20%"].tva * 100) / 100, "Encaissements (Art. 269-2 CGI)"],
+            ["TOTAL TVA", summary.totalHT, summary.totalTVA, "Total Déclarable"]
+        ];
+        const wsTva = XLSX.utils.aoa_to_sheet(tvaRows);
+        wsTva["!cols"] = [{ wch: 16 }, { wch: 22 }, { wch: 24 }, { wch: 32 }];
+        XLSX.utils.book_append_sheet(wb, wsTva, "Récapitulatif TVA");
+
+        // SHEET 3: Cotisations URSSAF & Net
+        const socialRows = [
+            ["Poste de Dépense / Cotisation", "Base de Calcul HT (€)", "Taux Appliqué (%)", "Montant Déduit (€)", "Organisme Récepteur"],
+            ["1. Cotisations sociales URSSAF", summary.totalHT, `${socialCharges.urssafRate}%`, socialCharges.urssafDue, "URSSAF"],
+            ["2. Formation Professionnelle (CFP)", summary.totalHT, `${socialCharges.cfpRate}%`, socialCharges.cfpDue, "URSSAF / FAFCEA"],
+            ["3. Versement Libératoire (IR)", summary.totalHT, "—", 0, "DGFIP (Déclaration 2042)"],
+            ["TOTAL CHARGES SOCIALES & FISCALES", summary.totalHT, `${socialCharges.urssafRate + socialCharges.cfpRate}%`, socialCharges.totalCharges, "URSSAF"],
+            ["REVENU NET RESTANT EN POCHE", summary.totalHT, `${socialCharges.netPercent}%`, socialCharges.netEnPoche, "Entrepreneur (Bénéfice Net)"]
+        ];
+        const wsSocial = XLSX.utils.aoa_to_sheet(socialRows);
+        wsSocial["!cols"] = [{ wch: 35 }, { wch: 22 }, { wch: 18 }, { wch: 20 }, { wch: 30 }];
+        XLSX.utils.book_append_sheet(wb, wsSocial, "Cotisations & Net");
+
+        const excelBuffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+        const filename = `Export_Comptable_GestArt_${period.rawStart}_au_${period.rawEnd}.xlsx`;
+
+        // Enregistrer dans l'historique des exports
+        await logExportHistory(companyId, {
+            format: "excel",
+            filename,
+            startDate: period.rawStart,
+            endDate: period.rawEnd,
+            periodLabel: `Du ${period.startDate} au ${period.endDate}`,
+            invoicesCount: summary.totalInvoices,
+            totalHT: summary.totalHT,
+            totalTTC: summary.totalTTC
+        });
+
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        return res.send(excelBuffer);
+    } catch (error) {
+        console.error("EXPORT EXCEL ERROR:", error);
+        return res.status(500).json({ success: false, message: "Erreur lors de la génération de l'export Excel: " + error.message });
+    }
+};
+
+////// 2. EXPORT PDF (.pdf) //////
+export const exportAccountingPdf = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { startDate, endDate } = req.query;
+
+        const data = await getAccountingData(companyId, startDate, endDate);
+        const { company, period, summary, invoices, tvaMap, socialCharges } = data;
+
+        const invoiceRowsHtml = invoices.map(inv => {
+            const clientName = inv.client ? `${inv.client.firstName || ''} ${inv.client.lastName || inv.client.companyName || ''}`.trim() : (inv.clientName || 'Client divers');
+            const ht = Number(inv.amountHT || inv.totalHt || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 });
+            const ttc = Number(inv.amountTTC || inv.totalTtc || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2 });
+            const tva = (Math.max(0, Number(inv.amountTTC || inv.totalTtc || 0) - Number(inv.amountHT || inv.totalHt || 0))).toLocaleString("fr-FR", { minimumFractionDigits: 2 });
+            const date = inv.createdAt ? new Date(inv.createdAt).toLocaleDateString("fr-FR") : "-";
+            const statusClass = inv.status === "PAID" ? "badge-paid" : "badge-pending";
+            const statusText = inv.status === "PAID" ? "RÉGLÉE" : "EN ATTENTE";
+
+            return `
+                <tr>
+                    <td><strong>${inv.number || `F-${inv.id}`}</strong></td>
+                    <td>${date}</td>
+                    <td>${clientName}</td>
+                    <td style="text-align: right;">${ht} €</td>
+                    <td style="text-align: right;">${tva} €</td>
+                    <td style="text-align: right; font-weight: 700;">${ttc} €</td>
+                    <td style="text-align: center;"><span class="badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        }).join("");
+
+        const fullHtml = `
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <title>Rapport Comptable GestArt</title>
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                        color: #1e293b;
+                        background: #ffffff;
+                        padding: 24px 30px;
+                        font-size: 11px;
+                        line-height: 1.4;
+                    }
+                    .header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        border-bottom: 2px solid #556B2F;
+                        padding-bottom: 16px;
+                        margin-bottom: 20px;
+                    }
+                    .brand-name {
+                        font-size: 22px;
+                        font-weight: 800;
+                        color: #556B2F;
+                        margin: 0 0 4px 0;
+                    }
+                    .company-details {
+                        font-size: 10px;
+                        color: #64748b;
+                    }
+                    .report-title-box {
+                        text-align: right;
+                    }
+                    .report-title {
+                        font-size: 16px;
+                        font-weight: 800;
+                        color: #0f172a;
+                        margin: 0;
+                    }
+                    .report-period {
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: #556B2F;
+                        margin-top: 2px;
+                    }
+                    .kpis-row {
+                        display: flex;
+                        gap: 10px;
+                        margin-bottom: 20px;
+                    }
+                    .kpi-tile {
+                        flex: 1;
+                        background: #f8fafc;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 6px;
+                        padding: 10px 12px;
+                    }
+                    .kpi-title {
+                        font-size: 9px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        color: #64748b;
+                        letter-spacing: 0.5px;
+                    }
+                    .kpi-val {
+                        font-size: 15px;
+                        font-weight: 800;
+                        color: #0f172a;
+                        margin-top: 2px;
+                    }
+                    .section-title {
+                        font-size: 14px;
+                        font-weight: 800;
+                        color: #0f172a;
+                        margin: 20px 0 10px 0;
+                        border-bottom: 1px solid #e2e8f0;
+                        padding-bottom: 4px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 10px;
+                        margin-bottom: 20px;
+                    }
+                    th {
+                        background-color: #f1f5f9;
+                        color: #475569;
+                        font-weight: 700;
+                        text-align: left;
+                        padding: 8px 10px;
+                        border-bottom: 1px solid #cbd5e1;
+                    }
+                    td {
+                        padding: 7px 10px;
+                        border-bottom: 1px solid #f1f5f9;
+                        color: #334155;
+                    }
+                    tr:nth-child(even) td {
+                        background-color: #f8fafc;
+                    }
+                    .total-row td {
+                        font-weight: 800;
+                        background-color: #f1f5f9;
+                        border-top: 1px solid #cbd5e1;
+                        border-bottom: 2px solid #556B2F;
+                    }
+                    .badge {
+                        padding: 3px 6px;
+                        border-radius: 4px;
+                        font-size: 9px;
+                        font-weight: 700;
+                        display: inline-block;
+                    }
+                    .badge-paid {
+                        background-color: #dcfce7;
+                        color: #166534;
+                    }
+                    .badge-pending {
+                        background-color: #fef9c3;
+                        color: #854d0e;
+                    }
+                    .footer {
+                        margin-top: 30px;
+                        padding-top: 12px;
+                        border-top: 1px solid #e2e8f0;
+                        font-size: 9px;
+                        color: #94a3b8;
+                        display: flex;
+                        justify-content: space-between;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div>
+                        <h1 class="brand-name">${company.commercialName || "GestArt"}</h1>
+                        <div class="company-details">
+                            <strong>${company.name}</strong> • SIRET : ${company.siret} • APE : ${company.ape}<br>
+                            ${company.address} • Tél : ${company.phone} • Email : ${company.email}
+                        </div>
+                    </div>
+                    <div class="report-title-box">
+                        <div class="report-title">RAPPORT COMPTABLE</div>
+                        <div class="report-period">Période du ${period.startDate} au ${period.endDate}</div>
+                    </div>
+                </div>
+
+                <!-- KPIS -->
+                <div class="kpis-row">
+                    <div class="kpi-tile">
+                        <div class="kpi-title">Factures Émises</div>
+                        <div class="kpi-val">${summary.totalInvoices}</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="kpi-title">Chiffre d'Affaires HT</div>
+                        <div class="kpi-val" style="color: #556B2F;">${summary.totalHT.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="kpi-title">TVA Collectée</div>
+                        <div class="kpi-val">${summary.totalTVA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="kpi-title">Total Encaissé (TTC)</div>
+                        <div class="kpi-val" style="color: #16a34a;">${summary.totalPaid.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</div>
+                    </div>
+                </div>
+
+                <!-- TABLE FACTURES -->
+                <div class="section-title">1. Journal des Ventes & Factures</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Facture</th>
+                            <th>Date</th>
+                            <th>Client</th>
+                            <th style="text-align: right;">Montant HT</th>
+                            <th style="text-align: right;">TVA</th>
+                            <th style="text-align: right;">Montant TTC</th>
+                            <th style="text-align: center;">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${invoiceRowsHtml || '<tr><td colspan="7" style="text-align: center; color: #94a3b8;">Aucune facture pour cette période</td></tr>'}
+                        <tr class="total-row">
+                            <td colspan="3">TOTAL GÉNÉRAL</td>
+                            <td style="text-align: right;">${summary.totalHT.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                            <td style="text-align: right;">${summary.totalTVA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                            <td style="text-align: right;">${summary.totalTTC.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td>
+                            <td style="text-align: center;">${summary.paidCount}/${summary.totalInvoices} payées</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- TABLE TVA & URSSAF (2 COLUMNS) -->
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <div class="section-title">2. Récapitulatif TVA</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Taux</th>
+                                    <th style="text-align: right;">Base HT</th>
+                                    <th style="text-align: right;">TVA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Taux 0%</td><td style="text-align: right;">${tvaMap["0%"].base.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td><td style="text-align: right;">0,00 €</td></tr>
+                                <tr><td>Taux 5.5%</td><td style="text-align: right;">${tvaMap["5.5%"].base.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td><td style="text-align: right;">${tvaMap["5.5%"].tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                                <tr><td>Taux 10%</td><td style="text-align: right;">${tvaMap["10%"].base.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td><td style="text-align: right;">${tvaMap["10%"].tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                                <tr><td>Taux 20%</td><td style="text-align: right;">${tvaMap["20%"].base.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td><td style="text-align: right;">${tvaMap["20%"].tva.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                                <tr class="total-row"><td>TOTAL</td><td style="text-align: right;">${summary.totalHT.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td><td style="text-align: right;">${summary.totalTVA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="flex: 1;">
+                        <div class="section-title">3. Cotisations Sociales & Net</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Poste</th>
+                                    <th style="text-align: right;">Taux</th>
+                                    <th style="text-align: right;">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>URSSAF (Social)</td><td style="text-align: right;">${socialCharges.urssafRate}%</td><td style="text-align: right; color: #dc2626;">- ${socialCharges.urssafDue.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                                <tr><td>Formation (CFP)</td><td style="text-align: right;">${socialCharges.cfpRate}%</td><td style="text-align: right; color: #dc2626;">- ${socialCharges.cfpDue.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                                <tr class="total-row"><td>TOTAL CHARGES</td><td style="text-align: right;">${socialCharges.urssafRate + socialCharges.cfpRate}%</td><td style="text-align: right; color: #dc2626;">- ${socialCharges.totalCharges.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                                <tr style="background-color: #f0fdf4; font-weight: 800;"><td>REVENU NET</td><td style="text-align: right; color: #16a34a;">${socialCharges.netPercent}%</td><td style="text-align: right; color: #16a34a;">${socialCharges.netEnPoche.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <span>Document généré par la plateforme GestArt • Conformité Code du Commerce & CGI</span>
+                    <span>Page 1 / 1</span>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const pdfBuffer = await generatePdfFromHtml(fullHtml);
+        const filename = `Rapport_Comptable_GestArt_${period.rawStart}_au_${period.rawEnd}.pdf`;
+
+        // Enregistrer dans l'historique des exports
+        await logExportHistory(companyId, {
+            format: "pdf",
+            filename,
+            startDate: period.rawStart,
+            endDate: period.rawEnd,
+            periodLabel: `Du ${period.startDate} au ${period.endDate}`,
+            invoicesCount: summary.totalInvoices,
+            totalHT: summary.totalHT,
+            totalTTC: summary.totalTTC
+        });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        return res.send(pdfBuffer);
+    } catch (error) {
+        console.error("EXPORT PDF ERROR:", error);
+        return res.status(500).json({ success: false, message: "Erreur lors de la génération du PDF: " + error.message });
+    }
+};
+
+////// 3. EXPORT TEXTE (.txt) //////
+export const exportAccountingTxt = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { startDate, endDate } = req.query;
+
+        const data = await getAccountingData(companyId, startDate, endDate);
+        const { company, period, summary, invoices, tvaMap, socialCharges } = data;
+
+        let txt = `================================================================================
+                     RAPPORT COMPTABLE ET FINANCIER
+================================================================================
+Éditeur : ${company.commercialName} - ${company.name}
+SIRET   : ${company.siret} | APE : ${company.ape}
+Adresse : ${company.address}
+Contact : ${company.phone} | ${company.email}
+--------------------------------------------------------------------------------
+Période comptable : Du ${period.startDate} au ${period.endDate}
+Généré le         : ${new Date().toLocaleString("fr-FR")}
+================================================================================
+
+1. SYNTHÈSE GLOBALE
+--------------------------------------------------------------------------------
+Nombre de factures émises : ${summary.totalInvoices}
+- Factures réglées        : ${summary.paidCount} (${summary.totalPaid.toLocaleString("fr-FR")} € TTC)
+- Factures en attente     : ${summary.pendingCount} (${summary.totalPending.toLocaleString("fr-FR")} € TTC)
+
+Chiffre d'Affaires HT     : ${summary.totalHT.toLocaleString("fr-FR")} €
+Total TVA Collectée       : ${summary.totalTVA.toLocaleString("fr-FR")} €
+Total Facturé TTC         : ${summary.totalTTC.toLocaleString("fr-FR")} €
+
+2. DÉTAIL DES FACTURES DE LA PÉRIODE
+--------------------------------------------------------------------------------
+${invoices.map(inv => {
+    const clientName = inv.client ? `${inv.client.firstName || ''} ${inv.client.lastName || inv.client.companyName || ''}`.trim() : (inv.clientName || 'Client divers');
+    const ht = Number(inv.amountHT || inv.totalHt || 0).toLocaleString("fr-FR");
+    const ttc = Number(inv.amountTTC || inv.totalTtc || 0).toLocaleString("fr-FR");
+    const date = inv.createdAt ? new Date(inv.createdAt).toLocaleDateString("fr-FR") : "-";
+    const status = inv.status === "PAID" ? "PAYÉE" : "EN ATTENTE";
+    return `• ${inv.number || `F-${inv.id}`} | Date: ${date} | Client: ${clientName.padEnd(20, " ")} | HT: ${ht} € | TTC: ${ttc} € | [${status}]`;
+}).join("\n")}
+
+3. RÉCAPITULATIF DE TVA
+--------------------------------------------------------------------------------
+- Taux  0.0% : Base HT = ${tvaMap["0%"].base.toLocaleString("fr-FR")} € | TVA = 0,00 €
+- Taux  5.5% : Base HT = ${tvaMap["5.5%"].base.toLocaleString("fr-FR")} € | TVA = ${tvaMap["5.5%"].tva.toLocaleString("fr-FR")} €
+- Taux 10.0% : Base HT = ${tvaMap["10%"].base.toLocaleString("fr-FR")} € | TVA = ${tvaMap["10%"].tva.toLocaleString("fr-FR")} €
+- Taux 20.0% : Base HT = ${tvaMap["20%"].base.toLocaleString("fr-FR")} € | TVA = ${tvaMap["20%"].tva.toLocaleString("fr-FR")} €
+--------------------------------------------------------------------------------
+TOTAL TVA COLLECTÉE : ${summary.totalTVA.toLocaleString("fr-FR")} €
+
+4. CHARGES SOCIALES & REVENU NET (ESTIMATION URSSAF)
+--------------------------------------------------------------------------------
+- Cotisations sociales URSSAF (${socialCharges.urssafRate}%) : - ${socialCharges.urssafDue.toLocaleString("fr-FR")} €
+- Formation Professionnelle CFP (${socialCharges.cfpRate}%)  : - ${socialCharges.cfpDue.toLocaleString("fr-FR")} €
+- Total Cotisations à verser                      : - ${socialCharges.totalCharges.toLocaleString("fr-FR")} €
+--------------------------------------------------------------------------------
+REVENU NET RESTANT EN POCHE (${socialCharges.netPercent}%)       : ${socialCharges.netEnPoche.toLocaleString("fr-FR")} €
+
+================================================================================
+GestArt v1.0.0 • Logiciel de Gestion et Facturation Conforme
+================================================================================
+`;
+
+        const filename = `Export_Comptable_GestArt_${period.rawStart}_au_${period.rawEnd}.txt`;
+
+        // Enregistrer dans l'historique des exports
+        await logExportHistory(companyId, {
+            format: "txt",
+            filename,
+            startDate: period.rawStart,
+            endDate: period.rawEnd,
+            periodLabel: `Du ${period.startDate} au ${period.endDate}`,
+            invoicesCount: summary.totalInvoices,
+            totalHT: summary.totalHT,
+            totalTTC: summary.totalTTC
+        });
+
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        return res.send(txt);
+    } catch (error) {
+        console.error("EXPORT TXT ERROR:", error);
+        return res.status(500).json({ success: false, message: "Erreur lors de la génération du TXT: " + error.message });
+    }
+};
+
+////// 4. HELPER & ROUTE POUR L'HISTORIQUE DES EXPORTS //////
+export const logExportHistory = async (companyId, item) => {
+    try {
+        const settings = await prisma.companySettings.findUnique({
+            where: { companyId },
+            select: { documentCustomization: true }
+        });
+        const customObj = (settings?.documentCustomization && typeof settings.documentCustomization === "object") ? settings.documentCustomization : {};
+        const prevList = Array.isArray(customObj.exportHistory) ? customObj.exportHistory : [];
+        const newHistory = [
+            {
+                id: `exp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+                ...item,
+                createdAt: new Date().toISOString()
+            },
+            ...prevList
+        ].slice(0, 20); // Garder les 20 derniers exports au maximum (FIFO)
+
+        await prisma.companySettings.upsert({
+            where: { companyId },
+            update: {
+                documentCustomization: {
+                    ...customObj,
+                    exportHistory: newHistory
+                }
+            },
+            create: {
+                companyId,
+                documentCustomization: {
+                    exportHistory: newHistory
+                }
+            }
+        });
+    } catch (e) {
+        console.warn("Failed to log export history:", e.message);
+    }
+};
+
+export const getExportHistory = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const settings = await prisma.companySettings.findUnique({
+            where: { companyId },
+            select: { documentCustomization: true }
+        });
+        const history = (settings?.documentCustomization?.exportHistory || []).slice(0, 20);
+        return res.json({ success: true, history });
+    } catch (error) {
+        console.error("GET EXPORT HISTORY ERROR:", error);
+        return res.status(500).json({ success: false, message: error.message });
     }
 };

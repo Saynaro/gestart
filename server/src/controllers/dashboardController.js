@@ -453,6 +453,18 @@ export const getDashboardData = async (req, res) => {
             const dateStr = dateObj ? dateObj.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) : "";
             const timeStr = dateObj ? dateObj.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
 
+            const getStatusFrench = (st) => {
+                switch (st) {
+                    case "COMPLETED": return "Terminée";
+                    case "IN_PROGRESS":
+                    case "ARRIVED": return "En cours";
+                    case "CANCELLED": return "Annulée";
+                    case "SCHEDULED":
+                    case "PENDING":
+                    default: return "Planifiée";
+                }
+            };
+
             return {
                 id: item.id,
                 title: item.title,
@@ -460,7 +472,8 @@ export const getDashboardData = async (req, res) => {
                 address: item.client ? `${item.client.address || ''}, ${item.client.city || ''}`.trim().replace(/^,\s*/, '') : "",
                 date: dateStr,
                 time: timeStr,
-                status: item.status,
+                status: getStatusFrench(item.status),
+                rawStatus: item.status,
                 type: item.type
             };
         };

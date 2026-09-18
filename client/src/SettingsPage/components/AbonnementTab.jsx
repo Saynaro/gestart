@@ -9,7 +9,9 @@ import {
     AlertTriangle,
     RefreshCw,
     Shield,
-    Loader2
+    Loader2,
+    ChevronDown,
+    ChevronUp
 } from "lucide-react";
 import { API_URL } from "../../utils/config";
 import { apiFetch } from "../../utils/api";
@@ -35,6 +37,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
     const [paymentHistory, setPaymentHistory] = useState([]);
     const [loadingData, setLoadingData] = useState(true);
     const [activeReceipt, setActiveReceipt] = useState(null);
+    const [expandedPlan, setExpandedPlan] = useState(null);
 
     // Sync from context when contextSub updates
     useEffect(() => {
@@ -256,32 +259,36 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             name: "Starter",
             priceMonthly: 1,
             priceAnnual: 1,
-            clientsLimit: 50,
+            summary: "1 utilisateur · 100 clients · 100 SMS",
+            clientsLimit: 100,
             techsLimit: 1,
-            smsLimit: 50,
+            smsLimit: 100,
             features: [
-                "1 technicien (le patron lui-même)",
-                "Fiches clients + équipements",
-                "Planning & Signature devis",
-                "50 SMS manuels/mois",
-                "Export comptable Excel",
-                "Support email"
+                "1 utilisateur (le patron lui-même)",
+                "Jusqu'à 100 fiches clients",
+                "100 SMS de rappel / mois inclus",
+                "Devis, Factures & Signature électronique",
+                "Facturation électronique & Chorus Pro",
+                "Planning & Suivi des chantiers",
+                "Rappels automatiques des entretiens"
             ]
         },
         {
             name: "Pro",
             priceMonthly: 1,
             priceAnnual: 1,
-            clientsLimit: 300,
-            techsLimit: 10,
+            summary: "5 techniciens · 500 clients · 500 SMS · App mobile",
+            clientsLimit: 500,
+            techsLimit: 5,
             smsLimit: 500,
             recommended: true,
             features: [
                 "Toutes les fonctions Starter",
-                "Jusqu'à 10 techniciens inclus",
-                "Rappels SMS automatiques",
-                "App Mobile Techniciens",
-                "Module auto-entrepreneur URSSAF",
+                "Jusqu'à 5 techniciens inclus",
+                "Jusqu'à 500 clients",
+                "500 SMS / mois inclus",
+                "Application mobile techniciens",
+                "Facturation électronique & Chorus Pro",
                 "Support prioritaire 7j/7"
             ]
         },
@@ -289,15 +296,17 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             name: "Unlimited",
             priceMonthly: 1,
             priceAnnual: 1,
+            summary: "Illimité clients & techniciens · 1 500 SMS",
             clientsLimit: "Illimité",
             techsLimit: "Illimité",
-            smsLimit: 1000,
+            smsLimit: 1500,
             features: [
-                "Tout en illimité",
-                "Techniciens & Clients illimités",
-                "Accès API REST dédié",
-                "Chorus Pro & Numéro dédié",
-                "Gestion multi-sociétés"
+                "Toutes les fonctions Pro",
+                "Techniciens & Clients 100% Illimités",
+                "1 500 SMS / mois inclus",
+                "Facturation électronique intégrale",
+                "Gestion multi-activités & Export comptable",
+                "Support VIP prioritaire 7j/7"
             ]
         }
     ];
@@ -344,26 +353,26 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
     }, [usage.sms]);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '14px' : '24px' }}>
             {/* Carte Plan Actuel & Consommation */}
             <div style={{
                 backgroundColor: 'var(--card)',
                 border: '1px solid var(--border)',
-                borderRadius: '16px',
-                padding: '24px',
+                borderRadius: isMobileView ? '14px' : '16px',
+                padding: isMobileView ? '14px 14px' : '24px',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
             }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: isMobileView ? '12px' : '16px' }}>
+                    <div style={{ width: isMobileView ? '100%' : 'auto', flex: '1 1 auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                             {isExpired ? (
                                 <>
                                     <span style={{
                                         backgroundColor: '#dc2626',
                                         color: '#fff',
-                                        fontSize: '11px',
+                                        fontSize: isMobileView ? '10px' : '11px',
                                         fontWeight: 800,
-                                        padding: '4px 12px',
+                                        padding: isMobileView ? '3px 9px' : '4px 12px',
                                         borderRadius: '50px',
                                         textTransform: 'uppercase',
                                         letterSpacing: '0.04em'
@@ -373,12 +382,12 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     <span style={{
                                         display: 'inline-flex',
                                         alignItems: 'center',
-                                        gap: '6px',
+                                        gap: '5px',
                                         color: '#EF4444',
-                                        fontSize: '12px',
+                                        fontSize: isMobileView ? '11.5px' : '12px',
                                         fontWeight: 800
                                     }}>
-                                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
+                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
                                         Accès suspendu (Mode consultation)
                                     </span>
                                 </>
@@ -387,9 +396,9 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     <span style={{
                                         backgroundColor: '#556B2F',
                                         color: '#fff',
-                                        fontSize: '11px',
+                                        fontSize: isMobileView ? '10px' : '11px',
                                         fontWeight: 800,
-                                        padding: '4px 12px',
+                                        padding: isMobileView ? '3px 9px' : '4px 12px',
                                         borderRadius: '50px',
                                         textTransform: 'uppercase',
                                         letterSpacing: '0.04em'
@@ -400,24 +409,24 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         <span style={{
                                             display: 'inline-flex',
                                             alignItems: 'center',
-                                            gap: '6px',
+                                            gap: '5px',
                                             color: '#EF4444',
-                                            fontSize: '12px',
+                                            fontSize: isMobileView ? '11.5px' : '12px',
                                             fontWeight: 800
                                         }}>
-                                            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
+                                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }}></span>
                                             Résiliation programmée
                                         </span>
                                     ) : (
                                         <span style={{
                                             display: 'inline-flex',
                                             alignItems: 'center',
-                                            gap: '6px',
+                                            gap: '5px',
                                             color: '#16A34A',
-                                            fontSize: '12px',
+                                            fontSize: isMobileView ? '11.5px' : '12px',
                                             fontWeight: 700
                                         }}>
-                                            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A', display: 'inline-block' }}></span>
+                                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#16A34A', display: 'inline-block' }}></span>
                                             Abonnement actif
                                         </span>
                                     )}
@@ -425,11 +434,11 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             )}
                         </div>
 
-                        <h3 style={{ margin: '10px 0 4px 0', fontSize: '22px', fontWeight: 800 }}>
+                        <h3 style={{ margin: isMobileView ? '8px 0 4px 0' : '10px 0 4px 0', fontSize: isMobileView ? '17px' : '22px', fontWeight: 800 }}>
                             {isExpired ? "Accès limité en lecture seule" : currentPriceText}
                         </h3>
 
-                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)' }}>
+                        <p style={{ margin: 0, fontSize: isMobileView ? '12px' : '13px', color: 'var(--muted-foreground)', lineHeight: isMobileView ? '1.4' : 'normal' }}>
                             {isExpired ? (
                                 <span>Votre période d'accès à l'offre <strong>{currentPlan}</strong> a pris fin le <strong style={{ color: '#EF4444' }}>{formattedRenewalDate}</strong>. Vos données sont préservées.</span>
                             ) : isCancelled ? (
@@ -440,7 +449,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                         </p>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: isMobileView ? '8px' : '10px', flexWrap: 'wrap', width: isMobileView ? '100%' : 'auto' }}>
                         {isExpired ? (
                             <>
                                 <button
@@ -451,21 +460,23 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         setCheckoutModalOpen(true);
                                     }}
                                     style={{
-                                        padding: '10px 20px',
+                                        flex: isMobileView ? '1 1 auto' : 'initial',
+                                        justifyContent: 'center',
+                                        padding: isMobileView ? '9px 14px' : '10px 20px',
                                         backgroundColor: '#16a34a',
                                         color: '#fff',
                                         border: 'none',
-                                        borderRadius: '10px',
+                                        borderRadius: '8px',
                                         fontWeight: 800,
-                                        fontSize: '13px',
+                                        fontSize: isMobileView ? '12.5px' : '13px',
                                         cursor: 'pointer',
-                                        display: 'flex',
+                                        display: 'inline-flex',
                                         alignItems: 'center',
-                                        gap: '8px',
-                                        boxShadow: '0 4px 14px rgba(22, 163, 74, 0.35)'
+                                        gap: '6px',
+                                        boxShadow: '0 2px 8px rgba(22, 163, 74, 0.25)'
                                     }}
                                 >
-                                    <RefreshCw size={15} />
+                                    <RefreshCw size={14} />
                                     Renouveler mon abonnement
                                 </button>
                                 <button
@@ -473,21 +484,23 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     onClick={handleOpenStripePortal}
                                     disabled={actionLoading}
                                     style={{
-                                        padding: '10px 18px',
+                                        flex: isMobileView ? '1 1 auto' : 'initial',
+                                        justifyContent: 'center',
+                                        padding: isMobileView ? '9px 14px' : '10px 18px',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
                                         border: '1px solid var(--border)',
-                                        borderRadius: '10px',
+                                        borderRadius: '8px',
                                         fontWeight: 700,
-                                        fontSize: '13px',
+                                        fontSize: isMobileView ? '12.5px' : '13px',
                                         cursor: actionLoading ? 'wait' : 'pointer',
-                                        display: 'flex',
+                                        display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '6px',
                                         opacity: actionLoading ? 0.7 : 1
                                     }}
                                 >
-                                    <CreditCard size={15} />
+                                    <CreditCard size={14} />
                                     {actionLoading ? "Ouverture..." : "Gérer ma carte"}
                                 </button>
                             </>
@@ -500,21 +513,23 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                     }}
                                     style={{
-                                        padding: '10px 18px',
+                                        flex: isMobileView ? '1 1 auto' : 'initial',
+                                        justifyContent: 'center',
+                                        padding: isMobileView ? '9px 14px' : '10px 18px',
                                         backgroundColor: '#556B2F',
                                         color: '#fff',
                                         border: 'none',
-                                        borderRadius: '10px',
+                                        borderRadius: '8px',
                                         fontWeight: 700,
-                                        fontSize: '13px',
+                                        fontSize: isMobileView ? '12.5px' : '13px',
                                         cursor: 'pointer',
-                                        display: 'flex',
+                                        display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '6px',
-                                        boxShadow: '0 4px 12px rgba(85, 107, 47, 0.25)'
+                                        boxShadow: '0 2px 8px rgba(85, 107, 47, 0.2)'
                                     }}
                                 >
-                                    <Star size={15} fill="currentColor" />
+                                    <Star size={14} fill="currentColor" />
                                     Changer de plan
                                 </button>
 
@@ -524,21 +539,23 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     onClick={handleOpenStripePortal}
                                     disabled={actionLoading}
                                     style={{
-                                        padding: '10px 18px',
+                                        flex: isMobileView ? '1 1 auto' : 'initial',
+                                        justifyContent: 'center',
+                                        padding: isMobileView ? '9px 14px' : '10px 18px',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
                                         border: '1px solid var(--border)',
-                                        borderRadius: '10px',
+                                        borderRadius: '8px',
                                         fontWeight: 700,
-                                        fontSize: '13px',
+                                        fontSize: isMobileView ? '12.5px' : '13px',
                                         cursor: actionLoading ? 'wait' : 'pointer',
-                                        display: 'flex',
+                                        display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '6px',
                                         opacity: actionLoading ? 0.7 : 1
                                     }}
                                 >
-                                    <CreditCard size={15} />
+                                    <CreditCard size={14} />
                                     {actionLoading ? "Ouverture..." : "Gérer ma carte"}
                                 </button>
 
@@ -549,20 +566,22 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         onClick={handleReactivateSubscription}
                                         disabled={actionLoading}
                                         style={{
-                                            padding: '10px 18px',
+                                            flex: isMobileView ? '1 1 100%' : 'initial',
+                                            justifyContent: 'center',
+                                            padding: isMobileView ? '9px 14px' : '10px 18px',
                                             backgroundColor: '#22C55E',
                                             color: '#fff',
                                             border: 'none',
-                                            borderRadius: '10px',
+                                            borderRadius: '8px',
                                             fontWeight: 700,
-                                            fontSize: '13px',
+                                            fontSize: isMobileView ? '12.5px' : '13px',
                                             cursor: 'pointer',
-                                            display: 'flex',
+                                            display: 'inline-flex',
                                             alignItems: 'center',
                                             gap: '6px'
                                         }}
                                     >
-                                        <RefreshCw size={14} />
+                                        <RefreshCw size={13} />
                                         Réactiver l'abonnement
                                     </button>
                                 ) : (
@@ -571,15 +590,17 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         onClick={handleCancelSubscription}
                                         disabled={actionLoading}
                                         style={{
-                                            padding: '10px 18px',
+                                            flex: isMobileView ? '1 1 100%' : 'initial',
+                                            justifyContent: 'center',
+                                            padding: isMobileView ? '9px 14px' : '10px 18px',
                                             backgroundColor: 'transparent',
                                             color: '#EF4444',
                                             border: '1px solid rgba(239, 68, 68, 0.3)',
-                                            borderRadius: '10px',
+                                            borderRadius: '8px',
                                             fontWeight: 700,
-                                            fontSize: '13px',
+                                            fontSize: isMobileView ? '12.5px' : '13px',
                                             cursor: 'pointer',
-                                            display: 'flex',
+                                            display: 'inline-flex',
                                             alignItems: 'center',
                                             gap: '6px'
                                         }}
@@ -595,38 +616,38 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 {/* Progress Gauges */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                    gap: '20px',
-                    marginTop: '24px',
-                    paddingTop: '20px',
+                    gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: isMobileView ? '10px' : '20px',
+                    marginTop: isMobileView ? '14px' : '24px',
+                    paddingTop: isMobileView ? '14px' : '20px',
                     borderTop: '1px solid var(--border)'
                 }}>
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isMobileView ? '4px' : '8px', fontSize: isMobileView ? '12px' : '13px' }}>
                             <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Clients</span>
                             <span style={{ fontWeight: 800 }}>{usage.clients.current} / {usage.clients.max === -1 ? 'Illimité' : usage.clients.max}</span>
                         </div>
-                        <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: isMobileView ? '6px' : '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${clientsPercent}%`, height: '100%', backgroundColor: clientsPercent > 90 ? '#ef4444' : '#556B2F', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
 
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isMobileView ? '4px' : '8px', fontSize: isMobileView ? '12px' : '13px' }}>
                             <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Techniciens / Membres</span>
                             <span style={{ fontWeight: 800 }}>{usage.technicians.current} / {usage.technicians.max === -1 ? 'Illimité' : usage.technicians.max}</span>
                         </div>
-                        <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: isMobileView ? '6px' : '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${techsPercent}%`, height: '100%', backgroundColor: techsPercent > 90 ? '#ef4444' : '#f59e0b', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
 
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isMobileView ? '4px' : '8px', fontSize: isMobileView ? '12px' : '13px' }}>
                             <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Crédits SMS restants</span>
                             <span style={{ fontWeight: 800 }}>{usage.sms.max === -1 ? 'Illimité' : `${Math.max(0, usage.sms.max - usage.sms.current)} / ${usage.sms.max}`}</span>
                         </div>
-                        <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: isMobileView ? '6px' : '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${smsPercent}%`, height: '100%', backgroundColor: '#22c55e', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
@@ -634,54 +655,72 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             </div>
 
             {/* Comparer nos formules section with Ref for smooth scroll */}
-            <div ref={comparisonRef} style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-                    <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>Comparer nos formules</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--background)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+            <div ref={comparisonRef} style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '14px' : '16px', padding: isMobileView ? '14px' : '24px', backgroundColor: 'var(--card)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobileView ? '14px' : '20px', flexWrap: 'wrap', gap: '10px' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobileView ? '15px' : '17px', fontWeight: 800 }}>Comparer nos formules</h3>
+                    <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'var(--muted, #F4F3EF)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '50px',
+                        padding: '3px',
+                        width: isMobileView ? '100%' : 'auto',
+                        boxSizing: 'border-box'
+                    }}>
                         <button
                             type="button"
                             onClick={() => setBillingCycle("mensuel")}
                             style={{
-                                padding: '8px 14px',
-                                borderRadius: '8px',
+                                flex: isMobileView ? 1 : 'initial',
+                                padding: isMobileView ? '7px 14px' : '8px 18px',
+                                borderRadius: '50px',
                                 border: 'none',
-                                fontWeight: 700,
-                                fontSize: '12.5px',
+                                fontWeight: billingCycle === 'mensuel' ? 700 : 500,
+                                fontSize: isMobileView ? '12px' : '13px',
                                 cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                backgroundColor: billingCycle === 'mensuel' ? '#556B2F' : 'transparent',
-                                color: billingCycle === 'mensuel' ? '#FFFFFF' : 'var(--muted-foreground)',
-                                boxShadow: billingCycle === 'mensuel' ? '0 2px 6px rgba(85, 107, 47, 0.3)' : 'none'
+                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                backgroundColor: billingCycle === 'mensuel' ? 'var(--card, #ffffff)' : 'transparent',
+                                color: billingCycle === 'mensuel' ? 'var(--foreground)' : 'var(--muted-foreground)',
+                                boxShadow: billingCycle === 'mensuel' ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
+                                textAlign: 'center',
+                                userSelect: 'none'
                             }}
                         >
-                            Facturation mensuelle
+                            Mensuel
                         </button>
+
                         <button
                             type="button"
                             onClick={() => setBillingCycle("annuel")}
                             style={{
-                                padding: '8px 14px',
-                                borderRadius: '8px',
+                                flex: isMobileView ? 1 : 'initial',
+                                padding: isMobileView ? '7px 14px' : '8px 18px',
+                                borderRadius: '50px',
                                 border: 'none',
-                                fontWeight: 700,
-                                fontSize: '12.5px',
+                                fontWeight: billingCycle === 'annuel' ? 700 : 500,
+                                fontSize: isMobileView ? '12px' : '13px',
                                 cursor: 'pointer',
-                                transition: 'all 0.2s ease',
+                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                backgroundColor: billingCycle === 'annuel' ? '#556B2F' : 'transparent',
-                                color: billingCycle === 'annuel' ? '#FFFFFF' : 'var(--muted-foreground)',
-                                boxShadow: billingCycle === 'annuel' ? '0 2px 6px rgba(85, 107, 47, 0.3)' : 'none'
+                                justifyContent: 'center',
+                                gap: '5px',
+                                backgroundColor: billingCycle === 'annuel' ? 'var(--card, #ffffff)' : 'transparent',
+                                color: billingCycle === 'annuel' ? 'var(--foreground)' : 'var(--muted-foreground)',
+                                boxShadow: billingCycle === 'annuel' ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
+                                textAlign: 'center',
+                                userSelect: 'none'
                             }}
                         >
-                            Facturation annuelle
+                            Annuel
                             <span style={{
-                                backgroundColor: billingCycle === 'annuel' ? 'rgba(255, 255, 255, 0.22)' : 'rgba(34, 197, 94, 0.15)',
-                                color: billingCycle === 'annuel' ? '#FFFFFF' : '#22c55e',
+                                backgroundColor: 'rgba(34, 197, 94, 0.14)',
+                                color: '#16a34a',
                                 fontWeight: 800,
-                                fontSize: '11px',
-                                padding: '2px 7px',
+                                fontSize: '10px',
+                                padding: '1px 6px',
                                 borderRadius: '20px'
                             }}>
                                 -20%
@@ -690,48 +729,211 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '18px', alignItems: 'stretch' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))', gap: isMobileView ? '10px' : '18px', alignItems: 'stretch' }}>
                     {plans.map((plan) => {
                         const price = billingCycle === "annuel" ? plan.priceAnnual : plan.priceMonthly;
                         const isCurrent = !isExpired && currentPlan.toLowerCase() === plan.name.toLowerCase();
-                        const isPreviousExpired = isExpired && currentPlan.toLowerCase() === plan.name.toLowerCase();
+                        const isExpanded = expandedPlan === plan.name;
 
+                        if (isMobileView) {
+                            return (
+                                <div
+                                    key={plan.name}
+                                    style={{
+                                        border: isCurrent ? '1.5px solid #556B2F' : '1px solid var(--border)',
+                                        borderRadius: '12px',
+                                        padding: '12px 14px',
+                                        backgroundColor: 'var(--background)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        boxSizing: 'border-box',
+                                        transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+                                    }}
+                                >
+                                    {/* Tapable Header: Title + Summary + Price + Chevron */}
+                                    <div
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => setExpandedPlan(isExpanded ? null : plan.name)}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            cursor: 'pointer',
+                                            userSelect: 'none',
+                                            outline: 'none',
+                                            WebkitTapHighlightColor: 'transparent',
+                                            gap: '8px'
+                                        }}
+                                    >
+                                        <div style={{ flex: '1 1 auto' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800 }}>{plan.name}</h4>
+                                                {isCurrent && (
+                                                    <span style={{
+                                                        backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                                                        color: '#556B2F',
+                                                        fontSize: '10px',
+                                                        fontWeight: 800,
+                                                        padding: '1px 6px',
+                                                        borderRadius: '50px'
+                                                    }}>
+                                                        Actuel
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--muted-foreground)', lineHeight: '1.3' }}>
+                                                {plan.summary}
+                                            </p>
+                                        </div>
+
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
+                                                <span style={{ fontSize: '16px', fontWeight: 800 }}>{price} €</span>
+                                                <span style={{ fontSize: '10px', color: 'var(--muted-foreground)' }}>HT/m</span>
+                                            </div>
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                width: '24px',
+                                                height: '24px',
+                                                borderRadius: '50%',
+                                                backgroundColor: isExpanded ? 'var(--muted, #F4F3EF)' : 'transparent',
+                                                color: 'var(--muted-foreground)',
+                                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease'
+                                            }}>
+                                                <ChevronDown size={15} />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Smooth Animated Collapsible Content */}
+                                    <div
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateRows: isExpanded ? '1fr' : '0fr',
+                                            transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                                        }}
+                                    >
+                                        <div style={{ overflow: 'hidden' }}>
+                                            <div style={{
+                                                paddingTop: '12px',
+                                                marginTop: '10px',
+                                                borderTop: '1px solid var(--border)',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '12px',
+                                                opacity: isExpanded ? 1 : 0,
+                                                transform: isExpanded ? 'translateY(0)' : 'translateY(-6px)',
+                                                transition: 'opacity 0.25s ease, transform 0.25s ease'
+                                            }}>
+                                                <ul style={{
+                                                    listStyle: 'none',
+                                                    padding: 0,
+                                                    margin: 0,
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: '6px',
+                                                    fontSize: '12px'
+                                                }}>
+                                                    {plan.features.map((feat, idx) => (
+                                                        <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                                                            <Check size={13} style={{ color: '#22c55e', flexShrink: 0 }} />
+                                                            <span>{feat}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+
+                                                <div>
+                                                    {isCurrent ? (
+                                                        <button
+                                                            type="button"
+                                                            disabled
+                                                            style={{
+                                                                width: '100%',
+                                                                padding: '9px 14px',
+                                                                borderRadius: '8px',
+                                                                border: '1px solid var(--border)',
+                                                                backgroundColor: 'var(--card)',
+                                                                color: 'var(--muted-foreground)',
+                                                                fontWeight: 700,
+                                                                fontSize: '12.5px',
+                                                                cursor: 'default',
+                                                                boxSizing: 'border-box'
+                                                            }}
+                                                        >
+                                                            Plan actuel
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleSelectPlanStripe(plan.name)}
+                                                            style={{
+                                                                width: '100%',
+                                                                padding: '9px 14px',
+                                                                borderRadius: '8px',
+                                                                border: 'none',
+                                                                backgroundColor: '#556B2F',
+                                                                color: '#ffffff',
+                                                                fontWeight: 700,
+                                                                fontSize: '12.5px',
+                                                                cursor: 'pointer',
+                                                                boxShadow: '0 2px 8px rgba(85, 107, 47, 0.25)',
+                                                                boxSizing: 'border-box'
+                                                            }}
+                                                        >
+                                                            Choisir {plan.name}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Desktop Layout
                         return (
                             <div
                                 key={plan.name}
                                 style={{
-                                    border: isPreviousExpired ? '2px solid #ef4444' : plan.recommended ? '2px solid #556B2F' : '1px solid var(--border)',
+                                    border: isCurrent ? '1.5px solid #556B2F' : '1px solid var(--border)',
                                     borderRadius: '14px',
                                     padding: '22px',
-                                    position: 'relative',
-                                    backgroundColor: isPreviousExpired ? 'rgba(239, 68, 68, 0.03)' : plan.recommended ? 'rgba(85, 107, 47, 0.04)' : 'var(--background)',
+                                    backgroundColor: 'var(--background)',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     height: '100%',
                                     boxSizing: 'border-box'
                                 }}
                             >
-                                {isPreviousExpired && (
-                                    <span style={{ position: 'absolute', top: '-11px', left: '18px', backgroundColor: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', letterSpacing: '0.5px' }}>
-                                        VOTRE OFFRE EXPIRÉE
-                                    </span>
-                                )}
-                                {plan.recommended && (
-                                    <span style={{ position: 'absolute', top: '-11px', right: '18px', backgroundColor: '#556B2F', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 10px', borderRadius: '50px', letterSpacing: '0.5px' }}>
-                                        RECOMMANDÉ
-                                    </span>
-                                )}
-
                                 <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column' }}>
-                                    <h4 style={{ margin: '0 0 6px 0', fontSize: '17px', fontWeight: 800 }}>{plan.name}</h4>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                        <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>{plan.name}</h4>
+                                        {isCurrent && (
+                                            <span style={{
+                                                backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                                                color: '#556B2F',
+                                                fontSize: '10.5px',
+                                                fontWeight: 800,
+                                                padding: '2px 8px',
+                                                borderRadius: '50px'
+                                            }}>
+                                                Plan actuel
+                                            </span>
+                                        )}
+                                    </div>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '16px' }}>
                                         <span style={{ fontSize: '26px', fontWeight: 800 }}>{price} €</span>
-                                        <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>HT / mois</span>
+                                        <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>HT / mois</span>
                                     </div>
 
                                     <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
                                         {plan.features.map((feat, idx) => (
-                                            <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                             <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
                                                 <Check size={15} style={{ color: '#22c55e', flexShrink: 0 }} />
                                                 <span>{feat}</span>
                                             </li>
@@ -739,7 +941,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     </ul>
                                 </div>
 
-                                <div style={{ marginTop: 'auto', paddingTop: '10px' }}>
+                                <div style={{ marginTop: 'auto', paddingTop: '8px' }}>
                                     {isCurrent ? (
                                         <button
                                             type="button"
@@ -747,7 +949,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                             style={{
                                                 width: '100%',
                                                 padding: '11px',
-                                                borderRadius: '10px',
+                                                borderRadius: '8px',
                                                 border: '1px solid var(--border)',
                                                 backgroundColor: 'var(--card)',
                                                 color: 'var(--muted-foreground)',
@@ -759,27 +961,6 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         >
                                             Plan actuel
                                         </button>
-                                    ) : isPreviousExpired ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => handleSelectPlanStripe(plan.name)}
-                                            style={{
-                                                width: '100%',
-                                                padding: '11px',
-                                                borderRadius: '10px',
-                                                border: 'none',
-                                                backgroundColor: '#16a34a',
-                                                color: '#ffffff',
-                                                fontWeight: 800,
-                                                fontSize: '13px',
-                                                cursor: 'pointer',
-                                                boxShadow: '0 4px 14px rgba(22, 163, 74, 0.35)',
-                                                boxSizing: 'border-box',
-                                                transition: 'transform 0.15s, background-color 0.15s'
-                                            }}
-                                        >
-                                            Réactiver {plan.name}
-                                        </button>
                                     ) : (
                                         <button
                                             type="button"
@@ -787,16 +968,16 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                             style={{
                                                 width: '100%',
                                                 padding: '11px',
-                                                borderRadius: '10px',
+                                                borderRadius: '8px',
                                                 border: 'none',
-                                                backgroundColor: plan.recommended ? '#556B2F' : 'var(--foreground)',
-                                                color: 'var(--background)',
+                                                backgroundColor: '#556B2F',
+                                                color: '#ffffff',
                                                 fontWeight: 700,
                                                 fontSize: '13px',
                                                 cursor: 'pointer',
-                                                boxShadow: plan.recommended ? '0 4px 14px rgba(85, 107, 47, 0.3)' : 'none',
+                                                boxShadow: '0 2px 8px rgba(85, 107, 47, 0.25)',
                                                 boxSizing: 'border-box',
-                                                transition: 'transform 0.15s'
+                                                transition: 'transform 0.15s, opacity 0.15s'
                                             }}
                                         >
                                             Choisir {plan.name}
@@ -810,18 +991,18 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
             </div>
 
             {/* Real Stripe Payment History */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CreditCard size={18} style={{ color: '#556B2F' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '14px' : '16px', padding: isMobileView ? '14px' : '24px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 12px 0' : '0 0 16px 0', fontSize: isMobileView ? '15px' : '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CreditCard size={isMobileView ? 16 : 18} style={{ color: '#556B2F' }} />
                     Historique des règlements Stripe
                 </h3>
 
                 {paymentHistory.length === 0 ? (
-                    <div style={{ padding: '24px', textAlign: 'center', backgroundColor: 'var(--background)', borderRadius: '12px', color: 'var(--muted-foreground)', fontSize: '13px' }}>
+                    <div style={{ padding: isMobileView ? '16px' : '24px', textAlign: 'center', backgroundColor: 'var(--background)', borderRadius: '12px', color: 'var(--muted-foreground)', fontSize: '13px' }}>
                         Aucun paiement enregistré pour l'instant.
                     </div>
                 ) : isMobileView ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {paymentHistory.map((item, index) => {
                             const paymentDate = item.paidAt || item.createdAt;
                             const formattedDate = paymentDate ? new Date(paymentDate).toLocaleDateString('fr-FR') : '-';
@@ -848,37 +1029,38 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                     style={{
                                         backgroundColor: 'var(--background)',
                                         border: '1px solid var(--border)',
-                                        borderRadius: '12px',
-                                        padding: '14px 16px',
+                                        borderRadius: '10px',
+                                        padding: '10px 12px',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        gap: '10px',
+                                        gap: '6px',
                                         cursor: 'pointer'
                                     }}
                                 >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontWeight: 800, fontSize: '14px', color: 'var(--foreground)' }}>
-                                            {displayId}
-                                        </span>
-                                        <span style={{
-                                            backgroundColor: isPaid ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
-                                            color: isPaid ? '#22c55e' : '#ef4444',
-                                            fontSize: '11px',
-                                            padding: '3px 10px',
-                                            borderRadius: '50px',
-                                            fontWeight: 700,
-                                            whiteSpace: 'nowrap'
-                                        }}>
-                                            {isPaid ? 'Payé' : 'Échoué'}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <span style={{ fontWeight: 800, fontSize: '13px', color: 'var(--foreground)' }}>
+                                                {displayId}
+                                            </span>
+                                            <span style={{
+                                                backgroundColor: isPaid ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                                                color: isPaid ? '#22c55e' : '#ef4444',
+                                                fontSize: '10px',
+                                                padding: '2px 6px',
+                                                borderRadius: '50px',
+                                                fontWeight: 700,
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                {isPaid ? 'Payé' : 'Échoué'}
+                                            </span>
+                                        </div>
+                                        <span style={{ fontWeight: 800, fontSize: '13px', color: 'var(--foreground)' }}>
+                                            {amountFormatted}
                                         </span>
                                     </div>
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                                        <span style={{ color: 'var(--muted-foreground)' }}>{formattedDate}</span>
-                                        <span style={{ fontWeight: 800, color: 'var(--foreground)' }}>{amountFormatted}</span>
-                                    </div>
-
-                                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
+                                        <span>{formattedDate}</span>
                                         <button
                                             type="button"
                                             onClick={(e) => {
@@ -893,20 +1075,19 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                                 });
                                             }}
                                             style={{
-                                                background: 'rgba(85, 107, 47, 0.1)',
-                                                border: '1px solid rgba(85, 107, 47, 0.25)',
-                                                color: '#556B2F',
+                                                background: 'none',
+                                                border: 'none',
+                                                color: 'var(--sidebar-primary)',
                                                 cursor: 'pointer',
                                                 fontWeight: 700,
-                                                fontSize: '12px',
-                                                borderRadius: '8px',
-                                                padding: '7px 14px',
+                                                fontSize: '11.5px',
                                                 display: 'inline-flex',
                                                 alignItems: 'center',
-                                                gap: '6px'
+                                                gap: '4px',
+                                                padding: 0
                                             }}
                                         >
-                                            <Download size={14} /> Télécharger PDF
+                                            <Download size={12} /> Télécharger PDF
                                         </button>
                                     </div>
                                 </div>

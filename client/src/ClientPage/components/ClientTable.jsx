@@ -78,10 +78,14 @@ function ClientTable({
             ? "Ajoutez votre première organisation (entreprise, syndic, commerce) pour gérer ses fiches et contacts." 
             : "Ajoutez votre premier client particulier pour commencer à gérer ses équipements et factures.";
 
-        if (searchTerm && searchTerm.trim()) {
+        const hasSearch = Boolean(searchTerm && searchTerm.trim());
+        const hasStatus = Boolean(statusFilter && statusFilter !== "Tous");
+        const isFiltered = hasSearch || hasStatus;
+
+        if (hasSearch) {
             emptyTitle = "Aucun contact trouvé";
             emptyDesc = `Aucun ${isOrg ? "organisation" : "client"} ne correspond à votre recherche "${searchTerm}".`;
-        } else if (statusFilter && statusFilter !== "Tous") {
+        } else if (hasStatus) {
             emptyTitle = `Aucun ${isOrg ? "organisation" : "client"} avec le statut "${statusFilter}"`;
             emptyDesc = `Vous n'avez aucun contact ${isOrg ? "organisation" : "particulier"} dans la catégorie "${statusFilter}".`;
         }
@@ -90,10 +94,10 @@ function ClientTable({
             <div className="fp-empty-state" style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', backgroundColor: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)', width: '100%', boxSizing: 'border-box' }}>
                 <Users size={44} style={{ opacity: 0.4, margin: '0 auto 12px auto', display: 'block' }} />
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>{emptyTitle}</h3>
-                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '20px' }}>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: isFiltered ? '0' : '20px' }}>
                     {emptyDesc}
                 </p>
-                {!isReadOnly && (
+                {!isFiltered && !isReadOnly && (
                     <button className="new-client-btn" onClick={() => onAddClient ? onAddClient() : (onEdit && onEdit({ isNew: true, isOrg }, isOrg))}>
                         + {isOrg ? "Nouvelle Organisation" : "Nouveau Client"}
                     </button>

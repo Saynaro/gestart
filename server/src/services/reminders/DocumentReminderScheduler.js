@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { prisma } from "../../config/db.js";
 import { sendInvoiceClientEmail, sendQuoteClientEmail } from "../../utils/emailService.js";
 import { emitToCompany } from "../../config/socket.js";
+import { dispatchNotification } from "../notificationService.js";
 
 export class DocumentReminderScheduler {
     constructor() {
@@ -153,7 +154,7 @@ export class DocumentReminderScheduler {
                         data: { reminder1SentAt: now }
                     });
 
-                    // Create In-App Notification
+                    // Create Notification via Central Service
                     const clientName = invoice.client
                         ? `${invoice.client.firstName || ''} ${invoice.client.lastName || ''}`.trim() || invoice.client.companyName || recipientEmail
                         : recipientEmail;
@@ -161,30 +162,20 @@ export class DocumentReminderScheduler {
                     const title = `Relance facture envoyée`;
                     const body = `Rappel de paiement automatique envoyé pour la facture ${invoice.number} à ${clientName}`;
 
-                    const targetUsers = invoice.company?.users || [];
-                    for (const user of targetUsers) {
-                        const notif = await prisma.notification.create({
-                            data: {
-                                companyId: invoice.companyId,
-                                userId: user.id,
-                                type: "INVOICE_OVERDUE",
-                                channel: "IN_APP",
-                                status: "SENT",
-                                title,
-                                body,
-                                entityType: "invoice",
-                                entityId: invoice.id,
-                                data: {
-                                    invoiceNumber: invoice.number,
-                                    clientName,
-                                    totalTtc: invoice.totalTtc,
-                                    isReminder: true
-                                }
-                            }
-                        });
-
-                        emitToCompany(invoice.companyId, "notification:new", notif);
-                    }
+                    await dispatchNotification({
+                        companyId: invoice.companyId,
+                        type: "INVOICE_OVERDUE",
+                        title,
+                        body,
+                        entityType: "invoice",
+                        entityId: invoice.id,
+                        data: {
+                            invoiceNumber: invoice.number,
+                            clientName,
+                            totalTtc: invoice.totalTtc,
+                            isReminder: true
+                        }
+                    });
 
                     console.log(`✓ [INVOICE_REMINDER] Relance envoyée avec succès pour facture ${invoice.number} à ${recipientEmail}`);
                 } catch (singleInvoiceErr) {
@@ -282,7 +273,7 @@ export class DocumentReminderScheduler {
                         data: { reminder1SentAt: now }
                     });
 
-                    // Create In-App Notification
+                    // Create Notification via Central Service
                     const clientName = quote.client
                         ? `${quote.client.firstName || ''} ${quote.client.lastName || ''}`.trim() || quote.client.companyName || recipientEmail
                         : recipientEmail;
@@ -290,30 +281,20 @@ export class DocumentReminderScheduler {
                     const title = `Relance devis envoyée`;
                     const body = `Rappel de signature automatique envoyé pour le devis ${quote.number} à ${clientName}`;
 
-                    const targetUsers = quote.company?.users || [];
-                    for (const user of targetUsers) {
-                        const notif = await prisma.notification.create({
-                            data: {
-                                companyId: quote.companyId,
-                                userId: user.id,
-                                type: "NEW_QUOTE_REQUEST",
-                                channel: "IN_APP",
-                                status: "SENT",
-                                title,
-                                body,
-                                entityType: "quote",
-                                entityId: quote.id,
-                                data: {
-                                    quoteNumber: quote.number,
-                                    clientName,
-                                    totalTtc: quote.totalTtc,
-                                    isReminder: true
-                                }
-                            }
-                        });
-
-                        emitToCompany(quote.companyId, "notification:new", notif);
-                    }
+                    await dispatchNotification({
+                        companyId: quote.companyId,
+                        type: "NEW_QUOTE_REQUEST",
+                        title,
+                        body,
+                        entityType: "quote",
+                        entityId: quote.id,
+                        data: {
+                            quoteNumber: quote.number,
+                            clientName,
+                            totalTtc: quote.totalTtc,
+                            isReminder: true
+                        }
+                    });
 
                     console.log(`✓ [QUOTE_REMINDER] Relance envoyée avec succès pour devis ${quote.number} à ${recipientEmail}`);
                 } catch (singleQuoteErr) {

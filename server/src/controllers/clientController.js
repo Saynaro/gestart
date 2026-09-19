@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { dispatchNotification } from "../services/notificationService.js";
 
 ////// GET PAGINATED CLIENTS //////
 export const getClients = async (req, res) => {
@@ -416,6 +417,22 @@ export const createClient = async (req, res) => {
                 smsLogs: true
             }
         });
+
+        // Notification centralisée d'ajout de client (si activée)
+        try {
+            const clientFullName = `${newClient.firstName} ${newClient.lastName}`.trim();
+            await dispatchNotification({
+                companyId,
+                type: "NEW_CLIENT_ADDED",
+                title: "Nouveau client ajouté",
+                body: `${clientFullName} a été ajouté avec succès (${newClient.phone || newClient.email || 'Sans contact'}).`,
+                entityType: "client",
+                entityId: newClient.id,
+                data: { clientId: newClient.id, clientName: clientFullName }
+            });
+        } catch (notifErr) {
+            console.warn("[NOTIFICATION CLIENT] Warning non bloquant:", notifErr.message);
+        }
 
         return res.status(201).json({
             success: true,

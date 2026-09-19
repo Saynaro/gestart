@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Receipt, Check, FileText, HelpCircle, ArrowRight, Loader2, Lock } from "lucide-react";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
 import { apiFetch } from "../../utils/api";

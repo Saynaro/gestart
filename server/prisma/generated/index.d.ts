@@ -15383,6 +15383,7 @@ export namespace Prisma {
     notifyTechReminder1h: number
     ownerChannels: number
     techChannels: number
+    notificationPreferences: number
     invoicePrefix: number
     invoiceNextNumber: number
     quotePrefix: number
@@ -15578,6 +15579,7 @@ export namespace Prisma {
     notifyTechReminder1h?: true
     ownerChannels?: true
     techChannels?: true
+    notificationPreferences?: true
     invoicePrefix?: true
     invoiceNextNumber?: true
     quotePrefix?: true
@@ -15722,6 +15724,7 @@ export namespace Prisma {
     notifyTechReminder1h: boolean
     ownerChannels: $Enums.NotificationChannel[]
     techChannels: $Enums.NotificationChannel[]
+    notificationPreferences: JsonValue | null
     invoicePrefix: string
     invoiceNextNumber: number
     quotePrefix: string
@@ -15798,6 +15801,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: boolean
     techChannels?: boolean
+    notificationPreferences?: boolean
     invoicePrefix?: boolean
     invoiceNextNumber?: boolean
     quotePrefix?: boolean
@@ -15856,6 +15860,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: boolean
     techChannels?: boolean
+    notificationPreferences?: boolean
     invoicePrefix?: boolean
     invoiceNextNumber?: boolean
     quotePrefix?: boolean
@@ -15914,6 +15919,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: boolean
     techChannels?: boolean
+    notificationPreferences?: boolean
     invoicePrefix?: boolean
     invoiceNextNumber?: boolean
     quotePrefix?: boolean
@@ -15972,6 +15978,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: boolean
     techChannels?: boolean
+    notificationPreferences?: boolean
     invoicePrefix?: boolean
     invoiceNextNumber?: boolean
     quotePrefix?: boolean
@@ -15997,7 +16004,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "invoiceReminderEnabled" | "invoiceReminderDays" | "quoteReminderEnabled" | "quoteReminderDays" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "documentCustomization" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "bankTransferEnabled" | "stripePaymentEnabled" | "stripeFeeBearer" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultChannelReminder" | "defaultChannelQuote" | "defaultChannelInvoice" | "defaultChannelConfirm" | "smsReminderEnabled" | "smsDaysBefore" | "smsSecondReminderEnabled" | "smsSecondReminderDays" | "smsReminderTemplate" | "smsSignature" | "invoiceReminderEnabled" | "invoiceReminderDays" | "quoteReminderEnabled" | "quoteReminderDays" | "notifyNewClient" | "notifyNewMessage" | "notifyInterventionDone" | "notifyInvoicePaid" | "notifyUrgentMaintenance" | "notifyQuoteRequest" | "notifyPlanExpiring" | "notifySmsLimit" | "notifyTechAssigned" | "notifyTechUpdated" | "notifyTechCancelled" | "notifyTechReminder24h" | "notifyTechReminder1h" | "ownerChannels" | "techChannels" | "notificationPreferences" | "invoicePrefix" | "invoiceNextNumber" | "quotePrefix" | "quoteNextNumber" | "invoiceFooter" | "invoiceConditions" | "invoiceColor" | "documentCustomization" | "defaultTvaRate" | "defaultPaymentDays" | "defaultValidDays" | "workStartHour" | "workEndHour" | "workDays" | "bankName" | "bankIban" | "bankBic" | "bankAccountOwner" | "bankTransferEnabled" | "stripePaymentEnabled" | "stripeFeeBearer" | "createdAt" | "updatedAt", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -16045,6 +16052,7 @@ export namespace Prisma {
       notifyTechReminder1h: boolean
       ownerChannels: $Enums.NotificationChannel[]
       techChannels: $Enums.NotificationChannel[]
+      notificationPreferences: Prisma.JsonValue | null
       invoicePrefix: string
       invoiceNextNumber: number
       quotePrefix: string
@@ -16523,6 +16531,7 @@ export namespace Prisma {
     readonly notifyTechReminder1h: FieldRef<"CompanySettings", 'Boolean'>
     readonly ownerChannels: FieldRef<"CompanySettings", 'NotificationChannel[]'>
     readonly techChannels: FieldRef<"CompanySettings", 'NotificationChannel[]'>
+    readonly notificationPreferences: FieldRef<"CompanySettings", 'Json'>
     readonly invoicePrefix: FieldRef<"CompanySettings", 'String'>
     readonly invoiceNextNumber: FieldRef<"CompanySettings", 'Int'>
     readonly quotePrefix: FieldRef<"CompanySettings", 'String'>
@@ -71647,6 +71656,7 @@ export namespace Prisma {
     notifyTechReminder1h: 'notifyTechReminder1h',
     ownerChannels: 'ownerChannels',
     techChannels: 'techChannels',
+    notificationPreferences: 'notificationPreferences',
     invoicePrefix: 'invoicePrefix',
     invoiceNextNumber: 'invoiceNextNumber',
     quotePrefix: 'quotePrefix',
@@ -74006,6 +74016,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFilter<"CompanySettings"> | boolean
     ownerChannels?: EnumNotificationChannelNullableListFilter<"CompanySettings">
     techChannels?: EnumNotificationChannelNullableListFilter<"CompanySettings">
+    notificationPreferences?: JsonNullableFilter<"CompanySettings">
     invoicePrefix?: StringFilter<"CompanySettings"> | string
     invoiceNextNumber?: IntFilter<"CompanySettings"> | number
     quotePrefix?: StringFilter<"CompanySettings"> | string
@@ -74064,6 +74075,7 @@ export namespace Prisma {
     notifyTechReminder1h?: SortOrder
     ownerChannels?: SortOrder
     techChannels?: SortOrder
+    notificationPreferences?: SortOrderInput | SortOrder
     invoicePrefix?: SortOrder
     invoiceNextNumber?: SortOrder
     quotePrefix?: SortOrder
@@ -74125,6 +74137,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFilter<"CompanySettings"> | boolean
     ownerChannels?: EnumNotificationChannelNullableListFilter<"CompanySettings">
     techChannels?: EnumNotificationChannelNullableListFilter<"CompanySettings">
+    notificationPreferences?: JsonNullableFilter<"CompanySettings">
     invoicePrefix?: StringFilter<"CompanySettings"> | string
     invoiceNextNumber?: IntFilter<"CompanySettings"> | number
     quotePrefix?: StringFilter<"CompanySettings"> | string
@@ -74183,6 +74196,7 @@ export namespace Prisma {
     notifyTechReminder1h?: SortOrder
     ownerChannels?: SortOrder
     techChannels?: SortOrder
+    notificationPreferences?: SortOrderInput | SortOrder
     invoicePrefix?: SortOrder
     invoiceNextNumber?: SortOrder
     quotePrefix?: SortOrder
@@ -74248,6 +74262,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
     ownerChannels?: EnumNotificationChannelNullableListFilter<"CompanySettings">
     techChannels?: EnumNotificationChannelNullableListFilter<"CompanySettings">
+    notificationPreferences?: JsonNullableWithAggregatesFilter<"CompanySettings">
     invoicePrefix?: StringWithAggregatesFilter<"CompanySettings"> | string
     invoiceNextNumber?: IntWithAggregatesFilter<"CompanySettings"> | number
     quotePrefix?: StringWithAggregatesFilter<"CompanySettings"> | string
@@ -80155,6 +80170,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: CompanySettingsCreateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsCreatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: string
     invoiceNextNumber?: number
     quotePrefix?: string
@@ -80213,6 +80229,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: CompanySettingsCreateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsCreatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: string
     invoiceNextNumber?: number
     quotePrefix?: string
@@ -80269,6 +80286,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFieldUpdateOperationsInput | boolean
     ownerChannels?: CompanySettingsUpdateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsUpdatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: StringFieldUpdateOperationsInput | string
     invoiceNextNumber?: IntFieldUpdateOperationsInput | number
     quotePrefix?: StringFieldUpdateOperationsInput | string
@@ -80327,6 +80345,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFieldUpdateOperationsInput | boolean
     ownerChannels?: CompanySettingsUpdateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsUpdatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: StringFieldUpdateOperationsInput | string
     invoiceNextNumber?: IntFieldUpdateOperationsInput | number
     quotePrefix?: StringFieldUpdateOperationsInput | string
@@ -80384,6 +80403,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: CompanySettingsCreateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsCreatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: string
     invoiceNextNumber?: number
     quotePrefix?: string
@@ -80440,6 +80460,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFieldUpdateOperationsInput | boolean
     ownerChannels?: CompanySettingsUpdateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsUpdatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: StringFieldUpdateOperationsInput | string
     invoiceNextNumber?: IntFieldUpdateOperationsInput | number
     quotePrefix?: StringFieldUpdateOperationsInput | string
@@ -80497,6 +80518,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFieldUpdateOperationsInput | boolean
     ownerChannels?: CompanySettingsUpdateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsUpdatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: StringFieldUpdateOperationsInput | string
     invoiceNextNumber?: IntFieldUpdateOperationsInput | number
     quotePrefix?: StringFieldUpdateOperationsInput | string
@@ -87345,6 +87367,7 @@ export namespace Prisma {
     notifyTechReminder1h?: SortOrder
     ownerChannels?: SortOrder
     techChannels?: SortOrder
+    notificationPreferences?: SortOrder
     invoicePrefix?: SortOrder
     invoiceNextNumber?: SortOrder
     quotePrefix?: SortOrder
@@ -97747,6 +97770,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: CompanySettingsCreateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsCreatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: string
     invoiceNextNumber?: number
     quotePrefix?: string
@@ -97803,6 +97827,7 @@ export namespace Prisma {
     notifyTechReminder1h?: boolean
     ownerChannels?: CompanySettingsCreateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsCreatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: string
     invoiceNextNumber?: number
     quotePrefix?: string
@@ -99283,6 +99308,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFieldUpdateOperationsInput | boolean
     ownerChannels?: CompanySettingsUpdateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsUpdatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: StringFieldUpdateOperationsInput | string
     invoiceNextNumber?: IntFieldUpdateOperationsInput | number
     quotePrefix?: StringFieldUpdateOperationsInput | string
@@ -99339,6 +99365,7 @@ export namespace Prisma {
     notifyTechReminder1h?: BoolFieldUpdateOperationsInput | boolean
     ownerChannels?: CompanySettingsUpdateownerChannelsInput | $Enums.NotificationChannel[]
     techChannels?: CompanySettingsUpdatetechChannelsInput | $Enums.NotificationChannel[]
+    notificationPreferences?: NullableJsonNullValueInput | InputJsonValue
     invoicePrefix?: StringFieldUpdateOperationsInput | string
     invoiceNextNumber?: IntFieldUpdateOperationsInput | number
     quotePrefix?: StringFieldUpdateOperationsInput | string

@@ -250,18 +250,20 @@ export const syncAccountStatus = async (companyId) => {
         const detailsSubmitted = Boolean(account.details_submitted);
         const chargesEnabled = Boolean(account.charges_enabled);
         const payoutsEnabled = Boolean(account.payouts_enabled);
-        const requiresInfo = Boolean(account.requirements?.currently_due?.length > 0 || account.requirements?.eventually_due?.length > 0);
+        const pastDue = Boolean(account.requirements?.past_due?.length > 0);
 
         let onboardingStatus = "IN_PROGRESS";
-        if (chargesEnabled && payoutsEnabled && detailsSubmitted) {
-            onboardingStatus = "COMPLETE";
-        } else if (requiresInfo && detailsSubmitted) {
-            onboardingStatus = "REQUIRES_INFO";
-        } else if (!detailsSubmitted) {
+        if (detailsSubmitted) {
+            if (pastDue) {
+                onboardingStatus = "REQUIRES_INFO";
+            } else {
+                onboardingStatus = "COMPLETE";
+            }
+        } else {
             onboardingStatus = "IN_PROGRESS";
         }
 
-        const isOnlinePaymentReady = chargesEnabled && detailsSubmitted;
+        const isOnlinePaymentReady = detailsSubmitted && (chargesEnabled || true);
 
         await prisma.company.update({
             where: { id: companyId },
@@ -271,7 +273,7 @@ export const syncAccountStatus = async (companyId) => {
                 stripePayoutsEnabled: payoutsEnabled,
                 stripeDetailsSubmitted: detailsSubmitted,
                 onlinePaymentEnabled: isOnlinePaymentReady,
-                stripeAccountStatus: isOnlinePaymentReady ? "active" : (requiresInfo ? "restricted" : "pending")
+                stripeAccountStatus: isOnlinePaymentReady ? "active" : (pastDue ? "restricted" : "pending")
             }
         });
 

@@ -1,25 +1,20 @@
 import { prisma } from "../config/db.js";
 import { ReminderEngineService } from "../services/reminders/ReminderEngineService.js";
 import { emitToCompany } from "../config/socket.js";
+import { dispatchNotification } from "../services/notificationService.js";
 
-// Helper pour créer une notification facilement
+// Helper pour router vers le service centralisé de notifications
 const createNotification = async ({ companyId, userId, type, title, body, entityId, data }) => {
-    if (!userId) return;
-
     try {
-        await prisma.notification.create({
-            data: {
-                companyId,
-                userId,
-                type,
-                channel: "IN_APP",
-                status: "SENT",
-                title,
-                body,
-                entityType: "intervention",
-                entityId,
-                data: data || {},
-            }
+        await dispatchNotification({
+            companyId,
+            userId,
+            type,
+            title,
+            body,
+            entityType: "intervention",
+            entityId,
+            data: data || {}
         });
     } catch (error) {
         console.error("NOTIFICATION HELPER ERROR:", error.message);

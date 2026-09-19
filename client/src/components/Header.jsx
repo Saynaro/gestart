@@ -34,7 +34,9 @@ function Header({ title }) {
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedItemIds, setSelectedItemIds] = useState(new Set());
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showMarkAllConfirm, setShowMarkAllConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isMarkingAll, setIsMarkingAll] = useState(false);
     const [expandedNotificationId, setExpandedNotificationId] = useState(null);
 
     // Long-press detection to trigger iOS-style selection mode on touch/hold
@@ -376,28 +378,8 @@ function Header({ title }) {
         }
     };
 
-    const handleNotificationClick = async (n) => {
-        if (isSelectionMode) {
-            toggleSelectItem(n.id);
-            return;
-        }
-
-        // Toggle accordion expansion
-        setExpandedNotificationId(prev => prev === n.id ? null : n.id);
-
-        // Mark as read if not already read
-        if (!n.isRead) {
-            try {
-                await apiFetch(`/v1/notifications/${n.id}/read`, { method: "PATCH" });
-                setNotificationsList(prev => prev.map(item => item.id === n.id ? { ...item, isRead: true } : item));
-                window.dispatchEvent(new CustomEvent("notification-read"));
-            } catch (err) {
-                console.error("Error marking notification as read:", err);
-            }
-        }
-    };
-
-    const handleMarkAllAsRead = async () => {
+    const handleExecuteMarkAllAsRead = async () => {
+        setIsMarkingAll(true);
         try {
             if (isTechnician || bellTab === "notifications") {
                 await apiFetch("/v1/notifications/read-all", { method: "PATCH" });
@@ -414,8 +396,11 @@ function Header({ title }) {
             }
             fetchNotifications();
             fetchReceivedMessages();
+            setShowMarkAllConfirm(false);
         } catch (err) {
             console.error("Error marking all as read:", err);
+        } finally {
+            setIsMarkingAll(false);
         }
     };
 
@@ -431,6 +416,7 @@ function Header({ title }) {
         setIsSelectionMode(false);
         setSelectedItemIds(new Set());
         setShowDeleteConfirm(false);
+        setShowMarkAllConfirm(false);
         setExpandedNotificationId(null);
     };
 
@@ -584,7 +570,7 @@ function Header({ title }) {
                                                     <button
                                                         type="button"
                                                         className="bell-mark-all-btn"
-                                                        onClick={handleMarkAllAsRead}
+                                                        onClick={() => setShowMarkAllConfirm(true)}
                                                         title="Tout marquer comme lu"
                                                         aria-label="Tout marquer comme lu"
                                                     >
@@ -1011,6 +997,62 @@ function Header({ title }) {
                                                         disabled={isDeleting}
                                                     >
                                                         {isDeleting ? "Suppression..." : "Supprimer"}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Mark All As Read Confirmation Modal */}
+                                    {showMarkAllConfirm && (
+                                        <div 
+                                            className="bell-confirm-backdrop" 
+                                            onClick={() => !isMarkingAll && setShowMarkAllConfirm(false)}
+                                        >
+                                            <div 
+                                                className="bell-confirm-card" 
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <div className="bell-confirm-icon-wrap" style={{ backgroundColor: 'rgba(85, 107, 47, 0.12)' }}>
+                                                    <CheckCheck size={24} color="var(--sidebar-primary)" />
+                                                </div>
+                                                <h4 className="bell-confirm-title">
+                                                    Tout marquer comme lu ?
+                                                </h4>
+                                                <p className="bell-confirm-desc">
+                                                    {bellTab === "notifications"
+                                                        ? "Voulez-vous marquer toutes vos notifications comme lues ?"
+                                                        : "Voulez-vous marquer tous vos messages reçus comme lus ?"}
+                                                </p>
+                                                <div className="bell-confirm-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="bell-confirm-cancel-btn"
+                                                        onClick={() => setShowMarkAllConfirm(false)}
+                                                        disabled={isMarkingAll}
+                                                    >
+                                                        Annuler
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        style={{
+                                                            backgroundColor: 'var(--sidebar-primary)',
+                                                            color: '#ffffff',
+                                                            border: 'none',
+                                                            borderRadius: '8px',
+                                                            padding: '10px 16px',
+                                                            fontWeight: 600,
+                                                            fontSize: '13px',
+                                                            cursor: isMarkingAll ? 'not-allowed' : 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            flex: 1
+                                                        }}
+                                                        onClick={handleExecuteMarkAllAsRead}
+                                                        disabled={isMarkingAll}
+                                                    >
+                                                        {isMarkingAll ? "Mise à jour..." : "Confirmer"}
                                                     </button>
                                                 </div>
                                             </div>

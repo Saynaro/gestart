@@ -358,9 +358,11 @@ function DevisPage() {
 
     const handleSend = async (q) => {
         try {
+            const isAlreadyFinal = ["ACCEPTED", "SIGNED", "PAID", "REFUSED", "SIGNE", "PAYEE"].includes((q.status || "").toUpperCase());
+            const nextStatus = isAlreadyFinal ? q.status : "SENT";
             await apiFetch(`/v1/quotes/${q.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString() })
+                body: JSON.stringify({ status: nextStatus, emailSentAt: new Date().toISOString() })
             });
             showToast(`Devis ${q.number} marqué comme envoyé.`, "success");
             fetchQuotes();

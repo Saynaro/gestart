@@ -259,6 +259,7 @@ exports.Prisma.CompanySettingsScalarFieldEnum = {
   notifyTechReminder1h: 'notifyTechReminder1h',
   ownerChannels: 'ownerChannels',
   techChannels: 'techChannels',
+  notificationPreferences: 'notificationPreferences',
   invoicePrefix: 'invoicePrefix',
   invoiceNextNumber: 'invoiceNextNumber',
   quotePrefix: 'quotePrefix',

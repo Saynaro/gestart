@@ -16,7 +16,8 @@ import {
     Copy,
     Calculator,
     User,
-    Wallet
+    Wallet,
+    Clock
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { formatIBAN, formatBIC } from "../../utils/bankValidator";
@@ -157,27 +158,6 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
     };
 
     // Déconnexion de Stripe
-    // Simulation en mode test local
-    const handleSimulateTestOnboarding = async () => {
-        setOnboardingLoading(true);
-        try {
-            const res = await apiFetch("/v1/stripe/connect/test-simulate", { method: "POST" });
-            setStripeStatus({
-                stripeAccountId: res.data?.stripeAccountId || "acct_test_mock",
-                onboardingStatus: "COMPLETE",
-                chargesEnabled: true,
-                payoutsEnabled: true,
-                detailsSubmitted: true,
-                onlinePaymentEnabled: true
-            });
-            setStripePaymentEnabled(true);
-            triggerToast("Stripe Connect activé en mode Test ! Vous pouvez tester les paiements.");
-        } catch (err) {
-            triggerToast(err.message || "Erreur simulation", true);
-        } finally {
-            setOnboardingLoading(false);
-        }
-    };
 
     const handleDisconnectStripe = async () => {
         if (checkExpired()) return;
@@ -317,8 +297,8 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
         );
     }
 
-    const isStripeComplete = stripeStatus.onboardingStatus === "COMPLETE" && stripeStatus.chargesEnabled;
-    const isStripeInProgress = stripeStatus.onboardingStatus === "IN_PROGRESS";
+    const isStripeComplete = stripeStatus.onboardingStatus === "COMPLETE" || (stripeStatus.detailsSubmitted && stripeStatus.stripeAccountId && stripeStatus.onboardingStatus !== "REQUIRES_INFO");
+    const isStripeInProgress = stripeStatus.onboardingStatus === "IN_PROGRESS" && !isStripeComplete;
     const isStripeRequiresInfo = stripeStatus.onboardingStatus === "REQUIRES_INFO";
 
     return (
@@ -613,7 +593,7 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                         color: "#F59E0B",
                                         border: "1px solid rgba(245, 158, 11, 0.3)"
                                     }}>
-                                        <RefreshCw size={isMobileView ? 11 : 12} className="animate-spin" /> En cours
+                                        <Clock size={isMobileView ? 11 : 12} /> En cours
                                     </span>
                                 ) : isStripeRequiresInfo ? (
                                     <span style={{
@@ -687,30 +667,6 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                     <ExternalLink size={14} />
                                                 )}
                                                 {isStripeInProgress ? "Continuer la config Stripe" : (isStripeRequiresInfo ? "Compléter les infos Stripe" : "Activer le paiement en ligne (Stripe)")}
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={handleSimulateTestOnboarding}
-                                                disabled={onboardingLoading}
-                                                title="Activer directement en mode test sans attendre la validation de profil Stripe"
-                                                style={{
-                                                    display: "inline-flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    gap: "5px",
-                                                    padding: isMobileView ? "6px 10px" : "10px 14px",
-                                                    borderRadius: "7px",
-                                                    backgroundColor: "var(--muted)",
-                                                    color: "var(--foreground)",
-                                                    border: "1px dashed var(--border)",
-                                                    fontWeight: 600,
-                                                    fontSize: isMobileView ? "10.5px" : "13px",
-                                                    cursor: onboardingLoading ? "not-allowed" : "pointer",
-                                                    width: isMobileView ? "100%" : "auto"
-                                                }}
-                                            >
-                                                ⚡ Simuler l'activation (Test Dev)
                                             </button>
                                         </div>
                                     ) : (

@@ -2,6 +2,7 @@ import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
 import { generateInvoicePdfBuffer, generateQuotePdfBuffer, generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
 import { emitToCompany } from "../config/socket.js";
+import { dispatchNotification } from "../services/notificationService.js";
 
 ////// PUBLIC PLANS LIST (FOR LANDING PAGE) //////
 export const getPublicPlans = async (req, res) => {
@@ -117,26 +118,16 @@ export const submitQuoteRequest = async (req, res) => {
             }
         });
 
-        // Notification au propriétaire de l'entreprise
-        const owner = await prisma.user.findFirst({
-            where: { companyId: company.id, role: "OWNER" }
+        // Notification centralisée au propriétaire de l'entreprise
+        await dispatchNotification({
+            companyId: company.id,
+            type: "NEW_QUOTE_REQUEST",
+            title: "Nouvelle demande de devis",
+            body: `Demande de devis reçue de ${firstName} ${lastName} (${phone})`,
+            entityType: "quote_request",
+            entityId: quoteRequest.id,
+            data: { firstName, lastName, phone, city: city || null }
         });
-
-        if (owner) {
-            await prisma.notification.create({
-                data: {
-                    companyId: company.id,
-                    userId: owner.id,
-                    type: "NEW_QUOTE_REQUEST",
-                    channel: "IN_APP",
-                    status: "SENT",
-                    title: "Nouvelle demande de devis",
-                    body: `Demande de devis reçue de ${firstName} ${lastName} (${phone})`,
-                    entityType: "quote_request",
-                    entityId: quoteRequest.id
-                }
-            });
-        }
 
         return res.status(201).json({
             success: true,
@@ -538,33 +529,24 @@ export const signPublicQuote = async (req, res) => {
         emitToCompany(quote.companyId, "quote:updated", updatedQuote);
         emitToCompany(quote.companyId, "quote:signed", updatedQuote);
 
-        // Notification automatique au propriétaire de l'entreprise
+        // Notification centralisée au propriétaire de l'entreprise
         try {
-            const owner = await prisma.user.findFirst({
-                where: { companyId: quote.companyId, role: "OWNER" }
-            });
-
             const clientName = quote.client
                 ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim()
                 : 'Client';
 
-            if (owner) {
-                const totalVal = Number(quote.amountTTC || quote.totalTtc || 0);
-                const cleanAmount = parseFloat(totalVal.toFixed(2));
-                await prisma.notification.create({
-                    data: {
-                        companyId: quote.companyId,
-                        userId: owner.id,
-                        type: "NEW_QUOTE_REQUEST",
-                        channel: "IN_APP",
-                        status: "SENT",
-                        title: `Devis ${quote.number} signé et accepté !`,
-                        body: `Le client ${clientName} a signé le devis ${quote.number} d'un montant de ${cleanAmount}€.`,
-                        entityType: "quote",
-                        entityId: quote.id
-                    }
-                });
-            }
+            const totalVal = Number(quote.amountTTC || quote.totalTtc || 0);
+            const cleanAmount = parseFloat(totalVal.toFixed(2));
+
+            await dispatchNotification({
+                companyId: quote.companyId,
+                type: "NEW_QUOTE_REQUEST",
+                title: `Devis ${quote.number} signé et accepté !`,
+                body: `Le client ${clientName} a signé le devis ${quote.number} d'un montant de ${cleanAmount}€.`,
+                entityType: "quote",
+                entityId: quote.id,
+                data: { quoteNumber: quote.number, clientName, amount: cleanAmount }
+            });
         } catch (notifErr) {
             console.warn("NOTIFICATION ERROR (NON-BLOCKING):", notifErr.message);
         }

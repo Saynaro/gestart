@@ -41,7 +41,7 @@ export const getConnectStatus = async (req, res) => {
     const companyId = req.user.companyId;
 
     try {
-        const company = await prisma.company.findUnique({
+        let company = await prisma.company.findUnique({
             where: { id: companyId },
             select: {
                 stripeAccountId: true,
@@ -68,6 +68,39 @@ export const getConnectStatus = async (req, res) => {
 
         if (!company) {
             return res.status(404).json({ success: false, message: "Entreprise introuvable" });
+        }
+
+        // Auto-sync status with Stripe if account exists and status is not yet marked COMPLETE
+        if (company.stripeAccountId && company.stripeOnboardingStatus !== "COMPLETE") {
+            try {
+                await syncAccountStatus(companyId);
+                company = await prisma.company.findUnique({
+                    where: { id: companyId },
+                    select: {
+                        stripeAccountId: true,
+                        stripeAccountStatus: true,
+                        stripeOnboardingStatus: true,
+                        stripeChargesEnabled: true,
+                        stripePayoutsEnabled: true,
+                        stripeDetailsSubmitted: true,
+                        onlinePaymentEnabled: true,
+                        stripeConnectedAt: true,
+                        settings: {
+                            select: {
+                                stripePaymentEnabled: true,
+                                stripeFeeBearer: true,
+                                bankTransferEnabled: true,
+                                bankIban: true,
+                                bankBic: true,
+                                bankAccountOwner: true,
+                                bankName: true
+                            }
+                        }
+                    }
+                });
+            } catch (syncErr) {
+                console.warn("[STRIPE STATUS AUTO-SYNC WARN]", syncErr.message);
+            }
         }
 
         return res.status(200).json({

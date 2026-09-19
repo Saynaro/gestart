@@ -421,9 +421,11 @@ function FacturesPage() {
 
     const handleSelfSend = async (inv) => {
         try {
+            const isAlreadyPaid = (inv.status || "").toUpperCase() === "PAID" || (inv.status || "").toUpperCase() === "PAYEE";
+            const nextStatus = isAlreadyPaid ? (inv.status || "PAID") : "SENT";
             await apiFetch(`/v1/invoices/${inv.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ status: "SENT", emailSentAt: new Date().toISOString() })
+                body: JSON.stringify({ status: nextStatus, emailSentAt: new Date().toISOString() })
             });
             showToast(`Facture ${inv.number} marquée comme envoyée.`, "success");
             fetchInvoices();

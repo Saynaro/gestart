@@ -241,6 +241,7 @@ function App() {
 
             {/* Public Client Portals (No login required) */}
             <Route path="/pay/invoice/:token" element={<PayInvoice />} />
+            <Route path="/factures/:id" element={<PayInvoice />} />
             <Route path="/pay/success" element={<PaySuccessPage />} />
             <Route path="/sign/quote/:token" element={<SignatureQuote />} />
             <Route path="/sign/success" element={<PaySuccessPage />} />

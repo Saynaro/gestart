@@ -3,23 +3,20 @@ import { prisma } from "../config/db.js";
 import { sendInvoiceClientEmail } from "../utils/emailService.js";
 import { generateInvoicePdfBuffer } from "../utils/pdfGenerator.js";
 import { emitToCompany } from "../config/socket.js";
+import { dispatchNotification } from "../services/notificationService.js";
 
-// Helper notification
-const createNotification = async ({ companyId, userId, type, title, body, entityId }) => {
-    if (!userId) return;
+// Helper notification centralisé
+const createNotification = async ({ companyId, userId, type, title, body, entityId, data }) => {
     try {
-        await prisma.notification.create({
-            data: {
-                companyId,
-                userId,
-                type,
-                channel: "IN_APP",
-                status: "SENT",
-                title,
-                body,
-                entityType: "invoice",
-                entityId,
-            }
+        await dispatchNotification({
+            companyId,
+            userId,
+            type,
+            title,
+            body,
+            entityType: "invoice",
+            entityId,
+            data: data || {}
         });
     } catch (error) {
         console.error("NOTIFICATION ERROR:", error.message);
@@ -682,6 +679,9 @@ export const updateInvoice = async (req, res) => {
 
             let normalizedStatus = status ? status.toUpperCase() : undefined;
             if (normalizedStatus === "PENDING" || normalizedStatus === "FINALIZED") normalizedStatus = "SENT";
+            if (existingInvoice.status === "PAID" && normalizedStatus === "SENT") {
+                normalizedStatus = "PAID";
+            }
 
             const updated = await tx.invoice.update({
                 where: { id },

@@ -7,7 +7,8 @@ import { getEffectiveCustomization } from "../utils/documentCustomization";
 import "./PayInvoice.css";
 
 function PayInvoice() {
-    const { token } = useParams();
+    const { token, id } = useParams();
+    const invoiceToken = token || id;
     const [invoice, setInvoice] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,12 +19,12 @@ function PayInvoice() {
     const [paymentOptions, setPaymentOptions] = useState(null);
 
     useEffect(() => {
-        if (!token) return;
+        if (!invoiceToken) return;
         const fetchInvoice = async () => {
             setLoading(true);
             setError(null);
             try {
-                const res = await apiFetch(`/v1/public/pay/invoice/${token}`);
+                const res = await apiFetch(`/v1/public/pay/invoice/${invoiceToken}`);
                 const inv = res.data?.invoice || res.invoice || res;
                 if (inv) {
                     setInvoice(inv);
@@ -42,12 +43,12 @@ function PayInvoice() {
         };
 
         fetchInvoice();
-    }, [token]);
+    }, [invoiceToken]);
 
     const handlePayOnline = async () => {
         setIsPaying(true);
         try {
-            const res = await apiFetch(`/v1/public/pay/invoice/${token}/checkout`, {
+            const res = await apiFetch(`/v1/public/pay/invoice/${invoiceToken}/checkout`, {
                 method: "POST"
             });
             if (res.data?.checkoutUrl) {

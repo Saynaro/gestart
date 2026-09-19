@@ -2,6 +2,7 @@ import twilio from "twilio";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { prisma } from "../../../config/db.js";
 import { emitToCompany } from "../../../config/socket.js";
+import { dispatchNotification } from "../../notificationService.js";
 
 /**
  * Normalise un numéro de téléphone au format E.164 (+33612345678)
@@ -485,6 +486,22 @@ export const TwilioSmsService = {
             conversationId: client.id,
             message: smsLog
         });
+
+        // 6b. Notification centralisée si activée
+        try {
+            const senderName = client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : from;
+            await dispatchNotification({
+                companyId: company.id,
+                type: "NEW_MESSAGE_RECEIVED",
+                title: `Nouveau message de ${senderName || 'Client'}`,
+                body: body.length > 100 ? `${body.substring(0, 100)}...` : body,
+                entityType: "sms",
+                entityId: client?.id || null,
+                data: { clientId: client?.id, smsId: smsLog.id }
+            });
+        } catch (notifErr) {
+            console.warn("[NOTIFICATION SMS] Warning non bloquant:", notifErr.message);
+        }
 
         // 7. Arrêt automatique des relances Auto Rappel (Stop conditions)
         try {

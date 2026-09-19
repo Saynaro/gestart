@@ -664,8 +664,9 @@ model CompanySettings {
   notifyTechReminder24h Boolean @default(true)
   notifyTechReminder1h  Boolean @default(true)
 
-  ownerChannels NotificationChannel[] @default([PUSH, IN_APP])
-  techChannels  NotificationChannel[] @default([PUSH, IN_APP])
+  ownerChannels           NotificationChannel[] @default([PUSH, IN_APP])
+  techChannels            NotificationChannel[] @default([PUSH, IN_APP])
+  notificationPreferences Json? // Préférences détaillées canaux (push, email, inapp) par événement
 
   // ── NUMÉROTATION AUTO ─────────────────────────────────────
   invoicePrefix     String @default("INV") // INV-2026-001

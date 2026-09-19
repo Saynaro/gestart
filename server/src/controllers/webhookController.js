@@ -1,6 +1,7 @@
 import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
 import { syncAccountStatus } from "../services/stripeConnectService.js";
+import { dispatchNotification } from "../services/notificationService.js";
 
 /**
  * Webhook Stripe pour la Plateforme & Abonnements SaaS (GestArt CRM)
@@ -70,24 +71,15 @@ export const handleStripeWebhook = async (req, res) => {
                                     })
                                 ]);
 
-                                const owner = await prisma.user.findFirst({
-                                    where: { companyId: inv.companyId, role: "OWNER" }
+                                await dispatchNotification({
+                                    companyId: inv.companyId,
+                                    type: "INVOICE_PAID",
+                                    title: `Facture ${inv.number} payée en ligne !`,
+                                    body: `Le client a réglé la facture ${inv.number} (${inv.amountTTC}€) par carte bancaire.`,
+                                    entityType: "invoice",
+                                    entityId: inv.id,
+                                    data: { amount: inv.amountTTC, invoiceNumber: inv.number, method: "CARD" }
                                 });
-                                if (owner) {
-                                    await prisma.notification.create({
-                                        data: {
-                                            companyId: inv.companyId,
-                                            userId: owner.id,
-                                            type: "INVOICE_PAID",
-                                            channel: "IN_APP",
-                                            status: "SENT",
-                                            title: `Facture ${inv.number} payée en ligne !`,
-                                            body: `Le client a réglé la facture ${inv.number} (${inv.amountTTC}€) par carte bancaire.`,
-                                            entityType: "invoice",
-                                            entityId: inv.id
-                                        }
-                                    });
-                                }
                             }
                         } catch (e) {
                             console.error("[WEBHOOK] Erreur règlement facture:", e.message);
@@ -130,24 +122,15 @@ export const handleStripeWebhook = async (req, res) => {
                                     });
                                 }
 
-                                const owner = await prisma.user.findFirst({
-                                    where: { companyId: quote.companyId, role: "OWNER" }
+                                await dispatchNotification({
+                                    companyId: quote.companyId,
+                                    type: "INVOICE_PAID",
+                                    title: `Devis ${quote.number} validé et payé !`,
+                                    body: `Le devis ${quote.number} (${quote.amountTTC || quote.totalTtc}€) a été réglé en ligne.`,
+                                    entityType: "quote",
+                                    entityId: quote.id,
+                                    data: { amount: quote.amountTTC || quote.totalTtc, quoteNumber: quote.number, method: "CARD" }
                                 });
-                                if (owner) {
-                                    await prisma.notification.create({
-                                        data: {
-                                            companyId: quote.companyId,
-                                            userId: owner.id,
-                                            type: "INVOICE_PAID",
-                                            channel: "IN_APP",
-                                            status: "SENT",
-                                            title: `Devis ${quote.number} validé et payé !`,
-                                            body: `Le devis ${quote.number} (${quote.amountTTC || quote.totalTtc}€) a été réglé en ligne.`,
-                                            entityType: "quote",
-                                            entityId: quote.id
-                                        }
-                                    });
-                                }
                             }
                         } catch (e) {
                             console.error("[WEBHOOK] Erreur règlement devis:", e.message);
@@ -337,25 +320,16 @@ export const handleStripeConnectWebhook = async (req, res) => {
                             })
                         ]);
 
-                        // Notification au propriétaire
-                        const owner = await prisma.user.findFirst({
-                            where: { companyId: invoice.companyId, role: "OWNER" }
+                        // Notification centralisée au propriétaire
+                        await dispatchNotification({
+                            companyId: invoice.companyId,
+                            type: "INVOICE_PAID",
+                            title: `Facture ${invoice.number} réglée par carte !`,
+                            body: `Paiement en ligne de ${invoice.amountTTC}€ reçu pour la facture ${invoice.number}.`,
+                            entityType: "invoice",
+                            entityId: invoice.id,
+                            data: { amount: invoice.amountTTC, invoiceNumber: invoice.number, method: "CARD" }
                         });
-                        if (owner) {
-                            await prisma.notification.create({
-                                data: {
-                                    companyId: invoice.companyId,
-                                    userId: owner.id,
-                                    type: "INVOICE_PAID",
-                                    channel: "IN_APP",
-                                    status: "SENT",
-                                    title: `Facture ${invoice.number} réglée par carte !`,
-                                    body: `Paiement en ligne de ${invoice.amountTTC}€ reçu pour la facture ${invoice.number}.`,
-                                    entityType: "invoice",
-                                    entityId: invoice.id
-                                }
-                            });
-                        }
                     }
                 }
                 break;

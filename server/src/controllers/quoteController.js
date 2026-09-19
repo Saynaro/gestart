@@ -574,12 +574,18 @@ export const updateQuote = async (req, res) => {
             const targetValidUntil = parseSafeDate(validUntil);
             const targetCreatedAt = parseSafeDate(createdAt || date);
 
+            let normalizedStatus = status ? status.toUpperCase() : undefined;
+            if (normalizedStatus === "PENDING" || normalizedStatus === "FINALIZED") normalizedStatus = "SENT";
+            if ((existingQuote.status === "ACCEPTED" || existingQuote.status === "SIGNED" || existingQuote.status === "PAID" || existingQuote.status === "REJECTED") && normalizedStatus === "SENT") {
+                normalizedStatus = existingQuote.status;
+            }
+
             const updated = await tx.quote.update({
                 where: { id },
                 data: {
                     ...(finalClientId && { clientId: finalClientId }),
                     ...(interventionId !== undefined && { interventionId: interventionId || null }),
-                    ...(status && { status: status.toUpperCase() }),
+                    ...(normalizedStatus && { status: normalizedStatus }),
                     ...(targetValidUntil !== undefined && { validUntil: targetValidUntil }),
                     ...(targetCreatedAt !== undefined && { createdAt: targetCreatedAt }),
                     ...(!isNaN(computedHT) && { amountHT: computedHT }),
@@ -717,7 +723,7 @@ export const sendQuote = async (req, res) => {
         }
 
 
-        const newStatus = (quote.status === "ACCEPTED" || quote.status === "PAID") 
+        const newStatus = (quote.status === "ACCEPTED" || quote.status === "SIGNED" || quote.status === "PAID" || quote.status === "REJECTED") 
             ? quote.status 
             : "SENT";
 

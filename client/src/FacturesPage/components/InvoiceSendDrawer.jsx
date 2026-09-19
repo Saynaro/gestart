@@ -64,13 +64,14 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
         return true;
     });
 
-    if (!invoice) return null;
-
+    const isPaid = (invoice.status || "").toUpperCase() === "PAID" || (invoice.status || "").toUpperCase() === "PAYEE";
     const docNumber = invoice.number || `F-${invoice.id}`;
     const clientName = invoice.clientName || "Client";
     const totalTtc = Number(invoice.totalTtc || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/factures/${invoice.id || ''}` : `https://gestart.fr/factures/${invoice.id || ''}`;
-    const defaultMsg = `Bonjour ${clientName},\n\nVeuillez trouver votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\nVous pouvez la consulter et la régler en ligne ici : ${shareUrl}\n\nCordialement,`;
+    const defaultMsg = isPaid
+        ? `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture acquittée ${docNumber} d'un montant de ${totalTtc} € TTC (Facture réglée).\nVous pouvez la consulter et télécharger votre reçu ici : ${shareUrl}\n\nCordialement,`
+        : `Bonjour ${clientName},\n\nVeuillez trouver votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\nVous pouvez la consulter et la régler en ligne ici : ${shareUrl}\n\nCordialement,`;
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(shareUrl);
@@ -197,7 +198,7 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                             </div>
                             <div style={{ flex: 1, textAlign: 'left' }}>
                                 <span className="fp-send-option-label">Envoyer automatiquement</span>
-                                <span className="fp-send-option-desc">E-mail professionnel direct avec lien de paiement</span>
+                                <span className="fp-send-option-desc">{isPaid ? "E-mail direct avec facture acquittée et reçu de paiement" : "E-mail professionnel direct avec lien de paiement"}</span>
                             </div>
                         </button>
                     </div>
@@ -279,10 +280,13 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                             <ShieldCheck size={20} style={{ color: '#556B2F', flexShrink: 0, marginTop: '2px' }} />
                             <div style={{ flex: 1 }}>
                                 <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#556B2F' }}>
-                                    Envoi par e-mail automatique
+                                    {isPaid ? "Envoi du reçu / Facture acquittée" : "Envoi par e-mail automatique"}
                                 </h4>
                                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>
-                                    La facture <strong>{docNumber}</strong> ({totalTtc} € TTC) sera envoyée avec la facture PDF et le lien de paiement.
+                                    {isPaid 
+                                        ? <>La facture <strong>{docNumber}</strong> ({totalTtc} € TTC) est <strong>déjà réglée</strong>. Elle sera envoyée avec la mention acquittée et le reçu PDF.</>
+                                        : <>La facture <strong>{docNumber}</strong> ({totalTtc} € TTC) sera envoyée avec la facture PDF et le lien de paiement.</>
+                                    }
                                 </p>
                             </div>
                         </div>
@@ -382,42 +386,60 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                             </div>
                         )}
 
-                        {/* Modes de paiement à inclure dans l'e-mail */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
-                                Options de règlement à inclure dans l'e-mail :
-                            </label>
+                        {/* Modes de paiement ou acquittement si déjà payé */}
+                        {isPaid ? (
                             <div style={{
                                 display: 'flex',
-                                flexDirection: 'column',
-                                gap: '8px',
-                                backgroundColor: 'var(--card)',
-                                padding: '12px',
+                                alignItems: 'center',
+                                gap: '10px',
+                                backgroundColor: 'rgba(34, 197, 94, 0.08)',
+                                border: '1px solid rgba(34, 197, 94, 0.25)',
+                                padding: '12px 14px',
                                 borderRadius: '8px',
-                                border: '1px solid var(--border)'
+                                color: '#16a34a',
+                                fontSize: '12.5px',
+                                fontWeight: 600
                             }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', cursor: 'pointer', fontWeight: 500, color: 'var(--foreground)' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={stripeEnabled}
-                                        onChange={(e) => setStripeEnabled(e.target.checked)}
-                                        style={{ width: '16px', height: '16px', accentColor: '#635BFF', cursor: 'pointer' }}
-                                    />
-                                    <CreditCard size={15} style={{ color: '#635BFF' }} />
-                                    <span>Paiement sécurisé par carte en ligne (Stripe)</span>
-                                </label>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', cursor: 'pointer', fontWeight: 500, color: 'var(--foreground)' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={bankTransferEnabled}
-                                        onChange={(e) => setBankTransferEnabled(e.target.checked)}
-                                        style={{ width: '16px', height: '16px', accentColor: '#556B2F', cursor: 'pointer' }}
-                                    />
-                                    <Building2 size={15} style={{ color: '#556B2F' }} />
-                                    <span>Coordonnées de virement bancaire direct (IBAN)</span>
-                                </label>
+                                <Check size={18} style={{ flexShrink: 0 }} />
+                                <span>Facture déjà réglée — Envoi du reçu et de la facture acquittée</span>
                             </div>
-                        </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
+                                    Options de règlement à inclure dans l'e-mail :
+                                </label>
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '8px',
+                                    backgroundColor: 'var(--card)',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    border: '1px solid var(--border)'
+                                }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', cursor: 'pointer', fontWeight: 500, color: 'var(--foreground)' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={stripeEnabled}
+                                            onChange={(e) => setStripeEnabled(e.target.checked)}
+                                            style={{ width: '16px', height: '16px', accentColor: '#635BFF', cursor: 'pointer' }}
+                                        />
+                                        <CreditCard size={15} style={{ color: '#635BFF' }} />
+                                        <span>Paiement sécurisé par carte en ligne (Stripe)</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', cursor: 'pointer', fontWeight: 500, color: 'var(--foreground)' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={bankTransferEnabled}
+                                            onChange={(e) => setBankTransferEnabled(e.target.checked)}
+                                            style={{ width: '16px', height: '16px', accentColor: '#556B2F', cursor: 'pointer' }}
+                                        />
+                                        <Building2 size={15} style={{ color: '#556B2F' }} />
+                                        <span>Coordonnées de virement bancaire direct (IBAN)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Recipient Email Input */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>

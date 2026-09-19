@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { AlertTriangle, ArrowUpRight, RotateCcw, Check, Sliders, ShieldCheck, DollarSign } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { AlertTriangle, ArrowUpRight, RotateCcw, Check, Sliders, ShieldCheck, DollarSign, Loader2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
 
 const OFFICIAL_FRENCH_DEFAULTS = {
     servicesMax: 77700,
@@ -12,6 +13,7 @@ const OFFICIAL_FRENCH_DEFAULTS = {
 };
 
 export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
+    const { isExpired } = useSubscription();
     const [currentCA, setCurrentCA] = useState(0);
     const [loading, setLoading] = useState(true);
     const [savingPlafonds, setSavingPlafonds] = useState(false);
@@ -19,6 +21,8 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
 
     // Plafonds state
     const [plafonds, setPlafonds] = useState(OFFICIAL_FRENCH_DEFAULTS);
+    const savedPlafondsRef = useRef(OFFICIAL_FRENCH_DEFAULTS);
+    const autoSaveTimerRef = useRef(null);
 
     useEffect(() => {
         const fetchCAAndSettings = async () => {
@@ -33,14 +37,16 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                 setSettingsDoc(settings);
                 const savedPlafonds = settings?.documentCustomization?.plafonds;
                 if (savedPlafonds) {
-                    setPlafonds({
+                    const loaded = {
                         servicesMax: Number(savedPlafonds.servicesMax || OFFICIAL_FRENCH_DEFAULTS.servicesMax),
                         servicesTva: Number(savedPlafonds.servicesTva || OFFICIAL_FRENCH_DEFAULTS.servicesTva),
                         servicesTvaMax: Number(savedPlafonds.servicesTvaMax || OFFICIAL_FRENCH_DEFAULTS.servicesTvaMax),
                         commercialMax: Number(savedPlafonds.commercialMax || OFFICIAL_FRENCH_DEFAULTS.commercialMax),
                         commercialTva: Number(savedPlafonds.commercialTva || OFFICIAL_FRENCH_DEFAULTS.commercialTva),
                         commercialTvaMax: Number(savedPlafonds.commercialTvaMax || OFFICIAL_FRENCH_DEFAULTS.commercialTvaMax)
-                    });
+                    };
+                    setPlafonds(loaded);
+                    savedPlafondsRef.current = loaded;
                 }
 
                 // Invoices
@@ -66,12 +72,30 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
         fetchCAAndSettings();
     }, []);
 
-    const handlePlafondChange = (key, val) => {
-        const num = val === "" ? "" : Number(val);
-        setPlafonds(prev => ({ ...prev, [key]: num }));
+    const checkExpired = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier vos plafonds de CA, veuillez renouveler votre abonnement." }
+            }));
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+            return true;
+        }
+        return false;
     };
 
-    const handleSavePlafonds = async (customValues = plafonds) => {
+    const rollbackState = () => {
+        if (savedPlafondsRef.current) {
+            setPlafonds(savedPlafondsRef.current);
+        }
+    };
+
+    const performSave = async (customValues = plafonds) => {
+        if (checkExpired()) {
+            rollbackState();
+            return;
+        }
+
+        window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
         setSavingPlafonds(true);
         try {
             const existingCustom = settingsDoc?.documentCustomization || {};
@@ -91,18 +115,38 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                     }
                 }
             });
-            if (triggerToast) triggerToast("Plafonds et seuils enregistrés avec succès !");
+            savedPlafondsRef.current = customValues;
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saved' } }));
         } catch (err) {
             console.error("Save plafonds error:", err);
+            rollbackState();
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
             if (triggerToast) triggerToast("Erreur lors de l'enregistrement des plafonds", true);
         } finally {
             setSavingPlafonds(false);
         }
     };
 
+    const queueAutoSave = (newPlafonds) => {
+        if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = setTimeout(() => {
+            performSave(newPlafonds);
+        }, 500);
+    };
+
+    const handlePlafondChange = (key, val) => {
+        if (checkExpired()) return;
+        const num = val === "" ? "" : Number(val);
+        const updated = { ...plafonds, [key]: num };
+        setPlafonds(updated);
+        queueAutoSave(updated);
+    };
+
     const handleResetToOfficial = () => {
+        if (checkExpired()) return;
         setPlafonds(OFFICIAL_FRENCH_DEFAULTS);
-        handleSavePlafonds(OFFICIAL_FRENCH_DEFAULTS);
+        performSave(OFFICIAL_FRENCH_DEFAULTS);
+        if (triggerToast) triggerToast("Plafonds réinitialisés aux valeurs officielles !");
     };
 
     const thresholdServices = Number(plafonds.servicesTva) || OFFICIAL_FRENCH_DEFAULTS.servicesTva;
@@ -112,16 +156,16 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
     const projectionYearEnd = Math.round(currentCA > 0 ? currentCA * 1.35 : 0);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '24px' }}>
             {/* Alerte si proche du plafond */}
             {isWarning && (
-                <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <AlertTriangle size={22} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
+                <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '16px', display: 'flex', alignItems: 'flex-start', gap: isMobileView ? '8px' : '12px' }}>
+                    <AlertTriangle size={isMobileView ? 18 : 22} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
                     <div>
-                        <h4 style={{ margin: '0 0 4px 0', fontSize: '14.5px', fontWeight: 700, color: '#ef4444' }}>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, color: '#ef4444' }}>
                             Alerte Franchise TVA : Plafond atteint à {percentage}% !
                         </h4>
-                        <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
+                        <p style={{ margin: 0, fontSize: isMobileView ? '10.5px' : '12.5px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
                             Vous êtes à <strong>{Math.max(0, thresholdServices - currentCA).toLocaleString("fr-FR")} €</strong> du seuil de franchise en base de TVA ({thresholdServices.toLocaleString("fr-FR")} €). Si vous dépassez le seuil majoré ({thresholdServicesMax.toLocaleString("fr-FR")} €), vous devrez facturer la TVA sur vos interventions.
                         </p>
                     </div>
@@ -129,46 +173,46 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
             )}
 
             {/* Metric Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '18px' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>CA Annuel encaissé (2026)</span>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--foreground)', marginTop: '4px' }}>
-                        {currentCA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--muted-foreground)' }}>HT</span>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: isMobileView ? '8px' : '16px' }}>
+                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '18px' }}>
+                    <span style={{ fontSize: isMobileView ? '10.5px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>CA Annuel encaissé (2026)</span>
+                    <div style={{ fontSize: isMobileView ? '18px' : '24px', fontWeight: 800, color: 'var(--foreground)', marginTop: '2px' }}>
+                        {currentCA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € <span style={{ fontSize: isMobileView ? '10px' : '12px', fontWeight: 500, color: 'var(--muted-foreground)' }}>HT</span>
                     </div>
-                    <span style={{ fontSize: '11px', color: '#22c55e', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px', marginTop: '6px' }}>
-                        <ArrowUpRight size={14} /> Factures réglées en temps réel
+                    <span style={{ fontSize: isMobileView ? '9.5px' : '11px', color: '#22c55e', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px', marginTop: '4px' }}>
+                        <ArrowUpRight size={isMobileView ? 12 : 14} /> Factures réglées en temps réel
                     </span>
                 </div>
 
-                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '18px' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Seuil Franchise TVA (Services)</span>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--sidebar-primary)', marginTop: '4px' }}>
+                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '18px' }}>
+                    <span style={{ fontSize: isMobileView ? '10.5px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Seuil Franchise TVA (Services)</span>
+                    <div style={{ fontSize: isMobileView ? '18px' : '24px', fontWeight: 800, color: 'var(--sidebar-primary)', marginTop: '2px' }}>
                         {thresholdServices.toLocaleString("fr-FR")} €
                     </div>
-                    <div style={{ height: '6px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '3px', marginTop: '8px', overflow: 'hidden' }}>
+                    <div style={{ height: '6px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '3px', marginTop: '6px', overflow: 'hidden' }}>
                         <div style={{ width: `${percentage}%`, height: '100%', backgroundColor: isWarning ? '#ef4444' : 'var(--sidebar-primary)', borderRadius: '3px' }} />
                     </div>
                 </div>
 
-                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '18px' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Projection Fin d'année</span>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#f59e0b', marginTop: '4px' }}>
+                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '18px' }}>
+                    <span style={{ fontSize: isMobileView ? '10.5px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Projection Fin d'année</span>
+                    <div style={{ fontSize: isMobileView ? '18px' : '24px', fontWeight: 800, color: '#f59e0b', marginTop: '2px' }}>
                         ~ {projectionYearEnd.toLocaleString("fr-FR")} €
                     </div>
-                    <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', marginTop: '4px', display: 'block' }}>Estimation basée sur l'activité en cours</span>
+                    <span style={{ fontSize: isMobileView ? '10px' : '11.5px', color: 'var(--muted-foreground)', marginTop: '2px', display: 'block' }}>Estimation basée sur l'activité en cours</span>
                 </div>
             </div>
 
             {/* Section Configuration des Plafonds & Seuils légaux */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '22px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}>
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '14px', padding: isMobileView ? '10px 12px' : '22px', backgroundColor: 'var(--card)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobileView ? 'flex-start' : 'center', flexDirection: isMobileView ? 'column' : 'row', gap: isMobileView ? '8px' : '12px', marginBottom: isMobileView ? '12px' : '18px' }}>
                     <div>
-                        <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--foreground)' }}>
-                            <Sliders size={18} style={{ color: 'var(--sidebar-primary)' }} />
+                        <h4 style={{ margin: '0 0 2px 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--foreground)' }}>
+                            <Sliders size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)' }} />
                             Plafonds & Seuils légaux (Micro-entreprise)
                         </h4>
-                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)' }}>
-                            Personnalisez vos plafonds légaux ou adaptez-les en cas d'ouverture en cours d'année (règle du prorata temporis).
+                        <p style={{ margin: 0, fontSize: isMobileView ? '10.5px' : '13px', color: 'var(--muted-foreground)' }}>
+                            Personnalisez vos plafonds légaux ou adaptez-les en cas d'ouverture en cours d'année (prorata temporis).
                         </p>
                     </div>
                     <button
@@ -178,32 +222,34 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '6px',
-                            padding: '8px 14px',
+                            padding: isMobileView ? '5px 10px' : '8px 14px',
                             borderRadius: '8px',
                             border: '1px solid var(--border)',
                             backgroundColor: 'var(--background)',
                             color: 'var(--foreground)',
-                            fontSize: '12.5px',
+                            fontSize: isMobileView ? '10.5px' : '12.5px',
                             fontWeight: 600,
                             cursor: 'pointer',
-                            transition: 'all 0.2s'
+                            transition: 'all 0.2s',
+                            alignSelf: isMobileView ? 'stretch' : 'auto',
+                            justifyContent: 'center'
                         }}
                     >
-                        <RotateCcw size={14} />
-                        Réinitialiser valeurs officielles CGI
+                        <RotateCcw size={isMobileView ? 12 : 14} />
+                        Réinitialiser valeurs CGI
                     </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobileView ? '10px' : '20px' }}>
                     {/* Colonne 1: Prestations de services */}
-                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '16px', display: 'flex', flexDirection: 'column', gap: isMobileView ? '8px' : '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <ShieldCheck size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--foreground)' }}>Prestations de services (BTP / Artisans)</span>
+                            <ShieldCheck size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)' }} />
+                            <span style={{ fontSize: isMobileView ? '12px' : '14px', fontWeight: 700, color: 'var(--foreground)' }}>Prestations de services (BTP / Artisans)</span>
                         </div>
                         
                         <div>
-                            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
+                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
                                 Plafond CA max annuel (statut micro) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -213,22 +259,25 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('servicesMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '8px 36px 8px 12px',
+                                        height: isMobileView ? '30px' : '42px',
+                                        minHeight: isMobileView ? '30px' : '42px',
+                                        maxHeight: isMobileView ? '30px' : '42px',
+                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: '14px',
+                                        fontSize: isMobileView ? '11px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
+                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
                                 Seuil Franchise TVA (de base) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -238,23 +287,26 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('servicesTva', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '8px 36px 8px 12px',
+                                        height: isMobileView ? '30px' : '42px',
+                                        minHeight: isMobileView ? '30px' : '42px',
+                                        maxHeight: isMobileView ? '30px' : '42px',
+                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: '14px',
+                                        fontSize: isMobileView ? '11px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
-                                Seuil Majoré TVA (limite de tolérance) :
+                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                                Seuil Majoré TVA (limite tolérance) :
                             </label>
                             <div style={{ position: 'relative' }}>
                                 <input
@@ -263,30 +315,33 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('servicesTvaMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '8px 36px 8px 12px',
+                                        height: isMobileView ? '30px' : '42px',
+                                        minHeight: isMobileView ? '30px' : '42px',
+                                        maxHeight: isMobileView ? '30px' : '42px',
+                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: '14px',
+                                        fontSize: isMobileView ? '11px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Colonne 2: Activités commerciales */}
-                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '16px', display: 'flex', flexDirection: 'column', gap: isMobileView ? '8px' : '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <DollarSign size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--foreground)' }}>Activités commerciales (Vente matériel / BIC)</span>
+                            <DollarSign size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)' }} />
+                            <span style={{ fontSize: isMobileView ? '12px' : '14px', fontWeight: 700, color: 'var(--foreground)' }}>Activités commerciales (Vente matériel / BIC)</span>
                         </div>
                         
                         <div>
-                            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
+                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
                                 Plafond CA max annuel (statut micro) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -296,22 +351,25 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('commercialMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '8px 36px 8px 12px',
+                                        height: isMobileView ? '30px' : '42px',
+                                        minHeight: isMobileView ? '30px' : '42px',
+                                        maxHeight: isMobileView ? '30px' : '42px',
+                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: '14px',
+                                        fontSize: isMobileView ? '11px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
+                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
                                 Seuil Franchise TVA (de base) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -321,23 +379,26 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('commercialTva', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '8px 36px 8px 12px',
+                                        height: isMobileView ? '30px' : '42px',
+                                        minHeight: isMobileView ? '30px' : '42px',
+                                        maxHeight: isMobileView ? '30px' : '42px',
+                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: '14px',
+                                        fontSize: isMobileView ? '11px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
-                                Seuil Majoré TVA (limite de tolérance) :
+                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                                Seuil Majoré TVA (limite tolérance) :
                             </label>
                             <div style={{ position: 'relative' }}>
                                 <input
@@ -346,48 +407,53 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('commercialTvaMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '8px 36px 8px 12px',
+                                        height: isMobileView ? '30px' : '42px',
+                                        minHeight: isMobileView ? '30px' : '42px',
+                                        maxHeight: isMobileView ? '30px' : '42px',
+                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: '14px',
+                                        fontSize: isMobileView ? '11px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-                    <button
-                        type="button"
-                        onClick={() => handleSavePlafonds()}
-                        disabled={savingPlafonds}
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '10px 22px',
-                            borderRadius: '10px',
-                            border: 'none',
-                            backgroundColor: 'var(--sidebar-primary)',
-                            color: 'var(--sidebar-primary-foreground, #ffffff)',
-                            fontSize: '13.5px',
-                            fontWeight: 700,
-                            cursor: savingPlafonds ? 'not-allowed' : 'pointer',
-                            opacity: savingPlafonds ? 0.7 : 1,
-                            transition: 'all 0.2s',
-                            boxShadow: '0 2px 8px rgba(85, 107, 47, 0.2)'
-                        }}
-                    >
-                        <Check size={16} />
-                        {savingPlafonds ? "Enregistrement..." : "Enregistrer les plafonds"}
-                    </button>
-                </div>
+                {!isMobileView && (
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+                        <button
+                            type="button"
+                            onClick={() => performSave()}
+                            disabled={savingPlafonds}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '10px 22px',
+                                borderRadius: '10px',
+                                border: 'none',
+                                backgroundColor: 'var(--sidebar-primary)',
+                                color: 'var(--sidebar-primary-foreground, #ffffff)',
+                                fontSize: '13.5px',
+                                fontWeight: 700,
+                                cursor: savingPlafonds ? 'not-allowed' : 'pointer',
+                                opacity: savingPlafonds ? 0.7 : 1,
+                                transition: 'all 0.2s',
+                                boxShadow: '0 2px 8px rgba(85, 107, 47, 0.2)'
+                            }}
+                        >
+                            {savingPlafonds ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                            {savingPlafonds ? "Enregistrement..." : "Enregistrer les plafonds"}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

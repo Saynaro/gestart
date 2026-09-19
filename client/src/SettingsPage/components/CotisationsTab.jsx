@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Percent, Calendar, CheckCircle2, AlertCircle, FileText, Loader2, Calculator, ShieldCheck, Sparkles } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function CotisationsTab({ isMobileView, triggerToast }) {
+    const { isExpired } = useSubscription();
     const [legalStatus, setLegalStatus] = useState("MICRO"); // "MICRO" | "SASU" | "SARL" | "EURL" | "EI"
     const [activityType, setActivityType] = useState("BIC"); // "BIC" | "BNC" | "VENTE"
     const [declarationPeriodicity, setDeclarationPeriodicity] = useState("TRIMESTRIELLE");
@@ -16,6 +18,8 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
     const [settingsDoc, setSettingsDoc] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+
+    const autoSaveTimerRef = useRef(null);
 
     // Taux cotisations sociales auto-entrepreneur 2026 selon CGI
     const rateMap = {
@@ -32,6 +36,8 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
     const cfpRate = rateMap[activityType]?.cfp || 0.3;
     const vlRate = hasVersementLiberatoire ? (rateMap[activityType]?.vlRate || 1.7) : 0;
     const totalTaxRate = Math.round((effectiveUrssafRate + cfpRate + vlRate) * 10) / 10;
+
+    const savedStateRef = useRef(null);
 
     useEffect(() => {
         const loadData = async () => {
@@ -51,20 +57,25 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                 const custom = settings?.documentCustomization || {};
                 const fp = custom.fiscalProfile || {};
 
-                if (fp.legalStatus) setLegalStatus(fp.legalStatus);
-                if (fp.activityType) setActivityType(fp.activityType);
-                if (fp.periodicity) setDeclarationPeriodicity(fp.periodicity);
-                if (fp.hasAcre !== undefined) setIsAcreBeneficiary(!!fp.hasAcre);
-                if (fp.versementLiberatoire !== undefined) setHasVersementLiberatoire(!!fp.versementLiberatoire);
-                if (fp.isTvaAssujetti !== undefined) setIsTvaAssujetti(!!fp.isTvaAssujetti);
-                if (fp.customUrssafRate !== undefined) setCustomUrssafRate(fp.customUrssafRate);
+                let lStat = "MICRO", aType = "BIC", dPer = "TRIMESTRIELLE", acre = false, vl = false, tva = false, cRate = "";
+
+                if (fp.legalStatus) { lStat = fp.legalStatus; setLegalStatus(lStat); }
+                if (fp.activityType) { aType = fp.activityType; setActivityType(aType); }
+                if (fp.periodicity) { dPer = fp.periodicity; setDeclarationPeriodicity(dPer); }
+                if (fp.hasAcre !== undefined) { acre = !!fp.hasAcre; setIsAcreBeneficiary(acre); }
+                if (fp.versementLiberatoire !== undefined) { vl = !!fp.versementLiberatoire; setHasVersementLiberatoire(vl); }
+                if (fp.isTvaAssujetti !== undefined) { tva = !!fp.isTvaAssujetti; setIsTvaAssujetti(tva); }
+                if (fp.customUrssafRate !== undefined) { cRate = fp.customUrssafRate; setCustomUrssafRate(cRate); }
 
                 const comp = compRes?.data?.company || compRes?.company;
                 if (comp) {
                     if (comp.isTvaFranchise !== undefined) {
-                        setIsTvaAssujetti(!comp.isTvaFranchise);
+                        tva = !comp.isTvaFranchise;
+                        setIsTvaAssujetti(tva);
                     }
                 }
+
+                savedStateRef.current = { legalStatus: lStat, activityType: aType, declarationPeriodicity: dPer, isAcreBeneficiary: acre, hasVersementLiberatoire: vl, isTvaAssujetti: tva, customUrssafRate: cRate };
             } catch (err) {
                 console.warn("Could not load fiscal data:", err.message);
             } finally {
@@ -75,7 +86,7 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
         loadData();
     }, []);
 
-    // Calculate real quarter CA from paid invoices in DB
+    // Real quarter CA calculation
     const { t1CA, t2CA, t3CA, t4CA, totalYearCA } = useMemo(() => {
         let t1 = 0, t2 = 0, t3 = 0, t4 = 0;
         invoices.forEach(inv => {
@@ -105,23 +116,65 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
     const simNet = Math.round((simCA - simTotalCharges) * 100) / 100;
     const simNetPercent = simCA > 0 ? ((simNet / simCA) * 100).toFixed(1) : 0;
 
-    const handleSubmit = async (e) => {
-        if (e) e.preventDefault();
+    const checkExpired = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier vos paramètres fiscaux, veuillez renouveler votre abonnement." }
+            }));
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+            return true;
+        }
+        return false;
+    };
+
+    const rollbackState = () => {
+        if (!savedStateRef.current) return;
+        const s = savedStateRef.current;
+        setLegalStatus(s.legalStatus);
+        setActivityType(s.activityType);
+        setDeclarationPeriodicity(s.declarationPeriodicity);
+        setIsAcreBeneficiary(s.isAcreBeneficiary);
+        setHasVersementLiberatoire(s.hasVersementLiberatoire);
+        setIsTvaAssujetti(s.isTvaAssujetti);
+        setCustomUrssafRate(s.customUrssafRate);
+    };
+
+    const performSave = async (overrideData = {}) => {
+        if (checkExpired()) {
+            rollbackState();
+            return;
+        }
+
+        window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
         setSaving(true);
         try {
+            const lStatus = overrideData.legalStatus !== undefined ? overrideData.legalStatus : legalStatus;
+            const aType = overrideData.activityType !== undefined ? overrideData.activityType : activityType;
+            const dPeriod = overrideData.declarationPeriodicity !== undefined ? overrideData.declarationPeriodicity : declarationPeriodicity;
+            const acre = overrideData.isAcreBeneficiary !== undefined ? overrideData.isAcreBeneficiary : isAcreBeneficiary;
+            const vl = overrideData.hasVersementLiberatoire !== undefined ? overrideData.hasVersementLiberatoire : hasVersementLiberatoire;
+            const tva = overrideData.isTvaAssujetti !== undefined ? overrideData.isTvaAssujetti : isTvaAssujetti;
+            const cRate = overrideData.customUrssafRate !== undefined ? overrideData.customUrssafRate : customUrssafRate;
+
+            const bRate = cRate !== "" && !isNaN(Number(cRate)) ? Number(cRate) : (rateMap[aType]?.rate || 21.2);
+            const effUrssafRate = acre ? Math.round((bRate / 2) * 10) / 10 : bRate;
+            const cfRate = rateMap[aType]?.cfp || 0.3;
+            const vRate = vl ? (rateMap[aType]?.vlRate || 1.7) : 0;
+            const totTaxRate = Math.round((effUrssafRate + cfRate + vRate) * 10) / 10;
+
             const fiscalProfile = {
-                legalStatus,
-                activityType,
-                urssafRate: baseRate,
-                effectiveUrssafRate,
-                hasAcre: isAcreBeneficiary,
-                cfpRate,
-                versementLiberatoire: hasVersementLiberatoire,
-                versementLiberatoireRate: hasVersementLiberatoire ? rateMap[activityType]?.vlRate : 0,
-                isTvaAssujetti,
-                periodicity: declarationPeriodicity,
-                customUrssafRate: customUrssafRate !== "" ? Number(customUrssafRate) : null,
-                totalTaxRate
+                legalStatus: lStatus,
+                activityType: aType,
+                urssafRate: bRate,
+                effectiveUrssafRate: effUrssafRate,
+                hasAcre: acre,
+                cfpRate: cfRate,
+                versementLiberatoire: vl,
+                versementLiberatoireRate: vRate,
+                isTvaAssujetti: tva,
+                periodicity: dPeriod,
+                customUrssafRate: cRate !== "" ? Number(cRate) : null,
+                totalTaxRate: totTaxRate
             };
 
             const existingCustom = settingsDoc?.documentCustomization || {};
@@ -139,17 +192,43 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                 apiFetch('/v1/company', {
                     method: 'PATCH',
                     body: {
-                        isTvaFranchise: !isTvaAssujetti
+                        isTvaFranchise: !tva
                     }
                 })
             ]);
 
-            triggerToast("Profil fiscal et cotisations enregistrés avec succès !");
+            savedStateRef.current = {
+                legalStatus: lStatus,
+                activityType: aType,
+                declarationPeriodicity: dPeriod,
+                isAcreBeneficiary: acre,
+                hasVersementLiberatoire: vl,
+                isTvaAssujetti: tva,
+                customUrssafRate: cRate
+            };
+
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saved' } }));
         } catch (err) {
-            triggerToast(err.message || "Erreur lors de l'enregistrement", true);
+            console.error("Fiscal profile save error:", err);
+            rollbackState();
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+            if (triggerToast) triggerToast(err.message || "Erreur lors de l'enregistrement", true);
         } finally {
             setSaving(false);
         }
+    };
+
+    const queueAutoSave = (overrideData) => {
+        if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = setTimeout(() => {
+            performSave(overrideData);
+        }, 500);
+    };
+
+    const handleSubmit = async (e) => {
+        if (e) e.preventDefault();
+        await performSave();
+        if (triggerToast) triggerToast("Profil fiscal et cotisations enregistrés avec succès !");
     };
 
     if (loading) {
@@ -161,43 +240,114 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '20px' }}>
 
             {/* Header / Summary Card */}
-            <div style={{ backgroundColor: 'rgba(85, 107, 47, 0.06)', border: '1.5px solid rgba(85, 107, 47, 0.2)', borderRadius: '14px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '46px', height: '46px', borderRadius: '10px', backgroundColor: '#556B2F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Calculator size={24} />
+            <div style={{
+                backgroundColor: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: isMobileView ? '12px' : '14px',
+                padding: isMobileView ? '10px 12px' : '18px 20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: isMobileView ? 'stretch' : 'center',
+                flexDirection: isMobileView ? 'column' : 'row',
+                gap: isMobileView ? '8px' : '16px'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '8px' : '14px' }}>
+                    <div style={{
+                        width: isMobileView ? '32px' : '44px',
+                        height: isMobileView ? '32px' : '44px',
+                        minWidth: isMobileView ? '32px' : '44px',
+                        borderRadius: isMobileView ? '8px' : '10px',
+                        backgroundColor: 'var(--muted)',
+                        color: 'var(--sidebar-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <Calculator size={isMobileView ? 16 : 22} />
                     </div>
-                    <div>
-                        <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            Estimation en direct • Taux global : <strong>{totalTaxRate}%</strong>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                        <span style={{
+                            fontSize: isMobileView ? '9.5px' : '11.5px',
+                            color: 'var(--muted-foreground)',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.4px',
+                            display: 'block'
+                        }}>
+                            Estimation en direct • Taux global : <strong style={{ color: 'var(--foreground)' }}>{totalTaxRate}%</strong>
                         </span>
-                        <h4 style={{ margin: '3px 0 0 0', fontSize: '18px', fontWeight: 800 }}>
-                            {currentDue.toLocaleString("fr-FR")} € à régler <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--muted-foreground)' }}>(sur {activeQuarterCA.toLocaleString("fr-FR")} € HT encaissés ce trimestre)</span>
+                        <h4 style={{
+                            margin: '2px 0 0 0',
+                            fontSize: isMobileView ? '13.5px' : '17px',
+                            fontWeight: 800,
+                            lineHeight: 1.25,
+                            color: 'var(--foreground)'
+                        }}>
+                            {currentDue.toLocaleString("fr-FR")} € à régler <span style={{ fontSize: isMobileView ? '10px' : '12.5px', fontWeight: 500, color: 'var(--muted-foreground)' }}>(sur {activeQuarterCA.toLocaleString("fr-FR")} € HT ce trimestre)</span>
                         </h4>
                     </div>
                 </div>
                 <button
                     type="button"
                     onClick={() => window.open("https://www.autoentrepreneur.urssaf.fr", "_blank")}
-                    style={{ padding: '10px 18px', backgroundColor: '#556B2F', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+                    style={{
+                        padding: isMobileView ? '6px 10px' : '9px 16px',
+                        backgroundColor: 'var(--muted)',
+                        color: 'var(--foreground)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '7px',
+                        fontWeight: 600,
+                        fontSize: isMobileView ? '11px' : '13px',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        alignSelf: isMobileView ? 'stretch' : 'center'
+                    }}
                 >
                     Accéder à Urssaf.fr ↗
                 </button>
             </div>
 
             {/* SECTION 1: STATUT JURIDIQUE & TVA */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '22px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ShieldCheck size={18} style={{ color: '#556B2F' }} />
+            <div style={{
+                border: '1px solid var(--border)',
+                borderRadius: isMobileView ? '12px' : '14px',
+                padding: isMobileView ? '10px 12px' : '20px',
+                backgroundColor: 'var(--card)'
+            }}>
+                <h3 style={{
+                    margin: isMobileView ? '0 0 8px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '12.5px' : '15px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    <ShieldCheck size={isMobileView ? 15 : 18} style={{ color: '#556B2F' }} />
                     1. Statut juridique & Régime fiscal
                 </h3>
 
-                <div className="profile-form-grid">
+                <div className="profile-form-grid" style={{ gap: isMobileView ? '6px' : '14px' }}>
                     <div className="form-field">
-                        <label className="form-label">Forme juridique</label>
-                        <select className="form-input" value={legalStatus} onChange={(e) => setLegalStatus(e.target.value)}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Forme juridique</label>
+                        <select
+                            className="form-input"
+                            style={{
+                                fontSize: isMobileView ? '11px' : '13.5px',
+                                padding: isMobileView ? '4px 8px' : '10px 12px',
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px'
+                            }}
+                            value={legalStatus}
+                            onChange={(e) => {
+                                if (checkExpired()) return;
+                                const val = e.target.value;
+                                setLegalStatus(val);
+                                performSave({ legalStatus: val });
+                            }}
+                        >
                             <option value="MICRO">Micro-entreprise (Auto-entrepreneur)</option>
                             <option value="SASU">SASU / SAS (Président assimilé salarié)</option>
                             <option value="SARL">SARL / EURL (Gérant majoritaire TNS)</option>
@@ -206,90 +356,184 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                     </div>
 
                     <div className="form-field">
-                        <label className="form-label">Régime de TVA</label>
-                        <select className="form-input" value={isTvaAssujetti ? "ASSUJETTI" : "FRANCHISE"} onChange={(e) => setIsTvaAssujetti(e.target.value === "ASSUJETTI")}>
-                            <option value="FRANCHISE">Franchise en base de TVA (Art. 293 B CGI — Pas de TVA jusqu'à 37 500 €)</option>
-                            <option value="ASSUJETTI">Assujetti à la TVA (Facturation avec TVA 20% / 10% / 5.5%)</option>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Régime de TVA</label>
+                        <select
+                            className="form-input"
+                            style={{
+                                fontSize: isMobileView ? '11px' : '13.5px',
+                                padding: isMobileView ? '4px 8px' : '10px 12px',
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px'
+                            }}
+                            value={isTvaAssujetti ? "ASSUJETTI" : "FRANCHISE"}
+                            onChange={(e) => {
+                                if (checkExpired()) return;
+                                const val = e.target.value === "ASSUJETTI";
+                                setIsTvaAssujetti(val);
+                                performSave({ isTvaAssujetti: val });
+                            }}
+                        >
+                            <option value="FRANCHISE">Franchise en base de TVA (Art. 293 B CGI)</option>
+                            <option value="ASSUJETTI">Assujetti à la TVA (TVA 20% / 10% / 5.5%)</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             {/* SECTION 2: OPTIONS URSSAF & IMPÔTS */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '22px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Percent size={18} style={{ color: '#556B2F' }} />
+            <div style={{
+                border: '1px solid var(--border)',
+                borderRadius: isMobileView ? '12px' : '14px',
+                padding: isMobileView ? '10px 12px' : '20px',
+                backgroundColor: 'var(--card)'
+            }}>
+                <h3 style={{
+                    margin: isMobileView ? '0 0 8px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '12.5px' : '15px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    <Percent size={isMobileView ? 15 : 18} style={{ color: '#556B2F' }} />
                     2. Taux de cotisations sociales & Impôts (URSSAF)
                 </h3>
 
-                <div className="profile-form-grid">
+                <div className="profile-form-grid" style={{ gap: isMobileView ? '6px' : '14px' }}>
                     <div className="form-field form-group-full">
-                        <label className="form-label">Type d'activité principale</label>
-                        <select className="form-input" value={activityType} onChange={(e) => setActivityType(e.target.value)}>
-                            <option value="BIC">Prestation de services BIC (Artisans, Climatisation, BTP, Dépannage) — Taux base : 21,2%</option>
-                            <option value="BNC">Prestation de services BNC (Professions libérales, Études) — Taux base : 21,1%</option>
-                            <option value="VENTE">Vente de marchandises (Achat / Revente matériel sans pose) — Taux base : 12,3%</option>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Type d'activité principale</label>
+                        <select
+                            className="form-input"
+                            style={{
+                                fontSize: isMobileView ? '11px' : '13.5px',
+                                padding: isMobileView ? '4px 8px' : '10px 12px',
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px'
+                            }}
+                            value={activityType}
+                            onChange={(e) => {
+                                if (checkExpired()) return;
+                                const val = e.target.value;
+                                setActivityType(val);
+                                performSave({ activityType: val });
+                            }}
+                        >
+                            <option value="BIC">Prestation de services BIC (Artisans, Climatisation, BTP) — 21,2%</option>
+                            <option value="BNC">Prestation de services BNC (Professions libérales, Études) — 21,1%</option>
+                            <option value="VENTE">Vente de marchandises (Achat / Revente matériel) — 12,3%</option>
                         </select>
                     </div>
 
                     <div className="form-field">
-                        <label className="form-label">Périodicité des déclarations URSSAF</label>
-                        <select className="form-input" value={declarationPeriodicity} onChange={(e) => setDeclarationPeriodicity(e.target.value)}>
-                            <option value="TRIMESTRIELLE">Trimestrielle (Janvier, Avril, Juillet, Octobre)</option>
-                            <option value="MENSUELLE">Mensuelle (Chaque fin de mois)</option>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Périodicité des déclarations</label>
+                        <select
+                            className="form-input"
+                            style={{
+                                fontSize: isMobileView ? '11px' : '13.5px',
+                                padding: isMobileView ? '4px 8px' : '10px 12px',
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px'
+                            }}
+                            value={declarationPeriodicity}
+                            onChange={(e) => {
+                                if (checkExpired()) return;
+                                const val = e.target.value;
+                                setDeclarationPeriodicity(val);
+                                performSave({ declarationPeriodicity: val });
+                            }}
+                        >
+                            <option value="TRIMESTRIELLE">Trimestrielle (Jan, Avr, Juil, Oct)</option>
+                            <option value="MENSUELLE">Mensuelle (Fin de mois)</option>
                         </select>
                     </div>
 
                     <div className="form-field">
-                        <label className="form-label">Taux URSSAF personnalisé (optionnel)</label>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Taux URSSAF personnalisé (optionnel)</label>
                         <input
                             type="number"
                             step="0.1"
-                            placeholder={`Taux légal par défaut : ${rateMap[activityType]?.rate}%`}
+                            placeholder={`Défaut : ${rateMap[activityType]?.rate}%`}
                             className="form-input"
+                            style={{
+                                fontSize: isMobileView ? '11px' : '13.5px',
+                                padding: isMobileView ? '4px 8px' : '10px 12px',
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px'
+                            }}
                             value={customUrssafRate}
-                            onChange={(e) => setCustomUrssafRate(e.target.value)}
+                            onChange={(e) => {
+                                if (checkExpired()) return;
+                                const val = e.target.value;
+                                setCustomUrssafRate(val);
+                                queueAutoSave({ customUrssafRate: val });
+                            }}
                         />
                     </div>
                 </div>
 
                 {/* Toggles ACRE & Versement libératoire */}
-                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '16px', marginTop: '18px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: isMobileView ? '6px' : '14px', marginTop: isMobileView ? '8px' : '16px' }}>
 
                     {/* ACRE */}
-                    <div style={{ border: '1px solid var(--border)', borderRadius: '10px', padding: '16px', backgroundColor: isAcreBeneficiary ? 'rgba(85, 107, 47, 0.05)' : 'var(--background)', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <div style={{
+                        border: '1px solid var(--border)',
+                        borderRadius: isMobileView ? '8px' : '10px',
+                        padding: isMobileView ? '8px 10px' : '14px',
+                        backgroundColor: isAcreBeneficiary ? 'rgba(85, 107, 47, 0.05)' : 'var(--background)',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: isMobileView ? '8px' : '12px'
+                    }}>
                         <input
                             type="checkbox"
                             id="acre-checkbox"
                             checked={isAcreBeneficiary}
-                            onChange={(e) => setIsAcreBeneficiary(e.target.checked)}
-                            style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer' }}
+                            onChange={(e) => {
+                                if (checkExpired()) return;
+                                const val = e.target.checked;
+                                setIsAcreBeneficiary(val);
+                                performSave({ isAcreBeneficiary: val });
+                            }}
+                            style={{ width: isMobileView ? '15px' : '18px', height: isMobileView ? '15px' : '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer', flexShrink: 0 }}
                         />
-                        <label htmlFor="acre-checkbox" style={{ cursor: 'pointer' }}>
-                            <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--foreground)', display: 'block' }}>
+                        <label htmlFor="acre-checkbox" style={{ cursor: 'pointer', minWidth: 0, flex: 1 }}>
+                            <span style={{ fontWeight: 700, fontSize: isMobileView ? '11.5px' : '13.5px', color: 'var(--foreground)', display: 'block' }}>
                                 Bénéficiaire de l'ACRE (1ère année)
                             </span>
-                            <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
-                                Réduction de 50% sur vos cotisations sociales (Taux appliqué : <strong>{effectiveUrssafRate}%</strong>).
+                            <span style={{ fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '1px' }}>
+                                Réduction de 50% (Taux appliqué : <strong>{effectiveUrssafRate}%</strong>).
                             </span>
                         </label>
                     </div>
 
                     {/* Versement Libératoire */}
-                    <div style={{ border: '1px solid var(--border)', borderRadius: '10px', padding: '16px', backgroundColor: hasVersementLiberatoire ? 'rgba(85, 107, 47, 0.05)' : 'var(--background)', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <div style={{
+                        border: '1px solid var(--border)',
+                        borderRadius: isMobileView ? '8px' : '10px',
+                        padding: isMobileView ? '8px 10px' : '14px',
+                        backgroundColor: hasVersementLiberatoire ? 'rgba(85, 107, 47, 0.05)' : 'var(--background)',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: isMobileView ? '8px' : '12px'
+                    }}>
                         <input
                             type="checkbox"
                             id="vl-checkbox"
                             checked={hasVersementLiberatoire}
-                            onChange={(e) => setHasVersementLiberatoire(e.target.checked)}
-                            style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer' }}
+                            onChange={(e) => {
+                                if (checkExpired()) return;
+                                const val = e.target.checked;
+                                setHasVersementLiberatoire(val);
+                                performSave({ hasVersementLiberatoire: val });
+                            }}
+                            style={{ width: isMobileView ? '15px' : '18px', height: isMobileView ? '15px' : '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer', flexShrink: 0 }}
                         />
-                        <label htmlFor="vl-checkbox" style={{ cursor: 'pointer' }}>
-                            <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--foreground)', display: 'block' }}>
-                                Versement Libératoire de l'IR (+{rateMap[activityType]?.vlRate}%)
+                        <label htmlFor="vl-checkbox" style={{ cursor: 'pointer', minWidth: 0, flex: 1 }}>
+                            <span style={{ fontWeight: 700, fontSize: isMobileView ? '11.5px' : '13.5px', color: 'var(--foreground)', display: 'block' }}>
+                                Versement Libératoire IR (+{rateMap[activityType]?.vlRate}%)
                             </span>
-                            <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
-                                Vous payez l'impôt sur le revenu directement avec chaque déclaration URSSAF.
+                            <span style={{ fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '1px' }}>
+                                Impôt sur le revenu payé avec chaque déclaration.
                             </span>
                         </label>
                     </div>
@@ -297,76 +541,99 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                 </div>
             </div>
 
-            {/* SECTION 3: SIMULATEUR EN DIRECT (REVENU NET DANS LA POCHE) */}
-            <div style={{ border: '1px solid rgba(85, 107, 47, 0.3)', borderRadius: '12px', padding: '22px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Sparkles size={18} style={{ color: '#556B2F' }} />
-                        Simulateur : Combien vous reste-t-il dans la poche ?
+            {/* SECTION 3: SIMULATEUR EN DIRECT */}
+            <div style={{
+                border: '1px solid var(--border)',
+                borderRadius: isMobileView ? '12px' : '14px',
+                padding: isMobileView ? '10px 12px' : '20px',
+                backgroundColor: 'var(--card)'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: isMobileView ? '6px' : '12px', marginBottom: isMobileView ? '8px' : '16px' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobileView ? '12.5px' : '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Sparkles size={isMobileView ? 15 : 18} style={{ color: '#556B2F' }} />
+                        Simulateur : Revenu net en poche
                     </h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Chiffre d'Affaires test :</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ fontSize: isMobileView ? '10px' : '13px', color: 'var(--muted-foreground)' }}>CA test :</span>
                         <input
                             type="number"
                             value={simulatedCA}
                             onChange={(e) => setSimulatedCA(e.target.value)}
-                            style={{ width: '100px', padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)', fontWeight: 700, fontSize: '14px' }}
+                            style={{
+                                width: isMobileView ? '65px' : '90px',
+                                height: isMobileView ? '26px' : 'auto',
+                                padding: isMobileView ? '2px 6px' : '6px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid var(--border)',
+                                backgroundColor: 'var(--background)',
+                                color: 'var(--foreground)',
+                                fontWeight: 700,
+                                fontSize: isMobileView ? '11px' : '14px'
+                            }}
                         />
-                        <span style={{ fontWeight: 700 }}>€ HT</span>
+                        <span style={{ fontWeight: 700, fontSize: isMobileView ? '11px' : '13px' }}>€ HT</span>
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(4, 1fr)', gap: '12px' }}>
-                    <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
-                        <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Cotisations URSSAF ({effectiveUrssafRate}%)</span>
-                        <h4 style={{ margin: '4px 0 0 0', fontSize: '16px', fontWeight: 700, color: '#e11d48' }}>- {simUrssaf.toLocaleString("fr-FR")} €</h4>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? '1fr 1fr' : 'repeat(4, 1fr)',
+                    gap: isMobileView ? '6px' : '12px'
+                }}>
+                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
+                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>URSSAF ({effectiveUrssafRate}%)</span>
+                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, color: '#e11d48' }}>- {simUrssaf.toLocaleString("fr-FR")} €</h4>
                     </div>
 
-                    <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
-                        <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Formation CFP ({cfpRate}%)</span>
-                        <h4 style={{ margin: '4px 0 0 0', fontSize: '16px', fontWeight: 700, color: '#e11d48' }}>- {simCfp.toLocaleString("fr-FR")} €</h4>
+                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
+                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>CFP ({cfpRate}%)</span>
+                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, color: '#e11d48' }}>- {simCfp.toLocaleString("fr-FR")} €</h4>
                     </div>
 
-                    <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
-                        <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Impôt Libératoire ({vlRate}%)</span>
-                        <h4 style={{ margin: '4px 0 0 0', fontSize: '16px', fontWeight: 700, color: hasVersementLiberatoire ? '#e11d48' : 'var(--muted-foreground)' }}>
-                            {hasVersementLiberatoire ? `- ${simVl.toLocaleString("fr-FR")} €` : "Non applicable"}
+                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
+                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>Impôt ({vlRate}%)</span>
+                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, color: hasVersementLiberatoire ? '#e11d48' : 'var(--muted-foreground)' }}>
+                            {hasVersementLiberatoire ? `- ${simVl.toLocaleString("fr-FR")} €` : "0 €"}
                         </h4>
                     </div>
 
-                    <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
-                        <span style={{ fontSize: '11.5px', color: '#166534', fontWeight: 700 }}>Revenu Net en poche</span>
-                        <h4 style={{ margin: '4px 0 0 0', fontSize: '18px', fontWeight: 800, color: '#16a34a' }}>
-                            {simNet.toLocaleString("fr-FR")} € <span style={{ fontSize: '11.5px', fontWeight: 600 }}>({simNetPercent}%)</span>
+                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: '#166534', fontWeight: 700, display: 'block' }}>Net en poche</span>
+                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '13px' : '17px', fontWeight: 800, color: '#16a34a' }}>
+                            {simNet.toLocaleString("fr-FR")} € <span style={{ fontSize: isMobileView ? '9px' : '11px', fontWeight: 600 }}>({simNetPercent}%)</span>
                         </h4>
                     </div>
                 </div>
             </div>
 
-            {/* BOUTON ENREGISTRER */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button
-                    type="submit"
-                    disabled={saving}
-                    style={{
-                        padding: '12px 28px',
-                        backgroundColor: '#556B2F',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        cursor: saving ? 'not-allowed' : 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        opacity: saving ? 0.7 : 1
-                    }}
-                >
-                    {saving && <Loader2 className="animate-spin" size={16} />}
-                    {saving ? "Enregistrement dans la base..." : "Enregistrer les paramètres fiscaux"}
-                </button>
-            </div>
+            {/* BOUTON ENREGISTRER (Desktop only) */}
+            {!isMobileView && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        style={{
+                            width: 'auto',
+                            justifyContent: 'center',
+                            padding: '12px 28px',
+                            backgroundColor: '#556B2F',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            fontSize: '14px',
+                            cursor: saving ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            opacity: saving ? 0.7 : 1
+                        }}
+                    >
+                        {saving && <Loader2 className="animate-spin" size={16} />}
+                        {saving ? "Enregistrement..." : "Enregistrer les paramètres fiscaux"}
+                    </button>
+                </div>
+            )}
 
         </form>
     );

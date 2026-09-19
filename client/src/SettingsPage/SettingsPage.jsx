@@ -160,10 +160,19 @@ function SettingsPage() {
         const handleStatus = (e) => {
             if (e.detail?.status) {
                 setHeaderSaveStatus(e.detail.status);
+                if (e.detail.status === 'error') {
+                    if (timer) clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        setHeaderSaveStatus('saved');
+                    }, 2500);
+                }
             }
         };
         window.addEventListener('autoSaveStatus', handleStatus);
-        return () => window.removeEventListener('autoSaveStatus', handleStatus);
+        return () => {
+            window.removeEventListener('autoSaveStatus', handleStatus);
+            if (timer) clearTimeout(timer);
+        };
     }, []);
 
     const handleConfirmPhone = async () => {
@@ -441,54 +450,21 @@ function SettingsPage() {
         }
     }, [isTechnician, menuCategories, activeTab]);
 
-    // Touch swipe left-to-right from screen edge to dismiss detail screen
-    const touchStartX = useRef(0);
-    const touchStartY = useRef(0);
-
-    const handleTouchStart = (e) => {
-        touchStartX.current = e.touches[0].clientX;
-        touchStartY.current = e.touches[0].clientY;
-    };
-
-    const handleTouchEnd = (e) => {
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
-        const deltaX = touchEndX - touchStartX.current;
-        const deltaY = Math.abs(touchEndY - touchStartY.current);
-
-        // If swiped right from left edge (start X < 60px, distance > 40px, predominantly horizontal)
-        if (touchStartX.current < 60 && deltaX > 40 && deltaY < deltaX) {
-            handleBackFromDetail();
-        }
-    };
-
-    // Handle browser popstate (back button / Safari edge swipe) for mobile sub-screen navigation
-    useEffect(() => {
-        const handlePopState = (e) => {
-            if (e.state && e.state.settingsDetail) {
-                setMobileScreenState("detail");
-                if (e.state.tab) {
-                    setActiveTab(e.state.tab);
-                }
-            } else {
-                setMobileScreenState("list");
-                if (typeof window !== "undefined" && window.innerWidth <= 768) {
-                    const targetY = scrollYRef.current || 0;
-                    setTimeout(() => {
-                        window.scrollTo({ top: targetY, behavior: "instant" });
-                    }, 0);
-                }
-            }
-        };
-
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
-
     // Ref to mobile scroll container
     const mobileScrollRef = useRef(null);
 
-    // Helper to reset scroll to top across containers
+    // Helper to restore previous scroll position when navigating back to the main list
+    const restoreListScroll = useCallback(() => {
+        const targetY = scrollYRef.current || 0;
+        if (mobileScrollRef.current) {
+            mobileScrollRef.current.scrollTop = targetY;
+        }
+        if (typeof window !== "undefined") {
+            window.scrollTo({ top: targetY, behavior: "instant" });
+        }
+    }, []);
+
+    // Helper to reset scroll to top across containers when in detail view
     const scrollToTop = useCallback(() => {
         if (layoutContainerRef.current) {
             layoutContainerRef.current.scrollTop = 0;
@@ -527,20 +503,85 @@ function SettingsPage() {
         });
     }, []);
 
-    // Always scroll to top whenever activeTab or mobileScreenState changes
-    useLayoutEffect(() => {
-        scrollToTop();
-        const rafId = requestAnimationFrame(scrollToTop);
-        const timerId1 = setTimeout(scrollToTop, 25);
-        const timerId2 = setTimeout(scrollToTop, 80);
-        const timerId3 = setTimeout(scrollToTop, 180);
-        return () => {
-            cancelAnimationFrame(rafId);
-            clearTimeout(timerId1);
-            clearTimeout(timerId2);
-            clearTimeout(timerId3);
+    const handleBackFromDetail = useCallback(() => {
+        setIsMobileHeaderTitleVisible(false);
+        if (typeof window !== "undefined" && window.history.state?.settingsDetail) {
+            window.history.back();
+        } else {
+            setMobileScreenState("list");
+            restoreListScroll();
+            setTimeout(restoreListScroll, 0);
+            setTimeout(restoreListScroll, 30);
+        }
+    }, [restoreListScroll]);
+
+    // Touch swipe left-to-right from screen edge to dismiss detail screen
+    const touchStartX = useRef(0);
+    const touchStartY = useRef(0);
+
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchEndX - touchStartX.current;
+        const deltaY = Math.abs(touchEndY - touchStartY.current);
+
+        // If swiped right from left edge (start X < 60px, distance > 40px, predominantly horizontal)
+        if (touchStartX.current < 60 && deltaX > 40 && deltaY < deltaX) {
+            handleBackFromDetail();
+        }
+    };
+
+    // Handle browser popstate (back button / Safari edge swipe) for mobile sub-screen navigation
+    useEffect(() => {
+        const handlePopState = (e) => {
+            if (e.state && e.state.settingsDetail) {
+                setMobileScreenState("detail");
+                if (e.state.tab) {
+                    setActiveTab(e.state.tab);
+                }
+            } else {
+                setMobileScreenState("list");
+                restoreListScroll();
+                setTimeout(restoreListScroll, 0);
+                setTimeout(restoreListScroll, 30);
+            }
         };
-    }, [activeTab, mobileScreenState, scrollToTop]);
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [restoreListScroll]);
+
+    // Scroll management: scroll to top in detail tab, restore previous scroll in main list
+    useLayoutEffect(() => {
+        if (mobileScreenState === "detail") {
+            scrollToTop();
+            const rafId = requestAnimationFrame(scrollToTop);
+            const timerId1 = setTimeout(scrollToTop, 25);
+            const timerId2 = setTimeout(scrollToTop, 80);
+            return () => {
+                cancelAnimationFrame(rafId);
+                clearTimeout(timerId1);
+                clearTimeout(timerId2);
+            };
+        } else {
+            restoreListScroll();
+            const rafId = requestAnimationFrame(restoreListScroll);
+            const timerId1 = setTimeout(restoreListScroll, 20);
+            const timerId2 = setTimeout(restoreListScroll, 60);
+            const timerId3 = setTimeout(restoreListScroll, 120);
+            return () => {
+                cancelAnimationFrame(rafId);
+                clearTimeout(timerId1);
+                clearTimeout(timerId2);
+                clearTimeout(timerId3);
+            };
+        }
+    }, [activeTab, mobileScreenState, scrollToTop, restoreListScroll]);
 
     // Auto-scroll input into center view on mobile when focused & handle card click
     useEffect(() => {
@@ -609,7 +650,9 @@ function SettingsPage() {
         setIsMobileHeaderTitleVisible(false);
         setActiveTab(itemId);
         if (typeof window !== "undefined" && window.innerWidth <= 768) {
-            scrollYRef.current = window.scrollY;
+            if (mobileScreenState === "list" && mobileScrollRef.current) {
+                scrollYRef.current = mobileScrollRef.current.scrollTop;
+            }
             if (mobileScreenState === "detail") {
                 window.history.replaceState({ settingsDetail: true, tab: itemId }, "", window.location.href);
             } else {
@@ -622,21 +665,6 @@ function SettingsPage() {
         setTimeout(scrollToTop, 20);
         setTimeout(scrollToTop, 80);
     }, [mobileScreenState, scrollToTop]);
-
-    const handleBackFromDetail = useCallback(() => {
-        setIsMobileHeaderTitleVisible(false);
-        if (typeof window !== "undefined" && window.history.state?.settingsDetail) {
-            window.history.back();
-        } else {
-            setMobileScreenState("list");
-            if (typeof window !== "undefined" && window.innerWidth <= 768) {
-                const targetY = scrollYRef.current || 0;
-                setTimeout(() => {
-                    window.scrollTo({ top: targetY, behavior: "instant" });
-                }, 0);
-            }
-        }
-    }, []);
 
     const handleMainListBack = () => {
         // Do nothing on main /settings list screen as requested
@@ -660,7 +688,7 @@ function SettingsPage() {
                 initial={isMobileView ? { opacity: 1 } : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: isMobileView ? 0 : 0.2 }}
-                onAnimationComplete={scrollToTop}
+                onAnimationComplete={isMobileView ? undefined : scrollToTop}
             >
                 {!isMobileView && (
                     <>
@@ -779,7 +807,17 @@ function SettingsPage() {
                     </span>
 
                     <div style={{ marginLeft: 'auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', zIndex: 2 }}>
-                        {isDetail && (activeTab === "profil" || activeTab === "entreprise" || activeTab === "ma-societe") && (
+                        {isDetail && (
+                            activeTab === "profil" || 
+                            activeTab === "entreprise" || 
+                            activeTab === "ma-societe" || 
+                            activeTab === "facturation" || 
+                            activeTab === "notifications" ||
+                            activeTab === "tva-config" ||
+                            activeTab === "cotisations" ||
+                            activeTab === "chiffre-affaires" ||
+                            activeTab === "paiements"
+                        ) && (
                             <div style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',

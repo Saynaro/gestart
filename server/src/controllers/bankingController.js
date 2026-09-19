@@ -367,9 +367,16 @@ export const refreshBankingTransactions = async (req, res) => {
             if (result?.status === "PROBABLE") probableCount++;
         }
 
+        let summaryMsg = "Synchronisation bancaire terminée !";
+        if (matchedCount > 0) {
+            summaryMsg = `Synchronisation : ${matchedCount} facture(s) lettrée(s)`;
+        } else if (probableCount > 0) {
+            summaryMsg = `Synchronisation : ${probableCount} à vérifier`;
+        }
+
         return res.status(200).json({
             success: true,
-            message: `Synchronisation terminée : ${matchedCount} facture(s) rapprochée(s) automatiquement, ${probableCount} à vérifier.`,
+            message: summaryMsg,
             data: { matchedCount, probableCount }
         });
     } catch (error) {

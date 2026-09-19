@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Receipt, Palette, FileText, Check, AlertCircle, Loader2, Bell, Clock, Lock } from "lucide-react";
 import { LegalHelpTooltip } from "../../components/LegalHelpModal";
 import { apiFetch } from "../../utils/api";
@@ -25,6 +25,9 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
     const [quoteReminderDays, setQuoteReminderDays] = useState(5);
     const [saving, setSaving] = useState(false);
 
+    const isInitialLoad = useRef(true);
+    const saveTimerRef = useRef(null);
+
     useEffect(() => {
         const fetchSettings = async () => {
             try {
@@ -46,15 +49,105 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                     if (s.quoteReminderDays !== undefined) setQuoteReminderDays(Number(s.quoteReminderDays));
                     if (s.invoiceColor) {
                         setPdfColor(s.invoiceColor);
-                        saveCustomization({ primaryColor: s.invoiceColor });
+                        saveCustomization({ primaryColor: s.invoiceColor }, false);
                     }
                 }
             } catch (err) {
                 console.warn("API company settings fallback:", err.message);
+            } finally {
+                isInitialLoad.current = false;
             }
         };
         fetchSettings();
     }, []);
+
+    const performSave = useCallback(async (dataToSave = {}) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier les réglages de facturation, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
+
+        window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
+
+        const invPrefix = dataToSave.invoicePrefix !== undefined ? dataToSave.invoicePrefix : invoicePrefix;
+        const qPrefix = dataToSave.quotePrefix !== undefined ? dataToSave.quotePrefix : quotePrefix;
+        const invNextNum = dataToSave.invoiceNextNumber !== undefined ? dataToSave.invoiceNextNumber : invoiceNextNumber;
+        const qNextNum = dataToSave.quoteNextNumber !== undefined ? dataToSave.quoteNextNumber : quoteNextNumber;
+        const invFooter = dataToSave.pdfFooterText !== undefined ? dataToSave.pdfFooterText : pdfFooterText;
+        const invCond = dataToSave.cgvText !== undefined ? dataToSave.cgvText : cgvText;
+        const col = dataToSave.pdfColor !== undefined ? dataToSave.pdfColor : pdfColor;
+        const tva = dataToSave.defaultTvaRate !== undefined ? dataToSave.defaultTvaRate : defaultTvaRate;
+        const payDays = dataToSave.defaultPaymentDelay !== undefined ? dataToSave.defaultPaymentDelay : defaultPaymentDelay;
+        const valDays = dataToSave.defaultQuoteValidity !== undefined ? dataToSave.defaultQuoteValidity : defaultQuoteValidity;
+        const invRemEnabled = dataToSave.invoiceReminderEnabled !== undefined ? dataToSave.invoiceReminderEnabled : invoiceReminderEnabled;
+        const invRemDays = dataToSave.invoiceReminderDays !== undefined ? dataToSave.invoiceReminderDays : invoiceReminderDays;
+        const qRemEnabled = dataToSave.quoteReminderEnabled !== undefined ? dataToSave.quoteReminderEnabled : quoteReminderEnabled;
+        const qRemDays = dataToSave.quoteReminderDays !== undefined ? dataToSave.quoteReminderDays : quoteReminderDays;
+
+        if (dataToSave.pdfColor !== undefined) {
+            saveCustomization({ primaryColor: dataToSave.pdfColor }, false);
+        }
+
+        try {
+            await apiFetch('/v1/company/settings', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    invoicePrefix: invPrefix,
+                    quotePrefix: qPrefix,
+                    invoiceNextNumber: parseInt(invNextNum, 10) || 1,
+                    quoteNextNumber: parseInt(qNextNum, 10) || 1,
+                    invoiceFooter: invFooter,
+                    invoiceConditions: invCond,
+                    invoiceColor: col,
+                    defaultTvaRate: Number(tva),
+                    defaultPaymentDays: parseInt(payDays, 10) || 30,
+                    defaultValidDays: parseInt(valDays, 10) || 30,
+                    invoiceReminderEnabled: invRemEnabled,
+                    invoiceReminderDays: parseInt(invRemDays, 10) || 7,
+                    quoteReminderEnabled: qRemEnabled,
+                    quoteReminderDays: parseInt(qRemDays, 10) || 5
+                })
+            });
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saved' } }));
+        } catch (err) {
+            console.warn("Auto-save facturation settings error:", err);
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+        }
+    }, [
+        isExpired,
+        invoicePrefix,
+        quotePrefix,
+        invoiceNextNumber,
+        quoteNextNumber,
+        pdfFooterText,
+        cgvText,
+        pdfColor,
+        defaultTvaRate,
+        defaultPaymentDelay,
+        defaultQuoteValidity,
+        invoiceReminderEnabled,
+        invoiceReminderDays,
+        quoteReminderEnabled,
+        quoteReminderDays
+    ]);
+
+    const queueAutoSave = useCallback((partial) => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'error' } }));
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour modifier les réglages de facturation, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
+        window.dispatchEvent(new CustomEvent('autoSaveStatus', { detail: { status: 'saving' } }));
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+            performSave(partial);
+        }, 700);
+    }, [isExpired, performSave]);
 
     const year = new Date().getFullYear();
     const formattedInvoicePreview = `${invoicePrefix}-${year}-${String(invoiceNextNumber).padStart(3, '0')}`;
@@ -73,116 +166,156 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-        if (isExpired) {
-            window.dispatchEvent(new CustomEvent('subscription_expired', {
-                detail: { message: "Votre abonnement a expiré. Pour modifier les réglages de facturation, veuillez renouveler votre abonnement." }
-            }));
-            return;
-        }
         setSaving(true);
-        try {
-            // Update global document customization in localStorage and dispatch event
-            saveCustomization({ primaryColor: pdfColor });
-
-            // Persist to backend
-            await apiFetch('/v1/company/settings', {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    invoicePrefix,
-                    quotePrefix,
-                    invoiceNextNumber: parseInt(invoiceNextNumber, 10) || 1,
-                    quoteNextNumber: parseInt(quoteNextNumber, 10) || 1,
-                    invoiceFooter: pdfFooterText,
-                    invoiceConditions: cgvText,
-                    invoiceColor: pdfColor,
-                    defaultTvaRate: Number(defaultTvaRate),
-                    defaultPaymentDays: parseInt(defaultPaymentDelay, 10) || 30,
-                    defaultValidDays: parseInt(defaultQuoteValidity, 10) || 30,
-                    invoiceReminderEnabled,
-                    invoiceReminderDays: parseInt(invoiceReminderDays, 10) || 7,
-                    quoteReminderEnabled,
-                    quoteReminderDays: parseInt(quoteReminderDays, 10) || 5
-                })
-            });
-            triggerToast("Réglages de facturation et relances automatiques enregistrés !");
-        } catch (err) {
-            triggerToast("Réglages enregistrés localement !");
-        } finally {
-            setSaving(false);
+        await performSave();
+        setSaving(false);
+        if (triggerToast) {
+            triggerToast("Réglages de facturation enregistrés !");
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '14px' : '24px' }}>
+        <form
+            onSubmit={handleSubmit}
+            className={isMobileView ? "facturation-mobile-container" : ""}
+            style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '24px' }}
+        >
             {/* Numérotation et Préfixes */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: isMobileView ? '14px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Receipt size={17} style={{ color: 'var(--sidebar-primary)' }} />
-                    Séquences de Numérotation (Conformes art. 289 CGI)
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Receipt size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
+                    <span>Séquences de Numérotation (art. 289 CGI)</span>
                     <LegalHelpTooltip lawArticle="art. 289 I-3 CGI" title="Numérotation continue" text="La numérotation des factures doit être continue, chronologique et sans rupture. GestArt garantit la conformité fiscale." />
                 </h3>
 
-                <div className="profile-form-grid" style={{ gap: isMobileView ? '12px' : '16px' }}>
-                    <div className="form-field">
-                        <label className="form-label">Préfixe des factures</label>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? 'repeat(2, 1fr)' : '1fr 1fr',
+                    gap: isMobileView ? '8px' : '16px'
+                }}>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Préfixe factures</label>
                         <input
                             type="text"
                             className="form-input"
                             value={invoicePrefix}
-                            onChange={(e) => setInvoicePrefix(e.target.value.toUpperCase())}
+                            onChange={(e) => {
+                                const val = e.target.value.toUpperCase();
+                                setInvoicePrefix(val);
+                                queueAutoSave({ invoicePrefix: val });
+                            }}
                             placeholder="INV"
+                            style={{
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '11px' : '13.5px'
+                            }}
                         />
-                        <span style={{ fontSize: '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '2px' }}>
-                            Aperçu prochaine facture : {formattedInvoicePreview}
+                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '1px', lineHeight: 1.2 }}>
+                            {isMobileView ? formattedInvoicePreview : `Aperçu : ${formattedInvoicePreview}`}
                         </span>
                     </div>
 
-                    <div className="form-field">
-                        <label className="form-label">Préfixe des devis</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Préfixe devis</label>
                         <input
                             type="text"
                             className="form-input"
                             value={quotePrefix}
-                            onChange={(e) => setQuotePrefix(e.target.value.toUpperCase())}
+                            onChange={(e) => {
+                                const val = e.target.value.toUpperCase();
+                                setQuotePrefix(val);
+                                queueAutoSave({ quotePrefix: val });
+                            }}
                             placeholder="D"
+                            style={{
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '11px' : '13.5px'
+                            }}
                         />
-                        <span style={{ fontSize: '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '2px' }}>
-                            Aperçu prochain devis : {formattedQuotePreview}
+                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '1px', lineHeight: 1.2 }}>
+                            {isMobileView ? formattedQuotePreview : `Aperçu : ${formattedQuotePreview}`}
                         </span>
                     </div>
 
-                    <div className="form-field">
-                        <label className="form-label">Numéro suivant Facture</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>N° suivant Facture</label>
                         <input
                             type="number"
                             className="form-input"
                             value={invoiceNextNumber}
-                            onChange={(e) => setInvoiceNextNumber(parseInt(e.target.value, 10) || 1)}
+                            onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 1;
+                                setInvoiceNextNumber(val);
+                                queueAutoSave({ invoiceNextNumber: val });
+                            }}
                             min="1"
+                            style={{
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '11px' : '13.5px'
+                            }}
                         />
                     </div>
 
-                    <div className="form-field">
-                        <label className="form-label">Numéro suivant Devis</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>N° suivant Devis</label>
                         <input
                             type="number"
                             className="form-input"
                             value={quoteNextNumber}
-                            onChange={(e) => setQuoteNextNumber(parseInt(e.target.value, 10) || 1)}
+                            onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 1;
+                                setQuoteNextNumber(val);
+                                queueAutoSave({ quoteNextNumber: val });
+                            }}
                             min="1"
+                            style={{
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '11px' : '13.5px'
+                            }}
                         />
                     </div>
                 </div>
             </div>
 
             {/* Délais et Validités */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: isMobileView ? '14px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700 }}>Délais de Règlement & Validité Devis</h3>
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700 }}>Délais de Règlement & Validité Devis</h3>
 
-                <div className="profile-form-grid" style={{ gap: isMobileView ? '12px' : '16px' }}>
-                    <div className="form-field">
-                        <label className="form-label">Délai de paiement par défaut des factures</label>
-                        <select className="form-input" value={defaultPaymentDelay} onChange={(e) => setDefaultPaymentDelay(e.target.value)}>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr',
+                    gap: isMobileView ? '8px' : '16px'
+                }}>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Délai de paiement par défaut des factures</label>
+                        <select
+                            className="form-input"
+                            value={defaultPaymentDelay}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setDefaultPaymentDelay(val);
+                                performSave({ defaultPaymentDelay: val });
+                            }}
+                            style={{
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '11px' : '13.5px'
+                            }}
+                        >
                             <option value="15">15 jours (Paiement rapide)</option>
                             <option value="30">30 jours (Standard légal art. L441-10)</option>
                             <option value="45">45 jours fin de mois</option>
@@ -190,32 +323,56 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         </select>
                     </div>
 
-                    <div className="form-field">
-                        <label className="form-label">Durée de validité par défaut des devis</label>
-                        <select className="form-input" value={defaultQuoteValidity} onChange={(e) => setDefaultQuoteValidity(e.target.value)}>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Durée de validité par défaut des devis</label>
+                        <select
+                            className="form-input"
+                            value={defaultQuoteValidity}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setDefaultQuoteValidity(val);
+                                performSave({ defaultQuoteValidity: val });
+                            }}
+                            style={{
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '11px' : '13.5px'
+                            }}
+                        >
                             <option value="15">15 jours</option>
                             <option value="30">30 jours (Conseillé HVAC)</option>
                             <option value="60">60 jours (Grands chantiers)</option>
                         </select>
                     </div>
 
-                    <div className="form-field form-group-full">
-                        <label className="form-label">Taux TVA par défaut (Pills)</label>
-                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <div className="form-field" style={{ gridColumn: isMobileView ? undefined : 'span 2', gap: isMobileView ? '3px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Taux TVA par défaut (Pills)</label>
+                        <div style={{ display: 'flex', gap: isMobileView ? '5px' : '8px', marginTop: '2px' }}>
                             {[0, 5.5, 10, 20].map((rate) => (
                                 <button
                                     key={rate}
                                     type="button"
-                                    onClick={() => setDefaultTvaRate(rate)}
+                                    onClick={() => {
+                                        setDefaultTvaRate(rate);
+                                        performSave({ defaultTvaRate: rate });
+                                    }}
                                     style={{
-                                        flex: 1, padding: '8px', borderRadius: '8px',
+                                        flex: 1,
+                                        padding: isMobileView ? '4px 2px' : '8px',
+                                        borderRadius: '8px',
                                         border: defaultTvaRate === rate ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
                                         backgroundColor: defaultTvaRate === rate ? 'var(--sidebar-primary)' : 'var(--background)',
                                         color: defaultTvaRate === rate ? '#fff' : 'var(--foreground)',
-                                        fontWeight: 700, fontSize: '13px', cursor: 'pointer'
+                                        fontWeight: 700,
+                                        fontSize: isMobileView ? '10px' : '13px',
+                                        cursor: 'pointer',
+                                        textAlign: 'center',
+                                        whiteSpace: 'nowrap'
                                     }}
                                 >
-                                    {rate}% {rate === 20 ? '(Normal)' : rate === 10 ? '(Rénov.)' : rate === 5.5 ? '(PAC Énergie)' : '(Exonéré)'}
+                                    {rate}% {isMobileView ? '' : rate === 20 ? '(Normal)' : rate === 10 ? '(Rénov.)' : rate === 5.5 ? '(PAC)' : '(Exonéré)'}
                                 </button>
                             ))}
                         </div>
@@ -224,24 +381,29 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Relances Automatiques (Factures & Devis) */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: isMobileView ? '14px' : '20px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-                    <h3 style={{ margin: 0, fontSize: '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Bell size={17} style={{ color: 'var(--sidebar-primary)' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobileView ? '4px' : '10px', flexWrap: 'wrap', gap: '8px' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Bell size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
                         Relances Automatiques (Factures & Devis)
                     </h3>
-                    <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '12px', background: 'rgba(85, 107, 47, 0.12)', color: 'var(--sidebar-primary)', fontWeight: 600 }}>
+                    <span style={{ fontSize: isMobileView ? '9px' : '11px', padding: '2px 6px', borderRadius: '12px', background: 'rgba(85, 107, 47, 0.12)', color: 'var(--sidebar-primary)', fontWeight: 600 }}>
                         Envoi unique
                     </span>
                 </div>
-                <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
-                    Rappels automatiques par email avec lien de paiement sécurisé ou signature électronique en 1 clic.
+                <p style={{ margin: isMobileView ? '0 0 6px 0' : '0 0 12px 0', fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)', lineHeight: '1.35' }}>
+                    Rappels automatiques par email avec lien de paiement ou signature.
                 </p>
 
-                <div className="profile-form-grid" style={{ gap: isMobileView ? '10px' : '14px', alignItems: 'start' }}>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr',
+                    gap: isMobileView ? '6px' : '14px',
+                    alignItems: 'start'
+                }}>
                     {/* Relance Factures */}
-                    <div className="form-field" style={{
-                        padding: isMobileView ? '10px 12px' : '12px 14px',
+                    <div style={{
+                        padding: isMobileView ? '6px 8px' : '12px 14px',
                         borderRadius: '10px',
                         border: '1px solid var(--border)',
                         background: 'var(--background)',
@@ -249,15 +411,19 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                            <label htmlFor="inv-reminder-toggle" style={{ fontSize: '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
+                            <label htmlFor="inv-reminder-toggle" style={{ fontSize: isMobileView ? '11px' : '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
                                 Relance auto Factures
                             </label>
-                            <label className="mobile-toggle-switch" style={{ margin: 0 }}>
+                            <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(0.8)' : undefined, transformOrigin: 'right center' }}>
                                 <input
                                     type="checkbox"
                                     id="inv-reminder-toggle"
                                     checked={invoiceReminderEnabled}
-                                    onChange={(e) => setInvoiceReminderEnabled(e.target.checked)}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setInvoiceReminderEnabled(val);
+                                        performSave({ invoiceReminderEnabled: val });
+                                    }}
                                 />
                                 <span className="toggle-slider" />
                             </label>
@@ -267,23 +433,27 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             gridTemplateRows: invoiceReminderEnabled ? '1fr' : '0fr',
                             opacity: invoiceReminderEnabled ? 1 : 0,
                             transition: 'grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, margin-top 0.28s ease',
-                            marginTop: invoiceReminderEnabled ? '8px' : '0px'
+                            marginTop: invoiceReminderEnabled ? '4px' : '0px'
                         }}>
                             <div style={{ overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '2px' }}>
-                                    <label htmlFor="inv-days-select" style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', margin: 0 }}>
-                                        <Clock size={12} /> Délai :
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '2px' }}>
+                                    <label htmlFor="inv-days-select" style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap', margin: 0 }}>
+                                        <Clock size={11} /> Délai :
                                     </label>
                                     <select
                                         id="inv-days-select"
                                         className="form-input"
                                         value={invoiceReminderDays}
-                                        onChange={(e) => setInvoiceReminderDays(Number(e.target.value))}
-                                        style={{ height: '34px', minHeight: '34px', padding: '4px 10px', fontSize: '12px', flex: 1 }}
+                                        onChange={(e) => {
+                                            const val = Number(e.target.value);
+                                            setInvoiceReminderDays(val);
+                                            performSave({ invoiceReminderDays: val });
+                                        }}
+                                        style={{ height: isMobileView ? '28px' : '34px', minHeight: isMobileView ? '28px' : '34px', maxHeight: isMobileView ? '28px' : '34px', padding: '2px 6px', fontSize: isMobileView ? '10.5px' : '12px', flex: 1 }}
                                     >
                                         <option value={3}>3 jours après envoi</option>
                                         <option value={5}>5 jours après envoi</option>
-                                        <option value={7}>7 jours après envoi (Recommandé)</option>
+                                        <option value={7}>7 jours (Recommandé)</option>
                                         <option value={10}>10 jours après envoi</option>
                                         <option value={14}>14 jours après envoi</option>
                                         <option value={30}>30 jours après envoi</option>
@@ -294,8 +464,8 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                     </div>
 
                     {/* Relance Devis */}
-                    <div className="form-field" style={{
-                        padding: isMobileView ? '10px 12px' : '12px 14px',
+                    <div style={{
+                        padding: isMobileView ? '6px 8px' : '12px 14px',
                         borderRadius: '10px',
                         border: '1px solid var(--border)',
                         background: 'var(--background)',
@@ -303,15 +473,19 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                            <label htmlFor="quote-reminder-toggle" style={{ fontSize: '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
+                            <label htmlFor="quote-reminder-toggle" style={{ fontSize: isMobileView ? '11px' : '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
                                 Relance auto Devis
                             </label>
-                            <label className="mobile-toggle-switch" style={{ margin: 0 }}>
+                            <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(0.8)' : undefined, transformOrigin: 'right center' }}>
                                 <input
                                     type="checkbox"
                                     id="quote-reminder-toggle"
                                     checked={quoteReminderEnabled}
-                                    onChange={(e) => setQuoteReminderEnabled(e.target.checked)}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setQuoteReminderEnabled(val);
+                                        performSave({ quoteReminderEnabled: val });
+                                    }}
                                 />
                                 <span className="toggle-slider" />
                             </label>
@@ -321,23 +495,27 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             gridTemplateRows: quoteReminderEnabled ? '1fr' : '0fr',
                             opacity: quoteReminderEnabled ? 1 : 0,
                             transition: 'grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, margin-top 0.28s ease',
-                            marginTop: quoteReminderEnabled ? '8px' : '0px'
+                            marginTop: quoteReminderEnabled ? '4px' : '0px'
                         }}>
                             <div style={{ overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '2px' }}>
-                                    <label htmlFor="quote-days-select" style={{ fontSize: '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', margin: 0 }}>
-                                        <Clock size={12} /> Délai :
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '2px' }}>
+                                    <label htmlFor="quote-days-select" style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap', margin: 0 }}>
+                                        <Clock size={11} /> Délai :
                                     </label>
                                     <select
                                         id="quote-days-select"
                                         className="form-input"
                                         value={quoteReminderDays}
-                                        onChange={(e) => setQuoteReminderDays(Number(e.target.value))}
-                                        style={{ height: '34px', minHeight: '34px', padding: '4px 10px', fontSize: '12px', flex: 1 }}
+                                        onChange={(e) => {
+                                            const val = Number(e.target.value);
+                                            setQuoteReminderDays(val);
+                                            performSave({ quoteReminderDays: val });
+                                        }}
+                                        style={{ height: isMobileView ? '28px' : '34px', minHeight: isMobileView ? '28px' : '34px', maxHeight: isMobileView ? '28px' : '34px', padding: '2px 6px', fontSize: isMobileView ? '10.5px' : '12px', flex: 1 }}
                                     >
                                         <option value={2}>2 jours après envoi</option>
                                         <option value={3}>3 jours après envoi</option>
-                                        <option value={5}>5 jours après envoi (Recommandé)</option>
+                                        <option value={5}>5 jours (Recommandé)</option>
                                         <option value={7}>7 jours après envoi</option>
                                         <option value={10}>10 jours après envoi</option>
                                         <option value={14}>14 jours après envoi</option>
@@ -350,50 +528,71 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Mentions Légales PDF, Pénalités & Escompte */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: isMobileView ? '14px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 14px 0', fontSize: '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <FileText size={17} style={{ color: 'var(--sidebar-primary)' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FileText size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
                     Mentions Légales du Pied de Page PDF (Art. L441-10 C.com)
                 </h3>
 
-                <div className="profile-form-grid" style={{ gap: isMobileView ? '12px' : '16px' }}>
-                    <div className="form-field">
-                        <label className="form-label">Taux des pénalités de retard (%)</label>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? 'repeat(2, 1fr)' : '1fr 1fr',
+                    gap: isMobileView ? '8px' : '16px'
+                }}>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Pénalités retard (%)</label>
                         <input
                             type="text"
                             className="form-input"
                             value={penaltyRate}
                             onChange={(e) => setPenaltyRate(e.target.value)}
                             placeholder="10%"
+                            style={{
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '11px' : '13.5px'
+                            }}
                         />
                     </div>
 
-                    <div className="form-field">
-                        <label className="form-label">Indemnité forfaitaire de recouvrement (Fixe)</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Indemnité forfaitaire</label>
                         <input
                             type="text"
                             className="form-input"
-                            value="40,00 € (Fixe par loi art. D441-5)"
+                            value="40,00 € (art. D441-5)"
                             readOnly
-                            style={{ backgroundColor: 'rgba(0,0,0,0.03)', fontWeight: 700, color: 'var(--sidebar-primary)' }}
+                            style={{
+                                backgroundColor: 'rgba(0,0,0,0.03)',
+                                fontWeight: 700,
+                                color: 'var(--sidebar-primary)',
+                                height: isMobileView ? '30px' : '42px',
+                                minHeight: isMobileView ? '30px' : '42px',
+                                maxHeight: isMobileView ? '30px' : '42px',
+                                padding: isMobileView ? '3px 8px' : '10px 14px',
+                                fontSize: isMobileView ? '10.5px' : '13.5px'
+                            }}
                         />
                     </div>
 
-                    <div className="form-field form-group-full" style={{
+                    <div style={{
+                        gridColumn: '1 / -1',
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '10px 14px',
+                        padding: isMobileView ? '6px 8px' : '10px 14px',
                         borderRadius: '10px',
                         border: '1px solid var(--border)',
                         backgroundColor: 'var(--background)',
-                        gap: '12px'
+                        gap: '8px'
                     }}>
-                        <label htmlFor="escompte-check" style={{ fontSize: '12.5px', fontWeight: 600, cursor: 'pointer', margin: 0 }}>
+                        <label htmlFor="escompte-check" style={{ fontSize: isMobileView ? '10.5px' : '12.5px', fontWeight: 600, cursor: 'pointer', margin: 0, lineHeight: 1.3 }}>
                             Imprimer la mention : "Aucun escompte pour paiement anticipé"
                         </label>
-                        <label className="mobile-toggle-switch" style={{ margin: 0 }}>
+                        <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(0.8)' : undefined, transformOrigin: 'right center' }}>
                             <input
                                 type="checkbox"
                                 id="escompte-check"
@@ -404,98 +603,145 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         </label>
                     </div>
 
-                    <div className="form-field form-group-full">
-                        <label className="form-label">Mentions de bas de page PDF</label>
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: isMobileView ? '2px' : '4px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Mentions de bas de page PDF</label>
                         <textarea
                             className="form-input"
-                            rows={3}
+                            rows={isMobileView ? 2 : 3}
                             value={pdfFooterText}
-                            onChange={(e) => setPdfFooterText(e.target.value)}
-                            style={{ width: '100%', fontFamily: 'inherit', minHeight: '68px', height: 'auto', fontSize: '13px', lineHeight: '1.45', padding: '10px 12px' }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setPdfFooterText(val);
+                                queueAutoSave({ pdfFooterText: val });
+                            }}
+                            style={{
+                                width: '100%',
+                                fontFamily: 'inherit',
+                                minHeight: isMobileView ? '60px' : '68px',
+                                height: 'auto',
+                                fontSize: isMobileView ? '10.5px' : '13px',
+                                lineHeight: '1.35',
+                                padding: isMobileView ? '4px 8px' : '10px 12px'
+                            }}
                         />
                     </div>
 
-                    <div className="form-field form-group-full">
-                        <label className="form-label">Conditions Générales de Vente (CGV PDF)</label>
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: isMobileView ? '2px' : '4px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Conditions Générales de Vente (CGV PDF)</label>
                         <textarea
                             className="form-input"
-                            rows={4}
+                            rows={isMobileView ? 2 : 4}
                             value={cgvText}
-                            onChange={(e) => setCgvText(e.target.value)}
-                            style={{ width: '100%', fontFamily: 'inherit', minHeight: '92px', height: 'auto', fontSize: '13px', lineHeight: '1.45', padding: '10px 12px' }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setCgvText(val);
+                                queueAutoSave({ cgvText: val });
+                            }}
+                            style={{
+                                width: '100%',
+                                fontFamily: 'inherit',
+                                minHeight: isMobileView ? '60px' : '92px',
+                                height: 'auto',
+                                fontSize: isMobileView ? '10.5px' : '13px',
+                                lineHeight: '1.35',
+                                padding: isMobileView ? '4px 8px' : '10px 12px'
+                            }}
                         />
                     </div>
                 </div>
             </div>
 
             {/* Design & Couleur du PDF */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: isMobileView ? '14px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Palette size={17} style={{ color: 'var(--sidebar-primary)' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 6px 0' : '0 0 12px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Palette size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
                     Couleur Principale par Défaut pour les Devis & Factures
                 </h3>
-                <p style={{ margin: '-6px 0 14px 0', fontSize: '12px', color: 'var(--muted-foreground)' }}>
-                    Cette couleur sera appliquée par défaut à tous vos devis et factures PDF. Vous pourrez également la modifier individuellement pour un document spécifique depuis l'éditeur.
+                <p style={{ margin: isMobileView ? '-2px 0 8px 0' : '-6px 0 14px 0', fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)' }}>
+                    Cette couleur sera appliquée par défaut à tous vos devis et factures PDF.
                 </p>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '8px' : '16px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: isMobileView ? '6px' : '8px', flexWrap: 'wrap' }}>
                         {colorSwatches.map((swatch) => (
                             <button
                                 key={swatch.value}
                                 type="button"
                                 title={swatch.name}
-                                onClick={() => setPdfColor(swatch.value)}
+                                onClick={() => {
+                                    setPdfColor(swatch.value);
+                                    performSave({ pdfColor: swatch.value });
+                                }}
                                 style={{
-                                    width: '34px',
-                                    height: '34px',
+                                    width: isMobileView ? '24px' : '34px',
+                                    height: isMobileView ? '24px' : '34px',
                                     borderRadius: '50%',
                                     backgroundColor: swatch.value,
                                     border: pdfColor.toLowerCase() === swatch.value.toLowerCase() ? '3px solid var(--foreground)' : '2px solid transparent',
                                     cursor: 'pointer',
-                                    transform: pdfColor.toLowerCase() === swatch.value.toLowerCase() ? 'scale(1.1)' : 'scale(1)',
+                                    transform: pdfColor.toLowerCase() === swatch.value.toLowerCase() ? 'scale(1.12)' : 'scale(1)',
                                     transition: 'transform 0.15s',
                                     boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
                                 }}
                             />
                         ))}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '12.5px', fontWeight: 600 }}>Ou Hex :</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: isMobileView ? '10.5px' : '12.5px', fontWeight: 600 }}>Ou Hex :</span>
                         <input
                             type="text"
                             className="form-input"
                             value={pdfColor}
-                            onChange={(e) => setPdfColor(e.target.value)}
-                            style={{ width: '95px', fontFamily: 'monospace', fontWeight: 700, textAlign: 'center' }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setPdfColor(val);
+                                queueAutoSave({ pdfColor: val });
+                            }}
+                            style={{
+                                width: isMobileView ? '70px' : '95px',
+                                height: isMobileView ? '28px' : '42px',
+                                minHeight: isMobileView ? '28px' : '42px',
+                                maxHeight: isMobileView ? '28px' : '42px',
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                textAlign: 'center',
+                                padding: '2px 4px',
+                                fontSize: isMobileView ? '10.5px' : '13.5px'
+                            }}
                         />
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', backgroundColor: pdfColor, border: '1px solid var(--border)' }} />
+                        <div style={{ width: isMobileView ? '18px' : '24px', height: isMobileView ? '18px' : '24px', borderRadius: '6px', backgroundColor: pdfColor, border: '1px solid var(--border)' }} />
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        className="save-profile-btn"
-                        style={{
-                            padding: '10px 24px',
-                            backgroundColor: 'var(--sidebar-primary)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontWeight: 600,
-                            cursor: saving ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            opacity: isExpired ? 0.85 : 1
-                        }}
-                    >
-                        {isExpired && <Lock size={15} />}
-                        {saving ? <><Loader2 size={16} className="spin-loader" /> Enregistrement...</> : "Enregistrer la Facturation"}
-                    </button>
-                </div>
+                {/* Only display the button on desktop view since mobile uses header auto-save */}
+                {!isMobileView && (
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                        <button
+                            type="submit"
+                            disabled={saving}
+                            className="save-profile-btn"
+                            style={{
+                                width: 'auto',
+                                justifyContent: 'center',
+                                padding: '10px 24px',
+                                backgroundColor: 'var(--sidebar-primary)',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 600,
+                                fontSize: '13.5px',
+                                cursor: saving ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                opacity: isExpired ? 0.85 : 1
+                            }}
+                        >
+                            {isExpired && <Lock size={15} />}
+                            {saving ? <><Loader2 size={15} className="spin-loader" /> Enregistrement...</> : "Enregistrer la Facturation"}
+                        </button>
+                    </div>
+                )}
             </div>
         </form>
     );

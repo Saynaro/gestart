@@ -260,26 +260,26 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
         switch (status) {
             case "CONNECTED":
                 return (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "4px 10px", borderRadius: "20px", backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", fontSize: "12px", fontWeight: 700 }}>
-                        <CheckCircle2 size={13} /> Connecté
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: isMobileView ? "2px 7px" : "4px 10px", borderRadius: "20px", backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", fontSize: isMobileView ? "10px" : "12px", fontWeight: 700 }}>
+                        <CheckCircle2 size={isMobileView ? 11 : 13} /> Connecté
                     </span>
                 );
             case "ERROR":
                 return (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "4px 10px", borderRadius: "20px", backgroundColor: "rgba(239, 68, 68, 0.12)", color: "#ef4444", fontSize: "12px", fontWeight: 700 }}>
-                        <AlertCircle size={13} /> Erreur de connexion
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: isMobileView ? "2px 7px" : "4px 10px", borderRadius: "20px", backgroundColor: "rgba(239, 68, 68, 0.12)", color: "#ef4444", fontSize: isMobileView ? "10px" : "12px", fontWeight: 700 }}>
+                        <AlertCircle size={isMobileView ? 11 : 13} /> Erreur
                     </span>
                 );
             case "REAUTH_REQUIRED":
                 return (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "4px 10px", borderRadius: "20px", backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", fontSize: "12px", fontWeight: 700 }}>
-                        <RefreshCw size={13} /> Réautorisation requise
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: isMobileView ? "2px 7px" : "4px 10px", borderRadius: "20px", backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", fontSize: isMobileView ? "10px" : "12px", fontWeight: 700 }}>
+                        <RefreshCw size={isMobileView ? 11 : 13} /> Réauth requise
                     </span>
                 );
             case "NOT_CONNECTED":
             default:
                 return (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "4px 10px", borderRadius: "20px", backgroundColor: "rgba(148, 163, 184, 0.12)", color: "#94a3b8", fontSize: "12px", fontWeight: 700 }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: isMobileView ? "2px 7px" : "4px 10px", borderRadius: "20px", backgroundColor: "rgba(148, 163, 184, 0.12)", color: "#94a3b8", fontSize: isMobileView ? "10px" : "12px", fontWeight: 700 }}>
                         Non connecté
                     </span>
                 );
@@ -288,28 +288,28 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
 
     if (loading) {
         return (
-            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "10px" : "24px" }}>
                 {/* Banner Skeleton */}
-                <div style={{ padding: "24px", borderRadius: "14px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <div className="skeleton-shimmer" style={{ width: "240px", height: "22px", borderRadius: "6px" }} />
-                    <div className="skeleton-shimmer" style={{ width: "80%", height: "14px", borderRadius: "4px", opacity: 0.7 }} />
+                <div style={{ padding: isMobileView ? "10px 12px" : "24px", borderRadius: isMobileView ? "12px" : "14px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <div className="skeleton-shimmer" style={{ width: "200px", height: isMobileView ? "16px" : "22px", borderRadius: "6px" }} />
+                    <div className="skeleton-shimmer" style={{ width: "80%", height: isMobileView ? "11px" : "14px", borderRadius: "4px", opacity: 0.7 }} />
                 </div>
 
                 {/* Channel Cards Skeletons */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: isMobileView ? "8px" : "16px" }}>
                     {[1, 2, 3].map((i) => (
-                        <div key={i} style={{ padding: "20px", borderRadius: "14px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "16px" }}>
+                        <div key={i} style={{ padding: isMobileView ? "10px 12px" : "20px", borderRadius: isMobileView ? "12px" : "14px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: isMobileView ? "8px" : "16px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                    <div className="skeleton-shimmer" style={{ width: "42px", height: "42px", borderRadius: "12px" }} />
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                        <div className="skeleton-shimmer" style={{ width: "90px", height: "16px", borderRadius: "4px" }} />
-                                        <div className="skeleton-shimmer" style={{ width: "130px", height: "11px", borderRadius: "4px", opacity: 0.6 }} />
+                                <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "8px" : "12px" }}>
+                                    <div className="skeleton-shimmer" style={{ width: isMobileView ? "32px" : "42px", height: isMobileView ? "32px" : "42px", borderRadius: isMobileView ? "8px" : "12px" }} />
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                        <div className="skeleton-shimmer" style={{ width: "80px", height: "14px", borderRadius: "4px" }} />
+                                        <div className="skeleton-shimmer" style={{ width: "110px", height: "10px", borderRadius: "4px", opacity: 0.6 }} />
                                     </div>
                                 </div>
-                                <div className="skeleton-shimmer" style={{ width: "70px", height: "24px", borderRadius: "20px" }} />
+                                <div className="skeleton-shimmer" style={{ width: "60px", height: "20px", borderRadius: "20px" }} />
                             </div>
-                            <div className="skeleton-shimmer" style={{ width: "100%", height: "36px", borderRadius: "8px", opacity: 0.5 }} />
+                            <div className="skeleton-shimmer" style={{ width: "100%", height: isMobileView ? "26px" : "36px", borderRadius: "8px", opacity: 0.5 }} />
                         </div>
                     ))}
                 </div>
@@ -318,16 +318,31 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
     }
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "10px" : "24px" }}>
             {/* Header Banner */}
-            <div style={{ background: "linear-gradient(135deg, rgba(85, 107, 47, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%)", border: "1px solid rgba(85, 107, 47, 0.3)", borderRadius: "14px", padding: "24px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-                    <div style={{ width: "36px", height: "36px", borderRadius: "10px", backgroundColor: "rgba(85, 107, 47, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#A3E635" }}>
-                        <Sparkles size={20} />
+            <div style={{
+                background: "linear-gradient(135deg, rgba(85, 107, 47, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%)",
+                border: "1px solid rgba(85, 107, 47, 0.3)",
+                borderRadius: isMobileView ? "12px" : "14px",
+                padding: isMobileView ? "10px 12px" : "24px"
+            }}>
+                <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "8px" : "12px" }}>
+                    <div style={{
+                        width: isMobileView ? "28px" : "36px",
+                        height: isMobileView ? "28px" : "36px",
+                        borderRadius: isMobileView ? "8px" : "10px",
+                        backgroundColor: "rgba(85, 107, 47, 0.2)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#A3E635",
+                        flexShrink: 0
+                    }}>
+                        <Sparkles size={isMobileView ? 15 : 20} />
                     </div>
                     <div>
-                        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800 }}>Canaux de Communication Omnicanal</h3>
-                        <p style={{ margin: 0, fontSize: "13px", color: "var(--muted-foreground)" }}>
+                        <h3 style={{ margin: 0, fontSize: isMobileView ? "12.5px" : "18px", fontWeight: 800 }}>Canaux de Communication Omnicanal</h3>
+                        <p style={{ margin: isMobileView ? "2px 0 0 0" : "0", fontSize: isMobileView ? "10.5px" : "13px", color: "var(--muted-foreground)" }}>
                             Chaque entreprise dispose de ses propres identifiants et numéros dédiés pour échanger avec ses clients.
                         </p>
                     </div>
@@ -335,80 +350,125 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
             </div>
 
             {/* Channels Grid */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "8px" : "18px" }}>
 
                 {/* 1. SMS (Twilio) */}
-                <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "14px", padding: "22px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                            <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(91, 77, 219, 0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <SmsIcon size={24} />
+                <div style={{
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: isMobileView ? "12px" : "14px",
+                    padding: isMobileView ? "10px 12px" : "22px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: isMobileView ? "8px" : "16px"
+                }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: isMobileView ? "6px" : "12px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "8px" : "14px" }}>
+                            <div style={{
+                                width: isMobileView ? "32px" : "44px",
+                                height: isMobileView ? "32px" : "44px",
+                                borderRadius: isMobileView ? "8px" : "12px",
+                                backgroundColor: "rgba(91, 77, 219, 0.12)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                            }}>
+                                <SmsIcon size={isMobileView ? 17 : 24} />
                             </div>
                             <div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <h4 style={{ margin: 0, fontSize: "16px", fontWeight: 800 }}>SMS Direct</h4>
+                                <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "6px" : "10px" }}>
+                                    <h4 style={{ margin: 0, fontSize: isMobileView ? "12.5px" : "16px", fontWeight: 800 }}>SMS Direct</h4>
                                     {renderStatusBadge(sms.status)}
                                 </div>
-                                <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--muted-foreground)" }}>
+                                <p style={{ margin: isMobileView ? "2px 0 0 0" : "4px 0 0 0", fontSize: isMobileView ? "10px" : "13px", color: "var(--muted-foreground)" }}>
                                     Fournisseur : <strong>Twilio Platform</strong> · Numéro expéditeur : <span className="font-mono">{sms.phone || "Non configuré"}</span>
                                 </p>
                             </div>
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <span style={{ fontSize: "12.5px", fontWeight: 700, color: "var(--foreground)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <span style={{ fontSize: isMobileView ? "10.5px" : "12.5px", fontWeight: 700, color: "var(--foreground)" }}>
                                 {sms.creditsRemaining} crédits restants
                             </span>
                         </div>
                     </div>
 
-                    <div style={{ background: "var(--background)", borderRadius: "10px", padding: "12px 16px", fontSize: "12.5px", color: "var(--muted-foreground)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <ShieldCheck size={16} style={{ color: "#22c55e" }} />
+                    <div style={{
+                        background: "var(--background)",
+                        borderRadius: isMobileView ? "8px" : "10px",
+                        padding: isMobileView ? "6px 8px" : "12px 16px",
+                        fontSize: isMobileView ? "10px" : "12.5px",
+                        color: "var(--muted-foreground)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: "6px"
+                    }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <ShieldCheck size={isMobileView ? 13 : 16} style={{ color: "#22c55e", flexShrink: 0 }} />
                             <span>Envoi et réception bidirectionnelle actifs pour tous vos clients.</span>
                         </div>
-                        <span style={{ fontSize: "12px", color: "var(--sidebar-primary)", fontWeight: 600 }}>
+                        <span style={{ fontSize: isMobileView ? "10px" : "12px", color: "var(--sidebar-primary)", fontWeight: 600 }}>
                             {sms.creditsUsed} SMS envoyés ce mois
                         </span>
                     </div>
                 </div>
 
                 {/* 2. WhatsApp Business (Meta) */}
-                <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "14px", padding: "22px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                            <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(37, 211, 102, 0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <WhatsAppIcon size={24} />
+                <div style={{
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: isMobileView ? "12px" : "14px",
+                    padding: isMobileView ? "10px 12px" : "22px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: isMobileView ? "8px" : "16px"
+                }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: isMobileView ? "6px" : "12px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "8px" : "14px" }}>
+                            <div style={{
+                                width: isMobileView ? "32px" : "44px",
+                                height: isMobileView ? "32px" : "44px",
+                                borderRadius: isMobileView ? "8px" : "12px",
+                                backgroundColor: "rgba(37, 211, 102, 0.14)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                            }}>
+                                <WhatsAppIcon size={isMobileView ? 17 : 24} />
                             </div>
                             <div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <h4 style={{ margin: 0, fontSize: "16px", fontWeight: 800 }}>WhatsApp Business</h4>
+                                <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "6px" : "10px" }}>
+                                    <h4 style={{ margin: 0, fontSize: isMobileView ? "12.5px" : "16px", fontWeight: 800 }}>WhatsApp Business</h4>
                                     {renderStatusBadge(whatsapp.status)}
                                 </div>
-                                <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--muted-foreground)" }}>
+                                <p style={{ margin: isMobileView ? "2px 0 0 0" : "4px 0 0 0", fontSize: isMobileView ? "10px" : "13px", color: "var(--muted-foreground)" }}>
                                     Fournisseur : <strong>Meta WhatsApp Cloud API</strong>
                                     {whatsapp.phoneNumber && <> · Numéro : <span className="font-mono">{whatsapp.phoneNumber}</span></>}
                                 </p>
                             </div>
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "6px" : "10px" }}>
                             {whatsapp.status === "CONNECTED" ? (
                                 <>
                                     <button
                                         type="button"
                                         onClick={() => handleTestChannel("WHATSAPP")}
                                         disabled={testingChannel === "WHATSAPP"}
-                                        style={{ padding: "8px 14px", backgroundColor: "var(--accent)", color: "var(--foreground)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+                                        style={{ padding: isMobileView ? "5px 9px" : "8px 14px", backgroundColor: "var(--accent)", color: "var(--foreground)", border: "1px solid var(--border)", borderRadius: "7px", fontSize: isMobileView ? "11px" : "12.5px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
                                     >
-                                        {testingChannel === "WHATSAPP" ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                                        {testingChannel === "WHATSAPP" ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                                         Tester
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => handleDisconnectChannel("WHATSAPP")}
                                         disabled={disconnectingChannel === "WHATSAPP"}
-                                        style={{ padding: "8px 14px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "8px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer" }}
+                                        style={{ padding: isMobileView ? "5px 9px" : "8px 14px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "7px", fontSize: isMobileView ? "11px" : "12.5px", fontWeight: 600, cursor: "pointer" }}
                                     >
                                         Déconnecter
                                     </button>
@@ -417,9 +477,9 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                 <button
                                     type="button"
                                     onClick={handleLaunchMetaEmbeddedSignup}
-                                    style={{ padding: "9px 18px", backgroundColor: "#22c55e", color: "#ffffff", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 2px 8px rgba(34, 197, 94, 0.3)" }}
+                                    style={{ padding: isMobileView ? "6px 12px" : "9px 18px", backgroundColor: "#22c55e", color: "#ffffff", border: "none", borderRadius: "7px", fontSize: isMobileView ? "11.5px" : "13px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 2px 8px rgba(34, 197, 94, 0.3)" }}
                                 >
-                                    <WhatsAppIcon size={18} />
+                                    <WhatsAppIcon size={isMobileView ? 14 : 18} />
                                     Connecter WhatsApp Business
                                 </button>
                             )}
@@ -427,85 +487,102 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                     </div>
 
                     {whatsapp.status === "CONNECTED" ? (
-                        <div style={{ background: "var(--background)", borderRadius: "10px", padding: "12px 16px", fontSize: "12.5px", color: "var(--muted-foreground)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                        <div style={{ background: "var(--background)", borderRadius: isMobileView ? "8px" : "10px", padding: isMobileView ? "6px 8px" : "12px 16px", fontSize: isMobileView ? "10px" : "12.5px", color: "var(--muted-foreground)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
                             <span>Nom vérifié Meta : <strong style={{ color: "var(--foreground)" }}>{whatsapp.verifiedName || "Actif"}</strong></span>
                             <span>WABA ID : <span className="font-mono">{whatsapp.wabaId || "Automatique"}</span></span>
                             <span>Qualité : <strong style={{ color: "#22c55e" }}>Excellente ({whatsapp.qualityRating || "GREEN"})</strong></span>
                         </div>
                     ) : (
-                        <div style={{ background: "var(--background)", borderRadius: "10px", padding: "12px 16px", fontSize: "12.5px", color: "var(--muted-foreground)" }}>
-                            💡 Connectez votre numéro WhatsApp Business officiel pour recevoir et envoyer des messages directement depuis vos conversations clients ClimPro.
+                        <div style={{ background: "var(--background)", borderRadius: isMobileView ? "8px" : "10px", padding: isMobileView ? "6px 8px" : "12px 16px", fontSize: isMobileView ? "10px" : "12.5px", color: "var(--muted-foreground)" }}>
+                            💡 Connectez votre numéro WhatsApp Business officiel pour recevoir et envoyer des messages directement depuis vos conversations clients.
                         </div>
                     )}
                 </div>
 
                 {/* 3. Email (Google Workspace / Microsoft / SMTP) */}
-                <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "14px", padding: "22px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                            <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(59, 130, 246, 0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <EmailIcon size={24} />
+                <div style={{
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: isMobileView ? "12px" : "14px",
+                    padding: isMobileView ? "10px 12px" : "22px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: isMobileView ? "8px" : "16px"
+                }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: isMobileView ? "6px" : "12px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "8px" : "14px" }}>
+                            <div style={{
+                                width: isMobileView ? "32px" : "44px",
+                                height: isMobileView ? "32px" : "44px",
+                                borderRadius: isMobileView ? "8px" : "12px",
+                                backgroundColor: "rgba(59, 130, 246, 0.12)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                            }}>
+                                <EmailIcon size={isMobileView ? 17 : 24} />
                             </div>
                             <div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <h4 style={{ margin: 0, fontSize: "16px", fontWeight: 800 }}>Email Professionnel</h4>
+                                <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "6px" : "10px" }}>
+                                    <h4 style={{ margin: 0, fontSize: isMobileView ? "12.5px" : "16px", fontWeight: 800 }}>Email Professionnel</h4>
                                     {renderStatusBadge(email.status)}
                                 </div>
-                                <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--muted-foreground)" }}>
+                                <p style={{ margin: isMobileView ? "2px 0 0 0" : "4px 0 0 0", fontSize: isMobileView ? "10px" : "13px", color: "var(--muted-foreground)" }}>
                                     Fournisseur : <strong>{email.provider || "Non configuré"}</strong>
                                     {email.emailAddress && <> · Adresse : <span className="font-mono">{email.emailAddress}</span></>}
                                 </p>
                             </div>
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "6px" : "10px" }}>
                             {email.status === "CONNECTED" ? (
                                 <>
                                     <button
                                         type="button"
                                         onClick={() => handleTestChannel("EMAIL")}
                                         disabled={testingChannel === "EMAIL"}
-                                        style={{ padding: "8px 14px", backgroundColor: "var(--accent)", color: "var(--foreground)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+                                        style={{ padding: isMobileView ? "5px 9px" : "8px 14px", backgroundColor: "var(--accent)", color: "var(--foreground)", border: "1px solid var(--border)", borderRadius: "7px", fontSize: isMobileView ? "11px" : "12.5px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
                                     >
-                                        {testingChannel === "EMAIL" ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                                        {testingChannel === "EMAIL" ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                                         Tester l'envoi
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => handleDisconnectChannel("EMAIL")}
                                         disabled={disconnectingChannel === "EMAIL"}
-                                        style={{ padding: "8px 14px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "8px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer" }}
+                                        style={{ padding: isMobileView ? "5px 9px" : "8px 14px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "7px", fontSize: isMobileView ? "11px" : "12.5px", fontWeight: 600, cursor: "pointer" }}
                                     >
                                         Déconnecter
                                     </button>
                                 </>
                             ) : (
-                                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
                                     <button
                                         type="button"
                                         onClick={handleGoogleConnect}
                                         style={{
-                                            padding: "8px 16px",
+                                            padding: isMobileView ? "5px 10px" : "8px 16px",
                                             backgroundColor: "#ffffff",
                                             color: "#3c4043",
                                             border: "1px solid #dadce0",
-                                            borderRadius: "8px",
-                                            fontSize: "12.5px",
+                                            borderRadius: "7px",
+                                            fontSize: isMobileView ? "11px" : "12.5px",
                                             fontWeight: 600,
                                             cursor: "pointer",
                                             display: "flex",
                                             alignItems: "center",
-                                            gap: "8px",
+                                            gap: "6px",
                                             boxShadow: "0 1px 2px rgba(60,64,67,0.08)"
                                         }}
                                     >
-                                        <svg width="16" height="16" viewBox="0 0 24 24">
+                                        <svg width={isMobileView ? "13" : "16"} height={isMobileView ? "13" : "16"} viewBox="0 0 24 24">
                                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                                         </svg>
-                                        Connecter avec Google (1 clic)
+                                        Google
                                     </button>
                                     <button
                                         type="button"
@@ -513,20 +590,20 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                             setEmailForm(prev => ({ ...prev, provider: "SMTP" }));
                                             setIsEmailModalOpen(true);
                                         }}
-                                        style={{ padding: "8px 14px", backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+                                        style={{ padding: isMobileView ? "5px 9px" : "8px 14px", backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "7px", fontSize: isMobileView ? "11px" : "12.5px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
                                     >
-                                        SMTP / OVH / Outlook
+                                        SMTP
                                     </button>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    <div style={{ background: "var(--background)", borderRadius: "10px", padding: "12px 16px", fontSize: "12.5px", color: "var(--muted-foreground)" }}>
+                    <div style={{ background: "var(--background)", borderRadius: isMobileView ? "8px" : "10px", padding: isMobileView ? "6px 8px" : "12px 16px", fontSize: isMobileView ? "10px" : "12.5px", color: "var(--muted-foreground)" }}>
                         {email.status === "CONNECTED" ? (
                             <span>Expéditeur officiel : <strong style={{ color: "var(--foreground)" }}>{email.displayName || "Votre Société"} &lt;{email.emailAddress}&gt;</strong> · Vos devis et factures PDF sont transmis avec cette identité.</span>
                         ) : (
-                            <span>Connectez votre adresse email professionnelle pour envoyer des devis, factures et répondre aux messages clients sans quitter l'Inbox.</span>
+                            <span>Connectez votre adresse email professionnelle pour envoyer des devis, factures et répondre aux clients.</span>
                         )}
                     </div>
                 </div>

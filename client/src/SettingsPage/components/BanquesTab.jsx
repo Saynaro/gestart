@@ -12,12 +12,16 @@ import {
     RefreshCw,
     Trash2,
     ExternalLink,
-    Landmark
+    Landmark,
+    Lock
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
 import { FRENCH_BANKS, formatIBAN, formatBIC, validateIBAN, validateBIC } from "../../utils/bankValidator";
 
 export default function BanquesTab({ isMobileView, triggerToast }) {
+    const { isExpired } = useSubscription();
+
     // Form States
     const [selectedBankId, setSelectedBankId] = useState("bourso");
     const [customBankName, setCustomBankName] = useState("");
@@ -153,6 +157,19 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
         );
     }, [bankSearch]);
 
+    // Keep and display only the active bank account
+    const displayAccounts = useMemo(() => {
+        const list = bankingStatus.accounts || [];
+        if (list.length <= 1) return list;
+        const sorted = [...list].sort((a, b) => {
+            const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            if (timeB !== timeA) return timeB - timeA;
+            return (Number(b.balance) || 0) - (Number(a.balance) || 0);
+        });
+        return [sorted[0]];
+    }, [bankingStatus.accounts]);
+
     // Handle bank selection from list
     const handleSelectBank = (bank) => {
         setSelectedBankId(bank.id);
@@ -187,6 +204,13 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
     const handleSave = async (e) => {
         if (e) e.preventDefault();
 
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Abonnement expiré. Renouvelez votre offre pour modifier vos coordonnées bancaires." }
+            }));
+            return;
+        }
+
         if (iban && !ibanStatus.valid) {
             if (triggerToast) triggerToast(ibanStatus.message || "IBAN invalide. Veuillez vérifier votre saisie.", true);
             return;
@@ -220,31 +244,56 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '14px' : '24px' }}>
             {/* Formulaire IBAN / BIC Principal */}
-            <form onSubmit={handleSave} style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: isMobileView ? '16px' : '24px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <form onSubmit={handleSave} style={{
+                border: '1px solid var(--border)',
+                borderRadius: isMobileView ? '12px' : '16px',
+                padding: isMobileView ? '14px' : '24px',
+                backgroundColor: 'var(--card)'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isMobileView ? '12px' : '20px', flexWrap: 'wrap', gap: '10px' }}>
                     <div>
-                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(85,107,47,0.12)', color: '#556B2F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Building size={18} />
+                        <h3 style={{ margin: 0, fontSize: isMobileView ? '14px' : '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{
+                                width: isMobileView ? '28px' : '32px',
+                                height: isMobileView ? '28px' : '32px',
+                                borderRadius: '8px',
+                                background: 'rgba(85,107,47,0.12)',
+                                color: '#556B2F',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0
+                            }}>
+                                <Building size={isMobileView ? 16 : 18} />
                             </span>
-                            Coordonnées Bancaires Officielles (RIB Devis & Factures)
+                            <span>Coordonnées Bancaires (RIB)</span>
                         </h3>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
-                            Ces informations sont automatiquement imprimées sur vos devis et factures PDF pour permettre à vos clients de vous régler par virement bancaire.
+                        <p style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '11.5px' : '12.5px', color: 'var(--muted-foreground)', lineHeight: 1.35 }}>
+                            Imprimées sur vos devis et factures PDF pour permettre le règlement par virement.
                         </p>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#22C55E', fontWeight: 700, backgroundColor: 'rgba(34, 197, 94, 0.1)', padding: '4px 10px', borderRadius: '50px' }}>
-                        <Shield size={14} /> Chiffrement SSL 256-bit
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        fontSize: isMobileView ? '10.5px' : '12px',
+                        color: '#22C55E',
+                        fontWeight: 700,
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        padding: isMobileView ? '3px 8px' : '4px 10px',
+                        borderRadius: '50px'
+                    }}>
+                        <Shield size={isMobileView ? 12 : 14} /> Chiffrement SSL 256-bit
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobileView ? '10px' : '18px' }}>
                     {/* Établissement Bancaire Selector with Logos */}
                     <div style={{ gridColumn: '1 / -1', position: 'relative' }}>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <label style={{ display: 'block', fontSize: isMobileView ? '11px' : '12px', fontWeight: 700, marginBottom: '4px', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
                             Établissement Bancaire
                         </label>
 
@@ -254,38 +303,40 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '10px 14px',
+                                padding: isMobileView ? '8px 12px' : '10px 14px',
                                 border: '1px solid var(--border)',
-                                borderRadius: '10px',
+                                borderRadius: '8px',
                                 backgroundColor: 'var(--background)',
                                 cursor: 'pointer',
                                 transition: 'border 0.15s'
                             }}
                         >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '10px' : '12px', minWidth: 0 }}>
                                 <div style={{
-                                    width: '32px', height: '32px', borderRadius: '8px',
+                                    width: isMobileView ? '28px' : '32px',
+                                    height: isMobileView ? '28px' : '32px',
+                                    borderRadius: '6px',
                                     backgroundColor: selectedBank.bgColor,
                                     color: selectedBank.textColor,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontWeight: 800, fontSize: '11px', flexShrink: 0,
+                                    fontWeight: 800, fontSize: isMobileView ? '9.5px' : '11px', flexShrink: 0,
                                     boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
                                 }}>
                                     {selectedBank.logoLetter}
                                 </div>
-                                <div>
-                                    <span style={{ fontWeight: 700, fontSize: '14px', display: 'block', color: 'var(--foreground)' }}>
+                                <div style={{ minWidth: 0 }}>
+                                    <span style={{ fontWeight: 700, fontSize: isMobileView ? '13px' : '14px', display: 'block', color: 'var(--foreground)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         {selectedBank.id === "other" ? (customBankName || "Autre établissement bancaire") : selectedBank.name}
                                     </span>
                                     {selectedBank.bic && (
-                                        <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                                            BIC par défaut : {selectedBank.bic}
+                                        <span style={{ fontSize: isMobileView ? '10.5px' : '11.5px', color: 'var(--muted-foreground)', display: 'block' }}>
+                                            BIC : {selectedBank.bic}
                                         </span>
                                     )}
                                 </div>
                             </div>
 
-                            <ChevronDown size={18} style={{ color: 'var(--muted-foreground)', transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                            <ChevronDown size={16} style={{ color: 'var(--muted-foreground)', transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
                         </div>
 
                         {/* Searchable Bank Dropdown Menu */}
@@ -302,25 +353,24 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                 borderRadius: '12px',
                                 boxShadow: '0 16px 36px rgba(0,0,0,0.25)',
                                 overflow: 'hidden',
-                                maxHeight: '320px',
+                                maxHeight: '300px',
                                 display: 'flex',
                                 flexDirection: 'column'
                             }}>
                                 {/* Search filter */}
-                                <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)' }}>
-                                    <Search size={16} style={{ color: 'var(--muted-foreground)' }} />
+                                <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--background)' }}>
+                                    <Search size={15} style={{ color: 'var(--muted-foreground)' }} />
                                     <input
                                         type="text"
-                                        placeholder="Rechercher une banque (ex: Bourso, Postale, BNP, Qonto)..."
+                                        placeholder="Rechercher une banque (Bourso, BNP, Qonto)..."
                                         value={bankSearch}
                                         onChange={(e) => setBankSearch(e.target.value)}
-                                        autoFocus
-                                        style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '13px', color: 'var(--foreground)' }}
+                                        style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '12.5px', color: 'var(--foreground)' }}
                                     />
                                 </div>
 
                                 {/* List of Banks */}
-                                <div style={{ overflowY: 'auto', padding: '6px' }}>
+                                <div style={{ overflowY: 'auto', padding: '4px' }}>
                                     {filteredBanks.map((b) => (
                                         <div
                                             key={b.id}
@@ -329,8 +379,8 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'space-between',
-                                                padding: '8px 12px',
-                                                borderRadius: '8px',
+                                                padding: '7px 10px',
+                                                borderRadius: '6px',
                                                 cursor: 'pointer',
                                                 backgroundColor: selectedBankId === b.id ? 'rgba(85,107,47,0.12)' : 'transparent',
                                                 transition: 'background-color 0.12s'
@@ -340,21 +390,21 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                         >
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <div style={{
-                                                    width: '28px', height: '28px', borderRadius: '6px',
+                                                    width: '26px', height: '26px', borderRadius: '5px',
                                                     backgroundColor: b.bgColor,
                                                     color: b.textColor,
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    fontWeight: 800, fontSize: '10px', flexShrink: 0
+                                                    fontWeight: 800, fontSize: '9px', flexShrink: 0
                                                 }}>
                                                     {b.logoLetter}
                                                 </div>
-                                                <span style={{ fontSize: '13.5px', fontWeight: selectedBankId === b.id ? 700 : 500 }}>
+                                                <span style={{ fontSize: isMobileView ? '12.5px' : '13.5px', fontWeight: selectedBankId === b.id ? 700 : 500 }}>
                                                     {b.name}
                                                 </span>
                                             </div>
 
                                             {b.bic && (
-                                                <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontFamily: 'monospace', fontWeight: 600 }}>
+                                                <span style={{ fontSize: '10.5px', color: 'var(--muted-foreground)', fontFamily: 'monospace', fontWeight: 600 }}>
                                                     {b.bic}
                                                 </span>
                                             )}
@@ -366,7 +416,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
 
                         {/* Custom Bank Name if "Other" selected */}
                         {selectedBankId === "other" && (
-                            <div style={{ marginTop: '10px' }}>
+                            <div style={{ marginTop: '8px' }}>
                                 <input
                                     type="text"
                                     placeholder="Saisissez le nom complet de votre banque"
@@ -374,12 +424,12 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => setCustomBankName(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '10px 14px',
+                                        padding: isMobileView ? '8px 12px' : '10px 14px',
                                         backgroundColor: 'var(--background)',
                                         border: '1px solid var(--border)',
-                                        borderRadius: '10px',
+                                        borderRadius: '8px',
                                         color: 'var(--foreground)',
-                                        fontSize: '13.5px',
+                                        fontSize: isMobileView ? '12.5px' : '13.5px',
                                         outline: 'none',
                                         boxSizing: 'border-box'
                                     }}
@@ -390,8 +440,8 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
 
                     {/* Titulaire du compte */}
                     <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            Titulaire du compte (Nom de la Société ou Entrepreneur)
+                        <label style={{ display: 'block', fontSize: isMobileView ? '11px' : '12px', fontWeight: 700, marginBottom: '4px', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                            Titulaire du compte (Société ou Nom)
                         </label>
                         <input
                             type="text"
@@ -400,12 +450,12 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                             onChange={(e) => setAccountOwner(e.target.value)}
                             style={{
                                 width: '100%',
-                                padding: '11px 14px',
+                                padding: isMobileView ? '8px 12px' : '11px 14px',
                                 backgroundColor: 'var(--background)',
                                 border: '1px solid var(--border)',
-                                borderRadius: '10px',
+                                borderRadius: '8px',
                                 color: 'var(--foreground)',
-                                fontSize: '14px',
+                                fontSize: isMobileView ? '13px' : '14px',
                                 outline: 'none',
                                 boxSizing: 'border-box'
                             }}
@@ -414,19 +464,19 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
 
                     {/* IBAN Input with Live ISO Checksum Validation */}
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                IBAN (Format Français ou International)
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <label style={{ fontSize: isMobileView ? '11px' : '12px', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                                IBAN (FR ou International)
                             </label>
                             {iban.length > 0 && (
                                 <span style={{
-                                    fontSize: '11px',
+                                    fontSize: isMobileView ? '10px' : '11px',
                                     fontWeight: 700,
                                     color: ibanStatus.valid ? '#22C55E' : '#EF4444',
-                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                    display: 'flex', alignItems: 'center', gap: '3px'
                                 }}>
-                                    {ibanStatus.valid ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />}
-                                    {ibanStatus.valid ? "IBAN Validé" : "IBAN Incomplet / Invalide"}
+                                    {ibanStatus.valid ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                                    {ibanStatus.valid ? "IBAN Validé" : "IBAN Invalide"}
                                 </span>
                             )}
                         </div>
@@ -439,15 +489,16 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                             maxLength={39}
                             style={{
                                 width: '100%',
-                                padding: '11px 14px',
+                                padding: isMobileView ? '5px 8px' : '10px 14px',
                                 backgroundColor: 'var(--background)',
                                 border: iban.length === 0 ? '1px solid var(--border)' : ibanStatus.valid ? '1px solid #22C55E' : '1px solid #EF4444',
-                                borderRadius: '10px',
+                                borderRadius: '8px',
                                 color: 'var(--foreground)',
-                                fontSize: '14px',
-                                fontFamily: 'monospace',
-                                fontWeight: 700,
-                                letterSpacing: '0.5px',
+                                fontSize: isMobileView ? '7.5px' : '12.5px',
+                                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                                fontVariantNumeric: 'tabular-nums',
+                                fontWeight: 600,
+                                letterSpacing: isMobileView ? '-0.3px' : '0px',
                                 outline: 'none',
                                 boxSizing: 'border-box',
                                 transition: 'border-color 0.15s'
@@ -455,7 +506,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                             required
                         />
                         {iban.length > 0 && !ibanStatus.valid && (
-                            <span style={{ fontSize: '11.5px', color: '#EF4444', marginTop: '4px', display: 'block' }}>
+                            <span style={{ fontSize: '10px', color: '#EF4444', marginTop: '3px', display: 'block' }}>
                                 {ibanStatus.message}
                             </span>
                         )}
@@ -463,19 +514,19 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
 
                     {/* Code BIC / SWIFT */}
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <label style={{ fontSize: isMobileView ? '11px' : '12px', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
                                 Code BIC / SWIFT
                             </label>
                             {bic.length > 0 && (
                                 <span style={{
-                                    fontSize: '11px',
+                                    fontSize: isMobileView ? '10px' : '11px',
                                     fontWeight: 700,
                                     color: bicStatus.valid ? '#22C55E' : '#EF4444',
-                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                    display: 'flex', alignItems: 'center', gap: '3px'
                                 }}>
-                                    {bicStatus.valid ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />}
-                                    {bicStatus.valid ? "BIC Validé" : "Format Invalide"}
+                                    {bicStatus.valid ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                                    {bicStatus.valid ? "BIC Validé" : "Invalide"}
                                 </span>
                             )}
                         </div>
@@ -488,14 +539,16 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                             maxLength={11}
                             style={{
                                 width: '100%',
-                                padding: '11px 14px',
+                                padding: isMobileView ? '5px 8px' : '10px 14px',
                                 backgroundColor: 'var(--background)',
                                 border: bic.length === 0 ? '1px solid var(--border)' : bicStatus.valid ? '1px solid #22C55E' : '1px solid #EF4444',
-                                borderRadius: '10px',
+                                borderRadius: '8px',
                                 color: 'var(--foreground)',
-                                fontSize: '14px',
-                                fontFamily: 'monospace',
-                                fontWeight: 700,
+                                fontSize: isMobileView ? '8.5px' : '12.5px',
+                                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                                fontVariantNumeric: 'tabular-nums',
+                                fontWeight: 600,
+                                letterSpacing: '0.1px',
                                 outline: 'none',
                                 boxSizing: 'border-box',
                                 transition: 'border-color 0.15s'
@@ -505,27 +558,31 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: isMobileView ? 'stretch' : 'flex-end', marginTop: isMobileView ? '14px' : '20px' }}>
                     <button
                         type="submit"
                         disabled={saving}
                         style={{
-                            padding: '11px 24px',
+                            width: isMobileView ? '100%' : 'auto',
+                            justifyContent: 'center',
+                            padding: isMobileView ? '10px 16px' : '11px 24px',
                             background: '#556B2F',
                             color: '#fff',
                             border: 'none',
-                            borderRadius: '10px',
-                            fontWeight: 700,
-                            fontSize: '13.5px',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            fontSize: isMobileView ? '13px' : '13.5px',
                             cursor: saving ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
+                            opacity: isExpired ? 0.85 : 1,
                             boxShadow: '0 4px 14px rgba(85,107,47,0.3)',
                             transition: 'all 0.15s'
                         }}
                     >
-                        {saving ? <><Loader2 size={16} className="spin-loader" /> Enregistrement...</> : <><CheckCircle2 size={16} /> Enregistrer l'IBAN</>}
+                        {isExpired && <Lock size={15} />}
+                        {saving ? <><Loader2 size={15} className="spin-loader" /> Enregistrement...</> : "Enregistrer l'IBAN"}
                     </button>
                 </div>
             </form>
@@ -533,22 +590,32 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
             {/* Rapprochement bancaire automatique (Open Banking Powens) */}
             <div style={{
                 border: "1px solid var(--border)",
-                borderRadius: "16px",
-                padding: isMobileView ? "16px" : "24px",
+                borderRadius: isMobileView ? "12px" : "16px",
+                padding: isMobileView ? "14px" : "24px",
                 backgroundColor: "var(--card)"
             }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isMobileView ? "10px" : "14px" }}>
                     <div>
-                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "10px" }}>
-                            <span style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(85,107,47,0.12)', color: '#556B2F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Building2 size={18} />
-                            </span>
-                            Rapprochement bancaire automatique
+                        <h3 style={{ margin: 0, fontSize: isMobileView ? "14px" : "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                             <span style={{
-                                fontSize: "11px",
+                                width: isMobileView ? '28px' : '32px',
+                                height: isMobileView ? '28px' : '32px',
+                                borderRadius: '8px',
+                                background: 'rgba(85,107,47,0.12)',
+                                color: '#556B2F',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0
+                            }}>
+                                <Building2 size={isMobileView ? 16 : 18} />
+                            </span>
+                            <span>Rapprochement bancaire</span>
+                            <span style={{
+                                fontSize: "10px",
                                 fontWeight: 700,
-                                padding: "2px 8px",
-                                borderRadius: "6px",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
                                 backgroundColor: "rgba(85, 107, 47, 0.15)",
                                 color: "var(--primary)",
                                 border: "1px solid rgba(85, 107, 47, 0.3)"
@@ -556,47 +623,48 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                 Powens
                             </span>
                         </h3>
-                        <p style={{ color: "var(--muted-foreground)", fontSize: "13px", margin: "4px 0 0 0" }}>
-                            Connectez votre compte bancaire pour détecter automatiquement les virements reçus et les lettrer avec vos factures impayées.
+                        <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "11.5px" : "13px", margin: "4px 0 0 0", lineHeight: 1.35 }}>
+                            Connectez votre compte pour lettrer automatiquement les règlements avec vos factures.
                         </p>
                     </div>
                 </div>
 
                 <div style={{
                     border: "1px solid var(--border)",
-                    borderRadius: "10px",
-                    padding: "16px",
+                    borderRadius: "8px",
+                    padding: isMobileView ? "12px" : "16px",
                     backgroundColor: "var(--background)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     flexWrap: "wrap",
-                    gap: "12px"
+                    gap: isMobileView ? "10px" : "12px"
                 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <div style={{
-                            width: "38px",
-                            height: "38px",
-                            borderRadius: "8px",
+                            width: isMobileView ? "32px" : "38px",
+                            height: isMobileView ? "32px" : "38px",
+                            borderRadius: "6px",
                             backgroundColor: "rgba(85, 107, 47, 0.15)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: "var(--primary)"
+                            color: "var(--primary)",
+                            flexShrink: 0
                         }}>
-                            <ShieldCheck size={20} />
+                            <ShieldCheck size={isMobileView ? 17 : 20} />
                         </div>
                         <div>
-                            <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground)" }}>
-                                {bankingStatus.isConnected ? "Compte bancaire synchronisé" : "Aucun compte bancaire synchronisé"}
+                            <div style={{ fontSize: isMobileView ? "13px" : "14px", fontWeight: 600, color: "var(--foreground)" }}>
+                                {bankingStatus.isConnected ? "Compte bancaire synchronisé" : "Aucun compte synchronisé"}
                             </div>
-                            <div style={{ fontSize: "12.5px", color: "var(--muted-foreground)" }}>
-                                Connexion chiffrée DSP2 sécurisée via l'API Powens (Budget Insight).
+                            <div style={{ fontSize: isMobileView ? "11px" : "12.5px", color: "var(--muted-foreground)" }}>
+                                Connexion DSP2 sécurisée via l'API Powens.
                             </div>
                         </div>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: isMobileView ? "100%" : "auto" }}>
                         {bankingStatus.isConnected ? (
                             <>
                                 <button
@@ -615,12 +683,14 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                         }
                                     }}
                                     style={{
-                                        padding: "8px 14px",
-                                        borderRadius: "8px",
+                                        flex: isMobileView ? 1 : undefined,
+                                        justifyContent: 'center',
+                                        padding: isMobileView ? "7px 12px" : "8px 14px",
+                                        borderRadius: "6px",
                                         border: "1px solid var(--border)",
                                         backgroundColor: "var(--card)",
                                         color: "var(--foreground)",
-                                        fontSize: "12.5px",
+                                        fontSize: isMobileView ? "12px" : "12.5px",
                                         fontWeight: 600,
                                         cursor: syncingBanking ? "not-allowed" : "pointer",
                                         display: "inline-flex",
@@ -628,8 +698,8 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                         gap: "6px"
                                     }}
                                 >
-                                    <RefreshCw size={14} style={{ animation: syncingBanking ? "spin 1s linear infinite" : "none" }} />
-                                    {syncingBanking ? "Synchronisation..." : "Synchroniser"}
+                                    <RefreshCw size={13} style={{ animation: syncingBanking ? "spin 1s linear infinite" : "none" }} />
+                                    {syncingBanking ? "Sync..." : "Synchroniser"}
                                 </button>
 
                                 <button
@@ -649,12 +719,14 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                         }
                                     }}
                                     style={{
-                                        padding: "8px 14px",
-                                        borderRadius: "8px",
-                                        border: "1px solid rgba(239, 68, 68, 0.2)",
-                                        backgroundColor: "rgba(239, 68, 68, 0.08)",
+                                        flex: isMobileView ? 1 : undefined,
+                                        justifyContent: 'center',
+                                        padding: isMobileView ? "7px 12px" : "8px 14px",
+                                        borderRadius: "6px",
+                                        border: "1px solid var(--border)",
+                                        backgroundColor: "var(--card)",
                                         color: "#ef4444",
-                                        fontSize: "12.5px",
+                                        fontSize: isMobileView ? "12px" : "12.5px",
                                         fontWeight: 600,
                                         cursor: disconnectingBanking ? "not-allowed" : "pointer",
                                         display: "inline-flex",
@@ -662,7 +734,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                         gap: "6px"
                                     }}
                                 >
-                                    <Trash2 size={14} />
+                                    <Trash2 size={13} />
                                     {disconnectingBanking ? "Déconnexion..." : "Déconnecter"}
                                 </button>
                             </>
@@ -682,12 +754,14 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                     }
                                 }}
                                 style={{
-                                    padding: "9px 18px",
+                                    width: isMobileView ? "100%" : "auto",
+                                    justifyContent: "center",
+                                    padding: isMobileView ? "8px 14px" : "9px 18px",
                                     borderRadius: "8px",
                                     border: "1px solid var(--border)",
                                     backgroundColor: "var(--card)",
                                     color: "var(--foreground)",
-                                    fontSize: "13px",
+                                    fontSize: isMobileView ? "12.5px" : "13px",
                                     fontWeight: 600,
                                     cursor: "pointer",
                                     display: "inline-flex",
@@ -703,59 +777,60 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                 </div>
 
                 {/* Liste des comptes bancaires synchronisés */}
-                {bankingStatus.isConnected && bankingStatus.accounts?.length > 0 && (
-                    <div style={{ marginTop: "14px", display: "grid", gap: "10px" }}>
-                        {bankingStatus.accounts.map((acc) => (
+                {bankingStatus.isConnected && displayAccounts.length > 0 && (
+                    <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
+                        {displayAccounts.map((acc) => (
                             <div
                                 key={acc.id}
                                 style={{
                                     border: "1px solid var(--border)",
-                                    borderRadius: "10px",
-                                    padding: "14px 16px",
+                                    borderRadius: "8px",
+                                    padding: isMobileView ? "10px 12px" : "14px 16px",
                                     backgroundColor: "var(--card)",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "space-between",
                                     flexWrap: "wrap",
-                                    gap: "10px"
+                                    gap: "8px"
                                 }}
                             >
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                     <div style={{
-                                        width: "34px",
-                                        height: "34px",
-                                        borderRadius: "8px",
+                                        width: isMobileView ? "28px" : "34px",
+                                        height: isMobileView ? "28px" : "34px",
+                                        borderRadius: "6px",
                                         backgroundColor: "rgba(85, 107, 47, 0.12)",
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        color: "var(--primary)"
+                                        color: "var(--primary)",
+                                        flexShrink: 0
                                     }}>
-                                        <Landmark size={18} />
+                                        <Landmark size={isMobileView ? 15 : 18} />
                                     </div>
                                     <div>
-                                        <div style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--foreground)" }}>
+                                        <div style={{ fontSize: isMobileView ? "12.5px" : "13.5px", fontWeight: 600, color: "var(--foreground)" }}>
                                             {acc.accountName || "Compte principal"}
                                         </div>
-                                        <div style={{ fontSize: "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
+                                        <div style={{ fontSize: isMobileView ? "11px" : "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
                                             {acc.iban ? formatIBAN(acc.iban) : `ID: ${acc.externalId}`}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div style={{ textAlign: "right" }}>
-                                    <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--foreground)" }}>
+                                    <div style={{ fontSize: isMobileView ? "13.5px" : "14.5px", fontWeight: 700, color: "var(--foreground)" }}>
                                         {typeof acc.balance === "number" ? `${acc.balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €` : "—"}
                                     </div>
                                     <span style={{
-                                        fontSize: "11px",
+                                        fontSize: "10.5px",
                                         color: "#16a34a",
                                         fontWeight: 600,
                                         display: "inline-flex",
                                         alignItems: "center",
-                                        gap: "4px"
+                                        gap: "3px"
                                     }}>
-                                        <CheckCircle2 size={12} /> Synchronisé
+                                        <CheckCircle2 size={11} /> Synchronisé
                                     </span>
                                 </div>
                             </div>

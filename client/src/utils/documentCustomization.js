@@ -45,17 +45,19 @@ export function getCustomization() {
   return { ...DEFAULT_CUSTOMIZATION };
 }
 
-export function saveCustomization(newSettings) {
+export function saveCustomization(newSettings, syncBackend = true) {
   try {
     const merged = { ...getCustomization(), ...newSettings };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
     window.dispatchEvent(new CustomEvent("docCustomizationChanged", { detail: merged }));
     
-    // Asynchronously sync global company customization to backend
-    apiFetch("/v1/company/settings", {
-      method: "PUT",
-      body: JSON.stringify({ documentCustomization: merged })
-    }).catch(err => console.warn("Could not sync global customization:", err.message));
+    if (syncBackend) {
+      // Asynchronously sync global company customization to backend
+      apiFetch("/v1/company/settings", {
+        method: "PATCH",
+        body: JSON.stringify({ documentCustomization: merged })
+      }).catch(err => console.warn("Could not sync global customization:", err.message));
+    }
 
     return merged;
   } catch (e) {

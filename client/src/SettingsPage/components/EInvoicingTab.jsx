@@ -158,22 +158,22 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '14px' : '24px' }}>
             
             {/* Banner Légal Réforme 2026/2027 */}
             <div style={{
                 background: 'linear-gradient(135deg, rgba(85, 107, 47, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%)',
                 border: '1px solid rgba(85, 107, 47, 0.25)',
-                borderRadius: '16px',
-                padding: '20px',
+                borderRadius: isMobileView ? '12px' : '16px',
+                padding: isMobileView ? '12px 14px' : '20px',
                 display: 'flex',
-                gap: '16px',
+                gap: isMobileView ? '10px' : '16px',
                 alignItems: 'flex-start'
             }}>
                 <div style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '12px',
+                    width: isMobileView ? '32px' : '42px',
+                    height: isMobileView ? '32px' : '42px',
+                    borderRadius: isMobileView ? '8px' : '12px',
                     backgroundColor: 'var(--sidebar-primary)',
                     color: '#fff',
                     display: 'flex',
@@ -181,60 +181,98 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                     justifyContent: 'center',
                     flexShrink: 0
                 }}>
-                    <ShieldCheck size={24} />
+                    <ShieldCheck size={isMobileView ? 18 : 24} />
                 </div>
-                <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--foreground)' }}>
-                            Réforme de la Facturation Électronique (DGFiP / AIFE)
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <h3 style={{ margin: 0, fontSize: isMobileView ? '13.5px' : '16px', fontWeight: 800, color: 'var(--foreground)' }}>
+                            Réforme Facturation Électronique
                         </h3>
                         <span style={{
-                            padding: '2px 8px',
-                            borderRadius: '6px',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
                             backgroundColor: '#22C55E',
                             color: '#fff',
-                            fontSize: '11px',
+                            fontSize: isMobileView ? '10px' : '11px',
                             fontWeight: 800
                         }}>
-                            CONFORME 2026 / 2027
+                            2026 / 2027
                         </span>
                     </div>
-                    <p style={{ margin: '8px 0 0 0', fontSize: '13px', lineHeight: 1.5, color: 'var(--muted-foreground)' }}>
-                        GestArt intègre le protocole d'échange sécurisé via Plateforme Agréée (PA). Votre entreprise est prête pour l'obligation de <strong>réception des factures B2B au 1er septembre 2026</strong> et préparée pour l'émission généralisée 2027.
+                    <p style={{ margin: isMobileView ? '4px 0 0 0' : '8px 0 0 0', fontSize: isMobileView ? '11.5px' : '13px', lineHeight: 1.4, color: 'var(--muted-foreground)' }}>
+                        GestArt intègre le protocole d'échange sécurisé via Plateforme Agréée (PA). Votre entreprise est prête pour l'obligation de <strong>réception des factures B2B dès sept. 2026</strong>.
                     </p>
                 </div>
             </div>
 
             {/* Section 1 : Identité Entreprise Émettrice */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Building size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                    Votre Entreprise (Identifiants Légaux art. 289 CGI)
+            <div style={{
+                border: '1px solid var(--border)',
+                borderRadius: isMobileView ? '12px' : '16px',
+                padding: isMobileView ? '14px' : '24px',
+                backgroundColor: 'var(--card)'
+            }}>
+                <h3 style={{
+                    margin: isMobileView ? '0 0 10px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '14px' : '15px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    <Building size={isMobileView ? 16 : 18} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
+                    <span>Identifiants Légaux (art. 289 CGI)</span>
                     <LegalHelpTooltip lawArticle="art. 289 CGI" title="Identité légale émetteur" text="Le SIREN/SIRET et le numéro de TVA intracommunautaire sont obligatoires pour le routage des factures électroniques." />
                 </h3>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                    <div style={{ padding: '12px 16px', backgroundColor: 'var(--background)', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>Raison Sociale</span>
-                        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--foreground)', marginTop: '4px' }}>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: isMobileView ? '8px' : '16px'
+                }}>
+                    <div style={{
+                        gridColumn: isMobileView ? '1 / -1' : undefined,
+                        padding: isMobileView ? '8px 12px' : '12px 16px',
+                        backgroundColor: 'var(--background)',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)'
+                    }}>
+                        <span style={{ fontSize: isMobileView ? '10px' : '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>Raison Sociale</span>
+                        <div style={{ fontSize: isMobileView ? '13px' : '14px', fontWeight: 700, color: 'var(--foreground)', marginTop: '2px' }}>
                             {company.name || "Non renseigné"}
                         </div>
                     </div>
-                    <div style={{ padding: '12px 16px', backgroundColor: 'var(--background)', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>SIRET (14 Chiffres)</span>
-                        <div style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'monospace', color: 'var(--foreground)', marginTop: '4px' }}>
+                    <div style={{
+                        padding: isMobileView ? '8px 12px' : '12px 16px',
+                        backgroundColor: 'var(--background)',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)'
+                    }}>
+                        <span style={{ fontSize: isMobileView ? '10px' : '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>SIRET (14 Chiffres)</span>
+                        <div style={{ fontSize: isMobileView ? '12px' : '14px', fontWeight: 700, fontFamily: 'monospace', color: 'var(--foreground)', marginTop: '2px' }}>
                             {company.siret || "Non renseigné"}
                         </div>
                     </div>
-                    <div style={{ padding: '12px 16px', backgroundColor: 'var(--background)', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>SIREN (9 Chiffres)</span>
-                        <div style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'monospace', color: 'var(--foreground)', marginTop: '4px' }}>
+                    <div style={{
+                        padding: isMobileView ? '8px 12px' : '12px 16px',
+                        backgroundColor: 'var(--background)',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)'
+                    }}>
+                        <span style={{ fontSize: isMobileView ? '10px' : '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>SIREN (9 Chiffres)</span>
+                        <div style={{ fontSize: isMobileView ? '12px' : '14px', fontWeight: 700, fontFamily: 'monospace', color: 'var(--foreground)', marginTop: '2px' }}>
                             {company.siren || (company.siret ? company.siret.substring(0, 9) : "Non renseigné")}
                         </div>
                     </div>
-                    <div style={{ padding: '12px 16px', backgroundColor: 'var(--background)', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>TVA Intracommunautaire</span>
-                        <div style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'monospace', color: 'var(--foreground)', marginTop: '4px' }}>
+                    <div style={{
+                        gridColumn: isMobileView ? '1 / -1' : undefined,
+                        padding: isMobileView ? '8px 12px' : '12px 16px',
+                        backgroundColor: 'var(--background)',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)'
+                    }}>
+                        <span style={{ fontSize: isMobileView ? '10px' : '11px', color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase' }}>TVA Intracommunautaire</span>
+                        <div style={{ fontSize: isMobileView ? '12px' : '14px', fontWeight: 700, fontFamily: 'monospace', color: 'var(--foreground)', marginTop: '2px' }}>
                             {company.tvaNumber || "Non renseigné"}
                         </div>
                     </div>
@@ -242,15 +280,20 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Section 2 : Plateforme Agréée Partenaire */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{
+                border: '1px solid var(--border)',
+                borderRadius: isMobileView ? '12px' : '16px',
+                padding: isMobileView ? '14px' : '24px',
+                backgroundColor: 'var(--card)'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobileView ? '12px' : '16px', flexWrap: 'wrap', gap: '8px' }}>
                     <div>
-                        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Zap size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                            Plateforme Agréée (B2Brouter / PDP)
+                        <h3 style={{ margin: 0, fontSize: isMobileView ? '14px' : '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Zap size={isMobileView ? 16 : 18} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
+                            <span>Plateforme Agréée (PDP)</span>
                         </h3>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
-                            Acheminement officiel et interconnexion avec le réseau national de facturation.
+                        <p style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '11.5px' : '12.5px', color: 'var(--muted-foreground)' }}>
+                            Acheminement officiel avec le réseau national de facturation.
                         </p>
                     </div>
 
@@ -259,27 +302,27 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                             <span style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                padding: '6px 12px',
+                                gap: '5px',
+                                padding: isMobileView ? '3px 8px' : '6px 12px',
                                 borderRadius: '20px',
                                 backgroundColor: 'rgba(34, 197, 94, 0.12)',
                                 color: '#16A34A',
-                                fontSize: '12px',
-                                fontWeight: 800
+                                fontSize: isMobileView ? '10.5px' : '12px',
+                                fontWeight: 700
                             }}>
-                                Connectée ({connectionData.environment === 'production' ? 'Production' : 'Sandbox / Test'})
+                                Connectée ({connectionData.environment === 'production' ? 'Production' : 'Sandbox'})
                             </span>
                         ) : (
                             <span style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                padding: '6px 12px',
+                                gap: '5px',
+                                padding: isMobileView ? '3px 8px' : '6px 12px',
                                 borderRadius: '20px',
                                 backgroundColor: 'rgba(239, 68, 68, 0.12)',
                                 color: '#DC2626',
-                                fontSize: '12px',
-                                fontWeight: 800
+                                fontSize: isMobileView ? '10.5px' : '12px',
+                                fontWeight: 700
                             }}>
                                 Non connectée
                             </span>
@@ -290,70 +333,78 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                 {/* Statut fonctionnel des flux */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                    gap: '14px',
-                    margin: '20px 0'
+                    gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+                    gap: isMobileView ? '8px' : '14px',
+                    margin: isMobileView ? '12px 0' : '20px 0'
                 }}>
-                    <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                            <Inbox size={18} style={{ color: '#16A34A' }} />
-                            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>Réception des factures B2B</span>
+                    <div style={{ padding: isMobileView ? '10px 12px' : '16px', borderRadius: '8px', backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Inbox size={16} style={{ color: '#16A34A', flexShrink: 0 }} />
+                                <span style={{ fontSize: isMobileView ? '12.5px' : '13px', fontWeight: 700, color: 'var(--foreground)' }}>Réception B2B</span>
+                            </div>
+                            <span style={{ fontSize: isMobileView ? '10.5px' : '11.5px', color: '#16A34A', fontWeight: 700 }}>
+                                Activée (sept. 2026)
+                            </span>
                         </div>
-                        <div style={{ fontSize: '12px', color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            Activée (Obligatoire dès sept. 2026)
-                        </div>
-                        <p style={{ margin: '6px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                            Vos factures d'achats et fournisseurs sont reçues automatiquement dans l'onglet « Factures reçues ».
+                        <p style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '11px' : '11.5px', color: 'var(--muted-foreground)', lineHeight: 1.35 }}>
+                            Vos factures d'achats fournisseurs sont reçues automatiquement dans « Factures reçues ».
                         </p>
                     </div>
 
-                    <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                            <Send size={18} style={{ color: '#EAB308' }} />
-                            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>Émission B2B structurée</span>
+                    <div style={{ padding: isMobileView ? '10px 12px' : '16px', borderRadius: '8px', backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Send size={16} style={{ color: '#EAB308', flexShrink: 0 }} />
+                                <span style={{ fontSize: isMobileView ? '12.5px' : '13px', fontWeight: 700, color: 'var(--foreground)' }}>Émission B2B structurée</span>
+                            </div>
+                            <span style={{ fontSize: isMobileView ? '10.5px' : '11.5px', color: '#CA8A04', fontWeight: 700 }}>
+                                Dès 2027 / Optionnel
+                            </span>
                         </div>
-                        <div style={{ fontSize: '12px', color: '#CA8A04', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            Disponible à partir de 2027 / Optionnel
-                        </div>
-                        <p style={{ margin: '6px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                            Format Factur-X / UBL prêt для transmission aux entreprises clientes dès l'application légale.
+                        <p style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '11px' : '11.5px', color: 'var(--muted-foreground)', lineHeight: 1.35 }}>
+                            Format Factur-X / UBL prêt pour transmission aux entreprises clientes dès l'application légale.
                         </p>
                     </div>
 
-                    <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                            <FileText size={18} style={{ color: 'var(--sidebar-primary)' }} />
-                            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>E-reporting & Encaissements</span>
+                    <div style={{ padding: isMobileView ? '10px 12px' : '16px', borderRadius: '8px', backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <FileText size={16} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
+                                <span style={{ fontSize: isMobileView ? '12.5px' : '13px', fontWeight: 700, color: 'var(--foreground)' }}>E-reporting</span>
+                            </div>
+                            <span style={{ fontSize: isMobileView ? '10.5px' : '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700 }}>
+                                Prêt selon statut TVA
+                            </span>
                         </div>
-                        <div style={{ fontSize: '12px', color: 'var(--sidebar-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            Prêt selon statut TVA
-                        </div>
-                        <p style={{ margin: '6px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
-                            Les statuts de paiement des factures de prestations de services sont transmis pour le reporting fiscal.
+                        <p style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '11px' : '11.5px', color: 'var(--muted-foreground)', lineHeight: 1.35 }}>
+                            Transmission automatique des statuts de paiement pour le reporting fiscal.
                         </p>
                     </div>
                 </div>
 
                 {/* Actions Buttons */}
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexDirection: isMobileView ? 'column' : 'row', flexWrap: 'wrap', marginTop: isMobileView ? '14px' : '20px' }}>
                     <button
                         type="button"
                         onClick={() => setShowConfigModal(true)}
                         style={{
-                            padding: '10px 18px',
-                            borderRadius: '10px',
+                            width: isMobileView ? '100%' : 'auto',
+                            justifyContent: 'center',
+                            padding: isMobileView ? '9px 14px' : '10px 18px',
+                            borderRadius: '8px',
                             backgroundColor: 'var(--sidebar-primary)',
                             color: '#fff',
                             border: 'none',
-                            fontWeight: 700,
-                            fontSize: '13px',
+                            fontWeight: 600,
+                            fontSize: isMobileView ? '12.5px' : '13px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px'
                         }}
                     >
-                        <Link size={16} />
+                        <Link size={15} />
                         {isConnected ? "Modifier la configuration" : "Connecter ma Plateforme Agréée"}
                     </button>
 
@@ -364,20 +415,22 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                 onClick={handleTestConnection}
                                 disabled={testing}
                                 style={{
-                                    padding: '10px 18px',
-                                    borderRadius: '10px',
+                                    width: isMobileView ? '100%' : 'auto',
+                                    justifyContent: 'center',
+                                    padding: isMobileView ? '9px 14px' : '10px 18px',
+                                    borderRadius: '8px',
                                     backgroundColor: 'transparent',
                                     color: 'var(--foreground)',
                                     border: '1px solid var(--border)',
-                                    fontWeight: 700,
-                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    fontSize: isMobileView ? '12.5px' : '13px',
                                     cursor: testing ? 'not-allowed' : 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '8px'
                                 }}
                             >
-                                {testing ? <Loader2 size={16} className="spin-loader" /> : <RefreshCw size={16} />}
+                                {testing ? <Loader2 size={15} className="spin-loader" /> : <RefreshCw size={15} />}
                                 Tester la connexion
                             </button>
 
@@ -386,20 +439,22 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                 onClick={handleRunReconciliation}
                                 disabled={syncing}
                                 style={{
-                                    padding: '10px 18px',
-                                    borderRadius: '10px',
+                                    width: isMobileView ? '100%' : 'auto',
+                                    justifyContent: 'center',
+                                    padding: isMobileView ? '9px 14px' : '10px 18px',
+                                    borderRadius: '8px',
                                     backgroundColor: 'transparent',
                                     color: 'var(--foreground)',
                                     border: '1px solid var(--border)',
-                                    fontWeight: 700,
-                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    fontSize: isMobileView ? '12.5px' : '13px',
                                     cursor: syncing ? 'not-allowed' : 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '8px'
                                 }}
                             >
-                                {syncing ? <Loader2 size={16} className="spin-loader" /> : <Inbox size={16} />}
+                                {syncing ? <Loader2 size={15} className="spin-loader" /> : <Inbox size={15} />}
                                 Synchroniser les factures reçues
                             </button>
 
@@ -407,21 +462,23 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                 type="button"
                                 onClick={handleDisconnect}
                                 style={{
-                                    padding: '10px 18px',
-                                    borderRadius: '10px',
-                                    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                                    width: isMobileView ? '100%' : 'auto',
+                                    justifyContent: 'center',
+                                    padding: isMobileView ? '9px 14px' : '10px 18px',
+                                    borderRadius: '8px',
+                                    backgroundColor: 'var(--card)',
                                     color: '#DC2626',
-                                    border: '1px solid rgba(239, 68, 68, 0.2)',
-                                    fontWeight: 700,
-                                    fontSize: '13px',
+                                    border: '1px solid var(--border)',
+                                    fontWeight: 600,
+                                    fontSize: isMobileView ? '12.5px' : '13px',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '8px',
-                                    marginLeft: 'auto'
+                                    marginLeft: isMobileView ? 0 : 'auto'
                                 }}
                             >
-                                <Unlink size={16} />
+                                <Unlink size={15} />
                                 Déconnecter
                             </button>
                         </>

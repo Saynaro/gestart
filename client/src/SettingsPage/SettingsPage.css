@@ -1625,6 +1625,35 @@ input:checked+.toggle-slider:before {
         white-space: normal !important;
         word-break: break-word !important;
     }
+
+    .facturation-mobile-container .form-input,
+    .facturation-mobile-container input[type="text"],
+    .facturation-mobile-container input[type="number"],
+    .facturation-mobile-container select {
+        height: 30px !important;
+        min-height: 30px !important;
+        max-height: 30px !important;
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+        border-radius: 8px !important;
+    }
+
+    .facturation-mobile-container textarea.form-input,
+    .facturation-mobile-container textarea {
+        min-height: 60px !important;
+        font-size: 10.5px !important;
+        line-height: 1.35 !important;
+        padding: 5px 8px !important;
+        border-radius: 8px !important;
+        max-height: none !important;
+    }
+
+    .facturation-mobile-container .form-label {
+        font-size: 9.5px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.03em !important;
+        margin-bottom: 2px !important;
+    }
 }
 
 /* ─────────────────────────────────────────────────────────────

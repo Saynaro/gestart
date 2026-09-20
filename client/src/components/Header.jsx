@@ -1073,34 +1073,34 @@ function Header({ title }) {
                     </div>
 
                     {menuOpen && (
-                        <div className="mobile-dropdown" onClick={(e) => e.stopPropagation()}>
-                            <div className="dropdown-header">
-                                <span className="dropdown-user-name">{fullName}</span>
-                                <span className="dropdown-user-plan">Offre {displayName}</span>
+                        <div className="header-user-dropdown" onClick={(e) => e.stopPropagation()}>
+                            <div className="header-dropdown-user-header">
+                                <span className="header-dropdown-user-name">{fullName}</span>
+                                <span className="header-dropdown-user-plan">Offre {displayName}</span>
                             </div>
-                            <div className="dropdown-divider"></div>
-                            <ul className="dropdown-list">
+                            <div className="header-dropdown-divider"></div>
+                            <ul className="header-dropdown-list">
                                 {profilePages.map((page, index) => {
                                     const isActive = activePath === page.path;
                                     return (
-                                        <li key={index} className={`dropdown-item ${isActive ? "active" : ""}`}>
+                                        <li key={index} className="header-dropdown-item">
                                             <a
                                                 href={page.path}
                                                 onClick={(e) => {
                                                     navigateTo(e, page.path);
                                                     setMenuOpen(false);
                                                 }}
-                                                className="dropdown-link"
+                                                className={`header-dropdown-link ${isActive ? "active" : ""}`}
                                             >
                                                 {DropdownIcons[page.iconKey]}
-                                                <span className="dropdown-title">{page.title}</span>
-                                                {page.badge && <span className="dropdown-badge">{page.badge}</span>}
+                                                <span className="header-dropdown-title">{page.title}</span>
+                                                {page.badge && <span className="header-dropdown-badge">{page.badge}</span>}
                                             </a>
                                         </li>
                                     );
                                 })}
-                                <div className="dropdown-divider"></div>
-                                <li className="dropdown-item danger">
+                                <div className="header-dropdown-divider"></div>
+                                <li className="header-dropdown-item">
                                     <a
                                         href="/logout"
                                         onClick={(e) => {
@@ -1108,10 +1108,10 @@ function Header({ title }) {
                                             setMenuOpen(false);
                                             setShowLogoutModal(true);
                                         }}
-                                        className="dropdown-link"
+                                        className="header-dropdown-link danger"
                                     >
                                         {DropdownIcons.logout}
-                                        <span className="dropdown-title">Déconnexion</span>
+                                        <span className="header-dropdown-title">Déconnexion</span>
                                     </a>
                                 </li>
                             </ul>

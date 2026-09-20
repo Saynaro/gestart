@@ -288,7 +288,7 @@ function PhoneInput({
                 <ChevronDown size={14} className={`phone-chevron ${isOpen ? "open" : ""}`} />
             </button>
 
-            {/* Main Phone Number Input */}
+            {/* Input field */}
             <input
                 ref={inputRef}
                 type="tel"
@@ -304,19 +304,6 @@ function PhoneInput({
                 autoFocus={autoFocus}
                 autoComplete="off"
             />
-
-            {/* Clear Button */}
-            {localDigits && !disabled && (
-                <button
-                    type="button"
-                    className="phone-clear-btn"
-                    onClick={handleClear}
-                    title="Effacer le numéro"
-                    aria-label="Effacer"
-                >
-                    <X size={14} />
-                </button>
-            )}
 
             {/* Mobile Country Picker Modal / Sheet (via Portal) */}
             {isOpen && isMobile && typeof document !== "undefined" && createPortal(

@@ -6,17 +6,31 @@
     height: 42px;
     min-height: 42px;
     max-height: 42px;
-    background-color: var(--background, #ffffff);
-    border: 1px solid var(--border, #e2e8f0);
+    background-color: var(--card);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: all 0.2s ease;
     box-sizing: border-box;
     overflow: visible;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .phone-input-container:focus-within {
-    border-color: var(--sidebar-primary, #556B2F);
-    box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.15);
+    border-color: var(--sidebar-primary);
+    box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.12);
+}
+
+/* Clear crisp input border separation in dark mode to match .form-input */
+.dark .phone-input-container,
+:root.dark .phone-input-container {
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark .phone-input-container:focus-within,
+:root.dark .phone-input-container:focus-within {
+    border-color: var(--sidebar-primary) !important;
+    box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.25) !important;
 }
 
 .phone-input-container.disabled {
@@ -32,11 +46,12 @@
     gap: 6px;
     height: 100%;
     padding: 0 10px 0 12px;
-    background: transparent;
+    background: transparent !important;
+    background-color: transparent !important;
     border: none;
-    border-right: 1px solid var(--border, #e2e8f0);
+    border-right: 1px solid var(--border);
     cursor: pointer;
-    color: var(--foreground, #0f172a);
+    color: var(--foreground);
     font-size: 13.5px;
     font-weight: 600;
     user-select: none;
@@ -48,7 +63,18 @@
 }
 
 .phone-country-btn:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.dark .phone-country-btn,
+:root.dark .phone-country-btn {
+    border-right: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: var(--foreground) !important;
+}
+
+.dark .phone-country-btn:hover,
+:root.dark .phone-country-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 .phone-flag {
@@ -59,11 +85,16 @@
 .phone-dial-code {
     font-size: 13px;
     font-weight: 700;
-    color: var(--foreground, #1e293b);
+    color: var(--foreground);
+}
+
+.dark .phone-dial-code,
+:root.dark .phone-dial-code {
+    color: var(--foreground) !important;
 }
 
 .phone-chevron {
-    color: var(--muted-foreground, #94a3b8);
+    color: var(--muted-foreground);
     transition: transform 0.2s ease;
 }
 
@@ -76,23 +107,33 @@
     flex: 1;
     min-width: 0;
     height: 100%;
-    padding: 0 12px;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--foreground, #0f172a);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    padding: 0 14px;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: var(--foreground);
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
     font-family: inherit;
     box-sizing: border-box;
     line-height: 40px;
 }
 
+.phone-number-input:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .phone-number-input::placeholder {
-    color: var(--muted-foreground, #94a3b8);
+    color: var(--muted-foreground);
     opacity: 0.7;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* Disable and hide Safari/WebKit and Chrome native autofill contacts icon overlapping typed text */
@@ -106,25 +147,6 @@
     margin: 0 !important;
     position: absolute !important;
     right: 0 !important;
-}
-
-.phone-clear-btn {
-    background: none;
-    border: none;
-    color: var(--muted-foreground, #94a3b8);
-    cursor: pointer;
-    padding: 0 10px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.15s ease;
-    flex-shrink: 0;
-    box-sizing: border-box;
-}
-
-.phone-clear-btn:hover {
-    color: var(--foreground, #0f172a);
 }
 
 /* Country Dropdown Menu - Opens above by default for full visibility */

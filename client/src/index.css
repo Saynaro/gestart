@@ -239,11 +239,24 @@
 .dark .mobile-address-search-input,
 .dark .mobile-address-search-input:focus,
 .dark .mobile-phone-number-input,
-.dark .mobile-phone-number-input:focus {
+.dark .mobile-phone-number-input:focus,
+.dark .phone-number-input,
+.dark .phone-number-input:focus,
+.dark .phone-dropdown-search-input,
+.dark .phone-dropdown-search-input:focus,
+.dark .history-filter-select,
+.dark .history-filter-select:focus,
+.dark .mobile-history-select,
+.dark .mobile-history-select:focus,
+.dark .payments-search-input,
+.dark .payments-search-input:focus,
+.dark .payments-modal-search-box input,
+.dark .payments-modal-search-box input:focus {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  outline: none !important;
 }
 
 .dark input::placeholder,

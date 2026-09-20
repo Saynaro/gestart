@@ -351,12 +351,12 @@
     top: auto;
 }
 
-.dropdown-item {
+.client-row-dropdown .dropdown-item {
     display: flex;
     align-items: center;
     gap: 10px;
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 12px;
     background: none;
     border: none;
     border-radius: 8px;
@@ -368,22 +368,45 @@
     transition: background-color 0.2s ease;
 }
 
-.dropdown-item:hover {
+.client-row-dropdown .dropdown-item:hover {
     background-color: #f8fafc;
 }
 
-.dropdown-item.delete {
+.client-row-dropdown .dropdown-item.delete {
     color: #ef4444;
 }
 
-.dropdown-item.delete:hover {
+.client-row-dropdown .dropdown-item.delete:hover {
     background-color: #fef2f2;
 }
 
-.dropdown-divider {
+.client-row-dropdown .dropdown-divider {
     height: 1px;
     background-color: #f1f5f9;
     margin: 6px 0;
+}
+
+.dark .client-row-dropdown,
+:root.dark .client-row-dropdown {
+    background-color: var(--card) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark .client-row-dropdown .dropdown-item,
+:root.dark .client-row-dropdown .dropdown-item {
+    color: var(--foreground) !important;
+}
+
+.dark .client-row-dropdown .dropdown-item:hover,
+:root.dark .client-row-dropdown .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
+.dark .client-row-dropdown .dropdown-divider,
+:root.dark .client-row-dropdown .dropdown-divider {
+    background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Delete Confirmation Modal */

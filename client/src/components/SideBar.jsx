@@ -444,12 +444,18 @@ function SideBar({ onFabClick, hideFab = false }) {
             {/* Mobile Bottom Tab Bar */}
             <nav className="mobile-bottom-nav">
                 {mobileTabBarItems.map((item, index) => {
-                    const isTabActive = item.isPlus ? bottomSheetOpen : (item.path === activePath || (item.path === "/home" && (activePath === "/" || activePath === "/home")));
+                    const isTabActive = item.isPlus
+                        ? bottomSheetOpen
+                        : (item.path === activePath ||
+                           (item.path === "/home" && (activePath === "/" || activePath === "/home" || activePath === "/dashboard")) ||
+                           (item.path === "/client" && (activePath.startsWith("/client"))) ||
+                           (item.path === "/planning" && activePath.startsWith("/planning")) ||
+                           (item.path === "/messages" && activePath.startsWith("/messages")));
                     const isMessages = item.path === "/messages";
 
                     return (
                         <motion.a
-                            key={index}
+                            key={item.title || index}
                             href={item.path}
                             onClick={(e) => {
                                 if (item.isPlus) {
@@ -459,19 +465,31 @@ function SideBar({ onFabClick, hideFab = false }) {
                                     navigateTo(e, item.path);
                                 }
                             }}
-                            whileTap={{ scale: 0.92 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                            whileTap={{ scale: 0.88 }}
+                            transition={{ type: "spring", stiffness: 450, damping: 20 }}
                             className={`mobile-nav-item ${isTabActive ? "active" : ""}`}
-                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
                         >
-                            <div style={{ position: 'relative', display: 'inline-flex' }}>
-                                <span className="mobile-nav-icon">{Icons[item.iconKey]}</span>
+                            <div className="mobile-nav-icon-wrapper">
+                                {isTabActive && (
+                                    <motion.div
+                                        layoutId="mobileActiveTabIndicator"
+                                        className="mobile-nav-active-pill"
+                                        transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                                    />
+                                )}
+                                <motion.span
+                                    className="mobile-nav-icon"
+                                    animate={isTabActive ? { scale: [1, 1.22, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeOut" }}
+                                >
+                                    {Icons[item.iconKey]}
+                                </motion.span>
                                 {isMessages && unreadMessagesCount > 0 && (
                                     <span style={{
                                         position: 'absolute',
                                         top: '-4px',
-                                        right: '-8px',
-                                        backgroundColor: '#556B2F',
+                                        right: '-6px',
+                                        backgroundColor: '#EF4444',
                                         color: '#ffffff',
                                         fontSize: '10px',
                                         fontWeight: 800,
@@ -482,7 +500,8 @@ function SideBar({ onFabClick, hideFab = false }) {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         padding: '0 4px',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                        zIndex: 3
                                     }}>
                                         {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
                                     </span>

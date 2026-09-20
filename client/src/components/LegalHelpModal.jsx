@@ -77,8 +77,24 @@ export function LegalHelpTooltip({ title, text, lawArticle, positionDirection = 
 }
 
 export default function LegalModal({ type, onClose }) {
-    const [activeTab, setActiveTab] = useState(type || "mentions");
+    const normalizeTab = (t) => {
+        if (!t) return "mentions";
+        const low = String(t).toLowerCase();
+        if (low === "privacy" || low === "rgpd" || low === "confidentialite" || low === "confidentialité") return "rgpd";
+        if (low === "cgu" || low === "cgv" || low === "terms") return "cgu";
+        if (low === "cookies" || low === "cookie") return "cookies";
+        if (low === "mentions" || low === "legal") return "mentions";
+        return "mentions";
+    };
+
+    const [activeTab, setActiveTab] = useState(() => normalizeTab(type));
     const activeTabRef = React.useRef(null);
+
+    React.useEffect(() => {
+        if (type) {
+            setActiveTab(normalizeTab(type));
+        }
+    }, [type]);
 
     React.useEffect(() => {
         const prevOverflowHtml = document.documentElement.style.overflow;

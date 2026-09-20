@@ -39,7 +39,6 @@ import SuperAdminPanel from './AdminPage/AdminPage'
 import CookieConsentBanner from './components/CookieConsentBanner'
 import SubscriptionExpiredModal from './components/SubscriptionExpiredModal'
 import PlanUpgradeModal from './components/PlanUpgradeModal'
-import PWASplashScreen from './components/PWASplashScreen'
 
 // Lazy loaded Stripe & Public pages
 const CheckoutSubscriptionPage = lazy(() => import('./PublicPages/CheckoutSubscriptionPage'))
@@ -188,7 +187,7 @@ function App() {
     if (location.pathname === "/") {
       document.documentElement.classList.remove("dark");
     } else {
-      const mode = localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : "light");
+      const mode = localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : (localStorage.getItem("theme") === "light" ? "light" : "system"));
       if (getEffectiveTheme(mode) === "dark") {
         document.documentElement.classList.add("dark");
       } else {
@@ -200,7 +199,6 @@ function App() {
   return (
     <SubscriptionProvider>
       <UserProvider>
-        <PWASplashScreen />
         <ScrollToTop />
         <CookieConsentBanner />
         <SubscriptionExpiredModal />

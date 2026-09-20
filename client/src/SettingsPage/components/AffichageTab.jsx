@@ -3,9 +3,9 @@ import { Sun, Moon, Laptop, Check, Globe, Sparkles } from "lucide-react";
 import { applyThemeMode } from "../../utils/theme";
 
 export default function AffichageTab({ isMobileView, triggerToast }) {
-    // Theme Mode: "light" | "dark" | "system"
+    // Theme Mode: "light" | "dark" | "system" (defaults to "system")
     const [themeMode, setThemeMode] = useState(() => {
-        return localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : "light");
+        return localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : (localStorage.getItem("theme") === "light" ? "light" : "system"));
     });
 
     // Language: "FR" | "EN"

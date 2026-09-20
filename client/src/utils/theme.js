@@ -48,7 +48,8 @@ let isOSListenerAttached = false;
 export function initTheme() {
     if (typeof window === "undefined") return;
 
-    const savedMode = localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : "light");
+    // Default to "system" if user hasn't explicitly set a preference
+    const savedMode = localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : (localStorage.getItem("theme") === "light" ? "light" : "system"));
     applyThemeMode(savedMode, { save: false });
 
     // Listen for real-time OS theme switch (Mac, Windows, iOS, Android)
@@ -56,7 +57,7 @@ export function initTheme() {
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
         const handleOSThemeChange = (e) => {
-            const currentMode = localStorage.getItem("theme_mode") || "light";
+            const currentMode = localStorage.getItem("theme_mode") || "system";
             if (currentMode === "system") {
                 const isDark = e.matches;
                 if (isDark) {

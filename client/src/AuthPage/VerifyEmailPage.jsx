@@ -188,8 +188,9 @@ export default function VerifyEmailPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Building2 className="logo-icon" />
-                        <span>GestArt</span>
+                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                        </Link>
                     </div>
 
                     <h1 className="banner-title">
@@ -231,8 +232,9 @@ export default function VerifyEmailPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Building2 size={16} />
-                            <span>GestArt</span>
+                            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                            </Link>
                         </div>
                     </div>
 

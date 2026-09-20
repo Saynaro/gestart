@@ -53,17 +53,19 @@
   background: transparent;
   padding: 0;
   border-radius: 0;
-  font-weight: 800;
-  font-size: 1.35rem;
   margin-bottom: 28px;
   border: none;
-  color: var(--foreground, #FFFFFF);
 }
 
-.logo-icon {
-  color: #A3E635;
-  width: 20px;
-  height: 20px;
+.auth-brand-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.mobile-brand-badge .auth-brand-logo {
+  height: 38px;
 }
 
 .banner-title {

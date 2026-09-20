@@ -524,7 +524,9 @@ export default function RegisterPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <span>GestArt</span>
+                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                        </Link>
                     </div>
 
                     <h1 className="banner-title">
@@ -563,7 +565,9 @@ export default function RegisterPage() {
                 <div className="form-card">
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <span>GestArt</span>
+                            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                            </Link>
                         </div>
                     </div>
 
@@ -774,7 +778,7 @@ export default function RegisterPage() {
                                              onClick={(e) => {
                                                  e.preventDefault();
                                                  e.stopPropagation();
-                                                 setActiveLegalModal('privacy');
+                                                 setActiveLegalModal('rgpd');
                                              }}
                                          >
                                              Politiques de Confidentialité

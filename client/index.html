@@ -10,47 +10,74 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="GestArt" />
 
-  <!-- iOS Startup Images: Specific device media queries to prevent black screen on iPhone -->
-  <!-- iPhone 16 Pro Max / 15 Pro Max / 14 Pro Max -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+  <!-- iOS Startup Images: EXACT physical pixel sizes required for apple-touch-startup-image to work -->
+  <!-- Each image must match the physical (not logical) pixel dimensions of the device -->
 
-  <!-- iPhone 16 Pro / 15 Pro / 15 / 14 Pro -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+  <!-- iPhone 16 Pro Max (1320x2868 physical @ 460ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1320x2868.png"
+    media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1320x2868.png"
+    media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
 
-  <!-- iPhone 16 Plus / 15 Plus / 14 Plus / 13 Pro Max / 12 Pro Max -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+  <!-- iPhone 16 Pro (1206x2622 physical @ 460ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1206x2622.png"
+    media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1206x2622.png"
+    media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
 
-  <!-- iPhone 16 / 15 / 14 / 13 / 13 Pro / 12 / 12 Pro -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+  <!-- iPhone 16 Plus / 15 Pro Max / 15 Plus (1290x2796 physical @ 460ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1290x2796.png"
+    media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1290x2796.png"
+    media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
 
-  <!-- iPhone 11 Pro Max / XS Max -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+  <!-- iPhone 16 / 15 / 15 Pro / 14 Pro (1179x2556 physical @ 460ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1179x2556.png"
+    media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1179x2556.png"
+    media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
 
-  <!-- iPhone 11 / XR -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)" />
+  <!-- iPhone 14 Plus / 13 Pro Max / 12 Pro Max (1284x2778 physical @ 458ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1284x2778.png"
+    media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1284x2778.png"
+    media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
 
-  <!-- iPhone X / XS / 11 Pro -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+  <!-- iPhone 14 / 13 / 13 Pro / 12 / 12 Pro (1170x2532 physical @ 460ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1170x2532.png"
+    media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1170x2532.png"
+    media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
 
-  <!-- iPhone 8 Plus / 7 Plus / 6s Plus -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+  <!-- iPhone 11 Pro Max / XS Max (1242x2688 physical @ 458ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1242x2688.png"
+    media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1242x2688.png"
+    media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
 
-  <!-- iPhone 8 / 7 / 6s / SE (2nd/3rd gen) -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)" />
+  <!-- iPhone 11 / XR (828x1792 physical @ 326ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_828x1792.png"
+    media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_828x1792.png"
+    media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)" />
 
-  <!-- Generic fallback startup images -->
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" media="(prefers-color-scheme: dark)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_light.png" media="(prefers-color-scheme: light)" />
-  <link rel="apple-touch-startup-image" href="/GestArt_launch_dark.png" />
+  <!-- iPhone X / XS / 11 Pro (1125x2436 physical @ 458ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1125x2436.png"
+    media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1125x2436.png"
+    media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+
+  <!-- iPhone 8 Plus / 7 Plus / 6s Plus (1242x2208 physical @ 401ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_1242x2208.png"
+    media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_1242x2208.png"
+    media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)" />
+
+  <!-- iPhone 8 / 7 / 6s / SE 2nd & 3rd gen (750x1334 physical @ 326ppi) -->
+  <link rel="apple-touch-startup-image" href="/splash/dark_750x1334.png"
+    media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)" />
+  <link rel="apple-touch-startup-image" href="/splash/light_750x1334.png"
+    media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)" />
 
   <title>GestArt</title>
   <meta name="description"
@@ -60,7 +87,7 @@
   <script>
     (function () {
       try {
-        var mode = localStorage.getItem('theme_mode') || (localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
+        var mode = localStorage.getItem('theme_mode') || (localStorage.getItem('theme') === 'dark' ? 'dark' : (localStorage.getItem('theme') === 'light' ? 'light' : 'system'));
         var isDark = false;
         if (mode === 'system') {
           isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -88,6 +115,14 @@
       background-color: #F2F0EB;
     }
     html.dark, html.dark body {
+      background-color: #0a0a0a;
+    }
+    /* Prevent black flash under #root before Tailwind CSS loads */
+    #root {
+      background-color: #F2F0EB;
+      min-height: 100vh;
+    }
+    html.dark #root {
       background-color: #0a0a0a;
     }
   </style>

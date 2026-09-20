@@ -248,6 +248,8 @@
 .dark .history-filter-select:focus,
 .dark .mobile-history-select,
 .dark .mobile-history-select:focus,
+.dark .mobile-history-search-input,
+.dark .mobile-history-search-input:focus,
 .dark .payments-search-input,
 .dark .payments-search-input:focus,
 .dark .payments-modal-search-box input,
@@ -620,6 +622,7 @@ select:-webkit-autofill:active {
 }
 
 @media (max-width: 768px) {
+
   .app-toast,
   .dv-toast,
   .fp-toast,
@@ -644,6 +647,7 @@ select:-webkit-autofill:active {
     opacity: 0;
     transform: translate3d(-50%, -20px, 0) scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: translate3d(-50%, 0, 0) scale(1);
@@ -709,9 +713,11 @@ select:-webkit-autofill:active {
   0% {
     opacity: 0.45;
   }
+
   50% {
     opacity: 0.85;
   }
+
   100% {
     opacity: 0.45;
   }
@@ -729,8 +735,17 @@ select:-webkit-autofill:active {
 
 /* ── Mobile PWA & iOS Overscroll Containment ── */
 @media (max-width: 768px) {
-  html, body {
+
+  html,
+  body {
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent iOS Safari auto-zoom on input focus which shifts the fixed header */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }

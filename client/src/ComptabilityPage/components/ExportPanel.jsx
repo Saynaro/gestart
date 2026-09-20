@@ -4,10 +4,28 @@ import { apiFetch } from "../../utils/api";
 import { getAuthToken } from "../../utils/auth";
 import { getApiUrl } from "../../utils/config";
 
+const formatDateToISO = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
+
+const getQuarterRange = (year, quarterIdx) => {
+    const start = new Date(year, quarterIdx * 3, 1);
+    const end = new Date(year, (quarterIdx + 1) * 3, 0);
+    return {
+        start: formatDateToISO(start),
+        end: formatDateToISO(end)
+    };
+};
+
 function ExportPanel() {
     const now = new Date();
-    const defaultStart = new Date(now.getFullYear(), 0, 1).toISOString().split("T")[0];
-    const defaultEnd = new Date(now.getFullYear(), 11, 31).toISOString().split("T")[0];
+    const currentYear = now.getFullYear();
+    const currentQuarterIdx = Math.floor(now.getMonth() / 3);
+    const defaultStart = formatDateToISO(new Date(currentYear, 0, 1));
+    const defaultEnd = formatDateToISO(new Date(currentYear, 11, 31));
 
     const [startDate, setStartDate] = useState(defaultStart);
     const [endDate, setEndDate] = useState(defaultEnd);
@@ -151,15 +169,17 @@ function ExportPanel() {
                                 onClick={() => {
                                     setExportType(t.id);
                                     let d = new Date();
+                                    const yr = d.getFullYear();
                                     if (t.id === "mensuel") {
-                                        setStartDate(new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0]);
-                                        setEndDate(new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0]);
+                                        setStartDate(formatDateToISO(new Date(yr, d.getMonth(), 1)));
+                                        setEndDate(formatDateToISO(new Date(yr, d.getMonth() + 1, 0)));
                                     } else if (t.id === "trimestriel") {
-                                        setStartDate("2026-01-01");
-                                        setEndDate("2026-03-31");
+                                        const qRange = getQuarterRange(yr, Math.floor(d.getMonth() / 3));
+                                        setStartDate(qRange.start);
+                                        setEndDate(qRange.end);
                                     } else if (t.id === "annuel") {
-                                        setStartDate("2026-01-01");
-                                        setEndDate("2026-12-31");
+                                        setStartDate(formatDateToISO(new Date(yr, 0, 1)));
+                                        setEndDate(formatDateToISO(new Date(yr, 11, 31)));
                                     }
                                 }}
                             >
@@ -167,6 +187,46 @@ function ExportPanel() {
                             </button>
                         ))}
                     </div>
+
+                    {/* Quarter Sub-selectors when Trimestriel is selected */}
+                    {exportType === "trimestriel" && (
+                        <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
+                            {[
+                                { q: 0, label: "T1 (Jan-Mar)" },
+                                { q: 1, label: "T2 (Avr-Juin)" },
+                                { q: 2, label: "T3 (Juil-Sep)" },
+                                { q: 3, label: "T4 (Oct-Déc)" }
+                            ].map((item) => {
+                                const qRange = getQuarterRange(new Date().getFullYear(), item.q);
+                                const isCurrentQ = startDate === qRange.start && endDate === qRange.end;
+                                return (
+                                    <button
+                                        key={item.q}
+                                        type="button"
+                                        onClick={() => {
+                                            setStartDate(qRange.start);
+                                            setEndDate(qRange.end);
+                                        }}
+                                        style={{
+                                            flex: 1,
+                                            padding: "6px 2px",
+                                            fontSize: "11px",
+                                            fontWeight: isCurrentQ ? 700 : 500,
+                                            borderRadius: "8px",
+                                            border: isCurrentQ ? "1.5px solid #556B2F" : "1px solid var(--border)",
+                                            backgroundColor: isCurrentQ ? "rgba(85, 107, 47, 0.15)" : "var(--card)",
+                                            color: isCurrentQ ? "#556B2F" : "var(--muted-foreground)",
+                                            cursor: "pointer",
+                                            transition: "all 0.15s ease",
+                                            textAlign: "center"
+                                        }}
+                                    >
+                                        {item.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
 
                 {/* Summary details */}

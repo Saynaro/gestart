@@ -288,7 +288,7 @@ function CataloguePage() {
 
     return (
         <div className="home-page catalogue-page-wrapper">
-            <SideBar />
+            <SideBar onFabClick={isTechnician ? null : () => handleOpenNewModal()} hideFab={isTechnician} />
             <div className="main-content">
                 <Header />
                 <PullToRefresh onRefresh={fetchCatalog}>
@@ -324,20 +324,6 @@ function CataloguePage() {
                     </motion.div>
                 </PullToRefresh>
             </div>
-
-            {/* Mobile Floating FAB Action Button (Owner/Manager only) */}
-            {!isTechnician && (
-                <button
-                    className={`catalogue-mobile-fab-btn ${isFabCollapsed ? "collapsed" : ""}`}
-                    onClick={() => handleOpenNewModal()}
-                    title={isExpired ? "Renouvelez votre abonnement pour créer un article" : "Créer un article"}
-                >
-                    <div className="fab-icon">
-                        {isExpired ? <Lock size={18} /> : <Plus size={20} />}
-                    </div>
-                    <span className="fab-text">Créer un article</span>
-                </button>
-            )}
 
             {/* Create / Edit Article Modal (Desktop Modal & Mobile Bottom Sheet) */}
             <NewArticleModal

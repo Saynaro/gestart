@@ -1004,17 +1004,21 @@
     }
 
     .chat-pane-header {
-        height: 58px;
-        padding: 6px 12px;
+        height: calc(56px + env(safe-area-inset-top, 0px));
+        min-height: calc(56px + env(safe-area-inset-top, 0px));
+        padding: env(safe-area-inset-top, 0px) 12px 0 12px;
         flex-shrink: 0;
         position: fixed;
-        top: env(safe-area-inset-top, 0px);
+        top: 0;
         left: 0;
         right: 0;
         z-index: 100;
         display: flex;
         align-items: center;
         gap: 8px;
+        background-color: var(--card);
+        border-bottom: 1px solid var(--border);
+        box-sizing: border-box;
     }
 
     .chat-header-user-clickable {
@@ -1277,13 +1281,15 @@
     }
 
     .mobile-info-header {
-        height: 60px;
+        height: calc(56px + env(safe-area-inset-top, 0px));
+        min-height: calc(56px + env(safe-area-inset-top, 0px));
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 16px;
+        padding: env(safe-area-inset-top, 0px) 16px 0 16px;
         border-bottom: 1px solid var(--border);
         background-color: var(--card);
+        box-sizing: border-box;
     }
 
     .mobile-info-header h4 {
@@ -1331,6 +1337,11 @@
         overflow: hidden !important;
     }
 
+    .home-page.mobile-view-chat,
+    .home-page.mobile-view-info {
+        background-color: var(--sidebar) !important;
+    }
+
     .home-page.mobile-view-chat .main-content,
     .home-page.mobile-view-info .main-content {
         display: flex !important;
@@ -1338,7 +1349,8 @@
         flex: 1 1 auto !important;
         height: 100% !important;
         max-height: 100% !important;
-        padding-bottom: calc(74px + env(safe-area-inset-bottom, 16px)) !important;
+        background-color: var(--sidebar) !important;
+        padding-bottom: calc(52px + max(8px, env(safe-area-inset-bottom, 8px))) !important;
         box-sizing: border-box !important;
         width: 100% !important;
         overflow: hidden !important;
@@ -2243,41 +2255,44 @@
     color: var(--foreground);
 }
 
-.email-send-btn {
-    padding: 8px 18px !important;
-    border-radius: 8px !important;
-    width: auto !important;
-    height: auto !important;
+.email-input-row {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+}
+
+.email-send-btn {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     background-color: #556B2F !important;
     color: #ffffff !important;
-    font-weight: 700;
-    font-size: 0.85rem;
-    transition: opacity 0.15s ease, filter 0.15s ease;
-}
-
-.email-attach-text-short {
-    display: none;
-}
-
-.email-send-text-short {
-    display: none;
+    flex-shrink: 0 !important;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s ease, transform 0.15s ease, filter 0.15s ease;
 }
 
 @media (max-width: 768px) {
     .omnichannel-composer-container {
-        padding: 6px 10px 8px 10px !important;
-        gap: 4px !important;
+        padding: 8px 10px 10px 10px !important;
+        gap: 6px !important;
         background-color: var(--card) !important;
-        border-top: 1px solid var(--border) !important;
+        border: none !important;
+        border-top: none !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
         flex-shrink: 0 !important;
         box-sizing: border-box !important;
     }
 
     .omnichannel-composer-container.email-mode {
-        padding: 6px 10px 8px 10px !important;
+        padding: 8px 10px 10px 10px !important;
     }
 
     .email-recommendation-notice {
@@ -2285,7 +2300,7 @@
     }
 
     .email-composer-form {
-        gap: 5px !important;
+        gap: 6px !important;
     }
 
     .email-composer-meta {
@@ -2317,12 +2332,12 @@
     }
 
     .email-body-textarea {
-        padding: 6px 8px !important;
+        padding: 8px 10px !important;
         font-size: 0.84rem !important;
-        min-height: 44px !important;
-        height: 48px !important;
+        min-height: 40px !important;
+        height: 40px !important;
         line-height: 1.35 !important;
-        border-radius: 6px !important;
+        border-radius: 10px !important;
     }
 
     .email-composer-bottom {
@@ -2335,27 +2350,15 @@
         border-radius: 6px !important;
     }
 
-    .email-attach-text-full {
-        display: none !important;
-    }
-
-    .email-attach-text-short {
-        display: inline !important;
-    }
-
     .email-send-btn {
-        padding: 6px 12px !important;
-        font-size: 0.78rem !important;
-        border-radius: 6px !important;
-        height: 32px !important;
-    }
-
-    .email-send-text-full {
-        display: none !important;
-    }
-
-    .email-send-text-short {
-        display: inline !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 10px !important;
+        flex-shrink: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 }
 
@@ -3514,6 +3517,48 @@
 .dark .floating-bar-btn.cancel:hover {
     color: #ffffff;
     background: #334155;
+}
+
+@media (max-width: 768px) {
+    .messages-floating-action-bar {
+        margin: 0 8px 6px 8px !important;
+        padding: 5px 8px !important;
+        gap: 6px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .floating-bar-left {
+        gap: 6px !important;
+        min-width: 0 !important;
+        flex-shrink: 1 !important;
+    }
+
+    .floating-bar-selected-text {
+        font-size: 11.5px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .floating-bar-right {
+        gap: 4px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .floating-bar-btn {
+        padding: 5px 8px !important;
+        font-size: 11px !important;
+        border-radius: 6px !important;
+        gap: 4px !important;
+        white-space: nowrap !important;
+    }
+
+    .floating-bar-btn svg {
+        width: 13px !important;
+        height: 13px !important;
+    }
 }
 
 /* Checkbox in message row */

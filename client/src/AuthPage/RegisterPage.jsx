@@ -35,6 +35,7 @@ import './RegisterPage.css';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
 import PhoneInput from '../components/PhoneInput';
 import { apiFetch } from '../utils/api';
+import { API_URL } from '../utils/config';
 import { setAuthToken, clearAuthToken } from '../utils/auth';
 import LegalModal from '../components/LegalHelpModal';
 import { useUser } from '../utils/useUser';

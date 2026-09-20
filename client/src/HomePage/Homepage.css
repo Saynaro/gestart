@@ -1,6 +1,7 @@
 .home-page {
     display: flex;
-    height: 100vh;
+    height: 100%;
+    height: 100dvh;
     width: 100%;
     background-color: var(--background);
     overflow: hidden;
@@ -10,7 +11,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
+    height: 100dvh;
     background-color: var(--background);
     min-width: 0;
     overflow: hidden;
@@ -1894,8 +1896,7 @@
     body .home-page {
         display: flex !important;
         flex-direction: column !important;
-        height: 100vh !important;
-        height: 100dvh !important;
+        height: 100% !important;
         overflow: hidden !important;
     }
 
@@ -1903,21 +1904,23 @@
         display: flex !important;
         flex-direction: column !important;
         flex: 1 !important;
-        height: 100vh !important;
-        height: 100dvh !important;
-        overflow-y: auto !important;
+        height: 100% !important;
+        overflow: hidden !important;
         width: 100% !important;
         padding-bottom: 0 !important;
+    }
+
+    .page-content {
+        padding: 16px 16px calc(76px + env(safe-area-inset-bottom, 0px)) 16px !important;
+        flex: 1 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .chart-axis-label {
         font-size: 13px !important;
         font-weight: 700 !important;
         fill: #334155 !important;
-    }
-
-    .page-content {
-        padding: 16px 16px calc(76px + env(safe-area-inset-bottom, 0px)) 16px !important;
     }
 
     .dashboard-stats-grid {

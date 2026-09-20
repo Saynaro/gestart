@@ -805,6 +805,36 @@ function MessagesPage() {
     setIsDeleteModalOpen(false);
   };
 
+  const longPressTimerRef = useRef(null);
+  const isLongPressTriggered = useRef(false);
+
+  const handleTouchStartMessage = (msgId) => {
+    isLongPressTriggered.current = false;
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressTriggered.current = true;
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        try { navigator.vibrate(25); } catch (_) {}
+      }
+      setIsSelectMode(true);
+      handleToggleSelectMessage(msgId);
+    }, 400);
+  };
+
+  const handleTouchMoveMessage = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleTouchEndMessage = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
   const handleDeleteSelectedMessages = async () => {
     if (isExpired) {
       window.dispatchEvent(new CustomEvent('subscription_expired', {
@@ -816,41 +846,34 @@ function MessagesPage() {
     setIsDeleting(true);
 
     const idsArray = Array.from(selectedMessageIds);
+    const idsSet = new Set(idsArray.map(id => String(id)));
+
+    // Optimistic local state update immediately
+    setMessages(prev => prev.filter(m => !idsSet.has(String(m.id)) && !idsSet.has(String(m._id))));
+    setSelectedMessageIds(new Set());
+    setIsSelectMode(false);
+    setIsDeleteModalOpen(false);
+
     try {
       await apiFetch("/v1/messages/batch", {
         method: "DELETE",
         body: JSON.stringify({ messageIds: idsArray })
       });
 
-      // Mettre à jour la liste locale des messages
-      setMessages(prev => prev.filter(m => !selectedMessageIds.has(m.id) && !selectedMessageIds.has(m._id)));
-
       // Mettre à jour la conversation dans la liste de gauche
       setChats(prev => prev.map(c => {
         if (c.clientId === activeChatIdParam || c.id === activeChatIdParam) {
-          if (c.lastMessage && selectedMessageIds.has(c.lastMessage.id)) {
-            const remaining = messages.filter(m => !selectedMessageIds.has(m.id) && !selectedMessageIds.has(m._id));
-            const newLast = remaining.length > 0 ? remaining[remaining.length - 1] : null;
+          if (c.lastMessage && (idsSet.has(String(c.lastMessage.id)) || idsSet.has(String(c.lastMessage._id)))) {
             return {
               ...c,
-              lastMessage: newLast,
-              time: newLast?.createdAt || c.time
+              lastMessage: null
             };
           }
         }
         return c;
       }));
-
-      setSelectedMessageIds(new Set());
-      setIsSelectMode(false);
-      setIsDeleteModalOpen(false);
     } catch (err) {
       console.warn("[DELETE MESSAGES WARN]", err.message);
-      // Fallback local state update
-      setMessages(prev => prev.filter(m => !selectedMessageIds.has(m.id) && !selectedMessageIds.has(m._id)));
-      setSelectedMessageIds(new Set());
-      setIsSelectMode(false);
-      setIsDeleteModalOpen(false);
     } finally {
       setIsDeleting(false);
     }
@@ -1637,7 +1660,7 @@ function MessagesPage() {
   const renderChatPane = () => (
     <div className="chat-pane flex-1" ref={chatPaneRef}>
       {/* Mobile Header via Portal */}
-      {isMobile && (selectedClientData || activeChat) && createPortal(
+      {isMobile && (selectedClientData || activeChat) && !previewQuote && !previewInvoice && !lightboxGallery && !activeCall && createPortal(
         <div className="chat-pane-header">
           <button
             type="button"
@@ -1826,7 +1849,22 @@ function MessagesPage() {
               <div
                 key={msg.id ? `msg_${msg.id}_${idx}` : `msg_${idx}`}
                 className={`message-bubble-wrapper ${isMe ? "me" : "them"} channel-${channel.toLowerCase()} ${isSelectMode ? "select-mode-active" : ""} ${isSelected ? "selected-msg" : ""}`}
+                onTouchStart={() => handleTouchStartMessage(msgId)}
+                onTouchMove={handleTouchMoveMessage}
+                onTouchEnd={handleTouchEndMessage}
+                onTouchCancel={handleTouchEndMessage}
+                onContextMenu={(e) => {
+                  if (!isSelectMode) {
+                    e.preventDefault();
+                    setIsSelectMode(true);
+                    handleToggleSelectMessage(msgId);
+                  }
+                }}
                 onClick={(e) => {
+                  if (isLongPressTriggered.current) {
+                    isLongPressTriggered.current = false;
+                    return;
+                  }
                   if (isSelectMode) {
                     e.stopPropagation();
                     handleToggleSelectMessage(msgId);
@@ -2204,15 +2242,16 @@ function MessagesPage() {
           >
             <div className="floating-bar-left">
               <span className="floating-bar-selected-text">
-                <strong>{selectedMessageIds.size}</strong> {selectedMessageIds.size > 1 ? "messages sélectionnés" : "message sélectionné"}
+                <strong>{selectedMessageIds.size}</strong> {selectedMessageIds.size > 1 ? "sélectionnés" : "sélectionné"}
               </span>
               <button
                 type="button"
                 className="floating-bar-btn secondary"
                 onClick={handleToggleSelectAll}
+                title={selectedMessageIds.size === messages.length ? "Tout désélectionner" : "Tout sélectionner"}
               >
-                <CheckCheck size={14} />
-                <span>{selectedMessageIds.size === messages.length ? "Tout désélectionner" : "Tout sélectionner"}</span>
+                <CheckCheck size={13} />
+                <span>{selectedMessageIds.size === messages.length ? "Aucun" : "Tout"}</span>
               </button>
             </div>
 
@@ -2223,15 +2262,16 @@ function MessagesPage() {
                 disabled={selectedMessageIds.size === 0}
                 onClick={() => setIsDeleteModalOpen(true)}
               >
-                <Trash2 size={14} />
-                <span>Supprimer {selectedMessageIds.size > 0 ? `(${selectedMessageIds.size})` : ""}</span>
+                <Trash2 size={13} />
+                <span>Supprimer ({selectedMessageIds.size})</span>
               </button>
               <button
                 type="button"
                 className="floating-bar-btn cancel"
                 onClick={handleCancelSelectMode}
+                title="Annuler"
               >
-                <X size={14} />
+                <X size={13} />
                 <span>Annuler</span>
               </button>
             </div>
@@ -2417,20 +2457,36 @@ function MessagesPage() {
               </div>
             )}
 
-            <textarea
-              placeholder={`Rédigez votre message à ${activeClientName}...`}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onFocus={handleInputFocus}
-              onClick={handleInputFocus}
-              onPaste={handlePaste}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`email-body-textarea ${isDraggingFile ? "drag-active" : ""}`}
-              rows={2}
-              disabled={isSending}
-            />
+            <div className="email-input-row" style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', width: '100%' }}>
+              <textarea
+                placeholder={`Rédigez votre message à ${activeClientName}...`}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onFocus={handleInputFocus}
+                onClick={handleInputFocus}
+                onPaste={handlePaste}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`email-body-textarea ${isDraggingFile ? "drag-active" : ""}`}
+                rows={2}
+                disabled={isSending}
+                style={{ flex: 1, minWidth: 0 }}
+              />
+
+              <button
+                type="submit"
+                className="chat-send-btn email-send-btn"
+                disabled={(!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending}
+                title={isExpired ? "Abonnement requis pour envoyer" : "Envoyer l'email"}
+                style={{
+                  flexShrink: 0,
+                  opacity: (!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending ? 0.6 : 1
+                }}
+              >
+                {isExpired ? <Lock size={16} /> : <Send size={16} />}
+              </button>
+            </div>
 
             {/* Email Attachments List */}
             {emailAttachments.length > 0 && (
@@ -2515,17 +2571,6 @@ function MessagesPage() {
                   <span>Devis / Facture</span>
                 </button>
               </div>
-
-              <button
-                type="submit"
-                className="chat-send-btn email-send-btn"
-                disabled={(!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending}
-                style={isExpired ? { opacity: 0.85 } : {}}
-              >
-                {isExpired ? <Lock size={14} /> : <Send size={14} />}
-                <span className="email-send-text-full">Envoyer l'email</span>
-                <span className="email-send-text-short">Envoyer</span>
-              </button>
             </div>
           </form>
         ) : (

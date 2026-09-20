@@ -86,12 +86,16 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                         role="dialog"
                         aria-modal="true"
                         tabIndex="-1"
-                        className="fixed bottom-0 left-0 right-0 z-[2100] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[24px] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] overflow-hidden pb-[max(20px,env(safe-area-inset-bottom))] outline-none focus:outline-none"
+                        className="fixed bottom-0 left-0 right-0 z-[2100] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[24px] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] overflow-hidden outline-none focus:outline-none"
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-                        style={{ willChange: "transform", fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}
+                        style={{ 
+                            willChange: "transform", 
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                            paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 16px))'
+                        }}
                         drag="y"
                         dragConstraints={{ top: 0 }}
                         dragElastic={{ top: 0, bottom: 0.8 }}

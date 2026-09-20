@@ -20,9 +20,9 @@ export default defineConfig({
         enabled: true,
       },
       manifest: {
-        name: 'CRM Client',
-        short_name: 'CRM',
-        description: 'Client application for CRM',
+        name: 'GestArt',
+        short_name: 'GestArt',
+        description: 'Application GestArt pour la gestion des interventions et de la comptabilité',
         theme_color: '#556B2F',
         background_color: '#F2F0EB',
         display: "standalone",

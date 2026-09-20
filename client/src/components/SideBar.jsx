@@ -148,6 +148,9 @@ function SideBar({ onFabClick, hideFab = false }) {
         if (path.includes("devis")) {
             return { label: "Nouveau devis", icon: Icons.plus };
         }
+        if (path.includes("catalogue") || path.includes("article")) {
+            return { label: "Nouvel article", icon: Icons.plus };
+        }
         return null;
     };
 
@@ -413,7 +416,7 @@ function SideBar({ onFabClick, hideFab = false }) {
 
             {fabConfig && !hideFab && (
                 <button
-                    className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : "factures"}`}
+                    className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : activePath.toLowerCase().includes("catalogue") ? "catalogue" : "factures"}`}
                     onClick={(e) => {
                         if (isExpired) {
                             window.dispatchEvent(new CustomEvent('subscription_expired', {
@@ -429,6 +432,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                             else if (path.includes("planning")) navigate("/planning", { state: { openNewModal: true } });
                             else if (path.includes("factures")) navigate("/factures", { state: { openNewModal: true } });
                             else if (path.includes("devis")) navigate("/devis", { state: { openNewModal: true } });
+                            else if (path.includes("catalogue")) navigate("/catalogue", { state: { openNewModal: true } });
                         }
                     }}
                 >

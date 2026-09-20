@@ -177,6 +177,22 @@ function App() {
     return () => window.removeEventListener('pageshow', handlePageShow);
   }, []);
 
+  // Fix iOS Safari virtual keyboard: after input blur, scroll body back to top
+  // This prevents the "grey gap at bottom" when the virtual keyboard hides
+  useEffect(() => {
+    const handleFocusOut = (event) => {
+      const tag = event.target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        setTimeout(() => {
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }, 100);
+      }
+    };
+    document.addEventListener('focusout', handleFocusOut);
+    return () => document.removeEventListener('focusout', handleFocusOut);
+  }, []);
+
   // Initialize theme and system OS theme listener globally
   useEffect(() => {
     initTheme();

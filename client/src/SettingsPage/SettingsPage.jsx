@@ -793,7 +793,8 @@ function SettingsPage() {
                         style={{
                             position: 'absolute',
                             left: '50%',
-                            transform: (!isDetail || isMobileHeaderTitleVisible) ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(4px)',
+                            top: 'calc(env(safe-area-inset-top, 0px) + 28px)',
+                            transform: (!isDetail || isMobileHeaderTitleVisible) ? 'translate(-50%, -50%)' : 'translate(-50%, calc(-50% + 4px))',
                             opacity: (!isDetail || isMobileHeaderTitleVisible) ? 1 : 0,
                             transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
                             maxWidth: 'calc(100% - 180px)',

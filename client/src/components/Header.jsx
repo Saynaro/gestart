@@ -335,6 +335,22 @@ function Header({ title }) {
         });
     };
 
+    const handleNotificationClick = (n) => {
+        if (isSelectionMode) {
+            toggleSelectItem(n.id);
+            return;
+        }
+
+        // Toggle expanded state to show/hide details and action buttons
+        setExpandedNotificationId(prev => (prev === n.id ? null : n.id));
+
+        // If unread, mark as read immediately
+        if (!n.isRead) {
+            setNotificationsList(prev => prev.map(item => item.id === n.id ? { ...item, isRead: true } : item));
+            apiFetch(`/v1/notifications/${n.id}/read`, { method: "PATCH" }).catch(() => {});
+        }
+    };
+
     const currentTabItems = (isTechnician || bellTab === "notifications") ? notificationsList : smsList;
     const isAllSelected = currentTabItems.length > 0 && selectedItemIds.size === currentTabItems.length;
 

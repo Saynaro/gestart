@@ -11,6 +11,29 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
     const [strokeColor, setStrokeColor] = useState("#1A1A1A");
     const [strokeWidth, setStrokeWidth] = useState(2.5);
 
+    // Lock background scroll when modal is open
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const prevOverflowHtml = document.documentElement.style.overflow;
+        const prevOverflowBody = document.body.style.overflow;
+        const rootEl = document.getElementById("root");
+        const prevRootOverflow = rootEl ? rootEl.style.overflow : "";
+
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+        if (rootEl) rootEl.style.overflow = "hidden";
+        document.body.classList.add("modal-open");
+
+        return () => {
+            document.documentElement.style.overflow = prevOverflowHtml || "";
+            document.body.style.overflow = prevOverflowBody || "";
+            if (rootEl) rootEl.style.overflow = prevRootOverflow || "";
+            document.body.classList.remove("modal-open");
+        };
+    }, [isOpen]);
+
+    // Canvas sizing and initial setup on open
     useEffect(() => {
         if (!isOpen) return;
 
@@ -34,7 +57,19 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
         ctx.clearRect(0, 0, rect.width, rect.height);
         setHasDrawn(false);
         setHistory([]);
-    }, [isOpen, strokeColor, strokeWidth]);
+    }, [isOpen]);
+
+    // Update stroke styling dynamically without clearing canvas
+    useEffect(() => {
+        if (!isOpen) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = strokeWidth;
+        }
+    }, [strokeColor, strokeWidth, isOpen]);
 
     if (!isOpen) return null;
 
@@ -62,6 +97,8 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
         saveHistorySnapshot();
         const { x, y } = getCanvasCoordinates(e);
         const ctx = canvasRef.current.getContext("2d");
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = strokeWidth;
         ctx.beginPath();
         ctx.moveTo(x, y);
         setIsDrawing(true);

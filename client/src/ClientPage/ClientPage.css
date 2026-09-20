@@ -547,9 +547,10 @@
 
 /* Mobile Cards list components */
 .client-mobile-list-card {
-    background-color: white;
+    background-color: var(--card);
+    border: 1px solid var(--border);
     border-radius: 20px;
-    box-shadow: rgba(149, 157, 165, 0.1) 0px 4px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     overflow: hidden;
     margin-bottom: 24px;
 }
@@ -559,7 +560,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px;
-    border-bottom: 1.5px solid #f8fafc;
+    border-bottom: 1px solid var(--border);
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -583,12 +584,12 @@
 .mobile-client-name-bold {
     font-size: 15px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--foreground);
 }
 
 .mobile-client-subtext {
     font-size: 13px;
-    color: #64748b;
+    color: var(--muted-foreground);
 }
 
 
@@ -817,7 +818,7 @@
 /* Nouveau client Button FAB */
 .mobile-contact-fab {
     position: fixed;
-    bottom: 95px;
+    bottom: calc(70px + max(16px, env(safe-area-inset-bottom, 16px)));
     right: 16px;
     background-color: #556B2F;
     color: white;
@@ -2235,13 +2236,15 @@ a.mobile-contact-row:active {
 }
 
 .mobile-detail-profile-card {
-    background-color: white;
+    background-color: var(--card);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 16px;
-    box-shadow: rgba(149, 157, 165, 0.1) 0px 4px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
     gap: 14px;
+    color: var(--foreground);
 }
 
 .mobile-profile-avatar {
@@ -2262,7 +2265,7 @@ a.mobile-contact-row:active {
 .mobile-profile-name {
     font-size: 18px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--foreground);
     text-align: center;
     margin: 0;
 }
@@ -2278,20 +2281,22 @@ a.mobile-contact-row:active {
     align-items: center;
     gap: 8px;
     font-size: 13.5px;
-    color: #475569;
+    color: var(--muted-foreground);
 }
 
 .mobile-detail-container .client-detail-tabs-card,
 .mobile-contacts-view .client-detail-tabs-card,
 .mobile-detail-tabs-card {
-    background-color: white;
+    background-color: var(--card);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 16px;
-    box-shadow: rgba(149, 157, 165, 0.1) 0px 4px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
     min-height: auto;
     gap: 14px;
+    color: var(--foreground);
 }
 
 /* Segmented Control Styles */
@@ -2404,7 +2409,7 @@ a.mobile-contact-row:active {
 
 .mobile-add-fab {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(70px + max(16px, env(safe-area-inset-bottom, 16px)));
     right: 16px;
     background-color: #0066fe;
     color: white;

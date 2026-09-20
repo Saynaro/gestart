@@ -83,7 +83,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
     return (
         <div className="mobile-contacts-view" style={{ backgroundColor: 'var(--background)' }}>
             {/* Header */}
-            <div className="mobile-nav-header" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--background)', position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', padding: '16px' }}>
+            <div className="mobile-nav-header" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--background)', position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', padding: 'calc(12px + env(safe-area-inset-top, 0px)) 16px 12px 16px' }}>
                 <button className="mobile-back-circle" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(85, 107, 47, 0.1)', border: 'none', color: 'var(--sidebar-primary)', cursor: 'pointer' }} onClick={() => window.history.back()}>
                     <ArrowLeft size={16} />
                 </button>
@@ -391,6 +391,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                             {automations.map((auto, idx) => {
                                                 const serviceName = auto.trackedServices?.[0]?.serviceType?.name || auto.name || "Prestation générale";
                                                 const nextDateStr = auto.nextReminderAt ? new Date(auto.nextReminderAt).toLocaleDateString('fr-FR') : "Non définie";
+                                                const lastDateStr = auto.lastCompletedAt ? new Date(auto.lastCompletedAt).toLocaleDateString('fr-FR') : (auto.lastInterventionDate ? new Date(auto.lastInterventionDate).toLocaleDateString('fr-FR') : "Aucune");
 
                                                 return (
                                                     <div 

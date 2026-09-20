@@ -31,26 +31,62 @@ export default function PullToRefresh({
         isRefreshingRef.current = isRefreshing;
     }, [isRefreshing]);
 
-    // Find the scrollable container (e.g. .main-content or window)
-    const getScrollTop = useCallback(() => {
-        if (!containerRef.current) return 0;
-        let node = containerRef.current;
-        while (node && node !== document.body && node !== document.documentElement) {
-            const overflowY = window.getComputedStyle(node).overflowY;
-            if ((overflowY === "auto" || overflowY === "scroll") && node.scrollTop !== undefined) {
-                return node.scrollTop;
-            }
-            node = node.parentElement;
+    // Check all possible scrollable containers (window, #root, ancestors, and target element)
+    const getScrollTop = useCallback((target) => {
+        let maxScroll = 0;
+
+        // 1. Check window & root scroll
+        if (typeof window !== "undefined") {
+            const winScroll = Math.max(
+                window.scrollY || 0,
+                window.pageYOffset || 0,
+                document.documentElement?.scrollTop || 0,
+                document.body?.scrollTop || 0,
+                document.scrollingElement?.scrollTop || 0
+            );
+            if (winScroll > maxScroll) maxScroll = winScroll;
         }
-        return window.scrollY || document.documentElement.scrollTop || 0;
+
+        // 2. Check #root container specifically (used as main scroll container in App.css)
+        if (typeof document !== "undefined") {
+            const rootEl = document.getElementById("root");
+            if (rootEl && rootEl.scrollTop > maxScroll) {
+                maxScroll = rootEl.scrollTop;
+            }
+        }
+
+        // 3. Traverse all ancestors of containerRef
+        if (containerRef.current) {
+            let node = containerRef.current;
+            while (node && node !== document.body && node !== document.documentElement) {
+                if (typeof node.scrollTop === "number" && node.scrollTop > maxScroll) {
+                    maxScroll = node.scrollTop;
+                }
+                node = node.parentElement;
+            }
+        }
+
+        // 4. Traverse target and its ancestors
+        if (target && target instanceof Element) {
+            let node = target;
+            while (node && node !== document.body && node !== document.documentElement) {
+                if (typeof node.scrollTop === "number" && node.scrollTop > maxScroll) {
+                    maxScroll = node.scrollTop;
+                }
+                node = node.parentElement;
+            }
+        }
+
+        return maxScroll;
     }, []);
 
     const handleTouchStart = useCallback((e) => {
         if (disabled || isRefreshingRef.current) return;
         if (e.touches.length !== 1) return;
 
-        const scrollTop = getScrollTop();
-        if (scrollTop <= 1) {
+        // Only allow pull-to-refresh if strictly at the very top
+        const currentScroll = getScrollTop(e.target);
+        if (currentScroll <= 0.5) {
             canPullRef.current = true;
             touchStartY.current = e.touches[0].clientY;
             touchStartX.current = e.touches[0].clientX;
@@ -64,42 +100,43 @@ export default function PullToRefresh({
         if (disabled || !canPullRef.current || isRefreshingRef.current) return;
         if (e.touches.length !== 1) return;
 
+        // If the user is no longer at the very top, abort pull-to-refresh immediately
+        const currentScroll = getScrollTop(e.target);
+        if (currentScroll > 0.5) {
+            canPullRef.current = false;
+            setPullDistance(0);
+            setIsPulling(false);
+            return;
+        }
+
         const currentY = e.touches[0].clientY;
         const currentX = e.touches[0].clientX;
         const dy = currentY - touchStartY.current;
         const dx = currentX - touchStartX.current;
 
         // Verify predominantly vertical swipe downwards
-        if (dy > 0 && Math.abs(dy) > Math.abs(dx)) {
-            // Check again that user is still at top
-            if (getScrollTop() <= 1) {
-                // Prevent browser native bouncing/reload
-                if (e.cancelable) {
-                    e.preventDefault();
-                }
-                setIsPulling(true);
-                // Damped elastic calculation
-                const damped = Math.min(maxPull, dy * 0.42);
-                setPullDistance(damped);
+        if (dy > 0 && Math.abs(dy) > Math.abs(dx) * 1.25) {
+            if (e.cancelable) {
+                e.preventDefault();
+            }
+            setIsPulling(true);
+            // Damped elastic calculation
+            const damped = Math.min(maxPull, dy * 0.4);
+            setPullDistance(damped);
 
-                // Haptic feedback when crossing threshold
-                if (damped >= pullThreshold && !hasVibratedRef.current) {
-                    hasVibratedRef.current = true;
-                    if (typeof navigator !== "undefined" && navigator.vibrate) {
-                        try {
-                            navigator.vibrate(14);
-                        } catch (_) {}
-                    }
-                } else if (damped < pullThreshold) {
-                    hasVibratedRef.current = false;
+            // Haptic feedback when crossing threshold
+            if (damped >= pullThreshold && !hasVibratedRef.current) {
+                hasVibratedRef.current = true;
+                if (typeof navigator !== "undefined" && navigator.vibrate) {
+                    try {
+                        navigator.vibrate(14);
+                    } catch (_) {}
                 }
-            } else {
-                canPullRef.current = false;
-                setPullDistance(0);
-                setIsPulling(false);
+            } else if (damped < pullThreshold) {
+                hasVibratedRef.current = false;
             }
         } else if (dy < 0) {
-            // Scrolling up
+            // Scrolling down through content (upward finger movement)
             canPullRef.current = false;
             setPullDistance(0);
             setIsPulling(false);

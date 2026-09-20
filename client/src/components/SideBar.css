@@ -680,14 +680,18 @@
         bottom: 0;
         left: 0;
         right: 0;
-        min-height: 64px;
         height: auto;
+        min-height: 56px;
         background-color: var(--sidebar);
         border-top: 1px solid var(--sidebar-border);
         justify-content: space-around;
-        align-items: center;
+        align-items: flex-start;
         z-index: 1000;
-        padding: 15px 10px max(17px, env(safe-area-inset-bottom, 14px)) 10px;
+        padding-top: 6px;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+        box-sizing: border-box;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     }
@@ -738,7 +742,7 @@
         justify-content: center;
         gap: 0;
         position: fixed;
-        bottom: 80px;
+        bottom: calc(70px + max(16px, env(safe-area-inset-bottom, 16px)));
         right: 16px;
         background-color: var(--sidebar-primary);
         color: var(--sidebar-primary-foreground);
@@ -779,6 +783,12 @@
 
     .mobile-fab:not(.collapsed).type-factures {
         width: 142px;
+        border-radius: 24px;
+        gap: 6px;
+    }
+
+    .mobile-fab:not(.collapsed).type-catalogue {
+        width: 136px;
         border-radius: 24px;
         gap: 6px;
     }

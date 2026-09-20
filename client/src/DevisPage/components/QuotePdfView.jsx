@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { X, Printer, Download, ZoomIn, ZoomOut } from "lucide-react";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
@@ -68,10 +69,10 @@ function QuotePdfView({ quote, onClose, onDownload }) {
     const zoomOut = () => setZoom(prev => Math.max(0.35, Math.round((prev - 0.1) * 100) / 100));
     const resetZoom = () => setZoom(isMobile ? 0.65 : 1.0);
 
-    return (
+    return createPortal(
         <motion.div
             className="invoice-modal-overlay pdf-viewer-overlay"
-            style={{ zIndex: 99999 }}
+            style={{ zIndex: 99999999 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1090,7 +1091,8 @@ function QuotePdfView({ quote, onClose, onDownload }) {
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </motion.div>,
+        document.body
     );
 }
 

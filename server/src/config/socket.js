@@ -13,11 +13,22 @@ let ioInstance = null;
 export const initSocket = (httpServer) => {
     const io = new Server(httpServer, {
         cors: {
-            origin: [
-                process.env.FRONTEND_URL,
-                "http://localhost:5173",
-                "http://localhost:5174"
-            ].filter(Boolean),
+            origin: (origin, callback) => {
+                if (!origin) return callback(null, true);
+                const allowedOrigins = [
+                    process.env.FRONTEND_URL,
+                    "http://localhost:5173",
+                    "http://localhost:5174",
+                    "http://localhost:3000"
+                ].filter(Boolean);
+
+                const isLocalNetwork = /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin);
+
+                if (allowedOrigins.includes(origin) || isLocalNetwork || process.env.NODE_ENV !== "production") {
+                    return callback(null, true);
+                }
+                return callback(new Error("CORS not allowed for this origin"));
+            },
             credentials: true,
         },
         pingTimeout: 30000,

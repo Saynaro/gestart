@@ -432,6 +432,10 @@ export const OmnichannelService = {
         const conditions = [];
         if (Array.isArray(messageIds) && messageIds.length > 0) {
             conditions.push({ id: { in: messageIds } });
+            conditions.push({ externalMessageId: { in: messageIds } });
+            conditions.push({ twilioSid: { in: messageIds } });
+            conditions.push({ whatsappMessageId: { in: messageIds } });
+            conditions.push({ emailMessageId: { in: messageIds } });
         }
         if (Array.isArray(clientIds) && clientIds.length > 0) {
             conditions.push({ clientId: { in: clientIds } });

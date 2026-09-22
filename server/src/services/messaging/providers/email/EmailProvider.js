@@ -610,6 +610,23 @@ ${bodyContent}
             };
         }
 
+        // 5. Traitement des pièces jointes webhook (si présentes)
+        let webhookAttachments = [];
+        if (Array.isArray(payload.attachments) && payload.attachments.length > 0) {
+            for (const att of payload.attachments) {
+                const safeName = att.filename || att.name || "fichier";
+                const isImg = (att.contentType || att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|heic|heif|bmp|svg)$/i.test(safeName);
+                webhookAttachments.push({
+                    name: safeName,
+                    filename: safeName,
+                    url: att.url || att.path || null,
+                    size: att.size || 0,
+                    mimeType: att.contentType || att.mimeType || (isImg ? "image/jpeg" : "application/octet-stream"),
+                    isImage: isImg
+                });
+            }
+        }
+
         // 5. Enregistrement du message entrant dans SmsLog
         const emailLog = await prisma.smsLog.create({
             data: {
@@ -629,7 +646,8 @@ ${bodyContent}
                 emailConnectionId: connection?.id || null,
                 status: "received",
                 isRead: false,
-                autoType: "incoming"
+                autoType: "incoming",
+                attachments: webhookAttachments.length > 0 ? webhookAttachments : undefined
             },
             include: {
                 client: {
@@ -876,9 +894,6 @@ ${bodyContent}
                             } catch (e) {}
                         }
 
-                        // Uniquement les vrais documents joints (PDF, Word, Excel, etc.)
-                        // Les images sont systématiquement ignorées : elles proviennent presque toujours
-                        // de signatures, logos ou tracking pixels — jamais de vraies pièces jointes utiles.
                         const DOCUMENT_MIME_TYPES = [
                             "application/pdf",
                             "application/msword",
@@ -892,11 +907,26 @@ ${bodyContent}
                             "application/zip",
                             "application/x-zip-compressed",
                         ];
-                        const partMime = (part.mimeType || "").toLowerCase();
-                        const isRealDocument = DOCUMENT_MIME_TYPES.includes(partMime);
-                        const fileSize = part.body?.size || 0;
+                        const IMAGE_MIME_TYPES = [
+                            "image/jpeg",
+                            "image/jpg",
+                            "image/png",
+                            "image/webp",
+                            "image/gif",
+                            "image/heic",
+                            "image/heif",
+                            "image/bmp",
+                            "image/svg+xml"
+                        ];
 
-                        if (part.filename && part.filename.trim().length > 0 && isRealDocument && fileSize > 0) {
+                        const partMime = (part.mimeType || "").toLowerCase();
+                        const filename = (part.filename || "").trim();
+                        const isDoc = DOCUMENT_MIME_TYPES.includes(partMime) || /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip)$/i.test(filename);
+                        const isImg = IMAGE_MIME_TYPES.includes(partMime) || partMime.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|heic|heif|bmp|svg)$/i.test(filename);
+
+                        const hasAttachment = (part.body?.attachmentId || part.body?.data) && (filename.length > 0 || isImg || isDoc);
+
+                        if (hasAttachment && (isDoc || isImg)) {
                             let fileBuffer = null;
                             if (part.body?.data) {
                                 fileBuffer = Buffer.from(part.body.data, 'base64url');
@@ -916,21 +946,29 @@ ${bodyContent}
                                 }
                             }
 
-                            if (fileBuffer) {
-                                try {
-                                    const isImg = (part.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(part.filename);
-                                    const cloudinaryUrl = await uploadBufferToCloudinary(fileBuffer, part.filename, part.mimeType || "application/octet-stream");
-                                    attachmentsList.push({
-                                        name: part.filename,
-                                        filename: part.filename,
-                                        url: cloudinaryUrl,
-                                        size: fileBuffer.length,
-                                        mimeType: part.mimeType || (isImg ? "image/jpeg" : "application/octet-stream"),
-                                        isImage: isImg
-                                    });
-                                    console.log(`[GMAIL_SYNC] Pièce jointe uploadée sur Cloudinary: ${part.filename}`);
-                                } catch (cloudErr) {
-                                    console.warn("[GMAIL_SYNC] Erreur upload Cloudinary pièce jointe:", cloudErr.message);
+                            if (fileBuffer && fileBuffer.length > 0) {
+                                // Filtre intelligent : ignorer les tout petits pixels de tracking (< 8 Ko) ou les icônes de signature évidentes
+                                const isTinyImage = isImg && fileBuffer.length < 8 * 1024;
+                                const isIconOrSignature = isImg && fileBuffer.length < 25 * 1024 && /(logo|icon|signature|facebook|instagram|twitter|linkedin|badge|pixel|spacer)/i.test(filename);
+
+                                if (!isTinyImage && !isIconOrSignature) {
+                                    try {
+                                        const safeFilename = filename || (isImg ? `photo_${Date.now()}.jpg` : `document_${Date.now()}.bin`);
+                                        const cloudinaryUrl = await uploadBufferToCloudinary(fileBuffer, safeFilename, part.mimeType || (isImg ? "image/jpeg" : "application/octet-stream"));
+                                        attachmentsList.push({
+                                            name: safeFilename,
+                                            filename: safeFilename,
+                                            url: cloudinaryUrl,
+                                            size: fileBuffer.length,
+                                            mimeType: part.mimeType || (isImg ? "image/jpeg" : "application/octet-stream"),
+                                            isImage: isImg
+                                        });
+                                        console.log(`[GMAIL_SYNC] Pièce jointe/Photo uploadée sur Cloudinary: ${safeFilename} (${fileBuffer.length} octets)`);
+                                    } catch (cloudErr) {
+                                        console.warn("[GMAIL_SYNC] Erreur upload Cloudinary pièce jointe:", cloudErr.message);
+                                    }
+                                } else {
+                                    console.log(`[GMAIL_SYNC] Image ignorée (icône signature/pixel): ${filename} (${fileBuffer.length} octets)`);
                                 }
                             }
                         }

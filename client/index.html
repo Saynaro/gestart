@@ -7,12 +7,16 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <link rel="icon" type="image/png" href="/Logo-transparent.png" />
   <link rel="apple-touch-icon" href="/Logo-transparent.png" />
+  <link rel="preload" as="image" href="/Logo-transparent.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="GestArt" />
 
   <!-- iOS Startup Images: EXACT physical pixel sizes required for apple-touch-startup-image to work -->
   <!-- Each image must match the physical (not logical) pixel dimensions of the device -->
+
+  <link rel="preload" as="image" href="/splash/dark_1284x2778.png" />
+  <link rel="preload" as="image" href="/splash/light_1125x2436.png" />
 
   <!-- iPhone 16 Pro Max (1320x2868 physical @ 460ppi) -->
   <link rel="apple-touch-startup-image" href="/splash/dark_1320x2868.png"
@@ -84,7 +88,7 @@
   <meta name="description"
     content="GestArt est le meilleur logiciel CRM pour les entreprises de maintenance. Automatisez les rappels SMS, planifiez les interventions de vos techniciens et facturez en 1 clic." />
 
-  <!-- Early theme initialization to prevent flash on reload -->
+  <!-- Early theme & PWA splash control to prevent flash on reload & back navigation -->
   <script>
     (function () {
       try {
@@ -100,6 +104,36 @@
         } else {
           document.documentElement.classList.remove('dark');
         }
+        
+        var isPwa = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+        if (isPwa) {
+          document.documentElement.classList.add('is-pwa');
+        }
+
+        var splashAlreadyShown = false;
+        try {
+          splashAlreadyShown = sessionStorage.getItem('gestart_pwa_splash_shown') === '1';
+        } catch (e) {}
+
+        // NEVER show splash on website or if already shown once in this session (e.g. back button, tab switch, reopen)
+        if (!isPwa || splashAlreadyShown) {
+          document.documentElement.classList.add('no-splash');
+        } else {
+          try {
+            sessionStorage.setItem('gestart_pwa_splash_shown', '1');
+          } catch (e) {}
+        }
+
+        // Immediate cleanup on back/forward cache (bfcache), tab switch, or app restore
+        function removeSplashImmediate() {
+          var el = document.getElementById('native-pwa-splash');
+          if (el) el.remove();
+        }
+        window.addEventListener('pageshow', removeSplashImmediate);
+        window.addEventListener('popstate', removeSplashImmediate);
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') removeSplashImmediate();
+        });
       } catch (e) { }
     })();
   </script>
@@ -133,17 +167,70 @@
     html.dark #root {
       background-color: #0a0a0a;
     }
+
+    /* Native Instant Splash Screen: DISABLED by default for website, back navigation, and reopen */
+    #native-pwa-splash {
+      display: none !important;
+    }
+
+    /* Only strictly visible on the very first PWA cold start */
+    html.is-pwa:not(.no-splash) #native-pwa-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 99999999;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      background-color: #0a0a0a;
+      opacity: 1;
+      transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    html.is-pwa:not(.no-splash):not(.dark) #native-pwa-splash {
+      background-color: #F2F0EB;
+    }
+
+    .native-splash-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    html:not(.dark) #native-pwa-splash .splash-dark-img {
+      display: none !important;
+    }
+
+    html.dark #native-pwa-splash .splash-light-img {
+      display: none !important;
+    }
   </style>
 
-  <!-- Google Fonts for Document Customizer, Previews & PDF exports -->
+  <!-- Google Fonts for Document Customizer, Previews & PDF exports (Non-blocking) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600&family=Outfit:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600&family=Roboto:wght@300;400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet" crossorigin="anonymous" media="print" onload="this.media='all'">
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600&family=Outfit:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600&family=Roboto:wght@300;400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet" crossorigin="anonymous">
+  </noscript>
 </head>
 
 <body>
+  <!-- Instant native splash displayed before JS loads -->
+  <div id="native-pwa-splash">
+    <img src="/splash/dark_1284x2778.png" alt="GestArt" class="native-splash-img splash-dark-img" />
+    <img src="/splash/light_1125x2436.png" alt="GestArt" class="native-splash-img splash-light-img" />
+  </div>
+
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

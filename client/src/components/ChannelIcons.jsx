@@ -19,9 +19,9 @@ export const WhatsAppIcon = ({ size = 18, color, className = "", style = {} }) =
   </svg>
 );
 
-export const EmailIcon = ({ size = 18, color, className = "", style = {} }) => {
-  const strokeColor = color || "#3B82F6";
-  const fillColor = color || "#3B82F6";
+export const EmailIcon = ({ size = 18, color = "currentColor", className = "", style = {} }) => {
+  const strokeColor = color;
+  const fillColor = color;
   return (
     <svg
       width={size}
@@ -30,7 +30,7 @@ export const EmailIcon = ({ size = 18, color, className = "", style = {} }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0, ...style }}
+      style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0, color, ...style }}
     >
       <rect x="2.5" y="4.5" width="19" height="15" rx="3.5" fill={fillColor} fillOpacity="0.16" stroke={strokeColor} strokeWidth="1.8" />
       <path

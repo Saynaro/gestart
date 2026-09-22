@@ -11,14 +11,22 @@ let socket = null;
 export const getSocket = () => {
     const token = getAuthToken();
 
+    if (!token) {
+        if (socket) {
+            socket.disconnect();
+            socket = null;
+        }
+        return null;
+    }
+
     if (!socket) {
-        socket = io(BACKEND_URL, {
+        socket = io(BACKEND_URL || undefined, {
             auth: { token },
             withCredentials: true,
             autoConnect: true,
             reconnection: true,
-            reconnectionAttempts: 10,
-            reconnectionDelay: 1000,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
         });
 
         socket.on("connect", () => {
@@ -27,6 +35,9 @@ export const getSocket = () => {
 
         socket.on("connect_error", (err) => {
             console.warn("[SOCKET ERROR]", err.message);
+            if (err.message === "AUTH_REQUIRED" || err.message === "INVALID_TOKEN" || err.message === "USER_NOT_FOUND") {
+                socket.disconnect();
+            }
         });
 
         socket.on("disconnect", (reason) => {

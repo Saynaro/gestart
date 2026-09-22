@@ -559,6 +559,27 @@
     color: #ffffff !important;
 }
 
+.bell-tab-unread-dot {
+    background-color: #ef4444;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    margin-left: 2px;
+}
+
+.bell-tab-btn.active .bell-tab-unread-dot {
+    background-color: #ffffff;
+    color: #556B2F;
+}
+
 .bell-tabs-content {
     flex: 1;
     overflow-y: auto;

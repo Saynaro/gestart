@@ -642,6 +642,29 @@ select:-webkit-autofill:active {
   }
 }
 
+/* PWA Standalone Mode: shift toasts below Dynamic Island / status bar notch */
+@media (display-mode: standalone) and (max-width: 768px) {
+  .app-toast,
+  .dv-toast,
+  .fp-toast,
+  .custom-toast,
+  .toast-notification,
+  .payments-toast,
+  .app-toast-pill {
+    top: calc(env(safe-area-inset-top, 44px) + 12px) !important;
+  }
+}
+
+html.is-pwa .app-toast,
+html.is-pwa .dv-toast,
+html.is-pwa .fp-toast,
+html.is-pwa .custom-toast,
+html.is-pwa .toast-notification,
+html.is-pwa .payments-toast,
+html.is-pwa .app-toast-pill {
+  top: calc(env(safe-area-inset-top, 44px) + 12px) !important;
+}
+
 @keyframes appToastDrop {
   from {
     opacity: 0;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { createPortal } from "react-dom";
 import {
   Phone,
@@ -166,6 +166,7 @@ function MessagesPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const attachDragControls = useDragControls();
   const {
     isExpired,
     isUnlimited,
@@ -331,6 +332,28 @@ function MessagesPage() {
     }
   };
 
+  const formatMessageGroupDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date)) return "";
+    
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const isToday = date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+    const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
+    
+    if (isToday) return "Aujourd'hui";
+    if (isYesterday) return "Hier";
+    
+    const options = { weekday: 'short', day: 'numeric', month: 'short' };
+    let formatted = new Intl.DateTimeFormat('fr-FR', options).format(date);
+    // Capitalize first letter
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  };
+
+
   // Format price helper (2 decimal places)
   const formatPrice = (val) => {
     const num = typeof val === "number" ? val : parseFloat(val || 0);
@@ -478,6 +501,7 @@ function MessagesPage() {
   // Real-time Socket.io events listener
   useEffect(() => {
     const socket = getSocket();
+    if (!socket) return;
 
     const handleNewMessage = (payload) => {
       console.log("[REALTIME] Nouveau message omnicanal reçu:", payload);
@@ -807,9 +831,14 @@ function MessagesPage() {
 
   const longPressTimerRef = useRef(null);
   const isLongPressTriggered = useRef(false);
+  const touchStartPos = useRef({ x: 0, y: 0 });
 
-  const handleTouchStartMessage = (msgId) => {
+  const handleTouchStartMessage = (e, msgId) => {
     isLongPressTriggered.current = false;
+    const touch = e?.touches ? e.touches[0] : e;
+    if (touch) {
+      touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    }
     if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
     longPressTimerRef.current = setTimeout(() => {
       isLongPressTriggered.current = true;
@@ -818,13 +847,19 @@ function MessagesPage() {
       }
       setIsSelectMode(true);
       handleToggleSelectMessage(msgId);
-    }, 400);
+    }, 450);
   };
 
-  const handleTouchMoveMessage = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
+  const handleTouchMoveMessage = (e) => {
+    if (!longPressTimerRef.current) return;
+    const touch = e?.touches ? e.touches[0] : e;
+    if (touch) {
+      const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+      const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+      if (dx > 12 || dy > 12) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
     }
   };
 
@@ -836,12 +871,6 @@ function MessagesPage() {
   };
 
   const handleDeleteSelectedMessages = async () => {
-    if (isExpired) {
-      window.dispatchEvent(new CustomEvent('subscription_expired', {
-        detail: { message: "Votre abonnement a expiré. Pour supprimer des messages, veuillez renouveler votre abonnement." }
-      }));
-      return;
-    }
     if (selectedMessageIds.size === 0 || isDeleting) return;
     setIsDeleting(true);
 
@@ -853,11 +882,13 @@ function MessagesPage() {
     setSelectedMessageIds(new Set());
     setIsSelectMode(false);
     setIsDeleteModalOpen(false);
+    setActiveDetailMessage(null);
 
     try {
-      await apiFetch("/v1/messages/batch", {
+      const queryParam = encodeURIComponent(idsArray.join(","));
+      await apiFetch(`/v1/messages/batch?ids=${queryParam}`, {
         method: "DELETE",
-        body: JSON.stringify({ messageIds: idsArray })
+        body: { messageIds: idsArray, ids: idsArray }
       });
 
       // Mettre à jour la conversation dans la liste de gauche
@@ -1292,21 +1323,21 @@ function MessagesPage() {
     const s = String(status || "").toLowerCase().trim();
     switch (s) {
       case "read":
-        return <CheckCheck size={14} className="text-emerald-500 inline ml-1 status-icon-read" title="Lu par le destinataire" />;
+        return <CheckCheck size={14} className="text-white opacity-90 inline ml-1 status-icon-read" title="Lu par le destinataire" />;
       case "delivered":
-        return <CheckCheck size={14} className="text-muted-foreground inline ml-1" title="Délivré sur le téléphone / boîte" />;
+        return <CheckCheck size={14} className="text-white opacity-90 inline ml-1" title="Délivré sur le téléphone / boîte" />;
       case "sent":
-        return <Check size={14} className="text-blue-400 inline ml-1" title="Envoyé via le provider" />;
+        return <Check size={14} className="text-white opacity-90 inline ml-1" title="Envoyé via le provider" />;
       case "failed":
       case "undelivered":
       case "error":
-        return <AlertCircle size={14} className="text-red-500 inline ml-1" title="Échec de distribution" />;
+        return <AlertCircle size={14} className="text-white opacity-90 inline ml-1" title="Échec de distribution" />;
       case "pending":
       case "sending":
-        return <Clock size={12} className="opacity-60 inline ml-1" title="En cours d'envoi" />;
+        return <Clock size={12} className="text-white opacity-70 inline ml-1" title="En cours d'envoi" />;
       default:
         // Si le message est déjà enregistré dans l'historique sans statut explicite ou statut inconnu
-        return <Check size={14} className="text-blue-400 inline ml-1" title="Envoyé" />;
+        return <Check size={14} className="text-white opacity-90 inline ml-1" title="Envoyé" />;
     }
   };
 
@@ -1713,6 +1744,21 @@ function MessagesPage() {
                     <CheckSquare size={14} className="dropdown-action-icon" />
                     <span>Sélectionner des messages</span>
                   </button>
+                  <button
+                    type="button"
+                    className="chat-action-item"
+                    style={{ color: "#EF4444" }}
+                    onClick={() => {
+                      setIsActionsMenuOpen(false);
+                      if (messages.length > 0) {
+                        setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
+                        setIsDeleteModalOpen(true);
+                      }
+                    }}
+                  >
+                    <Trash2 size={14} className="dropdown-action-icon" />
+                    <span>Supprimer la conversation</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -1786,6 +1832,21 @@ function MessagesPage() {
                     <CheckSquare size={14} className="dropdown-action-icon" />
                     <span>Sélectionner des messages</span>
                   </button>
+                  <button
+                    type="button"
+                    className="chat-action-item"
+                    style={{ color: "#EF4444" }}
+                    onClick={() => {
+                      setIsActionsMenuOpen(false);
+                      if (messages.length > 0) {
+                        setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
+                        setIsDeleteModalOpen(true);
+                      }
+                    }}
+                  >
+                    <Trash2 size={14} className="dropdown-action-icon" />
+                    <span>Supprimer la conversation</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -1836,7 +1897,33 @@ function MessagesPage() {
             </p>
           </div>
         ) : (
-          messages.map((msg, idx) => {
+          (() => {
+            const grouped = [];
+            let currentGroup = { date: null, messages: [] };
+
+            messages.forEach((msg, idx) => {
+              const dateStr = formatMessageGroupDate(msg.createdAt || msg.time);
+              if (dateStr !== currentGroup.date) {
+                if (currentGroup.messages.length > 0) {
+                   grouped.push(currentGroup);
+                }
+                currentGroup = { date: dateStr, messages: [ {msg, idx} ] };
+              } else {
+                currentGroup.messages.push({msg, idx});
+              }
+            });
+            if (currentGroup.messages.length > 0) {
+              grouped.push(currentGroup);
+            }
+
+            return grouped.map((group, groupIdx) => (
+              <div key={`date-group-${groupIdx}`} className="message-date-group">
+                <div className="date-separator-container">
+                  <span className="date-separator-pill">
+                    {group.date}
+                  </span>
+                </div>
+                {group.messages.map(({msg, idx}) => {
             const msgId = msg.id || msg._id || `temp_${idx}`;
             const isSelected = selectedMessageIds.has(msgId);
             const isMe = msg.direction === "OUTGOING" || msg.sender === "agent" || msg.sender === "me";
@@ -1849,8 +1936,8 @@ function MessagesPage() {
               <div
                 key={msg.id ? `msg_${msg.id}_${idx}` : `msg_${idx}`}
                 className={`message-bubble-wrapper ${isMe ? "me" : "them"} channel-${channel.toLowerCase()} ${isSelectMode ? "select-mode-active" : ""} ${isSelected ? "selected-msg" : ""}`}
-                onTouchStart={() => handleTouchStartMessage(msgId)}
-                onTouchMove={handleTouchMoveMessage}
+                onTouchStart={(e) => handleTouchStartMessage(e, msgId)}
+                onTouchMove={(e) => handleTouchMoveMessage(e)}
                 onTouchEnd={handleTouchEndMessage}
                 onTouchCancel={handleTouchEndMessage}
                 onContextMenu={(e) => {
@@ -1887,8 +1974,8 @@ function MessagesPage() {
                 )}
 
                 <div className="message-bubble-row">
-                  {/* Quick hover actions on left for outgoing ('me') messages */}
-                  {isMe && !isSelectMode && (
+                  {/* Quick hover actions on left for outgoing ('me') messages (Desktop only) */}
+                  {isMe && !isSelectMode && !isMobile && (
                     <div className="message-hover-actions">
                       <button
                         type="button"
@@ -1921,15 +2008,12 @@ function MessagesPage() {
 
                   {/* Channel Header Indicator */}
                   <div className="bubble-channel-header">
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div className="bubble-channel-header-left">
                       {renderChannelBadge(channel, "sm")}
                       <span className="bubble-author-name">
                         {isMe ? "Vous" : activeClientName}
                       </span>
                     </div>
-                    {msg.autoType && msg.autoType !== "manual" && (
-                      <span style={{ fontSize: "0.6rem", opacity: 0.7, textTransform: "uppercase" }}>Auto: {msg.autoType}</span>
-                    )}
                   </div>
 
                   {/* Email Specific Subject Header */}
@@ -2162,12 +2246,26 @@ function MessagesPage() {
                       <div>Statut : <strong>{msg.status || "Délivré"}</strong></div>
                       {msg.externalMessageId && <div className="font-mono text-xs">ID : {msg.externalMessageId.slice(0, 24)}...</div>}
                       {msg.errorMessage && <div style={{ color: "#ef4444" }}>Erreur : {msg.errorMessage}</div>}
+                      <div style={{ marginTop: "6px", display: "flex", gap: "8px" }}>
+                        <button
+                          type="button"
+                          className="delete-quick-detail-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedMessageIds(new Set([msgId]));
+                            setIsDeleteModalOpen(true);
+                          }}
+                        >
+                          <Trash2 size={13} />
+                          <span>Supprimer ce message</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* Quick hover actions on right for incoming ('them') messages */}
-                {!isMe && !isSelectMode && (
+                {/* Quick hover actions on right for incoming ('them') messages (Desktop only) */}
+                {!isMe && !isSelectMode && !isMobile && (
                   <div className="message-hover-actions">
                     <button
                       type="button"
@@ -2198,8 +2296,11 @@ function MessagesPage() {
               </div>
             </div>
           );
-        })
-        )}
+        })}
+        </div>
+      ));
+    })()
+    )}
         <div ref={messagesEndRef} style={{ height: 1, width: "100%", pointerEvents: "none" }} />
       </div>
 
@@ -2670,20 +2771,42 @@ function MessagesPage() {
               initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
               animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
               exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
               drag={isMobile ? "y" : false}
+              dragListener={false}
+              dragControls={attachDragControls}
               dragConstraints={{ top: 0 }}
-              dragElastic={{ top: 0, bottom: 0.8 }}
+              dragElastic={{ top: 0, bottom: 0.6 }}
               onDragEnd={(e, info) => {
-                if (info.offset.y > 80) setIsAttachModalOpen(false);
+                if (info.offset.y > 80 || info.velocity.y > 300) setIsAttachModalOpen(false);
               }}
             >
-              <div className="client-modal-header attachment-modal-header" style={{ flexShrink: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <FileText size={18} style={{ color: "var(--sidebar-primary)" }} />
-                  <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>Joindre un document</h3>
+              {isMobile && (
+                <div
+                  className="attachment-bottom-sheet-handle"
+                  onPointerDown={(e) => attachDragControls.start(e)}
+                >
+                  <div className="attachment-bottom-sheet-bar" />
                 </div>
-                <button className="client-modal-close" onClick={() => setIsAttachModalOpen(false)}>
+              )}
+
+              <div
+                className="client-modal-header attachment-modal-header"
+                style={{ flexShrink: 0 }}
+                onPointerDown={(e) => {
+                  if (e.target.closest("button")) return;
+                  attachDragControls.start(e);
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <FileText size={20} style={{ color: "var(--sidebar-primary)" }} />
+                  <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 700 }}>Joindre un document</h3>
+                </div>
+                <button
+                  type="button"
+                  className="client-modal-close"
+                  onClick={() => setIsAttachModalOpen(false)}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -2694,7 +2817,7 @@ function MessagesPage() {
                 </p>
               </div>
 
-              <div className="attachment-modal-body" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
+              <div className="attachment-modal-body" style={{ padding: "14px", display: "flex", flexDirection: "column", gap: "12px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
                 {/* Devis du client */}
                 {clientObj.quotes && clientObj.quotes.length > 0 && (
                   <div>
@@ -2710,13 +2833,13 @@ function MessagesPage() {
                           <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(85, 107, 47, 0.12)", color: "#556B2F" }}>
                             <FileText size={18} />
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="attachment-item-info">
                             <div className="attachment-item-title">Devis {q.number}</div>
                             <div className="attachment-item-amount">
-                              Montant : <strong>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
+                              <span className="attachment-amount-label">Montant : </span><strong>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
                             </div>
                           </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                          <div className="attachment-item-actions">
                             <button
                               type="button"
                               className="attachment-action-icon-btn"
@@ -2761,13 +2884,13 @@ function MessagesPage() {
                           <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#16a34a" }}>
                             <FileText size={18} />
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="attachment-item-info">
                             <div className="attachment-item-title">Facture {inv.number}</div>
                             <div className="attachment-item-amount">
-                              Montant : <strong>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
+                              <span className="attachment-amount-label">Montant : </span><strong>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
                             </div>
                           </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                          <div className="attachment-item-actions">
                             <button
                               type="button"
                               className="attachment-action-icon-btn"
@@ -3140,156 +3263,164 @@ function MessagesPage() {
       </AnimatePresence>
 
       {/* Lightbox Modal Gallery for attached photos */}
-      <AnimatePresence>
-        {lightboxGallery && createPortal(
-          <motion.div
-            className="lightbox-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setLightboxGallery(null)}
-          >
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {lightboxGallery && (
             <motion.div
-              className="lightbox-content"
-              onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.94 }}
+              key="lightbox-backdrop"
+              className="lightbox-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
+              onClick={() => setLightboxGallery(null)}
             >
-              <div className="lightbox-header">
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span className="lightbox-title">{lightboxGallery.images[lightboxGallery.index]?.name || "Photo"}</span>
-                  {lightboxGallery.images.length > 1 && (
-                    <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94a3b8)", fontWeight: 600 }}>
-                      {lightboxGallery.index + 1} / {lightboxGallery.images.length}
-                    </span>
-                  )}
-                </div>
-                <div className="lightbox-actions">
-                  <button 
-                    type="button" 
-                    className="lightbox-btn" 
-                    title="Télécharger l'image"
-                    onClick={(e) => handleDownloadAttachment(
-                      e, 
-                      lightboxGallery.images[lightboxGallery.index]?.url, 
-                      lightboxGallery.images[lightboxGallery.index]?.name || "photo.jpg"
+              <motion.div
+                key="lightbox-content"
+                className="lightbox-content"
+                onClick={(e) => e.stopPropagation()}
+                initial={{ opacity: 0, scale: 0.94 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.94 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="lightbox-header">
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span className="lightbox-title">{lightboxGallery.images[lightboxGallery.index]?.name || "Photo"}</span>
+                    {lightboxGallery.images.length > 1 && (
+                      <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94a3b8)", fontWeight: 600 }}>
+                        {lightboxGallery.index + 1} / {lightboxGallery.images.length}
+                      </span>
                     )}
-                  >
-                    <Download size={16} />
-                  </button>
-                  <button 
-                    type="button" 
-                    className="lightbox-btn" 
-                    onClick={() => setLightboxGallery(null)}
-                    title="Fermer (Échap)"
-                  >
-                    <X size={18} />
-                  </button>
+                  </div>
+                  <div className="lightbox-actions">
+                    <button 
+                      type="button" 
+                      className="lightbox-btn" 
+                      title="Télécharger l'image"
+                      onClick={(e) => handleDownloadAttachment(
+                        e, 
+                        lightboxGallery.images[lightboxGallery.index]?.url, 
+                        lightboxGallery.images[lightboxGallery.index]?.name || "photo.jpg"
+                      )}
+                    >
+                      <Download size={16} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="lightbox-btn" 
+                      onClick={() => setLightboxGallery(null)}
+                      title="Fermer (Échap)"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="lightbox-body" style={{ position: "relative" }}>
-                {lightboxGallery.images.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      className="lightbox-nav-btn prev"
-                      title="Précédente (←)"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLightboxGallery(prev => ({
-                          ...prev,
-                          index: (prev.index - 1 + prev.images.length) % prev.images.length
-                        }));
-                      }}
-                    >
-                      <ChevronLeft size={24} />
-                    </button>
-                    <button
-                      type="button"
-                      className="lightbox-nav-btn next"
-                      title="Suivante (→)"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLightboxGallery(prev => ({
-                          ...prev,
-                          index: (prev.index + 1) % prev.images.length
-                        }));
-                      }}
-                    >
-                      <ChevronRight size={24} />
-                    </button>
-                  </>
-                )}
-                <img 
-                  src={lightboxGallery.images[lightboxGallery.index]?.url} 
-                  alt={lightboxGallery.images[lightboxGallery.index]?.name} 
-                  className="lightbox-full-img" 
-                />
-              </div>
+                <div className="lightbox-body" style={{ position: "relative" }}>
+                  {lightboxGallery.images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="lightbox-nav-btn prev"
+                        title="Précédente (←)"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLightboxGallery(prev => ({
+                            ...prev,
+                            index: (prev.index - 1 + prev.images.length) % prev.images.length
+                          }));
+                        }}
+                      >
+                        <ChevronLeft size={24} />
+                      </button>
+                      <button
+                        type="button"
+                        className="lightbox-nav-btn next"
+                        title="Suivante (→)"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLightboxGallery(prev => ({
+                            ...prev,
+                            index: (prev.index + 1) % prev.images.length
+                          }));
+                        }}
+                      >
+                        <ChevronRight size={24} />
+                      </button>
+                    </>
+                  )}
+                  <img 
+                    src={lightboxGallery.images[lightboxGallery.index]?.url} 
+                    alt={lightboxGallery.images[lightboxGallery.index]?.name} 
+                    className="lightbox-full-img" 
+                  />
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>,
-          document.body
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {isDeleteModalOpen && createPortal(
-          <motion.div
-            className="delete-modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => !isDeleting && setIsDeleteModalOpen(false)}
-          >
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {isDeleteModalOpen && (
             <motion.div
-              className="delete-modal-content"
-              onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.25 }}
+              key="delete-modal-backdrop"
+              className="delete-modal-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => !isDeleting && setIsDeleteModalOpen(false)}
             >
-              <div className="delete-modal-header">
-                <div className="delete-modal-icon-wrapper">
-                  <Trash2 size={22} className="delete-modal-icon" />
+              <motion.div
+                key="delete-modal-content"
+                className="delete-modal-content"
+                onClick={(e) => e.stopPropagation()}
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.25 }}
+              >
+                <div className="delete-modal-header">
+                  <div className="delete-modal-icon-wrapper">
+                    <Trash2 size={22} className="delete-modal-icon" />
+                  </div>
+                  <div className="delete-modal-titles">
+                    <h3>Supprimer ?</h3>
+                    <p>
+                      {selectedMessageIds.size > 1
+                        ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
+                        : "Voulez-vous supprimer ce message de votre historique CRM ?"}
+                    </p>
+                  </div>
                 </div>
-                <div className="delete-modal-titles">
-                  <h3>Supprimer ?</h3>
-                  <p>
-                    {selectedMessageIds.size > 1
-                      ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
-                      : "Voulez-vous supprimer ce message de votre historique CRM ?"}
-                  </p>
+                <div className="delete-modal-actions">
+                  <button
+                    type="button"
+                    className="delete-modal-btn cancel"
+                    disabled={isDeleting}
+                    onClick={() => setIsDeleteModalOpen(false)}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="button"
+                    className="delete-modal-btn confirm"
+                    disabled={isDeleting}
+                    onClick={handleDeleteSelectedMessages}
+                  >
+                    {isDeleting ? "Suppression..." : "Supprimer"}
+                  </button>
                 </div>
-              </div>
-              <div className="delete-modal-actions">
-                <button
-                  type="button"
-                  className="delete-modal-btn cancel"
-                  disabled={isDeleting}
-                  onClick={() => setIsDeleteModalOpen(false)}
-                >
-                  Annuler
-                </button>
-                <button
-                  type="button"
-                  className="delete-modal-btn confirm"
-                  disabled={isDeleting}
-                  onClick={handleDeleteSelectedMessages}
-                >
-                  {isDeleting ? "Suppression..." : "Supprimer"}
-                </button>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>,
-          document.body
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

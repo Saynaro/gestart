@@ -818,7 +818,7 @@ function ClientPage() {
                         <PullToRefresh onRefresh={fetchClients} disabled={!!editingClient || !!clientToDelete}>
                             <motion.div 
                                 className="mobile-contacts-scrollable-content" 
-                                style={{ paddingBottom: '90px' }}
+                                style={{ paddingBottom: '125px' }}
                                 initial={{ opacity: 0, y: 15 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}

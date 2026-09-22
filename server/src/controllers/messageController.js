@@ -232,16 +232,49 @@ export const getUnreadCount = async (req, res) => {
  */
 export const deleteMessages = async (req, res) => {
     const companyId = req.user.companyId;
-    const { messageIds, clientIds } = req.body || {};
-    const singleId = req.params?.id;
+    const body = req.body || {};
+    const query = req.query || {};
+    const singleId = req.params?.id && req.params.id !== "batch" ? req.params.id : null;
 
-    const idsToDelete = Array.isArray(messageIds) && messageIds.length > 0
-        ? messageIds
-        : (singleId ? [singleId] : []);
-    const clientIdsToDelete = Array.isArray(clientIds) ? clientIds : [];
+    let messageIds = [];
+    if (Array.isArray(body.messageIds)) {
+        messageIds.push(...body.messageIds);
+    } else if (typeof body.messageIds === "string") {
+        messageIds.push(body.messageIds);
+    }
+
+    if (Array.isArray(body.ids)) {
+        messageIds.push(...body.ids);
+    } else if (typeof body.ids === "string") {
+        messageIds.push(...body.ids.split(",").map(s => s.trim()));
+    }
+
+    if (query.ids) {
+        messageIds.push(...query.ids.split(",").map(s => s.trim()));
+    }
+    if (query.messageIds) {
+        messageIds.push(...query.messageIds.split(",").map(s => s.trim()));
+    }
+    if (singleId) {
+        messageIds.push(singleId);
+    }
+
+    // Deduplicate and filter out empty / "batch" strings
+    messageIds = [...new Set(messageIds.filter(id => id && id !== "batch"))];
+
+    let clientIds = [];
+    if (Array.isArray(body.clientIds)) {
+        clientIds.push(...body.clientIds);
+    } else if (typeof body.clientIds === "string") {
+        clientIds.push(body.clientIds);
+    }
+    if (query.clientIds) {
+        clientIds.push(...query.clientIds.split(",").map(s => s.trim()));
+    }
+    clientIds = [...new Set(clientIds.filter(Boolean))];
 
     try {
-        if (idsToDelete.length === 0 && clientIdsToDelete.length === 0) {
+        if (messageIds.length === 0 && clientIds.length === 0) {
             return res.status(400).json({
                 success: false,
                 message: "Veuillez spécifier au moins un identifiant de message ou de client."
@@ -250,14 +283,14 @@ export const deleteMessages = async (req, res) => {
 
         const result = await OmnichannelService.deleteMessages({
             companyId,
-            messageIds: idsToDelete,
-            clientIds: clientIdsToDelete
+            messageIds,
+            clientIds
         });
 
         return res.status(200).json({
             success: true,
             data: result,
-            message: `${result.count || idsToDelete.length + clientIdsToDelete.length} message(s) supprimé(s) avec succès.`
+            message: `${result.count || messageIds.length + clientIds.length} message(s) supprimé(s) avec succès.`
         });
     } catch (error) {
         console.error("DELETE MESSAGES ERROR:", error.message);

@@ -558,7 +558,21 @@ function Header({ title }) {
                 <span className="greeting">{isMobile ? getPageTitle(activePath) : `Bonjour ${firstName} 👋`}</span>
             </div>
             <div className="header-right">
-                <div className="notification-wrapper" onClick={(e) => { e.stopPropagation(); setBellOpen(!bellOpen); setMenuOpen(false); }}>
+                <div 
+                    className="notification-wrapper" 
+                    onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (!bellOpen) {
+                            if (!isTechnician && unreadMessagesCount > 0 && (unreadNotificationsCount + pendingInvites.length) === 0) {
+                                setBellTab("sms");
+                            } else if ((unreadNotificationsCount + pendingInvites.length) > 0 || isTechnician) {
+                                setBellTab("notifications");
+                            }
+                        }
+                        setBellOpen(!bellOpen); 
+                        setMenuOpen(false); 
+                    }}
+                >
                     <svg className="bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -578,7 +592,12 @@ function Header({ title }) {
                                             <div className="bell-panel-title-group">
                                                 <span className="bell-panel-title">Notifications</span>
                                                 <span className="bell-unread-badge">
-                                                    {totalUnread > 0 ? `${totalUnread} nouvelle${totalUnread > 1 ? 's' : ''}` : '0 nouvelle'}
+                                                    {bellTab === "sms"
+                                                        ? (unreadMessagesCount > 0 ? `${unreadMessagesCount} nouveau${unreadMessagesCount > 1 ? 'x' : ''}` : '0 nouveau')
+                                                        : ((unreadNotificationsCount + pendingInvites.length) > 0 
+                                                            ? `${unreadNotificationsCount + pendingInvites.length} nouvelle${(unreadNotificationsCount + pendingInvites.length) > 1 ? 's' : ''}` 
+                                                            : (totalUnread > 0 ? `${totalUnread} au total` : '0 nouvelle'))
+                                                    }
                                                 </span>
                                             </div>
                                             <div className="bell-header-right-actions">
@@ -630,7 +649,13 @@ function Header({ title }) {
                                                             setSelectedItemIds(new Set());
                                                         }}
                                                     >
-                                                        <Bell size={13} /> Notifications ({notificationsList.length})
+                                                        <Bell size={13} />
+                                                        <span>Notifications ({notificationsList.length})</span>
+                                                        {(unreadNotificationsCount + pendingInvites.length) > 0 && (
+                                                            <span className="bell-tab-unread-dot">
+                                                                {unreadNotificationsCount + pendingInvites.length}
+                                                            </span>
+                                                        )}
                                                     </button>
                                                     <button
                                                         type="button"
@@ -641,7 +666,13 @@ function Header({ title }) {
                                                             setSelectedItemIds(new Set());
                                                         }}
                                                     >
-                                                        <MessageSquare size={13} /> Messages ({smsList.length})
+                                                        <MessageSquare size={13} />
+                                                        <span>Messages ({smsList.length})</span>
+                                                        {unreadMessagesCount > 0 && (
+                                                            <span className="bell-tab-unread-dot">
+                                                                {unreadMessagesCount}
+                                                            </span>
+                                                        )}
                                                     </button>
                                                 </div>
                                             </div>

@@ -39,6 +39,7 @@ import SuperAdminPanel from './AdminPage/AdminPage'
 import CookieConsentBanner from './components/CookieConsentBanner'
 import SubscriptionExpiredModal from './components/SubscriptionExpiredModal'
 import PlanUpgradeModal from './components/PlanUpgradeModal'
+import PWASplashScreen from './components/PWASplashScreen'
 
 // Lazy loaded Stripe & Public pages
 const CheckoutSubscriptionPage = lazy(() => import('./PublicPages/CheckoutSubscriptionPage'))
@@ -215,6 +216,7 @@ function App() {
   return (
     <SubscriptionProvider>
       <UserProvider>
+        <PWASplashScreen />
         <ScrollToTop />
         <CookieConsentBanner />
         <SubscriptionExpiredModal />

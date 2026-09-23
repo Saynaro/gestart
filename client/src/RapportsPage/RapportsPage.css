@@ -59,12 +59,12 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 6px 10px;
+    padding: 8px 12px;
     border: none;
     background: none;
     font-family: var(--font-body);
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: 0.85rem;
+    font-weight: 600;
     color: var(--muted-foreground);
     border-radius: 6px;
     cursor: pointer;
@@ -1015,55 +1015,55 @@
     }
 
     .rapports-page-wrapper .page-content {
-        padding: 12px 12px calc(120px + env(safe-area-inset-bottom, 0px)) 12px !important;
+        padding: 14px 16px calc(120px + env(safe-area-inset-bottom, 0px)) 16px !important;
     }
 
     .reports-header-row {
-        gap: 0.75rem !important;
-        margin-bottom: 1rem !important;
+        gap: 1rem !important;
+        margin-bottom: 1.25rem !important;
     }
 
     .grid-two-columns {
-        gap: 1rem !important;
+        gap: 1.25rem !important;
     }
 
     .rapports-card {
-        padding: 12px 12px !important;
-        gap: 12px !important;
-        border-radius: 12px !important;
+        padding: 16px 16px !important;
+        gap: 14px !important;
+        border-radius: 14px !important;
     }
 
     .widget-header {
-        gap: 0.5rem !important;
+        gap: 0.6rem !important;
     }
 
     .widget-header h3 {
-        font-size: 0.95rem !important;
+        font-size: 1.05rem !important;
     }
 
     .widget-header .subtitle {
-        font-size: 0.72rem !important;
+        font-size: 0.82rem !important;
     }
 
     .kpi-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        gap: 10px !important;
     }
 
     .kpi-card {
-        padding: 8px 10px !important;
-        gap: 2px !important;
-        border-radius: 8px !important;
+        padding: 12px 14px !important;
+        gap: 4px !important;
+        border-radius: 10px !important;
     }
 
     .kpi-card::after {
-        width: 14px !important;
-        height: 14px !important;
-        border-bottom-left-radius: 8px !important;
+        width: 16px !important;
+        height: 16px !important;
+        border-bottom-left-radius: 10px !important;
     }
 
     .kpi-label {
-        font-size: 0.68rem !important;
+        font-size: 0.8rem !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1071,13 +1071,13 @@
     }
 
     .kpi-value {
-        font-size: 1.15rem !important;
-        font-weight: 700 !important;
+        font-size: 1.35rem !important;
+        font-weight: 800 !important;
         line-height: 1.2 !important;
     }
 
     .kpi-subtext {
-        font-size: 0.65rem !important;
+        font-size: 0.78rem !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1089,13 +1089,13 @@
     }
 
     .widget-table {
-        font-size: 0.75rem !important;
+        font-size: 0.85rem !important;
         width: 100% !important;
     }
 
     .widget-table th,
     .widget-table td {
-        padding: 8px 4px !important;
+        padding: 10px 6px !important;
         white-space: nowrap;
     }
 
@@ -1115,15 +1115,16 @@
     }
 
     .urgent-client-row {
-        padding: 8px 10px !important;
-        gap: 8px !important;
+        padding: 10px 12px !important;
+        gap: 10px !important;
+        border-radius: 10px !important;
     }
 
     .urgent-client-row .client-name {
-        font-size: 0.82rem !important;
+        font-size: 0.92rem !important;
     }
 
     .urgent-client-row .client-equipment {
-        font-size: 0.7rem !important;
+        font-size: 0.8rem !important;
     }
 }

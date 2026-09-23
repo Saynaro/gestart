@@ -329,10 +329,10 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                     
                     {/* Option 1 : Virement bancaire */}
                     <div style={{
-                        border: `1px solid ${bankTransferEnabled ? "rgba(85, 107, 47, 0.4)" : "var(--border)"}`,
+                        border: "1px solid var(--border)",
                         borderRadius: isMobileView ? "12px" : "12px",
                         padding: isMobileView ? "12px 14px" : "18px",
-                        backgroundColor: bankTransferEnabled ? "rgba(85, 107, 47, 0.05)" : "transparent",
+                        backgroundColor: "var(--card)",
                         transition: "all 0.2s ease"
                     }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -541,10 +541,10 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
 
                     {/* Option 2 : Paiement en ligne Stripe Connect */}
                     <div style={{
-                        border: `1px solid ${isStripeComplete ? "rgba(85, 107, 47, 0.4)" : "var(--border)"}`,
+                        border: "1px solid var(--border)",
                         borderRadius: isMobileView ? "12px" : "12px",
                         padding: isMobileView ? "12px 14px" : "18px",
-                        backgroundColor: isStripeComplete ? "rgba(85, 107, 47, 0.05)" : "transparent",
+                        backgroundColor: "var(--card)",
                         transition: "all 0.2s ease"
                     }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
@@ -763,10 +763,10 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                             performAutoSave({ stripeFeeBearer: "COMPANY" });
                         }}
                         style={{
-                            border: `2px solid ${stripeFeeBearer === "COMPANY" ? "var(--primary)" : "var(--border)"}`,
+                            border: "1px solid var(--border)",
                             borderRadius: isMobileView ? "10px" : "12px",
                             padding: isMobileView ? "12px 14px" : "16px",
-                            backgroundColor: stripeFeeBearer === "COMPANY" ? "rgba(85, 107, 47, 0.06)" : "transparent",
+                            backgroundColor: stripeFeeBearer === "COMPANY" ? "var(--accent)" : "transparent",
                             cursor: "pointer",
                             transition: "all 0.2s ease",
                             display: "flex",
@@ -808,10 +808,10 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                             performAutoSave({ stripeFeeBearer: "CLIENT" });
                         }}
                         style={{
-                            border: `2px solid ${stripeFeeBearer === "CLIENT" ? "var(--primary)" : "var(--border)"}`,
+                            border: "1px solid var(--border)",
                             borderRadius: isMobileView ? "10px" : "12px",
                             padding: isMobileView ? "12px 14px" : "16px",
-                            backgroundColor: stripeFeeBearer === "CLIENT" ? "rgba(85, 107, 47, 0.06)" : "transparent",
+                            backgroundColor: stripeFeeBearer === "CLIENT" ? "var(--accent)" : "transparent",
                             cursor: "pointer",
                             transition: "all 0.2s ease",
                             display: "flex",
@@ -981,10 +981,10 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
 
                                 {/* Ce que reçoit l'entreprise */}
                                 <div style={{
-                                    backgroundColor: "rgba(85, 107, 47, 0.08)",
+                                    backgroundColor: "var(--accent)",
                                     padding: isMobileView ? "10px 12px" : "12px 14px",
                                     borderRadius: "8px",
-                                    border: "1px solid rgba(85, 107, 47, 0.3)",
+                                    border: "1px solid var(--border)",
                                     display: isMobileView ? "flex" : "block",
                                     alignItems: isMobileView ? "center" : undefined,
                                     justifyContent: isMobileView ? "space-between" : undefined

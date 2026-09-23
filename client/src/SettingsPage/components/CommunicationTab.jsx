@@ -321,28 +321,28 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
         <div style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "14px" : "24px" }}>
             {/* Header Banner */}
             <div style={{
-                background: "linear-gradient(135deg, rgba(85, 107, 47, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%)",
-                border: "1px solid rgba(85, 107, 47, 0.3)",
+                backgroundColor: "var(--card)",
+                border: "1px solid var(--border)",
                 borderRadius: "14px",
-                padding: isMobileView ? "14px 16px" : "24px"
+                padding: isMobileView ? "14px 16px" : "20px"
             }}>
                 <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "10px" : "12px" }}>
                     <div style={{
                         width: isMobileView ? "36px" : "36px",
                         height: isMobileView ? "36px" : "36px",
                         borderRadius: "10px",
-                        backgroundColor: "rgba(85, 107, 47, 0.2)",
+                        backgroundColor: "var(--accent)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#A3E635",
+                        color: "var(--foreground)",
                         flexShrink: 0
                     }}>
-                        <Sparkles size={isMobileView ? 18 : 20} />
+                        <MessageSquare size={isMobileView ? 18 : 20} />
                     </div>
                     <div>
-                        <h3 style={{ margin: 0, fontSize: isMobileView ? "15px" : "18px", fontWeight: 800 }}>Canaux de Communication Omnicanal</h3>
-                        <p style={{ margin: isMobileView ? "3px 0 0 0" : "0", fontSize: isMobileView ? "12px" : "13px", color: "var(--muted-foreground)" }}>
+                        <h3 style={{ margin: 0, fontSize: isMobileView ? "15px" : "17px", fontWeight: 800 }}>Canaux de Communication Omnicanal</h3>
+                        <p style={{ margin: isMobileView ? "3px 0 0 0" : "2px 0 0 0", fontSize: isMobileView ? "12px" : "13px", color: "var(--muted-foreground)" }}>
                             Chaque entreprise dispose de ses propres identifiants et numéros dédiés pour échanger avec ses clients.
                         </p>
                     </div>

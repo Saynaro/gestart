@@ -213,8 +213,8 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                                     gap: isMobileView ? '12px' : '12px',
                                     padding: isMobileView ? '12px 14px' : '12px 14px',
                                     borderRadius: '10px',
-                                    border: `1.5px solid ${isSelected ? 'var(--sidebar-primary)' : 'var(--border)'}`,
-                                    backgroundColor: isSelected ? 'rgba(91, 77, 219, 0.03)' : 'var(--background)',
+                                    border: '1px solid var(--border)',
+                                    backgroundColor: 'var(--background)',
                                     cursor: 'pointer',
                                     boxSizing: 'border-box',
                                     transition: 'border-color 0.2s ease, background-color 0.2s ease'

@@ -162,8 +162,8 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
             
             {/* Banner Légal Réforme 2026/2027 */}
             <div style={{
-                background: 'linear-gradient(135deg, rgba(85, 107, 47, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%)',
-                border: '1px solid rgba(85, 107, 47, 0.25)',
+                backgroundColor: 'var(--card)',
+                border: '1px solid var(--border)',
                 borderRadius: isMobileView ? '14px' : '16px',
                 padding: isMobileView ? '14px 16px' : '20px',
                 display: 'flex',
@@ -174,8 +174,8 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                     width: isMobileView ? '36px' : '42px',
                     height: isMobileView ? '36px' : '42px',
                     borderRadius: isMobileView ? '10px' : '12px',
-                    backgroundColor: 'var(--sidebar-primary)',
-                    color: '#fff',
+                    backgroundColor: 'var(--accent)',
+                    color: 'var(--foreground)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -184,17 +184,18 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                     <ShieldCheck size={isMobileView ? 20 : 24} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <h3 style={{ margin: 0, fontSize: isMobileView ? '15px' : '16px', fontWeight: 800, color: 'var(--foreground)' }}>
                             Réforme Facturation Électronique
                         </h3>
                         <span style={{
-                            padding: '2px 7px',
-                            borderRadius: '4px',
-                            backgroundColor: '#22C55E',
-                            color: '#fff',
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            backgroundColor: 'var(--accent)',
+                            color: 'var(--foreground)',
+                            border: '1px solid var(--border)',
                             fontSize: isMobileView ? '11px' : '11px',
-                            fontWeight: 800
+                            fontWeight: 700
                         }}>
                             2026 / 2027
                         </span>
@@ -551,12 +552,12 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                             flex: 1,
                                             padding: '10px',
                                             borderRadius: '8px',
-                                            border: envInput === "sandbox" ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
-                                            backgroundColor: envInput === "sandbox" ? 'rgba(85, 107, 47, 0.1)' : 'var(--background)',
+                                            border: '1px solid var(--border)',
+                                            backgroundColor: envInput === "sandbox" ? 'var(--accent)' : 'var(--background)',
                                             fontWeight: 700,
                                             fontSize: '13px',
                                             cursor: 'pointer',
-                                            color: envInput === "sandbox" ? 'var(--sidebar-primary)' : 'var(--foreground)'
+                                            color: 'var(--foreground)'
                                         }}
                                     >
                                         🧪 Sandbox / Test
@@ -568,12 +569,12 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                             flex: 1,
                                             padding: '10px',
                                             borderRadius: '8px',
-                                            border: envInput === "production" ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
-                                            backgroundColor: envInput === "production" ? 'rgba(85, 107, 47, 0.1)' : 'var(--background)',
+                                            border: '1px solid var(--border)',
+                                            backgroundColor: envInput === "production" ? 'var(--accent)' : 'var(--background)',
                                             fontWeight: 700,
                                             fontSize: '13px',
                                             cursor: 'pointer',
-                                            color: envInput === "production" ? 'var(--sidebar-primary)' : 'var(--foreground)'
+                                            color: 'var(--foreground)'
                                         }}
                                     >
                                         🚀 Production

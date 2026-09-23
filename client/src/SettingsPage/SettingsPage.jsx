@@ -880,25 +880,18 @@ function SettingsPage() {
                                         className="mobile-plan-pill-badge"
                                         onClick={() => handleTabSelect("abonnement")}
                                         title={isExpired ? "Abonnement expiré — Cliquez pour renouveler" : "Gérer votre abonnement"}
-                                        style={isExpired ? {
-                                            borderColor: 'rgba(239, 68, 68, 0.4)',
-                                            backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                                            color: '#ef4444'
-                                        } : undefined}
                                     >
-                                        {isExpired ? (
-                                            <AlertTriangle size={12} style={{ color: '#ef4444', flexShrink: 0 }} />
-                                        ) : (
-                                            <Sparkles size={12} className="pill-badge-sparkle" />
+                                        {isExpired && (
+                                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#ef4444", flexShrink: 0 }} />
                                         )}
-                                        <span className="pill-badge-title" style={isExpired ? { color: '#ef4444', fontWeight: 800 } : undefined}>
+                                        <span className="pill-badge-title">
                                             {isExpired ? "Abonnement expiré" : `Plan ${displayName || "Pro"}`}
                                         </span>
-                                        <span className="pill-badge-dot" style={isExpired ? { color: '#ef4444' } : undefined}>·</span>
-                                        <span className="pill-badge-action" style={isExpired ? { color: '#ef4444', fontWeight: 800 } : undefined}>
+                                        <span className="pill-badge-dot">·</span>
+                                        <span className="pill-badge-action">
                                             {isExpired ? "Renouveler" : "Gérer"}
                                         </span>
-                                        <ChevronRight size={13} className="pill-badge-arrow" style={isExpired ? { color: '#ef4444' } : undefined} />
+                                        <ChevronRight size={13} className="pill-badge-arrow" />
                                     </button>
                                 )}
                             </div>

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { X, MoreVertical, Send, Copy, FileText, RefreshCw, Edit2, Play, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
@@ -38,6 +38,9 @@ function QuoteDetailDrawer({
     overlayStyle
 }) {
     const { company } = useUser();
+    const dragControls = useDragControls();
+    const dragControlsStatus = useDragControls();
+    const dotsMenuRef = useRef(null);
     const [showDotsMenu, setShowDotsMenu] = useState(false);
     const [showStatusPicker, setShowStatusPicker] = useState(false);
     const [showCustomizer, setShowCustomizer] = useState(false);
@@ -49,6 +52,29 @@ function QuoteDetailDrawer({
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    // Close dots menu on outside click or scroll
+    useEffect(() => {
+        if (!showDotsMenu) return;
+        const handleOutside = (e) => {
+            if (dotsMenuRef.current && !dotsMenuRef.current.contains(e.target)) {
+                setShowDotsMenu(false);
+            }
+        };
+        const handleScroll = () => {
+            setShowDotsMenu(false);
+        };
+        window.addEventListener("click", handleOutside, true);
+        window.addEventListener("touchstart", handleOutside, true);
+        window.addEventListener("scroll", handleScroll, true);
+        window.addEventListener("touchmove", handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener("click", handleOutside, true);
+            window.removeEventListener("touchstart", handleOutside, true);
+            window.removeEventListener("scroll", handleScroll, true);
+            window.removeEventListener("touchmove", handleScroll);
+        };
+    }, [showDotsMenu]);
 
     const docCustomization = getEffectiveCustomization(quote, globalCustomization);
 
@@ -67,7 +93,7 @@ function QuoteDetailDrawer({
     const totalTtc = Number(quote.totalTtc || quote.amountTTC || (subtotalHt + computedTvaFromLines) || 0);
     const tvaAmount = Number(quote.tvaAmount !== undefined && quote.tvaAmount !== null ? quote.tvaAmount : (totalTtc - subtotalHt));
 
-    const isAccepted = (quote.status || "").toUpperCase() === "ACCEPTED";
+    const isAccepted = (quote.status || "").toUpperCase() === "ACCEPTED" || (quote.status || "").toUpperCase() === "SIGNED" || (quote.status || "").toUpperCase() === "SIGNÉ";
     const isSignedOrAccepted = isAccepted || Boolean(quote.signedAt || quote.signature);
     const isDraft    = (quote.status || "").toUpperCase() === "DRAFT";
     const isSent     = (quote.status || "").toUpperCase() === "SENT";
@@ -79,7 +105,7 @@ function QuoteDetailDrawer({
     const clientDisplayPhone = client.phone || quote.clientPhone || "";
 
     const linkedFacture = quote.linkedFacture || quote.linkedInvoice || quote.invoice || (quote.invoices && quote.invoices[0]);
-    const isEditable = !isAccepted && !Boolean(linkedFacture || quote.invoiceId || quote.linkedInvoice || (quote.amountFactured && quote.amountFactured > 0));
+    const isEditable = !isSignedOrAccepted && !Boolean(linkedFacture || quote.invoiceId || quote.linkedInvoice || (quote.amountFactured && quote.amountFactured > 0));
 
     const rawDocDate = quote.date || quote.createdAt || quote.issuedAt;
     const formattedDocDate = rawDocDate ? new Date(rawDocDate).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
@@ -1103,10 +1129,12 @@ function QuoteDetailDrawer({
                     transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
                     onClick={e => e.stopPropagation()}
                     drag={isMobile ? "y" : false}
+                    dragListener={false}
+                    dragControls={dragControls}
                     dragConstraints={{ top: 0 }}
-                    dragElastic={{ top: 0, bottom: 0.8 }}
+                    dragElastic={{ top: 0, bottom: 0.6 }}
                     onDragEnd={(event, info) => {
-                        if (isMobile && info.offset.y > 80) {
+                        if (isMobile && (info.offset.y > 100 || info.velocity.y > 300)) {
                             onClose();
                         }
                     }}
@@ -1115,15 +1143,18 @@ function QuoteDetailDrawer({
                     <aside className="dv-drawer fp-detail-left">
                         {/* Mobile Drag Handle */}
                         {isMobile && (
-                            <div style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "10px", cursor: "grab" }}>
-                                <div style={{ width: "36px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                            <div
+                                style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "8px", cursor: "grab", touchAction: "none" }}
+                                onPointerDown={(e) => isMobile && dragControls.start(e)}
+                            >
+                                <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
                             </div>
                         )}
                         {/* Header */}
                         <div className="dv-drawer-header">
                         <span className="dv-drawer-title">Détails du devis</span>
                         <div className="dv-drawer-header-actions">
-                            <div style={{ position: "relative" }}>
+                            <div ref={dotsMenuRef} style={{ position: "relative" }}>
                                 <button
                                     className="dv-icon-btn"
                                     onClick={() => setShowDotsMenu(v => !v)}
@@ -1151,9 +1182,6 @@ function QuoteDetailDrawer({
                                                 <RefreshCw size={15} /> Changer le statut du devis
                                             </button>
                                         )}
-                                        <button className="dv-dots-menu-item" onClick={() => {}}>
-                                            <Copy size={15} /> Dupliquer
-                                        </button>
                                         {!isSignedOrAccepted && (
                                             <button className="dv-dots-menu-item" onClick={() => { setShowCustomizer(true); setShowDotsMenu(false); }}>
                                                 <Palette size={15} /> Personnaliser le document
@@ -1512,10 +1540,12 @@ function QuoteDetailDrawer({
                                 exit={{ y: "100%" }}
                                 transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
                                 drag="y"
+                                dragListener={false}
+                                dragControls={dragControlsStatus}
                                 dragConstraints={{ top: 0 }}
-                                dragElastic={{ top: 0, bottom: 0.8 }}
+                                dragElastic={{ top: 0, bottom: 0.6 }}
                                 onDragEnd={(event, info) => {
-                                    if (info.offset.y > 80) {
+                                    if (info.offset.y > 80 || info.velocity.y > 300) {
                                         setShowStatusPicker(false);
                                     }
                                 }}
@@ -1531,20 +1561,25 @@ function QuoteDetailDrawer({
                                     backgroundColor: "var(--card)",
                                     borderTopLeftRadius: "20px",
                                     borderTopRightRadius: "20px",
-                                    padding: "20px 20px max(32px, env(safe-area-inset-bottom, 32px)) 20px",
+                                    padding: "12px 20px max(32px, env(safe-area-inset-bottom, 32px)) 20px",
                                     boxShadow: "0 -8px 32px rgba(0, 0, 0, 0.25)",
                                     boxSizing: "border-box"
                                 }}
                             >
-                                <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "var(--border)", margin: "0 auto 16px", cursor: "grab" }} />
+                                <div
+                                    style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "4px", paddingBottom: "14px", cursor: "grab", touchAction: "none" }}
+                                    onPointerDown={(e) => dragControlsStatus.start(e)}
+                                >
+                                    <div style={{ width: "38px", height: "4px", borderRadius: "2px", backgroundColor: "var(--border, #CBD5E1)" }} />
+                                </div>
                                 
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                                     <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--foreground)", margin: 0 }}>Changer le statut du devis</h3>
                                     <button
                                         onClick={() => setShowStatusPicker(false)}
-                                        style={{ border: "none", background: "none", color: "var(--muted-foreground)", cursor: "pointer", padding: "4px" }}
+                                        style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--border)", background: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--muted-foreground)" }}
                                     >
-                                        <X size={20} />
+                                        <X size={16} />
                                     </button>
                                 </div>
 

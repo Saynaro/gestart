@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, useDragControls } from "framer-motion";
 import { X, Calendar, Check, ChevronRight } from "lucide-react";
 
 export const ECHEANCE_OPTIONS = [
@@ -99,6 +100,7 @@ export function getEcheanceLabel(echeanceOptionId, customDateStr) {
 }
 
 function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }) {
+    const dragControls = useDragControls();
     const [tempOption, setTempOption] = useState(selectedOptionId || "30j");
     const [tempCustomDate, setTempCustomDate] = useState(customDate || new Date().toISOString().split("T")[0]);
 
@@ -110,7 +112,11 @@ function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }
     };
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             style={{
                 position: "fixed",
                 inset: 0,
@@ -119,12 +125,25 @@ function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }
                 backdropFilter: "blur(3px)",
                 display: "flex",
                 alignItems: "flex-end",
-                justifyContent: "center",
-                animation: "dvFadeIn 0.2s ease"
+                justifyContent: "center"
             }}
             onClick={onClose}
         >
-            <div
+            <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                drag="y"
+                dragListener={false}
+                dragControls={dragControls}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.6 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 80 || info.velocity.y > 300) {
+                        onClose();
+                    }
+                }}
                 style={{
                     width: "min(460px, 100%)",
                     maxHeight: "85vh",
@@ -135,13 +154,20 @@ function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }
                     boxShadow: "0 -8px 40px rgba(0,0,0,0.2)",
                     display: "flex",
                     flexDirection: "column",
-                    overflow: "hidden",
-                    animation: "fpSlideUp 0.25s cubic-bezier(0.22, 1, 0.36, 1)"
+                    overflow: "hidden"
                 }}
                 onClick={e => e.stopPropagation()}
             >
+                {/* Drag handle */}
+                <div
+                    style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "4px", cursor: "grab", touchAction: "none" }}
+                    onPointerDown={(e) => dragControls.start(e)}
+                >
+                    <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                </div>
+
                 {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px 14px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
                     <span style={{ fontWeight: 800, fontSize: "1.05rem", color: "var(--foreground)" }}>Conditions d'échéance</span>
                     <button
                         onClick={onClose}
@@ -195,8 +221,17 @@ function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }
                                         </label>
                                         <input
                                             type="date"
+                                            min="1900-01-01"
+                                            max="2099-12-31"
                                             value={tempCustomDate}
-                                            onChange={e => setTempCustomDate(e.target.value)}
+                                            onChange={e => {
+                                                const v = e.target.value;
+                                                if (v) {
+                                                    const yearStr = v.split("-")[0];
+                                                    if (yearStr && yearStr.length > 4) return;
+                                                }
+                                                setTempCustomDate(v);
+                                            }}
                                             style={{
                                                 padding: "10px 12px",
                                                 borderRadius: 8,
@@ -231,8 +266,8 @@ function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }
                         );
                     })}
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
 

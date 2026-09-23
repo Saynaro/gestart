@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, MoreVertical, Send, Edit2, CheckCircle, FileText, Copy, RotateCcw, Eye, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { X, MoreVertical, Send, Edit2, CheckCircle, CheckCircle2, FileText, Copy, RotateCcw, Eye, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
@@ -34,6 +34,8 @@ function InvoiceDetailDrawer({
     overlayStyle
 }) {
     const { company } = useUser();
+    const dragControls = useDragControls();
+    const dotsMenuRef = useRef(null);
     const [showDotsMenu, setShowDotsMenu] = useState(false);
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [globalCustomization] = useDocumentCustomization();
@@ -44,6 +46,28 @@ function InvoiceDetailDrawer({
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    // Close dots menu on outside click or scroll
+    useEffect(() => {
+        if (!showDotsMenu) return;
+        const handleOutside = (e) => {
+            if (dotsMenuRef.current && !dotsMenuRef.current.contains(e.target)) {
+                setShowDotsMenu(false);
+            }
+        };
+        const handleScroll = () => setShowDotsMenu(false);
+
+        window.addEventListener("click", handleOutside, true);
+        window.addEventListener("touchstart", handleOutside, true);
+        window.addEventListener("scroll", handleScroll, true);
+        window.addEventListener("touchmove", handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener("click", handleOutside, true);
+            window.removeEventListener("touchstart", handleOutside, true);
+            window.removeEventListener("scroll", handleScroll, true);
+            window.removeEventListener("touchmove", handleScroll);
+        };
+    }, [showDotsMenu]);
 
     const docCustomization = getEffectiveCustomization(invoice, globalCustomization);
     const client = invoice.client || {};
@@ -1087,10 +1111,12 @@ function InvoiceDetailDrawer({
                     transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
                     onClick={e => e.stopPropagation()}
                     drag={isMobile ? "y" : false}
+                    dragListener={false}
+                    dragControls={dragControls}
                     dragConstraints={{ top: 0 }}
-                    dragElastic={{ top: 0, bottom: 0.8 }}
+                    dragElastic={{ top: 0, bottom: 0.6 }}
                     onDragEnd={(event, info) => {
-                        if (isMobile && info.offset.y > 80) {
+                        if (isMobile && (info.offset.y > 100 || info.velocity.y > 300)) {
                             onClose();
                         }
                     }}
@@ -1099,15 +1125,18 @@ function InvoiceDetailDrawer({
                     <aside className="fp-drawer fp-detail-left">
                         {/* Mobile Drag Handle */}
                         {isMobile && (
-                            <div style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "10px", cursor: "grab" }}>
-                                <div style={{ width: "36px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                            <div
+                                style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "8px", cursor: "grab", touchAction: "none" }}
+                                onPointerDown={(e) => isMobile && dragControls.start(e)}
+                            >
+                                <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
                             </div>
                         )}
                         {/* Header */}
                         <div className="fp-drawer-header">
                             <span className="fp-drawer-title">Détails de la facture</span>
                             <div className="fp-drawer-header-actions">
-                                <div style={{ position: "relative" }}>
+                                <div ref={dotsMenuRef} style={{ position: "relative" }}>
                                     <button
                                         className="fp-icon-btn"
                                         onClick={() => setShowDotsMenu(v => !v)}
@@ -1127,8 +1156,13 @@ function InvoiceDetailDrawer({
                                                     <Edit2 size={15} /> Modifier la facture
                                                 </button>
                                             )}
-                                            {!isPaid && (
-                                                <button className="fp-dots-menu-item" onClick={() => setShowCustomizer(true)}>
+                                            {!isDraft && !isPaid && onMarkPaid && (
+                                                <button className="fp-dots-menu-item" onClick={() => { setShowDotsMenu(false); onMarkPaid(invoice); }}>
+                                                    <CheckCircle2 size={15} /> Encaisser le règlement
+                                                </button>
+                                            )}
+                                            {isDraft && (
+                                                <button className="fp-dots-menu-item" onClick={() => { setShowDotsMenu(false); setShowCustomizer(true); }}>
                                                     <Palette size={15} /> Personnaliser le document
                                                 </button>
                                             )}
@@ -1536,7 +1570,7 @@ function InvoiceDetailDrawer({
                         <div className="preview-side-header">
                             <FileText size={14} />
                             <span>Aperçu de la facture</span>
-                            {!isPaid && (
+                            {isDraft && (
                                 <button className="personnaliser-btn" onClick={() => setShowCustomizer(true)}>
                                     <Palette size={14} />
                                     Personnaliser

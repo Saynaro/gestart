@@ -221,6 +221,8 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
     // Drag to close tracking
     const [dragStartY, setDragStartY] = useState(0);
     const [isDraggingHandle, setIsDraggingHandle] = useState(false);
+    const [subsheetDragStartY, setSubsheetDragStartY] = useState(0);
+    const [isDraggingSubsheet, setIsDraggingSubsheet] = useState(false);
 
     // Sub-drawers for selecting properties
     const [showUrssafSelector, setShowUrssafSelector] = useState(false);
@@ -1506,8 +1508,17 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                     <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Date de la facture</label>
                                     <input
                                         type="date"
+                                        min="1900-01-01"
+                                        max="2099-12-31"
                                         value={invoiceDate}
-                                        onChange={(e) => setInvoiceDate(e.target.value)}
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            if (v) {
+                                                const yearStr = v.split("-")[0];
+                                                if (yearStr && yearStr.length > 4) return;
+                                            }
+                                            setInvoiceDate(v);
+                                        }}
                                         style={{ borderRadius: '12px', borderColor: 'var(--border)', border: '1px solid var(--border)', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent', boxSizing: 'border-box' }}
                                     />
                                 </div>
@@ -1569,8 +1580,17 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                         </div>
                                         <input
                                             type="date"
+                                            min="1900-01-01"
+                                            max="2099-12-31"
                                             value={deliveryDate}
-                                            onChange={(e) => setDeliveryDate(e.target.value)}
+                                            onChange={(e) => {
+                                                const v = e.target.value;
+                                                if (v) {
+                                                    const yearStr = v.split("-")[0];
+                                                    if (yearStr && yearStr.length > 4) return;
+                                                }
+                                                setDeliveryDate(v);
+                                            }}
                                             style={{ borderRadius: '12px', borderColor: 'var(--border)', border: '1px solid var(--border)', width: '100%', fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', padding: '8px', outline: 'none', backgroundColor: 'transparent', boxSizing: 'border-box' }}
                                         />
                                     </div>
@@ -1992,21 +2012,45 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
 
                             {/* NESTED URSSAF SELECTOR */}
                             {showUrssafSelector && (
-                                <div className="selector-subsheet">
-                                    <div className="article-drawer-header">
+                                <div
+                                    className="selector-subsheet"
+                                    onTouchEnd={(e) => {
+                                        if (!isDraggingSubsheet) return;
+                                        const dragEndY = e.changedTouches[0].clientY;
+                                        if (dragEndY - subsheetDragStartY > 60) {
+                                            setShowUrssafSelector(false);
+                                        }
+                                        setIsDraggingSubsheet(false);
+                                    }}
+                                >
+                                    <div
+                                        style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "8px", cursor: "grab", touchAction: "none" }}
+                                        onTouchStart={(e) => {
+                                            setSubsheetDragStartY(e.touches[0].clientY);
+                                            setIsDraggingSubsheet(true);
+                                        }}
+                                        onClick={() => setShowUrssafSelector(false)}
+                                    >
+                                        <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                                    </div>
+                                    <div
+                                        className="article-drawer-header"
+                                        onTouchStart={(e) => {
+                                            if (e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
+                                                setSubsheetDragStartY(e.touches[0].clientY);
+                                                setIsDraggingSubsheet(true);
+                                            }
+                                        }}
+                                    >
                                         <button
                                             type="button"
                                             className="drawer-round-btn"
                                             onClick={() => setShowUrssafSelector(false)}
                                         >
-                                            <ArrowLeft size={20} />
+                                            <X size={18} />
                                         </button>
                                         <h2>Type d'article</h2>
-                                        <button
-                                            type="button"
-                                            className="drawer-round-btn"
-                                            style={{ opacity: 0 }}
-                                        />
+                                        <div style={{ width: 34 }}></div>
                                     </div>
                                     <div style={{ padding: '14px 20px 0', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
                                         Détermine la catégorie de votre déclaration URSSAF.
@@ -2044,21 +2088,45 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
 
                             {/* NESTED UNIT SELECTOR */}
                             {showUnitSelector && (
-                                <div className="selector-subsheet">
-                                    <div className="article-drawer-header">
+                                <div
+                                    className="selector-subsheet"
+                                    onTouchEnd={(e) => {
+                                        if (!isDraggingSubsheet) return;
+                                        const dragEndY = e.changedTouches[0].clientY;
+                                        if (dragEndY - subsheetDragStartY > 60) {
+                                            setShowUnitSelector(false);
+                                        }
+                                        setIsDraggingSubsheet(false);
+                                    }}
+                                >
+                                    <div
+                                        style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "8px", cursor: "grab", touchAction: "none" }}
+                                        onTouchStart={(e) => {
+                                            setSubsheetDragStartY(e.touches[0].clientY);
+                                            setIsDraggingSubsheet(true);
+                                        }}
+                                        onClick={() => setShowUnitSelector(false)}
+                                    >
+                                        <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                                    </div>
+                                    <div
+                                        className="article-drawer-header"
+                                        onTouchStart={(e) => {
+                                            if (e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
+                                                setSubsheetDragStartY(e.touches[0].clientY);
+                                                setIsDraggingSubsheet(true);
+                                            }
+                                        }}
+                                    >
                                         <button
                                             type="button"
                                             className="drawer-round-btn"
                                             onClick={() => setShowUnitSelector(false)}
                                         >
-                                            <ArrowLeft size={20} />
+                                            <X size={18} />
                                         </button>
                                         <h2>Unité de facturation</h2>
-                                        <button
-                                            type="button"
-                                            className="drawer-round-btn"
-                                            style={{ opacity: 0 }}
-                                        />
+                                        <div style={{ width: 34 }}></div>
                                     </div>
                                     <div className="selector-options-list">
                                         {[
@@ -2104,9 +2172,9 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                 {showCatalogSearch && createPortal(
                     <div className="client-search-overlay-wrapper" onClick={(e) => { if (e.target === e.currentTarget) setShowCatalogSearch(false); }}>
                         <div className="client-search-panel">
-                            <div className="client-search-header">
-                                <button type="button" className="client-search-back-btn" onClick={() => setShowCatalogSearch(false)}><X size={22} /></button>
-                                <h3>Sélectionner un article / service</h3>
+                            <div className="article-drawer-header">
+                                <button type="button" className="drawer-round-btn" onClick={() => setShowCatalogSearch(false)}><X size={18} /></button>
+                                <h2>Sélectionner un article / service</h2>
                                 <div style={{ width: 34 }}></div>
                             </div>
 
@@ -2315,17 +2383,19 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                     />
                 )}
                 {/* Echeance picker overlay - Mobile */}
-                {showEcheancePicker && (
-                    <EcheancePickerModal
-                        selectedOptionId={echeanceOptionId}
-                        customDate={echeanceCustomDate}
-                        onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
-                            setEcheanceOptionId(optId);
-                            setEcheanceCustomDate(custStr);
-                        }}
-                        onClose={() => setShowEcheancePicker(false)}
-                    />
-                )}
+                <AnimatePresence>
+                    {showEcheancePicker && (
+                        <EcheancePickerModal
+                            selectedOptionId={echeanceOptionId}
+                            customDate={echeanceCustomDate}
+                            onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
+                                setEcheanceOptionId(optId);
+                                setEcheanceCustomDate(custStr);
+                            }}
+                            onClose={() => setShowEcheancePicker(false)}
+                        />
+                    )}
+                </AnimatePresence>
 
             </motion.div>
             , document.body);
@@ -2428,9 +2498,18 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                                     <input
                                         type="date"
+                                        min="1900-01-01"
+                                        max="2099-12-31"
                                         className="profile-input borderless-large-input"
                                         value={invoiceDate}
-                                        onChange={(e) => setInvoiceDate(e.target.value)}
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            if (v) {
+                                                const yearStr = v.split("-")[0];
+                                                if (yearStr && yearStr.length > 4) return;
+                                            }
+                                            setInvoiceDate(v);
+                                        }}
                                         required
                                         style={{
                                             border: 'none',
@@ -2494,9 +2573,18 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginTop: '6px' }}>
                                         <input
                                             type="date"
+                                            min="1900-01-01"
+                                            max="2099-12-31"
                                             className="profile-input borderless-large-input"
                                             value={deliveryDate}
-                                            onChange={(e) => setDeliveryDate(e.target.value)}
+                                            onChange={(e) => {
+                                                const v = e.target.value;
+                                                if (v) {
+                                                    const yearStr = v.split("-")[0];
+                                                    if (yearStr && yearStr.length > 4) return;
+                                                }
+                                                setDeliveryDate(v);
+                                            }}
                                             style={{
                                                 border: 'none',
                                                 borderRadius: 0,
@@ -2756,9 +2844,9 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             {showCatalogSearch && createPortal(
                 <div className="client-search-overlay-wrapper" onClick={(e) => { if (e.target === e.currentTarget) setShowCatalogSearch(false); }}>
                     <div className="client-search-panel">
-                        <div className="client-search-header">
-                            <button type="button" className="client-search-back-btn" onClick={() => setShowCatalogSearch(false)}><X size={22} /></button>
-                            <h3>Sélectionner un article / service</h3>
+                        <div className="article-drawer-header">
+                            <button type="button" className="drawer-round-btn" onClick={() => setShowCatalogSearch(false)}><X size={18} /></button>
+                            <h2>Sélectionner un article / service</h2>
                             <div style={{ width: 34 }}></div>
                         </div>
 
@@ -3148,16 +3236,10 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                         className="drawer-round-btn"
                                         onClick={() => setShowUrssafSelector(false)}
                                     >
-                                        <ArrowLeft size={20} />
+                                        <X size={18} />
                                     </button>
                                     <h2>Type d'article</h2>
-                                    <button
-                                        type="button"
-                                        className="drawer-round-btn"
-                                        onClick={() => setShowUrssafSelector(false)}
-                                    >
-                                        <X size={20} />
-                                    </button>
+                                    <div style={{ width: 34 }}></div>
                                 </div>
                                 <div style={{ padding: '14px 20px 0', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
                                     Détermine la catégorie de votre déclaration URSSAF.
@@ -3202,16 +3284,10 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                                         className="drawer-round-btn"
                                         onClick={() => setShowUnitSelector(false)}
                                     >
-                                        <ArrowLeft size={20} />
+                                        <X size={18} />
                                     </button>
                                     <h2>Unité de facturation</h2>
-                                    <button
-                                        type="button"
-                                        className="drawer-round-btn"
-                                        onClick={() => setShowUnitSelector(false)}
-                                    >
-                                        <X size={20} />
-                                    </button>
+                                    <div style={{ width: 34 }}></div>
                                 </div>
                                 <div style={{ padding: '14px 20px 0', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
                                     Apparaîtra après le prix sur votre document.
@@ -3306,17 +3382,19 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
                 </div>,
                 document.body
             )}
-            {showEcheancePicker && (
-                <EcheancePickerModal
-                    selectedOptionId={echeanceOptionId}
-                    customDate={echeanceCustomDate}
-                    onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
-                        setEcheanceOptionId(optId);
-                        setEcheanceCustomDate(custStr);
-                    }}
-                    onClose={() => setShowEcheancePicker(false)}
-                />
-            )}
+            <AnimatePresence>
+                {showEcheancePicker && (
+                    <EcheancePickerModal
+                        selectedOptionId={echeanceOptionId}
+                        customDate={echeanceCustomDate}
+                        onSelect={({ echeanceOptionId: optId, customDateStr: custStr }) => {
+                            setEcheanceOptionId(optId);
+                            setEcheanceCustomDate(custStr);
+                        }}
+                        onClose={() => setShowEcheancePicker(false)}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Full Client Edit / New Client Portal Sheet (Mobile) & Modal (Desktop) */}
             {editingClient && (

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, useDragControls } from 'framer-motion';
 import { X, Search } from 'lucide-react';
 
 function InterventionPickerModal({ currentValue, onSelect, onClose }) {
+    const dragControls = useDragControls();
     const [query, setQuery] = useState("");
     
     const list = [
@@ -18,8 +20,40 @@ function InterventionPickerModal({ currentValue, onSelect, onClose }) {
     );
 
     return createPortal(
-        <div className="client-search-overlay-wrapper" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-            <div className="client-search-panel" onClick={(e) => e.stopPropagation()}>
+        <motion.div
+            className="client-search-overlay-wrapper"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+        >
+            <motion.div
+                className="client-search-panel"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                drag="y"
+                dragListener={false}
+                dragControls={dragControls}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.6 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 80 || info.velocity.y > 300) {
+                        onClose();
+                    }
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Drag Handle */}
+                <div
+                    style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "4px", cursor: "grab", touchAction: "none" }}
+                    onPointerDown={(e) => dragControls.start(e)}
+                >
+                    <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                </div>
+
                 <div className="client-search-header">
                     <button type="button" className="client-search-back-btn" onClick={onClose}>
                         <X size={22} />
@@ -37,7 +71,6 @@ function InterventionPickerModal({ currentValue, onSelect, onClose }) {
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             className="client-search-input"
-                            autoFocus
                         />
                     </div>
                 </div>
@@ -91,8 +124,8 @@ function InterventionPickerModal({ currentValue, onSelect, onClose }) {
                         Sélectionner le texte saisi
                     </button>
                 </div>
-            </div>
-        </div>,
+            </motion.div>
+        </motion.div>,
         document.body
     );
 }

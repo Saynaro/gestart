@@ -32,17 +32,34 @@ function InvoiceList({
     onDeleteInvoice
 }) {
     const [activeMenuId, setActiveMenuId] = useState(null);
+    const [menuFlipUp, setMenuFlipUp] = useState(false);
 
-    // Close menu when clicking anywhere on the document
+    // Close menu when clicking outside OR scrolling anywhere
     useEffect(() => {
-        const handleClickOutside = () => setActiveMenuId(null);
-        window.addEventListener("click", handleClickOutside);
-        return () => window.removeEventListener("click", handleClickOutside);
-    }, []);
+        if (!activeMenuId) return;
+        const handleClose = () => setActiveMenuId(null);
+        window.addEventListener("click", handleClose);
+        window.addEventListener("scroll", handleClose, true);
+        window.addEventListener("touchmove", handleClose, { passive: true });
+        return () => {
+            window.removeEventListener("click", handleClose);
+            window.removeEventListener("scroll", handleClose, true);
+            window.removeEventListener("touchmove", handleClose);
+        };
+    }, [activeMenuId]);
 
     const toggleMenu = (e, id) => {
         e.stopPropagation();
-        setActiveMenuId(prev => (prev === id ? null : id));
+        if (activeMenuId === id) {
+            setActiveMenuId(null);
+            return;
+        }
+        const rect = e.currentTarget.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        // If less than 360px below or in lower half of screen, flip up
+        const shouldFlip = spaceBelow < 360 || rect.bottom > window.innerHeight * 0.52;
+        setMenuFlipUp(shouldFlip);
+        setActiveMenuId(id);
     };
 
     if (loading && (!invoices || invoices.length === 0)) {
@@ -115,7 +132,7 @@ function InvoiceList({
                 <div
                     key={inv.id}
                     className={`fp-invoice-card ${activeMenuId === inv.id ? "menu-open" : ""}`}
-                    style={{ zIndex: activeMenuId === inv.id ? 80 : undefined }}
+                    style={{ zIndex: activeMenuId === inv.id ? 1005 : undefined }}
                     onClick={() => onRowClick(inv)}
                     role="button"
                     tabIndex={0}
@@ -146,7 +163,7 @@ function InvoiceList({
                             </button>
 
                             {activeMenuId === inv.id && (
-                                <div className="fp-dots-menu fp-card-menu-dropdown" onClick={e => e.stopPropagation()}>
+                                <div className={`fp-dots-menu fp-card-menu-dropdown ${menuFlipUp ? "fp-menu-flip-up" : ""}`} onClick={e => e.stopPropagation()}>
                                     {String(inv.status).toLowerCase() !== "draft" && (
                                         <button
                                             type="button"
@@ -161,19 +178,21 @@ function InvoiceList({
                                         </button>
                                     )}
 
-                                    <button
-                                        type="button"
-                                        className="fp-dots-menu-item"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveMenuId(null);
-                                            if (onEdit) onEdit(inv);
-                                        }}
-                                    >
-                                        <Edit2 size={14} /> Modifier la facture
-                                    </button>
+                                    {inv.status === "draft" && onEdit && (
+                                        <button
+                                            type="button"
+                                            className="fp-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onEdit(inv);
+                                            }}
+                                        >
+                                            <Edit2 size={14} /> Modifier la facture
+                                        </button>
+                                    )}
 
-                                    {inv.status !== "paid" && onMarkPaid && (
+                                    {inv.status !== "draft" && inv.status !== "paid" && onMarkPaid && (
                                         <button
                                             type="button"
                                             className="fp-dots-menu-item"
@@ -187,19 +206,21 @@ function InvoiceList({
                                         </button>
                                     )}
 
-                                    <button
-                                        type="button"
-                                        className="fp-dots-menu-item"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveMenuId(null);
-                                            if (onDownloadPdf) onDownloadPdf(inv);
-                                        }}
-                                    >
-                                        <Download size={14} /> Télécharger PDF
-                                    </button>
+                                    {onDownloadPdf && (
+                                        <button
+                                            type="button"
+                                            className="fp-dots-menu-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(null);
+                                                onDownloadPdf(inv);
+                                            }}
+                                        >
+                                            <Download size={14} /> Télécharger PDF
+                                        </button>
+                                    )}
 
-                                    {onCustomise && inv.status !== "paid" && (
+                                    {inv.status === "draft" && onCustomise && (
                                         <button
                                             type="button"
                                             className="fp-dots-menu-item"

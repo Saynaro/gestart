@@ -847,17 +847,24 @@
     z-index: 99999;
     display: flex;
     flex-direction: column;
-    background-color: var(--background);
-    /* mobile: solid bg */
+    align-items: stretch;
+    justify-content: flex-end;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-sizing: border-box;
 }
 
-/* Panel fills full screen on mobile */
+/* Panel is a bottom sheet on mobile (like details de la facture) */
 .client-search-panel {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    width: 100%;
+    max-height: 88vh;
+    border-radius: 20px 20px 0 0;
     overflow: hidden;
-    background-color: var(--background);
+    background-color: var(--card);
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
 }
 
 /* Desktop: dim overlay + centered panel card */
@@ -868,6 +875,8 @@
         -webkit-backdrop-filter: blur(6px);
         align-items: center;
         justify-content: center;
+        padding-top: 0;
+        padding-bottom: 0;
     }
 
     .client-search-panel {
@@ -878,6 +887,7 @@
         max-height: 75vh;
         flex: unset;
         box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+        padding-bottom: 0;
     }
 }
 

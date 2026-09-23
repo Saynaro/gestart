@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { X, ArrowLeft, Plus, Trash2, Search, ChevronRight, Edit2, Eye, MoreHorizontal, FileText, ChevronDown, Palette } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
@@ -24,6 +24,7 @@ const INTERVENTION_TYPES = [
 ];
 
 function ClientPickerModal({ currentName, onSelect, onClose }) {
+    const dragControlsClient = useDragControls();
     const [clientsList, setClientsList] = useState(CLIENT_LIST);
     const [showNewClientForm, setShowNewClientForm] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -129,13 +130,42 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
     });
 
     return (
-        <div className="fp-edit-overlay" onClick={onClose}>
-            <div
+        <motion.div
+            className="fp-edit-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+        >
+            <motion.div
                 className="fp-edit-panel"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                drag="y"
+                dragListener={false}
+                dragControls={dragControlsClient}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.6 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 80 || info.velocity.y > 300) {
+                        onClose();
+                    }
+                }}
                 onClick={e => e.stopPropagation()}
-                style={{ maxHeight: "min(92vh, 720px)", animation: "fpScaleIn 0.22s cubic-bezier(0.22,1,0.36,1)" }}
+                style={{ maxHeight: "min(92vh, 720px)" }}
             >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+                {/* Drag handle */}
+                <div
+                    style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "4px", cursor: "grab", touchAction: "none" }}
+                    onPointerDown={(e) => dragControlsClient.start(e)}
+                >
+                    <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px 14px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <button className="fp-icon-btn" onClick={showNewClientForm ? () => setShowNewClientForm(false) : onClose} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", color: "var(--foreground)" }}>
                             <ArrowLeft size={18} />
@@ -192,7 +222,6 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                             <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted-foreground)", display: "block", marginBottom: 4 }}>Nom complet ou raison sociale *</label>
                             <input
                                 required
-                                autoFocus
                                 value={newName}
                                 onChange={e => setNewName(e.target.value)}
                                 placeholder="Ex: Jean Dupont ou SARL Climatik"
@@ -270,7 +299,6 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                             <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--background)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px" }}>
                                 <Search size={15} style={{ color: "var(--muted-foreground)", flexShrink: 0 }} />
                                 <input
-                                    autoFocus
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
                                     placeholder="Rechercher un client..."
@@ -348,12 +376,16 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                         </div>
                     </>
                 )}
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
 
 function ArticleEditorDrawer({ line, onSave, onClose }) {
+    const dragControlsCatalog = useDragControls();
+    const dragControlsArticle = useDragControls();
+    const dragControlsUrssaf = useDragControls();
+    const dragControlsUnit = useDragControls();
     const [showCatalogSearch, setShowCatalogSearch] = useState(!line);
     const [catalogSearchQuery, setCatalogSearchQuery] = useState("");
     const [catalogItems, setCatalogItems] = useState([]);
@@ -440,14 +472,46 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
     );
     const groupedCatalog = getGroupedCatalog(filteredCatalog);
 
-    return (
-        <>
-            {showCatalogSearch && createPortal(
-                <div className="client-search-overlay-wrapper" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-                    <div className="client-search-panel">
-                        <div className="client-search-header">
-                            <button type="button" className="client-search-back-btn" onClick={onClose}><X size={22} /></button>
-                            <h3>Sélectionner un article / service</h3>
+    return createPortal(
+        <AnimatePresence mode="wait">
+            {showCatalogSearch ? (
+                <motion.div
+                    className="client-search-overlay-wrapper"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={onClose}
+                >
+                    <motion.div
+                        className="client-search-panel"
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                        drag="y"
+                        dragListener={false}
+                        dragControls={dragControlsCatalog}
+                        dragConstraints={{ top: 0 }}
+                        dragElastic={{ top: 0, bottom: 0.6 }}
+                        onDragEnd={(e, info) => {
+                            if (info.offset.y > 80 || info.velocity.y > 300) {
+                                onClose();
+                            }
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Drag Handle */}
+                        <div
+                            style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "4px", cursor: "grab", touchAction: "none" }}
+                            onPointerDown={(e) => dragControlsCatalog.start(e)}
+                        >
+                            <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                        </div>
+
+                        <div className="article-drawer-header">
+                            <button type="button" className="drawer-round-btn" onClick={onClose}><X size={18} /></button>
+                            <h2>Sélectionner un article / service</h2>
                             <div style={{ width: 34 }}></div>
                         </div>
 
@@ -460,7 +524,6 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                     value={catalogSearchQuery}
                                     onChange={(e) => setCatalogSearchQuery(e.target.value)}
                                     className="client-search-input"
-                                    autoFocus
                                 />
                             </div>
                         </div>
@@ -522,20 +585,49 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>,
-                document.body
-            )}
+                    </motion.div>
+                </motion.div>
+            ) : (
+                <motion.div
+                    className="article-drawer-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={onClose}
+                >
+                    <motion.div
+                        className="article-drawer-content"
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                        drag="y"
+                        dragListener={false}
+                        dragControls={dragControlsArticle}
+                        dragConstraints={{ top: 0 }}
+                        dragElastic={{ top: 0, bottom: 0.6 }}
+                        onDragEnd={(e, info) => {
+                            if (info.offset.y > 80 || info.velocity.y > 300) {
+                                onClose();
+                            }
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Drag Handle */}
+                        <div
+                            style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "4px", cursor: "grab", touchAction: "none" }}
+                            onPointerDown={(e) => dragControlsArticle.start(e)}
+                        >
+                            <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                        </div>
 
-            {!showCatalogSearch && createPortal(
-                <div className="article-drawer-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-                    <div className="article-drawer-content" onClick={(e) => e.stopPropagation()}>
                         <div className="article-drawer-header">
                             <button type="button" className="drawer-round-btn" onClick={onClose}>
-                                <X size={20} />
+                                <X size={18} />
                             </button>
                             <h2>{line ? "Modifier l'article" : "Créer un nouvel article"}</h2>
-                            <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
+                            <div style={{ width: 34 }}></div>
                         </div>
 
                         <div className="article-drawer-body">
@@ -551,7 +643,6 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                             value={desc}
                                             onChange={(e) => setDesc(e.target.value)}
                                             required
-                                            autoFocus
                                         />
                                     </div>
                                     <div className="article-drawer-field">
@@ -691,14 +782,39 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                             </button>
                         </div>
 
+                        {/* NESTED URSSAF SELECTOR */}
+                        <AnimatePresence>
                         {showUrssafSelector && (
-                            <div className="selector-subsheet">
+                            <motion.div
+                                className="selector-subsheet"
+                                initial={{ y: "100%" }}
+                                animate={{ y: 0 }}
+                                exit={{ y: "100%" }}
+                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.28 }}
+                                drag="y"
+                                dragListener={false}
+                                dragControls={dragControlsUrssaf}
+                                dragConstraints={{ top: 0 }}
+                                dragElastic={{ top: 0, bottom: 0.6 }}
+                                onDragEnd={(e, info) => {
+                                    if (info.offset.y > 80 || info.velocity.y > 300) {
+                                        setShowUrssafSelector(false);
+                                    }
+                                }}
+                            >
+                                <div
+                                    style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "4px", cursor: "grab", touchAction: "none" }}
+                                    onPointerDown={(e) => dragControlsUrssaf.start(e)}
+                                    onClick={() => setShowUrssafSelector(false)}
+                                >
+                                    <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                                </div>
                                 <div className="article-drawer-header">
                                     <button type="button" className="drawer-round-btn" onClick={() => setShowUrssafSelector(false)}>
-                                        <ArrowLeft size={20} />
+                                        <X size={18} />
                                     </button>
                                     <h2>Type d'article</h2>
-                                    <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
+                                    <div style={{ width: 34 }}></div>
                                 </div>
                                 <div style={{ padding: '14px 20px 0', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
                                     Détermine la catégorie de votre déclaration URSSAF.
@@ -731,17 +847,43 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
+                        </AnimatePresence>
 
+                        {/* NESTED UNIT SELECTOR */}
+                        <AnimatePresence>
                         {showUnitSelector && (
-                            <div className="selector-subsheet">
+                            <motion.div
+                                className="selector-subsheet"
+                                initial={{ y: "100%" }}
+                                animate={{ y: 0 }}
+                                exit={{ y: "100%" }}
+                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.28 }}
+                                drag="y"
+                                dragListener={false}
+                                dragControls={dragControlsUnit}
+                                dragConstraints={{ top: 0 }}
+                                dragElastic={{ top: 0, bottom: 0.6 }}
+                                onDragEnd={(e, info) => {
+                                    if (info.offset.y > 80 || info.velocity.y > 300) {
+                                        setShowUnitSelector(false);
+                                    }
+                                }}
+                            >
+                                <div
+                                    style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "4px", cursor: "grab", touchAction: "none" }}
+                                    onPointerDown={(e) => dragControlsUnit.start(e)}
+                                    onClick={() => setShowUnitSelector(false)}
+                                >
+                                    <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                                </div>
                                 <div className="article-drawer-header">
                                     <button type="button" className="drawer-round-btn" onClick={() => setShowUnitSelector(false)}>
-                                        <ArrowLeft size={20} />
+                                        <X size={18} />
                                     </button>
                                     <h2>Unité de facturation</h2>
-                                    <button type="button" className="drawer-round-btn" style={{ opacity: 0 }} />
+                                    <div style={{ width: 34 }}></div>
                                 </div>
                                 <div className="selector-options-list">
                                     {[
@@ -776,18 +918,20 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
-                    </div>
-                </div>,
-                document.body
+                        </AnimatePresence>
+                    </motion.div>
+                </motion.div>
             )}
-        </>
+        </AnimatePresence>,
+        document.body
     );
 }
 
 function QuoteEditPanel({ quote, onClose, onSave }) {
     const { company } = useUser();
+    const dragControls = useDragControls();
     const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 768 : false);
 
     useEffect(() => {
@@ -1504,14 +1648,23 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                 exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
                 transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
                 drag={isMobile ? "y" : false}
+                dragListener={false}
+                dragControls={dragControls}
                 dragConstraints={{ top: 0 }}
-                dragElastic={{ top: 0, bottom: 0.8 }}
+                dragElastic={{ top: 0, bottom: 0.6 }}
                 onDragEnd={(e, info) => {
-                    if (info.offset.y > 80) onClose();
+                    if (isMobile && (info.offset.y > 100 || info.velocity.y > 300)) onClose();
                 }}
             >
                 {/* Mobile Drag Handle */}
-                {isMobile && <div className="mobile-drawer-drag-handle" style={{ width: 40, height: 4, background: "rgba(0,0,0,0.18)", borderRadius: 3, margin: "8px auto 4px auto" }} />}
+                {isMobile && (
+                    <div
+                        style={{ display: "flex", justifyContent: "center", width: "100%", paddingTop: "12px", paddingBottom: "8px", cursor: "grab", touchAction: "none" }}
+                        onPointerDown={(e) => isMobile && dragControls.start(e)}
+                    >
+                        <div style={{ width: "38px", height: "4px", backgroundColor: "var(--border, #CBD5E1)", borderRadius: "2px" }} />
+                    </div>
+                )}
 
                 {/* LEFT Panel */}
                 <div className="fp-edit-panel fp-detail-left">
@@ -1559,8 +1712,17 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                                 <span className="fp-edit-field-label">Date du devis</span>
                                 <input
                                     type="date"
+                                    min="1900-01-01"
+                                    max="2099-12-31"
                                     value={q.date || ""}
-                                    onChange={e => setQ(p => ({ ...p, date: e.target.value }))}
+                                    onChange={e => {
+                                        const v = e.target.value;
+                                        if (v) {
+                                            const yearStr = v.split("-")[0];
+                                            if (yearStr && yearStr.length > 4) return;
+                                        }
+                                        setQ(p => ({ ...p, date: v }));
+                                    }}
                                     style={{ border: "none", background: "transparent", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)", cursor: "pointer", outline: "none" }}
                                 />
                             </div>
@@ -1628,8 +1790,17 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                                     </div>
                                     <input
                                         type="date"
+                                        min="1900-01-01"
+                                        max="2099-12-31"
                                         value={q.deliveryDate || ""}
-                                        onChange={e => setQ(p => ({ ...p, deliveryDate: e.target.value }))}
+                                        onChange={e => {
+                                            const v = e.target.value;
+                                            if (v) {
+                                                const yearStr = v.split("-")[0];
+                                                if (yearStr && yearStr.length > 4) return;
+                                            }
+                                            setQ(p => ({ ...p, deliveryDate: v }));
+                                        }}
                                         style={{ border: "none", background: "transparent", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)", cursor: "pointer", outline: "none", width: "100%" }}
                                     />
                                 </div>
@@ -1722,6 +1893,7 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
             )}
 
             {/* Article editor drawer */}
+            <AnimatePresence>
             {showArticleEditor && (
                 <ArticleEditorDrawer
                     line={editingLine}
@@ -1729,6 +1901,9 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                     onClose={() => setShowArticleEditor(false)}
                 />
             )}
+            </AnimatePresence>
+
+            <AnimatePresence>
             {showEcheancePicker && (
                 <EcheancePickerModal
                     selectedOptionId={q.echeanceOptionId}
@@ -1739,6 +1914,7 @@ function QuoteEditPanel({ quote, onClose, onSave }) {
                     onClose={() => setShowEcheancePicker(false)}
                 />
             )}
+            </AnimatePresence>
         </motion.div>
     );
 }

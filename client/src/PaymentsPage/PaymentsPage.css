@@ -667,29 +667,37 @@
     }
 
     /* Mobile transaction cards */
-    .payments-table-card {
-        background: transparent;
-        border: none;
-        box-shadow: none;
+    .payments-table-card,
+    .dark .payments-table-card,
+    :root.dark .payments-table-card {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
     }
 
     .payments-table {
-        display: none;
+        display: none !important;
     }
 
     .payments-mobile-cards {
         display: flex;
         flex-direction: column;
         gap: 10px;
-        padding-bottom: 12px;
+        padding-bottom: 0;
     }
 
     .payments-mobile-cards:last-child {
-        padding-bottom: calc(90px + env(safe-area-inset-bottom, 20px));
+        padding-bottom: calc(100px + env(safe-area-inset-bottom, 24px)) !important;
     }
 
     .payments-load-more-container {
-        padding: 6px 0 calc(90px + env(safe-area-inset-bottom, 20px)) 0;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 16px 0 calc(100px + env(safe-area-inset-bottom, 24px)) 0 !important;
     }
 
     .payments-load-more-btn {

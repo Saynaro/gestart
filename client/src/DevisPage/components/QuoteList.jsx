@@ -33,17 +33,34 @@ function QuoteList({
     onDeleteQuote
 }) {
     const [activeMenuId, setActiveMenuId] = useState(null);
+    const [menuFlipUp, setMenuFlipUp] = useState(false);
 
-    // Close menu when clicking anywhere on the document
+    // Close menu when clicking outside OR scrolling anywhere
     useEffect(() => {
-        const handleClickOutside = () => setActiveMenuId(null);
-        window.addEventListener("click", handleClickOutside);
-        return () => window.removeEventListener("click", handleClickOutside);
-    }, []);
+        if (!activeMenuId) return;
+        const handleClose = () => setActiveMenuId(null);
+        window.addEventListener("click", handleClose);
+        window.addEventListener("scroll", handleClose, true);
+        window.addEventListener("touchmove", handleClose, { passive: true });
+        return () => {
+            window.removeEventListener("click", handleClose);
+            window.removeEventListener("scroll", handleClose, true);
+            window.removeEventListener("touchmove", handleClose);
+        };
+    }, [activeMenuId]);
 
     const toggleMenu = (e, id) => {
         e.stopPropagation();
-        setActiveMenuId(prev => (prev === id ? null : id));
+        if (activeMenuId === id) {
+            setActiveMenuId(null);
+            return;
+        }
+        const rect = e.currentTarget.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        // If less than 360px below or in lower half of screen, flip up
+        const shouldFlip = spaceBelow < 360 || rect.bottom > window.innerHeight * 0.52;
+        setMenuFlipUp(shouldFlip);
+        setActiveMenuId(id);
     };
 
     if (loading && (!quotes || quotes.length === 0)) {
@@ -112,11 +129,16 @@ function QuoteList({
 
     return (
         <div className="dv-quote-list">
-            {quotes.map(q => (
+            {quotes.map(q => {
+                const isSigned = (q.status || "").toUpperCase() === "ACCEPTED" || (q.status || "").toUpperCase() === "SIGNED" || (q.status || "").toUpperCase() === "SIGNÉ" || Boolean(q.signedAt || q.signature);
+                const isLinkedToInvoice = Boolean(q.invoiceId || q.linkedInvoice || q.linkedFacture || (q.amountFactured && q.amountFactured > 0));
+                const canEdit = !isSigned && !isLinkedToInvoice && Boolean(onEdit);
+
+                return (
                 <div
                     key={q.id}
                     className={`dv-quote-card ${activeMenuId === q.id ? "menu-open" : ""}`}
-                    style={{ zIndex: activeMenuId === q.id ? 80 : undefined }}
+                    style={{ zIndex: activeMenuId === q.id ? 1005 : undefined }}
                     onClick={() => onRowClick(q)}
                     role="button"
                     tabIndex={0}
@@ -147,7 +169,7 @@ function QuoteList({
                             </button>
 
                             {activeMenuId === q.id && (
-                                <div className="dv-dots-menu dv-card-menu-dropdown" onClick={e => e.stopPropagation()}>
+                                <div className={`dv-dots-menu dv-card-menu-dropdown ${menuFlipUp ? "dv-menu-flip-up" : ""}`} onClick={e => e.stopPropagation()}>
                                     <button
                                         type="button"
                                         className="dv-dots-menu-item"
@@ -160,7 +182,7 @@ function QuoteList({
                                         <Send size={14} /> Envoyer le devis
                                     </button>
 
-                                    {(q.status || "").toUpperCase() !== "ACCEPTED" && onEdit && (
+                                    {canEdit && (
                                         <button
                                             type="button"
                                             className="dv-dots-menu-item"
@@ -174,7 +196,7 @@ function QuoteList({
                                         </button>
                                     )}
 
-                                    {!Boolean(q.invoiceId || q.linkedInvoice || q.linkedFacture || (q.amountFactured && q.amountFactured > 0)) && onConvertToInvoice && (
+                                    {!isLinkedToInvoice && onConvertToInvoice && (
                                         <button
                                             type="button"
                                             className="dv-dots-menu-item"
@@ -200,7 +222,7 @@ function QuoteList({
                                         <Download size={14} /> Télécharger PDF
                                     </button>
 
-                                    {onCustomise && q.status !== "ACCEPTED" && (
+                                    {onCustomise && !isSigned && (
                                         <button
                                             type="button"
                                             className="dv-dots-menu-item"
@@ -214,7 +236,7 @@ function QuoteList({
                                         </button>
                                     )}
 
-                                    {q.status !== "REFUSED" && q.status !== "ACCEPTED" && onRejectQuote && (
+                                    {q.status !== "REFUSED" && !isSigned && onRejectQuote && (
                                         <button
                                             type="button"
                                             className="dv-dots-menu-item dv-danger-item"
@@ -258,7 +280,8 @@ function QuoteList({
                         </span>
                     </div>
                 </div>
-            ))}
+                );
+            })}
         </div>
     );
 }
